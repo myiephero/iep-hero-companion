@@ -26,10 +26,43 @@ function App() {
   return (
     <Router>
       <div className="min-h-screen bg-gray-50">
+        {/* Navigation Bar */}
+        <nav className="bg-white shadow-sm border-b border-gray-200">
+          <div className="max-w-6xl mx-auto px-4">
+            <div className="flex justify-between items-center h-16">
+              <div className="flex items-center space-x-8">
+                <h1 className="text-xl font-bold text-gray-900">My IEP Hero</h1>
+                <div className="hidden md:flex space-x-6">
+                  <a 
+                    href="/" 
+                    className="text-gray-600 hover:text-gray-900 px-3 py-2 text-sm font-medium"
+                  >
+                    Home
+                  </a>
+                  <a 
+                    href="/gifted" 
+                    className="text-gray-600 hover:text-gray-900 px-3 py-2 text-sm font-medium"
+                  >
+                    Gifted Snapshot
+                  </a>
+                </div>
+              </div>
+              <div className="flex items-center">
+                {healthStatus && (
+                  <div className={`px-3 py-1 rounded-full text-xs font-medium ${
+                    healthStatus.ok ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
+                  }`}>
+                    {healthStatus.ok ? '● Online' : '● Offline'}
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+        </nav>
+
         <Routes>
           <Route path="/" element={<Home healthStatus={healthStatus} />} />
-          {/* Gifted Snapshot route will be added here */}
-          <Route path="/gifted/snapshot" element={<div className="p-8 text-center">Gifted Snapshot - Coming Soon!</div>} />
+          <Route path="/gifted" element={<GiftedDashboard />} />
         </Routes>
       </div>
     </Router>

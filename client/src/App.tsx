@@ -2,6 +2,7 @@ import { BrowserRouter as Router, Routes, Route } from 'react-router-dom'
 import { useEffect, useState } from 'react'
 import axios from 'axios'
 import Home from './components/Home'
+import GiftedDashboard from './pages/GiftedDashboard'
 
 function App() {
   const [healthStatus, setHealthStatus] = useState<any>(null)

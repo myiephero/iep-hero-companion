@@ -457,6 +457,9 @@ router.get('/students', requireAuth, async (req: Request, res: Response) => {
   }
 });
 
+  return router;
+};
+
 // Add auth token and supabase to Request interface
 declare global {
   namespace Express {
@@ -467,4 +470,4 @@ declare global {
   }
 }
 
-export default router;
+export default createGiftedRouter;

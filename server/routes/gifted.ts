@@ -1,27 +1,29 @@
 import { Router, Request, Response } from 'express';
 import { createClient } from '@supabase/supabase-js';
 
-const router = Router();
+// Create router function that will be called after env vars are loaded
+const createGiftedRouter = () => {
+  const router = Router();
 
-// Initialize Supabase clients
-const supabaseUrl = process.env.SUPABASE_URL!;
-const supabaseAnonKey = process.env.SUPABASE_ANON_KEY!;
-const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY!;
+  // Initialize Supabase clients
+  const supabaseUrl = process.env.SUPABASE_URL!;
+  const supabaseAnonKey = process.env.SUPABASE_ANON_KEY!;
+  const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY!;
 
-// For user operations (with RLS)
-const createUserSupabase = (authToken: string) => {
-  const supabase = createClient(supabaseUrl, supabaseAnonKey, {
-    global: {
-      headers: {
-        Authorization: `Bearer ${authToken}`,
+  // For user operations (with RLS)
+  const createUserSupabase = (authToken: string) => {
+    const supabase = createClient(supabaseUrl, supabaseAnonKey, {
+      global: {
+        headers: {
+          Authorization: `Bearer ${authToken}`,
+        },
       },
-    },
-  });
-  return supabase;
-};
+    });
+    return supabase;
+  };
 
-// For admin operations (bypass RLS when needed)
-const supabaseAdmin = createClient(supabaseUrl, supabaseServiceKey);
+  // For admin operations (bypass RLS when needed)
+  const supabaseAdmin = createClient(supabaseUrl, supabaseServiceKey);
 
 // Middleware to extract auth token
 const requireAuth = (req: Request, res: Response, next: any) => {

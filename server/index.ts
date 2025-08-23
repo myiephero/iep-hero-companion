@@ -65,7 +65,7 @@ app.get('/api', (req, res) => {
 });
 
 // Mount gifted routes
-app.use('/api/gifted', giftedRouter);
+app.use('/api/gifted', createGiftedRouter());
 
 // Serve static files from public directory
 app.use(express.static(path.join(__dirname, 'public')));

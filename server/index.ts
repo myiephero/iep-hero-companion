@@ -5,7 +5,7 @@ import morgan from 'morgan';
 import path from 'path';
 import { createClient } from '@supabase/supabase-js';
 import dotenv from 'dotenv';
-import giftedRouter from './routes/gifted';
+import createGiftedRouter from './routes/gifted';
 
 // Load environment variables
 dotenv.config();

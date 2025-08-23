@@ -64,6 +64,9 @@ app.get('/api', (req, res) => {
   res.json({ message: 'Gifted Snapshot API Server' });
 });
 
+// Mount gifted routes
+app.use('/api/gifted', giftedRouter);
+
 // Serve static files from public directory
 app.use(express.static(path.join(__dirname, 'public')));
 

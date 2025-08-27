@@ -272,7 +272,7 @@ async def get_students(current_user: User = Depends(get_current_user)):
 @api_router.post("/advocate-profile", response_model=AdvocateProfile)
 async def create_advocate_profile(profile_data: AdvocateProfileCreate, current_user: User = Depends(get_current_user)):
     if current_user.role not in [UserRole.ADVOCATE, UserRole.ADMIN]:
-        raise HTTPException(status_code=403, "Only advocates and admins can create advocate profiles")
+        raise HTTPException(status_code=403, detail="Only advocates and admins can create advocate profiles")
     
     profile = AdvocateProfile(
         id=current_user.id,
@@ -300,13 +300,13 @@ async def suggest_matches(request: MatchSuggestRequest, current_user: User = Dep
     # Get student
     student_doc = await db.students.find_one({"id": request.student_id})
     if not student_doc:
-        raise HTTPException(status_code=404, "Student not found")
+        raise HTTPException(status_code=404, detail="Student not found")
     
     student = Student(**student_doc)
     
     # Check permissions
     if current_user.role == UserRole.PARENT and student.parent_id != current_user.id:
-        raise HTTPException(status_code=403, "Can only suggest matches for your own students")
+        raise HTTPException(status_code=403, detail="Can only suggest matches for your own students")
     
     # Get all advocate profiles
     advocates_docs = await db.advocate_profiles.find().to_list(length=None)
@@ -339,13 +339,13 @@ async def propose_matches(request: MatchProposeRequest, current_user: User = Dep
     # Get student
     student_doc = await db.students.find_one({"id": request.student_id})
     if not student_doc:
-        raise HTTPException(status_code=404, "Student not found")
+        raise HTTPException(status_code=404, detail="Student not found")
     
     student = Student(**student_doc)
     
     # Check permissions
     if current_user.role == UserRole.PARENT and student.parent_id != current_user.id:
-        raise HTTPException(status_code=403, "Can only propose matches for your own students")
+        raise HTTPException(status_code=403, detail="Can only propose matches for your own students")
     
     created_proposals = []
     
@@ -434,21 +434,21 @@ async def request_intro(proposal_id: str, intro_data: IntroRequest, current_user
     # Get proposal
     proposal_doc = await db.match_proposals.find_one({"id": proposal_id})
     if not proposal_doc:
-        raise HTTPException(status_code=404, "Proposal not found")
+        raise HTTPException(status_code=404, detail="Proposal not found")
     
     proposal = MatchProposal(**proposal_doc)
     
     # Check permissions
     student_doc = await db.students.find_one({"id": proposal.student_id})
     if not student_doc:
-        raise HTTPException(status_code=404, "Student not found")
+        raise HTTPException(status_code=404, detail="Student not found")
     
     student = Student(**student_doc)
     
     if current_user.role == UserRole.PARENT and student.parent_id != current_user.id:
-        raise HTTPException(status_code=403, "Not authorized for this proposal")
+        raise HTTPException(status_code=403, detail="Not authorized for this proposal")
     elif current_user.role == UserRole.ADVOCATE and proposal.advocate_id != current_user.id:
-        raise HTTPException(status_code=403, "Not authorized for this proposal")
+        raise HTTPException(status_code=403, detail="Not authorized for this proposal")
     
     # Create intro call record
     intro_call = IntroCall(
@@ -504,13 +504,13 @@ async def accept_proposal(proposal_id: str, current_user: User = Depends(get_cur
     # Get proposal
     proposal_doc = await db.match_proposals.find_one({"id": proposal_id})
     if not proposal_doc:
-        raise HTTPException(status_code=404, "Proposal not found")
+        raise HTTPException(status_code=404, detail="Proposal not found")
     
     proposal = MatchProposal(**proposal_doc)
     
     # Only advocate can accept
     if current_user.role != UserRole.ADVOCATE or proposal.advocate_id != current_user.id:
-        raise HTTPException(status_code=403, "Only the addressed advocate can accept")
+        raise HTTPException(status_code=403, detail="Only the addressed advocate can accept")
     
     # Update proposal status
     await db.match_proposals.update_one(
@@ -546,13 +546,13 @@ async def decline_proposal(proposal_id: str, current_user: User = Depends(get_cu
     # Get proposal
     proposal_doc = await db.match_proposals.find_one({"id": proposal_id})
     if not proposal_doc:
-        raise HTTPException(status_code=404, "Proposal not found")
+        raise HTTPException(status_code=404, detail="Proposal not found")
     
     proposal = MatchProposal(**proposal_doc)
     
     # Only advocate can decline
     if current_user.role != UserRole.ADVOCATE or proposal.advocate_id != current_user.id:
-        raise HTTPException(status_code=403, "Only the addressed advocate can decline")
+        raise HTTPException(status_code=403, detail="Only the addressed advocate can decline")
     
     # Update proposal status
     await db.match_proposals.update_one(

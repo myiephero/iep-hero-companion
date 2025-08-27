@@ -408,7 +408,7 @@ async def get_my_matches(current_user: User = Depends(get_current_user)):
         # Get all proposals
         query = {}
     else:
-        raise HTTPException(status_code=403, "Access denied")
+        raise HTTPException(status_code=403, detail="Access denied")
     
     proposals_docs = await db.match_proposals.find(query).sort("created_at", -1).to_list(length=None)
     proposals = [MatchProposal(**doc) for doc in proposals_docs]

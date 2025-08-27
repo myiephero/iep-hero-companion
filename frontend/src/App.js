@@ -685,7 +685,7 @@ function App() {
 
 // Wrapper component for MatchFinder to get studentId from URL
 const MatchFinderWrapper = () => {
-  const { studentId } = require("react-router-dom").useParams();
+  const { studentId } = useParams();
   return <MatchFinder studentId={studentId} />;
 };
 

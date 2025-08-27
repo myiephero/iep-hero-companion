@@ -58,7 +58,7 @@ function calculateJaccardSimilarity(set1: string[], set2: string[]): number {
 
 // Helper function to extract tags using OpenAI
 async function extractTags(narrative: string): Promise<string[]> {
-  if (!narrative || !process.env.OPENAI_API_KEY) {
+  if (!narrative || !openai) {
     return [];
   }
 

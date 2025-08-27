@@ -263,7 +263,7 @@ async def get_students(current_user: User = Depends(get_current_user)):
     elif current_user.role == UserRole.ADMIN:
         query = {}
     else:
-        raise HTTPException(status_code=403, "Access denied")
+        raise HTTPException(status_code=403, detail="Access denied")
     
     students = await db.students.find(query).to_list(length=None)
     return [Student(**student) for student in students]

@@ -246,7 +246,7 @@ async def root():
 @api_router.post("/students", response_model=Student)
 async def create_student(student_data: StudentCreate, current_user: User = Depends(get_current_user)):
     if current_user.role not in [UserRole.PARENT, UserRole.ADMIN]:
-        raise HTTPException(status_code=403, "Only parents and admins can create students")
+        raise HTTPException(status_code=403, detail="Only parents and admins can create students")
     
     student = Student(
         parent_id=current_user.id,

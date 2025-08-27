@@ -278,7 +278,7 @@ router.post('/propose', async (req: Request, res: Response) => {
 
     // Extract tags from narrative if available
     let extractedTags: string[] = [];
-    if (student.narrative && process.env.OPENAI_API_KEY) {
+    if (student.narrative && openai) {
       extractedTags = await extractTags(student.narrative);
       
       // Merge extracted tags with existing needs

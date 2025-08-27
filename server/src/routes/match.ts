@@ -10,10 +10,10 @@ const supabase = createClient(
   process.env.SUPABASE_ANON_KEY || 'mock-key'
 );
 
-// Initialize OpenAI client
-const openai = new OpenAI({
+// Initialize OpenAI client (optional)
+const openai = process.env.OPENAI_API_KEY ? new OpenAI({
   apiKey: process.env.OPENAI_API_KEY
-});
+}) : null;
 
 // Matching algorithm weights
 const MATCHING_WEIGHTS = {

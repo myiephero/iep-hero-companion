@@ -2,6 +2,7 @@ import { Link } from "react-router-dom";
 import { DashboardLayout } from "@/layouts/DashboardLayout";
 import { StatCard } from "@/components/StatCard";
 import { ProgressSteps } from "@/components/ProgressSteps";
+import { DocumentUpload } from "@/components/DocumentUpload";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -34,7 +35,8 @@ import {
   DollarSign,
   UserPlus,
   ChevronRight,
-  TrendingDown
+  TrendingDown,
+  Brain
 } from "lucide-react";
 
 const ParentDashboard = () => {
@@ -604,6 +606,11 @@ const ParentDashboard = () => {
             </Card>
           </div>
         </div>
+
+        {/* AI Document Upload & Analysis */}
+        <DocumentUpload onAnalysisComplete={(analysis) => {
+          console.log('Analysis completed:', analysis);
+        }} />
 
         {/* Recent Documents */}
         <Card className="bg-gradient-card border-0">

@@ -4,7 +4,7 @@ import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
-import { useAuth } from "@/hooks/useAuth";
+import { AuthProvider } from "@/hooks/useAuth";
 import Index from "./pages/Index";
 import Auth from "./pages/Auth";
 import ParentDashboard from "./pages/ParentDashboard";
@@ -34,44 +34,46 @@ function App() {
       <TooltipProvider>
         <Toaster />
         <Sonner />
-        <BrowserRouter>
-          <Routes>
-            <Route path="/" element={<Index />} />
-            <Route path="/auth" element={<Auth />} />
-            
-            {/* Parent Routes */}
-            <Route path="/parent/dashboard" element={<ParentDashboard />} />
-            <Route path="/parent/meeting-prep" element={<ParentMeetingPrep />} />
-            
-            {/* Advocate Routes */}
-            <Route path="/advocate/dashboard" element={<AdvocateDashboard />} />
-            <Route path="/advocate/messages" element={<AdvocateMessages />} />
-            <Route path="/advocate/schedule" element={<AdvocateSchedule />} />
-            
-            {/* Tools Routes */}
-            <Route path="/tools/hub" element={<ToolsHub />} />
-            <Route path="/tools/document-vault" element={<DocumentVault />} />
-            <Route path="/tools/iep-review" element={<IEPReview />} />
-            <Route path="/tools/ai-iep-review" element={<AIIEPReview />} />
-            <Route path="/tools/autism-accommodations" element={<AutismAccommodations />} />
-            <Route path="/tools/smart-letter" element={<SmartLetterGenerator />} />
-            <Route path="/tools/meeting-prep" element={<MeetingPrepWizard />} />
-            
-            {/* Profile & Settings */}
-            <Route path="/profile" element={<Profile />} />
-            <Route path="/settings" element={<Settings />} />
-            
-            {/* Student Management */}
-            <Route path="/students" element={<StudentProfiles />} />
-            
-            {/* Premium & Upsell */}
-            <Route path="/upsell/hero-plan" element={<HeroPlan />} />
-            <Route path="/advocates" element={<AdvocateDiscovery />} />
-            
-            {/* 404 */}
-            <Route path="*" element={<NotFound />} />
-          </Routes>
-        </BrowserRouter>
+        <AuthProvider>
+          <BrowserRouter>
+            <Routes>
+              <Route path="/" element={<Index />} />
+              <Route path="/auth" element={<Auth />} />
+              
+              {/* Parent Routes */}
+              <Route path="/parent/dashboard" element={<ParentDashboard />} />
+              <Route path="/parent/meeting-prep" element={<ParentMeetingPrep />} />
+              
+              {/* Advocate Routes */}
+              <Route path="/advocate/dashboard" element={<AdvocateDashboard />} />
+              <Route path="/advocate/messages" element={<AdvocateMessages />} />
+              <Route path="/advocate/schedule" element={<AdvocateSchedule />} />
+              
+              {/* Tools Routes */}
+              <Route path="/tools/hub" element={<ToolsHub />} />
+              <Route path="/tools/document-vault" element={<DocumentVault />} />
+              <Route path="/tools/iep-review" element={<IEPReview />} />
+              <Route path="/tools/ai-iep-review" element={<AIIEPReview />} />
+              <Route path="/tools/autism-accommodations" element={<AutismAccommodations />} />
+              <Route path="/tools/smart-letter" element={<SmartLetterGenerator />} />
+              <Route path="/tools/meeting-prep" element={<MeetingPrepWizard />} />
+              
+              {/* Profile & Settings */}
+              <Route path="/profile" element={<Profile />} />
+              <Route path="/settings" element={<Settings />} />
+              
+              {/* Student Management */}
+              <Route path="/students" element={<StudentProfiles />} />
+              
+              {/* Premium & Upsell */}
+              <Route path="/upsell/hero-plan" element={<HeroPlan />} />
+              <Route path="/advocates" element={<AdvocateDiscovery />} />
+              
+              {/* 404 */}
+              <Route path="*" element={<NotFound />} />
+            </Routes>
+          </BrowserRouter>
+        </AuthProvider>
       </TooltipProvider>
     </QueryClientProvider>
   );

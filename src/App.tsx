@@ -18,6 +18,8 @@ import ParentMeetingPrep from "./pages/ParentMeetingPrep";
 import StudentProfiles from "./pages/StudentProfiles";
 import SmartLetterGenerator from "./pages/SmartLetterGenerator";
 import MeetingPrepWizard from "./pages/MeetingPrepWizard";
+import AdvocateDiscovery from "./pages/AdvocateDiscovery";
+import AIIEPReview from "./pages/AIIEPReview";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -37,10 +39,12 @@ const App = () => (
             <Route path="/parent/meeting-prep" element={<ParentMeetingPrep />} />
             <Route path="/parent/letters" element={<SmartLetterGenerator />} />
             <Route path="/parent/meeting-prep-wizard" element={<MeetingPrepWizard />} />
+            <Route path="/parent/advocates" element={<AdvocateDiscovery />} />
             <Route path="/advocate/dashboard" element={<AdvocateDashboard />} />
             <Route path="/advocate/messages" element={<AdvocateMessages />} />
             <Route path="/advocate/schedule" element={<AdvocateSchedule />} />
             <Route path="/tools/iep-review" element={<IEPReview />} />
+            <Route path="/tools/ai-iep-review" element={<AIIEPReview />} />
             <Route path="/tools/autism-accommodations" element={<AutismAccommodations />} />
             <Route path="/upsell/hero-plan" element={<HeroPlan />} />
             <Route path="/settings" element={<Settings />} />

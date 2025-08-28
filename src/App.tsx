@@ -61,8 +61,8 @@ function AppContent() {
     <div className="min-h-screen bg-gradient-to-br from-primary/5 via-background to-secondary/5">
       {user && <TopNavigation />}
       <Routes>
-        <Route path="/auth" element={user ? <Navigate to="/" replace /> : <Auth />} />
-        <Route path="/" element={<ProtectedRoute><Index /></ProtectedRoute>} />
+        <Route path="/auth" element={user ? <Navigate to="/parent/dashboard" replace /> : <Auth />} />
+        <Route path="/" element={<Index />} />
         <Route path="/parent/dashboard" element={<ProtectedRoute><ParentDashboard /></ProtectedRoute>} />
         <Route path="/parent/students" element={<ProtectedRoute><StudentProfiles /></ProtectedRoute>} />
         <Route path="/parent/meeting-prep" element={<ProtectedRoute><ParentMeetingPrep /></ProtectedRoute>} />

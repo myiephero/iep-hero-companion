@@ -528,7 +528,7 @@ const MeetingPrepWizard = () => {
                           Download PDF Prep Sheet
                         </Button>
                         <Button variant="outline" className="w-full">
-                          <Print className="h-4 w-4 mr-2" />
+                          <Printer className="h-4 w-4 mr-2" />
                           Print Version
                         </Button>
                       </div>

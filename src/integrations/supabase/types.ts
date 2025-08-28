@@ -14,7 +14,539 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      accommodations: {
+        Row: {
+          category: string | null
+          created_at: string
+          description: string
+          effectiveness_rating: number | null
+          id: string
+          implementation_notes: string | null
+          status: string | null
+          student_id: string
+          title: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          category?: string | null
+          created_at?: string
+          description: string
+          effectiveness_rating?: number | null
+          id?: string
+          implementation_notes?: string | null
+          status?: string | null
+          student_id: string
+          title: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          category?: string | null
+          created_at?: string
+          description?: string
+          effectiveness_rating?: number | null
+          id?: string
+          implementation_notes?: string | null
+          status?: string | null
+          student_id?: string
+          title?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "accommodations_student_id_fkey"
+            columns: ["student_id"]
+            isOneToOne: false
+            referencedRelation: "students"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      cases: {
+        Row: {
+          advocate_id: string
+          billing_rate: number | null
+          case_title: string
+          case_type: string | null
+          client_id: string
+          created_at: string
+          description: string | null
+          id: string
+          next_action: string | null
+          next_action_date: string | null
+          priority: string | null
+          status: string | null
+          student_id: string | null
+          timeline: Json | null
+          total_hours: number | null
+          updated_at: string
+        }
+        Insert: {
+          advocate_id: string
+          billing_rate?: number | null
+          case_title: string
+          case_type?: string | null
+          client_id: string
+          created_at?: string
+          description?: string | null
+          id?: string
+          next_action?: string | null
+          next_action_date?: string | null
+          priority?: string | null
+          status?: string | null
+          student_id?: string | null
+          timeline?: Json | null
+          total_hours?: number | null
+          updated_at?: string
+        }
+        Update: {
+          advocate_id?: string
+          billing_rate?: number | null
+          case_title?: string
+          case_type?: string | null
+          client_id?: string
+          created_at?: string
+          description?: string | null
+          id?: string
+          next_action?: string | null
+          next_action_date?: string | null
+          priority?: string | null
+          status?: string | null
+          student_id?: string | null
+          timeline?: Json | null
+          total_hours?: number | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "cases_student_id_fkey"
+            columns: ["student_id"]
+            isOneToOne: false
+            referencedRelation: "students"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      documents: {
+        Row: {
+          category: string | null
+          confidential: boolean | null
+          created_at: string
+          description: string | null
+          file_name: string
+          file_path: string
+          file_size: number | null
+          file_type: string | null
+          id: string
+          student_id: string | null
+          tags: string[] | null
+          title: string
+          updated_at: string
+          uploaded_by: string | null
+          user_id: string
+        }
+        Insert: {
+          category?: string | null
+          confidential?: boolean | null
+          created_at?: string
+          description?: string | null
+          file_name: string
+          file_path: string
+          file_size?: number | null
+          file_type?: string | null
+          id?: string
+          student_id?: string | null
+          tags?: string[] | null
+          title: string
+          updated_at?: string
+          uploaded_by?: string | null
+          user_id: string
+        }
+        Update: {
+          category?: string | null
+          confidential?: boolean | null
+          created_at?: string
+          description?: string | null
+          file_name?: string
+          file_path?: string
+          file_size?: number | null
+          file_type?: string | null
+          id?: string
+          student_id?: string | null
+          tags?: string[] | null
+          title?: string
+          updated_at?: string
+          uploaded_by?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "documents_student_id_fkey"
+            columns: ["student_id"]
+            isOneToOne: false
+            referencedRelation: "students"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      goals: {
+        Row: {
+          created_at: string
+          current_progress: number | null
+          data_collection: Json | null
+          description: string
+          goal_type: string | null
+          id: string
+          measurable_criteria: string | null
+          notes: string | null
+          status: string | null
+          student_id: string
+          target_date: string | null
+          title: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          current_progress?: number | null
+          data_collection?: Json | null
+          description: string
+          goal_type?: string | null
+          id?: string
+          measurable_criteria?: string | null
+          notes?: string | null
+          status?: string | null
+          student_id: string
+          target_date?: string | null
+          title: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          current_progress?: number | null
+          data_collection?: Json | null
+          description?: string
+          goal_type?: string | null
+          id?: string
+          measurable_criteria?: string | null
+          notes?: string | null
+          status?: string | null
+          student_id?: string
+          target_date?: string | null
+          title?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "goals_student_id_fkey"
+            columns: ["student_id"]
+            isOneToOne: false
+            referencedRelation: "students"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      letters: {
+        Row: {
+          attachments: Json | null
+          content: string
+          created_at: string
+          id: string
+          recipient: string
+          recipient_email: string | null
+          response_content: string | null
+          response_date: string | null
+          sent_date: string | null
+          status: string | null
+          student_id: string | null
+          subject: string
+          template_type: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          attachments?: Json | null
+          content: string
+          created_at?: string
+          id?: string
+          recipient: string
+          recipient_email?: string | null
+          response_content?: string | null
+          response_date?: string | null
+          sent_date?: string | null
+          status?: string | null
+          student_id?: string | null
+          subject: string
+          template_type: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          attachments?: Json | null
+          content?: string
+          created_at?: string
+          id?: string
+          recipient?: string
+          recipient_email?: string | null
+          response_content?: string | null
+          response_date?: string | null
+          sent_date?: string | null
+          status?: string | null
+          student_id?: string | null
+          subject?: string
+          template_type?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "letters_student_id_fkey"
+            columns: ["student_id"]
+            isOneToOne: false
+            referencedRelation: "students"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      meetings: {
+        Row: {
+          agenda: Json | null
+          attendees: Json | null
+          created_at: string
+          description: string | null
+          duration: number | null
+          follow_up_actions: Json | null
+          id: string
+          location: string | null
+          meeting_type: string | null
+          notes: string | null
+          outcomes: string | null
+          scheduled_date: string
+          status: string | null
+          student_id: string | null
+          title: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          agenda?: Json | null
+          attendees?: Json | null
+          created_at?: string
+          description?: string | null
+          duration?: number | null
+          follow_up_actions?: Json | null
+          id?: string
+          location?: string | null
+          meeting_type?: string | null
+          notes?: string | null
+          outcomes?: string | null
+          scheduled_date: string
+          status?: string | null
+          student_id?: string | null
+          title: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          agenda?: Json | null
+          attendees?: Json | null
+          created_at?: string
+          description?: string | null
+          duration?: number | null
+          follow_up_actions?: Json | null
+          id?: string
+          location?: string | null
+          meeting_type?: string | null
+          notes?: string | null
+          outcomes?: string | null
+          scheduled_date?: string
+          status?: string | null
+          student_id?: string | null
+          title?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "meetings_student_id_fkey"
+            columns: ["student_id"]
+            isOneToOne: false
+            referencedRelation: "students"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      profiles: {
+        Row: {
+          avatar_url: string | null
+          bio: string | null
+          created_at: string
+          email: string | null
+          full_name: string | null
+          id: string
+          organization: string | null
+          phone: string | null
+          role: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          avatar_url?: string | null
+          bio?: string | null
+          created_at?: string
+          email?: string | null
+          full_name?: string | null
+          id?: string
+          organization?: string | null
+          phone?: string | null
+          role?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          avatar_url?: string | null
+          bio?: string | null
+          created_at?: string
+          email?: string | null
+          full_name?: string | null
+          id?: string
+          organization?: string | null
+          phone?: string | null
+          role?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      services: {
+        Row: {
+          created_at: string
+          duration: number | null
+          end_date: string | null
+          frequency: string | null
+          id: string
+          location: string | null
+          notes: string | null
+          provider: string | null
+          service_type: string
+          start_date: string | null
+          status: string | null
+          student_id: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          duration?: number | null
+          end_date?: string | null
+          frequency?: string | null
+          id?: string
+          location?: string | null
+          notes?: string | null
+          provider?: string | null
+          service_type: string
+          start_date?: string | null
+          status?: string | null
+          student_id: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          duration?: number | null
+          end_date?: string | null
+          frequency?: string | null
+          id?: string
+          location?: string | null
+          notes?: string | null
+          provider?: string | null
+          service_type?: string
+          start_date?: string | null
+          status?: string | null
+          student_id?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "services_student_id_fkey"
+            columns: ["student_id"]
+            isOneToOne: false
+            referencedRelation: "students"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      students: {
+        Row: {
+          case_manager: string | null
+          case_manager_email: string | null
+          created_at: string
+          date_of_birth: string | null
+          disability_category: string | null
+          district: string | null
+          emergency_contact: string | null
+          emergency_phone: string | null
+          full_name: string
+          grade_level: string | null
+          id: string
+          iep_date: string | null
+          iep_status: string | null
+          medical_info: string | null
+          next_review_date: string | null
+          notes: string | null
+          school_name: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          case_manager?: string | null
+          case_manager_email?: string | null
+          created_at?: string
+          date_of_birth?: string | null
+          disability_category?: string | null
+          district?: string | null
+          emergency_contact?: string | null
+          emergency_phone?: string | null
+          full_name: string
+          grade_level?: string | null
+          id?: string
+          iep_date?: string | null
+          iep_status?: string | null
+          medical_info?: string | null
+          next_review_date?: string | null
+          notes?: string | null
+          school_name?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          case_manager?: string | null
+          case_manager_email?: string | null
+          created_at?: string
+          date_of_birth?: string | null
+          disability_category?: string | null
+          district?: string | null
+          emergency_contact?: string | null
+          emergency_phone?: string | null
+          full_name?: string
+          grade_level?: string | null
+          id?: string
+          iep_date?: string | null
+          iep_status?: string | null
+          medical_info?: string | null
+          next_review_date?: string | null
+          notes?: string | null
+          school_name?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never

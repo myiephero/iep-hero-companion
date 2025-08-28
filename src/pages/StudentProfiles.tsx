@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { DashboardLayout } from "@/layouts/DashboardLayout";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -7,492 +7,772 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Checkbox } from "@/components/ui/checkbox";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Progress } from "@/components/ui/progress";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { StudentSelector } from "@/components/StudentSelector";
 import { 
   User, 
   Plus, 
   Edit, 
   GraduationCap, 
-  Heart, 
   Target, 
-  Brain, 
   Users, 
   FileText, 
   Calendar,
-  Award,
+  Save,
+  Trash2,
   AlertCircle,
-  CheckCircle,
-  Star,
-  BookOpen,
-  Palette,
-  Music,
-  Gamepad2,
-  Calculator,
-  Globe,
-  Lightbulb
+  CheckCircle
 } from "lucide-react";
-import { Link } from "react-router-dom";
+import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/hooks/useAuth";
+import { useToast } from "@/hooks/use-toast";
+
+interface Student {
+  id: string;
+  full_name: string;
+  date_of_birth: string | null;
+  grade_level: string | null;
+  school_name: string | null;
+  district: string | null;
+  disability_category: string | null;
+  iep_status: string;
+  iep_date: string | null;
+  next_review_date: string | null;
+  case_manager: string | null;
+  case_manager_email: string | null;
+  emergency_contact: string | null;
+  emergency_phone: string | null;
+  medical_info: string | null;
+  notes: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
+interface Goal {
+  id: string;
+  goal_type: string;
+  title: string;
+  description: string;
+  current_progress: number;
+  status: string;
+  target_date: string | null;
+}
+
+interface Service {
+  id: string;
+  service_type: string;
+  provider: string | null;
+  frequency: string | null;
+  duration: number | null;
+  location: string | null;
+  status: string;
+}
+
+interface Accommodation {
+  id: string;
+  category: string;
+  title: string;
+  description: string;
+  status: string;
+}
 
 const StudentProfiles = () => {
-  const [selectedStudent, setSelectedStudent] = useState(0);
+  const [selectedStudentId, setSelectedStudentId] = useState<string | null>(null);
+  const [students, setStudents] = useState<Student[]>([]);
+  const [currentStudent, setCurrentStudent] = useState<Student | null>(null);
+  const [goals, setGoals] = useState<Goal[]>([]);
+  const [services, setServices] = useState<Service[]>([]);
+  const [accommodations, setAccommodations] = useState<Accommodation[]>([]);
+  const [isAddStudentOpen, setIsAddStudentOpen] = useState(false);
+  const [newStudent, setNewStudent] = useState({
+    full_name: "",
+    date_of_birth: "",
+    grade_level: "",
+    school_name: "",
+    district: "",
+    disability_category: "",
+    case_manager: "",
+    case_manager_email: "",
+    emergency_contact: "",
+    emergency_phone: "",
+    medical_info: "",
+    notes: ""
+  });
+  const [loading, setLoading] = useState(false);
   
-  const students = [
-    {
-      id: 1,
-      name: "Emma Thompson",
-      age: 9,
-      grade: "4th Grade",
-      school: "Lincoln Elementary",
-      primaryDisability: "Autism Spectrum Disorder",
-      iepStatus: "Active",
-      lastUpdated: "Oct 5, 2024",
-      photo: "/placeholder-student.jpg",
-      initials: "ET"
-    },
-    {
-      id: 2,
-      name: "Alex Thompson", 
-      age: 12,
-      grade: "7th Grade",
-      school: "Washington Middle School",
-      primaryDisability: "ADHD",
-      iepStatus: "Under Review",
-      lastUpdated: "Sep 28, 2024",
-      photo: "/placeholder-student2.jpg",
-      initials: "AT"
+  const { user } = useAuth();
+  const { toast } = useToast();
+
+  useEffect(() => {
+    if (user) {
+      fetchStudents();
     }
-  ];
+  }, [user]);
 
-  const currentStudent = students[selectedStudent];
-
-  const strengthsData = [
-    { category: "Academic", items: ["Visual Learning", "Math Computation", "Reading Comprehension"] },
-    { category: "Social", items: ["Peer Interaction", "Following Rules", "Turn-Taking"] },
-    { category: "Communication", items: ["Expressive Language", "Following Directions"] },
-    { category: "Motor Skills", items: ["Fine Motor Control", "Gross Motor Coordination"] }
-  ];
-
-  const needsData = [
-    { category: "Academic Support", items: ["Extended Time", "Quiet Environment", "Visual Supports"] },
-    { category: "Behavioral", items: ["Break Cards", "Movement Breaks", "Clear Expectations"] },
-    { category: "Social Skills", items: ["Social Stories", "Peer Mediation", "Group Work Support"] },
-    { category: "Communication", items: ["AAC Device", "Visual Schedule", "Processing Time"] }
-  ];
-
-  const preferences = [
-    { category: "Learning Style", value: "Visual Learner" },
-    { category: "Environment", value: "Quiet, Structured" },
-    { category: "Motivation", value: "Praise, Stickers" },
-    { category: "Interests", value: "Animals, Art, Music" }
-  ];
-
-  const goals = [
-    { 
-      area: "Reading", 
-      goal: "Increase reading fluency to grade level", 
-      progress: 65, 
-      status: "In Progress",
-      dueDate: "Dec 2024"
-    },
-    { 
-      area: "Social Skills", 
-      goal: "Initiate conversations with peers", 
-      progress: 40, 
-      status: "Needs Support",
-      dueDate: "Nov 2024" 
-    },
-    { 
-      area: "Self-Regulation", 
-      goal: "Use coping strategies when frustrated", 
-      progress: 80, 
-      status: "Nearly Met",
-      dueDate: "Oct 2024"
+  useEffect(() => {
+    if (selectedStudentId) {
+      fetchStudentData(selectedStudentId);
     }
-  ];
+  }, [selectedStudentId]);
 
-  const services = [
-    { service: "Speech Therapy", frequency: "2x/week", provider: "Ms. Johnson", status: "Active" },
-    { service: "Occupational Therapy", frequency: "1x/week", provider: "Mr. Davis", status: "Active" },
-    { service: "Counseling", frequency: "1x/month", provider: "Dr. Smith", status: "Active" },
-    { service: "Resource Room", frequency: "Daily", provider: "Mrs. Wilson", status: "Active" }
-  ];
+  const fetchStudents = async () => {
+    if (!user) return;
 
-  const accommodations = [
-    { type: "Testing", description: "Extended time (1.5x)", status: "Approved" },
-    { type: "Environment", description: "Preferential seating", status: "Approved" },
-    { type: "Instruction", description: "Visual supports", status: "Approved" },
-    { type: "Behavioral", description: "Break cards", status: "Pending" }
-  ];
+    try {
+      const { data, error } = await supabase
+        .from("students")
+        .select("*")
+        .eq("user_id", user.id)
+        .order("full_name");
+
+      if (error) throw error;
+      setStudents(data || []);
+      
+      if (data && data.length > 0 && !selectedStudentId) {
+        setSelectedStudentId(data[0].id);
+      }
+    } catch (error: any) {
+      console.error("Error fetching students:", error);
+      toast({
+        title: "Error",
+        description: "Failed to load students. Please try again.",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const fetchStudentData = async (studentId: string) => {
+    if (!user) return;
+
+    try {
+      // Fetch student details
+      const { data: studentData, error: studentError } = await supabase
+        .from("students")
+        .select("*")
+        .eq("id", studentId)
+        .eq("user_id", user.id)
+        .single();
+
+      if (studentError) throw studentError;
+      setCurrentStudent(studentData);
+
+      // Fetch goals
+      const { data: goalsData, error: goalsError } = await supabase
+        .from("goals")
+        .select("*")
+        .eq("student_id", studentId)
+        .eq("user_id", user.id);
+
+      if (goalsError) throw goalsError;
+      setGoals(goalsData || []);
+
+      // Fetch services
+      const { data: servicesData, error: servicesError } = await supabase
+        .from("services")
+        .select("*")
+        .eq("student_id", studentId)
+        .eq("user_id", user.id);
+
+      if (servicesError) throw servicesError;
+      setServices(servicesData || []);
+
+      // Fetch accommodations
+      const { data: accommodationsData, error: accommodationsError } = await supabase
+        .from("accommodations")
+        .select("*")
+        .eq("student_id", studentId)
+        .eq("user_id", user.id);
+
+      if (accommodationsError) throw accommodationsError;
+      setAccommodations(accommodationsData || []);
+
+    } catch (error: any) {
+      console.error("Error fetching student data:", error);
+      toast({
+        title: "Error",
+        description: "Failed to load student data. Please try again.",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const handleAddStudent = async () => {
+    if (!user || !newStudent.full_name) {
+      toast({
+        title: "Error",
+        description: "Student name is required.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setLoading(true);
+    try {
+      const { data, error } = await supabase
+        .from("students")
+        .insert({
+          user_id: user.id,
+          full_name: newStudent.full_name,
+          date_of_birth: newStudent.date_of_birth || null,
+          grade_level: newStudent.grade_level || null,
+          school_name: newStudent.school_name || null,
+          district: newStudent.district || null,
+          disability_category: newStudent.disability_category || null,
+          case_manager: newStudent.case_manager || null,
+          case_manager_email: newStudent.case_manager_email || null,
+          emergency_contact: newStudent.emergency_contact || null,
+          emergency_phone: newStudent.emergency_phone || null,
+          medical_info: newStudent.medical_info || null,
+          notes: newStudent.notes || null
+        })
+        .select()
+        .single();
+
+      if (error) throw error;
+
+      toast({
+        title: "Success",
+        description: "Student added successfully!",
+      });
+
+      setIsAddStudentOpen(false);
+      setNewStudent({
+        full_name: "",
+        date_of_birth: "",
+        grade_level: "",
+        school_name: "",
+        district: "",
+        disability_category: "",
+        case_manager: "",
+        case_manager_email: "",
+        emergency_contact: "",
+        emergency_phone: "",
+        medical_info: "",
+        notes: ""
+      });
+      
+      fetchStudents();
+      setSelectedStudentId(data.id);
+    } catch (error: any) {
+      console.error("Error adding student:", error);
+      toast({
+        title: "Error",
+        description: "Failed to add student. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const updateStudentInfo = async (updates: Partial<Student>) => {
+    if (!user || !currentStudent) return;
+
+    try {
+      const { error } = await supabase
+        .from("students")
+        .update(updates)
+        .eq("id", currentStudent.id)
+        .eq("user_id", user.id);
+
+      if (error) throw error;
+
+      toast({
+        title: "Success",
+        description: "Student information updated successfully!",
+      });
+
+      fetchStudentData(currentStudent.id);
+    } catch (error: any) {
+      console.error("Error updating student:", error);
+      toast({
+        title: "Error",
+        description: "Failed to update student information.",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const getIEPStatusColor = (status: string) => {
+    switch (status.toLowerCase()) {
+      case "active": return "bg-success text-success-foreground";
+      case "review": return "bg-warning text-warning-foreground";
+      case "expired": return "bg-destructive text-destructive-foreground";
+      default: return "bg-muted text-muted-foreground";
+    }
+  };
+
+  const getGoalStatusColor = (status: string) => {
+    switch (status.toLowerCase()) {
+      case "active": return "text-primary";
+      case "completed": return "text-success";
+      case "modified": return "text-warning";
+      default: return "text-muted-foreground";
+    }
+  };
+
+  if (!user) {
+    return <div>Please log in to view student profiles.</div>;
+  }
 
   return (
     <DashboardLayout>
       <div className="space-y-6">
-        {/* Header */}
-        <div className="flex justify-between items-center">
+        <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-3xl font-bold">Student Profiles</h1>
-            <p className="text-muted-foreground">Manage your children's educational profiles and progress</p>
+            <h1 className="text-3xl font-bold tracking-tight">Student Profiles</h1>
+            <p className="text-muted-foreground">
+              Manage comprehensive profiles for all your students
+            </p>
           </div>
-          <Button>
-            <Plus className="h-4 w-4 mr-2" />
-            Add Student
-          </Button>
+          <Dialog open={isAddStudentOpen} onOpenChange={setIsAddStudentOpen}>
+            <DialogTrigger asChild>
+              <Button>
+                <Plus className="h-4 w-4 mr-2" />
+                Add Student
+              </Button>
+            </DialogTrigger>
+            <DialogContent className="max-w-2xl">
+              <DialogHeader>
+                <DialogTitle>Add New Student</DialogTitle>
+                <DialogDescription>
+                  Enter the student's information to create their profile.
+                </DialogDescription>
+              </DialogHeader>
+              <div className="grid grid-cols-2 gap-4 max-h-96 overflow-y-auto">
+                <div className="space-y-2">
+                  <Label htmlFor="full_name">Full Name *</Label>
+                  <Input
+                    id="full_name"
+                    value={newStudent.full_name}
+                    onChange={(e) => setNewStudent(prev => ({ ...prev, full_name: e.target.value }))}
+                    required
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="date_of_birth">Date of Birth</Label>
+                  <Input
+                    id="date_of_birth"
+                    type="date"
+                    value={newStudent.date_of_birth}
+                    onChange={(e) => setNewStudent(prev => ({ ...prev, date_of_birth: e.target.value }))}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="grade_level">Grade Level</Label>
+                  <Input
+                    id="grade_level"
+                    value={newStudent.grade_level}
+                    onChange={(e) => setNewStudent(prev => ({ ...prev, grade_level: e.target.value }))}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="school_name">School Name</Label>
+                  <Input
+                    id="school_name"
+                    value={newStudent.school_name}
+                    onChange={(e) => setNewStudent(prev => ({ ...prev, school_name: e.target.value }))}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="district">District</Label>
+                  <Input
+                    id="district"
+                    value={newStudent.district}
+                    onChange={(e) => setNewStudent(prev => ({ ...prev, district: e.target.value }))}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="disability_category">Disability Category</Label>
+                  <Input
+                    id="disability_category"
+                    value={newStudent.disability_category}
+                    onChange={(e) => setNewStudent(prev => ({ ...prev, disability_category: e.target.value }))}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="case_manager">Case Manager</Label>
+                  <Input
+                    id="case_manager"
+                    value={newStudent.case_manager}
+                    onChange={(e) => setNewStudent(prev => ({ ...prev, case_manager: e.target.value }))}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="case_manager_email">Case Manager Email</Label>
+                  <Input
+                    id="case_manager_email"
+                    type="email"
+                    value={newStudent.case_manager_email}
+                    onChange={(e) => setNewStudent(prev => ({ ...prev, case_manager_email: e.target.value }))}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="emergency_contact">Emergency Contact</Label>
+                  <Input
+                    id="emergency_contact"
+                    value={newStudent.emergency_contact}
+                    onChange={(e) => setNewStudent(prev => ({ ...prev, emergency_contact: e.target.value }))}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="emergency_phone">Emergency Phone</Label>
+                  <Input
+                    id="emergency_phone"
+                    type="tel"
+                    value={newStudent.emergency_phone}
+                    onChange={(e) => setNewStudent(prev => ({ ...prev, emergency_phone: e.target.value }))}
+                  />
+                </div>
+                <div className="col-span-2 space-y-2">
+                  <Label htmlFor="medical_info">Medical Information</Label>
+                  <Textarea
+                    id="medical_info"
+                    value={newStudent.medical_info}
+                    onChange={(e) => setNewStudent(prev => ({ ...prev, medical_info: e.target.value }))}
+                  />
+                </div>
+                <div className="col-span-2 space-y-2">
+                  <Label htmlFor="notes">Notes</Label>
+                  <Textarea
+                    id="notes"
+                    value={newStudent.notes}
+                    onChange={(e) => setNewStudent(prev => ({ ...prev, notes: e.target.value }))}
+                  />
+                </div>
+              </div>
+              <div className="flex justify-end space-x-2">
+                <Button variant="outline" onClick={() => setIsAddStudentOpen(false)}>
+                  Cancel
+                </Button>
+                <Button onClick={handleAddStudent} disabled={loading}>
+                  {loading ? "Adding..." : "Add Student"}
+                </Button>
+              </div>
+            </DialogContent>
+          </Dialog>
         </div>
 
-        {/* Student Selector */}
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Users className="h-5 w-5" />
-              Your Students
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-              {students.map((student, index) => (
-                <div
-                  key={student.id}
-                  onClick={() => setSelectedStudent(index)}
-                  className={`p-4 rounded-lg border cursor-pointer transition-all hover:shadow-md ${
-                    selectedStudent === index ? 'border-primary bg-primary/5' : 'border-muted'
-                  }`}
-                >
-                  <div className="flex items-center gap-3">
-                    <Avatar className="h-12 w-12">
-                      <AvatarImage src={student.photo} />
-                      <AvatarFallback>{student.initials}</AvatarFallback>
-                    </Avatar>
-                    <div className="flex-1">
-                      <h3 className="font-semibold">{student.name}</h3>
-                      <p className="text-sm text-muted-foreground">{student.grade} • {student.school}</p>
-                      <div className="flex items-center gap-2 mt-1">
-                        <Badge variant={student.iepStatus === 'Active' ? 'default' : 'secondary'}>
-                          {student.iepStatus}
-                        </Badge>
-                        <span className="text-xs text-muted-foreground">Updated {student.lastUpdated}</span>
-                      </div>
-                    </div>
+        <StudentSelector
+          selectedStudentId={selectedStudentId}
+          onStudentChange={setSelectedStudentId}
+          onAddStudent={() => setIsAddStudentOpen(true)}
+        />
+
+        {currentStudent && (
+          <div className="grid gap-6">
+            <Card>
+              <CardHeader>
+                <div className="flex items-center space-x-4">
+                  <Avatar className="h-16 w-16">
+                    <AvatarFallback className="text-lg">
+                      {currentStudent.full_name.split(' ').map(n => n[0]).join('')}
+                    </AvatarFallback>
+                  </Avatar>
+                  <div className="flex-1">
+                    <CardTitle className="text-2xl">{currentStudent.full_name}</CardTitle>
+                    <CardDescription className="flex items-center space-x-4 mt-2">
+                      <span>{currentStudent.grade_level ? `Grade ${currentStudent.grade_level}` : 'Grade not specified'}</span>
+                      <span>•</span>
+                      <span>{currentStudent.school_name || 'School not specified'}</span>
+                      <span>•</span>
+                      <Badge className={getIEPStatusColor(currentStudent.iep_status)}>
+                        IEP {currentStudent.iep_status}
+                      </Badge>
+                    </CardDescription>
                   </div>
                 </div>
-              ))}
-            </div>
-          </CardContent>
-        </Card>
-
-        {/* Student Profile Tabs */}
-        <Tabs defaultValue="overview" className="space-y-6">
-          <TabsList className="grid w-full grid-cols-6">
-            <TabsTrigger value="overview">Overview</TabsTrigger>
-            <TabsTrigger value="strengths">Strengths</TabsTrigger>
-            <TabsTrigger value="needs">Needs</TabsTrigger>
-            <TabsTrigger value="goals">Goals</TabsTrigger>
-            <TabsTrigger value="services">Services</TabsTrigger>
-            <TabsTrigger value="accommodations">Accommodations</TabsTrigger>
-          </TabsList>
-
-          {/* Overview Tab */}
-          <TabsContent value="overview" className="space-y-6">
-            <div className="grid gap-6 lg:grid-cols-3">
-              <Card className="lg:col-span-2">
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <User className="h-5 w-5" />
-                    Student Information
-                  </CardTitle>
-                  <CardDescription>Basic profile information for {currentStudent.name}</CardDescription>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  <div className="grid grid-cols-2 gap-4">
-                    <div>
-                      <Label>Full Name</Label>
-                      <Input value={currentStudent.name} readOnly />
-                    </div>
-                    <div>
-                      <Label>Age</Label>
-                      <Input value={currentStudent.age} readOnly />
-                    </div>
-                    <div>
-                      <Label>Grade</Label>
-                      <Input value={currentStudent.grade} readOnly />
-                    </div>
-                    <div>
-                      <Label>School</Label>
-                      <Input value={currentStudent.school} readOnly />
-                    </div>
-                    <div>
-                      <Label>Primary Disability</Label>
-                      <Input value={currentStudent.primaryDisability} readOnly />
-                    </div>
-                    <div>
-                      <Label>IEP Status</Label>
-                      <div className="pt-2">
-                        <Badge variant={currentStudent.iepStatus === 'Active' ? 'default' : 'secondary'}>
-                          {currentStudent.iepStatus}
-                        </Badge>
-                      </div>
-                    </div>
-                  </div>
-                  <Button variant="outline" className="w-full">
-                    <Edit className="h-4 w-4 mr-2" />
-                    Edit Profile Information
-                  </Button>
-                </CardContent>
-              </Card>
-
-              <div className="space-y-6">
-                <Card>
-                  <CardHeader>
-                    <CardTitle className="flex items-center gap-2">
-                      <Heart className="h-5 w-5 text-red-500" />
-                      Learning Preferences
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent className="space-y-3">
-                    {preferences.map((pref, index) => (
-                      <div key={index} className="flex justify-between">
-                        <span className="text-sm font-medium">{pref.category}:</span>
-                        <span className="text-sm text-muted-foreground">{pref.value}</span>
-                      </div>
-                    ))}
-                  </CardContent>
-                </Card>
-
-                <Card>
-                  <CardHeader>
-                    <CardTitle className="flex items-center gap-2">
-                      <Brain className="h-5 w-5 text-purple-500" />
-                      Quick Actions
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent className="space-y-2">
-                    <Button asChild variant="outline" className="w-full justify-start">
-                      <Link to="/tools/iep-review">
-                        <FileText className="h-4 w-4 mr-2" />
-                        Review IEP
-                      </Link>
-                    </Button>
-                    <Button asChild variant="outline" className="w-full justify-start">
-                      <Link to="/parent/meeting-prep">
-                        <Calendar className="h-4 w-4 mr-2" />
-                        Prep Meeting
-                      </Link>
-                    </Button>
-                    <Button asChild variant="outline" className="w-full justify-start">
-                      <Link to="/tools/autism-accommodations">
-                        <Target className="h-4 w-4 mr-2" />
-                        Build Accommodations
-                      </Link>
-                    </Button>
-                  </CardContent>
-                </Card>
-              </div>
-            </div>
-          </TabsContent>
-
-          {/* Strengths Tab */}
-          <TabsContent value="strengths">
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Star className="h-5 w-5 text-yellow-500" />
-                  Student Strengths
-                </CardTitle>
-                <CardDescription>
-                  Identify and track {currentStudent.name}'s strengths across different areas
-                </CardDescription>
               </CardHeader>
-              <CardContent>
-                <div className="grid gap-6 md:grid-cols-2">
-                  {strengthsData.map((category, index) => (
-                    <div key={index} className="space-y-3">
-                      <h3 className="font-semibold flex items-center gap-2">
-                        {category.category === 'Academic' && <BookOpen className="h-4 w-4" />}
-                        {category.category === 'Social' && <Users className="h-4 w-4" />}
-                        {category.category === 'Communication' && <Globe className="h-4 w-4" />}
-                        {category.category === 'Motor Skills' && <Gamepad2 className="h-4 w-4" />}
-                        {category.category}
-                      </h3>
-                      <div className="space-y-2">
-                        {category.items.map((item, itemIndex) => (
-                          <div key={itemIndex} className="flex items-center gap-2 p-2 bg-green-50 rounded-lg">
-                            <CheckCircle className="h-4 w-4 text-green-600" />
-                            <span className="text-sm">{item}</span>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                  ))}
-                </div>
-                <Button className="mt-6">
-                  <Plus className="h-4 w-4 mr-2" />
-                  Add New Strength
-                </Button>
-              </CardContent>
             </Card>
-          </TabsContent>
 
-          {/* Needs Tab */}
-          <TabsContent value="needs">
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Target className="h-5 w-5 text-blue-500" />
-                  Student Needs
-                </CardTitle>
-                <CardDescription>
-                  Document support needs and accommodations for {currentStudent.name}
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="grid gap-6 md:grid-cols-2">
-                  {needsData.map((category, index) => (
-                    <div key={index} className="space-y-3">
-                      <h3 className="font-semibold flex items-center gap-2">
-                        {category.category === 'Academic Support' && <Calculator className="h-4 w-4" />}
-                        {category.category === 'Behavioral' && <Brain className="h-4 w-4" />}
-                        {category.category === 'Social Skills' && <Users className="h-4 w-4" />}
-                        {category.category === 'Communication' && <Globe className="h-4 w-4" />}
-                        {category.category}
-                      </h3>
-                      <div className="space-y-2">
-                        {category.items.map((item, itemIndex) => (
-                          <div key={itemIndex} className="flex items-center gap-2 p-2 bg-blue-50 rounded-lg">
-                            <AlertCircle className="h-4 w-4 text-blue-600" />
-                            <span className="text-sm">{item}</span>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                  ))}
-                </div>
-                <Button className="mt-6">
-                  <Plus className="h-4 w-4 mr-2" />
-                  Add New Need
-                </Button>
-              </CardContent>
-            </Card>
-          </TabsContent>
+            <Tabs defaultValue="overview" className="space-y-6">
+              <TabsList className="grid w-full grid-cols-4">
+                <TabsTrigger value="overview">Overview</TabsTrigger>
+                <TabsTrigger value="goals">Goals ({goals.length})</TabsTrigger>
+                <TabsTrigger value="services">Services ({services.length})</TabsTrigger>
+                <TabsTrigger value="accommodations">Accommodations ({accommodations.length})</TabsTrigger>
+              </TabsList>
 
-          {/* Goals Tab */}
-          <TabsContent value="goals">
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Award className="h-5 w-5 text-purple-500" />
-                  IEP Goals Progress
-                </CardTitle>
-                <CardDescription>
-                  Track progress on {currentStudent.name}'s IEP goals
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-6">
-                  {goals.map((goal, index) => (
-                    <div key={index} className="p-4 border rounded-lg space-y-3">
-                      <div className="flex items-center justify-between">
-                        <h3 className="font-semibold">{goal.area}</h3>
-                        <Badge variant={
-                          goal.status === 'Nearly Met' ? 'default' :
-                          goal.status === 'In Progress' ? 'secondary' : 'destructive'
-                        }>
-                          {goal.status}
-                        </Badge>
-                      </div>
-                      <p className="text-sm text-muted-foreground">{goal.goal}</p>
-                      <div className="space-y-2">
-                        <div className="flex justify-between text-sm">
-                          <span>Progress</span>
-                          <span>{goal.progress}%</span>
-                        </div>
-                        <Progress value={goal.progress} />
-                      </div>
-                      <div className="flex justify-between text-sm text-muted-foreground">
-                        <span>Due: {goal.dueDate}</span>
-                        <Button variant="ghost" size="sm">
-                          <Edit className="h-3 w-3 mr-1" />
-                          Update
-                        </Button>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </CardContent>
-            </Card>
-          </TabsContent>
-
-          {/* Services Tab */}
-          <TabsContent value="services">
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <GraduationCap className="h-5 w-5 text-green-500" />
-                  Special Education Services
-                </CardTitle>
-                <CardDescription>
-                  Current services and supports for {currentStudent.name}
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-4">
-                  {services.map((service, index) => (
-                    <div key={index} className="flex items-center justify-between p-4 border rounded-lg">
-                      <div className="space-y-1">
-                        <h3 className="font-semibold">{service.service}</h3>
+              <TabsContent value="overview" className="space-y-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                  <Card>
+                    <CardHeader>
+                      <CardTitle className="flex items-center">
+                        <User className="h-5 w-5 mr-2" />
+                        Student Information
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent className="space-y-3">
+                      <div>
+                        <Label className="text-sm font-medium">Date of Birth</Label>
                         <p className="text-sm text-muted-foreground">
-                          {service.frequency} • Provider: {service.provider}
+                          {currentStudent.date_of_birth 
+                            ? new Date(currentStudent.date_of_birth).toLocaleDateString() 
+                            : 'Not specified'}
                         </p>
                       </div>
-                      <Badge variant="default">{service.status}</Badge>
-                    </div>
-                  ))}
-                </div>
-                <Button className="mt-6">
-                  <Plus className="h-4 w-4 mr-2" />
-                  Request New Service
-                </Button>
-              </CardContent>
-            </Card>
-          </TabsContent>
-
-          {/* Accommodations Tab */}
-          <TabsContent value="accommodations">
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Lightbulb className="h-5 w-5 text-amber-500" />
-                  Accommodations & Modifications
-                </CardTitle>
-                <CardDescription>
-                  Approved and pending accommodations for {currentStudent.name}
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-4">
-                  {accommodations.map((accommodation, index) => (
-                    <div key={index} className="flex items-center justify-between p-4 border rounded-lg">
-                      <div className="space-y-1">
-                        <h3 className="font-semibold">{accommodation.type}</h3>
-                        <p className="text-sm text-muted-foreground">{accommodation.description}</p>
+                      <div>
+                        <Label className="text-sm font-medium">Disability Category</Label>
+                        <p className="text-sm text-muted-foreground">
+                          {currentStudent.disability_category || 'Not specified'}
+                        </p>
                       </div>
-                      <Badge variant={accommodation.status === 'Approved' ? 'default' : 'secondary'}>
-                        {accommodation.status}
-                      </Badge>
-                    </div>
-                  ))}
+                      <div>
+                        <Label className="text-sm font-medium">District</Label>
+                        <p className="text-sm text-muted-foreground">
+                          {currentStudent.district || 'Not specified'}
+                        </p>
+                      </div>
+                    </CardContent>
+                  </Card>
+
+                  <Card>
+                    <CardHeader>
+                      <CardTitle className="flex items-center">
+                        <Users className="h-5 w-5 mr-2" />
+                        Case Management
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent className="space-y-3">
+                      <div>
+                        <Label className="text-sm font-medium">Case Manager</Label>
+                        <p className="text-sm text-muted-foreground">
+                          {currentStudent.case_manager || 'Not assigned'}
+                        </p>
+                      </div>
+                      <div>
+                        <Label className="text-sm font-medium">Email</Label>
+                        <p className="text-sm text-muted-foreground">
+                          {currentStudent.case_manager_email || 'Not provided'}
+                        </p>
+                      </div>
+                      <div>
+                        <Label className="text-sm font-medium">Next Review</Label>
+                        <p className="text-sm text-muted-foreground">
+                          {currentStudent.next_review_date 
+                            ? new Date(currentStudent.next_review_date).toLocaleDateString()
+                            : 'Not scheduled'}
+                        </p>
+                      </div>
+                    </CardContent>
+                  </Card>
+
+                  <Card>
+                    <CardHeader>
+                      <CardTitle className="flex items-center">
+                        <AlertCircle className="h-5 w-5 mr-2" />
+                        Emergency Contact
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent className="space-y-3">
+                      <div>
+                        <Label className="text-sm font-medium">Contact Name</Label>
+                        <p className="text-sm text-muted-foreground">
+                          {currentStudent.emergency_contact || 'Not provided'}
+                        </p>
+                      </div>
+                      <div>
+                        <Label className="text-sm font-medium">Phone Number</Label>
+                        <p className="text-sm text-muted-foreground">
+                          {currentStudent.emergency_phone || 'Not provided'}
+                        </p>
+                      </div>
+                    </CardContent>
+                  </Card>
                 </div>
-                <Button asChild className="mt-6">
-                  <Link to="/tools/autism-accommodations">
-                    <Plus className="h-4 w-4 mr-2" />
-                    Build New Accommodation
-                  </Link>
-                </Button>
-              </CardContent>
-            </Card>
-          </TabsContent>
-        </Tabs>
+
+                {currentStudent.medical_info && (
+                  <Card>
+                    <CardHeader>
+                      <CardTitle>Medical Information</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <p className="text-sm text-muted-foreground whitespace-pre-wrap">
+                        {currentStudent.medical_info}
+                      </p>
+                    </CardContent>
+                  </Card>
+                )}
+
+                {currentStudent.notes && (
+                  <Card>
+                    <CardHeader>
+                      <CardTitle>Notes</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <p className="text-sm text-muted-foreground whitespace-pre-wrap">
+                        {currentStudent.notes}
+                      </p>
+                    </CardContent>
+                  </Card>
+                )}
+              </TabsContent>
+
+              <TabsContent value="goals" className="space-y-6">
+                {goals.length > 0 ? (
+                  <div className="grid gap-4">
+                    {goals.map((goal) => (
+                      <Card key={goal.id}>
+                        <CardHeader>
+                          <div className="flex items-start justify-between">
+                            <div>
+                              <CardTitle className="text-lg">{goal.title}</CardTitle>
+                              <CardDescription>
+                                <Badge variant="outline" className="mr-2">
+                                  {goal.goal_type}
+                                </Badge>
+                                <span className={getGoalStatusColor(goal.status)}>
+                                  {goal.status}
+                                </span>
+                              </CardDescription>
+                            </div>
+                            <div className="text-right">
+                              <div className="text-2xl font-bold text-primary">
+                                {goal.current_progress}%
+                              </div>
+                              <div className="text-sm text-muted-foreground">
+                                Progress
+                              </div>
+                            </div>
+                          </div>
+                        </CardHeader>
+                        <CardContent>
+                          <div className="space-y-4">
+                            <p className="text-sm text-muted-foreground">
+                              {goal.description}
+                            </p>
+                            <Progress value={goal.current_progress} className="h-2" />
+                            {goal.target_date && (
+                              <div className="text-sm text-muted-foreground">
+                                Target Date: {new Date(goal.target_date).toLocaleDateString()}
+                              </div>
+                            )}
+                          </div>
+                        </CardContent>
+                      </Card>
+                    ))}
+                  </div>
+                ) : (
+                  <Card>
+                    <CardContent className="flex flex-col items-center justify-center py-12">
+                      <Target className="h-12 w-12 text-muted-foreground mb-4" />
+                      <h3 className="text-lg font-medium mb-2">No Goals Yet</h3>
+                      <p className="text-sm text-muted-foreground text-center mb-4">
+                        Goals will appear here once they are added to the student's IEP.
+                      </p>
+                    </CardContent>
+                  </Card>
+                )}
+              </TabsContent>
+
+              <TabsContent value="services" className="space-y-6">
+                {services.length > 0 ? (
+                  <div className="grid gap-4">
+                    {services.map((service) => (
+                      <Card key={service.id}>
+                        <CardHeader>
+                          <div className="flex items-start justify-between">
+                            <div>
+                              <CardTitle className="text-lg">{service.service_type}</CardTitle>
+                              <CardDescription>
+                                {service.provider && `Provider: ${service.provider}`}
+                              </CardDescription>
+                            </div>
+                            <Badge variant={service.status === 'active' ? 'default' : 'secondary'}>
+                              {service.status}
+                            </Badge>
+                          </div>
+                        </CardHeader>
+                        <CardContent>
+                          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
+                            <div>
+                              <Label className="text-xs font-medium text-muted-foreground">
+                                Frequency
+                              </Label>
+                              <p>{service.frequency || 'Not specified'}</p>
+                            </div>
+                            <div>
+                              <Label className="text-xs font-medium text-muted-foreground">
+                                Duration
+                              </Label>
+                              <p>{service.duration ? `${service.duration} min` : 'Not specified'}</p>
+                            </div>
+                            <div>
+                              <Label className="text-xs font-medium text-muted-foreground">
+                                Location
+                              </Label>
+                              <p>{service.location || 'Not specified'}</p>
+                            </div>
+                            <div>
+                              <Label className="text-xs font-medium text-muted-foreground">
+                                Status
+                              </Label>
+                              <p className="capitalize">{service.status}</p>
+                            </div>
+                          </div>
+                        </CardContent>
+                      </Card>
+                    ))}
+                  </div>
+                ) : (
+                  <Card>
+                    <CardContent className="flex flex-col items-center justify-center py-12">
+                      <GraduationCap className="h-12 w-12 text-muted-foreground mb-4" />
+                      <h3 className="text-lg font-medium mb-2">No Services Yet</h3>
+                      <p className="text-sm text-muted-foreground text-center mb-4">
+                        Services will appear here once they are added to the student's IEP.
+                      </p>
+                    </CardContent>
+                  </Card>
+                )}
+              </TabsContent>
+
+              <TabsContent value="accommodations" className="space-y-6">
+                {accommodations.length > 0 ? (
+                  <div className="grid gap-4">
+                    {accommodations.map((accommodation) => (
+                      <Card key={accommodation.id}>
+                        <CardHeader>
+                          <div className="flex items-start justify-between">
+                            <div>
+                              <CardTitle className="text-lg">{accommodation.title}</CardTitle>
+                              <CardDescription>
+                                <Badge variant="outline">
+                                  {accommodation.category}
+                                </Badge>
+                              </CardDescription>
+                            </div>
+                            <Badge variant={accommodation.status === 'active' ? 'default' : 'secondary'}>
+                              {accommodation.status}
+                            </Badge>
+                          </div>
+                        </CardHeader>
+                        <CardContent>
+                          <p className="text-sm text-muted-foreground">
+                            {accommodation.description}
+                          </p>
+                        </CardContent>
+                      </Card>
+                    ))}
+                  </div>
+                ) : (
+                  <Card>
+                    <CardContent className="flex flex-col items-center justify-center py-12">
+                      <CheckCircle className="h-12 w-12 text-muted-foreground mb-4" />
+                      <h3 className="text-lg font-medium mb-2">No Accommodations Yet</h3>
+                      <p className="text-sm text-muted-foreground text-center mb-4">
+                        Accommodations will appear here once they are added to the student's IEP.
+                      </p>
+                    </CardContent>
+                  </Card>
+                )}
+              </TabsContent>
+            </Tabs>
+          </div>
+        )}
       </div>
     </DashboardLayout>
   );

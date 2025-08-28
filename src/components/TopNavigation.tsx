@@ -1,4 +1,4 @@
-import { Link, useLocation } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { 
@@ -6,13 +6,36 @@ import {
   Search, 
   User,
   Menu,
-  Crown
+  Crown,
+  LogOut
 } from "lucide-react";
+import { useAuth } from "@/hooks/useAuth";
+import { useToast } from "@/hooks/use-toast";
 
 export function TopNavigation() {
   const location = useLocation();
+  const navigate = useNavigate();
   const isAdvocateRoute = location.pathname.startsWith('/advocate');
   const isDashboardRoute = location.pathname.includes('/dashboard');
+  const { profile, signOut } = useAuth();
+  const { toast } = useToast();
+
+  const handleSignOut = async () => {
+    try {
+      await signOut();
+      toast({
+        title: "Signed out successfully",
+        description: "You have been logged out of your account.",
+      });
+      navigate("/auth");
+    } catch (error) {
+      toast({
+        title: "Error signing out",
+        description: "There was a problem signing you out. Please try again.",
+        variant: "destructive",
+      });
+    }
+  };
 
   // Don't show top nav on home page
   if (location.pathname === '/') {
@@ -78,8 +101,16 @@ export function TopNavigation() {
             </Link>
           </Button>
 
-          <Button variant="ghost" size="icon">
+          {profile?.full_name && (
+            <span className="text-sm text-muted-foreground hidden md:block">
+              {profile.full_name}
+            </span>
+          )}
+          <Button variant="ghost" size="icon" onClick={() => navigate('/profile')}>
             <User className="h-4 w-4" />
+          </Button>
+          <Button variant="ghost" size="icon" onClick={handleSignOut}>
+            <LogOut className="h-4 w-4" />
           </Button>
         </div>
       </div>

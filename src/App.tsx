@@ -3,7 +3,13 @@ import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { TopNavigation } from "@/components/TopNavigation";
 import Index from "./pages/Index";
+import ParentDashboard from "./pages/ParentDashboard";
+import AdvocateDashboard from "./pages/AdvocateDashboard";
+import IEPReview from "./pages/IEPReview";
+import AutismAccommodations from "./pages/AutismAccommodations";
+import HeroPlan from "./pages/HeroPlan";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -14,11 +20,19 @@ const App = () => (
       <Toaster />
       <Sonner />
       <BrowserRouter>
-        <Routes>
-          <Route path="/" element={<Index />} />
-          {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-          <Route path="*" element={<NotFound />} />
-        </Routes>
+        <div className="min-h-screen bg-background">
+          <TopNavigation />
+          <Routes>
+            <Route path="/" element={<Index />} />
+            <Route path="/parent/dashboard" element={<ParentDashboard />} />
+            <Route path="/advocate/dashboard" element={<AdvocateDashboard />} />
+            <Route path="/tools/iep-review" element={<IEPReview />} />
+            <Route path="/tools/autism-accommodations" element={<AutismAccommodations />} />
+            <Route path="/upsell/hero-plan" element={<HeroPlan />} />
+            {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
+            <Route path="*" element={<NotFound />} />
+          </Routes>
+        </div>
       </BrowserRouter>
     </TooltipProvider>
   </QueryClientProvider>

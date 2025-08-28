@@ -20,11 +20,20 @@ import {
   Brain
 } from "lucide-react";
 
+interface Tool {
+  title: string;
+  description: string;
+  icon: React.ReactElement;
+  url: string;
+  category: string;
+  badge?: string;
+}
+
 const ToolsHub = () => {
   const location = useLocation();
   const isAdvocateRoute = location.pathname.startsWith('/advocate');
 
-  const parentTools = [
+  const parentTools: Tool[] = [
     {
       title: "IEP Review & Analysis",
       description: "Upload and get AI-powered analysis of your child's IEP documents",
@@ -57,7 +66,7 @@ const ToolsHub = () => {
     }
   ];
 
-  const advocateTools = [
+  const advocateTools: Tool[] = [
     {
       title: "IEP Review Tool",
       description: "Professional IEP analysis and compliance review for your clients",

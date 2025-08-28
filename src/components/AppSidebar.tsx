@@ -11,7 +11,8 @@ import {
   MessageSquare,
   Calendar,
   ChevronRight,
-  Menu
+  Menu,
+  FileText
 } from "lucide-react";
 
 import {

@@ -642,9 +642,11 @@ const ParentDashboard = () => {
                   </Badge>
                 </div>
               ))}
-              <Button variant="outline" className="w-full hover-scale">
-                View Document Vault
-                <ArrowRight className="ml-2 h-4 w-4" />
+              <Button asChild variant="outline" className="w-full hover-scale">
+                <Link to="/tools/document-vault">
+                  View Document Vault
+                  <ArrowRight className="ml-2 h-4 w-4" />
+                </Link>
               </Button>
             </div>
           </CardContent>

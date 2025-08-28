@@ -1,101 +1,80 @@
+
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
-import { TopNavigation } from "@/components/TopNavigation";
-import { AuthProvider, useAuth } from "@/hooks/useAuth";
+import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { useAuth } from "@/hooks/useAuth";
 import Index from "./pages/Index";
 import Auth from "./pages/Auth";
 import ParentDashboard from "./pages/ParentDashboard";
 import AdvocateDashboard from "./pages/AdvocateDashboard";
-import IEPReview from "./pages/IEPReview";
-import AutismAccommodations from "./pages/AutismAccommodations";
-import HeroPlan from "./pages/HeroPlan";
-import Settings from "./pages/Settings";
-import Profile from "./pages/Profile";
 import AdvocateMessages from "./pages/AdvocateMessages";
 import AdvocateSchedule from "./pages/AdvocateSchedule";
-import ParentMeetingPrep from "./pages/ParentMeetingPrep";
-import StudentProfiles from "./pages/StudentProfiles";
+import IEPReview from "./pages/IEPReview";
+import AIIEPReview from "./pages/AIIEPReview";
+import AutismAccommodations from "./pages/AutismAccommodations";
 import SmartLetterGenerator from "./pages/SmartLetterGenerator";
 import MeetingPrepWizard from "./pages/MeetingPrepWizard";
+import ParentMeetingPrep from "./pages/ParentMeetingPrep";
+import StudentProfiles from "./pages/StudentProfiles";
+import HeroPlan from "./pages/HeroPlan";
 import AdvocateDiscovery from "./pages/AdvocateDiscovery";
-import AIIEPReview from "./pages/AIIEPReview";
+import Profile from "./pages/Profile";
+import Settings from "./pages/Settings";
+import ToolsHub from "./pages/ToolsHub";
+import DocumentVault from "./pages/DocumentVault";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
 
-// Protected route wrapper
-function ProtectedRoute({ children }: { children: React.ReactNode }) {
-  const { user, loading } = useAuth();
-  
-  if (loading) {
-    return (
-      <div className="min-h-screen bg-gradient-to-br from-primary/5 via-background to-secondary/5 flex items-center justify-center">
-        <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-primary"></div>
-      </div>
-    );
-  }
-  
-  if (!user) {
-    return <Navigate to="/auth" replace />;
-  }
-  
-  return <>{children}</>;
-}
-
-// App content component
-function AppContent() {
-  const { user, loading } = useAuth();
-
-  if (loading) {
-    return (
-      <div className="min-h-screen bg-gradient-to-br from-primary/5 via-background to-secondary/5 flex items-center justify-center">
-        <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-primary"></div>
-      </div>
-    );
-  }
-
+function App() {
   return (
-    <div className="min-h-screen bg-gradient-to-br from-primary/5 via-background to-secondary/5">
-      {user && <TopNavigation />}
-      <Routes>
-        <Route path="/auth" element={user ? <Navigate to="/parent/dashboard" replace /> : <Auth />} />
-        <Route path="/" element={<Index />} />
-        <Route path="/parent/dashboard" element={<ProtectedRoute><ParentDashboard /></ProtectedRoute>} />
-        <Route path="/parent/students" element={<ProtectedRoute><StudentProfiles /></ProtectedRoute>} />
-        <Route path="/parent/meeting-prep" element={<ProtectedRoute><ParentMeetingPrep /></ProtectedRoute>} />
-        <Route path="/parent/letters" element={<ProtectedRoute><SmartLetterGenerator /></ProtectedRoute>} />
-        <Route path="/parent/meeting-prep-wizard" element={<ProtectedRoute><MeetingPrepWizard /></ProtectedRoute>} />
-        <Route path="/parent/advocates" element={<ProtectedRoute><AdvocateDiscovery /></ProtectedRoute>} />
-        <Route path="/advocate/dashboard" element={<ProtectedRoute><AdvocateDashboard /></ProtectedRoute>} />
-        <Route path="/advocate/messages" element={<ProtectedRoute><AdvocateMessages /></ProtectedRoute>} />
-        <Route path="/advocate/schedule" element={<ProtectedRoute><AdvocateSchedule /></ProtectedRoute>} />
-        <Route path="/tools/iep-review" element={<ProtectedRoute><IEPReview /></ProtectedRoute>} />
-        <Route path="/tools/ai-iep-review" element={<ProtectedRoute><AIIEPReview /></ProtectedRoute>} />
-        <Route path="/tools/autism-accommodations" element={<ProtectedRoute><AutismAccommodations /></ProtectedRoute>} />
-        <Route path="/upsell/hero-plan" element={<ProtectedRoute><HeroPlan /></ProtectedRoute>} />
-        <Route path="/settings" element={<ProtectedRoute><Settings /></ProtectedRoute>} />
-        <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
-        <Route path="*" element={<NotFound />} />
-      </Routes>
-    </div>
+    <QueryClientProvider client={queryClient}>
+      <TooltipProvider>
+        <Toaster />
+        <Sonner />
+        <BrowserRouter>
+          <Routes>
+            <Route path="/" element={<Index />} />
+            <Route path="/auth" element={<Auth />} />
+            
+            {/* Parent Routes */}
+            <Route path="/parent/dashboard" element={<ParentDashboard />} />
+            <Route path="/parent/meeting-prep" element={<ParentMeetingPrep />} />
+            
+            {/* Advocate Routes */}
+            <Route path="/advocate/dashboard" element={<AdvocateDashboard />} />
+            <Route path="/advocate/messages" element={<AdvocateMessages />} />
+            <Route path="/advocate/schedule" element={<AdvocateSchedule />} />
+            
+            {/* Tools Routes */}
+            <Route path="/tools/hub" element={<ToolsHub />} />
+            <Route path="/tools/document-vault" element={<DocumentVault />} />
+            <Route path="/tools/iep-review" element={<IEPReview />} />
+            <Route path="/tools/ai-iep-review" element={<AIIEPReview />} />
+            <Route path="/tools/autism-accommodations" element={<AutismAccommodations />} />
+            <Route path="/tools/smart-letter" element={<SmartLetterGenerator />} />
+            <Route path="/tools/meeting-prep" element={<MeetingPrepWizard />} />
+            
+            {/* Profile & Settings */}
+            <Route path="/profile" element={<Profile />} />
+            <Route path="/settings" element={<Settings />} />
+            
+            {/* Student Management */}
+            <Route path="/students" element={<StudentProfiles />} />
+            
+            {/* Premium & Upsell */}
+            <Route path="/upsell/hero-plan" element={<HeroPlan />} />
+            <Route path="/advocates" element={<AdvocateDiscovery />} />
+            
+            {/* 404 */}
+            <Route path="*" element={<NotFound />} />
+          </Routes>
+        </BrowserRouter>
+      </TooltipProvider>
+    </QueryClientProvider>
   );
 }
-
-const App = () => (
-  <QueryClientProvider client={queryClient}>
-    <TooltipProvider>
-      <Toaster />
-      <Sonner />
-      <BrowserRouter>
-        <AuthProvider>
-          <AppContent />
-        </AuthProvider>
-      </BrowserRouter>
-    </TooltipProvider>
-  </QueryClientProvider>
-);
 
 export default App;

@@ -46,13 +46,15 @@ const parentNavigation: SidebarSection[] = [
     title: "Parent Portal",
     items: [
       { title: "Dashboard", url: "/parent/dashboard", icon: LayoutDashboard },
-      { title: "IEP Review", url: "/tools/iep-review", icon: FileSearch, badge: "AI" },
+      { title: "Tools Hub", url: "/tools/hub", icon: FileSearch },
+      { title: "Document Vault", url: "/tools/document-vault", icon: FileText },
       { title: "HERO Plan", url: "/upsell/hero-plan", icon: Crown, badge: "Premium" },
     ]
   },
   {
-    title: "Tools",
+    title: "Quick Tools",
     items: [
+      { title: "IEP Review", url: "/tools/iep-review", icon: FileSearch, badge: "AI" },
       { title: "Accommodations", url: "/tools/autism-accommodations", icon: Building2 },
       { title: "Meeting Prep", url: "/parent/meeting-prep", icon: Calendar },
     ]
@@ -64,12 +66,14 @@ const advocateNavigation: SidebarSection[] = [
     title: "Advocate Portal", 
     items: [
       { title: "My Cases", url: "/advocate/dashboard", icon: LayoutDashboard },
+      { title: "Tools Hub", url: "/tools/hub", icon: FileSearch },
+      { title: "Document Vault", url: "/tools/document-vault", icon: FileText },
       { title: "Schedule", url: "/advocate/schedule", icon: Calendar },
       { title: "Messages", url: "/advocate/messages", icon: MessageSquare },
     ]
   },
   {
-    title: "Tools",
+    title: "Quick Tools",
     items: [
       { title: "IEP Review", url: "/tools/iep-review", icon: FileSearch },
       { title: "Accommodations", url: "/tools/autism-accommodations", icon: Building2 },

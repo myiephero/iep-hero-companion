@@ -15,6 +15,8 @@ import Profile from "./pages/Profile";
 import AdvocateMessages from "./pages/AdvocateMessages";
 import AdvocateSchedule from "./pages/AdvocateSchedule";
 import ParentMeetingPrep from "./pages/ParentMeetingPrep";
+import StudentProfiles from "./pages/StudentProfiles";
+import SmartLetterGenerator from "./pages/SmartLetterGenerator";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -30,7 +32,9 @@ const App = () => (
           <Routes>
             <Route path="/" element={<Index />} />
             <Route path="/parent/dashboard" element={<ParentDashboard />} />
+            <Route path="/parent/students" element={<StudentProfiles />} />
             <Route path="/parent/meeting-prep" element={<ParentMeetingPrep />} />
+            <Route path="/parent/letters" element={<SmartLetterGenerator />} />
             <Route path="/advocate/dashboard" element={<AdvocateDashboard />} />
             <Route path="/advocate/messages" element={<AdvocateMessages />} />
             <Route path="/advocate/schedule" element={<AdvocateSchedule />} />

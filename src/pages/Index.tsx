@@ -3,9 +3,12 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { CheckCircle, Users, FileText, MessageSquare, Shield, ArrowRight } from "lucide-react";
+import { useAuth } from "@/hooks/useAuth";
 import heroImage from "@/assets/hero-image.jpg";
 
 const Index = () => {
+  const { user } = useAuth();
+
   const features = [
     {
       icon: <FileText className="h-6 w-6" />,
@@ -53,13 +56,13 @@ const Index = () => {
               
               <div className="flex flex-col sm:flex-row gap-4">
                 <Button asChild variant="hero" size="lg">
-                  <Link to="/parent/dashboard">
-                    Parent Dashboard <ArrowRight className="ml-2 h-5 w-5" />
+                  <Link to={user ? "/parent/dashboard" : "/auth"}>
+                    {user ? "Parent Dashboard" : "Get Started"} <ArrowRight className="ml-2 h-5 w-5" />
                   </Link>
                 </Button>
                 <Button asChild variant="outline" size="lg">
-                  <Link to="/advocate/dashboard">
-                    Advocate Portal
+                  <Link to={user ? "/advocate/dashboard" : "/auth"}>
+                    {user ? "Advocate Portal" : "Sign In"}
                   </Link>
                 </Button>
               </div>
@@ -136,8 +139,8 @@ const Index = () => {
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <Button asChild variant="secondary" size="lg">
-                <Link to="/parent/dashboard">
-                  Get Started Free
+                <Link to={user ? "/parent/dashboard" : "/auth"}>
+                  {user ? "Go to Dashboard" : "Get Started Free"}
                 </Link>
               </Button>
               <Button asChild variant="outline" size="lg" className="border-white text-white hover:bg-white hover:text-primary">

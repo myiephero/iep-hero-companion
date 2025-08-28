@@ -112,8 +112,7 @@ export function DocumentUpload({ onAnalysisComplete }: DocumentUploadProps) {
           file_path: filePath,
           file_type: fileData.file.type,
           file_size: fileData.file.size,
-          title: fileData.file.name.split('.')[0],
-          category: 'uploaded'
+          title: fileData.file.name.split('.')[0]
         });
 
       if (dbError) throw dbError;

@@ -202,7 +202,7 @@ export default function IEPReview() {
       
       toast({
         title: "Analysis complete",
-        description: `${kind} analysis completed successfully.`,
+        description: `Two-pass ${kind} analysis completed${data.sectionsAnalyzed ? ` - analyzed ${data.sectionsAnalyzed} sections` : ''}.`,
       });
     } catch (error: any) {
       setAnalysisStatus('error');

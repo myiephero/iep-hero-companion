@@ -12,7 +12,9 @@ import {
   Calendar,
   ChevronRight,
   Menu,
-  FileText
+  FileText,
+  GraduationCap,
+  UserPlus
 } from "lucide-react";
 
 import {
@@ -47,6 +49,7 @@ const parentNavigation: SidebarSection[] = [
     title: "Parent Portal",
     items: [
       { title: "Dashboard", url: "/parent/dashboard", icon: LayoutDashboard },
+      { title: "Create Student", url: "/parent-pricing-plan", icon: GraduationCap },
       { title: "Tools Hub", url: "/tools/hub", icon: FileSearch },
       { title: "Document Vault", url: "/tools/document-vault", icon: FileText },
       { title: "HERO Plan", url: "/upsell/hero-plan", icon: Crown, badge: "Premium" },

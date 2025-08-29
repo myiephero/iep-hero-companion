@@ -677,6 +677,185 @@ export type Database = {
           },
         ]
       }
+      iep_action_drafts: {
+        Row: {
+          analysis_id: string
+          body: string
+          created_at: string
+          id: string
+          title: string
+          user_id: string
+        }
+        Insert: {
+          analysis_id: string
+          body: string
+          created_at?: string
+          id?: string
+          title: string
+          user_id: string
+        }
+        Update: {
+          analysis_id?: string
+          body?: string
+          created_at?: string
+          id?: string
+          title?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "iep_action_drafts_analysis_id_fkey"
+            columns: ["analysis_id"]
+            isOneToOne: false
+            referencedRelation: "iep_analysis"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "iep_action_drafts_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["user_id"]
+          },
+        ]
+      }
+      iep_analysis: {
+        Row: {
+          created_at: string
+          doc_id: string
+          flags: Json
+          id: string
+          kind: string
+          model: string
+          recommendations: Json
+          scores: Json
+          summary: Json
+          user_id: string
+          version: number
+        }
+        Insert: {
+          created_at?: string
+          doc_id: string
+          flags: Json
+          id?: string
+          kind: string
+          model: string
+          recommendations: Json
+          scores: Json
+          summary: Json
+          user_id: string
+          version?: number
+        }
+        Update: {
+          created_at?: string
+          doc_id?: string
+          flags?: Json
+          id?: string
+          kind?: string
+          model?: string
+          recommendations?: Json
+          scores?: Json
+          summary?: Json
+          user_id?: string
+          version?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "iep_analysis_doc_id_fkey"
+            columns: ["doc_id"]
+            isOneToOne: false
+            referencedRelation: "iep_documents"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "iep_analysis_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["user_id"]
+          },
+        ]
+      }
+      iep_documents: {
+        Row: {
+          id: string
+          pages: number | null
+          storage_path: string
+          student_id: string | null
+          title: string | null
+          uploaded_at: string
+          user_id: string
+        }
+        Insert: {
+          id?: string
+          pages?: number | null
+          storage_path: string
+          student_id?: string | null
+          title?: string | null
+          uploaded_at?: string
+          user_id: string
+        }
+        Update: {
+          id?: string
+          pages?: number | null
+          storage_path?: string
+          student_id?: string | null
+          title?: string | null
+          uploaded_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "iep_documents_student_id_fkey"
+            columns: ["student_id"]
+            isOneToOne: false
+            referencedRelation: "students"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "iep_documents_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["user_id"]
+          },
+        ]
+      }
+      iep_text_chunks: {
+        Row: {
+          content: string
+          created_at: string
+          doc_id: string
+          id: string
+          idx: number
+          tokens: number | null
+        }
+        Insert: {
+          content: string
+          created_at?: string
+          doc_id: string
+          id?: string
+          idx: number
+          tokens?: number | null
+        }
+        Update: {
+          content?: string
+          created_at?: string
+          doc_id?: string
+          id?: string
+          idx?: number
+          tokens?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "iep_text_chunks_doc_id_fkey"
+            columns: ["doc_id"]
+            isOneToOne: false
+            referencedRelation: "iep_documents"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       letters: {
         Row: {
           attachments: Json | null

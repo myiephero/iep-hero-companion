@@ -50,24 +50,14 @@ export default function Auth() {
 
       if (data.session?.user) {
         // User is signed in immediately (no email confirmation required)
-        const { error: profileError } = await supabase
-          .from("profiles")
-          .insert({
-            user_id: data.session.user.id,
-            full_name: fullName,
-            email,
-            role,
-          });
-
-        if (profileError) throw profileError;
-
+        // Profile is automatically created by the database trigger
         toast({
           title: "Account created!",
           description: "You're now signed in.",
         });
         navigate("/");
       } else {
-        // Email verification required; profile will be created after first sign-in
+        // Email verification required; profile will be created by trigger after first sign-in
         toast({
           title: "Verify your email",
           description: "Check your inbox to confirm your account, then sign in.",

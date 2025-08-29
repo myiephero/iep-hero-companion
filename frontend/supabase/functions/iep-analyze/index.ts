@@ -79,11 +79,11 @@ serve(async (req) => {
     
     // PASS 1: Outline Scan with gpt-4o-mini
     console.log('Starting Pass 1: Outline scan and section mapping');
-    const outlineResult = await performOutlineScan(chunks, emergentApiKey);
+    const outlineResult = await performOutlineScan(chunks, openAIApiKey);
     
-    // PASS 2: Structured Analysis with claude-sonnet-4
+    // PASS 2: Structured Analysis with gpt-4o (since we're using OpenAI)
     console.log('Starting Pass 2: Detailed section analysis');
-    const analysisResult = await performStructuredAnalysis(outlineResult, chunks, kind, studentContext, emergentApiKey);
+    const analysisResult = await performStructuredAnalysis(outlineResult, chunks, kind, studentContext, openAIApiKey);
 
     // Store analysis results with evidence
     const nextVersion = await getNextVersion(supabase, docId, kind);

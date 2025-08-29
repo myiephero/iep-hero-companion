@@ -178,32 +178,113 @@ serve(async (req) => {
   }
 });
 
-// Simple and reliable PDF text extraction using pdf-parse
+// Working PDF text extraction for Deno/Supabase Edge Functions
 async function extractTextFromPDF(file: File): Promise<string> {
   try {
-    console.log('Starting PDF text extraction with pdf-parse...');
-    
-    // Import pdf-parse library
-    const pdfParse = (await import('https://esm.sh/pdf-parse@1.1.1')).default;
+    console.log('Starting PDF text extraction for Deno environment...');
     
     const arrayBuffer = await file.arrayBuffer();
-    const data = await pdfParse(arrayBuffer);
+    const uint8Array = new Uint8Array(arrayBuffer);
     
-    if (!data.text || data.text.trim().length === 0) {
-      throw new Error('No text content found in PDF - document may be image-based');
+    // Convert to string and extract readable text patterns
+    const pdfString = new TextDecoder('latin1').decode(uint8Array);
+    
+    // Extract text using multiple PDF text patterns
+    const extractedTexts = new Set<string>();
+    
+    // Pattern 1: Text in parentheses (most reliable for PDFs)
+    const parenPattern = /\(([^)]{10,500}?)\)/g;
+    let match;
+    while ((match = parenPattern.exec(pdfString)) !== null) {
+      let text = match[1]
+        .replace(/\\n/g, '\n')
+        .replace(/\\r/g, '\r')
+        .replace(/\\t/g, '\t')
+        .replace(/\\(/g, '(')
+        .replace(/\\)/g, ')')
+        .replace(/\\\\/g, '\\');
+      
+      if (text.length > 10 && /[A-Za-z]/.test(text)) {
+        extractedTexts.add(text);
+      }
     }
     
-    console.log(`Successfully extracted ${data.text.length} characters from PDF`);
-    console.log(`Sample text: "${data.text.substring(0, 200)}..."`);
+    // Pattern 2: Text after stream markers
+    const streamPattern = /stream[\r\n]+([\s\S]*?)[\r\n]+endstream/g;
+    while ((match = streamPattern.exec(pdfString)) !== null) {
+      const content = match[1];
+      const readable = content.replace(/[^\x20-\x7E\n\r\t]/g, ' ')
+        .replace(/\s+/g, ' ')
+        .trim();
+      
+      if (readable.length > 20 && /[A-Za-z]{3,}/.test(readable)) {
+        extractedTexts.add(readable);
+      }
+    }
     
-    return data.text;
+    // Pattern 3: Look for readable sequences in the binary data
+    let readableChunks = '';
+    let currentChunk = '';
+    
+    for (let i = 0; i < uint8Array.length; i++) {
+      const byte = uint8Array[i];
+      
+      if (byte >= 32 && byte <= 126) { // Printable ASCII
+        currentChunk += String.fromCharCode(byte);
+      } else if (byte === 10 || byte === 13) { // Line breaks
+        currentChunk += '\n';
+      } else {
+        if (currentChunk.length > 15 && /[A-Za-z]{3,}/.test(currentChunk)) {
+          readableChunks += currentChunk + ' ';
+        }
+        currentChunk = '';
+      }
+    }
+    
+    // Add the final chunk
+    if (currentChunk.length > 15 && /[A-Za-z]{3,}/.test(currentChunk)) {
+      readableChunks += currentChunk;
+    }
+    
+    // Combine all extracted text
+    let allText = Array.from(extractedTexts).join(' ') + ' ' + readableChunks;
+    
+    // Clean and normalize the text
+    allText = allText
+      .replace(/\s+/g, ' ')           // Normalize whitespace
+      .replace(/(.)\1{5,}/g, '$1')    // Remove excessive repetition
+      .replace(/[^\x20-\x7E\n\r\t]/g, ' ') // ASCII only
+      .trim();
+    
+    console.log(`PDF extraction completed: ${allText.length} characters`);
+    console.log(`Sample: "${allText.substring(0, 300)}..."`);
+    
+    // Validate extraction quality
+    if (allText.length < 500) {
+      throw new Error('Insufficient text extracted - PDF may be image-based or encrypted');
+    }
+    
+    // Check for IEP-specific content to validate extraction
+    const iepIndicators = [
+      'IEP', 'Individualized Education Program', 'goals', 'services', 
+      'accommodations', 'student', 'special education'
+    ];
+    
+    const foundIndicators = iepIndicators.filter(indicator => 
+      allText.toLowerCase().includes(indicator.toLowerCase())
+    );
+    
+    console.log(`Found IEP indicators: ${foundIndicators.join(', ')}`);
+    
+    if (foundIndicators.length < 2) {
+      console.warn('Warning: Limited IEP content detected in extracted text');
+    }
+    
+    return allText;
     
   } catch (error) {
-    console.error('PDF extraction with pdf-parse failed:', error);
-    
-    // Fallback to simple byte extraction
-    console.log('Falling back to simple byte extraction...');
-    return await simpleByteExtraction(file);
+    console.error('PDF extraction error:', error);
+    throw new Error(`Failed to extract readable text from PDF: ${error.message}`);
   }
 }
 

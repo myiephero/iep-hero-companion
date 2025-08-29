@@ -35,6 +35,7 @@ import DocumentVault from "./pages/DocumentVault";
 import AdvocatePricingPlan from "./pages/AdvocatePricingPlan";
 import ParentPricingPlan from "./pages/ParentPricingPlan";
 import ParentHeroPlan from "./pages/ParentHeroPlan";
+import AdvocateToolsHub from "./pages/AdvocateToolsHub";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -104,7 +105,7 @@ function App() {
               } />
               <Route path="/advocate/tools" element={
                 <ProtectedRoute allowedRoles={['advocate']}>
-                  <ToolsHub />
+                  <AdvocateToolsHub />
                 </ProtectedRoute>
               } />
               

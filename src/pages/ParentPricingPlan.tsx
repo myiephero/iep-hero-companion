@@ -49,60 +49,88 @@ const ParentPricingPlan = () => {
 
   const pricingTiers = [
     {
-      id: 'basic',
-      name: 'Basic Plan',
-      price: '$29',
+      id: 'free',
+      name: 'Free',
+      price: '$0',
       period: '/month',
-      description: 'Essential tools for IEP management',
+      description: 'Essential tools to get started',
       features: [
-        'Document storage (2GB)',
+        'Template Library access',
+        'Education Hub',
         'Basic IEP tracking',
-        'Meeting reminders',
-        'Progress monitoring',
-        'Email support',
+        'Community support',
         'Mobile app access'
+      ],
+      icon: <Heart className="h-6 w-6" />,
+      gradient: 'from-gray-500 to-gray-600',
+      popular: false
+    },
+    {
+      id: 'basic',
+      name: 'Basic',
+      price: '$19',
+      period: '/month',
+      description: 'Adds document management and letters',
+      features: [
+        'Everything in Free',
+        'Intake Vault',
+        'Pre-built Letters',
+        'Document storage (2GB)',
+        'Email support'
       ],
       icon: <Heart className="h-6 w-6" />,
       gradient: 'from-pink-500 to-rose-600',
       popular: false
     },
     {
-      id: 'premium',
-      name: 'Premium Plan',
-      price: '$59',
+      id: 'plus',
+      name: 'Plus',
+      price: '$29',
       period: '/month',
-      description: 'Advanced advocacy tools for proactive parents',
+      description: 'Adds progress tracking and self-service tools',
       features: [
         'Everything in Basic',
-        'AI-powered IEP analysis',
-        'Smart letter generator',
-        'Advocate matching service',
-        'Document storage (10GB)',
-        'Priority support',
-        'Meeting prep wizard',
+        'Progress Tracker',
+        'Self-IEP Tools',
         'Goal tracking dashboard',
-        'Compliance alerts'
+        'Document storage (5GB)',
+        'Priority support'
       ],
       icon: <Star className="h-6 w-6" />,
       gradient: 'from-blue-500 to-indigo-600',
       popular: true
     },
     {
-      id: 'champion',
-      name: 'Champion Plan',
-      price: '$99',
+      id: 'premium',
+      name: 'Premium',
+      price: '$49',
       period: '/month',
-      description: 'Complete advocacy suite with expert support',
+      description: 'Adds live support and IEP review',
       features: [
-        'Everything in Premium',
-        'Unlimited document storage',
-        'Direct advocate consultation',
-        'Custom report generation',
-        'Family advocacy training',
-        'Emergency support hotline',
-        'White-glove onboarding',
-        'Quarterly strategy sessions',
+        'Everything in Plus',
+        'Live Chat support',
+        'IEP Review tools',
+        'Member discounts',
+        'Document storage (10GB)',
         'Advanced analytics'
+      ],
+      icon: <Crown className="h-6 w-6" />,
+      gradient: 'from-purple-500 to-purple-600',
+      popular: false
+    },
+    {
+      id: 'hero-family-pack',
+      name: 'Hero Family Pack',
+      price: '$495',
+      period: '/one-time',
+      description: 'Complete advocacy package with expert support',
+      features: [
+        'Advocate Pairing',
+        'Strategy Call included',
+        'Document Review service',
+        'IEP Meeting support',
+        '30-Day Complete Toolbox Access',
+        'One-time comprehensive package'
       ],
       icon: <Crown className="h-6 w-6" />,
       gradient: 'from-amber-500 to-orange-600',
@@ -219,7 +247,8 @@ const ParentPricingPlan = () => {
         {/* Pricing Cards */}
         <div className="px-6 pb-16">
           <div className="max-w-7xl mx-auto">
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-6"
+                 style={{ gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))' }}>
               {pricingTiers.map((tier) => (
                 <Card 
                   key={tier.id}
@@ -235,17 +264,17 @@ const ParentPricingPlan = () => {
                     </div>
                   )}
                   
-                  <CardHeader className="text-center pb-8">
-                    <div className={`inline-flex items-center justify-center w-16 h-16 bg-gradient-to-r ${tier.gradient} rounded-2xl mb-4 mx-auto`}>
+                  <CardHeader className="text-center pb-6">
+                    <div className={`inline-flex items-center justify-center w-12 h-12 bg-gradient-to-r ${tier.gradient} rounded-2xl mb-4 mx-auto`}>
                       {tier.icon}
                     </div>
-                    <CardTitle className="text-2xl font-bold">{tier.name}</CardTitle>
-                    <CardDescription className="text-muted-foreground">
+                    <CardTitle className="text-lg font-bold">{tier.name}</CardTitle>
+                    <CardDescription className="text-muted-foreground text-sm mb-3">
                       {tier.description}
                     </CardDescription>
-                    <div className="flex items-baseline justify-center gap-1 mt-4">
-                      <span className="text-4xl font-bold">{tier.price}</span>
-                      <span className="text-muted-foreground">{tier.period}</span>
+                    <div className="flex items-baseline justify-center gap-1">
+                      <span className="text-2xl font-bold">{tier.price}</span>
+                      <span className="text-muted-foreground text-sm">{tier.period}</span>
                     </div>
                   </CardHeader>
                   

@@ -54,7 +54,7 @@ const emergentTools = [
     title: "Smart Letter Generator",
     description: "Generate professional advocacy letters with templates for various special education situations.",
     icon: FileText,
-    path: "/tools/smart-letter-generator",
+    path: "/parent/tools/smart-letter",
     category: "Communication",
     badge: "Templates",
     features: ["Letter Templates", "Legal Language", "Customization", "Professional Format"]
@@ -63,7 +63,7 @@ const emergentTools = [
     title: "Meeting Prep Wizard",
     description: "Prepare for IEP meetings with guided checklists, goal setting, and question preparation.",
     icon: Target,
-    path: "/tools/meeting-prep-wizard",
+    path: "/parent/tools/meeting-prep",
     category: "Meeting Support",
     badge: "Prep",
     features: ["Meeting Agenda", "Goal Tracking", "Question Lists", "Action Items"]

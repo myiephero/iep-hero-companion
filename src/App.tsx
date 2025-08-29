@@ -219,7 +219,17 @@ function App() {
               
               {/* Profile & Settings */}
               <Route path="/profile" element={<Profile />} />
-              <Route path="/settings" element={<Settings />} />
+              <Route path="/parent/settings" element={
+                <ProtectedRoute allowedRoles={['parent']}>
+                  <Settings />
+                </ProtectedRoute>
+              } />
+              <Route path="/advocate/settings" element={
+                <ProtectedRoute allowedRoles={['advocate']}>
+                  <Settings />
+                </ProtectedRoute>
+              } />
+              <Route path="/settings" element={<RoleBasedRedirect parentRoute="/parent/settings" advocateRoute="/advocate/settings" />} />
               
               {/* Student Management - Legacy route redirect */}
               <Route path="/students" element={<Navigate to="/parent/students" replace />} />

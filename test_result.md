@@ -210,3 +210,5 @@ test_plan:
 agent_communication:
   - agent: "testing"
     message: "Comprehensive backend testing completed. Pipeline infrastructure is solid but 0/100 score issue requires investigation of runtime LLM API execution. All Supabase Edge Functions are accessible and properly configured. The issue is likely in the LLM response processing or authentication during actual analysis execution."
+  - agent: "testing"
+    message: "CRITICAL ISSUE CONFIRMED: The 0/100 score issue is caused by EMERGENT_LLM_KEY not being configured in the Supabase Edge Function environment. Direct testing shows: 1) API endpoints return 401 authentication errors, 2) Edge Functions fail with 'Invalid authorization token', 3) LLM calls fail silently causing default 0 scores. The two-pass analysis pipeline code is correct but cannot execute without proper API key configuration. IMMEDIATE ACTION REQUIRED: Configure EMERGENT_LLM_KEY in Supabase project settings."

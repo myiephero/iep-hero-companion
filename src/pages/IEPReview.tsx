@@ -44,7 +44,6 @@ interface IEPAnalysis {
   scores: any;
   flags: any[];
   recommendations: any[];
-  evidence?: string[]; // Array of chunk IDs that support this analysis
   created_at: string;
   model: string;
 }
@@ -169,7 +168,7 @@ export default function IEPReview() {
       
       toast({
         title: "Ingestion complete",
-        description: `Extracted ${data.extractedTextLength} characters, created ${data.chunksCreated} chunks${data.sectionsIdentified ? ` with ${data.sectionsIdentified} sections identified` : ''}.`,
+        description: `Extracted ${data.extractedTextLength} characters into ${data.chunksCreated} chunks.`,
       });
     } catch (error: any) {
       setIngestStatus('error');
@@ -202,7 +201,7 @@ export default function IEPReview() {
       
       toast({
         title: "Analysis complete",
-        description: `Two-pass ${kind} analysis completed${data.sectionsAnalyzed ? ` - analyzed ${data.sectionsAnalyzed} sections` : ''}.`,
+        description: `${kind} analysis completed successfully.`,
       });
     } catch (error: any) {
       setAnalysisStatus('error');
@@ -478,25 +477,11 @@ export default function IEPReview() {
             {analysisStatus === 'processing' && (
               <Card>
                 <CardContent className="p-6">
-                  <div className="space-y-4">
-                    <div className="text-sm font-medium">Enhanced Two-Pass AI Analysis in Progress...</div>
+                  <div className="space-y-2">
+                    <div className="text-sm font-medium">AI analysis in progress...</div>
                     <Progress value={undefined} className="h-2" />
-                    <div className="grid gap-2 text-xs text-muted-foreground">
-                      <div className="flex items-center gap-2">
-                        <div className="w-2 h-2 bg-blue-500 rounded-full animate-pulse"></div>
-                        <span>Pass 1: Document structure analysis with GPT-4o-mini</span>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <div className="w-2 h-2 bg-purple-500 rounded-full animate-pulse"></div>
-                        <span>Pass 2: Detailed compliance analysis with Claude Sonnet-4</span>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
-                        <span>Evidence collection and structured output generation</span>
-                      </div>
-                    </div>
                     <p className="text-xs text-muted-foreground">
-                      Advanced analysis may take 2-4 minutes for comprehensive IEP review
+                      This may take a few minutes depending on document size
                     </p>
                   </div>
                 </CardContent>

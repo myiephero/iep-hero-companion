@@ -17,7 +17,7 @@ serve(async (req) => {
   }
 
   try {
-    const { docId, kind = 'quality', model = 'gpt-4.1-2025-04-14', studentContext = {} } = await req.json();
+    const { docId, kind = 'quality', model = 'gpt-4o-mini', studentContext = {} } = await req.json();
     
     if (!docId) {
       throw new Error('Document ID is required');
@@ -66,14 +66,61 @@ serve(async (req) => {
       throw new Error('No text chunks found. Please ingest the document first.');
     }
 
-    // Combine chunks into full text (up to reasonable limit)
-    const fullText = chunks.slice(0, 20).map(chunk => chunk.content).join('\n\n');
-    console.log(`Using ${fullText.length} characters for analysis`);
+    // Rank chunks by readability and select up to ~14k chars to control cost
+    const computeReadability = (t: string) => {
+      if (!t) return 0;
+      const ascii = t.replace(/[^\x20-\x7E\s]/g, '');
+      const letters = (ascii.match(/[A-Za-z]/g)?.length || 0);
+      const total = ascii.length || 1;
+      const words = ascii.trim().split(/\s+/).length || 1;
+      const avgWord = ascii.length / words; // rough proxy for readability
+      return (letters/total) * 0.7 + Math.min(avgWord/6, 1) * 0.3;
+    };
+
+    const normalizeIEP = (t: string) => t
+      .replace(/[\x00-\x1F\x7F]/g, ' ')
+      .replace(/([A-Za-z])-(\s*\n)\s*([A-Za-z])/g, '$1 $3')
+      .replace(/\s+/g, ' ')
+      .trim();
+
+    const scored = (chunks as any[]).map(c => ({ ...c, score: computeReadability(c.content) }));
+    scored.sort((a, b) => b.score - a.score);
+    const threshold = 0.35;
+    const filtered = scored.filter(c => c.score >= threshold);
+
+    let selected: string[] = [];
+    let totalChars = 0;
+    const LIMIT = 14000;
+    for (const c of (filtered.length ? filtered : scored)) {
+      if (totalChars + c.content.length > LIMIT) break;
+      selected.push(c.content);
+      totalChars += c.content.length;
+    }
+
+    const fullText = normalizeIEP(selected.join('\n\n'));
+    console.log(`Selected ${selected.length} chunks; ${fullText.length} chars for analysis`);
 
     // Get system prompt and schema based on analysis kind
     const { systemPrompt, userPrompt, schema } = getAnalysisPrompts(kind, fullText, studentContext);
 
     console.log('Sending request to OpenAI for IEP analysis');
+
+    const messages = [
+      { role: 'system', content: systemPrompt },
+      { role: 'user', content: userPrompt }
+    ];
+
+    const payload: any = {
+      model,
+      messages,
+      response_format: { type: "json_object" }
+    };
+
+    if (String(model).includes('gpt-4o')) {
+      payload.max_tokens = 1200; // cheaper cap for 4o-mini
+    } else {
+      payload.max_completion_tokens = 1200; // newer models param
+    }
 
     const response = await fetch('https://api.openai.com/v1/chat/completions', {
       method: 'POST',
@@ -81,15 +128,7 @@ serve(async (req) => {
         'Authorization': `Bearer ${openAIApiKey}`,
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({
-        model: model,
-        messages: [
-          { role: 'system', content: systemPrompt },
-          { role: 'user', content: userPrompt }
-        ],
-        max_completion_tokens: 2000,
-        response_format: { type: "json_object" }
-      }),
+      body: JSON.stringify(payload),
     });
 
     if (!response.ok) {

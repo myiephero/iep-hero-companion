@@ -16,66 +16,130 @@ serve(async (req) => {
   }
 
   try {
-    const { documentText, analysisType = 'general' } = await req.json();
+    const { documentText, analysisType = 'general', documentId, fileName } = await req.json();
     
     if (!documentText) {
       throw new Error('Document text is required');
     }
 
-    // Normalize and salvage potentially messy text before analysis
+    console.log(`Analyzing document ${documentId || 'unknown'} (${fileName || 'unknown file'})`);
+    console.log(`Analysis type: ${analysisType}`);
+    console.log(`Text length: ${documentText.length} characters`);
+
+    // Ensure we have the OpenAI API key
+    if (!openAIApiKey) {
+      throw new Error('OpenAI API key not configured. Please check your environment variables.');
+    }
+
+    // Normalize and clean text for analysis
     const cleanedText = normalizeIEPText(String(documentText));
     const textPreview = cleanedText.slice(0, 200).replace(/\s+/g, ' ');
-    console.log(`Normalized text length: ${cleanedText.length}. Preview: ${textPreview}...`);
+    console.log(`Cleaned text length: ${cleanedText.length}. Preview: ${textPreview}...`);
+
+    // Validate text length
+    if (cleanedText.length < 50) {
+      throw new Error('Document text is too short for meaningful analysis. Please ensure the document contains substantial content.');
+    }
 
     let systemPrompt = '';
     let userPrompt = '';
 
     switch (analysisType) {
       case 'iep':
-        systemPrompt = `You are an expert special education advocate and IEP analyst with extensive experience analyzing IEP documents. Your role is to provide helpful, practical analysis of IEP content.
+        systemPrompt = `You are an expert special education advocate and IEP analyst with extensive experience analyzing IEP documents. Your role is to provide helpful, practical analysis of IEP content to help parents understand their child's educational plan and advocate effectively.
 
-IMPORTANT: You are analyzing real IEP documents that may contain various formatting, tables, and standard IEP language. This is normal and expected. Under no circumstances should you conclude the document is unreadable or garbled. If sections are missing or text quality is imperfect, analyze what is present, infer reasonable structure, and explicitly list missing sections.
+CRITICAL ANALYSIS GUIDELINES:
+- You are analyzing real IEP documents that may contain formatting artifacts, tables, and standard IEP language
+- NEVER conclude that a document is unreadable, garbled, or corrupted
+- If formatting is imperfect, focus on extracting meaningful content and insights
+- If sections appear incomplete, analyze what is present and note what might be missing
+- Provide specific, actionable recommendations that parents can use
 
-Analyze the provided IEP document focusing on:
-1. GOALS ANALYSIS: Review goals for specificity, measurability, and appropriateness
-2. SERVICES ADEQUACY: Evaluate if services match identified needs  
-3. ACCOMMODATIONS: Review accommodations and modifications
-4. PRESENT LEVELS: Assess baseline and current performance data
-5. COMPLIANCE: Check for required IEP components
-6. RECOMMENDATIONS: Provide specific, actionable suggestions
+ANALYSIS FOCUS AREAS:
+1. PRESENT LEVELS OF PERFORMANCE: Assess baseline data and current performance descriptions
+2. GOALS AND OBJECTIVES: Review specificity, measurability, and appropriateness of IEP goals
+3. SERVICES AND SUPPORTS: Evaluate adequacy of special education services, related services, and supplementary aids
+4. ACCOMMODATIONS AND MODIFICATIONS: Review classroom and testing accommodations
+5. LEAST RESTRICTIVE ENVIRONMENT: Assess placement decisions and inclusion opportunities
+6. TRANSITION PLANNING: For older students, review transition services and post-secondary planning
+7. PROGRESS MONITORING: Evaluate methods for tracking and reporting progress
 
-Format your response as a concise, parent-friendly analysis.`;
-        userPrompt = `Please analyze this IEP document and provide detailed insights. If content seems partial, proceed and call out gaps at the end.\n\n${cleanedText}`;
+Provide your analysis in a clear, parent-friendly format with specific examples from the document.`;
+
+        userPrompt = `Please provide a comprehensive analysis of this IEP document. Focus on helping the parent understand their child's educational plan and identify areas for improvement or questions to ask the IEP team.
+
+If any part of the text appears to have formatting issues, work with what's available and note any limitations in your analysis.
+
+IEP Document:
+${cleanedText}
+
+Please structure your response to cover:
+1. Overview of the student's current performance and needs
+2. Analysis of IEP goals (are they specific, measurable, appropriate?)
+3. Evaluation of services and supports (are they sufficient?)
+4. Review of accommodations and modifications
+5. Assessment of progress monitoring methods
+6. Specific recommendations for the parent
+7. Questions the parent should consider asking at the next IEP meeting`;
         break;
         
       case 'accommodations':
-        systemPrompt = `You are a special education expert specializing in accommodations. Analyze the document for:
-        
-        1. CURRENT ACCOMMODATIONS: List and evaluate existing accommodations
-        2. MISSING ACCOMMODATIONS: Suggest additional accommodations based on the student's needs
-        3. IMPLEMENTATION GUIDANCE: Provide specific implementation strategies
-        4. EFFECTIVENESS MEASURES: Suggest how to measure accommodation effectiveness
-        
-        Focus on practical, research-based accommodations.`;
-        userPrompt = `Analyze this document for accommodation needs and recommendations. If content is imperfect, continue anyway and note gaps.\n\n${cleanedText}`;
+        systemPrompt = `You are a special education expert specializing in accommodations and modifications. Your expertise helps parents understand and advocate for appropriate accommodations for their child.
+
+ANALYSIS OBJECTIVES:
+1. IDENTIFY CURRENT ACCOMMODATIONS: List and evaluate existing accommodations in the document
+2. ASSESS ACCOMMODATION ADEQUACY: Determine if accommodations match the student's identified needs
+3. SUGGEST ADDITIONAL ACCOMMODATIONS: Recommend evidence-based accommodations that might be beneficial
+4. IMPLEMENTATION GUIDANCE: Provide practical advice on how accommodations should be implemented
+5. EFFECTIVENESS MONITORING: Suggest how to measure accommodation effectiveness
+
+Focus on practical, research-based accommodations that can make a real difference in the student's educational experience.`;
+
+        userPrompt = `Analyze this document specifically for accommodations and modifications. Help the parent understand what accommodations are currently in place and what additional supports might be beneficial.
+
+Document Content:
+${cleanedText}
+
+Please provide:
+1. List of current accommodations and modifications
+2. Assessment of whether accommodations match identified needs
+3. Suggestions for additional accommodations to consider
+4. Guidance on proper implementation of accommodations
+5. Recommendations for monitoring accommodation effectiveness`;
         break;
         
       case 'meeting_prep':
-        systemPrompt = `You are an expert IEP meeting preparation specialist. Help parents prepare by:
-        
-        1. KEY DISCUSSION POINTS: Identify main areas for discussion
-        2. QUESTIONS TO ASK: Provide specific questions for the team
-        3. CONCERNS TO RAISE: Highlight potential issues
-        4. DOCUMENTATION NEEDS: Suggest what additional documents may be needed
-        5. ADVOCACY STRATEGY: Recommend approach for the meeting
-        
-        Make recommendations parent-friendly and empowering.`;
-        userPrompt = `Help me prepare for an IEP meeting based on this document. If information is incomplete, proceed with best-available details and list open questions.\n\n${cleanedText}`;
+        systemPrompt = `You are an expert IEP meeting preparation specialist. Your role is to help parents prepare effectively for IEP meetings by analyzing documents and providing strategic guidance.
+
+PREPARATION FOCUS:
+1. KEY DISCUSSION POINTS: Identify the most important topics for the meeting
+2. STRATEGIC QUESTIONS: Provide specific questions parents should ask
+3. AREAS OF CONCERN: Highlight potential issues that need attention
+4. DOCUMENTATION NEEDS: Suggest additional documents or data that might be helpful
+5. ADVOCACY STRATEGIES: Recommend approaches for effective advocacy
+6. FOLLOW-UP ACTIONS: Suggest next steps and follow-up items
+
+Make all recommendations empowering and practical for parents to implement.`;
+
+        userPrompt = `Help me prepare for an upcoming IEP meeting based on this document. Provide strategic guidance to help me advocate effectively for my child.
+
+Document for Analysis:
+${cleanedText}
+
+Please provide:
+1. Key issues to discuss at the meeting
+2. Specific questions I should ask the IEP team
+3. Areas where I might need to push for improvements
+4. Documentation I should bring or request
+5. Strategies for productive dialogue with the team
+6. Follow-up actions to take after the meeting`;
         break;
         
       default:
-        systemPrompt = `You are a helpful special education advocate assistant. Analyze the provided document and provide insights that would be valuable for parents navigating special education services.`;
-        userPrompt = `Please analyze this document and provide helpful insights. If content quality is imperfect, proceed and list any assumptions.\n\n${cleanedText}`;
+        systemPrompt = `You are a helpful special education advocate assistant. Analyze the provided document and provide insights that would be valuable for parents navigating special education services. Focus on practical, actionable information.`;
+        userPrompt = `Please analyze this special education document and provide helpful insights for the parent:
+
+${cleanedText}`;
     }
 
     console.log('Sending request to OpenAI for document analysis');
@@ -87,12 +151,12 @@ Format your response as a concise, parent-friendly analysis.`;
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        model: 'gpt-4.1-2025-04-14',
+        model: 'gpt-5-2025-08-07', // Using the flagship model for best results
         messages: [
           { role: 'system', content: systemPrompt },
           { role: 'user', content: userPrompt }
         ],
-        max_completion_tokens: 2000,
+        max_completion_tokens: 3000, // Increased for more comprehensive analysis
       }),
     });
 
@@ -105,13 +169,23 @@ Format your response as a concise, parent-friendly analysis.`;
     const data = await response.json();
     const analysis = data.choices[0].message.content;
 
+    if (!analysis || analysis.trim().length === 0) {
+      throw new Error('Empty response from AI analysis. Please try again.');
+    }
+
     console.log('Document analysis completed successfully');
+    console.log(`Analysis length: ${analysis.length} characters`);
 
     return new Response(
       JSON.stringify({ 
         analysis,
         analysisType,
-        timestamp: new Date().toISOString()
+        timestamp: new Date().toISOString(),
+        documentInfo: {
+          documentId,
+          fileName,
+          textLength: cleanedText.length
+        }
       }),
       {
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
@@ -120,9 +194,12 @@ Format your response as a concise, parent-friendly analysis.`;
 
   } catch (error) {
     console.error('Error in analyze-document function:', error);
+    console.error('Error stack:', error.stack);
+    
     return new Response(
       JSON.stringify({ 
-        error: error.message || 'An unexpected error occurred during document analysis'
+        error: error.message || 'An unexpected error occurred during document analysis',
+        details: error.stack ? error.stack.split('\n').slice(0, 3).join('\n') : 'No additional details available'
       }),
       {
         status: 500,
@@ -132,33 +209,33 @@ Format your response as a concise, parent-friendly analysis.`;
   }
 });
 
-// Text normalization tailored for IEP documents
+// Enhanced text normalization for IEP documents
 function normalizeIEPText(input: string): string {
   if (!input) return '';
 
-  // Replace common Windows-1252/Unicode punctuation with ASCII equivalents
-  const map: Record<string, string> = {
+  // Replace common problematic Unicode characters with ASCII equivalents
+  const unicodeMap: Record<string, string> = {
     '\u2018': "'", '\u2019': "'", '\u201C': '"', '\u201D': '"',
     '\u2013': '-', '\u2014': '-', '\u2026': '...', '\u00A0': ' '
   };
-  let text = input.replace(/[\u2018\u2019\u201C\u201D\u2013\u2014\u2026\u00A0]/g, (m) => map[m] || ' ');
+  
+  let text = input.replace(/[\u2018\u2019\u201C\u201D\u2013\u2014\u2026\u00A0]/g, (m) => unicodeMap[m] || ' ');
 
-  // Remove nulls and control chars except newlines/tabs
+  // Remove control characters except newlines and tabs
   text = text.replace(/[\x00-\x08\x0B\x0C\x0E-\x1F]/g, ' ');
 
-  // Fix hyphenated line breaks: word-\nnext -> wordnext
-  text = text.replace(/([A-Za-z])-(\r?\n)\s*([A-Za-z])/g, '$1$3');
+  // Fix common PDF extraction issues
+  text = text
+    .replace(/([A-Za-z])-(\r?\n)\s*([A-Za-z])/g, '$1$3') // Fix hyphenated line breaks
+    .replace(/\r\n/g, '\n')
+    .replace(/\n{3,}/g, '\n\n')
+    .replace(/\s{2,}/g, ' ')
+    .trim();
 
-  // Normalize multiple newlines and spaces
-  text = text.replace(/\r\n/g, '\n')
-             .replace(/\n{3,}/g, '\n\n')
-             .replace(/\s{2,}/g, ' ')
-             .trim();
-
-  // If extremely long, truncate safely to ~80k chars to stay under token limits
+  // Ensure reasonable length for processing
   const MAX_LEN = 80000;
   if (text.length > MAX_LEN) {
-    text = text.slice(0, MAX_LEN);
+    text = text.slice(0, MAX_LEN) + '\n\n[Document truncated for analysis...]';
   }
 
   return text;

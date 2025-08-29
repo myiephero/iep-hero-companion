@@ -50,7 +50,9 @@ serve(async (req) => {
     const fileType = file.type.toLowerCase();
     const fileName = file.name.toLowerCase();
 
-    // Handle different file types
+    console.log(`Attempting to extract text from ${fileName} (${fileType})`);
+
+    // Handle different file types with enhanced extraction
     if (fileType === 'application/pdf' || fileName.endsWith('.pdf')) {
       extractedText = await extractTextFromPDF(file);
     } else if (fileType === 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' || fileName.endsWith('.docx')) {
@@ -64,12 +66,17 @@ serve(async (req) => {
     }
 
     if (!extractedText || extractedText.trim().length === 0) {
-      throw new Error('No text could be extracted from the file');
+      throw new Error('No text could be extracted from the file. The document may be image-based or corrupted.');
     }
 
-    console.log(`Extracted ${extractedText.length} characters from ${file.name}`);
+    console.log(`Successfully extracted ${extractedText.length} characters from ${file.name}`);
+    console.log(`Text preview: "${extractedText.substring(0, 200).replace(/\s+/g, ' ')}..."`);
 
-    // Store the document in the database (use only columns known to exist)
+    // Clean and normalize the extracted text specifically for IEP analysis
+    const cleanedText = normalizeIEPText(extractedText);
+    console.log(`Text after normalization: ${cleanedText.length} characters`);
+
+    // Store the document in the database
     const { data: document, error: docError } = await supabase
       .from('documents')
       .insert({
@@ -79,7 +86,7 @@ serve(async (req) => {
         file_name: file.name,
         file_type: file.type,
         file_size: file.size,
-        file_path: `temp/${file.name}` // Temporary path since we're processing content directly
+        file_path: `processed/${file.name}_${Date.now()}` // More descriptive path
       })
       .select()
       .single();
@@ -89,20 +96,26 @@ serve(async (req) => {
       throw new Error('Failed to store document information');
     }
 
-    // Call the analyze-document function with the extracted text
+    console.log(`Document stored with ID: ${document.id}`);
+
+    // Call the analyze-document function with the cleaned text
     const analysisResponse = await supabase.functions.invoke('analyze-document', {
       body: {
-        documentText: extractedText,
-        analysisType: analysisType
+        documentText: cleanedText,
+        analysisType: analysisType,
+        documentId: document.id,
+        fileName: file.name
       }
     });
 
     if (analysisResponse.error) {
       console.error('Analysis error:', analysisResponse.error);
-      throw new Error('Failed to analyze document content');
+      throw new Error(`Failed to analyze document content: ${analysisResponse.error.message || 'Unknown analysis error'}`);
     }
 
-    // Store the AI analysis result
+    // Store the AI analysis result with enhanced structure
+    const analysisData = analysisResponse.data?.analysis || analysisResponse.data || {};
+    
     const { data: aiReview, error: reviewError } = await supabase
       .from('ai_reviews')
       .insert({
@@ -110,7 +123,15 @@ serve(async (req) => {
         student_id: studentId || null,
         document_id: document.id,
         review_type: analysisType,
-        ai_analysis: analysisResponse.data,
+        ai_analysis: {
+          analysis: analysisData,
+          metadata: {
+            extractedTextLength: cleanedText.length,
+            originalFileName: file.name,
+            fileSize: file.size,
+            processedAt: new Date().toISOString()
+          }
+        },
         status: 'completed',
         priority_level: 'medium'
       })
@@ -129,8 +150,9 @@ serve(async (req) => {
         success: true,
         documentId: document.id,
         reviewId: aiReview.id,
-        analysis: analysisResponse.data,
-        extractedTextLength: extractedText.length
+        analysis: analysisData,
+        extractedTextLength: cleanedText.length,
+        message: 'Document processed and analyzed successfully'
       }),
       {
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
@@ -139,9 +161,13 @@ serve(async (req) => {
 
   } catch (error) {
     console.error('Error in process-document function:', error);
+    console.error('Error stack:', error.stack);
+    
     return new Response(
       JSON.stringify({ 
-        error: error.message || 'An unexpected error occurred during document processing'
+        success: false,
+        error: error.message || 'An unexpected error occurred during document processing',
+        details: error.stack ? error.stack.split('\n').slice(0, 3).join('\n') : 'No stack trace available'
       }),
       {
         status: 500,
@@ -151,111 +177,177 @@ serve(async (req) => {
   }
 });
 
-// Enhanced PDF text extraction for IEP documents
+// Comprehensive PDF text extraction specifically designed for IEP documents
 async function extractTextFromPDF(file: File): Promise<string> {
   try {
-    console.log('Starting enhanced PDF text extraction...');
+    console.log('Starting comprehensive PDF text extraction...');
     
     const arrayBuffer = await file.arrayBuffer();
     const uint8Array = new Uint8Array(arrayBuffer);
     
-    // Convert to string for pattern matching
+    // Convert to Latin-1 string for pattern scanning
     const pdfString = new TextDecoder('latin1').decode(uint8Array);
+    console.log(`PDF converted to string: ${pdfString.length} characters`);
     
-    // Extract text using multiple methods
+    // Extract text using multiple sophisticated methods
     let extractedTexts: string[] = [];
+    let extractionMethods = 0;
     
-    // Method 1: Extract text from BT/ET blocks (text objects)
-    const btPattern = /BT\s+.*?ET/gs;
-    const textBlocks = pdfString.match(btPattern) || [];
-    
-    for (const block of textBlocks) {
-      // Extract text strings from parentheses
-      const textStrings = block.match(/\([^)]*\)/g) || [];
-      for (const str of textStrings) {
-        const cleanText = str.slice(1, -1) // Remove parentheses
-          .replace(/\\[rn]/g, ' ') // Replace escape sequences
-          .replace(/\\[()]/g, '') // Remove escaped parentheses
-          .trim();
-        if (cleanText.length > 1) {
-          extractedTexts.push(cleanText);
+    // Method 1: Extract text from BT/ET blocks (PDF text objects)
+    try {
+      const btPattern = /BT\s+(.*?)ET/gs;
+      const textBlocks = pdfString.match(btPattern) || [];
+      console.log(`Found ${textBlocks.length} BT/ET text blocks`);
+      
+      for (const block of textBlocks) {
+        // Extract text strings from various PDF text showing operators
+        const patterns = [
+          /\(([^)]+)\)\s*Tj/g,  // Simple text showing
+          /\(([^)]+)\)\s*TJ/g,  // Text showing with individual glyph positioning
+          /\[(.*?)\]\s*TJ/g,    // Array-based text showing
+        ];
+        
+        for (const pattern of patterns) {
+          let match;
+          while ((match = pattern.exec(block)) !== null) {
+            let text = match[1];
+            if (text) {
+              // Clean escape sequences
+              text = text
+                .replace(/\\[rn]/g, ' ')
+                .replace(/\\t/g, ' ')
+                .replace(/\\[()]/g, '')
+                .replace(/\\[0-9]{3}/g, ' ') // Octal sequences
+                .trim();
+              
+              if (text.length > 1) {
+                extractedTexts.push(text);
+              }
+            }
+          }
         }
       }
+      extractionMethods++;
+    } catch (e) {
+      console.warn('BT/ET extraction failed:', e.message);
     }
     
-    // Method 2: Extract from Tj operators
-    const tjPattern = /\([^)]+\)\s*Tj/g;
-    let match;
-    while ((match = tjPattern.exec(pdfString)) !== null) {
-      const text = match[0].replace(/\([^)]*\)/, (m) => m.slice(1, -1)).replace(/\s*Tj$/, '');
-      if (text.length > 1) {
-        extractedTexts.push(text);
-      }
-    }
-    
-    // Method 3: Extract from TJ arrays
-    const tjArrayPattern = /\[\s*(?:\([^)]*\)\s*(?:-?\d+(?:\.\d+)?\s*)?)+\]\s*TJ/g;
-    while ((match = tjArrayPattern.exec(pdfString)) !== null) {
-      const arrayContent = match[0];
-      const strings = arrayContent.match(/\([^)]*\)/g) || [];
-      for (const str of strings) {
-        const text = str.slice(1, -1).trim();
-        if (text.length > 1) {
-          extractedTexts.push(text);
+    // Method 2: Stream-based text extraction (more reliable for complex PDFs)
+    try {
+      const streamPattern = /stream\s*(.*?)\s*endstream/gs;
+      const streams = pdfString.match(streamPattern) || [];
+      console.log(`Found ${streams.length} content streams`);
+      
+      for (const stream of streams.slice(0, 50)) { // Limit to first 50 streams to avoid performance issues
+        // Look for text in streams
+        const textPattern = /\(([^)]{2,})\)/g;
+        let match;
+        while ((match = textPattern.exec(stream)) !== null) {
+          let text = match[1]
+            .replace(/\\[rn]/g, ' ')
+            .replace(/\\t/g, ' ')
+            .replace(/\\[()]/g, '')
+            .trim();
+          
+          if (text.length > 2 && /[a-zA-Z]/.test(text)) {
+            extractedTexts.push(text);
+          }
         }
       }
+      extractionMethods++;
+    } catch (e) {
+      console.warn('Stream extraction failed:', e.message);
     }
+    
+    // Method 3: Font-based text extraction (for documents with embedded fonts)
+    try {
+      // Look for font definitions and associated text
+      const fontPattern = /\/F\d+\s+(\d+(?:\.\d+)?)\s+Tf\s*(.*?)(?=\/F\d+|BT|ET|$)/gs;
+      let match;
+      while ((match = fontPattern.exec(pdfString)) !== null) {
+        const textContent = match[2];
+        const textMatches = textContent.match(/\(([^)]+)\)/g) || [];
+        
+        for (const textMatch of textMatches) {
+          let text = textMatch.slice(1, -1)
+            .replace(/\\[rn]/g, ' ')
+            .replace(/\\t/g, ' ')
+            .trim();
+          
+          if (text.length > 1 && /[a-zA-Z]/.test(text)) {
+            extractedTexts.push(text);
+          }
+        }
+      }
+      extractionMethods++;
+    } catch (e) {
+      console.warn('Font-based extraction failed:', e.message);
+    }
+    
+    // Method 4: Simple byte-scanning fallback for difficult PDFs
+    if (extractedTexts.length < 10) {
+      console.log('Attempting fallback byte-scanning method...');
+      try {
+        let simpleText = '';
+        let inParentheses = false;
+        let currentText = '';
+        
+        for (let i = 0; i < uint8Array.length - 1; i++) {
+          const byte = uint8Array[i];
+          const nextByte = uint8Array[i + 1];
+          
+          if (byte === 40) { // '(' - start of text string
+            inParentheses = true;
+            currentText = '';
+            continue;
+          } else if (byte === 41 && inParentheses) { // ')' - end of text string
+            inParentheses = false;
+            if (currentText.length > 1 && /[a-zA-Z]/.test(currentText)) {
+              extractedTexts.push(currentText);
+            }
+            currentText = '';
+            continue;
+          }
+          
+          if (inParentheses && byte >= 32 && byte <= 126) {
+            currentText += String.fromCharCode(byte);
+          }
+        }
+        extractionMethods++;
+      } catch (e) {
+        console.warn('Byte-scanning fallback failed:', e.message);
+      }
+    }
+    
+    console.log(`Used ${extractionMethods} extraction methods, found ${extractedTexts.length} text fragments`);
     
     // Combine and clean extracted text
-    let combinedText = extractedTexts.join(' ');
-    
-    // Clean up the text
-    combinedText = combinedText
-      .replace(/\\[rn]/g, '\n') // Convert escape sequences to newlines
-      .replace(/\\t/g, '\t') // Convert tab escapes
-      .replace(/\\\\/g, '\\') // Convert escaped backslashes
-      .replace(/\\([()])/g, '$1') // Remove escaped parentheses
-      .replace(/\s+/g, ' ') // Normalize whitespace
-      .replace(/[^\x20-\x7E\n\r\t]/g, ' ') // Keep only printable ASCII + whitespace
-      .trim();
-    
-    console.log(`Enhanced extraction: ${combinedText.length} characters from PDF`);
-    console.log(`Sample text: ${combinedText.substring(0, 200)}...`);
-    
-    // If we didn't get enough text, try a simpler byte-by-byte approach
-    if (combinedText.length < 100) {
-      console.log('Falling back to simple extraction method...');
-      
-      let simpleText = '';
-      let inText = false;
-      
-      for (let i = 0; i < uint8Array.length - 1; i++) {
-        const byte = uint8Array[i];
-        const nextByte = uint8Array[i + 1];
-        
-        // Look for text markers
-        if (byte === 40) { // '(' start of text
-          inText = true;
-          continue;
-        } else if (byte === 41 && inText) { // ')' end of text
-          inText = false;
-          simpleText += ' ';
-          continue;
-        }
-        
-        if (inText && byte >= 32 && byte <= 126) {
-          simpleText += String.fromCharCode(byte);
-        }
-      }
-      
-      if (simpleText.length > combinedText.length) {
-        combinedText = simpleText.replace(/\s+/g, ' ').trim();
-        console.log(`Simple extraction yielded more text: ${combinedText.length} characters`);
-      }
+    if (extractedTexts.length === 0) {
+      throw new Error('No readable text found in PDF. The document may be image-based, encrypted, or corrupted.');
     }
     
-    if (combinedText.length < 50) {
-      throw new Error('Could not extract sufficient readable text from PDF. The document may be image-based or use unsupported encoding.');
+    // Remove duplicates and very short fragments
+    const uniqueTexts = [...new Set(extractedTexts)]
+      .filter(text => text.length > 2)
+      .filter(text => /[a-zA-Z]{2,}/.test(text)); // Must contain at least 2 consecutive letters
+    
+    let combinedText = uniqueTexts.join(' ');
+    
+    // Advanced text cleaning specifically for IEP documents
+    combinedText = combinedText
+      .replace(/\\[rn]/g, '\n')
+      .replace(/\\t/g, '\t')
+      .replace(/\\\\/g, '\\')
+      .replace(/\\([()])/g, '$1')
+      .replace(/\s+/g, ' ')
+      .replace(/[^\x20-\x7E\n\r\t]/g, ' ')
+      .trim();
+    
+    console.log(`Final extracted text: ${combinedText.length} characters`);
+    console.log(`Sample: "${combinedText.substring(0, 300)}..."`);
+    
+    if (combinedText.length < 100) {
+      throw new Error(`Insufficient text extracted (${combinedText.length} characters). The PDF may be image-based or use unsupported encoding. Consider converting to a text-based PDF or using OCR.`);
     }
     
     return combinedText;
@@ -266,56 +358,140 @@ async function extractTextFromPDF(file: File): Promise<string> {
   }
 }
 
-// DOCX text extraction
+// Enhanced DOCX text extraction
 async function extractTextFromDOCX(file: File): Promise<string> {
   try {
+    console.log('Extracting text from DOCX file...');
+    
     // Use mammoth.js for DOCX text extraction
     const mammoth = await import('https://esm.sh/mammoth@1.6.0');
     
     const arrayBuffer = await file.arrayBuffer();
     const result = await mammoth.extractRawText({ arrayBuffer });
     
+    if (!result.value || result.value.trim().length === 0) {
+      throw new Error('No text content found in DOCX file');
+    }
+    
+    console.log(`Extracted ${result.value.length} characters from DOCX`);
     return result.value;
+    
   } catch (error) {
     console.error('DOCX extraction error:', error);
-    throw new Error('Failed to extract text from DOCX file');
+    throw new Error(`Failed to extract text from DOCX file: ${error.message}`);
   }
 }
 
-// DOC text extraction (legacy format)
+// Enhanced DOC text extraction (legacy format)
 async function extractTextFromDOC(file: File): Promise<string> {
   try {
-    // For legacy DOC files, we'll use a simpler approach
-    // Note: This is a basic implementation and may not work for all DOC files
+    console.log('Extracting text from legacy DOC file...');
+    
     const arrayBuffer = await file.arrayBuffer();
     const uint8Array = new Uint8Array(arrayBuffer);
     
-    // Convert to string and try to extract readable text
+    // For legacy DOC files, use a more sophisticated approach
     let text = '';
-    for (let i = 0; i < uint8Array.length; i++) {
+    let readableChars = 0;
+    
+    // DOC files have a more complex structure, so we'll be more selective
+    for (let i = 0; i < uint8Array.length - 1; i++) {
       const char = uint8Array[i];
-      // Only include printable ASCII characters
+      const nextChar = uint8Array[i + 1];
+      
+      // Include printable ASCII characters
       if (char >= 32 && char <= 126) {
         text += String.fromCharCode(char);
+        readableChars++;
       } else if (char === 13 || char === 10) { // CR/LF
         text += '\n';
+      } else if (char === 9) { // Tab
+        text += '\t';
       }
     }
     
-    // Clean up the extracted text
+    // Clean up the extracted text more aggressively for DOC files
     text = text
-      .replace(/\x00+/g, ' ') // Remove null bytes
-      .replace(/[^\x20-\x7E\n\r\t]/g, ' ') // Remove non-printable characters
-      .replace(/\s+/g, ' ') // Collapse multiple spaces
+      .replace(/\x00+/g, ' ')
+      .replace(/[^\x20-\x7E\n\r\t]+/g, ' ')
+      .replace(/\s{3,}/g, ' ')
+      .replace(/(.)\1{10,}/g, '$1')
       .trim();
     
-    if (text.length < 50) {
-      throw new Error('Insufficient text extracted from DOC file');
+    console.log(`Extracted ${text.length} characters (${readableChars} readable) from DOC`);
+    
+    if (text.length < 100) {
+      throw new Error('Insufficient readable text extracted from DOC file. Please convert to DOCX or PDF format for better results.');
     }
     
     return text;
+    
   } catch (error) {
     console.error('DOC extraction error:', error);
-    throw new Error('Failed to extract text from DOC file. Please convert to DOCX or PDF format for better results.');
+    throw new Error(`Failed to extract text from DOC file: ${error.message}`);
   }
+}
+
+// Enhanced text normalization specifically for IEP documents
+function normalizeIEPText(input: string): string {
+  if (!input) return '';
+
+  console.log(`Normalizing text: ${input.length} characters`);
+
+  // Replace common problematic Unicode characters with ASCII equivalents
+  const unicodeMap: Record<string, string> = {
+    '\u2018': "'", '\u2019': "'", // Smart quotes
+    '\u201C': '"', '\u201D': '"', // Smart double quotes
+    '\u2013': '-', '\u2014': '--', // En dash, em dash
+    '\u2026': '...', // Ellipsis
+    '\u00A0': ' ', // Non-breaking space
+    '\u00AD': '', // Soft hyphen
+    '\u200B': '', // Zero-width space
+    '\u200C': '', // Zero-width non-joiner
+    '\u200D': '', // Zero-width joiner
+    '\u2060': '', // Word joiner
+    '\uFEFF': '', // Zero-width no-break space
+  };
+  
+  let text = input.replace(/[\u2018\u2019\u201C\u201D\u2013\u2014\u2026\u00A0\u00AD\u200B\u200C\u200D\u2060\uFEFF]/g, 
+    (match) => unicodeMap[match] || ' ');
+
+  // Remove or replace control characters except useful whitespace
+  text = text.replace(/[\x00-\x08\x0B\x0C\x0E-\x1F\x7F]/g, ' ');
+
+  // Fix common PDF extraction artifacts
+  text = text
+    // Fix hyphenated line breaks: "word-\nnext" -> "word next"
+    .replace(/([A-Za-z])-(\r?\n)\s*([A-Za-z])/g, '$1 $3')
+    // Fix broken words: "w o r d" -> "word" (but preserve intentional spacing)
+    .replace(/\b([A-Za-z])\s+([A-Za-z])\s+([A-Za-z])\s+([A-Za-z])\b/g, '$1$2$3$4')
+    // Normalize line endings
+    .replace(/\r\n/g, '\n')
+    .replace(/\r/g, '\n')
+    // Reduce multiple newlines but preserve paragraph breaks
+    .replace(/\n{4,}/g, '\n\n\n')
+    .replace(/\n{3}/g, '\n\n')
+    // Normalize spaces but preserve intentional formatting
+    .replace(/[ \t]{3,}/g, '  ')
+    .replace(/[ \t]{2,}/g, ' ')
+    // Remove space before punctuation
+    .replace(/\s+([,.!?;:])/g, '$1')
+    // Add space after punctuation if missing
+    .replace(/([,.!?;:])([A-Za-z])/g, '$1 $2');
+
+  // Remove extremely long runs of the same character (artifacts)
+  text = text.replace(/(.)\1{20,}/g, '$1');
+
+  // Trim and ensure reasonable length
+  text = text.trim();
+  
+  // Truncate if extremely long to avoid token limits (keep first part as it's usually most important)
+  const MAX_LENGTH = 100000; // About 25k tokens
+  if (text.length > MAX_LENGTH) {
+    text = text.substring(0, MAX_LENGTH) + '\n\n[Document truncated for processing...]';
+    console.log(`Text truncated to ${MAX_LENGTH} characters`);
+  }
+
+  console.log(`Text normalized: ${text.length} characters`);
+  return text;
 }

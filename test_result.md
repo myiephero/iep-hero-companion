@@ -176,6 +176,9 @@ backend:
       - working: false
         agent: "testing"
         comment: "CRITICAL ISSUE IDENTIFIED: The 0/100 score issue is likely caused by LLM API response parsing failures or silent authentication errors. Root causes include: 1) LLM returning null/empty scores, 2) JSON parsing errors, 3) Silent API authentication failures, 4) Database storage issues. The pipeline structure is correct but runtime execution may be failing silently."
+      - working: false
+        agent: "testing"
+        comment: "COMPREHENSIVE DEBUGGING COMPLETED: Root cause confirmed - EMERGENT_LLM_KEY is NOT configured in Supabase Edge Function environment. Direct API tests show 401 authentication errors. Edge Functions return 'Invalid authorization token' errors. The two-pass analysis pipeline code is correct but fails at runtime due to missing API key configuration. This explains the 0/100 scores - LLM calls fail silently and return default empty values."
 
 frontend:
   - task: "IEP Review UI Integration"

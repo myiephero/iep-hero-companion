@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Calendar, Target, TrendingUp, Clock, Plus, BookOpen, AlertCircle, Star, Trophy, Sparkles, ChevronRight, Users, CheckCircle2, ArrowUpRight, Rocket, FileText } from "lucide-react";
+import { Calendar, Target, TrendingUp, Clock, Plus, BookOpen, AlertCircle, Star, Trophy, Sparkles, ChevronRight, Users, CheckCircle2, ArrowUpRight, Rocket, FileText, GraduationCap } from "lucide-react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -312,6 +312,15 @@ export default function ParentDashboard() {
                 >
                   <Users className="h-5 w-5 mr-3" />
                   Manage Students
+                </Button>
+                <Button 
+                  variant="outline" 
+                  size="lg"
+                  className="border-2 border-success/30 hover:border-success text-lg px-8 py-4 h-auto font-semibold glass-card hover:bg-success/5"
+                  onClick={() => navigate('/parent-pricing-plan')}
+                >
+                  <GraduationCap className="h-5 w-5 mr-3" />
+                  Create New Student
                 </Button>
               </div>
             </div>

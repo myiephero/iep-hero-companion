@@ -902,6 +902,7 @@ export default function ParentDashboard() {
           </Card>
           </div>
         </div>
+      </div>
     </DashboardLayout>
   );
 }

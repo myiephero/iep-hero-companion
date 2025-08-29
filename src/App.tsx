@@ -40,6 +40,9 @@ import NotFound from "./pages/NotFound";
 const queryClient = new QueryClient();
 
 function App() {
+  console.log('App component rendering...');
+  console.log('QueryClient created, setting up providers...');
+  
   return (
     <QueryClientProvider client={queryClient}>
       <TooltipProvider>
@@ -114,7 +117,7 @@ function App() {
               <Route path="/tools/autism-accommodations" element={<AutismAccommodationBuilder />} />
               <Route path="/tools/advocate-matching" element={<AdvocateMatchingTool />} />
               <Route path="/tools/gifted-2e-learners" element={<GiftedTwoeLearners />} />
-              <Route path="/tools/smart-letter" element={<SmartLetterGenerator />} />
+              <Route path="/tools/smart-letter" element={<MeetingPrepWizard />} />
               <Route path="/tools/meeting-prep" element={<MeetingPrepWizard />} />
               
               {/* Profile & Settings */}

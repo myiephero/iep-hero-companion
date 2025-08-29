@@ -225,7 +225,11 @@ function App() {
               <Route path="/students" element={<Navigate to="/parent/students" replace />} />
               
               {/* Premium & Upsell */}
-              <Route path="/upsell/hero-plan" element={<HeroPlan />} />
+              <Route path="/parent/upsell/hero-plan" element={
+                <ProtectedRoute allowedRoles={['parent']}>
+                  <ParentHeroPlan />
+                </ProtectedRoute>
+              } />
               <Route path="/advocates" element={<AdvocateDiscovery />} />
               
               {/* Pricing Plans */}

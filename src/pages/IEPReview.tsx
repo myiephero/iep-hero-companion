@@ -299,7 +299,7 @@ export default function IEPReview() {
                 </CardDescription>
               </CardHeader>
               <CardContent>
-                <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center">
+                <div className="border-2 border-dashed border-muted-foreground/25 rounded-lg p-6 text-center hover:border-muted-foreground/50 transition-colors">
                   <input
                     type="file"
                     accept=".pdf,.docx,.txt"
@@ -308,14 +308,19 @@ export default function IEPReview() {
                     id="file-upload"
                     disabled={loading}
                   />
-                  <label htmlFor="file-upload" className="cursor-pointer">
-                    <FileText className="mx-auto h-12 w-12 text-gray-400" />
+                  <label htmlFor="file-upload" className={`cursor-pointer block ${loading ? 'opacity-50 cursor-not-allowed' : ''}`}>
+                    <FileText className="mx-auto h-12 w-12 text-muted-foreground" />
                     <div className="mt-4">
-                      <Button variant="outline" disabled={loading}>
+                      <Button 
+                        variant="outline" 
+                        disabled={loading}
+                        className="pointer-events-none"
+                        asChild={false}
+                      >
                         {loading ? 'Uploading...' : 'Choose File'}
                       </Button>
                     </div>
-                    <p className="mt-2 text-sm text-gray-500">
+                    <p className="mt-2 text-sm text-muted-foreground">
                       PDF, DOCX, or TXT up to 10MB
                     </p>
                   </label>

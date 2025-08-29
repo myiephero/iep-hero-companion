@@ -248,41 +248,6 @@ async function simpleByteExtraction(file: File): Promise<string> {
   return text;
 }
 
-function cleanExtractedPDFText(text: string): string {
-  if (!text) return '';
-  
-  return text
-    // Remove PDF escape sequences
-    .replace(/\\[nrt]/g, ' ')
-    .replace(/\\[()]/g, '')
-    .replace(/\\\\/g, '\\')
-    .replace(/\\[0-7]{1,3}/g, ' ')
-    // Remove control characters
-    .replace(/[\x00-\x1F\x7F]/g, ' ')
-    // Clean whitespace
-    .replace(/\s+/g, ' ')
-    .trim();
-}
-
-function isValidText(text: string): boolean {
-  if (!text || text.length < 10) return false;
-  
-  // Check for reasonable letter-to-total ratio
-  const letters = (text.match(/[A-Za-z]/g) || []).length;
-  const total = text.length;
-  
-  return (letters / total) > 0.5 && text.split(' ').length > 2;
-}
-
-function finalTextCleanup(text: string): string {
-  return text
-    .replace(/\s+/g, ' ')
-    .replace(/([a-z])([A-Z])/g, '$1 $2')
-    .replace(/\s([,.!?;:])/g, '$1')
-    .replace(/([.!?])\s*([A-Z])/g, '$1 $2')
-    .trim();
-}
-
 // Enhanced DOCX text extraction
 async function extractTextFromDOCX(file: File): Promise<string> {
   try {

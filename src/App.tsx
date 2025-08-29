@@ -207,9 +207,8 @@ function App() {
                 </ProtectedRoute>
               } />
               
-              {/* Legacy redirects for old /tools/ routes */}
-              <Route path="/tools/emergent" element={<RoleBasedRedirect parentRoute="/parent/tools/emergent" advocateRoute="/advocate/tools/emergent" />} />
-              <Route path="/tools/document-vault" element={<RoleBasedRedirect parentRoute="/parent/tools/document-vault" advocateRoute="/advocate/tools/document-vault" />} />
+               {/* Legacy redirects for old /tools/ routes */}
+               <Route path="/tools/document-vault" element={<RoleBasedRedirect parentRoute="/parent/tools/document-vault" advocateRoute="/advocate/tools/document-vault" />} />
               <Route path="/tools/iep-review" element={<RoleBasedRedirect parentRoute="/parent/tools/iep-review" advocateRoute="/advocate/tools/iep-review" />} />
               <Route path="/tools/ai-iep-review" element={<RoleBasedRedirect parentRoute="/parent/tools/ai-iep-review" advocateRoute="/advocate/tools/ai-iep-review" />} />
               <Route path="/tools/autism-accommodations" element={<RoleBasedRedirect parentRoute="/parent/tools/autism-accommodations" advocateRoute="/advocate/tools/autism-accommodations" />} />

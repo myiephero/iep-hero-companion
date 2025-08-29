@@ -136,6 +136,287 @@ serve(async (req) => {
   }
 });
 
+async function getNextVersion(supabase: any, docId: string, kind: string): Promise<number> {
+  const { data: existingAnalyses } = await supabase
+    .from('iep_analysis')
+    .select('version')
+    .eq('doc_id', docId)
+    .eq('kind', kind)
+    .order('version', { ascending: false })
+    .limit(1);
+
+  return existingAnalyses && existingAnalyses.length > 0 
+    ? existingAnalyses[0].version + 1 
+    : 1;
+}
+
+async function performOutlineScan(chunks: any[], emergentApiKey: string): Promise<any> {
+  // PASS 1: Quick outline scan with gpt-4o-mini to identify sections
+  const sampleText = chunks.slice(0, 5).map(c => c.content).join('\n\n').substring(0, 8000);
+  
+  const outlinePrompt = `Analyze this IEP document sample and identify the main sections present. Focus on structural organization.
+
+IEP Sample Text:
+${sampleText}
+
+Return JSON with this structure:
+{
+  "sectionsFound": ["Present Levels", "Goals", "Services", "Accommodations", "etc"],
+  "documentStructure": "Brief description of how the document is organized",
+  "keyAreas": ["List 3-5 most important areas to focus detailed analysis on"]
+}`;
+
+  const response = await fetch('https://api.emergentmind.com/v1/chat/completions', {
+    method: 'POST',
+    headers: {
+      'Authorization': `Bearer ${emergentApiKey}`,
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+      model: 'gpt-4o-mini',
+      messages: [
+        { role: 'system', content: 'You are an IEP document structure analyzer. Identify key sections and organization patterns.' },
+        { role: 'user', content: outlinePrompt }
+      ],
+      response_format: { type: "json_object" },
+      max_tokens: 800
+    }),
+  });
+
+  if (!response.ok) {
+    throw new Error(`Outline scan failed: ${response.statusText}`);
+  }
+
+  const data = await response.json();
+  return JSON.parse(data.choices[0].message.content);
+}
+
+async function performStructuredAnalysis(outlineResult: any, chunks: any[], kind: string, studentContext: any, emergentApiKey: string): Promise<any> {
+  // PASS 2: Detailed analysis with claude-sonnet-4 using outline guidance
+  
+  // Smart chunk selection based on outline findings
+  const priorityChunks = selectPriorityChunks(chunks, outlineResult.keyAreas);
+  const analysisText = priorityChunks.map(c => c.content).join('\n\n');
+  
+  const analysisPrompt = kind === 'quality' 
+    ? buildQualityAnalysisPrompt(analysisText, studentContext, outlineResult)
+    : buildComplianceAnalysisPrompt(analysisText, studentContext, outlineResult);
+
+  const response = await fetch('https://api.emergentmind.com/v1/chat/completions', {
+    method: 'POST',
+    headers: {
+      'Authorization': `Bearer ${emergentApiKey}`,
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+      model: 'claude-sonnet-4-20250514',
+      messages: [
+        { role: 'system', content: 'You are an expert IEP analyst with deep knowledge of special education law and best practices.' },
+        { role: 'user', content: analysisPrompt }
+      ],
+      response_format: { type: "json_object" },
+      max_tokens: 2500
+    }),
+  });
+
+  if (!response.ok) {
+    // Fallback to gpt-4o if claude fails
+    console.log('Claude request failed, falling back to gpt-4o');
+    const fallbackResponse = await fetch('https://api.emergentmind.com/v1/chat/completions', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${emergentApiKey}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        model: 'gpt-4o',
+        messages: [
+          { role: 'system', content: 'You are an expert IEP analyst with deep knowledge of special education law and best practices.' },
+          { role: 'user', content: analysisPrompt }
+        ],
+        response_format: { type: "json_object" },
+        max_tokens: 2500
+      }),
+    });
+    
+    if (!fallbackResponse.ok) {
+      throw new Error(`Both Claude and GPT-4o failed for structured analysis`);
+    }
+    
+    const fallbackData = await fallbackResponse.json();
+    const result = JSON.parse(fallbackData.choices[0].message.content);
+    result.evidence = priorityChunks.map(c => c.id);
+    return result;
+  }
+
+  const data = await response.json();
+  const result = JSON.parse(data.choices[0].message.content);
+  result.evidence = priorityChunks.map(c => c.id);
+  return result;
+}
+
+function selectPriorityChunks(chunks: any[], keyAreas: string[]): any[] {
+  // Combine section-tagged chunks with quality-based selection
+  const sectionMap: { [key: string]: string[] } = {
+    'Present Levels': ['present', 'level', 'academic', 'achievement', 'functional', 'performance', 'plaafp'],
+    'Goals': ['goal', 'objective', 'measurable', 'annual', 'benchmark'],
+    'Services': ['service', 'specially', 'designed', 'instruction', 'related', 'frequency', 'duration'],
+    'Accommodations': ['accommodation', 'modification', 'support', 'testing', 'instructional'],
+    'LRE': ['lre', 'least', 'restrictive', 'environment', 'placement', 'inclusion'],
+    'Transition': ['transition', 'postsecondary', 'employment', 'independent', 'living']
+  };
+
+  let priorityChunks: any[] = [];
+  
+  // First, get chunks from tagged sections
+  for (const area of keyAreas) {
+    const areaTerms = getAreaTerms(area, sectionMap);
+    const matchingChunks = chunks.filter(chunk => {
+      // Check section tag first
+      if (chunk.section_tag && chunk.section_tag !== 'Untagged') {
+        return areaTerms.some(term => chunk.section_tag.toLowerCase().includes(term));
+      }
+      // Fallback to content matching
+      const content = chunk.content.toLowerCase();
+      return areaTerms.some(term => content.includes(term));
+    });
+    
+    // Add highest quality chunks from this area
+    matchingChunks
+      .sort((a, b) => (b.text_quality_score || 0) - (a.text_quality_score || 0))
+      .slice(0, 3)
+      .forEach(chunk => {
+        if (!priorityChunks.find(p => p.id === chunk.id)) {
+          priorityChunks.push(chunk);
+        }
+      });
+  }
+  
+  // If we don't have enough, add highest quality chunks overall
+  if (priorityChunks.length < 8) {
+    const remaining = chunks
+      .filter(c => !priorityChunks.find(p => p.id === c.id))
+      .sort((a, b) => (b.text_quality_score || 0) - (a.text_quality_score || 0))
+      .slice(0, 8 - priorityChunks.length);
+    
+    priorityChunks.push(...remaining);
+  }
+  
+  // Ensure we don't exceed token limits (~15k chars max)
+  let totalChars = 0;
+  const finalChunks = [];
+  for (const chunk of priorityChunks) {
+    if (totalChars + chunk.content.length > 15000) break;
+    finalChunks.push(chunk);
+    totalChars += chunk.content.length;
+  }
+  
+  return finalChunks;
+}
+
+function getAreaTerms(area: string, sectionMap: { [key: string]: string[] }): string[] {
+  // Find matching section terms for the area
+  for (const [section, terms] of Object.entries(sectionMap)) {
+    if (section.toLowerCase().includes(area.toLowerCase()) || 
+        area.toLowerCase().includes(section.toLowerCase())) {
+      return terms;
+    }
+  }
+  // Default terms
+  return area.toLowerCase().split(' ');
+}
+
+function buildQualityAnalysisPrompt(text: string, studentContext: any, outlineResult: any): string {
+  return `Perform a comprehensive IEP quality analysis based on the document structure identified.
+
+Document Structure: ${outlineResult.documentStructure}
+Sections Found: ${outlineResult.sectionsFound.join(', ')}
+Student Context: ${JSON.stringify(studentContext)}
+
+IEP Document Content:
+${text}
+
+Analyze this IEP for educational quality and effectiveness. Provide evidence-backed analysis focusing on:
+
+1. **Goals Quality**: Are goals SMART (Specific, Measurable, Achievable, Relevant, Time-bound)?
+2. **Services Appropriateness**: Do services match student needs and goals?
+3. **Accommodations Effectiveness**: Are accommodations comprehensive and properly specified?
+4. **Progress Monitoring**: Is there a clear plan for tracking progress?
+5. **Educational Benefit**: Will this IEP provide meaningful educational benefit?
+
+CRITICAL: Reference specific evidence from the document text. Never claim content is missing if it exists in the text provided.
+
+Return JSON in this exact format:
+{
+  "summary": {
+    "strengths": ["List key educational strengths with evidence"],
+    "needs": ["Areas needing improvement with specific citations"],
+    "goals_overview": "Assessment of goals quality with examples",
+    "services_overview": "Assessment of services with specifics",
+    "accommodations_overview": "Assessment of accommodations with details"
+  },
+  "scores": {
+    "goals_quality": 85,
+    "services_sufficiency": 75,
+    "alignment": 80,
+    "progress_reporting": 70,
+    "parent_participation": 65,
+    "overall": 75
+  },
+  "flags": [
+    {"type": "goals", "where": "Goals section line X", "notes": "Specific concern with evidence"}
+  ],
+  "recommendations": [
+    {"title": "Improve Goal Measurability", "suggestion": "Specific actionable suggestion based on document content", "priority": "high"}
+  ]
+}`;
+}
+
+function buildComplianceAnalysisPrompt(text: string, studentContext: any, outlineResult: any): string {
+  return `Perform a comprehensive IEP compliance analysis based on IDEA requirements.
+
+Document Structure: ${outlineResult.documentStructure}
+Sections Found: ${outlineResult.sectionsFound.join(', ')}
+Student Context: ${JSON.stringify(studentContext)}
+
+IEP Document Content:
+${text}
+
+Analyze this IEP for compliance with IDEA federal requirements. Check for:
+
+1. **Required Components**: Present Levels, Annual Goals, Special Education Services, Related Services, Accommodations, etc.
+2. **Procedural Safeguards**: Evidence of parent participation and rights
+3. **LRE Considerations**: Justification for placement decisions
+4. **Transition Planning**: Age-appropriate transition components (14+)
+5. **Assessment Accommodations**: State assessment participation decisions
+
+CRITICAL: Base compliance findings only on evidence present in the document text provided.
+
+Return JSON in this exact format:
+{
+  "summary": {
+    "compliance_overview": "Overall compliance assessment with evidence",
+    "critical_issues": ["List critical compliance gaps with citations"],
+    "minor_issues": ["List minor compliance concerns with references"],
+    "strengths": ["List compliance strengths with evidence"]
+  },
+  "scores": {
+    "required_sections": 85,
+    "timelines": 90,
+    "procedural_safeguards": 80,
+    "lre_consideration": 75,
+    "accommodations_compliance": 85,
+    "overall": 83
+  },
+  "flags": [
+    {"type": "compliance", "severity": "critical", "where": "Services section", "citation": "34 CFR 300.320", "notes": "Missing required component with evidence"}
+  ],
+  "recommendations": [
+    {"title": "Add Missing Component", "priority": "critical", "citation": "34 CFR 300.320", "suggestion": "Specific remediation steps based on findings"}
+  ]
+}`;
+}
+
 function getAnalysisPrompts(kind: string, iepText: string, studentContext: any) {
   const baseInstructions = `You are analyzing an IEP document. The text may have formatting artifacts from PDF extraction - focus on the substantive content and ignore formatting issues.
 

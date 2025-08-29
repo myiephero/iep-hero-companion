@@ -19,7 +19,10 @@ import {
   Clipboard,
   Flag,
   Sparkles,
-  Target
+  Target,
+  UserPlus,
+  GraduationCap,
+  Plus
 } from "lucide-react";
 
 const AdvocateDashboard = () => {
@@ -139,10 +142,32 @@ const AdvocateDashboard = () => {
       <div className="space-y-8">
         {/* Header */}
         <div className="flex items-center justify-between">
-          <h1 className="text-2xl font-bold">Professional Advocate Tools</h1>
-          <div className="flex items-center gap-2 px-3 py-1 bg-green-100 text-green-800 rounded-full text-sm font-medium">
-            <Flag className="h-4 w-4" />
-            Hero Plan Active
+          <div>
+            <h1 className="text-2xl font-bold">Professional Advocate Tools</h1>
+            <p className="text-muted-foreground mt-1">Manage your clients and access powerful advocacy tools</p>
+          </div>
+          
+          <div className="flex items-center gap-3">
+            {/* Create Buttons */}
+            <Button asChild variant="outline" size="sm" className="flex items-center gap-2">
+              <Link to="/advocate-pricing-plan">
+                <UserPlus className="h-4 w-4" />
+                Create New Parent
+              </Link>
+            </Button>
+            
+            <Button asChild variant="outline" size="sm" className="flex items-center gap-2">
+              <Link to="/parent-pricing-plan">
+                <GraduationCap className="h-4 w-4" />
+                Create New Student
+              </Link>
+            </Button>
+            
+            {/* Hero Plan Badge */}
+            <div className="flex items-center gap-2 px-3 py-1 bg-green-100 text-green-800 rounded-full text-sm font-medium">
+              <Flag className="h-4 w-4" />
+              Hero Plan Active
+            </div>
           </div>
         </div>
 

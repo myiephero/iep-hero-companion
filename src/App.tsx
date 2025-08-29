@@ -5,7 +5,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { AuthProvider } from "@/hooks/useAuth";
-import { ProtectedRoute } from "@/components/ProtectedRoute";
+import { ProtectedRoute, RoleBasedRedirect } from "@/components/ProtectedRoute";
 import Index from "./pages/Index";
 import Auth from "./pages/Auth";
 import ParentDashboard from "./pages/ParentDashboard";
@@ -96,7 +96,17 @@ function App() {
               } />
               
               {/* Tools Routes */}
-              <Route path="/tools/hub" element={<ToolsHub />} />
+              <Route path="/tools/hub" element={<RoleBasedRedirect parentRoute="/parent/tools" advocateRoute="/advocate/tools" />} />
+              <Route path="/parent/tools" element={
+                <ProtectedRoute allowedRoles={['parent']}>
+                  <ToolsHub />
+                </ProtectedRoute>
+              } />
+              <Route path="/advocate/tools" element={
+                <ProtectedRoute allowedRoles={['advocate']}>
+                  <ToolsHub />
+                </ProtectedRoute>
+              } />
               <Route path="/tools/emergent" element={<EmergentToolsHub />} />
               <Route path="/tools/document-vault" element={<DocumentVault />} />
               <Route path="/tools/iep-review" element={<IEPReview />} />

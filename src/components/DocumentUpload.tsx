@@ -393,7 +393,9 @@ export function DocumentUpload({ onAnalysisComplete }: DocumentUploadProps) {
                       </Badge>
                     </div>
                     <div className="text-sm whitespace-pre-wrap">
-                      {fileData.analysis.content}
+                      {typeof fileData.analysis.content === 'string' 
+                        ? fileData.analysis.content 
+                        : JSON.stringify(fileData.analysis.content, null, 2)}
                     </div>
                   </div>
                 )}

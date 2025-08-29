@@ -257,3 +257,243 @@ function chunkText(text: string, maxTokens: number): string[] {
 function estimateTokens(text: string): number {
   return Math.ceil(text.length / 4);
 }
+
+// Enhanced IEP chunking with section detection and tagging
+async function enhancedIEPChunking(text: string, documentTitle: string): Promise<EnhancedChunk[]> {
+  console.log('Starting enhanced IEP chunking with section detection');
+  
+  // Step 1: Normalize and clean text
+  const cleanedText = normalizeIEPText(text);
+  
+  // Step 2: Detect IEP sections using regex patterns
+  const sections = detectIEPSections(cleanedText);
+  console.log(`Detected ${sections.length} IEP sections`);
+  
+  // Step 3: Create chunks within each section
+  const allChunks: EnhancedChunk[] = [];
+  let globalIndex = 0;
+  
+  for (const section of sections) {
+    const sectionChunks = createSectionChunks(section, globalIndex);
+    allChunks.push(...sectionChunks);
+    globalIndex += sectionChunks.length;
+  }
+  
+  // Step 4: Add fallback chunks for untagged content if needed
+  if (allChunks.length === 0) {
+    console.log('No sections detected, falling back to basic chunking');
+    const basicChunks = chunkText(cleanedText, 1500);
+    return basicChunks.map((content, idx) => createEnhancedChunk(content, 'Untagged', 0, idx));
+  }
+  
+  return allChunks;
+}
+
+interface EnhancedChunk {
+  content: string;
+  section_tag: string;
+  page_index: number;
+  chunk_hash: string;
+  quality_score: number;
+}
+
+interface IEPSection {
+  tag: string;
+  content: string;
+  startIndex: number;
+  endIndex: number;
+}
+
+function normalizeIEPText(text: string): string {
+  return text
+    .replace(/[-\x1F\x7F]/g, ' ')                    // Remove control chars
+    .replace(/([A-Za-z])-(\s*\n)\s*([A-Za-z])/g, '$1 $3')  // Fix hyphenated words
+    .replace(/\s+/g, ' ')                           // Normalize whitespace
+    .replace(/[^\x20-\x7E\n\r\t]/g, ' ')           // ASCII only
+    .trim();
+}
+
+function detectIEPSections(text: string): IEPSection[] {
+  // IEP section patterns - ordered by priority
+  const sectionPatterns = [
+    {
+      tag: 'Present_Levels',
+      patterns: [
+        /PRESENT\s+LEVEL[S]?\s+(OF\s+)?(ACADEMIC\s+ACHIEVEMENT|PERFORMANCE)/i,
+        /PLAAFP/i,
+        /CURRENT\s+LEVEL[S]?\s+OF\s+PERFORMANCE/i,
+        /SUMMARY\s+OF\s+PRESENT\s+LEVEL/i,
+        /ACADEMIC\s+ACHIEVEMENT.*?FUNCTIONAL\s+PERFORMANCE/i
+      ]
+    },
+    {
+      tag: 'Goals',
+      patterns: [
+        /ANNUAL\s+GOAL[S]?/i,
+        /MEASURABLE\s+(ANNUAL\s+)?GOAL[S]?/i,
+        /GOAL[S]?\s+AND\s+OBJECTIVE[S]?/i,
+        /IEP\s+GOAL[S]?/i,
+        /SHORT[- ]?TERM\s+OBJECTIVE[S]?/i
+      ]
+    },
+    {
+      tag: 'Services', 
+      patterns: [
+        /SPECIAL\s+EDUCATION.*?SERVICE[S]?/i,
+        /RELATED\s+SERVICE[S]?/i,
+        /SERVICE[S]?\s+(DELIVERY|STATEMENT)/i,
+        /SPECIALLY\s+DESIGNED\s+INSTRUCTION/i,
+        /STATEMENT\s+OF.*?SERVICE[S]?/i
+      ]
+    },
+    {
+      tag: 'Accommodations',
+      patterns: [
+        /ACCOMMODATION[S]?(?!\s+LIST)/i,
+        /MODIFICATION[S]?/i,
+        /TESTING\s+ACCOMMODATION[S]?/i,
+        /INSTRUCTIONAL\s+ACCOMMODATION[S]?/i,
+        /SUPPLEMENTARY\s+AIDS/i
+      ]
+    },
+    {
+      tag: 'LRE',
+      patterns: [
+        /LEAST\s+RESTRICTIVE\s+ENVIRONMENT/i,
+        /LRE/i,
+        /PLACEMENT\s+(DECISION|DETERMINATION)/i,
+        /EDUCATIONAL\s+PLACEMENT/i,
+        /CONTINUUM\s+OF\s+PLACEMENT/i
+      ]
+    },
+    {
+      tag: 'Transition',
+      patterns: [
+        /TRANSITION\s+(PLAN|GOAL[S]?|SERVICE[S]?)/i,
+        /POST[- ]?SECONDARY\s+GOAL[S]?/i,
+        /MEASURABLE\s+POST[- ]?SECONDARY/i,
+        /COORDINATED\s+ACTIVIT/i,
+        /COURSE\s+OF\s+STUDY/i
+      ]
+    },
+    {
+      tag: 'Assessment',
+      patterns: [
+        /STATE.*?ASSESSMENT/i,
+        /STANDARDIZED\s+TEST/i,
+        /TESTING\s+(PARTICIPATION|PROGRAM)/i,
+        /ASSESSMENT\s+RESULT[S]?/i,
+        /EVALUATION\s+RESULT[S]?/i
+      ]
+    },
+    {
+      tag: 'ESY',
+      patterns: [
+        /EXTENDED\s+SCHOOL\s+YEAR/i,
+        /ESY/i,
+        /SUMMER\s+(PROGRAM|SERVICE[S]?)/i,
+        /YEAR[- ]?ROUND\s+SERVICE[S]?/i
+      ]
+    }
+  ];
+
+  const sections: IEPSection[] = [];
+  const text_length = text.length;
+
+  // Find all section matches
+  for (const { tag, patterns } of sectionPatterns) {
+    for (const pattern of patterns) {
+      const matches = Array.from(text.matchAll(new RegExp(pattern.source, 'gi')));
+      
+      for (const match of matches) {
+        if (match.index !== undefined) {
+          const startIndex = Math.max(0, match.index - 50); // Include some context before
+          const nextSectionStart = findNextSectionStart(text, match.index + match[0].length, sectionPatterns);
+          const endIndex = Math.min(nextSectionStart || text_length, match.index + 3000); // Reasonable section size
+          
+          if (endIndex > startIndex + 100) { // Ensure minimum content
+            sections.push({
+              tag,
+              content: text.substring(startIndex, endIndex).trim(),
+              startIndex,
+              endIndex
+            });
+          }
+        }
+      }
+    }
+  }
+
+  // Remove overlapping sections (keep the first one found)
+  const uniqueSections = sections
+    .sort((a, b) => a.startIndex - b.startIndex)
+    .filter((section, index, arr) => {
+      // Check if this section significantly overlaps with a previous one
+      return !arr.slice(0, index).some(prev => 
+        Math.max(section.startIndex, prev.startIndex) < Math.min(section.endIndex, prev.endIndex) - 200
+      );
+    });
+
+  console.log(`Section detection complete. Found: ${uniqueSections.map(s => s.tag).join(', ')}`);
+  return uniqueSections;
+}
+
+function findNextSectionStart(text: string, fromIndex: number, patterns: any[]): number | null {
+  let nearestIndex = null;
+  
+  for (const { patterns: sectionPatterns } of patterns) {
+    for (const pattern of sectionPatterns) {
+      const match = new RegExp(pattern.source, 'gi');
+      match.lastIndex = fromIndex;
+      const result = match.exec(text);
+      if (result && result.index) {
+        if (nearestIndex === null || result.index < nearestIndex) {
+          nearestIndex = result.index;
+        }
+      }
+    }
+  }
+  
+  return nearestIndex;
+}
+
+function createSectionChunks(section: IEPSection, startingIndex: number): EnhancedChunk[] {
+  const maxChunkSize = 1500; // tokens
+  const chunks = chunkText(section.content, maxChunkSize);
+  
+  return chunks.map((content, idx) => 
+    createEnhancedChunk(content, section.tag, 0, startingIndex + idx)
+  );
+}
+
+function createEnhancedChunk(content: string, sectionTag: string, pageIndex: number, index: number): EnhancedChunk {
+  return {
+    content,
+    section_tag: sectionTag,
+    page_index: pageIndex,
+    chunk_hash: generateMD5Hash(content),
+    quality_score: computeReadabilityScore(content)
+  };
+}
+
+function generateMD5Hash(content: string): string {
+  const hasher = createHash("md5");
+  hasher.update(content);
+  return hasher.toString();
+}
+
+function computeReadabilityScore(text: string): number {
+  if (!text) return 0;
+  
+  const ascii = text.replace(/[^\x20-\x7E\s]/g, '');
+  const letters = (ascii.match(/[A-Za-z]/g)?.length || 0);
+  const total = ascii.length || 1;
+  const words = ascii.trim().split(/\s+/).length || 1;
+  const avgWordLength = ascii.length / words;
+  
+  // Score based on letter ratio and reasonable word length
+  const letterRatio = letters / total;
+  const wordLengthScore = Math.min(avgWordLength / 6, 1);
+  
+  return Math.round((letterRatio * 0.7 + wordLengthScore * 0.3) * 1000) / 1000;
+}

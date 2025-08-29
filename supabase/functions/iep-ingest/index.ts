@@ -128,43 +128,82 @@ serve(async (req) => {
   }
 });
 
-// Simple PDF text extraction
+// Enhanced PDF text extraction designed for IEPs
 async function extractTextFromPDF(file: Blob): Promise<string> {
   try {
     const arrayBuffer = await file.arrayBuffer();
     const uint8Array = new Uint8Array(arrayBuffer);
-    
-    let text = '';
-    let currentString = '';
-    let inTextObject = false;
-    
-    for (let i = 0; i < uint8Array.length - 1; i++) {
-      const byte = uint8Array[i];
-      
-      if (byte === 40) { // '(' - start of text string
-        inTextObject = true;
-        currentString = '';
-      } else if (byte === 41 && inTextObject) { // ')' - end of text string
-        if (currentString.length > 2) {
-          text += currentString + ' ';
-        }
-        inTextObject = false;
-        currentString = '';
-      } else if (inTextObject && byte >= 32 && byte <= 126) {
-        currentString += String.fromCharCode(byte);
+
+    // Convert PDF bytes to a Latin-1 string for pattern scanning
+    const pdfString = new TextDecoder('latin1').decode(uint8Array);
+
+    let extractedTexts: string[] = [];
+
+    // Method 1: Extract text between BT ... ET blocks
+    const btPattern = /BT\s+.*?ET/gs;
+    const blocks = pdfString.match(btPattern) || [];
+    for (const block of blocks) {
+      const parts = block.match(/\([^)]*\)/g) || [];
+      for (const p of parts) {
+        const clean = p
+          .slice(1, -1)
+          .replace(/\\[rn]/g, ' ')
+          .replace(/\\[()]/g, '')
+          .trim();
+        if (clean.length > 1) extractedTexts.push(clean);
       }
     }
-    
-    text = text
-      .replace(/\s+/g, ' ')
-      .replace(/[^\w\s.,!?;:()\-]/g, '')
-      .trim();
-    
-    if (text.length < 100) {
-      throw new Error('Insufficient text extracted from PDF');
+
+    // Method 2: Tj operators
+    const tjPattern = /\([^)]+\)\s*Tj/g;
+    let match;
+    while ((match = tjPattern.exec(pdfString)) !== null) {
+      const content = match[0];
+      const text = (content.match(/\(([^)]*)\)/)?.[1] || '')
+        .replace(/\\[rn]/g, ' ')
+        .trim();
+      if (text.length > 1) extractedTexts.push(text);
     }
-    
-    return text;
+
+    // Method 3: TJ arrays
+    const tjArrayPattern = /\[\s*(?:\([^)]*\)\s*(?:-?\d+(?:\.\d+)?\s*)?)+\]\s*TJ/g;
+    while ((match = tjArrayPattern.exec(pdfString)) !== null) {
+      const arr = match[0];
+      const strings = arr.match(/\([^)]*\)/g) || [];
+      for (const s of strings) {
+        const text = s.slice(1, -1).trim();
+        if (text.length > 1) extractedTexts.push(text);
+      }
+    }
+
+    // Combine & normalize
+    let combined = extractedTexts.join(' ')
+      .replace(/\\[rn]/g, '\n')
+      .replace(/\\t/g, '\t')
+      .replace(/\\\\/g, '\\')
+      .replace(/\\([()])/g, '$1')
+      .replace(/\s+/g, ' ')
+      .replace(/[^\x20-\x7E\n\r\t]/g, ' ')
+      .trim();
+
+    // Fallback simple extraction if needed
+    if (combined.length < 100) {
+      let simple = '';
+      let inText = false;
+      for (let i = 0; i < uint8Array.length; i++) {
+        const b = uint8Array[i];
+        if (b === 40) { inText = true; continue; }
+        if (b === 41 && inText) { inText = false; simple += ' '; continue; }
+        if (inText && b >= 32 && b <= 126) simple += String.fromCharCode(b);
+      }
+      if (simple.length > combined.length) combined = simple.replace(/\s+/g, ' ').trim();
+    }
+
+    if (combined.length < 50) {
+      throw new Error('Could not extract sufficient readable text from PDF');
+    }
+
+    return combined;
   } catch (error) {
     console.error('PDF extraction error:', error);
     throw new Error('Failed to extract text from PDF file');

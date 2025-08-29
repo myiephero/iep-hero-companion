@@ -174,30 +174,30 @@ serve(async (req) => {
 function getAnalysisPrompts(kind: string, iepText: string, studentContext: any) {
   if (kind === 'quality') {
     return {
-      systemPrompt: `You are an expert special education advocate and IEP analyst. Analyze the provided IEP text for quality and internal alignment. Be precise, cite specific sections by quoting small snippets. You must respond with valid JSON that matches the exact schema provided.
+      systemPrompt: `You are an expert special education advocate and IEP analyst. Analyze the provided IEP text for quality and internal alignment. Be precise, quote short snippets, and return VALID JSON only.
 
-Focus on:
-1. GOALS ANALYSIS: Review all goals for specificity, measurability, and appropriateness
-2. SERVICES ADEQUACY: Evaluate if services match the student's needs
-3. ACCOMMODATION COMPLIANCE: Check accommodations against best practices
-4. ALIGNMENT: Check alignment between needs, goals, services, and accommodations
-5. PROGRESS REPORTING: Evaluate progress monitoring methods`,
+CRITICAL INSTRUCTIONS:
+- Never claim the document is unreadable or garbled. Even if formatting is odd, analyze whatever content is available.
+- If sections are missing or incomplete, lower the relevant scores and add flags with clear notes.
+- Only when the text contains truly insufficient content (e.g., fewer than ~500 readable characters), include a single critical flag 'insufficient_text' but still provide helpful recommendations.
+- Ensure all numeric scores are integers between 0 and 100 and include an 'overall' score.
+- Keep language parent-friendly and actionable.`,
 
-      userPrompt: `Please analyze this IEP document for quality and provide detailed insights.
+      userPrompt: `Analyze this IEP document for quality. Use the student context if helpful.
 
 Student Context: ${JSON.stringify(studentContext)}
 
-IEP Text:
+IEP Text (may include formatting artifacts; ignore noise and extract useful content):
 ${iepText}
 
-You must respond with valid JSON in this exact format:
+Return JSON in EXACTLY this shape:
 {
   "summary": {
-    "strengths": ["specific strength 1", "specific strength 2"],
-    "needs": ["identified need 1", "identified need 2"],
-    "goals_overview": "brief overview of goals quality",
-    "services_overview": "brief overview of services adequacy", 
-    "accommodations_overview": "brief overview of accommodations"
+    "strengths": ["specific strength 1"],
+    "needs": ["identified need 1"],
+    "goals_overview": "brief goals quality overview",
+    "services_overview": "brief services adequacy overview",
+    "accommodations_overview": "brief accommodations overview"
   },
   "scores": {
     "goals_quality": 0-100,
@@ -208,39 +208,38 @@ You must respond with valid JSON in this exact format:
     "overall": 0-100
   },
   "flags": [
-    {"type": "flag_category", "where": "specific location", "notes": "detailed explanation"}
+    {"type": "flag_category", "where": "specific location or section", "notes": "clear explanation"}
   ],
   "recommendations": [
-    {"title": "recommendation title", "suggestion": "detailed suggestion with specific language"}
+    {"title": "recommendation title", "suggestion": "specific, actionable suggestion"}
   ]
 }`,
       schema: "quality_analysis_schema"
     };
   } else {
     return {
-      systemPrompt: `You are a special education compliance analyst. Check this IEP against IDEA requirements and best practices. Flag missing sections, timeline issues, and procedural concerns. Provide specific citations and remediation steps. You must respond with valid JSON.
+      systemPrompt: `You are a special education compliance analyst. Check this IEP against IDEA requirements and best practices. Return VALID JSON only.
 
-Focus on:
-1. Required sections present
-2. Timeline compliance (meetings, evaluations, progress reports)
-3. Procedural safeguards provided
-4. LRE/ESY consideration documented
-5. Parent participation evidence`,
+CRITICAL INSTRUCTIONS:
+- Never claim the document is unreadable; analyze whatever content is available.
+- If sections are missing, create clear flags with citations and lower scores accordingly.
+- Only when content is truly insufficient (e.g., < ~500 readable characters), include a critical 'insufficient_text' flag, but still provide remediation steps.
+- Ensure all scores are integers 0–100 and include an 'overall' score.`,
 
-      userPrompt: `Please analyze this IEP document for IDEA compliance and procedural requirements.
+      userPrompt: `Analyze this IEP for IDEA compliance and procedural requirements.
 
 Student Context: ${JSON.stringify(studentContext)}
 
-IEP Text:
+IEP Text (may include formatting artifacts; ignore noise and extract useful content):
 ${iepText}
 
-You must respond with valid JSON in this exact format:
+Return JSON in EXACTLY this shape:
 {
   "summary": {
     "compliance_overview": "overall compliance status summary",
-    "critical_issues": ["critical issue 1", "critical issue 2"],
-    "minor_issues": ["minor issue 1", "minor issue 2"],
-    "strengths": ["compliance strength 1", "compliance strength 2"]
+    "critical_issues": ["critical issue 1"],
+    "minor_issues": ["minor issue 1"],
+    "strengths": ["compliance strength 1"]
   },
   "scores": {
     "required_sections": 0-100,

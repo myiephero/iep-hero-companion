@@ -112,7 +112,8 @@ serve(async (req) => {
       JSON.stringify({ 
         success: true,
         extractedTextLength: extractedText.length,
-        chunksCreated: chunks.length
+        chunksCreated: enhancedChunks.length,
+        sectionsIdentified: [...new Set(enhancedChunks.map(c => c.section_tag))].length
       }),
       {
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },

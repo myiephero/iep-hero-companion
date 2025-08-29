@@ -64,6 +64,219 @@ export type Database = {
           },
         ]
       }
+      advocate_requests: {
+        Row: {
+          advocate_id: string
+          budget_range: string | null
+          created_at: string
+          id: string
+          message: string
+          parent_id: string
+          preferred_contact_method: string | null
+          responded_at: string | null
+          response_message: string | null
+          status: string | null
+          student_id: string | null
+          subject: string
+          updated_at: string
+          urgency_level: string | null
+        }
+        Insert: {
+          advocate_id: string
+          budget_range?: string | null
+          created_at?: string
+          id?: string
+          message: string
+          parent_id: string
+          preferred_contact_method?: string | null
+          responded_at?: string | null
+          response_message?: string | null
+          status?: string | null
+          student_id?: string | null
+          subject: string
+          updated_at?: string
+          urgency_level?: string | null
+        }
+        Update: {
+          advocate_id?: string
+          budget_range?: string | null
+          created_at?: string
+          id?: string
+          message?: string
+          parent_id?: string
+          preferred_contact_method?: string | null
+          responded_at?: string | null
+          response_message?: string | null
+          status?: string | null
+          student_id?: string | null
+          subject?: string
+          updated_at?: string
+          urgency_level?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "advocate_requests_advocate_id_fkey"
+            columns: ["advocate_id"]
+            isOneToOne: false
+            referencedRelation: "advocates"
+            referencedColumns: ["user_id"]
+          },
+          {
+            foreignKeyName: "advocate_requests_student_id_fkey"
+            columns: ["student_id"]
+            isOneToOne: false
+            referencedRelation: "students"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      advocates: {
+        Row: {
+          availability: string | null
+          bio: string | null
+          case_types: string[] | null
+          certifications: string[] | null
+          created_at: string
+          education: string | null
+          email: string
+          full_name: string
+          id: string
+          languages: string[] | null
+          location: string | null
+          phone: string | null
+          profile_image_url: string | null
+          rate_per_hour: number | null
+          rating: number | null
+          specializations: string[] | null
+          status: string | null
+          total_reviews: number | null
+          updated_at: string
+          user_id: string
+          verification_status: string | null
+          years_experience: number | null
+        }
+        Insert: {
+          availability?: string | null
+          bio?: string | null
+          case_types?: string[] | null
+          certifications?: string[] | null
+          created_at?: string
+          education?: string | null
+          email: string
+          full_name: string
+          id?: string
+          languages?: string[] | null
+          location?: string | null
+          phone?: string | null
+          profile_image_url?: string | null
+          rate_per_hour?: number | null
+          rating?: number | null
+          specializations?: string[] | null
+          status?: string | null
+          total_reviews?: number | null
+          updated_at?: string
+          user_id: string
+          verification_status?: string | null
+          years_experience?: number | null
+        }
+        Update: {
+          availability?: string | null
+          bio?: string | null
+          case_types?: string[] | null
+          certifications?: string[] | null
+          created_at?: string
+          education?: string | null
+          email?: string
+          full_name?: string
+          id?: string
+          languages?: string[] | null
+          location?: string | null
+          phone?: string | null
+          profile_image_url?: string | null
+          rate_per_hour?: number | null
+          rating?: number | null
+          specializations?: string[] | null
+          status?: string | null
+          total_reviews?: number | null
+          updated_at?: string
+          user_id?: string
+          verification_status?: string | null
+          years_experience?: number | null
+        }
+        Relationships: []
+      }
+      ai_reviews: {
+        Row: {
+          action_items: Json | null
+          ai_analysis: Json
+          areas_of_concern: Json | null
+          compliance_score: number | null
+          created_at: string
+          document_id: string | null
+          id: string
+          priority_level: string | null
+          recommendations: Json | null
+          review_type: string
+          status: string | null
+          strengths: Json | null
+          student_id: string | null
+          suggested_improvements: Json | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          action_items?: Json | null
+          ai_analysis: Json
+          areas_of_concern?: Json | null
+          compliance_score?: number | null
+          created_at?: string
+          document_id?: string | null
+          id?: string
+          priority_level?: string | null
+          recommendations?: Json | null
+          review_type: string
+          status?: string | null
+          strengths?: Json | null
+          student_id?: string | null
+          suggested_improvements?: Json | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          action_items?: Json | null
+          ai_analysis?: Json
+          areas_of_concern?: Json | null
+          compliance_score?: number | null
+          created_at?: string
+          document_id?: string | null
+          id?: string
+          priority_level?: string | null
+          recommendations?: Json | null
+          review_type?: string
+          status?: string | null
+          strengths?: Json | null
+          student_id?: string | null
+          suggested_improvements?: Json | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ai_reviews_document_id_fkey"
+            columns: ["document_id"]
+            isOneToOne: false
+            referencedRelation: "documents"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "ai_reviews_student_id_fkey"
+            columns: ["student_id"]
+            isOneToOne: false
+            referencedRelation: "students"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       audit_log: {
         Row: {
           action: string
@@ -90,6 +303,80 @@ export type Database = {
           user_id?: string | null
         }
         Relationships: []
+      }
+      autism_accommodations: {
+        Row: {
+          academic_supports: Json | null
+          accommodation_type: string
+          behavioral_triggers: Json | null
+          category: string
+          communication_needs: Json | null
+          created_at: string
+          description: string
+          effectiveness_rating: number | null
+          environmental_modifications: Json | null
+          id: string
+          implementation_notes: string | null
+          sensory_profile: Json | null
+          social_supports: Json | null
+          status: string | null
+          student_id: string | null
+          technology_supports: Json | null
+          title: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          academic_supports?: Json | null
+          accommodation_type: string
+          behavioral_triggers?: Json | null
+          category: string
+          communication_needs?: Json | null
+          created_at?: string
+          description: string
+          effectiveness_rating?: number | null
+          environmental_modifications?: Json | null
+          id?: string
+          implementation_notes?: string | null
+          sensory_profile?: Json | null
+          social_supports?: Json | null
+          status?: string | null
+          student_id?: string | null
+          technology_supports?: Json | null
+          title: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          academic_supports?: Json | null
+          accommodation_type?: string
+          behavioral_triggers?: Json | null
+          category?: string
+          communication_needs?: Json | null
+          created_at?: string
+          description?: string
+          effectiveness_rating?: number | null
+          environmental_modifications?: Json | null
+          id?: string
+          implementation_notes?: string | null
+          sensory_profile?: Json | null
+          social_supports?: Json | null
+          status?: string | null
+          student_id?: string | null
+          technology_supports?: Json | null
+          title?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "autism_accommodations_student_id_fkey"
+            columns: ["student_id"]
+            isOneToOne: false
+            referencedRelation: "students"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       cases: {
         Row: {
@@ -211,6 +498,80 @@ export type Database = {
         Relationships: [
           {
             foreignKeyName: "documents_student_id_fkey"
+            columns: ["student_id"]
+            isOneToOne: false
+            referencedRelation: "students"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      gifted_assessments: {
+        Row: {
+          acceleration_needs: Json | null
+          assessment_scores: Json | null
+          assessment_type: string
+          challenges: Json | null
+          created_at: string
+          enrichment_activities: Json | null
+          evaluator_notes: string | null
+          giftedness_areas: string[]
+          id: string
+          learning_differences: string[] | null
+          next_steps: Json | null
+          recommendations: Json | null
+          social_emotional_needs: Json | null
+          status: string | null
+          strengths: Json
+          student_id: string
+          twice_exceptional_profile: Json | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          acceleration_needs?: Json | null
+          assessment_scores?: Json | null
+          assessment_type: string
+          challenges?: Json | null
+          created_at?: string
+          enrichment_activities?: Json | null
+          evaluator_notes?: string | null
+          giftedness_areas: string[]
+          id?: string
+          learning_differences?: string[] | null
+          next_steps?: Json | null
+          recommendations?: Json | null
+          social_emotional_needs?: Json | null
+          status?: string | null
+          strengths: Json
+          student_id: string
+          twice_exceptional_profile?: Json | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          acceleration_needs?: Json | null
+          assessment_scores?: Json | null
+          assessment_type?: string
+          challenges?: Json | null
+          created_at?: string
+          enrichment_activities?: Json | null
+          evaluator_notes?: string | null
+          giftedness_areas?: string[]
+          id?: string
+          learning_differences?: string[] | null
+          next_steps?: Json | null
+          recommendations?: Json | null
+          social_emotional_needs?: Json | null
+          status?: string | null
+          strengths?: Json
+          student_id?: string
+          twice_exceptional_profile?: Json | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "gifted_assessments_student_id_fkey"
             columns: ["student_id"]
             isOneToOne: false
             referencedRelation: "students"

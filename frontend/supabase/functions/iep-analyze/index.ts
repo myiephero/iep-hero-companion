@@ -28,10 +28,13 @@ serve(async (req) => {
     }
 
     if (!emergentApiKey) {
-      throw new Error('Emergent LLM API key not configured');
+      console.error('EMERGENT_LLM_KEY not configured in Supabase environment');
+      throw new Error('AI analysis unavailable: EMERGENT_LLM_KEY not configured. Please contact support.');
     }
 
     console.log(`Starting two-pass analysis for document ${docId} - ${kind}`);
+    console.log(`API Key configured: ${emergentApiKey ? 'Yes' : 'No'}`);
+    console.log(`API Key prefix: ${emergentApiKey?.substring(0, 15)}...`);
     
     const supabase = createClient(supabaseUrl, supabaseServiceKey);
     

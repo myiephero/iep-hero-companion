@@ -317,7 +317,7 @@ export default function ParentDashboard() {
                   variant="outline" 
                   size="lg"
                   className="border-2 border-success/30 hover:border-success text-lg px-8 py-4 h-auto font-semibold glass-card hover:bg-success/5"
-                  onClick={() => navigate('/students')}
+                  onClick={() => navigate('/parent/students')}
                 >
                   <GraduationCap className="h-5 w-5 mr-3" />
                   Create New Student

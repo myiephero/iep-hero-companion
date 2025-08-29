@@ -3,7 +3,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { AuthProvider } from "@/hooks/useAuth";
 import { ProtectedRoute } from "@/components/ProtectedRoute";
 import Index from "./pages/Index";
@@ -13,6 +13,8 @@ import AdvocateDashboard from "./pages/AdvocateDashboard";
 import AdvocateMessages from "./pages/AdvocateMessages";
 import AdvocateSchedule from "./pages/AdvocateSchedule";
 import AdvocateCreateParent from "./pages/AdvocateCreateParent";
+import ParentStudents from "./pages/ParentStudents";
+import AdvocateStudents from "./pages/AdvocateStudents";
 import IEPReview from "./pages/IEPReview";
 import AIIEPReview from "./pages/AIIEPReview";
 import AutismAccommodations from "./pages/AutismAccommodations";
@@ -60,6 +62,11 @@ function App() {
                   <ParentMeetingPrep />
                 </ProtectedRoute>
               } />
+              <Route path="/parent/students" element={
+                <ProtectedRoute allowedRoles={['parent']}>
+                  <ParentStudents />
+                </ProtectedRoute>
+              } />
               
               {/* Advocate Routes - Protected */}
               <Route path="/advocate/dashboard" element={
@@ -82,6 +89,11 @@ function App() {
                   <AdvocateCreateParent />
                 </ProtectedRoute>
               } />
+              <Route path="/advocate/students" element={
+                <ProtectedRoute allowedRoles={['advocate']}>
+                  <AdvocateStudents />
+                </ProtectedRoute>
+              } />
               
               {/* Tools Routes */}
               <Route path="/tools/hub" element={<ToolsHub />} />
@@ -99,8 +111,8 @@ function App() {
               <Route path="/profile" element={<Profile />} />
               <Route path="/settings" element={<Settings />} />
               
-              {/* Student Management */}
-              <Route path="/students" element={<StudentProfiles />} />
+              {/* Student Management - Legacy route redirect */}
+              <Route path="/students" element={<Navigate to="/parent/students" replace />} />
               
               {/* Premium & Upsell */}
               <Route path="/upsell/hero-plan" element={<HeroPlan />} />

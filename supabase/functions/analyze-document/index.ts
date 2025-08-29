@@ -22,6 +22,11 @@ serve(async (req) => {
       throw new Error('Document text is required');
     }
 
+    // Normalize and salvage potentially messy text before analysis
+    const cleanedText = normalizeIEPText(String(documentText));
+    const textPreview = cleanedText.slice(0, 200).replace(/\s+/g, ' ');
+    console.log(`Normalized text length: ${cleanedText.length}. Preview: ${textPreview}...`);
+
     let systemPrompt = '';
     let userPrompt = '';
 
@@ -29,7 +34,7 @@ serve(async (req) => {
       case 'iep':
         systemPrompt = `You are an expert special education advocate and IEP analyst with extensive experience analyzing IEP documents. Your role is to provide helpful, practical analysis of IEP content.
 
-IMPORTANT: You are analyzing real IEP documents that may contain various formatting, tables, and standard IEP language. This is normal and expected. Do NOT dismiss documents as "unreadable" or "garbled" unless they truly contain no educational content.
+IMPORTANT: You are analyzing real IEP documents that may contain various formatting, tables, and standard IEP language. This is normal and expected. Under no circumstances should you conclude the document is unreadable or garbled. If sections are missing or text quality is imperfect, analyze what is present, infer reasonable structure, and explicitly list missing sections.
 
 Analyze the provided IEP document focusing on:
 1. GOALS ANALYSIS: Review goals for specificity, measurability, and appropriateness
@@ -39,8 +44,8 @@ Analyze the provided IEP document focusing on:
 5. COMPLIANCE: Check for required IEP components
 6. RECOMMENDATIONS: Provide specific, actionable suggestions
 
-Format your response as a comprehensive analysis that helps parents understand their child's IEP.`;
-        userPrompt = `Please analyze this IEP document and provide detailed insights:\n\n${documentText}`;
+Format your response as a concise, parent-friendly analysis.`;
+        userPrompt = `Please analyze this IEP document and provide detailed insights. If content seems partial, proceed and call out gaps at the end.\n\n${cleanedText}`;
         break;
         
       case 'accommodations':
@@ -52,7 +57,7 @@ Format your response as a comprehensive analysis that helps parents understand t
         4. EFFECTIVENESS MEASURES: Suggest how to measure accommodation effectiveness
         
         Focus on practical, research-based accommodations.`;
-        userPrompt = `Analyze this document for accommodation needs and recommendations:\n\n${documentText}`;
+        userPrompt = `Analyze this document for accommodation needs and recommendations. If content is imperfect, continue anyway and note gaps.\n\n${cleanedText}`;
         break;
         
       case 'meeting_prep':
@@ -65,12 +70,12 @@ Format your response as a comprehensive analysis that helps parents understand t
         5. ADVOCACY STRATEGY: Recommend approach for the meeting
         
         Make recommendations parent-friendly and empowering.`;
-        userPrompt = `Help me prepare for an IEP meeting based on this document:\n\n${documentText}`;
+        userPrompt = `Help me prepare for an IEP meeting based on this document. If information is incomplete, proceed with best-available details and list open questions.\n\n${cleanedText}`;
         break;
         
       default:
         systemPrompt = `You are a helpful special education advocate assistant. Analyze the provided document and provide insights that would be valuable for parents navigating special education services.`;
-        userPrompt = `Please analyze this document and provide helpful insights:\n\n${documentText}`;
+        userPrompt = `Please analyze this document and provide helpful insights. If content quality is imperfect, proceed and list any assumptions.\n\n${cleanedText}`;
     }
 
     console.log('Sending request to OpenAI for document analysis');
@@ -126,3 +131,35 @@ Format your response as a comprehensive analysis that helps parents understand t
     );
   }
 });
+
+// Text normalization tailored for IEP documents
+function normalizeIEPText(input: string): string {
+  if (!input) return '';
+
+  // Replace common Windows-1252/Unicode punctuation with ASCII equivalents
+  const map: Record<string, string> = {
+    '\u2018': "'", '\u2019': "'", '\u201C': '"', '\u201D': '"',
+    '\u2013': '-', '\u2014': '-', '\u2026': '...', '\u00A0': ' '
+  };
+  let text = input.replace(/[\u2018\u2019\u201C\u201D\u2013\u2014\u2026\u00A0]/g, (m) => map[m] || ' ');
+
+  // Remove nulls and control chars except newlines/tabs
+  text = text.replace(/[\x00-\x08\x0B\x0C\x0E-\x1F]/g, ' ');
+
+  // Fix hyphenated line breaks: word-\nnext -> wordnext
+  text = text.replace(/([A-Za-z])-(\r?\n)\s*([A-Za-z])/g, '$1$3');
+
+  // Normalize multiple newlines and spaces
+  text = text.replace(/\r\n/g, '\n')
+             .replace(/\n{3,}/g, '\n\n')
+             .replace(/\s{2,}/g, ' ')
+             .trim();
+
+  // If extremely long, truncate safely to ~80k chars to stay under token limits
+  const MAX_LEN = 80000;
+  if (text.length > MAX_LEN) {
+    text = text.slice(0, MAX_LEN);
+  }
+
+  return text;
+}

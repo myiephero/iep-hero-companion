@@ -207,14 +207,23 @@ async function performStructuredAnalysis(outlineResult: any, chunks: any[], kind
     ? buildQualityAnalysisPrompt(analysisText, studentContext, outlineResult)
     : buildComplianceAnalysisPrompt(analysisText, studentContext, outlineResult);
 
-  const response = await fetch('https://api.emergentmind.com/v1/chat/completions', {
+  // Use Emergent proxy endpoint for LLM integration
+  const apiEndpoint = emergentApiKey.startsWith('sk-emergent-') 
+    ? 'https://integrations.emergentagent.com/llm/v1/chat/completions'
+    : 'https://api.anthropic.com/v1/messages';
+
+  const modelName = emergentApiKey.startsWith('sk-emergent-') 
+    ? 'anthropic/claude-sonnet-4-20250514' 
+    : 'claude-sonnet-4-20250514';
+
+  const response = await fetch(apiEndpoint, {
     method: 'POST',
     headers: {
       'Authorization': `Bearer ${emergentApiKey}`,
       'Content-Type': 'application/json',
     },
     body: JSON.stringify({
-      model: 'claude-sonnet-4-20250514',
+      model: modelName,
       messages: [
         { role: 'system', content: 'You are an expert IEP analyst with deep knowledge of special education law and best practices.' },
         { role: 'user', content: analysisPrompt }
@@ -227,14 +236,19 @@ async function performStructuredAnalysis(outlineResult: any, chunks: any[], kind
   if (!response.ok) {
     // Fallback to gpt-4o if claude fails
     console.log('Claude request failed, falling back to gpt-4o');
-    const fallbackResponse = await fetch('https://api.emergentmind.com/v1/chat/completions', {
+    const fallbackModel = emergentApiKey.startsWith('sk-emergent-') ? 'openai/gpt-4o' : 'gpt-4o';
+    const fallbackEndpoint = emergentApiKey.startsWith('sk-emergent-') 
+      ? 'https://integrations.emergentagent.com/llm/v1/chat/completions'
+      : 'https://api.openai.com/v1/chat/completions';
+      
+    const fallbackResponse = await fetch(fallbackEndpoint, {
       method: 'POST',
       headers: {
         'Authorization': `Bearer ${emergentApiKey}`,
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        model: 'gpt-4o',
+        model: fallbackModel,
         messages: [
           { role: 'system', content: 'You are an expert IEP analyst with deep knowledge of special education law and best practices.' },
           { role: 'user', content: analysisPrompt }
@@ -245,7 +259,7 @@ async function performStructuredAnalysis(outlineResult: any, chunks: any[], kind
     });
     
     if (!fallbackResponse.ok) {
-      throw new Error(`Both Claude and GPT-4o failed for structured analysis`);
+      throw new Error(`Both Claude and GPT-4o failed for structured analysis: ${fallbackResponse.status} ${fallbackResponse.statusText}`);
     }
     
     const fallbackData = await fallbackResponse.json();

@@ -196,8 +196,8 @@ Return JSON with this structure:
   return JSON.parse(data.choices[0].message.content);
 }
 
-async function performStructuredAnalysis(outlineResult: any, chunks: any[], kind: string, studentContext: any, emergentApiKey: string): Promise<any> {
-  // PASS 2: Detailed analysis with claude-sonnet-4 using outline guidance
+async function performStructuredAnalysis(outlineResult: any, chunks: any[], kind: string, studentContext: any, openAIApiKey: string): Promise<any> {
+  // PASS 2: Detailed analysis with gpt-4o using outline guidance
   
   // Smart chunk selection based on outline findings
   const priorityChunks = selectPriorityChunks(chunks, outlineResult.keyAreas);
@@ -207,23 +207,14 @@ async function performStructuredAnalysis(outlineResult: any, chunks: any[], kind
     ? buildQualityAnalysisPrompt(analysisText, studentContext, outlineResult)
     : buildComplianceAnalysisPrompt(analysisText, studentContext, outlineResult);
 
-  // Use Emergent proxy endpoint for LLM integration
-  const apiEndpoint = emergentApiKey.startsWith('sk-emergent-') 
-    ? 'https://integrations.emergentagent.com/llm/v1/chat/completions'
-    : 'https://api.anthropic.com/v1/messages';
-
-  const modelName = emergentApiKey.startsWith('sk-emergent-') 
-    ? 'anthropic/claude-sonnet-4-20250514' 
-    : 'claude-sonnet-4-20250514';
-
-  const response = await fetch(apiEndpoint, {
+  const response = await fetch('https://api.openai.com/v1/chat/completions', {
     method: 'POST',
     headers: {
-      'Authorization': `Bearer ${emergentApiKey}`,
+      'Authorization': `Bearer ${openAIApiKey}`,
       'Content-Type': 'application/json',
     },
     body: JSON.stringify({
-      model: modelName,
+      model: 'gpt-4o',
       messages: [
         { role: 'system', content: 'You are an expert IEP analyst with deep knowledge of special education law and best practices.' },
         { role: 'user', content: analysisPrompt }
@@ -235,42 +226,8 @@ async function performStructuredAnalysis(outlineResult: any, chunks: any[], kind
 
   if (!response.ok) {
     const errorText = await response.text();
-    console.error(`Claude analysis failed: ${response.status} ${response.statusText}`, errorText);
-    
-    // Fallback to gpt-4o if claude fails
-    console.log('Claude request failed, falling back to gpt-4o');
-    const fallbackModel = emergentApiKey.startsWith('sk-emergent-') ? 'openai/gpt-4o' : 'gpt-4o';
-    const fallbackEndpoint = emergentApiKey.startsWith('sk-emergent-') 
-      ? 'https://integrations.emergentagent.com/llm/v1/chat/completions'
-      : 'https://api.openai.com/v1/chat/completions';
-      
-    const fallbackResponse = await fetch(fallbackEndpoint, {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${emergentApiKey}`,
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        model: fallbackModel,
-        messages: [
-          { role: 'system', content: 'You are an expert IEP analyst with deep knowledge of special education law and best practices.' },
-          { role: 'user', content: analysisPrompt }
-        ],
-        response_format: { type: "json_object" },
-        max_tokens: 2500
-      }),
-    });
-    
-    if (!fallbackResponse.ok) {
-      const fallbackError = await fallbackResponse.text();
-      console.error(`Fallback GPT-4o also failed: ${fallbackResponse.status} ${fallbackResponse.statusText}`, fallbackError);
-      throw new Error(`Both Claude and GPT-4o failed. Check API key configuration. Error: ${fallbackError.substring(0, 200)}`);
-    }
-    
-    const fallbackData = await fallbackResponse.json();
-    const result = JSON.parse(fallbackData.choices[0].message.content);
-    result.evidence = priorityChunks.map(c => c.id);
-    return result;
+    console.error(`GPT-4o analysis failed: ${response.status} ${response.statusText}`, errorText);
+    throw new Error(`Pass 2 analysis failed: ${response.status} - Check OpenAI API key and credits. ${errorText.substring(0, 200)}`);
   }
 
   const data = await response.json();

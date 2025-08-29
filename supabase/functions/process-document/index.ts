@@ -151,63 +151,118 @@ serve(async (req) => {
   }
 });
 
-// PDF text extraction using a simpler approach
+// Enhanced PDF text extraction for IEP documents
 async function extractTextFromPDF(file: File): Promise<string> {
   try {
-    console.log('Starting PDF text extraction...');
+    console.log('Starting enhanced PDF text extraction...');
     
-    // For now, we'll use a fallback approach for PDFs
-    // Convert PDF to raw text by extracting readable content
     const arrayBuffer = await file.arrayBuffer();
     const uint8Array = new Uint8Array(arrayBuffer);
     
-    // Look for text streams in PDF structure
-    let text = '';
-    let currentString = '';
-    let inTextObject = false;
+    // Convert to string for pattern matching
+    const pdfString = new TextDecoder('latin1').decode(uint8Array);
     
-    for (let i = 0; i < uint8Array.length - 1; i++) {
-      const byte = uint8Array[i];
-      
-      // Look for text objects and streams
-      if (byte === 40) { // '(' - start of text string
-        inTextObject = true;
-        currentString = '';
-      } else if (byte === 41 && inTextObject) { // ')' - end of text string
-        if (currentString.length > 1) { // Keep even short strings
-          text += currentString + ' ';
-        }
-        inTextObject = false;
-        currentString = '';
-      } else if (inTextObject) {
-        // More permissive character extraction for IEP content
-        if (byte >= 32 && byte <= 126) {
-          // Printable ASCII characters
-          currentString += String.fromCharCode(byte);
-        } else if (byte === 13 || byte === 10) {
-          // Preserve line breaks
-          currentString += '\n';
+    // Extract text using multiple methods
+    let extractedTexts: string[] = [];
+    
+    // Method 1: Extract text from BT/ET blocks (text objects)
+    const btPattern = /BT\s+.*?ET/gs;
+    const textBlocks = pdfString.match(btPattern) || [];
+    
+    for (const block of textBlocks) {
+      // Extract text strings from parentheses
+      const textStrings = block.match(/\([^)]*\)/g) || [];
+      for (const str of textStrings) {
+        const cleanText = str.slice(1, -1) // Remove parentheses
+          .replace(/\\[rn]/g, ' ') // Replace escape sequences
+          .replace(/\\[()]/g, '') // Remove escaped parentheses
+          .trim();
+        if (cleanText.length > 1) {
+          extractedTexts.push(cleanText);
         }
       }
     }
     
-    // Less aggressive text cleaning to preserve IEP content
-    text = text
-      .replace(/\s+/g, ' ') // Collapse multiple spaces
-      .replace(/[\x00-\x1F]/g, ' ') // Remove control characters but keep printable content
-      .trim();
-    
-    console.log(`Extracted ${text.length} characters from PDF`);
-    
-    if (text.length < 50) {
-      throw new Error('Insufficient text extracted from PDF. The document may be image-based or corrupted.');
+    // Method 2: Extract from Tj operators
+    const tjPattern = /\([^)]+\)\s*Tj/g;
+    let match;
+    while ((match = tjPattern.exec(pdfString)) !== null) {
+      const text = match[0].replace(/\([^)]*\)/, (m) => m.slice(1, -1)).replace(/\s*Tj$/, '');
+      if (text.length > 1) {
+        extractedTexts.push(text);
+      }
     }
     
-    return text;
+    // Method 3: Extract from TJ arrays
+    const tjArrayPattern = /\[\s*(?:\([^)]*\)\s*(?:-?\d+(?:\.\d+)?\s*)?)+\]\s*TJ/g;
+    while ((match = tjArrayPattern.exec(pdfString)) !== null) {
+      const arrayContent = match[0];
+      const strings = arrayContent.match(/\([^)]*\)/g) || [];
+      for (const str of strings) {
+        const text = str.slice(1, -1).trim();
+        if (text.length > 1) {
+          extractedTexts.push(text);
+        }
+      }
+    }
+    
+    // Combine and clean extracted text
+    let combinedText = extractedTexts.join(' ');
+    
+    // Clean up the text
+    combinedText = combinedText
+      .replace(/\\[rn]/g, '\n') // Convert escape sequences to newlines
+      .replace(/\\t/g, '\t') // Convert tab escapes
+      .replace(/\\\\/g, '\\') // Convert escaped backslashes
+      .replace(/\\([()])/g, '$1') // Remove escaped parentheses
+      .replace(/\s+/g, ' ') // Normalize whitespace
+      .replace(/[^\x20-\x7E\n\r\t]/g, ' ') // Keep only printable ASCII + whitespace
+      .trim();
+    
+    console.log(`Enhanced extraction: ${combinedText.length} characters from PDF`);
+    console.log(`Sample text: ${combinedText.substring(0, 200)}...`);
+    
+    // If we didn't get enough text, try a simpler byte-by-byte approach
+    if (combinedText.length < 100) {
+      console.log('Falling back to simple extraction method...');
+      
+      let simpleText = '';
+      let inText = false;
+      
+      for (let i = 0; i < uint8Array.length - 1; i++) {
+        const byte = uint8Array[i];
+        const nextByte = uint8Array[i + 1];
+        
+        // Look for text markers
+        if (byte === 40) { // '(' start of text
+          inText = true;
+          continue;
+        } else if (byte === 41 && inText) { // ')' end of text
+          inText = false;
+          simpleText += ' ';
+          continue;
+        }
+        
+        if (inText && byte >= 32 && byte <= 126) {
+          simpleText += String.fromCharCode(byte);
+        }
+      }
+      
+      if (simpleText.length > combinedText.length) {
+        combinedText = simpleText.replace(/\s+/g, ' ').trim();
+        console.log(`Simple extraction yielded more text: ${combinedText.length} characters`);
+      }
+    }
+    
+    if (combinedText.length < 50) {
+      throw new Error('Could not extract sufficient readable text from PDF. The document may be image-based or use unsupported encoding.');
+    }
+    
+    return combinedText;
     
   } catch (error) {
     console.error('PDF extraction error:', error);
-    throw new Error('Failed to extract text from PDF file. Please ensure the PDF contains selectable text, not just images.');
+    throw new Error(`Failed to extract text from PDF: ${error.message}`);
   }
 }
 

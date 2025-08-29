@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Calendar, Target, TrendingUp, Clock, Plus, BookOpen, AlertCircle, Star, Trophy, Sparkles, ChevronRight, Users, CheckCircle2, ArrowUpRight } from "lucide-react";
+import { Calendar, Target, TrendingUp, Clock, Plus, BookOpen, AlertCircle, Star, Trophy, Sparkles, ChevronRight, Users, CheckCircle2, ArrowUpRight, Rocket, FileText } from "lucide-react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -13,6 +13,8 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { DashboardLayout } from "@/layouts/DashboardLayout";
+import { useAuth } from "@/hooks/useAuth";
+import { useNavigate } from "react-router-dom";
 
 interface Goal {
   id: string;
@@ -54,6 +56,8 @@ export default function ParentDashboard() {
   const [showGoalDialog, setShowGoalDialog] = useState(false);
   const [showMeetingDialog, setShowMeetingDialog] = useState(false);
   const { toast } = useToast();
+  const { user } = useAuth();
+  const navigate = useNavigate();
 
   // Form states
   const [goalForm, setGoalForm] = useState({
@@ -269,140 +273,107 @@ export default function ParentDashboard() {
 
   return (
     <DashboardLayout>
-      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/30 to-indigo-50/40">
-        {/* Hero Header with Gradient */}
-        <div className="relative overflow-hidden bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 text-white">
-          <div className="absolute inset-0 bg-[url('data:image/svg+xml,%3Csvg width=\&quot;60\&quot; height=\&quot;60\&quot; viewBox=\&quot;0 0 60 60\&quot; xmlns=\&quot;http://www.w3.org/2000/svg\&quot;%3E%3Cg fill=\&quot;none\&quot; fill-rule=\&quot;evenodd\&quot;%3E%3Cg fill=\&quot;%23ffffff\&quot; fill-opacity=\&quot;0.1\&quot;%3E%3Cpath d=\&quot;M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z\&quot;/%3E%3C/g%3E%3C/g%3E%3C/svg%3E')] opacity-20"></div>
-          <div className="container mx-auto px-6 py-12 relative">
-            <div className="flex items-center justify-between">
-              <div className="space-y-4">
-                <div className="flex items-center gap-3">
-                  <div className="p-3 bg-white/10 backdrop-blur-sm rounded-xl border border-white/20">
-                    <Sparkles className="h-8 w-8 text-yellow-300" />
-                  </div>
-                  <div>
-                    <h1 className="text-4xl font-bold bg-gradient-to-r from-white to-blue-100 bg-clip-text text-transparent">
-                      Parent Empowerment Hub
-                    </h1>
-                    <p className="text-blue-100 text-lg font-medium">Guiding your child's IEP journey with confidence</p>
-                  </div>
-                </div>
-                
-                {completedGoals > 0 && (
-                  <div className="flex items-center gap-2 bg-green-500/20 backdrop-blur-sm border border-green-400/30 rounded-lg px-4 py-2 w-fit">
-                    <Trophy className="h-5 w-5 text-yellow-300" />
-                    <span className="text-sm font-medium">🎉 {completedGoals} goals completed this year!</span>
-                  </div>
-                )}
+      <div className="min-h-screen">
+        {/* Hero Section */}
+        <div className="relative overflow-hidden">
+          <div className="absolute inset-0 hero-gradient opacity-10" />
+          <div className="absolute inset-0 bg-gradient-to-r from-background/80 via-transparent to-background/80" />
+          <div className="relative px-6 py-16 text-center">
+            <div className="animate-fade-in">
+              <div className="inline-flex items-center px-6 py-3 glass-card text-sm font-medium text-primary-glow mb-8 animate-float">
+                <Sparkles className="h-4 w-4 mr-2" />
+                Welcome to your IEP Hero Dashboard
               </div>
               
-              <div className="hidden lg:block">
-                <div className="relative">
-                  <div className="absolute inset-0 bg-gradient-to-r from-blue-400 to-purple-400 rounded-full blur-xl opacity-60 animate-pulse"></div>
-                  <div className="relative bg-white/10 backdrop-blur-sm border border-white/20 rounded-2xl p-6 text-center">
-                    <div className="text-3xl font-bold text-white">{totalGoals}</div>
-                    <div className="text-sm text-blue-100">Active Goals</div>
-                  </div>
-                </div>
+              <h1 className="text-5xl md:text-7xl font-bold mb-6 leading-tight">
+                <span className="text-gradient text-glow">
+                  {user?.user_metadata?.full_name ? `Welcome back, ${user.user_metadata.full_name.split(' ')[0]}!` : 'Welcome, Hero!'}
+                </span>
+              </h1>
+              
+              <p className="text-xl text-muted-foreground mb-12 max-w-3xl mx-auto leading-relaxed">
+                Your premium command center for advocacy excellence, real-time progress tracking, and comprehensive IEP management
+              </p>
+              
+              <div className="flex flex-col sm:flex-row gap-6 justify-center">
+                <Button 
+                  size="lg" 
+                  className="button-premium text-lg px-8 py-4 h-auto font-semibold"
+                  onClick={() => navigate('/parent/tools')}
+                >
+                  <Rocket className="h-5 w-5 mr-3" />
+                  Explore Premium Tools
+                </Button>
+                <Button 
+                  variant="outline" 
+                  size="lg"
+                  className="border-2 border-primary/30 hover:border-primary text-lg px-8 py-4 h-auto font-semibold glass-card"
+                  onClick={() => navigate('/parent/students')}
+                >
+                  <Users className="h-5 w-5 mr-3" />
+                  Manage Students
+                </Button>
               </div>
             </div>
           </div>
         </div>
 
-        <div className="container mx-auto px-6 py-8 space-y-8">
-          {/* Enhanced Statistics Dashboard */}
-          <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4 -mt-12 relative z-10">
-            {/* Goals Card with Progress Ring */}
-            <Card className="group hover:shadow-2xl hover:scale-105 transition-all duration-300 border-0 shadow-lg bg-gradient-to-br from-white to-blue-50/50 backdrop-blur-sm overflow-hidden">
-              <div className="absolute inset-0 bg-gradient-to-br from-blue-500/5 via-transparent to-indigo-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-              <CardContent className="p-6 relative">
-                <div className="flex items-center justify-between mb-4">
-                  <div className="p-3 bg-blue-100 rounded-xl group-hover:bg-blue-200 transition-colors duration-300">
-                    <Target className="h-6 w-6 text-blue-600" />
-                  </div>
-                  <div className="text-right">
-                    <div className="text-2xl font-bold text-gray-900">{totalGoals}</div>
-                    <div className="text-sm text-gray-500">Total Goals</div>
-                  </div>
+        {/* Main Content Grid */}
+        <div className="px-6 pb-16">
+          <div className="max-w-7xl mx-auto">
+            {/* Quick Stats */}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 mb-12 animate-slide-up">
+              <div className="premium-card card-hover p-8 text-center group">
+                <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-primary rounded-2xl mb-6 group-hover:scale-110 transition-transform duration-300 glow-effect">
+                  <Target className="h-8 w-8 text-primary-foreground" />
                 </div>
-                <div className="space-y-2">
-                  <div className="flex justify-between text-sm">
-                    <span className="text-gray-600">Progress</span>
-                    <span className="font-medium text-blue-600">{completedGoals}/{totalGoals}</span>
-                  </div>
-                  <div className="relative">
-                    <Progress value={completionRate} className="h-2 bg-blue-100" />
-                    <div className="absolute inset-0 bg-gradient-to-r from-blue-500 to-indigo-500 rounded-full opacity-80" style={{width: `${completionRate}%`}}></div>
-                  </div>
+                <h3 className="text-3xl font-bold mb-2">{totalGoals}</h3>
+                <p className="text-muted-foreground mb-3">Active Goals</p>
+                <div className="inline-flex items-center px-3 py-1 bg-success-soft text-success text-sm rounded-full">
+                  <TrendingUp className="h-3 w-3 mr-1" />
+                  {completedGoals} completed
                 </div>
-              </CardContent>
-            </Card>
-
-            {/* Completion Rate with Animated Progress */}
-            <Card className="group hover:shadow-2xl hover:scale-105 transition-all duration-300 border-0 shadow-lg bg-gradient-to-br from-white to-green-50/50 overflow-hidden">
-              <div className="absolute inset-0 bg-gradient-to-br from-green-500/5 via-transparent to-emerald-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-              <CardContent className="p-6 relative">
-                <div className="flex items-center justify-between mb-4">
-                  <div className="p-3 bg-green-100 rounded-xl group-hover:bg-green-200 transition-colors duration-300">
-                    <TrendingUp className="h-6 w-6 text-green-600" />
-                  </div>
-                  <div className="text-right">
-                    <div className="text-2xl font-bold text-gray-900">{completionRate}%</div>
-                    <div className="text-sm text-gray-500">Completion Rate</div>
-                  </div>
+              </div>
+              
+              <div className="premium-card card-hover p-8 text-center group">
+                <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-secondary rounded-2xl mb-6 group-hover:scale-110 transition-transform duration-300">
+                  <FileText className="h-8 w-8 text-secondary-foreground" />
                 </div>
-                <div className="flex items-center gap-2">
-                  {completionRate > 75 && <Star className="h-4 w-4 text-yellow-500" />}
-                  <span className="text-sm font-medium text-green-600">
-                    {completionRate > 75 ? 'Excellent progress!' : completionRate > 50 ? 'Great momentum!' : 'Keep going!'}
-                  </span>
+                <h3 className="text-3xl font-bold mb-2">{upcomingMeetings}</h3>
+                <p className="text-muted-foreground mb-3">Upcoming Meetings</p>
+                <div className="inline-flex items-center px-3 py-1 bg-warning-soft text-warning text-sm rounded-full">
+                  <AlertCircle className="h-3 w-3 mr-1" />
+                  Auto reminders on
                 </div>
-              </CardContent>
-            </Card>
-
-            {/* Upcoming Meetings with Countdown */}
-            <Card className="group hover:shadow-2xl hover:scale-105 transition-all duration-300 border-0 shadow-lg bg-gradient-to-br from-white to-purple-50/50 overflow-hidden">
-              <div className="absolute inset-0 bg-gradient-to-br from-purple-500/5 via-transparent to-violet-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-              <CardContent className="p-6 relative">
-                <div className="flex items-center justify-between mb-4">
-                  <div className="p-3 bg-purple-100 rounded-xl group-hover:bg-purple-200 transition-colors duration-300">
-                    <Calendar className="h-6 w-6 text-purple-600" />
-                  </div>
-                  <div className="text-right">
-                    <div className="text-2xl font-bold text-gray-900">{upcomingMeetings}</div>
-                    <div className="text-sm text-gray-500">Upcoming</div>
-                  </div>
+              </div>
+              
+              <div className="premium-card card-hover p-8 text-center group">
+                <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-accent rounded-2xl mb-6 group-hover:scale-110 transition-transform duration-300">
+                  <Calendar className="h-8 w-8 text-accent-foreground" />
                 </div>
-                <div className="flex items-center gap-2">
-                  <CheckCircle2 className="h-4 w-4 text-purple-600" />
-                  <span className="text-sm font-medium text-purple-600">Auto reminders enabled</span>
+                <h3 className="text-3xl font-bold mb-2">{completionRate}%</h3>
+                <p className="text-muted-foreground mb-3">Completion Rate</p>
+                <div className="inline-flex items-center px-3 py-1 bg-success-soft text-success text-sm rounded-full">
+                  <TrendingUp className="h-3 w-3 mr-1" />
+                  {completionRate > 75 ? 'Excellent!' : completionRate > 50 ? 'Great!' : 'Keep going!'}
                 </div>
-              </CardContent>
-            </Card>
-
-            {/* AI Insights with Sparkle Effect */}
-            <Card className="group hover:shadow-2xl hover:scale-105 transition-all duration-300 border-0 shadow-lg bg-gradient-to-br from-white to-amber-50/50 overflow-hidden">
-              <div className="absolute inset-0 bg-gradient-to-br from-amber-500/5 via-transparent to-orange-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-              <CardContent className="p-6 relative">
-                <div className="flex items-center justify-between mb-4">
-                  <div className="p-3 bg-amber-100 rounded-xl group-hover:bg-amber-200 transition-colors duration-300">
-                    <Sparkles className="h-6 w-6 text-amber-600" />
-                  </div>
-                  <div className="text-right">
-                    <div className="text-2xl font-bold text-gray-900">{insights.length}</div>
-                    <div className="text-sm text-gray-500">AI Insights</div>
-                  </div>
+              </div>
+              
+              <div className="premium-card card-hover p-8 text-center group">
+                <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-br from-success to-success-light rounded-2xl mb-6 group-hover:scale-110 transition-transform duration-300">
+                  <Sparkles className="h-8 w-8 text-success-foreground" />
                 </div>
-                <div className="flex items-center gap-2">
-                  <BookOpen className="h-4 w-4 text-amber-600" />
-                  <span className="text-sm font-medium text-amber-600">Documents analyzed</span>
+                <h3 className="text-3xl font-bold mb-2">{insights.length}</h3>
+                <p className="text-muted-foreground mb-3">AI Insights</p>
+                <div className="inline-flex items-center px-3 py-1 bg-success-soft text-success text-sm rounded-full">
+                  <Trophy className="h-3 w-3 mr-1" />
+                  Data analyzed
                 </div>
-              </CardContent>
-            </Card>
-          </div>
-
-          {/* Enhanced Tabs with Better Design */}
-          <Card className="border-0 shadow-xl bg-white/70 backdrop-blur-sm">
+              </div>
+            </div>
+            
+            {/* Enhanced Tabs with Better Design */}
+            <Card className="premium-card">
             <Tabs defaultValue="goals" className="w-full">
               <div className="border-b border-gray-200 bg-white/50 backdrop-blur-sm rounded-t-xl">
                 <TabsList className="grid w-full grid-cols-3 bg-transparent p-1 h-auto">
@@ -929,8 +900,8 @@ export default function ParentDashboard() {
               </TabsContent>
             </Tabs>
           </Card>
+          </div>
         </div>
-      </div>
     </DashboardLayout>
   );
 }

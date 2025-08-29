@@ -64,6 +64,45 @@ export type Database = {
           },
         ]
       }
+      advocate_clients: {
+        Row: {
+          advocate_id: string
+          client_id: string
+          created_at: string
+          end_date: string | null
+          id: string
+          notes: string | null
+          relationship_type: string | null
+          start_date: string | null
+          status: string | null
+          updated_at: string
+        }
+        Insert: {
+          advocate_id: string
+          client_id: string
+          created_at?: string
+          end_date?: string | null
+          id?: string
+          notes?: string | null
+          relationship_type?: string | null
+          start_date?: string | null
+          status?: string | null
+          updated_at?: string
+        }
+        Update: {
+          advocate_id?: string
+          client_id?: string
+          created_at?: string
+          end_date?: string | null
+          id?: string
+          notes?: string | null
+          relationship_type?: string | null
+          start_date?: string | null
+          status?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
       advocate_requests: {
         Row: {
           advocate_id: string
@@ -887,6 +926,7 @@ export type Database = {
           medical_info: string | null
           next_review_date: string | null
           notes: string | null
+          parent_id: string | null
           school_name: string | null
           updated_at: string
           user_id: string
@@ -908,6 +948,7 @@ export type Database = {
           medical_info?: string | null
           next_review_date?: string | null
           notes?: string | null
+          parent_id?: string | null
           school_name?: string | null
           updated_at?: string
           user_id: string
@@ -929,6 +970,7 @@ export type Database = {
           medical_info?: string | null
           next_review_date?: string | null
           notes?: string | null
+          parent_id?: string | null
           school_name?: string | null
           updated_at?: string
           user_id?: string

@@ -1,130 +1,131 @@
 import { useState, useEffect } from "react";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
-import { Plus, User } from "lucide-react";
+import { Plus, Users } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
-import { useToast } from "@/hooks/use-toast";
+import { StudentManager } from "./StudentManager";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 
 interface Student {
   id: string;
   full_name: string;
-  grade_level?: string;
-  iep_status?: string;
+  grade_level: string;
+  school_name: string;
+  disability_category: string;
+  iep_status: string;
 }
 
 interface StudentSelectorProps {
-  selectedStudentId: string | null;
-  onStudentChange: (studentId: string | null) => void;
-  onAddStudent?: () => void;
-  className?: string;
+  selectedStudent: string;
+  onStudentChange: (studentId: string) => void;
+  placeholder?: string;
+  allowEmpty?: boolean;
 }
 
-export function StudentSelector({
-  selectedStudentId,
-  onStudentChange,
-  onAddStudent,
-  className = "",
+export function StudentSelector({ 
+  selectedStudent, 
+  onStudentChange, 
+  placeholder = "Select a student...",
+  allowEmpty = false 
 }: StudentSelectorProps) {
   const [students, setStudents] = useState<Student[]>([]);
   const [loading, setLoading] = useState(true);
+  const [isManageOpen, setIsManageOpen] = useState(false);
   const { user } = useAuth();
-  const { toast } = useToast();
 
   useEffect(() => {
-    if (user) {
-      fetchStudents();
-    }
+    fetchStudents();
   }, [user]);
 
   const fetchStudents = async () => {
     if (!user) return;
-
+    
     try {
       const { data, error } = await supabase
-        .from("students")
-        .select("id, full_name, grade_level, iep_status")
-        .eq("user_id", user.id)
-        .order("full_name");
+        .from('students')
+        .select('*')
+        .order('full_name');
 
       if (error) throw error;
-
       setStudents(data || []);
-      
-      // Auto-select first student if none selected
-      if (data && data.length > 0 && !selectedStudentId) {
-        onStudentChange(data[0].id);
-      }
-    } catch (error: any) {
-      console.error("Error fetching students:", error);
-      toast({
-        title: "Error",
-        description: "Failed to load students. Please try again.",
-        variant: "destructive",
-      });
+    } catch (error) {
+      console.error('Error fetching students:', error);
     } finally {
       setLoading(false);
     }
   };
 
+  const handleStudentCreate = () => {
+    fetchStudents();
+    setIsManageOpen(false);
+  };
+
   if (loading) {
     return (
-      <div className={`flex items-center gap-2 ${className}`}>
-        <div className="h-10 w-64 bg-muted animate-pulse rounded-md" />
-      </div>
-    );
-  }
-
-  if (students.length === 0) {
-    return (
-      <div className={`flex items-center gap-2 ${className}`}>
-        <div className="text-sm text-muted-foreground">No students yet</div>
-        {onAddStudent && (
-          <Button onClick={onAddStudent} size="sm" variant="outline">
-            <Plus className="h-4 w-4 mr-1" />
-            Add Student
-          </Button>
-        )}
-      </div>
+      <Select disabled>
+        <SelectTrigger>
+          <SelectValue placeholder="Loading students..." />
+        </SelectTrigger>
+      </Select>
     );
   }
 
   return (
-    <div className={`flex items-center gap-2 ${className}`}>
-      <User className="h-4 w-4 text-muted-foreground" />
-      <Select
-        value={selectedStudentId || ""}
-        onValueChange={(value) => onStudentChange(value || null)}
-      >
-        <SelectTrigger className="w-64">
-          <SelectValue placeholder="Select a student" />
-        </SelectTrigger>
-        <SelectContent>
-          {students.map((student) => (
-            <SelectItem key={student.id} value={student.id}>
-              <div className="flex items-center justify-between w-full">
-                <span>{student.full_name}</span>
-                {student.grade_level && (
-                  <span className="text-xs text-muted-foreground ml-2">
-                    Grade {student.grade_level}
-                  </span>
-                )}
-              </div>
-            </SelectItem>
-          ))}
-        </SelectContent>
-      </Select>
-      {onAddStudent && (
-        <Button onClick={onAddStudent} size="sm" variant="outline">
-          <Plus className="h-4 w-4" />
-        </Button>
-      )}
+    <div className="flex gap-2">
+      <div className="flex-1">
+        <Select value={selectedStudent} onValueChange={onStudentChange}>
+          <SelectTrigger className="bg-background border-border">
+            <SelectValue placeholder={placeholder} />
+          </SelectTrigger>
+          <SelectContent className="bg-background border-border z-50">
+            {allowEmpty && (
+              <SelectItem value="">No student selected</SelectItem>
+            )}
+            {students.length === 0 ? (
+              <SelectItem value="" disabled>
+                No students available
+              </SelectItem>
+            ) : (
+              students.map((student) => (
+                <SelectItem key={student.id} value={student.id}>
+                  <div className="flex flex-col">
+                    <span className="font-medium">{student.full_name}</span>
+                    <span className="text-xs text-muted-foreground">
+                      {student.grade_level ? `Grade ${student.grade_level}` : 'Grade not specified'} • {student.school_name || 'School not specified'}
+                    </span>
+                  </div>
+                </SelectItem>
+              ))
+            )}
+          </SelectContent>
+        </Select>
+      </div>
+      
+      <Dialog open={isManageOpen} onOpenChange={setIsManageOpen}>
+        <DialogTrigger asChild>
+          <Button variant="outline" size="icon">
+            <Plus className="h-4 w-4" />
+          </Button>
+        </DialogTrigger>
+        <DialogContent className="max-w-4xl max-h-[80vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <Users className="h-5 w-5" />
+              Manage Students
+            </DialogTitle>
+          </DialogHeader>
+          <StudentManager 
+            onStudentSelect={(student) => {
+              if (student) {
+                onStudentChange(student.id);
+                handleStudentCreate();
+              }
+            }}
+            selectedStudentId={selectedStudent}
+          />
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

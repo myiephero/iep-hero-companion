@@ -457,9 +457,8 @@ const StudentProfiles = () => {
         </div>
 
         <StudentSelector
-          selectedStudentId={selectedStudentId}
+          selectedStudent={selectedStudentId}
           onStudentChange={setSelectedStudentId}
-          onAddStudent={() => setIsAddStudentOpen(true)}
         />
 
         {currentStudent && (

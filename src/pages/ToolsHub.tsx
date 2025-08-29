@@ -1,9 +1,9 @@
-
 import { Link, useLocation } from "react-router-dom";
 import { DashboardLayout } from "@/layouts/DashboardLayout";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { useAuth } from "@/hooks/useAuth";
 import { 
   FileText, 
   Users, 
@@ -29,134 +29,118 @@ interface Tool {
   badge?: string;
 }
 
+const parentTools: Tool[] = [
+  {
+    title: "IEP Review Tool",
+    description: "Upload and analyze your child's IEP documents",
+    icon: <FileSearch className="h-6 w-6" />,
+    url: "/tools/iep-review",
+    category: "Analysis"
+  },
+  {
+    title: "Accommodation Builder",
+    description: "Generate accommodations for various disabilities",
+    icon: <Building2 className="h-6 w-6" />,
+    url: "/tools/autism-accommodations",
+    category: "Planning"
+  },
+  {
+    title: "Meeting Preparation",
+    description: "Prepare effectively for IEP meetings with guided wizards",
+    icon: <Calendar className="h-6 w-6" />,
+    url: "/parent/meeting-prep",
+    category: "Meetings"
+  },
+  {
+    title: "HERO Plan",
+    description: "Get expert IEP review, strategy call, and meeting support",
+    icon: <Crown className="h-6 w-6" />,
+    url: "/parent-hero-plan",
+    badge: "Premium",
+    category: "Support"
+  }
+];
+
+const advocateTools: Tool[] = [
+  {
+    title: "IEP Review Tool",
+    description: "Professional IEP analysis and compliance review for your clients",
+    icon: <FileSearch className="h-6 w-6" />,
+    url: "/tools/iep-review",
+    category: "Analysis"
+  },
+  {
+    title: "Accommodation Builder",
+    description: "Generate accommodations for students with various disabilities",
+    icon: <Building2 className="h-6 w-6" />,
+    url: "/tools/autism-accommodations",
+    category: "Planning"
+  },
+  {
+    title: "Case Management",
+    description: "Manage your client caseload and track progress",
+    icon: <Users className="h-6 w-6" />,
+    url: "/advocate/dashboard",
+    category: "Management"
+  },
+  {
+    title: "Schedule & Meetings",
+    description: "Manage your calendar and client meetings",
+    icon: <Calendar className="h-6 w-6" />,
+    url: "/advocate/schedule",
+    category: "Meetings"
+  },
+  {
+    title: "Client Messages",
+    description: "Communicate securely with your clients",
+    icon: <MessageSquare className="h-6 w-6" />,
+    url: "/advocate/messages",
+    category: "Communication"
+  }
+];
+
 const ToolsHub = () => {
   const location = useLocation();
-  const isAdvocateRoute = location.pathname.startsWith('/advocate');
-
-  const parentTools: Tool[] = [
-    {
-      title: "IEP Review & Analysis",
-      description: "Upload and get AI-powered analysis of your child's IEP documents",
-      icon: <FileSearch className="h-6 w-6" />,
-      url: "/tools/iep-review",
-      badge: "AI Powered",
-      category: "Analysis"
-    },
-    {
-      title: "Accommodation Builder",
-      description: "Generate personalized accommodations for autism and learning disabilities",
-      icon: <Building2 className="h-6 w-6" />,
-      url: "/tools/autism-accommodations",
-      category: "Planning"
-    },
-    {
-      title: "Meeting Preparation",
-      description: "Prepare effectively for IEP meetings with guided wizards",
-      icon: <Calendar className="h-6 w-6" />,
-      url: "/parent/meeting-prep",
-      category: "Meetings"
-    },
-    {
-      title: "HERO Plan",
-      description: "Get expert IEP review, strategy call, and meeting support",
-      icon: <Crown className="h-6 w-6" />,
-      url: "/upsell/hero-plan",
-      badge: "Premium",
-      category: "Support"
-    }
-  ];
-
-  const advocateTools: Tool[] = [
-    {
-      title: "IEP Review Tool",
-      description: "Professional IEP analysis and compliance review for your clients",
-      icon: <FileSearch className="h-6 w-6" />,
-      url: "/tools/iep-review",
-      category: "Analysis"
-    },
-    {
-      title: "Accommodation Builder",
-      description: "Generate accommodations for students with various disabilities",
-      icon: <Building2 className="h-6 w-6" />,
-      url: "/tools/autism-accommodations",
-      category: "Planning"
-    },
-    {
-      title: "Case Management",
-      description: "Manage your client caseload and track progress",
-      icon: <Users className="h-6 w-6" />,
-      url: "/advocate/dashboard",
-      category: "Management"
-    },
-    {
-      title: "Schedule & Meetings",
-      description: "Manage your calendar and client meetings",
-      icon: <Calendar className="h-6 w-6" />,
-      url: "/advocate/schedule",
-      category: "Meetings"
-    },
-    {
-      title: "Client Messages",
-      description: "Communicate securely with your clients",
-      icon: <MessageSquare className="h-6 w-6" />,
-      url: "/advocate/messages",
-      category: "Communication"
-    }
-  ];
-
-  const tools = isAdvocateRoute ? advocateTools : parentTools;
-  const pageTitle = isAdvocateRoute ? "Advocate Tools Hub" : "Parent Tools Hub";
-  const pageDescription = isAdvocateRoute 
-    ? "Professional tools for supporting families with IEP advocacy"
-    : "Powerful tools to support your child's educational journey";
-
-  const categories = [...new Set(tools.map(tool => tool.category))];
+  const { profile } = useAuth();
+  
+  // Determine user type based on profile role
+  const userRole = profile?.role || 'parent';
+  const isAdvocateUser = userRole === 'advocate';
+  
+  // Use appropriate tools based on user type
+  const tools = isAdvocateUser ? advocateTools : parentTools;
+  const userType = isAdvocateUser ? 'Advocate' : 'Parent';
+  
+  // Get unique categories
+  const categories = Array.from(new Set(tools.map(tool => tool.category)));
 
   return (
     <DashboardLayout>
       <div className="space-y-8">
         {/* Header */}
         <div className="space-y-2">
-          <h1 className="text-3xl font-bold">{pageTitle}</h1>
-          <p className="text-muted-foreground">{pageDescription}</p>
+          <h1 className="text-3xl font-bold">{userType} Tools Hub</h1>
+          <p className="text-muted-foreground">
+            {isAdvocateUser 
+              ? 'Professional tools for advocacy work and client management'
+              : 'Essential tools for IEP advocacy and student support'
+            }
+          </p>
         </div>
 
-        {/* Document Vault Quick Access */}
+        {/* Quick Access Card */}
         <Card className="bg-gradient-card border-0">
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              <Shield className="h-5 w-5 text-blue-600" />
-              Document Vault
+              <Folder className="h-5 w-5" />
+              Quick Access
             </CardTitle>
             <CardDescription>
-              Secure storage for all your IEP documents and files
+              Your most used tools for efficient advocacy
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <div className="grid md:grid-cols-3 gap-4">
-              <div className="flex items-center gap-3 p-3 bg-muted/50 rounded-lg">
-                <Folder className="h-5 w-5 text-blue-600" />
-                <div>
-                  <p className="font-medium">23 Documents</p>
-                  <p className="text-sm text-muted-foreground">Securely stored</p>
-                </div>
-              </div>
-              <div className="flex items-center gap-3 p-3 bg-muted/50 rounded-lg">
-                <FileText className="h-5 w-5 text-green-600" />
-                <div>
-                  <p className="font-medium">8 IEP Files</p>
-                  <p className="text-sm text-muted-foreground">Ready for review</p>
-                </div>
-              </div>
-              <div className="flex items-center gap-3 p-3 bg-muted/50 rounded-lg">
-                <Upload className="h-5 w-5 text-orange-600" />
-                <div>
-                  <p className="font-medium">Quick Upload</p>
-                  <p className="text-sm text-muted-foreground">Drag & drop files</p>
-                </div>
-              </div>
-            </div>
-            <div className="flex gap-3 mt-4">
+            <div className="flex flex-wrap gap-3">
               <Button asChild>
                 <Link to="/tools/document-vault">
                   <Folder className="h-4 w-4 mr-2" />
@@ -183,38 +167,64 @@ const ToolsHub = () => {
               {category === 'Support' && <Crown className="h-5 w-5" />}
               {category === 'Management' && <Users className="h-5 w-5" />}
               {category === 'Communication' && <MessageSquare className="h-5 w-5" />}
-              {category} Tools
+              {category}
             </h2>
-            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {tools
                 .filter(tool => tool.category === category)
-                .map((tool, index) => (
-                  <Card key={index} className="bg-gradient-card border-0 hover-scale">
-                    <CardHeader>
-                      <CardTitle className="flex items-center gap-3">
-                        {tool.icon}
-                        <span className="flex-1">{tool.title}</span>
-                        {tool.badge && (
-                          <Badge variant={tool.badge === 'Premium' ? 'default' : 'secondary'}>
-                            {tool.badge}
-                          </Badge>
-                        )}
-                      </CardTitle>
-                      <CardDescription>{tool.description}</CardDescription>
-                    </CardHeader>
-                    <CardContent>
-                      <Button asChild className="w-full">
-                        <Link to={tool.url}>
-                          <Zap className="h-4 w-4 mr-2" />
-                          Open Tool
-                        </Link>
-                      </Button>
+                .map((tool) => (
+                  <Card key={tool.title} className="bg-card hover:shadow-md transition-all duration-300 group">
+                    <CardContent className="p-6">
+                      <div className="space-y-4">
+                        <div className="w-12 h-12 rounded-lg bg-muted flex items-center justify-center text-muted-foreground group-hover:bg-primary group-hover:text-primary-foreground transition-colors">
+                          {tool.icon}
+                        </div>
+                        <div>
+                          <h3 className="font-semibold mb-1 flex items-center gap-2">
+                            {tool.title}
+                            {tool.badge && (
+                              <Badge variant="secondary" className="text-xs">
+                                {tool.badge}
+                              </Badge>
+                            )}
+                          </h3>
+                          <p className="text-sm text-muted-foreground">{tool.description}</p>
+                        </div>
+                        <Button asChild variant="outline" size="sm" className="w-full">
+                          <Link to={tool.url}>
+                            Open Tool
+                          </Link>
+                        </Button>
+                      </div>
                     </CardContent>
                   </Card>
                 ))}
             </div>
           </div>
         ))}
+
+        {/* Help Section */}
+        <Card className="bg-surface border-0">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Shield className="h-5 w-5" />
+              Need Help?
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-3">
+            <p className="text-sm text-muted-foreground">
+              Can't find what you're looking for? Our support team is here to help.
+            </p>
+            <div className="flex gap-3">
+              <Button variant="outline" size="sm">
+                Contact Support
+              </Button>
+              <Button variant="outline" size="sm">
+                View Documentation
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
       </div>
     </DashboardLayout>
   );

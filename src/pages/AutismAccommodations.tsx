@@ -248,8 +248,8 @@ const AutismAccommodations = () => {
           {/* Back Navigation */}
           <div className="flex justify-center pt-4">
             <Button asChild variant="ghost">
-              <Link to="/advocate/dashboard">
-                ← Back to Dashboard
+              <Link to="/tools/hub">
+                ← Back to Tools Hub
               </Link>
             </Button>
           </div>

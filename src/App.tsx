@@ -5,6 +5,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AuthProvider } from "@/hooks/useAuth";
+import { ProtectedRoute } from "@/components/ProtectedRoute";
 import Index from "./pages/Index";
 import Auth from "./pages/Auth";
 import ParentDashboard from "./pages/ParentDashboard";
@@ -47,14 +48,34 @@ function App() {
               <Route path="/" element={<Index />} />
               <Route path="/auth" element={<Auth />} />
               
-              {/* Parent Routes */}
-              <Route path="/parent/dashboard" element={<ParentDashboard />} />
-              <Route path="/parent/meeting-prep" element={<ParentMeetingPrep />} />
+              {/* Parent Routes - Protected */}
+              <Route path="/parent/dashboard" element={
+                <ProtectedRoute allowedRoles={['parent']}>
+                  <ParentDashboard />
+                </ProtectedRoute>
+              } />
+              <Route path="/parent/meeting-prep" element={
+                <ProtectedRoute allowedRoles={['parent']}>
+                  <ParentMeetingPrep />
+                </ProtectedRoute>
+              } />
               
-              {/* Advocate Routes */}
-              <Route path="/advocate/dashboard" element={<AdvocateDashboard />} />
-              <Route path="/advocate/messages" element={<AdvocateMessages />} />
-              <Route path="/advocate/schedule" element={<AdvocateSchedule />} />
+              {/* Advocate Routes - Protected */}
+              <Route path="/advocate/dashboard" element={
+                <ProtectedRoute allowedRoles={['advocate']}>
+                  <AdvocateDashboard />
+                </ProtectedRoute>
+              } />
+              <Route path="/advocate/messages" element={
+                <ProtectedRoute allowedRoles={['advocate']}>
+                  <AdvocateMessages />
+                </ProtectedRoute>
+              } />
+              <Route path="/advocate/schedule" element={
+                <ProtectedRoute allowedRoles={['advocate']}>
+                  <AdvocateSchedule />
+                </ProtectedRoute>
+              } />
               
               {/* Tools Routes */}
               <Route path="/tools/hub" element={<ToolsHub />} />

@@ -52,7 +52,7 @@ const AdvocateDashboard = () => {
       title: "Meeting Prep Assistant",
       description: "Generate talking points and meeting notes",
       icon: <Lightbulb className="h-6 w-6" />,
-      url: "/parent/meeting-prep",
+      url: "/tools/meeting-prep",
       category: "Professional Advocate Tools"
     },
     {

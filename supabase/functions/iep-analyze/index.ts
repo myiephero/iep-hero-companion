@@ -172,88 +172,104 @@ serve(async (req) => {
 });
 
 function getAnalysisPrompts(kind: string, iepText: string, studentContext: any) {
+  const baseInstructions = `You are analyzing an IEP document. The text may have formatting artifacts from PDF extraction - focus on the substantive content and ignore formatting issues.
+
+CRITICAL: This is a real IEP document that needs to be analyzed. Never claim it's unreadable or corrupted. Extract and analyze whatever educational content is present, even if formatting is imperfect.
+
+Key principles:
+- Look for educational goals, services, accommodations, student information
+- Ignore PDF artifacts, strange characters, or formatting oddities  
+- Focus on substantive content about the student's education
+- If specific sections seem missing, note that in flags but still analyze what's available
+- Provide constructive, actionable recommendations`;
+
   if (kind === 'quality') {
     return {
-      systemPrompt: `You are an expert special education advocate and IEP analyst. Analyze the provided IEP text for quality and internal alignment. Be precise, quote short snippets, and return VALID JSON only.
+      systemPrompt: `${baseInstructions}
 
-CRITICAL INSTRUCTIONS:
-- Never claim the document is unreadable or garbled. Even if formatting is odd, analyze whatever content is available.
-- If sections are missing or incomplete, lower the relevant scores and add flags with clear notes.
-- Only when the text contains truly insufficient content (e.g., fewer than ~500 readable characters), include a single critical flag 'insufficient_text' but still provide helpful recommendations.
-- Ensure all numeric scores are integers between 0 and 100 and include an 'overall' score.
-- Keep language parent-friendly and actionable.`,
+You are an expert special education advocate analyzing IEP quality. Focus on educational substance over formatting.`,
 
-      userPrompt: `Analyze this IEP document for quality. Use the student context if helpful.
+      userPrompt: `Analyze this IEP document for educational quality and effectiveness. 
 
 Student Context: ${JSON.stringify(studentContext)}
 
-IEP Text (may include formatting artifacts; ignore noise and extract useful content):
+IEP Document Text:
 ${iepText}
 
-Return JSON in EXACTLY this shape:
+Provide a comprehensive analysis focusing on:
+1. Goals quality and measurability
+2. Services appropriateness and sufficiency  
+3. Accommodations and modifications
+4. Progress monitoring plans
+5. Parent input and participation
+
+Return JSON in this exact format:
 {
   "summary": {
-    "strengths": ["specific strength 1"],
-    "needs": ["identified need 1"],
-    "goals_overview": "brief goals quality overview",
-    "services_overview": "brief services adequacy overview",
-    "accommodations_overview": "brief accommodations overview"
+    "strengths": ["List key educational strengths found"],
+    "needs": ["Areas needing improvement"],
+    "goals_overview": "Assessment of goals quality",
+    "services_overview": "Assessment of services adequacy", 
+    "accommodations_overview": "Assessment of accommodations"
   },
   "scores": {
-    "goals_quality": 0-100,
-    "services_sufficiency": 0-100,
-    "alignment": 0-100,
-    "progress_reporting": 0-100,
-    "parent_participation": 0-100,
-    "overall": 0-100
+    "goals_quality": 85,
+    "services_sufficiency": 75,
+    "alignment": 80,
+    "progress_reporting": 70,
+    "parent_participation": 65,
+    "overall": 75
   },
   "flags": [
-    {"type": "flag_category", "where": "specific location or section", "notes": "clear explanation"}
+    {"type": "goals", "where": "Goals section", "notes": "Specific concern about goals"}
   ],
   "recommendations": [
-    {"title": "recommendation title", "suggestion": "specific, actionable suggestion"}
+    {"title": "Improve Goal Measurability", "suggestion": "Specific actionable suggestion"}
   ]
 }`,
       schema: "quality_analysis_schema"
     };
   } else {
     return {
-      systemPrompt: `You are a special education compliance analyst. Check this IEP against IDEA requirements and best practices. Return VALID JSON only.
+      systemPrompt: `${baseInstructions}
 
-CRITICAL INSTRUCTIONS:
-- Never claim the document is unreadable; analyze whatever content is available.
-- If sections are missing, create clear flags with citations and lower scores accordingly.
-- Only when content is truly insufficient (e.g., < ~500 readable characters), include a critical 'insufficient_text' flag, but still provide remediation steps.
-- Ensure all scores are integers 0–100 and include an 'overall' score.`,
+You are a special education compliance analyst checking IEP adherence to IDEA requirements.`,
 
-      userPrompt: `Analyze this IEP for IDEA compliance and procedural requirements.
+      userPrompt: `Analyze this IEP for compliance with IDEA federal requirements.
 
 Student Context: ${JSON.stringify(studentContext)}
 
-IEP Text (may include formatting artifacts; ignore noise and extract useful content):
+IEP Document Text:
 ${iepText}
 
-Return JSON in EXACTLY this shape:
+Check for:
+1. Required IEP components (Present Levels, Goals, Services, etc.)
+2. Procedural safeguards and timelines
+3. LRE considerations
+4. Transition planning (if age-appropriate)
+5. Assessment accommodations
+
+Return JSON in this exact format:
 {
   "summary": {
-    "compliance_overview": "overall compliance status summary",
-    "critical_issues": ["critical issue 1"],
-    "minor_issues": ["minor issue 1"],
-    "strengths": ["compliance strength 1"]
+    "compliance_overview": "Overall compliance assessment",
+    "critical_issues": ["List any critical compliance gaps"],
+    "minor_issues": ["List minor compliance concerns"],
+    "strengths": ["List compliance strengths"]
   },
   "scores": {
-    "required_sections": 0-100,
-    "timelines": 0-100,
-    "procedural_safeguards": 0-100,
-    "lre_ecy_consideration": 0-100,
-    "accommodations_compliance": 0-100,
-    "overall": 0-100
+    "required_sections": 85,
+    "timelines": 90,
+    "procedural_safeguards": 80,
+    "lre_consideration": 75,
+    "accommodations_compliance": 85,
+    "overall": 83
   },
   "flags": [
-    {"type": "compliance_flag", "severity": "critical|warning|info", "where": "specific section", "citation": "IDEA citation", "notes": "detailed explanation"}
+    {"type": "compliance", "severity": "warning", "where": "Services section", "citation": "34 CFR 300.320", "notes": "Specific compliance concern"}
   ],
   "recommendations": [
-    {"title": "compliance recommendation", "priority": "high|medium|low", "suggestion": "specific remediation steps"}
+    {"title": "Add Missing Component", "priority": "high", "suggestion": "Specific remediation steps"}
   ]
 }`,
       schema: "compliance_analysis_schema"

@@ -212,8 +212,7 @@ function App() {
               <Route path="/tools/smart-letter" element={<RoleBasedRedirect parentRoute="/parent/tools/smart-letter" advocateRoute="/advocate/tools/smart-letter" />} />
               <Route path="/tools/meeting-prep" element={<RoleBasedRedirect parentRoute="/parent/tools/meeting-prep" advocateRoute="/advocate/tools/meeting-prep" />} />
               
-              {/* Profile & Settings */}
-              <Route path="/profile" element={<Profile />} />
+              {/* Settings */}
               <Route path="/parent/settings" element={
                 <ProtectedRoute allowedRoles={['parent']}>
                   <Settings />
@@ -224,10 +223,6 @@ function App() {
                   <Settings />
                 </ProtectedRoute>
               } />
-              <Route path="/settings" element={<RoleBasedRedirect parentRoute="/parent/settings" advocateRoute="/advocate/settings" />} />
-              
-              {/* Student Management - Legacy route redirect */}
-              <Route path="/students" element={<Navigate to="/parent/students" replace />} />
               
               {/* Premium & Upsell */}
               <Route path="/parent/upsell/hero-plan" element={
@@ -235,12 +230,12 @@ function App() {
                   <ParentHeroPlan />
                 </ProtectedRoute>
               } />
-              <Route path="/advocates" element={<AdvocateDiscovery />} />
+              <Route path="/advocate/discovery" element={<AdvocateDiscovery />} />
               
               {/* Pricing Plans */}
-              <Route path="/advocate-pricing-plan" element={<AdvocatePricingPlan />} />
-              <Route path="/parent-pricing-plan" element={<ParentPricingPlan />} />
-              <Route path="/parent-hero-plan" element={<ParentHeroPlan />} />
+              <Route path="/advocate/pricing-plan" element={<AdvocatePricingPlan />} />
+              <Route path="/parent/pricing-plan" element={<ParentPricingPlan />} />
+              <Route path="/parent/hero-plan" element={<ParentHeroPlan />} />
               
               {/* 404 */}
               <Route path="*" element={<NotFound />} />

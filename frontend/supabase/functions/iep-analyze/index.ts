@@ -192,7 +192,9 @@ Return JSON with this structure:
   });
 
   if (!response.ok) {
-    throw new Error(`Outline scan failed: ${response.status} ${response.statusText}`);
+    const errorText = await response.text();
+    console.error(`Outline scan failed: ${response.status} ${response.statusText}`, errorText);
+    throw new Error(`Pass 1 analysis failed: ${response.status} - ${errorText.substring(0, 200)}`);
   }
 
   const data = await response.json();

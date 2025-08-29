@@ -34,6 +34,9 @@ export function StudentSelector({
   const [isManageOpen, setIsManageOpen] = useState(false);
   const { user } = useAuth();
 
+  // Convert empty string to "no-student" for the Select component
+  const selectValue = selectedStudent === "" ? "no-student" : selectedStudent;
+
   useEffect(() => {
     fetchStudents();
   }, [user]);
@@ -74,16 +77,19 @@ export function StudentSelector({
   return (
     <div className="flex gap-2">
       <div className="flex-1">
-        <Select value={selectedStudent} onValueChange={onStudentChange}>
+        <Select value={selectValue} onValueChange={(value) => {
+          // Handle the special "no-student" value by converting it to empty string
+          onStudentChange(value === "no-student" ? "" : value);
+        }}>
           <SelectTrigger className="bg-background border-border">
             <SelectValue placeholder={placeholder} />
           </SelectTrigger>
           <SelectContent className="bg-background border-border z-50">
             {allowEmpty && (
-              <SelectItem value="">No student selected</SelectItem>
+              <SelectItem value="no-student">No student selected</SelectItem>
             )}
             {students.length === 0 ? (
-              <SelectItem value="" disabled>
+              <SelectItem value="no-students-available" disabled>
                 No students available
               </SelectItem>
             ) : (

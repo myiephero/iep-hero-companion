@@ -170,13 +170,8 @@ function App() {
                 </ProtectedRoute>
               } />
               
-              {/* Advocate Tools - Additional */}
-              <Route path="/advocate/tools/emergent" element={
-                <ProtectedRoute allowedRoles={['advocate']}>
-                  <EmergentToolsHub />
-                </ProtectedRoute>
-              } />
-              <Route path="/advocate/tools/document-vault" element={
+               {/* Advocate Tools - Additional */}
+               <Route path="/advocate/tools/document-vault" element={
                 <ProtectedRoute allowedRoles={['advocate']}>
                   <DocumentVault />
                 </ProtectedRoute>

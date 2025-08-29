@@ -27,14 +27,14 @@ serve(async (req) => {
       throw new Error('Analysis kind must be "quality" or "compliance"');
     }
 
-    if (!emergentApiKey) {
-      console.error('EMERGENT_LLM_KEY not configured in Supabase environment');
-      throw new Error('AI analysis unavailable: EMERGENT_LLM_KEY not configured. Please contact support.');
+    if (!openAIApiKey) {
+      console.error('OPENAI_API_KEY not configured in Supabase environment');
+      throw new Error('AI analysis unavailable: OPENAI_API_KEY not configured. Please contact support.');
     }
 
     console.log(`Starting two-pass analysis for document ${docId} - ${kind}`);
-    console.log(`API Key configured: ${emergentApiKey ? 'Yes' : 'No'}`);
-    console.log(`API Key prefix: ${emergentApiKey?.substring(0, 15)}...`);
+    console.log(`API Key configured: ${openAIApiKey ? 'Yes' : 'No'}`);
+    console.log(`API Key prefix: ${openAIApiKey?.substring(0, 15)}...`);
     
     const supabase = createClient(supabaseUrl, supabaseServiceKey);
     

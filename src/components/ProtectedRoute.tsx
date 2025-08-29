@@ -1,7 +1,7 @@
 import { ReactElement, useEffect } from "react";
 import { useLocation, Navigate } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
-import { setRole } from "@/lib/session";
+import { setRole, getRole } from "@/lib/session";
 import { Role } from "@/lib/roles";
 
 interface ProtectedRouteProps {
@@ -14,7 +14,19 @@ export function ProtectedRoute({ children, allowedRoles, redirectTo = "/auth" }:
   const { user, profile, loading } = useAuth();
   const location = useLocation();
 
-  // Show loading while auth is being determined
+  // Derive role consistently before any early returns
+  const sessionRole = getRole();
+  const routeRoleHint = allowedRoles.length === 1 ? allowedRoles[0] : null;
+  const userRole = (profile?.role as 'parent' | 'advocate' | undefined) ?? (sessionRole as 'parent' | 'advocate' | null) ?? (routeRoleHint as 'parent' | 'advocate' | null) ?? 'parent';
+
+  // Always call hooks in the same order
+  useEffect(() => {
+    if (routeRoleHint) {
+      setRole(routeRoleHint as Role);
+    }
+  }, [routeRoleHint]);
+
+  // Loading state
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-screen">
@@ -23,24 +35,13 @@ export function ProtectedRoute({ children, allowedRoles, redirectTo = "/auth" }:
     );
   }
 
-  // Redirect to auth if not logged in
+  // Auth guard
   if (!user) {
     return <Navigate to={redirectTo} state={{ from: location }} replace />;
   }
 
-  // Determine user role from profile or route context
-  const userRole = profile?.role || 'parent'; // Default to parent if no role set
-  
-  // Set role in session storage when visiting role-specific routes
-  useEffect(() => {
-    if (allowedRoles.length === 1) {
-      setRole(allowedRoles[0] as Role);
-    }
-  }, [allowedRoles]);
-  
-  // Check if user role is allowed for this route
+  // Role guard
   if (!allowedRoles.includes(userRole as 'parent' | 'advocate')) {
-    // Redirect to appropriate dashboard based on role
     const dashboardRoute = userRole === 'advocate' ? '/advocate/dashboard' : '/parent/dashboard';
     return <Navigate to={dashboardRoute} replace />;
   }
@@ -55,7 +56,14 @@ interface RoleBasedRedirectProps {
 
 export function RoleBasedRedirect({ parentRoute, advocateRoute }: RoleBasedRedirectProps) {
   const { profile, loading } = useAuth();
-  
+
+  const userRole = (profile?.role as 'parent' | 'advocate' | undefined) ?? (getRole() as 'parent' | 'advocate' | null) ?? 'parent';
+
+  // Ensure consistent hook order across renders
+  useEffect(() => {
+    setRole(userRole as Role);
+  }, [userRole]);
+
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-screen">
@@ -64,13 +72,6 @@ export function RoleBasedRedirect({ parentRoute, advocateRoute }: RoleBasedRedir
     );
   }
 
-  const userRole = profile?.role || 'parent';
   const redirectRoute = userRole === 'advocate' ? advocateRoute : parentRoute;
-  
-  // Set role in session when redirecting
-  useEffect(() => {
-    setRole(userRole as Role);
-  }, [userRole]);
-  
   return <Navigate to={redirectRoute} replace />;
 }

@@ -27,30 +27,28 @@ export default function AdvocateCreateParent() {
     setLoading(true);
 
     try {
-      // Create parent user account via Supabase Auth
-      const { data, error } = await supabase.auth.signUp({
-        email: formData.email,
-        password: Math.random().toString(36).slice(-8), // Temporary password
-        options: {
-          data: {
-            first_name: formData.firstName,
-            last_name: formData.lastName,
-            role: 'parent'
-          }
-        }
+      // Create parent via edge function to avoid switching current session
+      const { data: inviteRes, error: inviteError } = await supabase.functions.invoke('invite-parent', {
+        body: {
+          email: formData.email,
+          firstName: formData.firstName,
+          lastName: formData.lastName,
+        },
       });
 
-      if (error) throw error;
+      if (inviteError) throw inviteError;
 
-      // Create relationship between advocate and parent
-      const { data: { user } } = await supabase.auth.getUser();
-      if (user && data.user) {
+      const createdUserId = inviteRes?.userId as string | undefined;
+
+      // Link advocate to the newly invited parent
+      const { data: { user: currentUser } } = await supabase.auth.getUser();
+      if (currentUser && createdUserId) {
         const { error: relationError } = await supabase
           .from('advocate_clients')
           .insert({
-            advocate_id: user.id,
-            client_id: data.user.id,
-            relationship_type: 'parent'
+            advocate_id: currentUser.id,
+            client_id: createdUserId,
+            relationship_type: 'parent',
           });
 
         if (relationError) throw relationError;
@@ -58,10 +56,11 @@ export default function AdvocateCreateParent() {
 
       toast({
         title: "Success!",
-        description: "Parent account created successfully. They will receive an email to set their password.",
+        description: "Invitation sent to the parent. They'll set up their account via email.",
       });
 
       navigate('/advocate/dashboard');
+
     } catch (error: any) {
       console.error('Error creating parent:', error);
       toast({

@@ -238,10 +238,8 @@ export default function AutismAccommodationBuilder() {
           </CardHeader>
           <CardContent>
             <StudentSelector
-              value={selectedStudent}
-              onValueChange={setSelectedStudent}
-              placeholder="Select a student (optional)"
-              allowEmpty
+              selectedStudentId={selectedStudent || null}
+              onStudentChange={(id) => setSelectedStudent(id || "")}
             />
           </CardContent>
         </Card>

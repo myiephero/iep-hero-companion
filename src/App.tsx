@@ -14,6 +14,10 @@ import AdvocateSchedule from "./pages/AdvocateSchedule";
 import IEPReview from "./pages/IEPReview";
 import AIIEPReview from "./pages/AIIEPReview";
 import AutismAccommodations from "./pages/AutismAccommodations";
+import AutismAccommodationBuilder from "./pages/AutismAccommodationBuilder";
+import AdvocateMatchingTool from "./pages/AdvocateMatchingTool";
+import GiftedTwoeLearners from "./pages/GiftedTwoeLearners";
+import EmergentToolsHub from "./pages/EmergentToolsHub";
 import SmartLetterGenerator from "./pages/SmartLetterGenerator";
 import MeetingPrepWizard from "./pages/MeetingPrepWizard";
 import ParentMeetingPrep from "./pages/ParentMeetingPrep";
@@ -51,10 +55,13 @@ function App() {
               
               {/* Tools Routes */}
               <Route path="/tools/hub" element={<ToolsHub />} />
+              <Route path="/tools/emergent" element={<EmergentToolsHub />} />
               <Route path="/tools/document-vault" element={<DocumentVault />} />
               <Route path="/tools/iep-review" element={<IEPReview />} />
               <Route path="/tools/ai-iep-review" element={<AIIEPReview />} />
-              <Route path="/tools/autism-accommodations" element={<AutismAccommodations />} />
+              <Route path="/tools/autism-accommodations" element={<AutismAccommodationBuilder />} />
+              <Route path="/tools/advocate-matching" element={<AdvocateMatchingTool />} />
+              <Route path="/tools/gifted-2e-learners" element={<GiftedTwoeLearners />} />
               <Route path="/tools/smart-letter" element={<SmartLetterGenerator />} />
               <Route path="/tools/meeting-prep" element={<MeetingPrepWizard />} />
               

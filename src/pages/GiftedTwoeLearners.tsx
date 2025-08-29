@@ -236,9 +236,8 @@ export default function GiftedTwoeLearners() {
           </CardHeader>
           <CardContent>
             <StudentSelector
-              value={selectedStudent}
-              onValueChange={setSelectedStudent}
-              placeholder="Select a student"
+              selectedStudentId={selectedStudent || null}
+              onStudentChange={(id) => setSelectedStudent(id || "")}
             />
           </CardContent>
         </Card>

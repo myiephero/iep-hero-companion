@@ -12,7 +12,8 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Checkbox } from "@/components/ui/checkbox";
 import { StudentSelector } from "@/components/StudentSelector";
 import { Brain, Plus, Settings, Star, BookOpen, Users2, Volume2, Eye, Lightbulb } from "lucide-react";
-import { api } from "@/lib/api";
+import { api, type AutismAccommodation as ApiAutismAccommodation } from "@/lib/api";
+import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 
 interface AutismAccommodation {
@@ -119,7 +120,7 @@ export default function AutismAccommodationBuilder() {
         ? data.filter(acc => acc.student_id === selectedStudent)
         : data;
         
-      setAccommodations(filteredData || []);
+      setAccommodations((filteredData || []) as AutismAccommodation[]);
     } catch (error) {
       console.error('Error fetching accommodations:', error);
       toast({

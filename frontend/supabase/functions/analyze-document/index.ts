@@ -7,7 +7,6 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
 
-const emergentApiKey = Deno.env.get('EMERGENT_LLM_KEY');
 const openAIApiKey = Deno.env.get('OPENAI_API_KEY');
 
 serve(async (req) => {
@@ -27,9 +26,9 @@ serve(async (req) => {
     console.log(`Analysis type: ${analysisType}`);
     console.log(`Text length: ${documentText.length} characters`);
 
-    // Ensure we have an API key - prefer Emergent, fallback to OpenAI
-    if (!emergentApiKey && !openAIApiKey) {
-      throw new Error('AI analysis API key not configured. Please ensure EMERGENT_LLM_KEY is set in the environment.');
+    // Ensure we have an API key
+    if (!openAIApiKey) {
+      throw new Error('OpenAI API key not configured. Please ensure OPENAI_API_KEY is set in the environment.');
     }
 
     // Normalize and clean text for analysis

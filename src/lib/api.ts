@@ -184,6 +184,55 @@ class ApiClient {
       body: JSON.stringify(advocate),
     });
   }
+
+  // Document processing methods (replacing Supabase Edge Functions)
+  async processDocument(formData: FormData): Promise<any> {
+    const response = await fetch(`${API_BASE}/process-document`, {
+      method: 'POST',
+      body: formData,
+    });
+
+    if (!response.ok) {
+      throw new Error(`Document processing failed: ${response.statusText}`);
+    }
+
+    return response.json();
+  }
+
+  async analyzeDocument(documentText: string, analysisType: string): Promise<any> {
+    return this.request('/analyze-document', {
+      method: 'POST',
+      body: JSON.stringify({ documentText, analysisType }),
+    });
+  }
+
+  async ingestIEP(docId: string): Promise<any> {
+    return this.request('/iep-ingest', {
+      method: 'POST',
+      body: JSON.stringify({ docId }),
+    });
+  }
+
+  async analyzeIEP(docId: string, kind: 'quality' | 'compliance', studentContext: any = {}): Promise<any> {
+    return this.request('/iep-analyze', {
+      method: 'POST',
+      body: JSON.stringify({ docId, kind, studentContext }),
+    });
+  }
+
+  async generateActionDraft(analysisId: string, templateType: string, userInputs: any): Promise<any> {
+    return this.request('/iep-action-draft', {
+      method: 'POST',
+      body: JSON.stringify({ analysisId, templateType, userInputs }),
+    });
+  }
+
+  async inviteParent(email: string, firstName: string, lastName: string): Promise<any> {
+    return this.request('/invite-parent', {
+      method: 'POST',
+      body: JSON.stringify({ email, firstName, lastName }),
+    });
+  }
 }
 
 export const api = new ApiClient();

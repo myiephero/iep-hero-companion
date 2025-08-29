@@ -6,7 +6,7 @@ import { Progress } from "@/components/ui/progress";
 import { Badge } from "@/components/ui/badge";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { useToast } from "@/hooks/use-toast";
-import { supabase } from "@/integrations/supabase/client";
+import { api } from "@/lib/api";
 import { useAuth } from "@/hooks/useAuth";
 import { 
   Upload, 
@@ -87,37 +87,21 @@ export function DocumentUpload({ onAnalysisComplete }: DocumentUploadProps) {
     }, 100);
 
     try {
-      const { data, error } = await supabase.storage
-        .from('documents')
-        .upload(filePath, fileData.file, {
-          cacheControl: '3600',
-          upsert: false
-        });
+      // Create document record using our API
+      const document = await api.createDocument({
+        file_name: fileData.file.name,
+        file_path: filePath,
+        file_type: fileData.file.type,
+        file_size: fileData.file.size,
+        title: fileData.file.name.split('.')[0]
+      });
 
       clearInterval(progressInterval);
 
-      if (error) throw error;
+      // For now, create a mock URL since we don't have file storage
+      const mockUrl = `http://localhost:3001/files/${filePath}`;
 
-      // Get public URL
-      const { data: urlData } = supabase.storage
-        .from('documents')
-        .getPublicUrl(filePath);
-
-      // Save to database
-      const { error: dbError } = await supabase
-        .from('documents')
-        .insert({
-          user_id: user!.id,
-          file_name: fileData.file.name,
-          file_path: filePath,
-          file_type: fileData.file.type,
-          file_size: fileData.file.size,
-          title: fileData.file.name.split('.')[0]
-        });
-
-      if (dbError) throw dbError;
-
-      updateFileStatus(fileData.id, 'completed', urlData.publicUrl);
+      updateFileStatus(fileData.id, 'completed', mockUrl);
       
       toast({
         title: "Upload successful",
@@ -160,14 +144,7 @@ export function DocumentUpload({ onAnalysisComplete }: DocumentUploadProps) {
       if (fileData.file.type === 'text/plain') {
         const text = await fileData.file.text();
         
-        const { data, error } = await supabase.functions.invoke('analyze-document', {
-          body: {
-            documentText: text,
-            analysisType
-          }
-        });
-
-        if (error) throw error;
+        const data = await api.analyzeDocument(text, analysisType);
 
         const analysis = {
           type: analysisType,
@@ -194,14 +171,7 @@ export function DocumentUpload({ onAnalysisComplete }: DocumentUploadProps) {
       formData.append('file', fileData.file);
       formData.append('analysisType', analysisType);
       
-      const { data, error } = await supabase.functions.invoke('process-document', {
-        body: formData
-      });
-
-      if (error) {
-        // If process-document fails, provide helpful guidance
-        throw new Error(`Document processing failed: ${error.message}\n\nTip: For PDF files, ensure they contain selectable text (not scanned images). Consider converting to a text file (.txt) for best results.`);
-      }
+      const data = await api.processDocument(formData);
 
       const analysis = {
         type: analysisType,

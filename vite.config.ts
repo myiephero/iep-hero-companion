@@ -1,9 +1,9 @@
-echo 'import { defineConfig } from "vite";
+rm vite.config.ts && cat > vite.config.ts << 'EOF'
+import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react-swc";
 import path from "path";
 import { componentTagger } from "lovable-tagger";
 
-// https://vitejs.dev/config/
 export default defineConfig(({ mode }) => ({
   server: {
     host: "0.0.0.0",
@@ -19,4 +19,5 @@ export default defineConfig(({ mode }) => ({
       "@": path.resolve(__dirname, "./src"),
     },
   },
-}));' > vite.config.ts
+}));
+EOF

@@ -288,47 +288,6 @@ async function extractTextFromPDF(file: File): Promise<string> {
   }
 }
 
-// Fallback simple extraction method
-async function simpleByteExtraction(file: File): Promise<string> {
-  const arrayBuffer = await file.arrayBuffer();
-  const uint8Array = new Uint8Array(arrayBuffer);
-  const decoder = new TextDecoder('utf-8', { fatal: false });
-  
-  let text = '';
-  const chunks = [];
-  
-  // Process in chunks to handle large files
-  for (let i = 0; i < uint8Array.length; i += 1000) {
-    const chunk = uint8Array.slice(i, i + 1000);
-    const decodedChunk = decoder.decode(chunk);
-    
-    // Extract readable text sequences
-    const readableText = decodedChunk
-      .replace(/[^\x20-\x7E\n\r\t]/g, ' ')  // ASCII only
-      .replace(/\s+/g, ' ')                 // Normalize spaces
-      .trim();
-      
-    if (readableText.length > 10 && /[A-Za-z]{3,}/.test(readableText)) {
-      chunks.push(readableText);
-    }
-  }
-  
-  text = chunks.join(' ');
-  
-  // Clean up the extracted text
-  text = text
-    .replace(/\s+/g, ' ')
-    .replace(/(.)\1{5,}/g, '$1')  // Remove repeated characters
-    .trim();
-  
-  if (text.length < 100) {
-    throw new Error('PDF text extraction failed - insufficient readable content found');
-  }
-  
-  console.log(`Fallback extraction: ${text.length} characters`);
-  return text;
-}
-
 // Enhanced DOCX text extraction
 async function extractTextFromDOCX(file: File): Promise<string> {
   try {

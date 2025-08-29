@@ -81,16 +81,20 @@ serve(async (req) => {
 
     console.log(`Extracted ${extractedText.length} characters from ${document.title}`);
 
-    // Chunk the text into ~1-2k token segments
-    const chunks = chunkText(extractedText, 1500);
-    console.log(`Created ${chunks.length} text chunks`);
+    // Enhanced chunking with section tagging and OCR fallback
+    const enhancedChunks = await enhancedIEPChunking(extractedText, document.title);
+    console.log(`Created ${enhancedChunks.length} tagged chunks`);
 
-    // Store chunks in database
-    const chunkInserts = chunks.map((chunk, index) => ({
+    // Store enhanced chunks in database
+    const chunkInserts = enhancedChunks.map((chunk, index) => ({
       doc_id: docId,
       idx: index,
-      content: chunk,
-      tokens: estimateTokens(chunk)
+      content: chunk.content,
+      tokens: estimateTokens(chunk.content),
+      section_tag: chunk.section_tag,
+      page_index: chunk.page_index,
+      chunk_hash: chunk.chunk_hash,
+      text_quality_score: chunk.quality_score
     }));
 
     const { error: chunkError } = await supabase

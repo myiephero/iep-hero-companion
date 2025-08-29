@@ -144,7 +144,7 @@ const Index = () => {
                 </Link>
               </Button>
               <Button asChild variant="outline" size="lg" className="border-white text-white hover:bg-white hover:text-primary">
-                <Link to="/upsell/hero-plan">
+                <Link to="/parent-hero-plan">
                   View HERO Plan
                 </Link>
               </Button>

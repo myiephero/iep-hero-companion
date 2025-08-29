@@ -1,0 +1,127 @@
+# ─────────────────────────────────────────────────────────────
+# Replit (Python) — files to create
+# ─────────────────────────────────────────────────────────────
+
+# file: requirements.txt
+fastapi==0.115.2
+uvicorn[standard]==0.30.6
+pydantic==2.8.2
+python-multipart==0.0.9
+PyMuPDF==1.24.10
+requests==2.32.3
+
+# file: main.py
+from fastapi import FastAPI, UploadFile, File, HTTPException, Form
+from fastapi.responses import JSONResponse
+from pydantic import BaseModel
+import fitz  # PyMuPDF
+import requests
+import io
+
+app = FastAPI(title="My IEP Hero PDF Extractor", version="1.0")
+
+class ExtractResponse(BaseModel):
+    characters: int
+    text: str
+
+def extract_text_from_pdf_bytes(data: bytes) -> str:
+    try:
+        doc = fitz.open(stream=data, filetype="pdf")
+        texts = []
+        for page in doc:
+            texts.append(page.get_text("text"))
+        return "\n".join(texts).strip()
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=f"PDF parse error: {e}")
+
+@app.get("/healthz")
+def health():
+    return {"ok": True}
+
+@app.post("/extract", response_model=ExtractResponse)
+async def extract(
+    pdf: UploadFile | None = File(default=None),
+    url: str | None = Form(default=None)
+):
+    if not pdf and not url:
+        raise HTTPException(status_code=400, detail="Provide either a file 'pdf' or a 'url' form field.")
+    if url:
+        try:
+            r = requests.get(url, timeout=20)
+            r.raise_for_status()
+            data = r.content
+        except Exception as e:
+            raise HTTPException(status_code=400, detail=f"Download failed: {e}")
+    else:
+        data = await pdf.read()
+    text = extract_text_from_pdf_bytes(data)
+    return JSONResponse({"characters": len(text), "text": text})
+
+# For Replit run button
+if __name__ == "__main__":
+    import uvicorn
+    uvicorn.run("main:app", host="0.0.0.0", port=8000)
+
+# ─────────────────────────────────────────────────────────────
+# Frontend — add env and client in your Vite app
+# ─────────────────────────────────────────────────────────────
+
+# file: .env.sample  (append)
+VITE_ANALYZER_URL=
+
+# file: src/lib/analyzer.ts  (new)
+export async function extractPdfText(input: { file?: File; url?: string }) {
+  const base = import.meta.env.VITE_ANALYZER_URL;
+  if (!base) throw new Error("VITE_ANALYZER_URL missing");
+  const form = new FormData();
+  if (input.file) form.append("pdf", input.file);
+  if (input.url) form.append("url", input.url);
+  const res = await fetch(`${base.replace(/\/$/, "")}/extract`, { method: "POST", body: form });
+  if (!res.ok) throw new Error(`Extractor error: ${res.status} ${await res.text()}`);
+  return res.json() as Promise<{ characters: number; text: string }>;
+}
+
+# Example integration (replace your Edge Function call):
+# file: src/pages/tools/IEPReview.tsx  (snippet to drop inside the component)
+import React, { useRef, useState } from "react";
+import { extractPdfText } from "../../lib/analyzer";
+
+export default function IEPReview() {
+  const inputRef = useRef<HTMLInputElement | null>(null);
+  const [status, setStatus] = useState<string>("");
+
+  async function onUpload(evt: React.FormEvent) {
+    evt.preventDefault();
+    const f = inputRef.current?.files?.[0];
+    if (!f) return alert("Choose a PDF");
+    setStatus("Extracting…");
+    try {
+      const { text, characters } = await extractPdfText({ file: f });
+      console.log("PDF text", characters, text.slice(0, 500));
+      setStatus(`Extracted ${characters} characters. Sending to analysis…`);
+      // TODO: pass 'text' to your OpenAI analysis flow
+    } catch (e: any) {
+      setStatus(`Error: ${e.message}`);
+    }
+  }
+
+  return (
+    <section className="container">
+      <form className="card" onSubmit={onUpload}>
+        <label htmlFor="pdf">Upload IEP (PDF)</label>
+        <input id="pdf" type="file" accept="application/pdf" ref={inputRef} />
+        <button type="submit" className="button">Analyze IEP</button>
+        <p className="muted">{status}</p>
+      </form>
+    </section>
+  );
+}
+
+# ─────────────────────────────────────────────────────────────
+# Quick Test from your laptop (replace URL)
+# ─────────────────────────────────────────────────────────────
+# Test with a URL to a PDF (e.g., a temporary Supabase public link)
+curl -X POST -F 'url=https://example.com/some.pdf' https://YOUR-REPL-URL/extract
+
+# Or test with a local file:
+curl -X POST -F 'pdf=@/path/to/your.pdf' https://YOUR-REPL-URL/extract

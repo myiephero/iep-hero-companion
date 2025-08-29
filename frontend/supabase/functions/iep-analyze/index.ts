@@ -153,7 +153,7 @@ async function getNextVersion(supabase: any, docId: string, kind: string): Promi
     : 1;
 }
 
-async function performOutlineScan(chunks: any[], emergentApiKey: string): Promise<any> {
+async function performOutlineScan(chunks: any[], openAIApiKey: string): Promise<any> {
   // PASS 1: Quick outline scan with gpt-4o-mini to identify sections
   const sampleText = chunks.slice(0, 5).map(c => c.content).join('\n\n').substring(0, 8000);
   
@@ -169,19 +169,14 @@ Return JSON with this structure:
   "keyAreas": ["List 3-5 most important areas to focus detailed analysis on"]
 }`;
 
-  // Use Emergent proxy endpoint for LLM integration
-  const apiEndpoint = emergentApiKey.startsWith('sk-emergent-') 
-    ? 'https://integrations.emergentagent.com/llm/v1/chat/completions'
-    : 'https://api.openai.com/v1/chat/completions';
-
-  const response = await fetch(apiEndpoint, {
+  const response = await fetch('https://api.openai.com/v1/chat/completions', {
     method: 'POST',
     headers: {
-      'Authorization': `Bearer ${emergentApiKey}`,
+      'Authorization': `Bearer ${openAIApiKey}`,
       'Content-Type': 'application/json',
     },
     body: JSON.stringify({
-      model: emergentApiKey.startsWith('sk-emergent-') ? 'openai/gpt-4o-mini' : 'gpt-4o-mini',
+      model: 'gpt-4o-mini',
       messages: [
         { role: 'system', content: 'You are an IEP document structure analyzer. Identify key sections and organization patterns.' },
         { role: 'user', content: outlinePrompt }

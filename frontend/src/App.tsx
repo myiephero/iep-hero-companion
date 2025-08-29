@@ -67,6 +67,11 @@ function App() {
                   <ParentStudents />
                 </ProtectedRoute>
               } />
+              <Route path="/parent/iep-review" element={
+                <ProtectedRoute allowedRoles={['parent']}>
+                  <IEPReview />
+                </ProtectedRoute>
+              } />
               
               {/* Advocate Routes - Protected */}
               <Route path="/advocate/dashboard" element={
@@ -92,6 +97,11 @@ function App() {
               <Route path="/advocate/students" element={
                 <ProtectedRoute allowedRoles={['advocate']}>
                   <AdvocateStudents />
+                </ProtectedRoute>
+              } />
+              <Route path="/advocate/iep-review" element={
+                <ProtectedRoute allowedRoles={['advocate']}>
+                  <IEPReview />
                 </ProtectedRoute>
               } />
               

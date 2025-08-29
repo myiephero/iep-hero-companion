@@ -44,6 +44,7 @@ interface IEPAnalysis {
   scores: any;
   flags: any[];
   recommendations: any[];
+  evidence?: string[]; // Array of chunk IDs that support this analysis
   created_at: string;
   model: string;
 }

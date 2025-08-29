@@ -3,102 +3,134 @@ import { DashboardLayout } from "@/layouts/DashboardLayout";
 import { StatCard } from "@/components/StatCard";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
 import { 
   Users, 
   Calendar, 
   FileText, 
   MessageSquare,
-  Clock,
-  AlertTriangle,
-  CheckCircle,
-  ArrowRight,
+  Brain,
+  Scale,
+  Lightbulb,
+  PenTool,
+  BarChart3,
   Phone,
-  MapPin
+  Zap,
+  Smile,
+  Clipboard,
+  Flag,
+  Sparkles,
+  Target
 } from "lucide-react";
 
 const AdvocateDashboard = () => {
-  const activeCases = [
+  const professionalTools = [
     {
-      id: "C-1024",
-      parentName: "Jordan Peterson",
-      studentName: "Ava Peterson",
-      grade: "3rd Grade",
-      school: "Lincoln Elementary",
-      stage: "IEP Review",
-      nextAction: "Upload evaluations",
-      priority: "high",
-      dueDate: "Oct 12, 2024",
-      disabilities: ["Autism", "ADHD"]
+      title: "Smart Letter Generator",
+      description: "Generate legally sound advocacy letters",
+      icon: <PenTool className="h-6 w-6" />,
+      url: "/tools/smart-letter",
+      category: "Professional Advocate Tools"
     },
     {
-      id: "C-1025", 
-      parentName: "Morgan Kumar",
-      studentName: "Liam Kumar",
-      grade: "6th Grade",
-      school: "Roosevelt Middle",
-      stage: "Meeting Prep",
-      nextAction: "Draft accommodation letters",
-      priority: "medium",
-      dueDate: "Oct 18, 2024",
-      disabilities: ["Dyslexia"]
+      title: "AI IEP Review & Compliance",
+      description: "AI-powered IEP analysis and compliance checks",
+      icon: <Brain className="h-6 w-6" />,
+      url: "/tools/ai-iep-review",
+      category: "Professional Advocate Tools"
     },
     {
-      id: "C-1026",
-      parentName: "Pat Rodriguez",
-      studentName: "Noah Rodriguez", 
-      grade: "2nd Grade",
-      school: "Washington Elementary",
-      stage: "Services Audit",
-      nextAction: "Verify service minutes",
-      priority: "low",
-      dueDate: "Oct 25, 2024",
-      disabilities: ["Speech Delay", "Processing Disorder"]
+      title: "Rights Explainer",
+      description: "Plain-language legal rights guide",
+      icon: <Scale className="h-6 w-6" />,
+      url: "/tools/rights-explainer",
+      category: "Professional Advocate Tools"
+    },
+    {
+      title: "Meeting Prep Assistant",
+      description: "Generate talking points and meeting notes",
+      icon: <Lightbulb className="h-6 w-6" />,
+      url: "/parent/meeting-prep",
+      category: "Professional Advocate Tools"
+    },
+    {
+      title: "Progress Analyzer",
+      description: "Data-driven recommendations for IEP goals",
+      icon: <BarChart3 className="h-6 w-6" />,
+      url: "/tools/progress-analyzer",
+      category: "Professional Advocate Tools"
+    },
+    {
+      title: "Advocate Messaging",
+      description: "Secure communication with clients",
+      icon: <MessageSquare className="h-6 w-6" />,
+      url: "/advocate/messages",
+      category: "Professional Advocate Tools"
+    },
+    {
+      title: "Ask AI About Docs",
+      description: "Query documents with AI assistance",
+      icon: <Sparkles className="h-6 w-6" />,
+      url: "/tools/ask-ai-docs",
+      category: "Professional Advocate Tools"
+    },
+    {
+      title: "Progress Notes & Service Log",
+      description: "Track service delivery and outcomes",
+      icon: <Clipboard className="h-6 w-6" />,
+      url: "/tools/progress-notes",
+      category: "Professional Advocate Tools"
+    },
+    {
+      title: "Communication Tracker",
+      description: "Monitor parent-school communications",
+      icon: <Phone className="h-6 w-6" />,
+      url: "/tools/communication-tracker",
+      category: "Professional Advocate Tools"
+    },
+    {
+      title: "Advocacy Reports",
+      description: "Generate comprehensive client reports",
+      icon: <FileText className="h-6 w-6" />,
+      url: "/tools/advocacy-reports",
+      category: "Professional Advocate Tools"
+    },
+    {
+      title: "IEP Goal Generator",
+      description: "AI-powered SMART goal creation",
+      icon: <Target className="h-6 w-6" />,
+      url: "/tools/goal-generator",
+      category: "Professional Advocate Tools"
+    },
+    {
+      title: "Emotion Tracker",
+      description: "Student well-being monitoring tools",
+      icon: <Smile className="h-6 w-6" />,
+      url: "/tools/emotion-tracker",
+      category: "Professional Advocate Tools"
     }
   ];
 
-  const todaySchedule = [
+  const specializedTools = [
     {
-      time: "10:00 AM",
-      type: "IEP Meeting",
-      client: "Jordan Peterson",
-      location: "Lincoln Elementary",
-      status: "upcoming"
+      title: "Autism Accommodation Builder",
+      description: "Professional autism IEP accommodations",
+      icon: <Brain className="h-6 w-6" />,
+      url: "/tools/autism-accommodations",
+      gradient: "from-blue-500 to-purple-600"
     },
     {
-      time: "2:30 PM", 
-      type: "Consultation Call",
-      client: "Sarah Williams",
-      location: "Phone",
-      status: "confirmed"
+      title: "504 Plan Builder", 
+      description: "Section 504 accommodation planning",
+      icon: <FileText className="h-6 w-6" />,
+      url: "/tools/504-plan-builder",
+      gradient: "from-orange-500 to-red-600"
     },
     {
-      time: "4:00 PM",
-      type: "Case Review",
-      client: "Morgan Kumar", 
-      location: "Office",
-      status: "pending"
-    }
-  ];
-
-  const recentActivity = [
-    {
-      action: "IEP Review completed",
-      client: "Ava Peterson",
-      time: "2 hours ago",
-      type: "review"
-    },
-    {
-      action: "Accommodation letter sent",
-      client: "Liam Kumar",
-      time: "1 day ago", 
-      type: "letter"
-    },
-    {
-      action: "Meeting scheduled",
-      client: "Noah Rodriguez",
-      time: "2 days ago",
-      type: "meeting"
+      title: "Occupational Therapy Activity & Adaptation Recommender",
+      description: "Professional OT activity suggestions and adaptations",
+      icon: <Zap className="h-6 w-6" />,
+      url: "/tools/ot-recommender",
+      gradient: "from-green-500 to-teal-600"
     }
   ];
 
@@ -106,227 +138,67 @@ const AdvocateDashboard = () => {
     <DashboardLayout>
       <div className="space-y-8">
         {/* Header */}
-        <div className="space-y-2">
-          <h1 className="text-3xl font-bold">Advocate Dashboard</h1>
-          <p className="text-muted-foreground">
-            Manage your caseload and support families effectively.
-          </p>
+        <div className="flex items-center justify-between">
+          <h1 className="text-2xl font-bold">Professional Advocate Tools</h1>
+          <div className="flex items-center gap-2 px-3 py-1 bg-green-100 text-green-800 rounded-full text-sm font-medium">
+            <Flag className="h-4 w-4" />
+            Hero Plan Active
+          </div>
         </div>
 
-        {/* Stats Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-          <StatCard
-            title="Active Cases"
-            value="18"
-            description="3 high priority, 12 ongoing"
-            icon={<Users className="h-4 w-4" />}
-            trend={{ value: "2 new this week", isPositive: true }}
-          />
-          <StatCard
-            title="Today's Meetings"
-            value="3"
-            description="1 IEP meeting, 2 consultations"
-            icon={<Calendar className="h-4 w-4" />}
-            badge="Today"
-          />
-          <StatCard
-            title="Pending Letters"
-            value="6"
-            description="4 accommodations, 2 appeals"
-            icon={<FileText className="h-4 w-4" />}
-            trend={{ value: "2 urgent", isPositive: false }}
-          />
-          <StatCard
-            title="Messages"
-            value="12"
-            description="8 unread, 4 urgent replies"
-            icon={<MessageSquare className="h-4 w-4" />}
-            badge="Unread"
-          />
-        </div>
-
-        <div className="grid lg:grid-cols-3 gap-6">
-          {/* Active Cases */}
-          <div className="lg:col-span-2">
-            <Card className="bg-gradient-card border-0">
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Users className="h-5 w-5" />
-                  Active Cases
-                </CardTitle>
-                <CardDescription>
-                  Students and families in your current caseload
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
+        {/* Professional Advocate Tools Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+          {professionalTools.map((tool, index) => (
+            <Card key={index} className="bg-card hover:shadow-md transition-all duration-300 group">
+              <CardContent className="p-6">
                 <div className="space-y-4">
-                  {activeCases.map((case_) => (
-                    <div key={case_.id} className="p-4 bg-surface rounded-lg space-y-3">
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-3">
-                          <Badge variant="outline" className="font-mono text-xs">
-                            {case_.id}
-                          </Badge>
-                          <Badge variant={
-                            case_.priority === 'high' ? 'destructive' :
-                            case_.priority === 'medium' ? 'outline' : 'secondary'
-                          } className={case_.priority === 'medium' ? 'border-warning text-warning' : ''}>
-                            {case_.priority} priority
-                          </Badge>
-                        </div>
-                        <div className="text-sm text-muted-foreground flex items-center gap-1">
-                          <Clock className="h-3 w-3" />
-                          Due {case_.dueDate}
-                        </div>
-                      </div>
-                      
-                      <div className="grid md:grid-cols-2 gap-4">
-                        <div>
-                          <h4 className="font-medium">{case_.studentName}</h4>
-                          <p className="text-sm text-muted-foreground">{case_.grade} • {case_.school}</p>
-                          <p className="text-sm text-muted-foreground">Parent: {case_.parentName}</p>
-                        </div>
-                        <div>
-                          <p className="text-sm font-medium">Current Stage: {case_.stage}</p>
-                          <p className="text-sm text-muted-foreground">Next: {case_.nextAction}</p>
-                          <div className="flex flex-wrap gap-1 mt-1">
-                            {case_.disabilities.map((disability) => (
-                              <Badge key={disability} variant="outline" className="text-xs">
-                                {disability}
-                              </Badge>
-                            ))}
-                          </div>
-                        </div>
-                      </div>
-                      
-                      <div className="flex gap-2 pt-2">
-                        <Button size="sm" variant="default">
-                          View Case
-                        </Button>
-                        <Button size="sm" variant="outline">
-                          Send Message
-                        </Button>
-                      </div>
-                    </div>
-                  ))}
-                  <Button variant="outline" className="w-full">
-                    View All Cases
-                    <ArrowRight className="ml-2 h-4 w-4" />
+                  <div className="w-12 h-12 rounded-lg bg-muted flex items-center justify-center text-muted-foreground group-hover:bg-primary group-hover:text-primary-foreground transition-colors">
+                    {tool.icon}
+                  </div>
+                  <div>
+                    <h3 className="font-semibold mb-1 text-sm">{tool.title}</h3>
+                    <p className="text-xs text-muted-foreground">{tool.description}</p>
+                  </div>
+                  <Button asChild variant="outline" size="sm" className="w-full">
+                    <Link to={tool.url}>
+                      Open Tool
+                    </Link>
                   </Button>
                 </div>
               </CardContent>
             </Card>
-          </div>
-
-          {/* Today's Schedule & Quick Actions */}
-          <div className="space-y-6">
-            {/* Today's Schedule */}
-            <Card className="bg-gradient-card border-0">
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Calendar className="h-5 w-5" />
-                  Today's Schedule
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                {todaySchedule.map((appointment, index) => (
-                  <div key={index} className="space-y-2 p-3 bg-surface rounded-lg">
-                    <div className="flex items-center justify-between">
-                      <span className="font-medium">{appointment.time}</span>
-                      <Badge variant={
-                        appointment.status === 'confirmed' ? 'default' : 
-                        appointment.status === 'upcoming' ? 'secondary' : 'outline'
-                      }>
-                        {appointment.status}
-                      </Badge>
-                    </div>
-                    <div>
-                      <h4 className="font-medium">{appointment.type}</h4>
-                      <p className="text-sm text-muted-foreground">{appointment.client}</p>
-                      <div className="flex items-center gap-1 text-xs text-muted-foreground mt-1">
-                        {appointment.location === "Phone" ? (
-                          <Phone className="h-3 w-3" />
-                        ) : (
-                          <MapPin className="h-3 w-3" />
-                        )}
-                        {appointment.location}
-                      </div>
-                    </div>
-                  </div>
-                ))}
-                <Button variant="outline" size="sm" className="w-full">
-                  View Full Calendar
-                </Button>
-              </CardContent>
-            </Card>
-
-            {/* Quick Actions */}
-            <Card className="bg-gradient-card border-0">
-              <CardHeader>
-                <CardTitle>Quick Actions</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-3">
-                <Button asChild variant="default" className="w-full justify-start">
-                  <Link to="/tools/iep-review">
-                    <FileText className="h-4 w-4 mr-2" />
-                    IEP Review Tool
-                  </Link>
-                </Button>
-                <Button asChild variant="outline" className="w-full justify-start">
-                  <Link to="/tools/autism-accommodations">
-                    <Users className="h-4 w-4 mr-2" />
-                    Accommodation Builder
-                  </Link>
-                </Button>
-                <Button asChild variant="outline" className="w-full justify-start">
-                  <Link to="/advocate/messages">
-                    <MessageSquare className="h-4 w-4 mr-2" />
-                    Messages
-                  </Link>
-                </Button>
-                <Button asChild variant="outline" className="w-full justify-start">
-                  <Link to="/advocate/schedule">
-                    <Calendar className="h-4 w-4 mr-2" />
-                    Schedule Meeting
-                  </Link>
-                </Button>
-              </CardContent>
-            </Card>
-          </div>
+          ))}
         </div>
 
-        {/* Recent Activity */}
-        <Card className="bg-gradient-card border-0">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Clock className="h-5 w-5" />
-              Recent Activity
-            </CardTitle>
-            <CardDescription>
-              Latest updates across your caseload
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-4">
-              {recentActivity.map((activity, index) => (
-                <div key={index} className="flex items-center gap-4 p-3 bg-surface rounded-lg">
-                  <div className="w-2 h-2 bg-primary rounded-full"></div>
-                  <div className="flex-1">
-                    <p className="font-medium">{activity.action}</p>
-                    <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                      <span>{activity.client}</span>
-                      <span>•</span>
-                      <span>{activity.time}</span>
+        {/* Specialized Assessment Tools */}
+        <div className="space-y-4">
+          <h2 className="text-xl font-semibold">Specialized Assessment Tools</h2>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            {specializedTools.map((tool, index) => (
+              <Card 
+                key={index} 
+                className={`bg-gradient-to-br ${tool.gradient} text-white hover:shadow-lg transition-all duration-300 border-0`}
+              >
+                <CardContent className="p-6">
+                  <div className="space-y-4">
+                    <div className="w-12 h-12 rounded-lg bg-white/20 flex items-center justify-center">
+                      {tool.icon}
                     </div>
+                    <div>
+                      <h3 className="font-semibold mb-2">{tool.title}</h3>
+                      <p className="text-sm text-white/90">{tool.description}</p>
+                    </div>
+                    <Button asChild variant="secondary" className="w-full">
+                      <Link to={tool.url}>
+                        Open Tool
+                      </Link>
+                    </Button>
                   </div>
-                  <Badge variant="outline" className="capitalize">
-                    {activity.type}
-                  </Badge>
-                </div>
-              ))}
-            </div>
-          </CardContent>
-        </Card>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        </div>
       </div>
     </DashboardLayout>
   );

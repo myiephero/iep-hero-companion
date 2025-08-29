@@ -5,6 +5,14 @@ import { Badge } from "@/components/ui/badge";
 import { Link } from "react-router-dom";
 import { Brain, FileText, Users, Star, Zap, Building, BookOpen, MessageSquare, Target, TrendingUp } from "lucide-react";
 
+// Get user role from current location
+const getUserRole = () => {
+  const path = window.location.pathname;
+  if (path.startsWith('/parent')) return 'parent';
+  if (path.startsWith('/advocate')) return 'advocate';
+  return 'parent'; // default to parent
+};
+
 const emergentTools = [
   {
     title: "AI IEP Review",
@@ -97,6 +105,8 @@ const getBadgeVariant = (badge: string) => {
 };
 
 export default function EmergentToolsHub() {
+  const userRole = getUserRole();
+  
   return (
     <DashboardLayout>
       <div className="space-y-8">
@@ -180,7 +190,7 @@ export default function EmergentToolsHub() {
                         </div>
                         
                         <Button asChild className="w-full group-hover:bg-primary/90 transition-colors">
-                          <Link to={tool.path}>
+                          <Link to={`/${userRole}${tool.path}`}>
                             Open Tool
                           </Link>
                         </Button>

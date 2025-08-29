@@ -285,7 +285,7 @@ const AdvocateDiscovery = () => {
               AI Matching
             </Button>
             <Button asChild>
-              <Link to="/upsell/hero-plan">
+              <Link to="/parent-hero-plan">
                 <Crown className="h-4 w-4 mr-2" />
                 Get Hero Plan
               </Link>

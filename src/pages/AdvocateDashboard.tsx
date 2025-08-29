@@ -31,35 +31,35 @@ const AdvocateDashboard = () => {
       title: "Smart Letter Generator",
       description: "Generate legally sound advocacy letters",
       icon: <PenTool className="h-6 w-6" />,
-      url: "/tools/smart-letter",
+      url: "/advocate/tools/smart-letter",
       category: "Professional Advocate Tools"
     },
     {
       title: "AI IEP Review & Compliance",
       description: "AI-powered IEP analysis and compliance checks",
       icon: <Brain className="h-6 w-6" />,
-      url: "/tools/ai-iep-review",
+      url: "/advocate/tools/ai-iep-review",
       category: "Professional Advocate Tools"
     },
     {
       title: "Rights Explainer",
       description: "Plain-language legal rights guide",
       icon: <Scale className="h-6 w-6" />,
-      url: "/tools/rights-explainer",
+      url: "/advocate/tools/rights-explainer",
       category: "Professional Advocate Tools"
     },
     {
       title: "Meeting Prep Assistant",
       description: "Generate talking points and meeting notes",
       icon: <Lightbulb className="h-6 w-6" />,
-      url: "/tools/meeting-prep",
+      url: "/advocate/tools/meeting-prep",
       category: "Professional Advocate Tools"
     },
     {
       title: "Progress Analyzer",
       description: "Data-driven recommendations for IEP goals",
       icon: <BarChart3 className="h-6 w-6" />,
-      url: "/tools/progress-analyzer",
+      url: "/advocate/tools/progress-analyzer",
       category: "Professional Advocate Tools"
     },
     {
@@ -73,42 +73,42 @@ const AdvocateDashboard = () => {
       title: "Ask AI About Docs",
       description: "Query documents with AI assistance",
       icon: <Sparkles className="h-6 w-6" />,
-      url: "/tools/ask-ai-docs",
+      url: "/advocate/tools/ask-ai-docs",
       category: "Professional Advocate Tools"
     },
     {
       title: "Progress Notes & Service Log",
       description: "Track service delivery and outcomes",
       icon: <Clipboard className="h-6 w-6" />,
-      url: "/tools/progress-notes",
+      url: "/advocate/tools/progress-notes",
       category: "Professional Advocate Tools"
     },
     {
       title: "Communication Tracker",
       description: "Monitor parent-school communications",
       icon: <Phone className="h-6 w-6" />,
-      url: "/tools/communication-tracker",
+      url: "/advocate/tools/communication-tracker",
       category: "Professional Advocate Tools"
     },
     {
       title: "Advocacy Reports",
       description: "Generate comprehensive client reports",
       icon: <FileText className="h-6 w-6" />,
-      url: "/tools/advocacy-reports",
+      url: "/advocate/tools/advocacy-reports",
       category: "Professional Advocate Tools"
     },
     {
       title: "IEP Goal Generator",
       description: "AI-powered SMART goal creation",
       icon: <Target className="h-6 w-6" />,
-      url: "/tools/goal-generator",
+      url: "/advocate/tools/goal-generator",
       category: "Professional Advocate Tools"
     },
     {
       title: "Emotion Tracker",
       description: "Student well-being monitoring tools",
       icon: <Smile className="h-6 w-6" />,
-      url: "/tools/emotion-tracker",
+      url: "/advocate/tools/emotion-tracker",
       category: "Professional Advocate Tools"
     }
   ];
@@ -118,21 +118,21 @@ const AdvocateDashboard = () => {
       title: "Autism Accommodation Builder",
       description: "Professional autism IEP accommodations",
       icon: <Brain className="h-6 w-6" />,
-      url: "/tools/autism-accommodations",
+      url: "/advocate/tools/autism-accommodations",
       gradient: "from-blue-500 to-purple-600"
     },
     {
       title: "504 Plan Builder", 
       description: "Section 504 accommodation planning",
       icon: <FileText className="h-6 w-6" />,
-      url: "/tools/504-plan-builder",
+      url: "/advocate/tools/504-plan-builder",
       gradient: "from-orange-500 to-red-600"
     },
     {
       title: "Occupational Therapy Activity & Adaptation Recommender",
       description: "Professional OT activity suggestions and adaptations",
       icon: <Zap className="h-6 w-6" />,
-      url: "/tools/ot-recommender",
+      url: "/advocate/tools/ot-recommender",
       gradient: "from-green-500 to-teal-600"
     }
   ];

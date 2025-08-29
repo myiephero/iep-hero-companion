@@ -17,7 +17,7 @@ serve(async (req) => {
   }
 
   try {
-    const { docId, kind = 'quality', model = 'gpt-4o-mini', studentContext = {} } = await req.json();
+    const { docId, kind = 'quality', studentContext = {} } = await req.json();
     
     if (!docId) {
       throw new Error('Document ID is required');
@@ -27,7 +27,11 @@ serve(async (req) => {
       throw new Error('Analysis kind must be "quality" or "compliance"');
     }
 
-    console.log(`Analyzing document ${docId} for ${kind}`);
+    if (!emergentApiKey) {
+      throw new Error('Emergent LLM API key not configured');
+    }
+
+    console.log(`Starting two-pass analysis for document ${docId} - ${kind}`);
     
     const supabase = createClient(supabaseUrl, supabaseServiceKey);
     
@@ -44,7 +48,7 @@ serve(async (req) => {
       throw new Error('Invalid authorization token');
     }
 
-    // Get the document and text chunks
+    // Get the document and enhanced text chunks
     const { data: document, error: docError } = await supabase
       .from('iep_documents')
       .select('*')
@@ -66,113 +70,34 @@ serve(async (req) => {
       throw new Error('No text chunks found. Please ingest the document first.');
     }
 
-    // Rank chunks by readability and select up to ~14k chars to control cost
-    const computeReadability = (t: string) => {
-      if (!t) return 0;
-      const ascii = t.replace(/[^\x20-\x7E\s]/g, '');
-      const letters = (ascii.match(/[A-Za-z]/g)?.length || 0);
-      const total = ascii.length || 1;
-      const words = ascii.trim().split(/\s+/).length || 1;
-      const avgWord = ascii.length / words; // rough proxy for readability
-      return (letters/total) * 0.7 + Math.min(avgWord/6, 1) * 0.3;
-    };
+    console.log(`Found ${chunks.length} text chunks for analysis`);
 
-    const normalizeIEP = (t: string) => t
-      .replace(/[\x00-\x1F\x7F]/g, ' ')
-      .replace(/([A-Za-z])-(\s*\n)\s*([A-Za-z])/g, '$1 $3')
-      .replace(/\s+/g, ' ')
-      .trim();
-
-    const scored = (chunks as any[]).map(c => ({ ...c, score: computeReadability(c.content) }));
-    scored.sort((a, b) => b.score - a.score);
-    const threshold = 0.35;
-    const filtered = scored.filter(c => c.score >= threshold);
-
-    let selected: string[] = [];
-    let totalChars = 0;
-    const LIMIT = 14000;
-    for (const c of (filtered.length ? filtered : scored)) {
-      if (totalChars + c.content.length > LIMIT) break;
-      selected.push(c.content);
-      totalChars += c.content.length;
-    }
-
-    const fullText = normalizeIEP(selected.join('\n\n'));
-    console.log(`Selected ${selected.length} chunks; ${fullText.length} chars for analysis`);
-
-    // Get system prompt and schema based on analysis kind
-    const { systemPrompt, userPrompt, schema } = getAnalysisPrompts(kind, fullText, studentContext);
-
-    console.log('Sending request to OpenAI for IEP analysis');
-
-    const messages = [
-      { role: 'system', content: systemPrompt },
-      { role: 'user', content: userPrompt }
-    ];
-
-    const payload: any = {
-      model,
-      messages,
-      response_format: { type: "json_object" }
-    };
-
-    if (String(model).includes('gpt-4o')) {
-      payload.max_tokens = 1200; // cheaper cap for 4o-mini
-    } else {
-      payload.max_completion_tokens = 1200; // newer models param
-    }
-
-    const response = await fetch('https://api.openai.com/v1/chat/completions', {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${openAIApiKey}`,
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(payload),
-    });
-
-    if (!response.ok) {
-      const error = await response.json();
-      console.error('OpenAI API error:', error);
-      throw new Error(`OpenAI API error: ${error.error?.message || 'Unknown error'}`);
-    }
-
-    const data = await response.json();
-    let analysisResult;
+    // Two-Pass Analysis Pipeline
     
-    try {
-      analysisResult = JSON.parse(data.choices[0].message.content);
-    } catch (parseError) {
-      console.error('Failed to parse OpenAI response as JSON:', parseError);
-      throw new Error('Invalid JSON response from AI analysis');
-    }
+    // PASS 1: Outline Scan with gpt-4o-mini
+    console.log('Starting Pass 1: Outline scan and section mapping');
+    const outlineResult = await performOutlineScan(chunks, emergentApiKey);
+    
+    // PASS 2: Structured Analysis with claude-sonnet-4
+    console.log('Starting Pass 2: Detailed section analysis');
+    const analysisResult = await performStructuredAnalysis(outlineResult, chunks, kind, studentContext, emergentApiKey);
 
-    // Get current max version for this document and analysis kind
-    const { data: existingAnalyses } = await supabase
-      .from('iep_analysis')
-      .select('version')
-      .eq('doc_id', docId)
-      .eq('kind', kind)
-      .order('version', { ascending: false })
-      .limit(1);
-
-    const nextVersion = existingAnalyses && existingAnalyses.length > 0 
-      ? existingAnalyses[0].version + 1 
-      : 1;
-
-    // Store the analysis result
+    // Store analysis results with evidence
+    const nextVersion = await getNextVersion(supabase, docId, kind);
+    
     const { data: analysisRecord, error: analysisError } = await supabase
       .from('iep_analysis')
       .insert({
         doc_id: docId,
         user_id: user.id,
-        model: model,
+        model: 'two-pass-gpt4omini-claude4',
         kind: kind,
         version: nextVersion,
         summary: analysisResult.summary || {},
         scores: analysisResult.scores || {},
         flags: analysisResult.flags || [],
-        recommendations: analysisResult.recommendations || []
+        recommendations: analysisResult.recommendations || [],
+        evidence: analysisResult.evidence || []
       })
       .select()
       .single();
@@ -182,14 +107,15 @@ serve(async (req) => {
       throw new Error('Failed to store analysis results');
     }
 
-    console.log(`IEP ${kind} analysis completed successfully`);
+    console.log(`Two-pass IEP ${kind} analysis completed successfully`);
 
     return new Response(
       JSON.stringify({ 
         success: true,
         analysisId: analysisRecord.id,
         analysis: analysisResult,
-        version: nextVersion
+        version: nextVersion,
+        sectionsAnalyzed: outlineResult.sectionsFound
       }),
       {
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
@@ -197,7 +123,7 @@ serve(async (req) => {
     );
 
   } catch (error) {
-    console.error('Error in iep-analyze function:', error);
+    console.error('Error in two-pass iep-analyze function:', error);
     return new Response(
       JSON.stringify({ 
         error: error.message || 'An unexpected error occurred during IEP analysis'

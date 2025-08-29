@@ -168,33 +168,38 @@ async function extractTextFromPDF(file: File): Promise<string> {
     
     for (let i = 0; i < uint8Array.length - 1; i++) {
       const byte = uint8Array[i];
-      const nextByte = uint8Array[i + 1];
       
       // Look for text objects and streams
       if (byte === 40) { // '(' - start of text string
         inTextObject = true;
         currentString = '';
       } else if (byte === 41 && inTextObject) { // ')' - end of text string
-        if (currentString.length > 2) { // Only keep meaningful strings
+        if (currentString.length > 1) { // Keep even short strings
           text += currentString + ' ';
         }
         inTextObject = false;
         currentString = '';
-      } else if (inTextObject && byte >= 32 && byte <= 126) {
-        // Printable ASCII characters
-        currentString += String.fromCharCode(byte);
+      } else if (inTextObject) {
+        // More permissive character extraction for IEP content
+        if (byte >= 32 && byte <= 126) {
+          // Printable ASCII characters
+          currentString += String.fromCharCode(byte);
+        } else if (byte === 13 || byte === 10) {
+          // Preserve line breaks
+          currentString += '\n';
+        }
       }
     }
     
-    // Clean up extracted text
+    // Less aggressive text cleaning to preserve IEP content
     text = text
       .replace(/\s+/g, ' ') // Collapse multiple spaces
-      .replace(/[^\w\s.,!?;:()\-]/g, '') // Remove special characters except basic punctuation
+      .replace(/[\x00-\x1F]/g, ' ') // Remove control characters but keep printable content
       .trim();
     
     console.log(`Extracted ${text.length} characters from PDF`);
     
-    if (text.length < 100) {
+    if (text.length < 50) {
       throw new Error('Insufficient text extracted from PDF. The document may be image-based or corrupted.');
     }
     

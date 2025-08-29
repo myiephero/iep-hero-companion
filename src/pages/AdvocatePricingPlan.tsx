@@ -47,61 +47,77 @@ const AdvocatePricingPlan = () => {
 
   const pricingTiers = [
     {
-      id: 'essential',
-      name: 'Essential Plan',
-      price: '$149',
+      id: 'starter',
+      name: 'Starter',
+      price: '$49',
       period: '/month',
-      description: 'Perfect for solo advocates getting started',
+      seats: '1 Seat',
+      description: 'Essential tools for solo advocates',
       features: [
-        'Up to 5 active clients',
-        'Basic IEP review tools',
-        'Standard letter templates',
-        'Document storage (5GB)',
+        'CRM for client management',
+        'Letter Generator',
+        'Basic document storage',
         'Email support',
-        'Monthly compliance updates'
+        'Standard compliance updates'
       ],
       icon: <Zap className="h-6 w-6" />,
       gradient: 'from-blue-500 to-blue-600',
       popular: false
     },
     {
-      id: 'professional',
-      name: 'Professional Plan',
-      price: '$299',
+      id: 'pro',
+      name: 'Pro',
+      price: '$75',
       period: '/month',
-      description: 'For established advocates managing multiple cases',
+      seats: '1 Seat',
+      description: 'Adds scheduling and intake capabilities',
       features: [
-        'Up to 15 active clients',
-        'Advanced AI-powered IEP analysis',
-        'Custom letter generation',
-        'Document storage (25GB)',
-        'Priority phone & email support',
-        'Advanced compliance tracking',
-        'Client portal access',
-        'Meeting scheduler integration',
-        'Progress tracking dashboard'
+        'Everything in Starter',
+        'Scheduling system',
+        'Intake forms',
+        'Enhanced CRM features',
+        'Priority email support',
+        'Advanced reporting'
       ],
       icon: <Star className="h-6 w-6" />,
       gradient: 'from-purple-500 to-purple-600',
       popular: true
     },
     {
-      id: 'premium',
-      name: 'Premium Plan',
-      price: '$499',
+      id: 'agency',
+      name: 'Agency',
+      price: '$149',
       period: '/month',
-      description: 'For advocacy firms and power users',
+      seats: '2 Seats',
+      description: 'Team collaboration with billing tools',
       features: [
-        'Unlimited active clients',
-        'White-label client portal',
-        'Custom branding options',
-        'Unlimited document storage',
-        'Dedicated account manager',
-        '24/7 priority support',
+        'Everything in Pro',
+        'Team CRM access',
+        'Billing tools',
+        'Shared client management',
+        'Team collaboration features',
+        'Advanced analytics',
+        'Phone support'
+      ],
+      icon: <Crown className="h-6 w-6" />,
+      gradient: 'from-green-500 to-green-600',
+      popular: false
+    },
+    {
+      id: 'agency-plus',
+      name: 'Agency+',
+      price: '$249',
+      period: '/month',
+      seats: '5 Seats',
+      description: 'Premium features with AI and training',
+      features: [
+        'Everything in Agency',
+        'AI Credits included',
+        'Training Hub access',
+        'Premium support',
+        'White-label options',
         'Custom integrations',
-        'Advanced analytics & reporting',
-        'Team collaboration tools',
-        'API access'
+        'Dedicated account manager'
       ],
       icon: <Crown className="h-6 w-6" />,
       gradient: 'from-amber-500 to-amber-600',
@@ -202,7 +218,18 @@ const AdvocatePricingPlan = () => {
         {/* Pricing Cards */}
         <div className="px-6 pb-16">
           <div className="max-w-7xl mx-auto">
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            {/* Extra Seats Notice */}
+            <div className="text-center mb-8">
+              <div className="inline-flex items-center px-6 py-3 bg-muted/50 rounded-lg">
+                <Users className="h-4 w-4 mr-2 text-muted-foreground" />
+                <span className="text-sm text-muted-foreground">
+                  <strong>Extra Seats:</strong> $29-$39/month each - Flexible expansion for larger teams
+                </span>
+              </div>
+            </div>
+            
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6"
+                 style={{ gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))' }}>
               {pricingTiers.map((tier) => (
                 <Card 
                   key={tier.id}
@@ -218,17 +245,18 @@ const AdvocatePricingPlan = () => {
                     </div>
                   )}
                   
-                  <CardHeader className="text-center pb-8">
-                    <div className={`inline-flex items-center justify-center w-16 h-16 bg-gradient-to-r ${tier.gradient} rounded-2xl mb-4 mx-auto`}>
+                  <CardHeader className="text-center pb-6">
+                    <div className={`inline-flex items-center justify-center w-14 h-14 bg-gradient-to-r ${tier.gradient} rounded-2xl mb-4 mx-auto`}>
                       {tier.icon}
                     </div>
-                    <CardTitle className="text-2xl font-bold">{tier.name}</CardTitle>
-                    <CardDescription className="text-muted-foreground">
+                    <CardTitle className="text-xl font-bold">{tier.name}</CardTitle>
+                    <div className="text-sm text-muted-foreground mb-2">{tier.seats}</div>
+                    <CardDescription className="text-muted-foreground text-sm">
                       {tier.description}
                     </CardDescription>
                     <div className="flex items-baseline justify-center gap-1 mt-4">
-                      <span className="text-4xl font-bold">{tier.price}</span>
-                      <span className="text-muted-foreground">{tier.period}</span>
+                      <span className="text-3xl font-bold">{tier.price}</span>
+                      <span className="text-muted-foreground text-sm">{tier.period}</span>
                     </div>
                   </CardHeader>
                   

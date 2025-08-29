@@ -1,14 +1,37 @@
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/AppSidebar";
 import { Button } from "@/components/ui/button";
-import { Link } from "react-router-dom";
-import { Crown, User } from "lucide-react";
+import { Link, useNavigate } from "react-router-dom";
+import { Crown, User, LogOut } from "lucide-react";
+import { useAuth } from "@/hooks/useAuth";
+import { useToast } from "@/hooks/use-toast";
 
 interface DashboardLayoutProps {
   children: React.ReactNode;
 }
 
 export function DashboardLayout({ children }: DashboardLayoutProps) {
+  const navigate = useNavigate();
+  const { user, profile, signOut } = useAuth();
+  const { toast } = useToast();
+
+  const handleSignOut = async () => {
+    try {
+      await signOut();
+      toast({
+        title: "Signed out successfully",
+        description: "You have been logged out of your account.",
+      });
+      navigate("/auth");
+    } catch (error) {
+      toast({
+        title: "Error signing out",
+        description: "There was a problem signing you out. Please try again.",
+        variant: "destructive",
+      });
+    }
+  };
+
   return (
     <SidebarProvider>
       <div className="min-h-screen flex w-full bg-background">
@@ -28,8 +51,20 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
                     HERO Plan
                   </Link>
                 </Button>
-                <Button variant="ghost" size="icon">
+                
+                {/* User Display */}
+                {(profile?.full_name || user?.email) && (
+                  <span className="text-sm text-muted-foreground hidden md:block">
+                    {profile?.full_name || user?.email}
+                  </span>
+                )}
+                
+                <Button variant="ghost" size="icon" onClick={() => navigate('/profile')} title="Profile">
                   <User className="h-4 w-4" />
+                </Button>
+                
+                <Button variant="ghost" size="icon" onClick={handleSignOut} title="Sign Out">
+                  <LogOut className="h-4 w-4" />
                 </Button>
               </div>
             </div>

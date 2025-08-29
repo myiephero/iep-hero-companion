@@ -147,14 +147,73 @@ function App() {
                 </ProtectedRoute>
               } />
               
-              {/* Shared Tools (Legacy routes - redirect to role-specific) */}
-              <Route path="/tools/emergent" element={<EmergentToolsHub />} />
-              <Route path="/tools/document-vault" element={<DocumentVault />} />
+              {/* Parent Tools - Additional */}
+              <Route path="/parent/tools/emergent" element={
+                <ProtectedRoute allowedRoles={['parent']}>
+                  <EmergentToolsHub />
+                </ProtectedRoute>
+              } />
+              <Route path="/parent/tools/document-vault" element={
+                <ProtectedRoute allowedRoles={['parent']}>
+                  <DocumentVault />
+                </ProtectedRoute>
+              } />
+              <Route path="/parent/tools/gifted-2e-learners" element={
+                <ProtectedRoute allowedRoles={['parent']}>
+                  <GiftedTwoeLearners />
+                </ProtectedRoute>
+              } />
+              <Route path="/parent/tools/advocate-matching" element={
+                <ProtectedRoute allowedRoles={['parent']}>
+                  <AdvocateMatchingTool />
+                </ProtectedRoute>
+              } />
+              
+              {/* Advocate Tools - Additional */}
+              <Route path="/advocate/tools/emergent" element={
+                <ProtectedRoute allowedRoles={['advocate']}>
+                  <EmergentToolsHub />
+                </ProtectedRoute>
+              } />
+              <Route path="/advocate/tools/document-vault" element={
+                <ProtectedRoute allowedRoles={['advocate']}>
+                  <DocumentVault />
+                </ProtectedRoute>
+              } />
+              <Route path="/advocate/tools/gifted-2e-learners" element={
+                <ProtectedRoute allowedRoles={['advocate']}>
+                  <GiftedTwoeLearners />
+                </ProtectedRoute>
+              } />
+              <Route path="/advocate/tools/advocate-matching" element={
+                <ProtectedRoute allowedRoles={['advocate']}>
+                  <AdvocateMatchingTool />
+                </ProtectedRoute>
+              } />
+              <Route path="/advocate/tools/ai-iep-review" element={
+                <ProtectedRoute allowedRoles={['advocate']}>
+                  <AIIEPReview />
+                </ProtectedRoute>
+              } />
+              <Route path="/advocate/tools/smart-letter" element={
+                <ProtectedRoute allowedRoles={['advocate']}>
+                  <SmartLetterGenerator />
+                </ProtectedRoute>
+              } />
+              <Route path="/advocate/tools/meeting-prep" element={
+                <ProtectedRoute allowedRoles={['advocate']}>
+                  <MeetingPrepWizard />
+                </ProtectedRoute>
+              } />
+              
+              {/* Legacy redirects for old /tools/ routes */}
+              <Route path="/tools/emergent" element={<RoleBasedRedirect parentRoute="/parent/tools/emergent" advocateRoute="/advocate/tools/emergent" />} />
+              <Route path="/tools/document-vault" element={<RoleBasedRedirect parentRoute="/parent/tools/document-vault" advocateRoute="/advocate/tools/document-vault" />} />
               <Route path="/tools/iep-review" element={<RoleBasedRedirect parentRoute="/parent/tools/iep-review" advocateRoute="/advocate/tools/iep-review" />} />
               <Route path="/tools/ai-iep-review" element={<RoleBasedRedirect parentRoute="/parent/tools/ai-iep-review" advocateRoute="/advocate/tools/ai-iep-review" />} />
               <Route path="/tools/autism-accommodations" element={<RoleBasedRedirect parentRoute="/parent/tools/autism-accommodations" advocateRoute="/advocate/tools/autism-accommodations" />} />
-              <Route path="/tools/advocate-matching" element={<AdvocateMatchingTool />} />
-              <Route path="/tools/gifted-2e-learners" element={<GiftedTwoeLearners />} />
+              <Route path="/tools/advocate-matching" element={<RoleBasedRedirect parentRoute="/parent/tools/advocate-matching" advocateRoute="/advocate/tools/advocate-matching" />} />
+              <Route path="/tools/gifted-2e-learners" element={<RoleBasedRedirect parentRoute="/parent/tools/gifted-2e-learners" advocateRoute="/advocate/tools/gifted-2e-learners" />} />
               <Route path="/tools/smart-letter" element={<RoleBasedRedirect parentRoute="/parent/tools/smart-letter" advocateRoute="/advocate/tools/smart-letter" />} />
               <Route path="/tools/meeting-prep" element={<RoleBasedRedirect parentRoute="/parent/tools/meeting-prep" advocateRoute="/advocate/tools/meeting-prep" />} />
               

@@ -142,24 +142,16 @@ Please provide:
 ${cleanedText}`;
     }
 
-    console.log('Sending request to AI API for document analysis');
+    console.log('Sending request to OpenAI API for document analysis');
 
-    // Determine which API to use and configure accordingly
-    const useEmergent = !!emergentApiKey;
-    const apiKey = useEmergent ? emergentApiKey : openAIApiKey;
-    const apiEndpoint = useEmergent 
-      ? 'https://integrations.emergentagent.com/llm/v1/chat/completions'
-      : 'https://api.openai.com/v1/chat/completions';
-    const model = useEmergent ? 'openai/gpt-4o' : 'gpt-4o';
-
-    const response = await fetch(apiEndpoint, {
+    const response = await fetch('https://api.openai.com/v1/chat/completions', {
       method: 'POST',
       headers: {
-        'Authorization': `Bearer ${apiKey}`,
+        'Authorization': `Bearer ${openAIApiKey}`,
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        model: model,
+        model: 'gpt-4o',
         messages: [
           { role: 'system', content: systemPrompt },
           { role: 'user', content: userPrompt }
@@ -170,8 +162,8 @@ ${cleanedText}`;
 
     if (!response.ok) {
       const error = await response.json();
-      console.error(`${useEmergent ? 'Emergent' : 'OpenAI'} API error:`, error);
-      throw new Error(`${useEmergent ? 'Emergent' : 'OpenAI'} API error: ${error.error?.message || 'Unknown error'}`);
+      console.error('OpenAI API error:', error);
+      throw new Error(`OpenAI API error: ${error.error?.message || 'Unknown error'}`);
     }
 
     const data = await response.json();

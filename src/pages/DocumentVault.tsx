@@ -22,10 +22,12 @@ import {
   Trash2
 } from "lucide-react";
 import { format } from "date-fns";
+import { useToast } from "@/hooks/use-toast";
 
 const DocumentVault = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [filterType, setFilterType] = useState("all");
+  const { toast } = useToast();
 
   const { data: documents, isLoading, refetch } = useQuery({
     queryKey: ['documents'],
@@ -39,6 +41,30 @@ const DocumentVault = () => {
       return data;
     }
   });
+
+  const handleDeleteDocument = async (documentId: string, fileName: string) => {
+    try {
+      const { error } = await supabase
+        .from('documents')
+        .delete()
+        .eq('id', documentId);
+
+      if (error) throw error;
+
+      toast({
+        title: "Document Deleted",
+        description: `Successfully deleted ${fileName}`,
+      });
+
+      refetch(); // Refresh the document list
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to delete document. Please try again.",
+        variant: "destructive",
+      });
+    }
+  };
 
   const filteredDocuments = documents?.filter(doc => {
     const matchesSearch = doc.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -168,6 +194,15 @@ const DocumentVault = () => {
                       <Button size="sm" variant="outline">
                         <Download className="h-4 w-4 mr-1" />
                         Download
+                      </Button>
+                      <Button 
+                        size="sm" 
+                        variant="outline" 
+                        onClick={() => handleDeleteDocument(doc.id, doc.file_name)}
+                        className="text-destructive hover:text-destructive hover:bg-destructive/10"
+                      >
+                        <Trash2 className="h-4 w-4 mr-1" />
+                        Delete
                       </Button>
                     </div>
                   </div>

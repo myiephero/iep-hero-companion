@@ -28,6 +28,9 @@ import Profile from "./pages/Profile";
 import Settings from "./pages/Settings";
 import ToolsHub from "./pages/ToolsHub";
 import DocumentVault from "./pages/DocumentVault";
+import AdvocatePricingPlan from "./pages/AdvocatePricingPlan";
+import ParentPricingPlan from "./pages/ParentPricingPlan";
+import ParentHeroPlan from "./pages/ParentHeroPlan";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -75,6 +78,11 @@ function App() {
               {/* Premium & Upsell */}
               <Route path="/upsell/hero-plan" element={<HeroPlan />} />
               <Route path="/advocates" element={<AdvocateDiscovery />} />
+              
+              {/* Pricing Plans */}
+              <Route path="/advocate-pricing-plan" element={<AdvocatePricingPlan />} />
+              <Route path="/parent-pricing-plan" element={<ParentPricingPlan />} />
+              <Route path="/parent-hero-plan" element={<ParentHeroPlan />} />
               
               {/* 404 */}
               <Route path="*" element={<NotFound />} />

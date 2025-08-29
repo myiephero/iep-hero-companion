@@ -49,7 +49,7 @@ const parentNavigation: SidebarSection[] = [
     title: "Parent Portal",
     items: [
       { title: "Dashboard", url: "/parent/dashboard", icon: LayoutDashboard },
-      { title: "Create Student", url: "/parent-pricing-plan", icon: GraduationCap },
+      { title: "Create Student", url: "/students", icon: GraduationCap },
       { title: "Tools Hub", url: "/tools/hub", icon: FileSearch },
       { title: "Document Vault", url: "/tools/document-vault", icon: FileText },
       { title: "HERO Plan", url: "/upsell/hero-plan", icon: Crown, badge: "Premium" },
@@ -70,8 +70,8 @@ const advocateNavigation: SidebarSection[] = [
     title: "Advocate Portal", 
     items: [
       { title: "My Cases", url: "/advocate/dashboard", icon: LayoutDashboard },
-      { title: "Create New Parent", url: "/advocate-pricing-plan", icon: UserPlus },
-      { title: "Create New Student", url: "/parent-pricing-plan", icon: GraduationCap },
+      { title: "Create New Parent", url: "/advocate/create-parent", icon: UserPlus },
+      { title: "Create New Student", url: "/students", icon: GraduationCap },
       { title: "Tools Hub", url: "/tools/hub", icon: FileSearch },
       { title: "Document Vault", url: "/tools/document-vault", icon: FileText },
       { title: "Schedule", url: "/advocate/schedule", icon: Calendar },

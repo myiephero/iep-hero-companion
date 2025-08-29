@@ -69,7 +69,7 @@ serve(async (req) => {
 
     console.log(`Extracted ${extractedText.length} characters from ${file.name}`);
 
-    // Store the document in the database
+    // Store the document in the database (use only columns known to exist)
     const { data: document, error: docError } = await supabase
       .from('documents')
       .insert({
@@ -79,8 +79,6 @@ serve(async (req) => {
         file_name: file.name,
         file_type: file.type,
         file_size: file.size,
-        category: 'iep_document',
-        confidential: true,
         file_path: `temp/${file.name}` // Temporary path since we're processing content directly
       })
       .select()

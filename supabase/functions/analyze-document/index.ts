@@ -84,7 +84,6 @@ serve(async (req) => {
           { role: 'user', content: userPrompt }
         ],
         max_completion_tokens: 2000,
-        temperature: 0.3,
       }),
     });
 

@@ -156,18 +156,52 @@ export function DocumentUpload({ onAnalysisComplete }: DocumentUploadProps) {
     setAnalyzing(fileData.id);
 
     try {
-      // Create form data for file upload
+      // Check if it's a simple text file - handle it directly
+      if (fileData.file.type === 'text/plain') {
+        const text = await fileData.file.text();
+        
+        const { data, error } = await supabase.functions.invoke('analyze-document', {
+          body: {
+            documentText: text,
+            analysisType
+          }
+        });
+
+        if (error) throw error;
+
+        const analysis = {
+          type: analysisType,
+          content: data.analysis,
+          timestamp: data.timestamp || new Date().toISOString()
+        };
+
+        setFiles(prev => prev.map(f => 
+          f.id === fileData.id ? { ...f, analysis } : f
+        ));
+
+        onAnalysisComplete?.(analysis);
+
+        toast({
+          title: "Analysis complete",
+          description: "Text document has been analyzed successfully.",
+        });
+        
+        return;
+      }
+      
+      // For PDF, DOC, DOCX files - use the process-document function
       const formData = new FormData();
       formData.append('file', fileData.file);
       formData.append('analysisType', analysisType);
-      // Note: studentId will be handled by the edge function if available in context
       
-      // Call the new process-document function
       const { data, error } = await supabase.functions.invoke('process-document', {
         body: formData
       });
 
-      if (error) throw error;
+      if (error) {
+        // If process-document fails, provide helpful guidance
+        throw new Error(`Document processing failed: ${error.message}\n\nTip: For PDF files, ensure they contain selectable text (not scanned images). Consider converting to a text file (.txt) for best results.`);
+      }
 
       const analysis = {
         type: analysisType,
@@ -177,7 +211,6 @@ export function DocumentUpload({ onAnalysisComplete }: DocumentUploadProps) {
         reviewId: data.reviewId
       };
 
-      // Update file with analysis
       setFiles(prev => prev.map(f => 
         f.id === fileData.id ? { ...f, analysis } : f
       ));
@@ -186,14 +219,14 @@ export function DocumentUpload({ onAnalysisComplete }: DocumentUploadProps) {
 
       toast({
         title: "Analysis complete",
-        description: `Document has been processed and analyzed successfully.`,
+        description: "Document has been processed and analyzed successfully.",
       });
 
     } catch (error: any) {
       console.error('Analysis failed:', error);
       toast({
         title: "Analysis failed", 
-        description: error.message || "Failed to analyze document",
+        description: error.message || "Failed to analyze document. Please try uploading a text (.txt) file for best results.",
         variant: "destructive",
       });
     } finally {
@@ -240,7 +273,7 @@ export function DocumentUpload({ onAnalysisComplete }: DocumentUploadProps) {
                   Drag & drop files here, or click to select
                 </p>
                 <p className="text-sm text-muted-foreground">
-                  Supports: TXT, PDF, DOC, DOCX (max 10MB)
+                  Supports: TXT, PDF, DOC, DOCX (max 10MB) • For best results, use TXT files
                 </p>
               </div>
             )}

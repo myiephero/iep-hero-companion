@@ -153,32 +153,58 @@ serve(async (req) => {
   }
 });
 
-// PDF text extraction using PDF.js
+// PDF text extraction using a simpler approach
 async function extractTextFromPDF(file: File): Promise<string> {
   try {
-    // Import PDF.js for Deno
-    const pdfjsLib = await import('https://esm.sh/pdfjs-dist@3.11.174');
+    console.log('Starting PDF text extraction...');
     
+    // For now, we'll use a fallback approach for PDFs
+    // Convert PDF to raw text by extracting readable content
     const arrayBuffer = await file.arrayBuffer();
     const uint8Array = new Uint8Array(arrayBuffer);
     
-    const pdf = await pdfjsLib.getDocument({ data: uint8Array }).promise;
-    let fullText = '';
+    // Look for text streams in PDF structure
+    let text = '';
+    let currentString = '';
+    let inTextObject = false;
     
-    for (let i = 1; i <= pdf.numPages; i++) {
-      const page = await pdf.getPage(i);
-      const textContent = await page.getTextContent();
-      const pageText = textContent.items
-        .filter((item: any) => item.str)
-        .map((item: any) => item.str)
-        .join(' ');
-      fullText += pageText + '\n';
+    for (let i = 0; i < uint8Array.length - 1; i++) {
+      const byte = uint8Array[i];
+      const nextByte = uint8Array[i + 1];
+      
+      // Look for text objects and streams
+      if (byte === 40) { // '(' - start of text string
+        inTextObject = true;
+        currentString = '';
+      } else if (byte === 41 && inTextObject) { // ')' - end of text string
+        if (currentString.length > 2) { // Only keep meaningful strings
+          text += currentString + ' ';
+        }
+        inTextObject = false;
+        currentString = '';
+      } else if (inTextObject && byte >= 32 && byte <= 126) {
+        // Printable ASCII characters
+        currentString += String.fromCharCode(byte);
+      }
     }
     
-    return fullText.trim();
+    // Clean up extracted text
+    text = text
+      .replace(/\s+/g, ' ') // Collapse multiple spaces
+      .replace(/[^\w\s.,!?;:()\-]/g, '') // Remove special characters except basic punctuation
+      .trim();
+    
+    console.log(`Extracted ${text.length} characters from PDF`);
+    
+    if (text.length < 100) {
+      throw new Error('Insufficient text extracted from PDF. The document may be image-based or corrupted.');
+    }
+    
+    return text;
+    
   } catch (error) {
     console.error('PDF extraction error:', error);
-    throw new Error('Failed to extract text from PDF file');
+    throw new Error('Failed to extract text from PDF file. Please ensure the PDF contains selectable text, not just images.');
   }
 }
 

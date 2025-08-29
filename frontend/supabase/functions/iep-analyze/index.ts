@@ -241,3 +241,244 @@ Return JSON in this exact format:
     };
   }
 }
+
+async function getNextVersion(supabase: any, docId: string, kind: string): Promise<number> {
+  const { data: existingAnalyses } = await supabase
+    .from('iep_analysis')
+    .select('version')
+    .eq('doc_id', docId)
+    .eq('kind', kind)
+    .order('version', { ascending: false })
+    .limit(1);
+
+  return existingAnalyses && existingAnalyses.length > 0 
+    ? existingAnalyses[0].version + 1 
+    : 1;
+}
+
+async function performOutlineScan(chunks: any[], emergentApiKey: string): Promise<any> {
+  // PASS 1: Quick outline scan with gpt-4o-mini to identify sections
+  const sampleText = chunks.slice(0, 5).map(c => c.content).join('\n\n').substring(0, 8000);
+  
+  const outlinePrompt = `Analyze this IEP document sample and identify the main sections present. Focus on structural organization.
+
+IEP Sample Text:
+${sampleText}
+
+Return JSON with this structure:
+{
+  "sectionsFound": ["Present Levels", "Goals", "Services", "Accommodations", "etc"],
+  "documentStructure": "Brief description of how the document is organized",
+  "keyAreas": ["List 3-5 most important areas to focus detailed analysis on"]
+}`;
+
+  const response = await fetch('https://api.emergentmind.com/v1/chat/completions', {
+    method: 'POST',
+    headers: {
+      'Authorization': `Bearer ${emergentApiKey}`,
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+      model: 'gpt-4o-mini',
+      messages: [
+        { role: 'system', content: 'You are an IEP document structure analyzer. Identify key sections and organization patterns.' },
+        { role: 'user', content: outlinePrompt }
+      ],
+      response_format: { type: "json_object" },
+      max_tokens: 800
+    }),
+  });
+
+  if (!response.ok) {
+    throw new Error(`Outline scan failed: ${response.statusText}`);
+  }
+
+  const data = await response.json();
+  return JSON.parse(data.choices[0].message.content);
+}
+
+async function performStructuredAnalysis(outlineResult: any, chunks: any[], kind: string, studentContext: any, emergentApiKey: string): Promise<any> {
+  // PASS 2: Detailed analysis with claude-sonnet-4 using outline guidance
+  
+  // Smart chunk selection based on outline findings
+  const priorityChunks = selectPriorityChunks(chunks, outlineResult.keyAreas);
+  const analysisText = priorityChunks.map(c => c.content).join('\n\n');
+  
+  const analysisPrompt = kind === 'quality' 
+    ? buildQualityAnalysisPrompt(analysisText, studentContext, outlineResult)
+    : buildComplianceAnalysisPrompt(analysisText, studentContext, outlineResult);
+
+  const response = await fetch('https://api.emergentmind.com/v1/chat/completions', {
+    method: 'POST',
+    headers: {
+      'Authorization': `Bearer ${emergentApiKey}`,
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+      model: 'claude-3-5-sonnet-20241022',
+      messages: [
+        { role: 'system', content: 'You are an expert IEP analyst providing detailed, evidence-based analysis.' },
+        { role: 'user', content: analysisPrompt }
+      ],
+      response_format: { type: "json_object" },
+      max_tokens: 2000
+    }),
+  });
+
+  if (!response.ok) {
+    throw new Error(`Structured analysis failed: ${response.statusText}`);
+  }
+
+  const data = await response.json();
+  return JSON.parse(data.choices[0].message.content);
+}
+
+function selectPriorityChunks(chunks: any[], keyAreas: string[]): any[] {
+  // Score chunks based on relevance to key areas identified in outline
+  const scoredChunks = chunks.map(chunk => {
+    let relevanceScore = 0;
+    const content = chunk.content.toLowerCase();
+    
+    keyAreas.forEach(area => {
+      const areaTerms = getAreaTerms(area.toLowerCase());
+      areaTerms.forEach(term => {
+        if (content.includes(term)) {
+          relevanceScore += 1;
+        }
+      });
+    });
+    
+    // Also score for general IEP quality indicators
+    const qualityTerms = ['goal', 'objective', 'service', 'accommodation', 'progress', 'assessment'];
+    qualityTerms.forEach(term => {
+      if (content.includes(term)) {
+        relevanceScore += 0.5;
+      }
+    });
+    
+    return { ...chunk, relevanceScore };
+  });
+  
+  // Sort by relevance and select top chunks up to ~16k chars
+  scoredChunks.sort((a, b) => b.relevanceScore - a.relevanceScore);
+  
+  const selected = [];
+  let totalChars = 0;
+  const LIMIT = 16000;
+  
+  for (const chunk of scoredChunks) {
+    if (totalChars + chunk.content.length > LIMIT) break;
+    selected.push(chunk);
+    totalChars += chunk.content.length;
+  }
+  
+  return selected.length > 0 ? selected : chunks.slice(0, 10); // fallback
+}
+
+function getAreaTerms(area: string): string[] {
+  const termMap: { [key: string]: string[] } = {
+    'present levels': ['present level', 'current performance', 'baseline', 'strengths', 'needs'],
+    'goals': ['goal', 'objective', 'target', 'measurable', 'annual goal'],
+    'services': ['service', 'instruction', 'therapy', 'support', 'minutes', 'frequency'],
+    'accommodations': ['accommodation', 'modification', 'support', 'assistive'],
+    'assessment': ['assessment', 'evaluation', 'test', 'measure', 'data'],
+    'transition': ['transition', 'post-secondary', 'employment', 'independent living']
+  };
+  
+  return termMap[area] || [area];
+}
+
+function buildQualityAnalysisPrompt(text: string, studentContext: any, outlineResult: any): string {
+  return `Conduct a comprehensive quality analysis of this IEP document. Use the structural insights provided.
+
+Document Structure: ${outlineResult.documentStructure}
+Sections Found: ${outlineResult.sectionsFound.join(', ')}
+Key Focus Areas: ${outlineResult.keyAreas.join(', ')}
+
+Student Context: ${JSON.stringify(studentContext)}
+
+IEP Document Text:
+${text}
+
+Analyze for educational quality focusing on:
+1. Goals quality and measurability with specific evidence
+2. Services appropriateness and sufficiency 
+3. Accommodations and modifications effectiveness
+4. Progress monitoring and data collection plans
+5. Alignment between needs, goals, and services
+
+Return JSON with evidence-backed analysis:
+{
+  "summary": {
+    "strengths": ["Specific strengths with evidence"],
+    "needs": ["Areas needing improvement with examples"],
+    "goals_overview": "Assessment of goals quality with specifics",
+    "services_overview": "Assessment of services with details", 
+    "accommodations_overview": "Assessment of accommodations with examples"
+  },
+  "scores": {
+    "goals_quality": 85,
+    "services_sufficiency": 75,
+    "alignment": 80,
+    "progress_reporting": 70,
+    "parent_participation": 65,
+    "overall": 75
+  },
+  "flags": [
+    {"type": "goals", "where": "Goal 2", "notes": "Specific concern with evidence"}
+  ],
+  "recommendations": [
+    {"title": "Improve Goal Measurability", "suggestion": "Specific actionable suggestion with examples"}
+  ],
+  "evidence": [
+    {"finding": "Goals lack measurable criteria", "quote": "Exact text from document", "location": "Goals section"}
+  ]
+}`;
+}
+
+function buildComplianceAnalysisPrompt(text: string, studentContext: any, outlineResult: any): string {
+  return `Conduct a comprehensive compliance analysis of this IEP document against IDEA requirements.
+
+Document Structure: ${outlineResult.documentStructure}
+Sections Found: ${outlineResult.sectionsFound.join(', ')}
+Key Focus Areas: ${outlineResult.keyAreas.join(', ')}
+
+Student Context: ${JSON.stringify(studentContext)}
+
+IEP Document Text:
+${text}
+
+Check compliance with IDEA requirements:
+1. Required IEP components (34 CFR 300.320)
+2. Procedural safeguards and timelines
+3. LRE considerations and justification
+4. Transition planning (if age 14+)
+5. Assessment accommodations
+
+Return JSON with compliance analysis:
+{
+  "summary": {
+    "compliance_overview": "Overall compliance assessment with specifics",
+    "critical_issues": ["Critical compliance gaps with citations"],
+    "minor_issues": ["Minor compliance concerns"],
+    "strengths": ["Compliance strengths with examples"]
+  },
+  "scores": {
+    "required_sections": 85,
+    "timelines": 90,
+    "procedural_safeguards": 80,
+    "lre_consideration": 75,
+    "accommodations_compliance": 85,
+    "overall": 83
+  },
+  "flags": [
+    {"type": "compliance", "severity": "warning", "where": "Services section", "citation": "34 CFR 300.320", "notes": "Specific compliance concern"}
+  ],
+  "recommendations": [
+    {"title": "Add Missing Component", "priority": "high", "suggestion": "Specific remediation steps with regulatory basis"}
+  ],
+  "evidence": [
+    {"finding": "Missing LRE justification", "quote": "Relevant text or absence noted", "location": "Placement section", "citation": "34 CFR 300.114"}
+  ]
+}`;
+}

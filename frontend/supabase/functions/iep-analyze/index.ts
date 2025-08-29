@@ -558,14 +558,19 @@ Return JSON with this structure:
   "keyAreas": ["List 3-5 most important areas to focus detailed analysis on"]
 }`;
 
-  const response = await fetch('https://api.emergentmind.com/v1/chat/completions', {
+  // Use Emergent proxy endpoint for LLM integration
+  const apiEndpoint = emergentApiKey.startsWith('sk-emergent-') 
+    ? 'https://integrations.emergentagent.com/llm/v1/chat/completions'
+    : 'https://api.openai.com/v1/chat/completions';
+
+  const response = await fetch(apiEndpoint, {
     method: 'POST',
     headers: {
       'Authorization': `Bearer ${emergentApiKey}`,
       'Content-Type': 'application/json',
     },
     body: JSON.stringify({
-      model: 'gpt-4o-mini',
+      model: emergentApiKey.startsWith('sk-emergent-') ? 'openai/gpt-4o-mini' : 'gpt-4o-mini',
       messages: [
         { role: 'system', content: 'You are an IEP document structure analyzer. Identify key sections and organization patterns.' },
         { role: 'user', content: outlinePrompt }
@@ -576,7 +581,7 @@ Return JSON with this structure:
   });
 
   if (!response.ok) {
-    throw new Error(`Outline scan failed: ${response.statusText}`);
+    throw new Error(`Outline scan failed: ${response.status} ${response.statusText}`);
   }
 
   const data = await response.json();

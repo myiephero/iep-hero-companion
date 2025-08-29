@@ -169,7 +169,7 @@ export default function IEPReview() {
       
       toast({
         title: "Ingestion complete",
-        description: `Extracted ${data.extractedTextLength} characters into ${data.chunksCreated} chunks.`,
+        description: `Extracted ${data.extractedTextLength} characters, created ${data.chunksCreated} chunks${data.sectionsIdentified ? ` with ${data.sectionsIdentified} sections identified` : ''}.`,
       });
     } catch (error: any) {
       setIngestStatus('error');

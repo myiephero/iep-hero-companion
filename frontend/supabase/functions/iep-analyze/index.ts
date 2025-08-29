@@ -239,6 +239,9 @@ async function performStructuredAnalysis(outlineResult: any, chunks: any[], kind
   });
 
   if (!response.ok) {
+    const errorText = await response.text();
+    console.error(`Claude analysis failed: ${response.status} ${response.statusText}`, errorText);
+    
     // Fallback to gpt-4o if claude fails
     console.log('Claude request failed, falling back to gpt-4o');
     const fallbackModel = emergentApiKey.startsWith('sk-emergent-') ? 'openai/gpt-4o' : 'gpt-4o';
@@ -264,7 +267,9 @@ async function performStructuredAnalysis(outlineResult: any, chunks: any[], kind
     });
     
     if (!fallbackResponse.ok) {
-      throw new Error(`Both Claude and GPT-4o failed for structured analysis: ${fallbackResponse.status} ${fallbackResponse.statusText}`);
+      const fallbackError = await fallbackResponse.text();
+      console.error(`Fallback GPT-4o also failed: ${fallbackResponse.status} ${fallbackResponse.statusText}`, fallbackError);
+      throw new Error(`Both Claude and GPT-4o failed. Check API key configuration. Error: ${fallbackError.substring(0, 200)}`);
     }
     
     const fallbackData = await fallbackResponse.json();

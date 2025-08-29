@@ -3,139 +3,113 @@ import { DashboardLayout } from "@/layouts/DashboardLayout";
 import { StatCard } from "@/components/StatCard";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 import { 
   Users, 
   Calendar, 
   FileText, 
   MessageSquare,
-  Brain,
-  Scale,
-  Lightbulb,
-  PenTool,
-  BarChart3,
-  Phone,
-  Zap,
-  Smile,
-  Clipboard,
-  Flag,
-  Sparkles,
+  Clock,
+  AlertCircle,
+  CheckCircle,
   Target,
+  TrendingUp,
   UserPlus,
   GraduationCap,
-  Plus
+  Flag,
+  Plus,
+  Eye,
+  Star,
+  BookOpen
 } from "lucide-react";
 
 const AdvocateDashboard = () => {
-  const professionalTools = [
+  // Mock data for demonstration - in real app this would come from API
+  const pendingStudents = [
     {
-      title: "Smart Letter Generator",
-      description: "Generate legally sound advocacy letters",
-      icon: <PenTool className="h-6 w-6" />,
-      url: "/advocate/tools/smart-letter",
-      category: "Professional Advocate Tools"
+      id: 1,
+      name: "Sarah Johnson",
+      parent: "Maria Johnson", 
+      grade: "3rd Grade",
+      needs: ["Reading Support", "Behavioral Plan"],
+      matchDate: "2 days ago",
+      urgency: "high"
     },
     {
-      title: "AI IEP Review & Compliance",
-      description: "AI-powered IEP analysis and compliance checks",
-      icon: <Brain className="h-6 w-6" />,
-      url: "/advocate/tools/ai-iep-review",
-      category: "Professional Advocate Tools"
-    },
-    {
-      title: "Rights Explainer",
-      description: "Plain-language legal rights guide",
-      icon: <Scale className="h-6 w-6" />,
-      url: "/advocate/tools/rights-explainer",
-      category: "Professional Advocate Tools"
-    },
-    {
-      title: "Meeting Prep Assistant",
-      description: "Generate talking points and meeting notes",
-      icon: <Lightbulb className="h-6 w-6" />,
-      url: "/advocate/tools/meeting-prep",
-      category: "Professional Advocate Tools"
-    },
-    {
-      title: "Progress Analyzer",
-      description: "Data-driven recommendations for IEP goals",
-      icon: <BarChart3 className="h-6 w-6" />,
-      url: "/advocate/tools/progress-analyzer",
-      category: "Professional Advocate Tools"
-    },
-    {
-      title: "Advocate Messaging",
-      description: "Secure communication with clients",
-      icon: <MessageSquare className="h-6 w-6" />,
-      url: "/advocate/messages",
-      category: "Professional Advocate Tools"
-    },
-    {
-      title: "Ask AI About Docs",
-      description: "Query documents with AI assistance",
-      icon: <Sparkles className="h-6 w-6" />,
-      url: "/advocate/tools/ask-ai-docs",
-      category: "Professional Advocate Tools"
-    },
-    {
-      title: "Progress Notes & Service Log",
-      description: "Track service delivery and outcomes",
-      icon: <Clipboard className="h-6 w-6" />,
-      url: "/advocate/tools/progress-notes",
-      category: "Professional Advocate Tools"
-    },
-    {
-      title: "Communication Tracker",
-      description: "Monitor parent-school communications",
-      icon: <Phone className="h-6 w-6" />,
-      url: "/advocate/tools/communication-tracker",
-      category: "Professional Advocate Tools"
-    },
-    {
-      title: "Advocacy Reports",
-      description: "Generate comprehensive client reports",
-      icon: <FileText className="h-6 w-6" />,
-      url: "/advocate/tools/advocacy-reports",
-      category: "Professional Advocate Tools"
-    },
-    {
-      title: "IEP Goal Generator",
-      description: "AI-powered SMART goal creation",
-      icon: <Target className="h-6 w-6" />,
-      url: "/advocate/tools/goal-generator",
-      category: "Professional Advocate Tools"
-    },
-    {
-      title: "Emotion Tracker",
-      description: "Student well-being monitoring tools",
-      icon: <Smile className="h-6 w-6" />,
-      url: "/advocate/tools/emotion-tracker",
-      category: "Professional Advocate Tools"
+      id: 2,
+      name: "Michael Chen",
+      parent: "Lisa Chen",
+      grade: "5th Grade", 
+      needs: ["Math Support", "ADHD Accommodations"],
+      matchDate: "1 week ago",
+      urgency: "medium"
     }
   ];
 
-  const specializedTools = [
+  const openCases = [
     {
-      title: "Autism Accommodation Builder",
-      description: "Professional autism IEP accommodations",
-      icon: <Brain className="h-6 w-6" />,
-      url: "/advocate/tools/autism-accommodations",
-      gradient: "from-blue-500 to-purple-600"
+      id: 1,
+      student: "Emma Davis",
+      parent: "Robert Davis",
+      caseType: "IEP Review",
+      nextAction: "Meeting prep due",
+      dueDate: "Tomorrow",
+      status: "active"
     },
     {
-      title: "504 Plan Builder", 
-      description: "Section 504 accommodation planning",
-      icon: <FileText className="h-6 w-6" />,
-      url: "/advocate/tools/504-plan-builder",
-      gradient: "from-orange-500 to-red-600"
+      id: 2,
+      student: "Alex Rodriguez", 
+      parent: "Carmen Rodriguez",
+      caseType: "504 Plan Development",
+      nextAction: "Draft review needed",
+      dueDate: "Friday",
+      status: "pending"
     },
     {
-      title: "Occupational Therapy Activity & Adaptation Recommender",
-      description: "Professional OT activity suggestions and adaptations",
-      icon: <Zap className="h-6 w-6" />,
-      url: "/advocate/tools/ot-recommender",
-      gradient: "from-green-500 to-teal-600"
+      id: 3,
+      student: "Taylor Smith",
+      parent: "Jennifer Smith", 
+      caseType: "Rights Violation",
+      nextAction: "Legal response due",
+      dueDate: "Next Monday",
+      status: "urgent"
     }
   ];
+
+  const upcomingMeetings = [
+    {
+      id: 1,
+      title: "IEP Meeting - Emma Davis",
+      date: "Today 2:00 PM",
+      type: "IEP Meeting",
+      attendees: 5
+    },
+    {
+      id: 2,
+      title: "504 Review - Alex Rodriguez", 
+      date: "Tomorrow 10:00 AM",
+      type: "504 Review",
+      attendees: 4
+    },
+    {
+      id: 3,
+      title: "Parent Consultation - Taylor Smith",
+      date: "Friday 3:30 PM", 
+      type: "Consultation",
+      attendees: 2
+    }
+  ];
+
+  const getUrgencyColor = (urgency: string) => {
+    switch(urgency) {
+      case "high": return "bg-red-100 text-red-700 border-red-200";
+      case "medium": return "bg-yellow-100 text-yellow-700 border-yellow-200";
+      case "urgent": return "bg-red-100 text-red-700 border-red-200";
+      case "active": return "bg-blue-100 text-blue-700 border-blue-200";
+      case "pending": return "bg-gray-100 text-gray-700 border-gray-200";
+      default: return "bg-gray-100 text-gray-700 border-gray-200";
+    }
+  };
 
   return (
     <DashboardLayout>
@@ -143,27 +117,32 @@ const AdvocateDashboard = () => {
         {/* Header */}
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-2xl font-bold">Professional Advocate Tools</h1>
-            <p className="text-muted-foreground mt-1">Manage your clients and access powerful advocacy tools</p>
+            <h1 className="text-2xl font-bold">Advocate Dashboard</h1>
+            <p className="text-muted-foreground mt-1">Manage your cases, students, and upcoming meetings</p>
           </div>
           
           <div className="flex items-center gap-3">
-            {/* Create Buttons */}
             <Button asChild variant="outline" size="sm" className="flex items-center gap-2">
-              <Link to="/advocate-pricing-plan">
+              <Link to="/advocate/create-parent">
                 <UserPlus className="h-4 w-4" />
                 Create New Parent
               </Link>
             </Button>
             
             <Button asChild variant="outline" size="sm" className="flex items-center gap-2">
-              <Link to="/parent-pricing-plan">
+              <Link to="/advocate/students">
                 <GraduationCap className="h-4 w-4" />
                 Create New Student
               </Link>
             </Button>
             
-            {/* Hero Plan Badge */}
+            <Button asChild size="sm" className="flex items-center gap-2">
+              <Link to="/advocate/tools">
+                <BookOpen className="h-4 w-4" />
+                Access Tools
+              </Link>
+            </Button>
+            
             <div className="flex items-center gap-2 px-3 py-1 bg-green-100 text-green-800 rounded-full text-sm font-medium">
               <Flag className="h-4 w-4" />
               Hero Plan Active
@@ -171,59 +150,194 @@ const AdvocateDashboard = () => {
           </div>
         </div>
 
-        {/* Professional Advocate Tools Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-          {professionalTools.map((tool, index) => (
-            <Card key={index} className="bg-card hover:shadow-md transition-all duration-300 group">
-              <CardContent className="p-6">
-                <div className="space-y-4">
-                  <div className="w-12 h-12 rounded-lg bg-muted flex items-center justify-center text-muted-foreground group-hover:bg-primary group-hover:text-primary-foreground transition-colors">
-                    {tool.icon}
-                  </div>
-                  <div>
-                    <h3 className="font-semibold mb-1 text-sm">{tool.title}</h3>
-                    <p className="text-xs text-muted-foreground">{tool.description}</p>
-                  </div>
-                  <Button asChild variant="outline" size="sm" className="w-full">
-                    <Link to={tool.url}>
-                      Open Tool
-                    </Link>
-                  </Button>
-                </div>
-              </CardContent>
-            </Card>
-          ))}
+        {/* Stats Cards */}
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+          <StatCard
+            title="Pending Students"
+            value={pendingStudents.length.toString()}
+            description="Awaiting assignment"
+            icon={<Users className="h-4 w-4" />}
+          />
+          <StatCard
+            title="Open Cases"
+            value={openCases.length.toString()}
+            description="Active advocacy cases"
+            icon={<FileText className="h-4 w-4" />}
+          />
+          <StatCard
+            title="This Week's Meetings"
+            value={upcomingMeetings.length.toString()}
+            description="Scheduled meetings"
+            icon={<Calendar className="h-4 w-4" />}
+          />
+          <StatCard
+            title="Goals Achieved"
+            value="24"
+            description="This month"
+            icon={<Target className="h-4 w-4" />}
+          />
         </div>
 
-        {/* Specialized Assessment Tools */}
-        <div className="space-y-4">
-          <h2 className="text-xl font-semibold">Specialized Assessment Tools</h2>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            {specializedTools.map((tool, index) => (
-              <Card 
-                key={index} 
-                className={`bg-gradient-to-br ${tool.gradient} text-white hover:shadow-lg transition-all duration-300 border-0`}
-              >
-                <CardContent className="p-6">
-                  <div className="space-y-4">
-                    <div className="w-12 h-12 rounded-lg bg-white/20 flex items-center justify-center">
-                      {tool.icon}
+        {/* Main Content Grid */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+          {/* Pending Students from Matching */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Users className="h-5 w-5" />
+                Pending Student Assignments
+              </CardTitle>
+              <CardDescription>
+                Students matched to you through the advocate matching system
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              {pendingStudents.map((student) => (
+                <div key={student.id} className="p-4 border rounded-lg space-y-2">
+                  <div className="flex items-center justify-between">
+                    <h4 className="font-semibold">{student.name}</h4>
+                    <Badge className={getUrgencyColor(student.urgency)}>
+                      {student.urgency} priority
+                    </Badge>
+                  </div>
+                  <p className="text-sm text-muted-foreground">
+                    Parent: {student.parent} • {student.grade}
+                  </p>
+                  <div className="flex flex-wrap gap-1">
+                    {student.needs.map((need, index) => (
+                      <Badge key={index} variant="outline" className="text-xs">
+                        {need}
+                      </Badge>
+                    ))}
+                  </div>
+                  <div className="flex items-center justify-between pt-2">
+                    <span className="text-xs text-muted-foreground">
+                      Matched {student.matchDate}
+                    </span>
+                    <div className="flex gap-2">
+                      <Button size="sm" variant="outline">
+                        <Eye className="h-3 w-3 mr-1" />
+                        Review
+                      </Button>
+                      <Button size="sm">Accept Case</Button>
                     </div>
-                    <div>
-                      <h3 className="font-semibold mb-2">{tool.title}</h3>
-                      <p className="text-sm text-white/90">{tool.description}</p>
-                    </div>
-                    <Button asChild variant="secondary" className="w-full">
-                      <Link to={tool.url}>
-                        Open Tool
-                      </Link>
+                  </div>
+                </div>
+              ))}
+              {pendingStudents.length === 0 && (
+                <p className="text-center text-muted-foreground py-8">
+                  No pending student assignments
+                </p>
+              )}
+            </CardContent>
+          </Card>
+
+          {/* Open Cases */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <FileText className="h-5 w-5" />
+                Active Cases
+              </CardTitle>
+              <CardDescription>
+                Cases currently under your advocacy
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              {openCases.map((case_) => (
+                <div key={case_.id} className="p-4 border rounded-lg space-y-2">
+                  <div className="flex items-center justify-between">
+                    <h4 className="font-semibold">{case_.student}</h4>
+                    <Badge className={getUrgencyColor(case_.status)}>
+                      {case_.status}
+                    </Badge>
+                  </div>
+                  <p className="text-sm text-muted-foreground">
+                    Parent: {case_.parent}
+                  </p>
+                  <p className="text-sm">
+                    <span className="font-medium">{case_.caseType}:</span> {case_.nextAction}
+                  </p>
+                  <div className="flex items-center justify-between pt-2">
+                    <span className="text-xs text-muted-foreground">
+                      Due: {case_.dueDate}
+                    </span>
+                    <Button size="sm" variant="outline">
+                      View Case
                     </Button>
                   </div>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
+                </div>
+              ))}
+            </CardContent>
+          </Card>
         </div>
+
+        {/* Upcoming Meetings */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Calendar className="h-5 w-5" />
+              Upcoming Meetings
+            </CardTitle>
+            <CardDescription>
+              Your scheduled meetings and consultations
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              {upcomingMeetings.map((meeting) => (
+                <div key={meeting.id} className="p-4 border rounded-lg space-y-2">
+                  <h4 className="font-semibold text-sm">{meeting.title}</h4>
+                  <p className="text-sm text-muted-foreground">{meeting.date}</p>
+                  <div className="flex items-center justify-between">
+                    <Badge variant="outline">{meeting.type}</Badge>
+                    <span className="text-xs text-muted-foreground">
+                      {meeting.attendees} attendees
+                    </span>
+                  </div>
+                  <Button size="sm" variant="outline" className="w-full">
+                    Join Meeting
+                  </Button>
+                </div>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Quick Actions */}
+        <Card className="bg-gradient-to-r from-primary/5 to-primary/10">
+          <CardContent className="p-6">
+            <div className="text-center space-y-4">
+              <h3 className="text-xl font-semibold">Quick Actions</h3>
+              <div className="flex flex-wrap justify-center gap-4">
+                <Button asChild variant="outline">
+                  <Link to="/advocate/schedule">
+                    <Calendar className="h-4 w-4 mr-2" />
+                    View Calendar
+                  </Link>
+                </Button>
+                <Button asChild variant="outline">
+                  <Link to="/advocate/messages">
+                    <MessageSquare className="h-4 w-4 mr-2" />
+                    Messages
+                  </Link>
+                </Button>
+                <Button asChild variant="outline">
+                  <Link to="/advocate/tools/document-vault">
+                    <FileText className="h-4 w-4 mr-2" />
+                    Document Vault
+                  </Link>
+                </Button>
+                <Button asChild variant="outline">
+                  <Link to="/advocate/tools">
+                    <Star className="h-4 w-4 mr-2" />
+                    All Tools
+                  </Link>
+                </Button>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
       </div>
     </DashboardLayout>
   );

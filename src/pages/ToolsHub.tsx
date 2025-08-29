@@ -103,8 +103,10 @@ const ToolsHub = () => {
   const location = useLocation();
   const { profile } = useAuth();
   
-  // Determine user type based on profile role
-  const userRole = profile?.role || 'parent';
+  // Determine user type based on route first, then profile role
+  const path = location.pathname;
+  const routeRole = path.startsWith('/advocate') ? 'advocate' : path.startsWith('/parent') ? 'parent' : undefined;
+  const userRole = routeRole ?? (profile?.role || 'parent');
   const isAdvocateUser = userRole === 'advocate';
   
   // Use appropriate tools based on user type

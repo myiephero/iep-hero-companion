@@ -31,6 +31,7 @@ import {
 } from "@/components/ui/sidebar";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { useAuth } from "@/hooks/useAuth";
 
 interface SidebarItem {
   title: string;
@@ -50,7 +51,7 @@ const parentNavigation: SidebarSection[] = [
     items: [
       { title: "Dashboard", url: "/parent/dashboard", icon: LayoutDashboard },
       { title: "My Students", url: "/parent/students", icon: GraduationCap },
-      { title: "Tools Hub", url: "/tools/hub", icon: FileSearch },
+      { title: "Tools Hub", url: "/parent/tools", icon: FileSearch },
       { title: "Document Vault", url: "/tools/document-vault", icon: FileText },
       { title: "HERO Plan", url: "/upsell/hero-plan", icon: Crown, badge: "Premium" },
     ]
@@ -72,7 +73,7 @@ const advocateNavigation: SidebarSection[] = [
       { title: "My Cases", url: "/advocate/dashboard", icon: LayoutDashboard },
       { title: "Create New Parent", url: "/advocate/create-parent", icon: UserPlus },
       { title: "Client Students", url: "/advocate/students", icon: GraduationCap },
-      { title: "Tools Hub", url: "/tools/hub", icon: FileSearch },
+      { title: "Tools Hub", url: "/advocate/tools", icon: FileSearch },
       { title: "Document Vault", url: "/tools/document-vault", icon: FileText },
       { title: "Schedule", url: "/advocate/schedule", icon: Calendar },
       { title: "Messages", url: "/advocate/messages", icon: MessageSquare },
@@ -98,9 +99,11 @@ export function AppSidebar() {
   const currentPath = location.pathname;
   const collapsed = state === "collapsed";
 
-  // Determine which navigation to show based on current route
-  const isAdvocateRoute = currentPath.startsWith('/advocate');
-  const navigation = isAdvocateRoute ? advocateNavigation : parentNavigation;
+  // Determine which navigation to show based on user role (fallback to route)
+  const { profile } = useAuth();
+  const role = profile?.role;
+  const isAdvocate = role ? role === 'advocate' : currentPath.startsWith('/advocate');
+  const navigation = isAdvocate ? advocateNavigation : parentNavigation;
   
   const isActive = (path: string) => currentPath === path;
   
@@ -117,7 +120,7 @@ export function AppSidebar() {
               <div>
                 <h2 className="font-bold text-lg text-sidebar-foreground">My IEP Hero</h2>
                 <p className="text-xs text-muted-foreground">
-                  {isAdvocateRoute ? 'Advocate Portal' : 'Parent Portal'}
+                  {isAdvocate ? 'Advocate Portal' : 'Parent Portal'}
                 </p>
               </div>
             )}

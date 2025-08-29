@@ -153,27 +153,18 @@ export function DocumentUpload({ onAnalysisComplete }: DocumentUploadProps) {
   };
 
   const analyzeDocument = async (fileData: UploadedFile, analysisType: string) => {
-    if (!fileData.file || fileData.file.type !== 'text/plain') {
-      toast({
-        title: "Unsupported file type",
-        description: "AI analysis currently supports text files only. Please upload a .txt file.",
-        variant: "destructive",
-      });
-      return;
-    }
-
     setAnalyzing(fileData.id);
 
     try {
-      // Read file content
-      const text = await fileData.file.text();
+      // Create form data for file upload
+      const formData = new FormData();
+      formData.append('file', fileData.file);
+      formData.append('analysisType', analysisType);
+      // Note: studentId will be handled by the edge function if available in context
       
-      // Call AI analysis function
-      const { data, error } = await supabase.functions.invoke('analyze-document', {
-        body: {
-          documentText: text,
-          analysisType
-        }
+      // Call the new process-document function
+      const { data, error } = await supabase.functions.invoke('process-document', {
+        body: formData
       });
 
       if (error) throw error;
@@ -181,7 +172,9 @@ export function DocumentUpload({ onAnalysisComplete }: DocumentUploadProps) {
       const analysis = {
         type: analysisType,
         content: data.analysis,
-        timestamp: data.timestamp
+        timestamp: new Date().toISOString(),
+        documentId: data.documentId,
+        reviewId: data.reviewId
       };
 
       // Update file with analysis
@@ -193,7 +186,7 @@ export function DocumentUpload({ onAnalysisComplete }: DocumentUploadProps) {
 
       toast({
         title: "Analysis complete",
-        description: `${analysisType.toUpperCase()} analysis has been completed.`,
+        description: `Document has been processed and analyzed successfully.`,
       });
 
     } catch (error: any) {

@@ -90,7 +90,7 @@ const advocateNavigation: SidebarSection[] = [
 
 const accountItems: SidebarItem[] = [
   { title: "Profile", url: "/profile", icon: User },
-  { title: "Settings", url: "/settings", icon: Settings },
+  { title: "Settings", url: "/parent/settings", icon: Settings },
 ];
 
 export function AppSidebar() {

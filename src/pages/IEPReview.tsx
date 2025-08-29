@@ -12,7 +12,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/hooks/useAuth";
-import { supabase } from "@/integrations/supabase/client";
+import { api } from "@/lib/api";
 import { 
   Upload, 
   FileText, 
@@ -78,13 +78,9 @@ export default function IEPReview() {
 
   const fetchDocuments = async () => {
     try {
-      const { data, error } = await supabase
-        .from('iep_documents')
-        .select('*')
-        .order('uploaded_at', { ascending: false });
-
-      if (error) throw error;
-      setDocuments(data || []);
+      // Mock data for now during migration
+      const mockDocuments: IEPDocument[] = [];
+      setDocuments(mockDocuments);
     } catch (error) {
       console.error('Error fetching documents:', error);
     }
@@ -92,14 +88,9 @@ export default function IEPReview() {
 
   const fetchAnalyses = async (docId: string) => {
     try {
-      const { data, error } = await supabase
-        .from('iep_analysis')
-        .select('*')
-        .eq('doc_id', docId)
-        .order('created_at', { ascending: false });
-
-      if (error) throw error;
-      setAnalyses((data || []) as IEPAnalysis[]);
+      // Mock data for now during migration
+      const mockAnalyses: IEPAnalysis[] = [];
+      setAnalyses(mockAnalyses);
     } catch (error) {
       console.error('Error fetching analyses:', error);
     }
@@ -111,27 +102,16 @@ export default function IEPReview() {
 
     setLoading(true);
     try {
-      // Upload to storage
+      // Mock file upload during migration
       const fileName = `${user.id}/${Date.now()}-${file.name}`;
-      const { data: uploadData, error: uploadError } = await supabase.storage
-        .from('iep-docs')
-        .upload(fileName, file);
-
-      if (uploadError) throw uploadError;
-
-      // Create document record
-      const { data: docData, error: docError } = await supabase
-        .from('iep_documents')
-        .insert({
-          user_id: user.id,
-          title: file.name,
-          storage_path: fileName,
-          pages: null
-        })
-        .select()
-        .single();
-
-      if (docError) throw docError;
+      
+      // Create mock document record
+      const docData: IEPDocument = {
+        id: `mock-${Date.now()}`,
+        title: file.name,
+        storage_path: fileName,
+        uploaded_at: new Date().toISOString()
+      };
 
       await fetchDocuments();
       setSelectedDoc(docData);
@@ -157,11 +137,7 @@ export default function IEPReview() {
 
     setIngestStatus('processing');
     try {
-      const { data, error } = await supabase.functions.invoke('iep-ingest', {
-        body: { docId: selectedDoc.id }
-      });
-
-      if (error) throw error;
+      const data = await api.ingestIEP(selectedDoc.id);
 
       setIngestStatus('completed');
       setActiveTab('analyze');
@@ -185,15 +161,7 @@ export default function IEPReview() {
 
     setAnalysisStatus('processing');
     try {
-      const { data, error } = await supabase.functions.invoke('iep-analyze', {
-        body: { 
-          docId: selectedDoc.id, 
-          kind,
-          studentContext: {} // Could be populated from student data
-        }
-      });
-
-      if (error) throw error;
+      const data = await api.analyzeIEP(selectedDoc.id, kind, {});
 
       setAnalysisStatus('completed');
       await fetchAnalyses(selectedDoc.id);
@@ -217,15 +185,7 @@ export default function IEPReview() {
     if (!selectedAnalysis) return;
 
     try {
-      const { data, error } = await supabase.functions.invoke('iep-action-draft', {
-        body: { 
-          analysisId: selectedAnalysis.id, 
-          templateType,
-          userInputs
-        }
-      });
-
-      if (error) throw error;
+      const data = await api.generateActionDraft(selectedAnalysis.id, templateType, userInputs);
 
       const newDraft: ActionDraft = {
         id: data.draftId,

@@ -59,9 +59,9 @@ const parentNavigation: SidebarSection[] = [
   {
     title: "Quick Tools",
     items: [
-      { title: "IEP Review", url: "/tools/iep-review", icon: FileSearch, badge: "AI" },
-      { title: "Accommodations", url: "/tools/autism-accommodations", icon: Building2 },
-      { title: "Meeting Prep", url: "/parent/meeting-prep", icon: Calendar },
+      { title: "IEP Review", url: "/parent/tools/iep-review", icon: FileSearch, badge: "AI" },
+      { title: "Accommodations", url: "/parent/tools/autism-accommodations", icon: Building2 },
+      { title: "Meeting Prep", url: "/parent/tools/meeting-prep", icon: Calendar },
     ]
   }
 ];
@@ -82,8 +82,8 @@ const advocateNavigation: SidebarSection[] = [
   {
     title: "Quick Tools",
     items: [
-      { title: "IEP Review", url: "/tools/iep-review", icon: FileSearch },
-      { title: "Accommodations", url: "/tools/autism-accommodations", icon: Building2 },
+      { title: "IEP Review", url: "/advocate/tools/iep-review", icon: FileSearch },
+      { title: "Accommodations", url: "/advocate/tools/autism-accommodations", icon: Building2 },
     ]
   }
 ];

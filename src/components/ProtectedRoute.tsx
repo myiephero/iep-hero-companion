@@ -1,6 +1,8 @@
-import { ReactElement } from "react";
+import { ReactElement, useEffect } from "react";
 import { useLocation, Navigate } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
+import { setRole } from "@/lib/session";
+import { Role } from "@/lib/roles";
 
 interface ProtectedRouteProps {
   children: ReactElement;
@@ -28,6 +30,13 @@ export function ProtectedRoute({ children, allowedRoles, redirectTo = "/auth" }:
 
   // Determine user role from profile or route context
   const userRole = profile?.role || 'parent'; // Default to parent if no role set
+  
+  // Set role in session storage when visiting role-specific routes
+  useEffect(() => {
+    if (allowedRoles.length === 1) {
+      setRole(allowedRoles[0] as Role);
+    }
+  }, [allowedRoles]);
   
   // Check if user role is allowed for this route
   if (!allowedRoles.includes(userRole as 'parent' | 'advocate')) {
@@ -57,6 +66,11 @@ export function RoleBasedRedirect({ parentRoute, advocateRoute }: RoleBasedRedir
 
   const userRole = profile?.role || 'parent';
   const redirectRoute = userRole === 'advocate' ? advocateRoute : parentRoute;
+  
+  // Set role in session when redirecting
+  useEffect(() => {
+    setRole(userRole as Role);
+  }, [userRole]);
   
   return <Navigate to={redirectRoute} replace />;
 }

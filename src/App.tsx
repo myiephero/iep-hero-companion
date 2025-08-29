@@ -95,7 +95,7 @@ function App() {
                 </ProtectedRoute>
               } />
               
-              {/* Tools Routes */}
+              {/* Tools Routes - Role-Based */}
               <Route path="/tools/hub" element={<RoleBasedRedirect parentRoute="/parent/tools" advocateRoute="/advocate/tools" />} />
               <Route path="/parent/tools" element={
                 <ProtectedRoute allowedRoles={['parent']}>
@@ -107,15 +107,56 @@ function App() {
                   <ToolsHub />
                 </ProtectedRoute>
               } />
+              
+              {/* Parent Tools - Namespaced */}
+              <Route path="/parent/tools/iep-review" element={
+                <ProtectedRoute allowedRoles={['parent']}>
+                  <IEPReview />
+                </ProtectedRoute>
+              } />
+              <Route path="/parent/tools/ai-iep-review" element={
+                <ProtectedRoute allowedRoles={['parent']}>
+                  <AIIEPReview />
+                </ProtectedRoute>
+              } />
+              <Route path="/parent/tools/autism-accommodations" element={
+                <ProtectedRoute allowedRoles={['parent']}>
+                  <AutismAccommodationBuilder />
+                </ProtectedRoute>
+              } />
+              <Route path="/parent/tools/meeting-prep" element={
+                <ProtectedRoute allowedRoles={['parent']}>
+                  <MeetingPrepWizard />
+                </ProtectedRoute>
+              } />
+              <Route path="/parent/tools/smart-letter" element={
+                <ProtectedRoute allowedRoles={['parent']}>
+                  <SmartLetterGenerator />
+                </ProtectedRoute>
+              } />
+              
+              {/* Advocate Tools - Namespaced */}
+              <Route path="/advocate/tools/iep-review" element={
+                <ProtectedRoute allowedRoles={['advocate']}>
+                  <IEPReview />
+                </ProtectedRoute>
+              } />
+              <Route path="/advocate/tools/autism-accommodations" element={
+                <ProtectedRoute allowedRoles={['advocate']}>
+                  <AutismAccommodationBuilder />
+                </ProtectedRoute>
+              } />
+              
+              {/* Shared Tools (Legacy routes - redirect to role-specific) */}
               <Route path="/tools/emergent" element={<EmergentToolsHub />} />
               <Route path="/tools/document-vault" element={<DocumentVault />} />
-              <Route path="/tools/iep-review" element={<IEPReview />} />
-              <Route path="/tools/ai-iep-review" element={<AIIEPReview />} />
-              <Route path="/tools/autism-accommodations" element={<AutismAccommodationBuilder />} />
+              <Route path="/tools/iep-review" element={<RoleBasedRedirect parentRoute="/parent/tools/iep-review" advocateRoute="/advocate/tools/iep-review" />} />
+              <Route path="/tools/ai-iep-review" element={<RoleBasedRedirect parentRoute="/parent/tools/ai-iep-review" advocateRoute="/advocate/tools/ai-iep-review" />} />
+              <Route path="/tools/autism-accommodations" element={<RoleBasedRedirect parentRoute="/parent/tools/autism-accommodations" advocateRoute="/advocate/tools/autism-accommodations" />} />
               <Route path="/tools/advocate-matching" element={<AdvocateMatchingTool />} />
               <Route path="/tools/gifted-2e-learners" element={<GiftedTwoeLearners />} />
-              <Route path="/tools/smart-letter" element={<SmartLetterGenerator />} />
-              <Route path="/tools/meeting-prep" element={<MeetingPrepWizard />} />
+              <Route path="/tools/smart-letter" element={<RoleBasedRedirect parentRoute="/parent/tools/smart-letter" advocateRoute="/advocate/tools/smart-letter" />} />
+              <Route path="/tools/meeting-prep" element={<RoleBasedRedirect parentRoute="/parent/tools/meeting-prep" advocateRoute="/advocate/tools/meeting-prep" />} />
               
               {/* Profile & Settings */}
               <Route path="/profile" element={<Profile />} />

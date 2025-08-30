@@ -172,10 +172,24 @@ export default function AllPagesView() {
 
   const parentTools = [
     {
-      title: "Emergent Tools Hub",
-      path: "/parent/tools/emergent",
+      title: "AI IEP Review",
+      path: "/parent/tools/ai-iep-review",
       icon: <Brain className="h-5 w-5" />,
-      description: "Comprehensive AI-powered educational tools and specialized resources",
+      description: "Upload and analyze IEP documents with AI-powered insights",
+      status: "Active"
+    },
+    {
+      title: "Autism Accommodation Builder",
+      path: "/parent/tools/autism-accommodations",
+      icon: <Target className="h-5 w-5" />,
+      description: "Create autism-specific accommodations and support plans",
+      status: "Active"
+    },
+    {
+      title: "Gifted & 2e Learners",
+      path: "/parent/tools/gifted-2e-learners",
+      icon: <Crown className="h-5 w-5" />,
+      description: "Comprehensive profiles for gifted and twice-exceptional learners",
       status: "Active"
     },
     {
@@ -190,6 +204,20 @@ export default function AllPagesView() {
       path: "/parent/tools/meeting-prep",
       icon: <Calendar className="h-5 w-5" />,
       description: "Prepare for IEP meetings effectively",
+      status: "Active"
+    },
+    {
+      title: "Document Vault",
+      path: "/parent/tools/document-vault",
+      icon: <Upload className="h-5 w-5" />,
+      description: "Secure storage and organization for all IEP documents",
+      status: "Active"
+    },
+    {
+      title: "Student Profiles",
+      path: "/parent/tools/student-profiles",
+      icon: <GraduationCap className="h-5 w-5" />,
+      description: "Comprehensive student profiles with goals and progress tracking",
       status: "Active"
     },
     {

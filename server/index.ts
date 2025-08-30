@@ -31,11 +31,11 @@ async function analyzeWithOpenAI(text: string, analysisType: string, retries = 3
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          model: 'gpt-4', // using gpt-4 as it's available in the API
+          model: 'gpt-5', // the newest OpenAI model is "gpt-5" which was released August 7, 2025. do not change this unless explicitly requested by the user
           messages: [
             {
               role: 'system',
-              content: 'You are an expert in special education and IEP analysis. Provide detailed, actionable feedback in JSON format with sections for analysis, recommendations, concerns, and strengths.'
+              content: 'You are an expert in special education and IEP analysis. Provide detailed, actionable feedback in JSON format with these exact fields: summary, recommendations (array), areas_of_concern (array), strengths (array), action_items (array), compliance_score (0-100), status.'
             },
             {
               role: 'user',

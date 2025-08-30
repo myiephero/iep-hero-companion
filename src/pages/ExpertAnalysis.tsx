@@ -52,14 +52,18 @@ export default function ExpertAnalysis() {
     setLoading(true);
 
     try {
-      const formData = new FormData();
-      formData.append('file', selectedFile);
-      formData.append('analysis_type', analysisType);
-
-      // TODO: Replace with actual API endpoint when backend is implemented
+      // For now, send JSON data instead of FormData
       const response = await fetch('/api/expert-analysis', {
         method: 'POST',
-        body: formData,
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          analysis_type: analysisType,
+          student_name: 'Student Analysis',
+          file_name: selectedFile.name,
+          file_size: selectedFile.size
+        }),
       });
 
       if (!response.ok) {

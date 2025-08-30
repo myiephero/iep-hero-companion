@@ -3,38 +3,32 @@ import react from "@vitejs/plugin-react-swc";
 import path from "path";
 import { componentTagger } from "lovable-tagger";
 
-// API plugin with proxy to Express server
+// Simple API plugin that proxies to Express server
 function devApiPlugin(): Plugin {
   return {
     name: "dev-api",
     configureServer(server) {
-      // Health check
       server.middlewares.use("/api/health", (_req, res) => {
         res.setHeader("Content-Type", "application/json");
         res.end(JSON.stringify({ ok: true, at: Date.now() }));
       });
 
-      // Proxy all other /api requests to Express server
-      server.middlewares.use("/api", async (req, res, next) => {
+      server.middlewares.use("/api", async (req, res) => {
         try {
-          const targetUrl = `http://localhost:3001${req.url}`;
-          const response = await fetch(targetUrl, {
+          const url = `http://localhost:3001${req.url}`;
+          const response = await fetch(url, {
             method: req.method,
-            headers: r            eq.headers as any,
-            body: req.method !== 'GET' && req.method !== 'HEAD' ? JSON.stringify({}) : undefined,
-          });
-
-          res.statusCode = response.status;
-          response.headers.forEach((value, key) => {
-            res.setHeader(key, value);
+            headers: { 'Content-Type': 'application/json' }
           });
 
           const data = await response.text();
+          res.setHeader('Content-Type', 'application/json');
+          res.statusCode = response.status;
           res.end(data);
         } catch (error) {
           console.error('Proxy error:', error);
           res.statusCode = 500;
-          res.end(JSON.stringify({ error: 'Proxy failed' }));
+          res.end(JSON.stringify({ error: 'Connection failed' }));
         }
       });
     },

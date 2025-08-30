@@ -182,6 +182,30 @@ export default function IEPReview() {
     }
   };
 
+  const handleDocumentSelect = async (doc: IEPDocument) => {
+    setSelectedDoc(doc);
+    setActiveTab('ingest'); // Switch to ingest tab when document is selected
+    
+    // Check for existing expert analysis
+    await checkExpertAnalysisAvailability(doc.id);
+    
+    // Load existing analyses
+    const { data: analysisData, error: analysisError } = await supabase
+      .from('iep_analysis')
+      .select('*')
+      .eq('doc_id', doc.id)
+      .order('created_at', { ascending: false });
+
+    if (analysisError) {
+      console.error('Error loading analyses:', analysisError);
+    } else {
+      setAnalyses(analysisData || []);
+      if (analysisData && analysisData.length > 0) {
+        setSelectedAnalysis(analysisData[0]);
+      }
+    }
+  };
+
   const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (!file || !user) return;

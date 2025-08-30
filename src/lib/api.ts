@@ -1,6 +1,6 @@
 // API client to replace Supabase calls
-// During migration, return actual data to work with the app
-const API_BASE = '';
+// Connect to the Express server running on port 3001
+const API_BASE = 'http://localhost:3001/api';
 
 export interface Student {
   id?: string;
@@ -111,9 +111,24 @@ export interface Advocate {
 
 class ApiClient {
   private async request(endpoint: string, options: RequestInit = {}) {
-    // During migration, return mock responses directly to prevent API errors
-    console.log(`API call to ${endpoint} - returning mock data during migration`);
-    return this.getMockResponse(endpoint, options.method || 'GET');
+    try {
+      const response = await fetch(`${API_BASE}${endpoint}`, {
+        headers: {
+          'Content-Type': 'application/json',
+          ...options.headers,
+        },
+        ...options,
+      });
+
+      if (!response.ok) {
+        throw new Error(`API error: ${response.statusText}`);
+      }
+
+      return response.json();
+    } catch (error) {
+      console.error(`API call failed for ${endpoint}:`, error);
+      throw error;
+    }
   }
 
   private getMockResponse(endpoint: string, method: string = 'GET'): any {

@@ -228,6 +228,13 @@ export default function AllPagesView() {
       status: "Active"
     },
     {
+      title: "Expert Analysis",
+      path: "/parent/tools/expert-analysis",
+      icon: <Target className="h-5 w-5" />,
+      description: "Professional expert analysis and detailed assessments",
+      status: "Active"
+    },
+    {
       title: "Advocate Matching Tool",
       path: "/parent/tools/advocate-matching",
       icon: <Users className="h-5 w-5" />,

@@ -505,6 +505,13 @@ export default function IEPReview() {
             )}
           </TabsContent>
 
+          <TabsContent value="expert" className="space-y-6">
+            <ExpertAnalysisTab 
+              selectedDoc={selectedDoc} 
+              userRole={user?.user_metadata?.role || 'parent'} 
+            />
+          </TabsContent>
+
           <TabsContent value="report" className="space-y-6">
             {analyses.length > 0 && (
               <>

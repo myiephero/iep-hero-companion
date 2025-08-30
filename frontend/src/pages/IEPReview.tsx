@@ -385,7 +385,16 @@ export default function IEPReview() {
             <TabsTrigger value="upload">Upload</TabsTrigger>
             <TabsTrigger value="ingest" disabled={!selectedDoc}>Ingest</TabsTrigger>
             <TabsTrigger value="analyze" disabled={ingestStatus !== 'completed'}>Analyze</TabsTrigger>
-            <TabsTrigger value="expert" disabled={ingestStatus !== 'completed'}>Expert Analysis</TabsTrigger>
+            <TabsTrigger 
+              value="expert" 
+              disabled={!selectedDoc || ingestStatus !== 'completed'}
+              className={expertAnalysisAvailable ? 'bg-green-50 border-green-200' : ''}
+            >
+              Expert Analysis
+              {expertAnalysisAvailable && (
+                <CheckCircle className="h-4 w-4 ml-1 text-green-600" />
+              )}
+            </TabsTrigger>
             <TabsTrigger value="report" disabled={analyses.length === 0}>Report</TabsTrigger>
           </TabsList>
 

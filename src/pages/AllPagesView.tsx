@@ -152,7 +152,7 @@ export default function AllPagesView() {
         )}
       </CardHeader>
       <CardContent className="pt-0">
-        <Link href={page.path}>
+        <Link to={page.path}>
           <Button variant="outline" size="sm" className="w-full">
             Visit Page
           </Button>

@@ -13,6 +13,7 @@ import AdvocateDashboard from "./pages/AdvocateDashboard";
 import AdvocateMessages from "./pages/AdvocateMessages";
 import AdvocateSchedule from "./pages/AdvocateSchedule";
 import AdvocateCreateParent from "./pages/AdvocateCreateParent";
+import AdvocateParents from "./pages/AdvocateParents";
 import ParentStudents from "./pages/ParentStudents";
 import AdvocateStudents from "./pages/AdvocateStudents";
 import IEPReview from "./pages/IEPReview";
@@ -91,6 +92,11 @@ function App() {
               <Route path="/advocate/create-parent" element={
                 <ProtectedRoute allowedRoles={['advocate']}>
                   <AdvocateCreateParent />
+                </ProtectedRoute>
+              } />
+              <Route path="/advocate/parents" element={
+                <ProtectedRoute allowedRoles={['advocate']}>
+                  <AdvocateParents />
                 </ProtectedRoute>
               } />
               <Route path="/advocate/students" element={

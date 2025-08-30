@@ -24,7 +24,12 @@ import {
   MessageSquare,
   Clock,
   Target,
-  BarChart3
+  BarChart3,
+  Shield,
+  Scale,
+  BookOpen,
+  Users,
+  Flag
 } from "lucide-react";
 
 interface IEPDocument {

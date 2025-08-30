@@ -433,7 +433,7 @@ export default function IEPReview() {
                     <h3 className="text-lg font-medium mb-3">Recent Documents</h3>
                     <div className="space-y-2">
                       {documents.map((doc) => (
-                        <Card key={doc.id} className={`cursor-pointer transition-colors ${selectedDoc?.id === doc.id ? 'bg-blue-50 border-blue-200' : 'hover:bg-gray-50'}`} onClick={() => setSelectedDoc(doc)}>
+                        <Card key={doc.id} className={`cursor-pointer transition-colors ${selectedDoc?.id === doc.id ? 'bg-blue-50 border-blue-200' : 'hover:bg-gray-50'}`} onClick={() => handleDocumentSelect(doc)}>
                           <CardContent className="p-4">
                             <div className="flex items-center justify-between">
                               <div>

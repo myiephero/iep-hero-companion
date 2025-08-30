@@ -143,8 +143,9 @@ export default function IEPReview() {
       setActiveTab('analyze');
       
       toast({
-        title: "Ingestion complete",
-        description: `Extracted ${data.extractedTextLength} characters into ${data.chunksCreated} chunks.`,
+        title: "Migration in progress",
+        description: "Document processing is temporarily disabled during migration. Mock response returned to prevent errors.",
+        variant: "destructive",
       });
     } catch (error: any) {
       setIngestStatus('error');
@@ -168,8 +169,9 @@ export default function IEPReview() {
       setActiveTab('report');
       
       toast({
-        title: "Analysis complete",
-        description: `${kind} analysis completed successfully.`,
+        title: "Migration in progress", 
+        description: "Document analysis is temporarily disabled during migration. Mock response returned to prevent errors.",
+        variant: "destructive",
       });
     } catch (error: any) {
       setAnalysisStatus('error');

@@ -146,11 +146,65 @@ app.post('/api/ai_reviews', async (req, res) => {
 
 app.get('/api/ai_reviews', async (req, res) => {
   try {
-    const reviews = await db.select().from(schema.ai_reviews).where(eq(schema.ai_reviews.user_id, MOCK_USER_ID));
-    res.json(reviews);
+    const { document_id } = req.query;
+    
+    if (document_id) {
+      const reviews = await db.select().from(schema.ai_reviews)
+        .where(eq(schema.ai_reviews.user_id, MOCK_USER_ID))
+        .where(eq(schema.ai_reviews.document_id, document_id as string));
+      res.json(reviews);
+    } else {
+      const reviews = await db.select().from(schema.ai_reviews)
+        .where(eq(schema.ai_reviews.user_id, MOCK_USER_ID));
+      res.json(reviews);
+    }
   } catch (error) {
     console.error('Error fetching AI reviews:', error);
     res.status(500).json({ error: 'Failed to fetch AI reviews' });
+  }
+});
+
+// Goals routes
+app.get('/api/goals', async (req, res) => {
+  try {
+    const goals = await db.select().from(schema.goals).where(eq(schema.goals.user_id, MOCK_USER_ID));
+    res.json(goals);
+  } catch (error) {
+    console.error('Error fetching goals:', error);
+    res.status(500).json({ error: 'Failed to fetch goals' });
+  }
+});
+
+app.post('/api/goals', async (req, res) => {
+  try {
+    const goalData = { ...req.body, user_id: MOCK_USER_ID };
+    const [goal] = await db.insert(schema.goals).values(goalData).returning();
+    res.json(goal);
+  } catch (error) {
+    console.error('Error creating goal:', error);
+    res.status(500).json({ error: 'Failed to create goal' });
+  }
+});
+
+// Meetings routes
+app.get('/api/meetings', async (req, res) => {
+  try {
+    const meetings = await db.select().from(schema.meetings).where(eq(schema.meetings.user_id, MOCK_USER_ID));
+    res.json(meetings);
+  } catch (error) {
+    console.error('Error fetching meetings:', error);
+    res.status(500).json({ error: 'Failed to fetch meetings' });
+  }
+});
+
+app.post('/api/meetings', async (req, res) => {
+  try {
+    const meetingData = { ...req.body, user_id: MOCK_USER_ID };
+    const [meeting] = await db.insert(schema.meetings).values(meetingData).returning();
+    res.json(meeting);
+  } catch (error) {
+    console.error('Error creating meeting:', error);
+    res.status(500).json({ error: 'Failed to create meeting' });
   }
 });
 

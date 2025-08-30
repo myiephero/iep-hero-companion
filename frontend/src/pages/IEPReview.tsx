@@ -617,7 +617,9 @@ export default function IEPReview() {
           <TabsContent value="expert" className="space-y-6">
             <ExpertAnalysisTab 
               selectedDoc={selectedDoc} 
-              userRole={user?.user_metadata?.role || 'parent'} 
+              userRole={user?.user_metadata?.role || 'parent'}
+              expertAnalysisResult={expertAnalysisResult}
+              onAnalysisComplete={storeExpertAnalysisResult}
             />
           </TabsContent>
 

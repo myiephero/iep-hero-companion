@@ -365,11 +365,11 @@ app.post('/api/invite-parent', async (req, res) => {
 
     // Create parent user record
     const userId = createId();
-    await db.insert(schema.users).values({
+    await db.insert(schema.profiles).values({
       id: userId,
+      user_id: userId,
       email,
-      first_name: firstName,
-      last_name: lastName,
+      full_name: `${firstName} ${lastName}`,
       role: 'parent'
     });
     

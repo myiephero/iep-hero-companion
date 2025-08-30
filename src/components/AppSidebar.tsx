@@ -100,10 +100,9 @@ export function AppSidebar() {
   const currentPath = location.pathname;
   const collapsed = state === "collapsed";
 
-  // Determine which navigation to show based on user role (fallback to route)
+  // Determine which navigation to show based on current route (priority) or user role
   const { profile } = useAuth();
-  const role = profile?.role;
-  const isAdvocate = role ? role === 'advocate' : currentPath.startsWith('/advocate');
+  const isAdvocate = currentPath.startsWith('/advocate');
   const navigation = isAdvocate ? advocateNavigation : parentNavigation;
   
   const isActive = (path: string) => currentPath === path;

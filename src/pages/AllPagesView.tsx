@@ -45,14 +45,14 @@ export default function AllPagesView() {
     },
     {
       title: "Goals & Progress",
-      path: "/parent/dashboard",
+      path: "/parent/dashboard?tab=goals",
       icon: <Target className="h-5 w-5" />,
       description: "Track IEP goals and student progress",
       status: "Active"
     },
     {
       title: "Meetings",
-      path: "/parent/dashboard",
+      path: "/parent/dashboard?tab=meetings",
       icon: <Calendar className="h-5 w-5" />,
       description: "Schedule and manage IEP meetings",
       status: "Active"
@@ -290,7 +290,7 @@ export default function AllPagesView() {
     }
   };
 
-  const PageCard = ({ page }: { page: any }) => (
+  const PageCard = ({ page, index }: { page: any; index: number }) => (
     <Card className="h-full hover:shadow-md transition-shadow">
       <CardHeader className="pb-2">
         <div className="flex items-center justify-between">
@@ -332,20 +332,20 @@ export default function AllPagesView() {
         </div>
 
         <Tabs defaultValue="main" className="space-y-6">
-          <TabsList className="grid w-full grid-cols-6">
+          <TabsList className="grid w-full grid-cols-3 lg:grid-cols-6">
             <TabsTrigger value="main">Main Pages</TabsTrigger>
-            <TabsTrigger value="iep-tools">IEP Review Tools</TabsTrigger>
+            <TabsTrigger value="iep-tools">IEP Tools</TabsTrigger>
             <TabsTrigger value="parent-tools">Parent Tools</TabsTrigger>
             <TabsTrigger value="advocate-pages">Advocate Pages</TabsTrigger>
             <TabsTrigger value="advocate-tools">Advocate Tools</TabsTrigger>
-            <TabsTrigger value="specialized">Specialized Tools</TabsTrigger>
+            <TabsTrigger value="specialized">Specialized</TabsTrigger>
           </TabsList>
 
           <TabsContent value="main" className="space-y-4">
             <h2 className="text-xl font-semibold">Core Platform Pages</h2>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-              {mainPages.map((page) => (
-                <PageCard key={page.path} page={page} />
+              {mainPages.map((page, index) => (
+                <PageCard key={`main-${index}-${page.path}`} page={page} index={index} />
               ))}
             </div>
           </TabsContent>
@@ -356,8 +356,8 @@ export default function AllPagesView() {
               All three IEP review tools have been fixed and should be working properly.
             </p>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-              {iepReviewTools.map((page) => (
-                <PageCard key={page.path} page={page} />
+              {iepReviewTools.map((page, index) => (
+                <PageCard key={`iep-${index}-${page.path}`} page={page} index={index} />
               ))}
             </div>
           </TabsContent>
@@ -365,8 +365,8 @@ export default function AllPagesView() {
           <TabsContent value="parent-tools" className="space-y-4">
             <h2 className="text-xl font-semibold">Parent Tools & Features</h2>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-              {parentTools.map((page) => (
-                <PageCard key={page.path} page={page} />
+              {parentTools.map((page, index) => (
+                <PageCard key={`parent-tools-${index}-${page.path}`} page={page} index={index} />
               ))}
             </div>
           </TabsContent>
@@ -374,8 +374,8 @@ export default function AllPagesView() {
           <TabsContent value="advocate-pages" className="space-y-4">
             <h2 className="text-xl font-semibold">Advocate Dashboard & Pages</h2>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-              {advocatePages.map((page) => (
-                <PageCard key={page.path} page={page} />
+              {advocatePages.map((page, index) => (
+                <PageCard key={`advocate-pages-${index}-${page.path}`} page={page} index={index} />
               ))}
             </div>
           </TabsContent>
@@ -383,8 +383,8 @@ export default function AllPagesView() {
           <TabsContent value="advocate-tools" className="space-y-4">
             <h2 className="text-xl font-semibold">Advocate Tools</h2>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-              {advocateTools.map((page) => (
-                <PageCard key={page.path} page={page} />
+              {advocateTools.map((page, index) => (
+                <PageCard key={`advocate-tools-${index}-${page.path}`} page={page} index={index} />
               ))}
             </div>
           </TabsContent>
@@ -395,8 +395,8 @@ export default function AllPagesView() {
               Tools available for both parents and advocates with role-specific access.
             </p>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-              {specializedTools.map((page) => (
-                <PageCard key={page.path} page={page} />
+              {specializedTools.map((page, index) => (
+                <PageCard key={`specialized-${index}-${page.path}`} page={page} index={index} />
               ))}
             </div>
           </TabsContent>

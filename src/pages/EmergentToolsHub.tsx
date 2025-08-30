@@ -99,7 +99,7 @@ const emergentTools = [
     title: "Expert Analysis",
     description: "Professional expert analysis and detailed assessments with comprehensive reporting and recommendations.",
     icon: Target,
-    path: "/tools/expert-analysis",
+    path: "/parent/tools/expert-analysis",
     category: "Professional Support",
     badge: "Pro",
     features: ["Expert Review", "Detailed Reports", "Professional Insights", "Action Plans"]

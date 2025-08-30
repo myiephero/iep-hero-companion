@@ -23,6 +23,23 @@ import { Link } from "react-router-dom";
 export default function AllPagesView() {
   const mainPages = [
     {
+      title: "Home Landing Page",
+      path: "/",
+      icon: <Users className="h-5 w-5" />,
+      description: "Main landing page for the IEP Hero platform",
+      status: "Active"
+    },
+    {
+      title: "Authentication",
+      path: "/auth",
+      icon: <Users className="h-5 w-5" />,
+      description: "Login and registration page",
+      status: "Active"
+    }
+  ];
+
+  const parentPages = [
+    {
       title: "Parent Dashboard",
       path: "/parent/dashboard",
       icon: <Users className="h-5 w-5" />,
@@ -30,31 +47,31 @@ export default function AllPagesView() {
       status: "Active"
     },
     {
-      title: "Student Profiles", 
+      title: "Parent Students", 
       path: "/parent/students",
       icon: <GraduationCap className="h-5 w-5" />,
       description: "Manage student information and profiles",
       status: "Active"
     },
     {
-      title: "Document Vault",
-      path: "/parent/tools/document-vault", 
-      icon: <FileText className="h-5 w-5" />,
-      description: "Store and manage IEP documents securely",
-      status: "Active"
-    },
-    {
-      title: "Goals & Progress",
-      path: "/parent/dashboard?tab=goals",
-      icon: <Target className="h-5 w-5" />,
-      description: "Track IEP goals and student progress",
-      status: "Active"
-    },
-    {
-      title: "Meetings",
-      path: "/parent/dashboard?tab=meetings",
+      title: "Parent Meeting Prep",
+      path: "/parent/meeting-prep", 
       icon: <Calendar className="h-5 w-5" />,
-      description: "Schedule and manage IEP meetings",
+      description: "Prepare for IEP meetings",
+      status: "Active"
+    },
+    {
+      title: "Parent Matching Dashboard",
+      path: "/parent/matching",
+      icon: <MessageSquare className="h-5 w-5" />,
+      description: "Connect with advocates",
+      status: "Active"
+    },
+    {
+      title: "Parent Settings",
+      path: "/parent/settings",
+      icon: <Settings className="h-5 w-5" />,
+      description: "Account and preference settings",
       status: "Active"
     }
   ];
@@ -332,10 +349,11 @@ export default function AllPagesView() {
         </div>
 
         <Tabs defaultValue="main" className="space-y-6">
-          <TabsList className="grid w-full grid-cols-3 lg:grid-cols-6">
-            <TabsTrigger value="main">Main Pages</TabsTrigger>
-            <TabsTrigger value="iep-tools">IEP Tools</TabsTrigger>
+          <TabsList className="grid w-full grid-cols-3 lg:grid-cols-7">
+            <TabsTrigger value="main">Main</TabsTrigger>
+            <TabsTrigger value="parent-pages">Parent Pages</TabsTrigger>
             <TabsTrigger value="parent-tools">Parent Tools</TabsTrigger>
+            <TabsTrigger value="iep-tools">IEP Tools</TabsTrigger>
             <TabsTrigger value="advocate-pages">Advocate Pages</TabsTrigger>
             <TabsTrigger value="advocate-tools">Advocate Tools</TabsTrigger>
             <TabsTrigger value="specialized">Specialized</TabsTrigger>
@@ -346,6 +364,15 @@ export default function AllPagesView() {
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
               {mainPages.map((page, index) => (
                 <PageCard key={`main-${index}-${page.path}`} page={page} index={index} />
+              ))}
+            </div>
+          </TabsContent>
+
+          <TabsContent value="parent-pages" className="space-y-4">
+            <h2 className="text-xl font-semibold">Parent Dashboard & Pages</h2>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              {parentPages.map((page, index) => (
+                <PageCard key={`parent-pages-${index}-${page.path}`} page={page} index={index} />
               ))}
             </div>
           </TabsContent>

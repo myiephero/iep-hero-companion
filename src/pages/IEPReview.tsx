@@ -113,7 +113,8 @@ export default function IEPReview() {
       const reviews = await api.getAIReviews(docId);
       setAnalyses(reviews.map(review => {
         // Parse the AI analysis to extract structured data
-        const analysisText = review.ai_analysis || '';
+        const analysisData = review.ai_analysis || {};
+        const analysisText = typeof analysisData === 'string' ? analysisData : (analysisData.content || '');
         
         // Extract mock scores for demo (normally would be parsed from AI response)
         const scores = {

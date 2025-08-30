@@ -5,7 +5,7 @@ channel = "stable-25_05"
 
 [deployment]
 deploymentTarget = "autoscale"
-run = ["npm", "run", "start"]
+run = "npm run dev"
 build = ["npm", "run", "build"]
 
 [workflows]
@@ -27,7 +27,7 @@ author = "agent"
 [[workflows.workflow.tasks]]
 task = "shell.exec"
 args = "npm run dev"
-waitForPort = 5000
+waitForPort = 8080
 
 [[ports]]
 localPort = 3001

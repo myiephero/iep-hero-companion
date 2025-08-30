@@ -1,6 +1,6 @@
 // API client to replace Supabase calls
 // For now, during migration, we'll use mock responses to prevent errors
-const API_BASE = 'http://localhost:3001/api';
+const API_BASE = '/api';
 
 export interface Student {
   id?: string;

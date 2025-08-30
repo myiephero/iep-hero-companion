@@ -83,6 +83,13 @@ export default function AllPagesView() {
       status: "Active"
     },
     {
+      title: "Emergent Tools Hub",
+      path: "/parent/tools/emergent",
+      icon: <Brain className="h-5 w-5" />,
+      description: "Comprehensive AI-powered educational tools and specialized resources",
+      status: "Active"
+    },
+    {
       title: "Parent Settings",
       path: "/parent/settings",
       icon: <Settings className="h-5 w-5" />,

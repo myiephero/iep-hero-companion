@@ -977,8 +977,14 @@ function ExpertAnalysisTab({
       <Card>
         <CardContent className="text-center py-12">
           <Brain className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
-          <h3 className="text-lg font-semibold mb-2">No Document Selected</h3>
-          <p className="text-muted-foreground">Please upload and ingest a document first.</p>
+          <h3 className="text-lg font-semibold mb-2">Expert Analysis Locked</h3>
+          <p className="text-muted-foreground mb-4">
+            Upload an IEP document and complete ingestion to unlock Expert Analysis.
+          </p>
+          <div className="text-sm text-blue-600 bg-blue-50 p-3 rounded-lg">
+            <Shield className="h-4 w-4 inline mr-2" />
+            Secure Access: Expert analysis is only available for your uploaded documents.
+          </div>
         </CardContent>
       </Card>
     );

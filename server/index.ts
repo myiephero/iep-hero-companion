@@ -54,14 +54,42 @@ async function analyzeWithOpenAI(text: string, analysisType: string, retries = 3
       }
 
       // Handle rate limiting
-      if (response.status === 429 && attempt < retries) {
-        const waitTime = Math.pow(2, attempt) * 1000; // Exponential backoff
-        console.log(`Rate limited. Waiting ${waitTime}ms before retry ${attempt + 1}`);
-        await new Promise(resolve => setTimeout(resolve, waitTime));
-        continue;
+      if (response.status === 429) {
+        if (attempt < retries) {
+          const waitTime = Math.pow(2, attempt) * 1000; // Exponential backoff
+          console.log(`Rate limited. Waiting ${waitTime}ms before retry ${attempt + 1}`);
+          await new Promise(resolve => setTimeout(resolve, waitTime));
+          continue;
+        } else {
+          // Final attempt failed with rate limit - return fallback
+          console.log('Rate limit exceeded, returning fallback response');
+          return JSON.stringify({
+            analysis: "Document uploaded successfully. AI analysis is temporarily unavailable due to high demand.",
+            recommendations: ["Please try again in a few minutes for detailed AI analysis", "Document has been saved and can be re-analyzed later"],
+            concerns: ["AI analysis service is currently rate-limited"],
+            strengths: ["Document upload and storage is functioning properly"],
+            compliance_score: null,
+            status: "pending_analysis"
+          });
+        }
       }
 
-      throw new Error(`OpenAI API error: ${response.statusText}`);
+      // For other errors, continue to retry
+      if (attempt < retries) {
+        console.log(`API error (${response.status}), retrying attempt ${attempt + 1}`);
+        await new Promise(resolve => setTimeout(resolve, 1000));
+        continue;
+      } else {
+        // Final attempt failed with other error
+        return JSON.stringify({
+          analysis: "Document uploaded successfully. AI analysis encountered an error.",
+          recommendations: ["Please try again later", "Document has been saved for future analysis"],
+          concerns: ["AI analysis service encountered an error"],
+          strengths: ["Document upload and storage is functioning properly"],
+          compliance_score: null,
+          status: "error"
+        });
+      }
     } catch (error) {
       if (attempt === retries) {
         console.error('OpenAI API error:', error);

@@ -53,6 +53,26 @@ async function analyzeWithOpenAI(text: string, analysisType: string, retries = 3
         return data.choices[0].message.content;
       }
 
+      // DEBUGGING: Log exact error details
+      const errorBody = await response.text();
+      console.error(`OpenAI API Error ${response.status}:`, errorBody);
+      console.error('Request body was:', JSON.stringify({
+        model: 'gpt-4o-mini',
+        messages: [
+          {
+            role: 'system',
+            content: 'You are an expert in special education and IEP analysis. Provide detailed, actionable feedback in JSON format with these exact fields: summary, recommendations (array), areas_of_concern (array), strengths (array), action_items (array), compliance_score (0-100), status.'
+          },
+          {
+            role: 'user',
+            content: prompt.substring(0, 200) + '...'
+          }
+        ],
+        max_tokens: 1500,
+        temperature: 0.3,
+        response_format: { type: "json_object" }
+      }, null, 2));
+
       // Handle rate limiting
       if (response.status === 429) {
         if (attempt < retries) {

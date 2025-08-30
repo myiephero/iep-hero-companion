@@ -157,10 +157,10 @@ export default function AllPagesView() {
 
   const parentTools = [
     {
-      title: "Parent Tools Hub",
-      path: "/parent/tools",
-      icon: <Settings className="h-5 w-5" />,
-      description: "Main tools hub for parents",
+      title: "Emergent Tools Hub",
+      path: "/parent/tools/emergent",
+      icon: <Brain className="h-5 w-5" />,
+      description: "Comprehensive AI-powered educational tools and specialized resources",
       status: "Active"
     },
     {
@@ -175,13 +175,6 @@ export default function AllPagesView() {
       path: "/parent/tools/meeting-prep",
       icon: <Calendar className="h-5 w-5" />,
       description: "Prepare for IEP meetings effectively",
-      status: "Active"
-    },
-    {
-      title: "Emergent Tools Hub",
-      path: "/parent/tools/emergent",
-      icon: <Brain className="h-5 w-5" />,
-      description: "AI-powered educational tools",
       status: "Active"
     },
     {

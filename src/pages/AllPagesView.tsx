@@ -78,12 +78,12 @@ export default function AllPagesView() {
 
   const iepReviewTools = [
     {
-      title: "AI IEP Review & Compliance",
-      path: "/parent/tools/ai-iep-review",
+      title: "IEP Review Tool",
+      path: "/parent/tools/iep-review",
       icon: <Brain className="h-5 w-5" />,
-      description: "AI-powered IEP document analysis and compliance checking",
-      status: "Working",
-      notes: "Uses DocumentUpload component, API integration working"
+      description: "Comprehensive AI-powered IEP review and compliance analysis",
+      status: "Working", 
+      notes: "Multi-step process: Upload → Ingest → Analyze → Report"
     },
     {
       title: "Expert Analysis",
@@ -92,14 +92,6 @@ export default function AllPagesView() {
       description: "Request human expert analysis of IEP documents",
       status: "Working",
       notes: "Fixed FormData issues, now uses JSON API calls"
-    },
-    {
-      title: "IEP Review Tool",
-      path: "/parent/tools/iep-review",
-      icon: <TrendingUp className="h-5 w-5" />,
-      description: "Comprehensive IEP review and analysis workflow",
-      status: "Working", 
-      notes: "Multi-step process: Upload → Ingest → Analyze → Report"
     }
   ];
 

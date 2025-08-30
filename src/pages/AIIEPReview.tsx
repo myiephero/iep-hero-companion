@@ -191,7 +191,7 @@ export default function AIIEPReview() {
                       </div>
                       <div className="flex items-center gap-2">
                         <Badge className={getPriorityColor(review.priority_level)}>
-                          {review.priority_level.charAt(0).toUpperCase() + review.priority_level.slice(1)} Priority
+                          {review.priority_level ? (review.priority_level.charAt(0).toUpperCase() + review.priority_level.slice(1)) : 'Unknown'} Priority
                         </Badge>
                         {review.compliance_score && (
                           <Badge variant="outline" className={getComplianceColor(review.compliance_score)}>

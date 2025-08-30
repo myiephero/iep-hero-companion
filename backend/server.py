@@ -1,6 +1,7 @@
 from fastapi import FastAPI, APIRouter
 from dotenv import load_dotenv
 from starlette.middleware.cors import CORSMiddleware
+from expert_analysis_api import router as expert_router
 from motor.motor_asyncio import AsyncIOMotorClient
 import os
 import logging

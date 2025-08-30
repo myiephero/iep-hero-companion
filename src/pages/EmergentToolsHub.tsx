@@ -15,6 +15,15 @@ const getUserRole = () => {
 
 const emergentTools = [
   {
+    title: "IEP Review Tool",
+    description: "Comprehensive IEP review and analysis with detailed feedback, compliance checking, and improvement recommendations.",
+    icon: TrendingUp,
+    path: "/tools/iep-review",
+    category: "IEP Analysis",
+    badge: "Core",
+    features: ["Comprehensive Review", "Compliance Check", "Goal Analysis", "Progress Tracking"]
+  },
+  {
     title: "AI IEP Review",
     description: "Upload and analyze IEP documents with AI-powered insights, compliance checking, and personalized recommendations.",
     icon: Brain,
@@ -92,6 +101,7 @@ const categories = Array.from(new Set(emergentTools.map(tool => tool.category)))
 
 const getBadgeVariant = (badge: string) => {
   switch (badge) {
+    case "Core": return "bg-slate-100 text-slate-700 border-slate-200";
     case "New": return "bg-green-100 text-green-700 border-green-200";
     case "Specialized": return "bg-blue-100 text-blue-700 border-blue-200";
     case "Connect": return "bg-purple-100 text-purple-700 border-purple-200";
@@ -99,7 +109,6 @@ const getBadgeVariant = (badge: string) => {
     case "Templates": return "bg-orange-100 text-orange-700 border-orange-200";
     case "Prep": return "bg-indigo-100 text-indigo-700 border-indigo-200";
     case "Secure": return "bg-red-100 text-red-700 border-red-200";
-    case "Core": return "bg-gray-100 text-gray-700 border-gray-200";
     default: return "bg-gray-100 text-gray-700 border-gray-200";
   }
 };
@@ -123,7 +132,7 @@ export default function EmergentToolsHub() {
           <div className="flex items-center justify-center gap-4 pt-4">
             <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200">
               <TrendingUp className="h-3 w-3 mr-1" />
-              8 Active Tools
+              9 Active Tools
             </Badge>
             <Badge variant="outline" className="bg-blue-50 text-blue-700 border-blue-200">
               <Brain className="h-3 w-3 mr-1" />
@@ -141,6 +150,7 @@ export default function EmergentToolsHub() {
           {categories.map((category) => (
             <div key={category}>
               <h2 className="text-2xl font-semibold mb-4 flex items-center gap-2">
+                {category === "IEP Analysis" && <TrendingUp className="h-6 w-6" />}
                 {category === "AI Tools" && <Brain className="h-6 w-6" />}
                 {category === "Accommodations" && <Zap className="h-6 w-6" />}
                 {category === "Professional Support" && <Users className="h-6 w-6" />}

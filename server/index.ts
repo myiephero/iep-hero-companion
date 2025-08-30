@@ -34,15 +34,16 @@ async function analyzeWithOpenAI(text: string, analysisType: string): Promise<st
         messages: [
           {
             role: 'system',
-            content: 'You are an expert in special education and IEP analysis. Provide detailed, actionable feedback.'
+            content: 'You are an expert in special education and IEP analysis. Provide detailed, actionable feedback in JSON format with sections for analysis, recommendations, concerns, and strengths.'
           },
           {
             role: 'user',
             content: prompt
           }
         ],
-        max_tokens: 2000,
-        temperature: 0.3
+        max_tokens: 1500,
+        temperature: 0.3,
+        response_format: { type: "text" }
       })
     });
 

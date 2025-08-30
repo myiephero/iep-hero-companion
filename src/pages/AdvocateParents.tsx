@@ -5,8 +5,12 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
 import { DashboardLayout } from "@/layouts/DashboardLayout";
-import { Users, Mail, Phone, Plus, UserCheck } from "lucide-react";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Users, Mail, Phone, Plus, UserCheck, UserPlus } from "lucide-react";
 import { Link } from "react-router-dom";
+import { api } from "@/lib/api";
 
 interface Parent {
   id: string;
@@ -21,8 +25,18 @@ interface Parent {
 export default function AdvocateParents() {
   const [parents, setParents] = useState<Parent[]>([]);
   const [loading, setLoading] = useState(true);
+  const [createLoading, setCreateLoading] = useState(false);
+  const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
   const { user } = useAuth();
   const { toast } = useToast();
+  
+  const [formData, setFormData] = useState({
+    email: '',
+    firstName: '',
+    lastName: '',
+    phone: '',
+    address: ''
+  });
 
   useEffect(() => {
     if (user) {
@@ -68,6 +82,52 @@ export default function AdvocateParents() {
     }
   };
 
+  const handleCreateParent = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setCreateLoading(true);
+
+    try {
+      // Create parent via our API
+      const inviteRes = await api.inviteParent(
+        formData.email,
+        formData.firstName,
+        formData.lastName
+      );
+
+      toast({
+        title: "Success!",
+        description: "Invitation sent to the parent. They'll set up their account via email.",
+      });
+
+      // Reset form and close dialog
+      setFormData({
+        email: '',
+        firstName: '',
+        lastName: '',
+        phone: '',
+        address: ''
+      });
+      setIsCreateDialogOpen(false);
+      
+      // Refresh parents list
+      fetchParents();
+
+    } catch (error: any) {
+      console.error('Error creating parent:', error);
+      toast({
+        title: "Error",
+        description: error.message || "Failed to create parent account. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setCreateLoading(false);
+    }
+  };
+
+  const handleInputChange = (field: string, value: string) => {
+    setFormData(prev => ({ ...prev, [field]: value }));
+  };
+
   if (!user) {
     return <div>Please log in to view your clients.</div>;
   }
@@ -82,12 +142,105 @@ export default function AdvocateParents() {
               Manage your client relationships and view parent accounts you've created
             </p>
           </div>
-          <Button asChild className="button-premium">
-            <Link to="/advocate/create-parent">
-              <Plus className="h-4 w-4 mr-2" />
-              Create New Parent
-            </Link>
-          </Button>
+          <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
+            <DialogTrigger asChild>
+              <Button className="button-premium">
+                <Plus className="h-4 w-4 mr-2" />
+                Create New Parent
+              </Button>
+            </DialogTrigger>
+            <DialogContent className="max-w-2xl">
+              <DialogHeader>
+                <DialogTitle className="flex items-center gap-2">
+                  <UserPlus className="h-5 w-5" />
+                  Create New Parent Account
+                </DialogTitle>
+                <DialogDescription>
+                  Create a new parent account and establish them as your client. They will receive an email to set their password.
+                </DialogDescription>
+              </DialogHeader>
+              
+              <form onSubmit={handleCreateParent} className="space-y-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="firstName" className="flex items-center gap-2">
+                      <Mail className="h-4 w-4" />
+                      First Name *
+                    </Label>
+                    <Input
+                      id="firstName"
+                      type="text"
+                      value={formData.firstName}
+                      onChange={(e) => handleInputChange('firstName', e.target.value)}
+                      placeholder="Enter first name"
+                      required
+                    />
+                  </div>
+                  
+                  <div className="space-y-2">
+                    <Label htmlFor="lastName">
+                      Last Name *
+                    </Label>
+                    <Input
+                      id="lastName"
+                      type="text"
+                      value={formData.lastName}
+                      onChange={(e) => handleInputChange('lastName', e.target.value)}
+                      placeholder="Enter last name"
+                      required
+                    />
+                  </div>
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="email" className="flex items-center gap-2">
+                    <Mail className="h-4 w-4" />
+                    Email Address *
+                  </Label>
+                  <Input
+                    id="email"
+                    type="email"
+                    value={formData.email}
+                    onChange={(e) => handleInputChange('email', e.target.value)}
+                    placeholder="parent@example.com"
+                    required
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="phone" className="flex items-center gap-2">
+                    <Phone className="h-4 w-4" />
+                    Phone Number (Optional)
+                  </Label>
+                  <Input
+                    id="phone"
+                    type="tel"
+                    value={formData.phone}
+                    onChange={(e) => handleInputChange('phone', e.target.value)}
+                    placeholder="(555) 123-4567"
+                  />
+                </div>
+
+                <div className="flex justify-end gap-3">
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={() => setIsCreateDialogOpen(false)}
+                    disabled={createLoading}
+                  >
+                    Cancel
+                  </Button>
+                  <Button
+                    type="submit"
+                    className="button-premium"
+                    disabled={createLoading}
+                  >
+                    {createLoading ? "Creating..." : "Create Parent Account"}
+                  </Button>
+                </div>
+              </form>
+            </DialogContent>
+          </Dialog>
         </div>
 
         {loading ? (
@@ -103,11 +256,9 @@ export default function AdvocateParents() {
               <p className="text-muted-foreground mb-4">
                 You haven't created any parent accounts yet. Get started by inviting your first client.
               </p>
-              <Button asChild className="button-premium">
-                <Link to="/advocate/create-parent">
-                  <UserCheck className="h-4 w-4 mr-2" />
-                  Create Your First Parent Client
-                </Link>
+              <Button onClick={() => setIsCreateDialogOpen(true)} className="button-premium">
+                <UserCheck className="h-4 w-4 mr-2" />
+                Create Your First Parent Client
               </Button>
             </CardContent>
           </Card>

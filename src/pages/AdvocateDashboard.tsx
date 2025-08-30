@@ -123,9 +123,9 @@ const AdvocateDashboard = () => {
           
           <div className="flex items-center gap-3">
             <Button asChild variant="outline" size="sm" className="flex items-center gap-2">
-              <Link to="/advocate/create-parent">
+              <Link to="/advocate/parents">
                 <UserPlus className="h-4 w-4" />
-                Create New Parent
+                Manage Parent Clients
               </Link>
             </Button>
             

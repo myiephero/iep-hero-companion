@@ -76,8 +76,7 @@ const advocateNavigation: SidebarSection[] = [
     title: "Advocate Portal", 
     items: [
       { title: "My Cases", url: "/advocate/dashboard", icon: LayoutDashboard },
-      { title: "My Parent Clients", url: "/advocate/parents", icon: Users },
-      { title: "Create New Parent", url: "/advocate/create-parent", icon: UserPlus },
+      { title: "Parent Clients", url: "/advocate/parents", icon: Users },
       { title: "Client Students", url: "/advocate/students", icon: GraduationCap },
       { title: "Tools Hub", url: "/advocate/tools", icon: FileSearch },
       { title: "Document Vault", url: "/tools/document-vault", icon: FileText },

@@ -172,12 +172,9 @@ export function DocumentUpload({ onAnalysisComplete }: DocumentUploadProps) {
         onAnalysisComplete?.(analysis);
 
         toast({
-          title: "Migration in progress",
-          description: "Document analysis is temporarily disabled during migration.",
-          variant: "destructive",
+          title: "Analysis complete",
+          description: "Document analysis has been completed successfully.",
         });
-        
-        return;
       }
       
       // For PDF, DOC, DOCX files - read as text and process
@@ -204,9 +201,8 @@ export function DocumentUpload({ onAnalysisComplete }: DocumentUploadProps) {
       onAnalysisComplete?.(analysis);
 
       toast({
-        title: "Migration in progress",
-        description: "Document processing is temporarily disabled during migration.",
-        variant: "destructive", 
+        title: "Analysis complete",
+        description: "Document processing has been completed successfully.",
       });
 
     } catch (error: any) {

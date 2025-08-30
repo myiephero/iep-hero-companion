@@ -778,3 +778,309 @@ function ActionDraftForm({ onSubmit }: { onSubmit: (templateType: string, userIn
     </form>
   );
 }
+
+// Expert Analysis Tab Component
+function ExpertAnalysisTab({ selectedDoc, userRole }: { selectedDoc: IEPDocument | null, userRole: string }) {
+  const [expertAnalysis, setExpertAnalysis] = useState<any>(null);
+  const [loading, setLoading] = useState(false);
+  const [analysisMode, setAnalysisMode] = useState<'advocate' | 'parent'>(userRole === 'advocate' ? 'advocate' : 'parent');
+  const { toast } = useToast();
+
+  const runExpertAnalysis = async () => {
+    if (!selectedDoc) return;
+    
+    setLoading(true);
+    try {
+      const backendUrl = import.meta.env.VITE_BACKEND_URL || process.env.REACT_APP_BACKEND_URL;
+      
+      // For now, fetch sample data to demonstrate the UI
+      const response = await fetch(`${backendUrl}/api/expert-analysis-sample?user_role=${analysisMode}`);
+      const data = await response.json();
+      
+      if (data.success) {
+        setExpertAnalysis(data.analysis);
+        toast({
+          title: "Expert Analysis Complete",
+          description: `Professional ${analysisMode} analysis with legal compliance review completed.`,
+        });
+      } else {
+        throw new Error(data.error || 'Analysis failed');
+      }
+    } catch (error) {
+      console.error('Expert analysis error:', error);
+      toast({
+        title: "Analysis Error", 
+        description: "Failed to complete expert analysis. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const getRiskBadgeColor = (riskLevel: string) => {
+    switch (riskLevel) {
+      case 'high': return 'bg-red-500';
+      case 'medium': return 'bg-yellow-500'; 
+      case 'low': return 'bg-green-500';
+      default: return 'bg-gray-500';
+    }
+  };
+
+  if (!selectedDoc) {
+    return (
+      <Card>
+        <CardContent className="text-center py-12">
+          <Brain className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
+          <h3 className="text-lg font-semibold mb-2">No Document Selected</h3>
+          <p className="text-muted-foreground">Please upload and ingest a document first.</p>
+        </CardContent>
+      </Card>
+    );
+  }
+
+  return (
+    <div className="space-y-6">
+      {/* Expert Analysis Header */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-3">
+            <Shield className="h-6 w-6 text-blue-600" />
+            Expert IEP Analysis & Legal Compliance Review
+          </CardTitle>
+          <CardDescription>
+            Professional-grade analysis with IDEA compliance scoring, legal citations, and advocate-level recommendations.
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="flex items-center gap-4 mb-4">
+            <div className="flex items-center gap-2">
+              <Label htmlFor="analysis-mode">Analysis Mode:</Label>
+              <Select value={analysisMode} onValueChange={(value: 'advocate' | 'parent') => setAnalysisMode(value)}>
+                <SelectTrigger className="w-32">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="parent">Parent</SelectItem>
+                  <SelectItem value="advocate">Advocate</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+          
+          <Button 
+            onClick={runExpertAnalysis} 
+            disabled={loading}
+            className="bg-blue-600 hover:bg-blue-700"
+          >
+            {loading ? "Running Expert Analysis..." : "Run Expert Analysis"}
+          </Button>
+        </CardContent>
+      </Card>
+
+      {/* Expert Analysis Results */}
+      {expertAnalysis && (
+        <div className="space-y-6">
+          {/* Overall Compliance Summary */}
+          <div className="grid gap-4 md:grid-cols-3">
+            <Card>
+              <CardHeader className="pb-3">
+                <CardTitle className="text-sm font-medium">Legal Compliance</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold">{expertAnalysis.overall_scores.compliance}/100</div>
+                <Progress value={expertAnalysis.overall_scores.compliance} className="h-2 mt-2" />
+                <Badge className={`mt-2 ${expertAnalysis.overall_scores.compliance >= 80 ? 'bg-green-500' : expertAnalysis.overall_scores.compliance >= 60 ? 'bg-yellow-500' : 'bg-red-500'}`}>
+                  {expertAnalysis.overall_scores.compliance >= 80 ? 'Compliant' : expertAnalysis.overall_scores.compliance >= 60 ? 'Needs Improvement' : 'Non-Compliant'}
+                </Badge>
+              </CardContent>
+            </Card>
+            
+            <Card>
+              <CardHeader className="pb-3">
+                <CardTitle className="text-sm font-medium">Educational Quality</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold">{expertAnalysis.overall_scores.quality}/100</div>
+                <Progress value={expertAnalysis.overall_scores.quality} className="h-2 mt-2" />
+                <Badge className={`mt-2 ${expertAnalysis.overall_scores.quality >= 80 ? 'bg-green-500' : expertAnalysis.overall_scores.quality >= 60 ? 'bg-yellow-500' : 'bg-red-500'}`}>
+                  {expertAnalysis.overall_scores.quality >= 80 ? 'High Quality' : expertAnalysis.overall_scores.quality >= 60 ? 'Adequate' : 'Needs Work'}
+                </Badge>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader className="pb-3">
+                <CardTitle className="text-sm font-medium">Risk Level</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="flex items-center gap-2">
+                  <Flag className={`h-8 w-8 ${getRiskBadgeColor(expertAnalysis.overall_scores.risk_level)}`} />
+                  <div>
+                    <div className="text-xl font-bold capitalize">{expertAnalysis.overall_scores.risk_level}</div>
+                    <div className="text-sm text-muted-foreground">Risk Level</div>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+
+          {/* Section Analysis */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Scale className="h-5 w-5" />
+                Section-Level Analysis
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-4">
+                {expertAnalysis.section_analyses?.map((section: any, index: number) => (
+                  <div key={index} className="border rounded-lg p-4">
+                    <div className="flex items-center justify-between mb-3">
+                      <h4 className="font-semibold">{section.section}</h4>
+                      <div className="flex gap-2">
+                        <Badge variant="outline">Compliance: {section.compliance_score}/100</Badge>
+                        <Badge variant="outline">Quality: {section.quality_score}/100</Badge>
+                      </div>
+                    </div>
+                    
+                    {section.traceability && (
+                      <p className="text-sm text-muted-foreground mb-2">
+                        <strong>Traceability:</strong> {section.traceability}
+                      </p>
+                    )}
+                    
+                    {section.flags && section.flags.length > 0 && (
+                      <div className="mb-3">
+                        <div className="text-sm font-medium mb-1">Issues Found:</div>
+                        <div className="flex flex-wrap gap-1">
+                          {section.flags.map((flag: string, i: number) => (
+                            <Badge key={i} variant="destructive" className="text-xs">{flag}</Badge>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                    
+                    {section.evidence && section.evidence.length > 0 && (
+                      <div className="mb-3">
+                        <div className="text-sm font-medium mb-1">Evidence:</div>
+                        {section.evidence.map((evidence: any, i: number) => (
+                          <div key={i} className="text-xs bg-gray-50 p-2 rounded border-l-2 border-blue-500">
+                            "{evidence.snippet}"
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                    
+                    <div className="text-sm">
+                      <strong>Recommendation:</strong> {section.recommendation}
+                    </div>
+                    
+                    {section.idea_citations && section.idea_citations.length > 0 && (
+                      <div className="mt-2 text-xs text-blue-600">
+                        <strong>Legal Citations:</strong> {section.idea_citations.join(', ')}
+                      </div>
+                    )}
+                  </div>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Red Flags */}
+          {expertAnalysis.red_flags && expertAnalysis.red_flags.length > 0 && (
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <AlertTriangle className="h-5 w-5 text-red-500" />
+                  Critical Red Flags ({expertAnalysis.red_flags.length})
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-3">
+                  {expertAnalysis.red_flags.map((flag: any, index: number) => (
+                    <div key={index} className={`p-3 rounded-lg border-l-4 ${
+                      flag.risk_level === 'high' ? 'bg-red-50 border-red-500' :
+                      flag.risk_level === 'medium' ? 'bg-yellow-50 border-yellow-500' : 
+                      'bg-green-50 border-green-500'
+                    }`}>
+                      <div className="flex items-start justify-between">
+                        <div className="flex-1">
+                          <div className="flex items-center gap-2 mb-1">
+                            <Badge className={getRiskBadgeColor(flag.risk_level)}>{flag.risk_level.toUpperCase()}</Badge>
+                            <span className="font-medium">{flag.type.replace(/_/g, ' ')}</span>
+                            <Badge variant="outline">{flag.section}</Badge>
+                          </div>
+                          <p className="text-sm text-gray-700 mb-2">"{flag.snippet}"</p>
+                          <p className="text-sm">{flag.evidence}</p>
+                          {flag.idea_citation && (
+                            <p className="text-xs text-blue-600 mt-1">Citation: {flag.idea_citation}</p>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
+          )}
+
+          {/* Action Plan */}
+          {expertAnalysis.action_plan && (
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Target className="h-5 w-5 text-green-600" />
+                  {analysisMode === 'advocate' ? 'Legal Action Plan' : 'Parent Action Guide'}
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="grid gap-6 md:grid-cols-2">
+                  <div>
+                    <h4 className="font-semibold mb-3">Priority Issues</h4>
+                    <ul className="space-y-2">
+                      {expertAnalysis.action_plan.priority_issues?.map((issue: string, index: number) => (
+                        <li key={index} className="flex items-start gap-2">
+                          <CheckCircle className="h-4 w-4 text-green-500 mt-0.5 flex-shrink-0" />
+                          <span className="text-sm">{issue}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                  
+                  <div>
+                    <h4 className="font-semibold mb-3">
+                      {analysisMode === 'advocate' ? 'Meeting Requests' : 'What to Ask For'}
+                    </h4>
+                    <ul className="space-y-2">
+                      {(expertAnalysis.action_plan.meeting_requests || expertAnalysis.action_plan.what_to_ask)?.map((request: string, index: number) => (
+                        <li key={index} className="flex items-start gap-2">
+                          <MessageSquare className="h-4 w-4 text-blue-500 mt-0.5 flex-shrink-0" />
+                          <span className="text-sm">{request}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                </div>
+                
+                {expertAnalysis.action_plan.specific_language && (
+                  <div className="mt-6 p-4 bg-blue-50 rounded-lg border">
+                    <h4 className="font-semibold mb-3">Specific Language to Use</h4>
+                    <ul className="space-y-1">
+                      {expertAnalysis.action_plan.specific_language.map((language: string, index: number) => (
+                        <li key={index} className="text-sm font-mono bg-white p-2 rounded border">
+                          "{language}"
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+          )}
+        </div>
+      )}
+    </div>
+  );
+}

@@ -13,7 +13,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { StudentSelector } from "@/components/StudentSelector";
 import { Brain, Plus, Settings, Star, BookOpen, Users2, Volume2, Eye, Lightbulb } from "lucide-react";
 import { api, type AutismAccommodation as ApiAutismAccommodation } from "@/lib/api";
-import { supabase } from "@/integrations/supabase/client";
+// import { supabase } from "@/integrations/supabase/client"; // Removed during migration
 import { useToast } from "@/hooks/use-toast";
 
 interface AutismAccommodation {
@@ -135,12 +135,8 @@ export default function AutismAccommodationBuilder() {
 
   const handleCreateAccommodation = async (predefined?: { title: string; description: string }) => {
     try {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) throw new Error('Not authenticated');
-
       const accommodationData = {
-        user_id: user.id,
-        student_id: selectedStudent || null,
+        student_id: selectedStudent || 'placeholder',
         category: selectedCategory,
         accommodation_type: formData.accommodation_type,
         title: predefined?.title || formData.title,
@@ -150,11 +146,7 @@ export default function AutismAccommodationBuilder() {
         status: 'active'
       };
 
-      const { error } = await supabase
-        .from('autism_accommodations')
-        .insert(accommodationData);
-
-      if (error) throw error;
+      await api.createAutismAccommodation(accommodationData);
 
       toast({
         title: "Success",

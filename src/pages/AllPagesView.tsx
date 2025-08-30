@@ -24,35 +24,35 @@ export default function AllPagesView() {
   const mainPages = [
     {
       title: "Parent Dashboard",
-      path: "/",
+      path: "/parent/dashboard",
       icon: <Users className="h-5 w-5" />,
       description: "Main dashboard for parents with overview of student progress",
       status: "Active"
     },
     {
       title: "Student Profiles", 
-      path: "/students",
+      path: "/parent/students",
       icon: <GraduationCap className="h-5 w-5" />,
       description: "Manage student information and profiles",
       status: "Active"
     },
     {
       title: "Document Vault",
-      path: "/documents", 
+      path: "/parent/tools/document-vault", 
       icon: <FileText className="h-5 w-5" />,
       description: "Store and manage IEP documents securely",
       status: "Active"
     },
     {
       title: "Goals & Progress",
-      path: "/goals",
+      path: "/parent/dashboard",
       icon: <Target className="h-5 w-5" />,
       description: "Track IEP goals and student progress",
       status: "Active"
     },
     {
       title: "Meetings",
-      path: "/meetings",
+      path: "/parent/dashboard",
       icon: <Calendar className="h-5 w-5" />,
       description: "Schedule and manage IEP meetings",
       status: "Active"
@@ -62,7 +62,7 @@ export default function AllPagesView() {
   const iepReviewTools = [
     {
       title: "AI IEP Review & Compliance",
-      path: "/ai-iep-review",
+      path: "/parent/tools/ai-iep-review",
       icon: <Brain className="h-5 w-5" />,
       description: "AI-powered IEP document analysis and compliance checking",
       status: "Working",
@@ -70,7 +70,7 @@ export default function AllPagesView() {
     },
     {
       title: "Expert Analysis",
-      path: "/expert-analysis", 
+      path: "/parent/tools/expert-analysis", 
       icon: <Search className="h-5 w-5" />,
       description: "Request human expert analysis of IEP documents",
       status: "Working",
@@ -78,7 +78,7 @@ export default function AllPagesView() {
     },
     {
       title: "IEP Review Tool",
-      path: "/iep-review",
+      path: "/parent/tools/iep-review",
       icon: <TrendingUp className="h-5 w-5" />,
       description: "Comprehensive IEP review and analysis workflow",
       status: "Working", 
@@ -96,8 +96,15 @@ export default function AllPagesView() {
       notes: "Removed Supabase dependencies, using new API"
     },
     {
+      title: "Advocate Dashboard",
+      path: "/advocate/dashboard",
+      icon: <Briefcase className="h-5 w-5" />,
+      description: "Main dashboard for advocates",
+      status: "Active"
+    },
+    {
       title: "Matching Dashboard", 
-      path: "/matching",
+      path: "/parent/matching",
       icon: <MessageSquare className="h-5 w-5" />,
       description: "Connect parents with qualified advocates",
       status: "Active"
@@ -107,14 +114,14 @@ export default function AllPagesView() {
   const specializedTools = [
     {
       title: "Autism Accommodation Builder",
-      path: "/autism-accommodations",
+      path: "/parent/tools/autism-accommodations",
       icon: <Heart className="h-5 w-5" />,
       description: "Specialized tools for autism-specific accommodations",
       status: "Active"
     },
     {
       title: "Gifted/2e Learners",
-      path: "/gifted-2e",
+      path: "/parent/tools/gifted-2e-learners",
       icon: <GraduationCap className="h-5 w-5" />,
       description: "Resources for gifted and twice-exceptional learners", 
       status: "Active"

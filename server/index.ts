@@ -5,6 +5,9 @@ import * as schema from '../shared/schema';
 import { eq, and } from 'drizzle-orm';
 import matchRoutes from './routes/match';
 import expertRoutes from './routes/expert';
+import { createRequire } from 'module';
+const require = createRequire(import.meta.url);
+const pdf = require('pdf-parse');
 
 // Generate simple IDs since we don't have cuid2
 function createId(): string {
@@ -326,6 +329,34 @@ app.post('/api/process-document', express.json({ limit: '50mb' }), async (req, r
       return res.status(400).json({ error: 'Missing fileName or fileContent' });
     }
 
+    let extractedText = fileContent;
+    
+    // If it's a PDF (base64 or binary data), extract text properly
+    if (fileName.toLowerCase().endsWith('.pdf')) {
+      try {
+        // Convert base64 to buffer if needed
+        let pdfBuffer;
+        if (typeof fileContent === 'string' && fileContent.includes('data:application/pdf;base64,')) {
+          const base64Data = fileContent.split(',')[1];
+          pdfBuffer = Buffer.from(base64Data, 'base64');
+        } else if (typeof fileContent === 'string' && fileContent.startsWith('%PDF')) {
+          // Direct PDF content
+          pdfBuffer = Buffer.from(fileContent, 'binary');
+        } else {
+          // Assume it's already a buffer or base64
+          pdfBuffer = Buffer.from(fileContent, 'base64');
+        }
+        
+        const pdfData = await pdf(pdfBuffer);
+        extractedText = pdfData.text;
+        console.log('PDF text extracted successfully, length:', extractedText.length);
+      } catch (pdfError) {
+        console.error('PDF extraction failed:', pdfError);
+        // Fall back to original content if PDF extraction fails
+        extractedText = fileContent;
+      }
+    }
+
     // Create document record
     const documentId = createId();
     await db.insert(schema.documents).values({
@@ -338,8 +369,8 @@ app.post('/api/process-document', express.json({ limit: '50mb' }), async (req, r
       file_size: fileContent.length
     });
 
-    // Analyze with OpenAI
-    const analysis = await analyzeWithOpenAI(fileContent, analysisType);
+    // Analyze with OpenAI using extracted text
+    const analysis = await analyzeWithOpenAI(extractedText, analysisType);
     
     // Parse the analysis JSON to store individual fields
     let parsedAnalysis;

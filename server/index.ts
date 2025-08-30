@@ -151,8 +151,10 @@ app.get('/api/ai_reviews', async (req, res) => {
     
     if (document_id) {
       const reviews = await db.select().from(schema.ai_reviews)
-        .where(eq(schema.ai_reviews.user_id, MOCK_USER_ID))
-        .where(eq(schema.ai_reviews.document_id, document_id as string));
+        .where(and(
+          eq(schema.ai_reviews.user_id, MOCK_USER_ID),
+          eq(schema.ai_reviews.document_id, document_id as string)
+        ));
       res.json(reviews);
     } else {
       const reviews = await db.select().from(schema.ai_reviews)

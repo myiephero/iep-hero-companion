@@ -9,6 +9,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { FileText, Upload, Brain, CheckCircle, AlertTriangle, User, Calendar } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+import { DashboardLayout } from '@/layouts/DashboardLayout';
 
 interface ExpertAnalysisResult {
   id: string;
@@ -103,7 +104,8 @@ export default function ExpertAnalysis() {
   };
 
   return (
-    <div className="container mx-auto py-8 max-w-6xl">
+    <DashboardLayout>
+      <div className="max-w-6xl mx-auto space-y-6">
       <div className="mb-8">
         <h1 className="text-3xl font-bold text-gray-900 mb-2">Expert IEP Analysis</h1>
         <p className="text-lg text-gray-600">
@@ -307,6 +309,7 @@ export default function ExpertAnalysis() {
           )}
         </TabsContent>
       </Tabs>
-    </div>
+      </div>
+    </DashboardLayout>
   );
 }

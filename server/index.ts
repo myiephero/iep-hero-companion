@@ -30,7 +30,7 @@ async function analyzeWithOpenAI(text: string, analysisType: string): Promise<st
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        model: 'gpt-4o-mini',
+        model: 'gpt-5', // the newest OpenAI model is "gpt-5" which was released August 7, 2025. do not change this unless explicitly requested by the user
         messages: [
           {
             role: 'system',
@@ -43,7 +43,7 @@ async function analyzeWithOpenAI(text: string, analysisType: string): Promise<st
         ],
         max_tokens: 1500,
         temperature: 0.3,
-        response_format: { type: "text" }
+        response_format: { type: "json_object" }
       })
     });
 

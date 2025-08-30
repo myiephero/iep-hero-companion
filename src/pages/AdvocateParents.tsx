@@ -8,7 +8,9 @@ import { DashboardLayout } from "@/layouts/DashboardLayout";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Users, Mail, Phone, Plus, UserCheck, UserPlus } from "lucide-react";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Users, Mail, Phone, Plus, UserCheck, UserPlus, GraduationCap } from "lucide-react";
 import { Link } from "react-router-dom";
 import { api } from "@/lib/api";
 
@@ -24,6 +26,7 @@ interface Parent {
 
 export default function AdvocateParents() {
   const [parents, setParents] = useState<Parent[]>([]);
+  const [selectedParentId, setSelectedParentId] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [createLoading, setCreateLoading] = useState(false);
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
@@ -128,6 +131,8 @@ export default function AdvocateParents() {
     setFormData(prev => ({ ...prev, [field]: value }));
   };
 
+  const selectedParent = selectedParentId ? parents.find(p => p.id === selectedParentId) : null;
+
   if (!user) {
     return <div>Please log in to view your clients.</div>;
   }
@@ -142,6 +147,7 @@ export default function AdvocateParents() {
               Manage your client relationships and view parent accounts you've created
             </p>
           </div>
+          
           <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
             <DialogTrigger asChild>
               <Button className="button-premium">
@@ -243,101 +249,201 @@ export default function AdvocateParents() {
           </Dialog>
         </div>
 
-        {loading ? (
-          <div className="text-center py-8">
-            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto"></div>
-            <p className="mt-4 text-muted-foreground">Loading parent clients...</p>
-          </div>
-        ) : parents.length === 0 ? (
-          <Card>
-            <CardContent className="p-8 text-center">
-              <Users className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-              <h3 className="text-lg font-semibold mb-2">No Parent Clients Yet</h3>
-              <p className="text-muted-foreground mb-4">
-                You haven't created any parent accounts yet. Get started by inviting your first client.
-              </p>
-              <Button onClick={() => setIsCreateDialogOpen(true)} className="button-premium">
-                <UserCheck className="h-4 w-4 mr-2" />
-                Create Your First Parent Client
-              </Button>
-            </CardContent>
-          </Card>
-        ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {parents.map((parent) => (
-              <Card key={parent.id} className="premium-card hover-card">
-                <CardHeader>
-                  <div className="flex items-center justify-between">
-                    <CardTitle className="text-lg">{parent.full_name}</CardTitle>
-                    <Badge className={getStatusColor(parent.status)}>
-                      {parent.status || 'Invited'}
-                    </Badge>
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          {/* Left Sidebar - Parent List */}
+          <div className="lg:col-span-1">
+            <Card className="premium-card">
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Users className="h-5 w-5" />
+                  Parent Clients ({parents.length})
+                </CardTitle>
+                <CardDescription>
+                  Select a parent to view details
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="p-0">
+                {loading ? (
+                  <div className="p-6 text-center">
+                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto"></div>
+                    <p className="mt-4 text-muted-foreground">Loading parent clients...</p>
                   </div>
-                  <CardDescription>
-                    Created {formatDate(parent.created_at)}
-                  </CardDescription>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  <div className="space-y-2">
-                    <div className="flex items-center gap-2 text-sm">
-                      <Mail className="h-4 w-4 text-muted-foreground" />
-                      <span className="text-muted-foreground">{parent.email}</span>
-                    </div>
-                    {parent.phone && (
-                      <div className="flex items-center gap-2 text-sm">
-                        <Phone className="h-4 w-4 text-muted-foreground" />
-                        <span className="text-muted-foreground">{parent.phone}</span>
-                      </div>
-                    )}
-                  </div>
-
-                  <div className="flex items-center justify-between pt-2 border-t">
-                    <div className="text-sm text-muted-foreground">
-                      {parent.students_count || 0} student{parent.students_count !== 1 ? 's' : ''}
-                    </div>
-                    <Button variant="outline" size="sm" asChild>
-                      <Link to={`/advocate/students?parent=${parent.id}`}>
-                        View Students
-                      </Link>
+                ) : parents.length === 0 ? (
+                  <div className="p-6 text-center">
+                    <Users className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+                    <h3 className="text-lg font-semibold mb-2">No Parent Clients Yet</h3>
+                    <p className="text-muted-foreground mb-4">
+                      You haven't created any parent accounts yet. Get started by inviting your first client.
+                    </p>
+                    <Button onClick={() => setIsCreateDialogOpen(true)} className="button-premium">
+                      <UserCheck className="h-4 w-4 mr-2" />
+                      Create Your First Parent Client
                     </Button>
                   </div>
+                ) : (
+                  <div className="space-y-2">
+                    {parents.map((parent) => (
+                      <div
+                        key={parent.id}
+                        className={`p-3 hover:bg-muted/50 cursor-pointer border-b last:border-b-0 transition-colors ${selectedParentId === parent.id ? 'bg-muted/50 border-l-4 border-l-primary' : ''}`}
+                        onClick={() => setSelectedParentId(parent.id)}
+                      >
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center gap-3">
+                            <Avatar className="h-10 w-10">
+                              <AvatarFallback className="bg-primary/10 text-primary font-semibold">
+                                {parent.full_name.split(' ').map(n => n[0]).join('').toUpperCase()}
+                              </AvatarFallback>
+                            </Avatar>
+                            <div>
+                              <p className="font-medium">{parent.full_name}</p>
+                              <p className="text-sm text-muted-foreground">{parent.email}</p>
+                            </div>
+                          </div>
+                          <Badge className={getStatusColor(parent.status)}>
+                            {parent.status || 'Invited'}
+                          </Badge>
+                        </div>
+                        <div className="mt-2 text-xs text-muted-foreground">
+                          {parent.students_count || 0} student{parent.students_count !== 1 ? 's' : ''} • Created {formatDate(parent.created_at)}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+          </div>
+          
+          {/* Right Side - Parent Details */}
+          <div className="lg:col-span-2">
+            {selectedParent ? (
+              <>
+                <Card className="premium-card">
+                  <CardHeader>
+                    <div className="flex items-center space-x-4">
+                      <Avatar className="h-16 w-16">
+                        <AvatarFallback className="text-lg bg-gradient-primary text-primary-foreground">
+                          {selectedParent.full_name.split(' ').map(n => n[0]).join('')}
+                        </AvatarFallback>
+                      </Avatar>
+                      <div className="flex-1">
+                        <CardTitle className="text-2xl text-gradient">{selectedParent.full_name}</CardTitle>
+                        <CardDescription className="flex items-center space-x-4 mt-2">
+                          <span>{selectedParent.email}</span>
+                          <span>•</span>
+                          <Badge className={getStatusColor(selectedParent.status)}>
+                            {selectedParent.status || 'Invited'}
+                          </Badge>
+                        </CardDescription>
+                      </div>
+                    </div>
+                  </CardHeader>
+                </Card>
+                
+                {/* Parent Details Tabs */}
+                <Tabs defaultValue="overview" className="space-y-6">
+                  <TabsList className="grid w-full grid-cols-3 premium-card">
+                    <TabsTrigger value="overview">Overview</TabsTrigger>
+                    <TabsTrigger value="students">Students</TabsTrigger>
+                    <TabsTrigger value="communication">Communication</TabsTrigger>
+                  </TabsList>
+
+                  <TabsContent value="overview" className="space-y-6">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                      <Card className="premium-card">
+                        <CardHeader>
+                          <CardTitle className="flex items-center">
+                            <Mail className="h-5 w-5 mr-2" />
+                            Contact Information
+                          </CardTitle>
+                        </CardHeader>
+                        <CardContent>
+                          <div className="space-y-3">
+                            <div>
+                              <Label className="text-sm font-medium">Email</Label>
+                              <p className="text-muted-foreground">{selectedParent.email}</p>
+                            </div>
+                            {selectedParent.phone && (
+                              <div>
+                                <Label className="text-sm font-medium">Phone</Label>
+                                <p className="text-muted-foreground">{selectedParent.phone}</p>
+                              </div>
+                            )}
+                            <div>
+                              <Label className="text-sm font-medium">Client Since</Label>
+                              <p className="text-muted-foreground">{formatDate(selectedParent.created_at)}</p>
+                            </div>
+                          </div>
+                        </CardContent>
+                      </Card>
+
+                      <Card className="premium-card">
+                        <CardHeader>
+                          <CardTitle className="flex items-center">
+                            <GraduationCap className="h-5 w-5 mr-2" />
+                            Student Summary
+                          </CardTitle>
+                        </CardHeader>
+                        <CardContent>
+                          <div className="space-y-3">
+                            <div className="flex justify-between items-center">
+                              <span className="text-sm">Total Students</span>
+                              <span className="font-semibold">{selectedParent.students_count || 0}</span>
+                            </div>
+                            <Button variant="outline" size="sm" asChild className="w-full">
+                              <Link to={`/advocate/students?parent=${selectedParent.id}`}>
+                                View All Students
+                              </Link>
+                            </Button>
+                          </div>
+                        </CardContent>
+                      </Card>
+                    </div>
+                  </TabsContent>
+
+                  <TabsContent value="students" className="space-y-6">
+                    <Card className="premium-card">
+                      <CardHeader>
+                        <CardTitle>Students</CardTitle>
+                        <CardDescription>
+                          All students associated with this parent client
+                        </CardDescription>
+                      </CardHeader>
+                      <CardContent>
+                        <p className="text-muted-foreground">Student list will be implemented when student-parent relationships are established.</p>
+                      </CardContent>
+                    </Card>
+                  </TabsContent>
+
+                  <TabsContent value="communication" className="space-y-6">
+                    <Card className="premium-card">
+                      <CardHeader>
+                        <CardTitle>Communication History</CardTitle>
+                        <CardDescription>
+                          Track all communications with this parent client
+                        </CardDescription>
+                      </CardHeader>
+                      <CardContent>
+                        <p className="text-muted-foreground">Communication tracking will be implemented in a future update.</p>
+                      </CardContent>
+                    </Card>
+                  </TabsContent>
+                </Tabs>
+              </>
+            ) : (
+              <Card className="premium-card">
+                <CardContent className="p-8 text-center">
+                  <UserCheck className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+                  <h3 className="text-lg font-semibold mb-2">Select a Parent Client</h3>
+                  <p className="text-muted-foreground">
+                    Choose a parent from the list to view their details, students, and communication history.
+                  </p>
                 </CardContent>
               </Card>
-            ))}
+            )}
           </div>
-        )}
-
-        {/* Summary Card */}
-        {parents.length > 0 && (
-          <Card className="premium-card">
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Users className="h-5 w-5" />
-                Client Summary
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <div className="text-center p-4 bg-muted/50 rounded-lg">
-                  <div className="text-2xl font-bold text-primary">{parents.length}</div>
-                  <div className="text-sm text-muted-foreground">Total Parents</div>
-                </div>
-                <div className="text-center p-4 bg-muted/50 rounded-lg">
-                  <div className="text-2xl font-bold text-success">
-                    {parents.filter(p => p.status?.toLowerCase() === 'active').length}
-                  </div>
-                  <div className="text-sm text-muted-foreground">Active Clients</div>
-                </div>
-                <div className="text-center p-4 bg-muted/50 rounded-lg">
-                  <div className="text-2xl font-bold text-warning">
-                    {parents.filter(p => p.status?.toLowerCase() === 'invited').length}
-                  </div>
-                  <div className="text-sm text-muted-foreground">Pending Invitations</div>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        )}
+        </div>
       </div>
     </DashboardLayout>
   );

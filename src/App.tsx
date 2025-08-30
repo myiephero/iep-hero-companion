@@ -21,6 +21,8 @@ import AutismAccommodations from "./pages/AutismAccommodations";
 import AutismAccommodationBuilder from "./pages/AutismAccommodationBuilder";
 import AdvocateMatchingTool from "./pages/AdvocateMatchingTool";
 import GiftedTwoeLearners from "./pages/GiftedTwoeLearners";
+import ExpertAnalysis from "./pages/ExpertAnalysis";
+import MatchingDashboard from "./pages/MatchingDashboard";
 import EmergentToolsHub from "./pages/EmergentToolsHub";
 import SmartLetterGenerator from "./pages/SmartLetterGenerator";
 import MeetingPrepWizard from "./pages/MeetingPrepWizard";
@@ -169,6 +171,16 @@ function App() {
                   <AdvocateMatchingTool />
                 </ProtectedRoute>
               } />
+              <Route path="/parent/tools/expert-analysis" element={
+                <ProtectedRoute allowedRoles={['parent']}>
+                  <ExpertAnalysis />
+                </ProtectedRoute>
+              } />
+              <Route path="/parent/matching" element={
+                <ProtectedRoute allowedRoles={['parent']}>
+                  <MatchingDashboard />
+                </ProtectedRoute>
+              } />
               
                {/* Advocate Tools - Additional */}
                <Route path="/advocate/tools/document-vault" element={
@@ -199,6 +211,16 @@ function App() {
               <Route path="/advocate/tools/meeting-prep" element={
                 <ProtectedRoute allowedRoles={['advocate']}>
                   <MeetingPrepWizard />
+                </ProtectedRoute>
+              } />
+              <Route path="/advocate/tools/expert-analysis" element={
+                <ProtectedRoute allowedRoles={['advocate']}>
+                  <ExpertAnalysis />
+                </ProtectedRoute>
+              } />
+              <Route path="/advocate/matching" element={
+                <ProtectedRoute allowedRoles={['advocate']}>
+                  <MatchingDashboard />
                 </ProtectedRoute>
               } />
               

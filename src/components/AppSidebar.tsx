@@ -14,7 +14,9 @@ import {
   Menu,
   FileText,
   GraduationCap,
-  UserPlus
+  UserPlus,
+  UserCheck,
+  ClipboardCheck
 } from "lucide-react";
 
 import {
@@ -61,6 +63,8 @@ const parentNavigation: SidebarSection[] = [
     title: "Quick Tools",
     items: [
       { title: "IEP Review", url: "/parent/tools/iep-review", icon: FileSearch, badge: "AI" },
+      { title: "Expert Analysis", url: "/parent/tools/expert-analysis", icon: ClipboardCheck, badge: "Pro" },
+      { title: "Find Advocates", url: "/parent/matching", icon: UserCheck },
       { title: "Accommodations", url: "/parent/tools/autism-accommodations", icon: Building2 },
       { title: "Meeting Prep", url: "/parent/tools/meeting-prep", icon: Calendar },
     ]
@@ -84,6 +88,8 @@ const advocateNavigation: SidebarSection[] = [
     title: "Quick Tools",
     items: [
       { title: "IEP Review", url: "/advocate/tools/iep-review", icon: FileSearch },
+      { title: "Expert Analysis", url: "/advocate/tools/expert-analysis", icon: ClipboardCheck },
+      { title: "Client Matching", url: "/advocate/matching", icon: UserCheck },
       { title: "Accommodations", url: "/advocate/tools/autism-accommodations", icon: Building2 },
     ]
   }

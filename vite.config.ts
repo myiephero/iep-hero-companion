@@ -20,8 +20,8 @@ function devApiPlugin(): Plugin {
           const targetUrl = `http://localhost:3001${req.url}`;
           const response = await fetch(targetUrl, {
             method: req.method,
-            headers: req.headers as any,
-            body: req.method !== 'GET' && req.method !== 'HEAD' ? JSON.stringify(req.body) : undefined,
+            headers: r            eq.headers as any,
+            body: req.method !== 'GET' && req.method !== 'HEAD' ? JSON.stringify({}) : undefined,
           });
 
           res.statusCode = response.status;

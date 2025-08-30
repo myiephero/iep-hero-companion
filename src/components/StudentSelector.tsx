@@ -45,12 +45,11 @@ export function StudentSelector({
     if (!user) return;
     
     try {
-      const { data, error } = await supabase
-        .from('students')
-        .select('*')
-        .order('full_name');
-
-      if (error) throw error;
+      const response = await fetch('/api/students');
+      if (!response.ok) {
+        throw new Error('Failed to fetch students');
+      }
+      const data = await response.json();
       setStudents(data || []);
     } catch (error) {
       console.error('Error fetching students:', error);

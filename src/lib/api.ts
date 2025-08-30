@@ -65,6 +65,43 @@ export interface Document {
   updated_at?: string;
 }
 
+export interface Goal {
+  id?: string;
+  user_id?: string;
+  student_id?: string;
+  title: string;
+  description: string;
+  goal_type?: string;
+  status?: string;
+  target_date?: string;
+  current_progress?: number;
+  measurable_criteria?: string;
+  data_collection?: any;
+  notes?: string;
+  created_at?: string;
+  updated_at?: string;
+}
+
+export interface Meeting {
+  id?: string;
+  user_id?: string;
+  student_id?: string;
+  title: string;
+  description?: string;
+  meeting_type?: string;
+  scheduled_date: string;
+  duration?: number;
+  location?: string;
+  agenda?: any;
+  attendees?: any;
+  outcomes?: string;
+  follow_up_actions?: any;
+  notes?: string;
+  status?: string;
+  created_at?: string;
+  updated_at?: string;
+}
+
 export interface AIReview {
   id?: string;
   user_id?: string;
@@ -178,6 +215,30 @@ class ApiClient {
     return this.request('/ai_reviews', {
       method: 'POST',
       body: JSON.stringify(review),
+    });
+  }
+
+  // Goals
+  async getGoals(): Promise<Goal[]> {
+    return this.request('/goals');
+  }
+
+  async createGoal(goal: Omit<Goal, 'id' | 'user_id' | 'created_at' | 'updated_at'>): Promise<Goal> {
+    return this.request('/goals', {
+      method: 'POST',
+      body: JSON.stringify(goal),
+    });
+  }
+
+  // Meetings
+  async getMeetings(): Promise<Meeting[]> {
+    return this.request('/meetings');
+  }
+
+  async createMeeting(meeting: Omit<Meeting, 'id' | 'user_id' | 'created_at' | 'updated_at'>): Promise<Meeting> {
+    return this.request('/meetings', {
+      method: 'POST',
+      body: JSON.stringify(meeting),
     });
   }
 

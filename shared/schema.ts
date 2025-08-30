@@ -311,3 +311,28 @@ export const audit_log = pgTable("audit_log", {
   action: varchar("action").notNull(),
   timestamp: timestamp("timestamp").defaultNow(),
 });
+
+// Expert analyses table
+export const expert_analyses = pgTable("expert_analyses", {
+  id: serial("id").primaryKey(),
+  user_id: varchar("user_id").notNull(),
+  student_name: varchar("student_name").notNull(),
+  analysis_type: varchar("analysis_type").notNull(), // 'comprehensive' | 'focused' | 'compliance'
+  file_name: varchar("file_name").notNull(),
+  file_type: varchar("file_type").notNull(),
+  file_content: text("file_content").notNull(), // Store as base64 or text
+  status: varchar("status").notNull().default('pending'), // 'pending' | 'in_progress' | 'completed'
+  overall_score: integer("overall_score"),
+  strengths: json("strengths"),
+  areas_for_improvement: json("areas_for_improvement"),
+  recommendations: json("recommendations"),
+  compliance_issues: json("compliance_issues"),
+  expert_notes: text("expert_notes"),
+  submitted_at: timestamp("submitted_at").defaultNow(),
+  completed_at: timestamp("completed_at"),
+  created_at: timestamp("created_at").defaultNow(),
+  updated_at: timestamp("updated_at").defaultNow(),
+});
+
+export type ExpertAnalysis = typeof expert_analyses.$inferSelect;
+export type InsertExpertAnalysis = typeof expert_analyses.$inferInsert;

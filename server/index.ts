@@ -3,6 +3,8 @@ import cors from 'cors';
 import { db } from './db';
 import * as schema from '../shared/schema';
 import { eq, and } from 'drizzle-orm';
+import matchRoutes from './routes/match';
+import expertRoutes from './routes/expert';
 
 // Generate simple IDs since we don't have cuid2
 function createId(): string {
@@ -441,6 +443,10 @@ app.post('/api/invite-parent', async (req, res) => {
     res.status(500).json({ error: 'Failed to invite parent' });
   }
 });
+
+// Mount new route modules
+app.use('/api/match', matchRoutes);
+app.use('/api/expert-analysis', expertRoutes);
 
 // Health check
 app.get('/health', (req, res) => {

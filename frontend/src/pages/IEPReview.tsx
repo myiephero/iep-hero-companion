@@ -40,6 +40,15 @@ interface IEPDocument {
   uploaded_at: string;
 }
 
+interface ExpertAnalysisResult {
+  id: string;
+  document_id: string;
+  user_id: string;
+  analysis_data: any;
+  created_at: string;
+  updated_at: string;
+}
+
 interface IEPAnalysis {
   id: string;
   doc_id: string;

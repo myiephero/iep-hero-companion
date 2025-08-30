@@ -75,6 +75,8 @@ export default function IEPReview() {
   const [selectedDoc, setSelectedDoc] = useState<IEPDocument | null>(null);
   const [analyses, setAnalyses] = useState<IEPAnalysis[]>([]);
   const [selectedAnalysis, setSelectedAnalysis] = useState<IEPAnalysis | null>(null);
+  const [expertAnalysisResult, setExpertAnalysisResult] = useState<ExpertAnalysisResult | null>(null);
+  const [expertAnalysisAvailable, setExpertAnalysisAvailable] = useState(false);
   const [actionDrafts, setActionDrafts] = useState<ActionDraft[]>([]);
   const [loading, setLoading] = useState(false);
   const [ingestStatus, setIngestStatus] = useState<'idle' | 'processing' | 'completed' | 'error'>('idle');

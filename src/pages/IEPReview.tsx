@@ -55,6 +55,19 @@ interface ActionDraft {
   created_at: string;
 }
 
+// Helper function to read file content as text
+const readFileAsText = (file: File): Promise<string> => {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      const text = e.target?.result as string;
+      resolve(text || '');
+    };
+    reader.onerror = () => reject(new Error('Failed to read file'));
+    reader.readAsText(file);
+  });
+};
+
 export default function IEPReview() {
   const [documents, setDocuments] = useState<IEPDocument[]>([]);
   const [selectedDoc, setSelectedDoc] = useState<IEPDocument | null>(null);
@@ -78,21 +91,45 @@ export default function IEPReview() {
 
   const fetchDocuments = async () => {
     try {
-      // Mock data for now during migration
-      const mockDocuments: IEPDocument[] = [];
-      setDocuments(mockDocuments);
+      const documents = await api.getDocuments();
+      setDocuments(documents.map(doc => ({
+        id: doc.id,
+        title: doc.title,
+        storage_path: doc.file_path,
+        uploaded_at: doc.created_at || new Date().toISOString()
+      })));
     } catch (error) {
       console.error('Error fetching documents:', error);
+      toast({
+        title: "Error",
+        description: "Failed to load documents",
+        variant: "destructive"
+      });
     }
   };
 
   const fetchAnalyses = async (docId: string) => {
     try {
-      // Mock data for now during migration
-      const mockAnalyses: IEPAnalysis[] = [];
-      setAnalyses(mockAnalyses);
+      const reviews = await api.getAIReviews(docId);
+      setAnalyses(reviews.map(review => ({
+        id: review.id,
+        doc_id: docId,
+        kind: review.review_type as 'quality' | 'compliance',
+        version: 1,
+        summary: review.ai_analysis,
+        scores: {},
+        flags: [],
+        recommendations: [],
+        created_at: review.created_at || new Date().toISOString(),
+        model: 'gpt-4o-mini'
+      })));
     } catch (error) {
       console.error('Error fetching analyses:', error);
+      toast({
+        title: "Error",
+        description: "Failed to load analyses",
+        variant: "destructive"
+      });
     }
   };
 
@@ -102,15 +139,23 @@ export default function IEPReview() {
 
     setLoading(true);
     try {
-      // Mock file upload during migration
-      const fileName = `${user.id}/${Date.now()}-${file.name}`;
+      // Read file content
+      const fileContent = await readFileAsText(file);
       
-      // Create mock document record
+      // Create document with real API
+      const document = await api.createDocument({
+        title: file.name.split('.')[0],
+        file_name: file.name,
+        file_path: `uploads/${Date.now()}-${file.name}`,
+        file_type: file.type,
+        file_size: file.size
+      });
+
       const docData: IEPDocument = {
-        id: `mock-${Date.now()}`,
-        title: file.name,
-        storage_path: fileName,
-        uploaded_at: new Date().toISOString()
+        id: document.id,
+        title: document.title,
+        storage_path: document.file_path,
+        uploaded_at: document.created_at || new Date().toISOString()
       };
 
       await fetchDocuments();
@@ -119,7 +164,7 @@ export default function IEPReview() {
       
       toast({
         title: "Upload successful",
-        description: "Document uploaded successfully. Ready for ingestion.",
+        description: "Document uploaded successfully. Ready for processing.",
       });
     } catch (error: any) {
       toast({
@@ -162,7 +207,7 @@ export default function IEPReview() {
 
     setAnalysisStatus('processing');
     try {
-      const data = await api.analyzeIEP(selectedDoc.id, kind, {});
+      const data = await api.analyzeIEP(selectedDoc.id, kind, "");
 
       setAnalysisStatus('completed');
       await fetchAnalyses(selectedDoc.id);
@@ -187,7 +232,7 @@ export default function IEPReview() {
     if (!selectedAnalysis) return;
 
     try {
-      const data = await api.generateActionDraft(selectedAnalysis.id, templateType, userInputs);
+      const data = await api.createActionDraft(selectedAnalysis.id, templateType, userInputs);
 
       const newDraft: ActionDraft = {
         id: data.draftId,

@@ -1,10 +1,20 @@
 import { createContext, useContext, useEffect, useState } from "react";
-import { User, Session } from "@supabase/supabase-js";
-import { supabase } from "@/integrations/supabase/client";
+
+// Mock User and Session types during migration
+interface MockUser {
+  id: string;
+  email?: string;
+  user_metadata?: any;
+}
+
+interface MockSession {
+  user: MockUser;
+  access_token: string;
+}
 
 interface AuthContextType {
-  user: User | null;
-  session: Session | null;
+  user: MockUser | null;
+  session: MockSession | null;
   loading: boolean;
   profile: any | null;
   signOut: () => Promise<void>;
@@ -31,77 +41,38 @@ interface AuthProviderProps {
 }
 
 export const AuthProvider = ({ children }: AuthProviderProps) => {
-  const [user, setUser] = useState<User | null>(null);
-  const [session, setSession] = useState<Session | null>(null);
+  const [user, setUser] = useState<MockUser | null>(null);
+  const [session, setSession] = useState<MockSession | null>(null);
   const [loading, setLoading] = useState(true);
   const [profile, setProfile] = useState<any | null>(null);
 
-  const fetchProfile = async (userId: string) => {
-    try {
-      const { data, error } = await supabase
-        .from("profiles")
-        .select("*")
-        .eq("user_id", userId)
-        .single();
-
-      if (error && error.code !== "PGRST116") {
-        console.error("Error fetching profile:", error);
-        return null;
-      }
-      
-      return data;
-    } catch (error) {
-      console.error("Error fetching profile:", error);
-      return null;
-    }
-  };
-
   useEffect(() => {
-    // Set up auth state listener
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      async (event, session) => {
-        setSession(session);
-        setUser(session?.user ?? null);
-        
-        if (session?.user) {
-          // Fetch profile data
-          setTimeout(async () => {
-            const profileData = await fetchProfile(session.user.id);
-            setProfile(profileData);
-          }, 0);
-        } else {
-          setProfile(null);
-        }
-        
-        setLoading(false);
-      }
-    );
-
-    // Check for existing session
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setSession(session);
-      setUser(session?.user ?? null);
-      
-      if (session?.user) {
-        setTimeout(async () => {
-          const profileData = await fetchProfile(session.user.id);
-          setProfile(profileData);
-          setLoading(false);
-        }, 0);
-      } else {
-        setLoading(false);
-      }
+    // Mock authentication during migration
+    const mockUser: MockUser = {
+      id: "mock-user-123",
+      email: "user@example.com",
+      user_metadata: {}
+    };
+    
+    const mockSession: MockSession = {
+      user: mockUser,
+      access_token: "mock-token"
+    };
+    
+    setUser(mockUser);
+    setSession(mockSession);
+    setProfile({
+      user_id: mockUser.id,
+      full_name: "Mock User",
+      email: mockUser.email
     });
-
-    return () => subscription.unsubscribe();
+    setLoading(false);
   }, []);
 
   const signOut = async () => {
-    const { error } = await supabase.auth.signOut();
-    if (error) {
-      console.error("Error signing out:", error);
-      throw error;
-    }
+    setUser(null);
+    setSession(null);
+    setProfile(null);
   };
 
   const value = {

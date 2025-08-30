@@ -21,6 +21,19 @@ import {
   Loader2
 } from "lucide-react";
 
+// Helper function to read file as text
+const readFileAsText = (file: File): Promise<string> => {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      const text = e.target?.result as string;
+      resolve(text || '');
+    };
+    reader.onerror = () => reject(new Error('Failed to read file'));
+    reader.readAsText(file);
+  });
+};
+
 interface UploadedFile {
   file: File;
   id: string;
@@ -167,12 +180,14 @@ export function DocumentUpload({ onAnalysisComplete }: DocumentUploadProps) {
         return;
       }
       
-      // For PDF, DOC, DOCX files - use the process-document function
-      const formData = new FormData();
-      formData.append('file', fileData.file);
-      formData.append('analysisType', analysisType);
+      // For PDF, DOC, DOCX files - read as text and process
+      const fileContent = await readFileAsText(fileData.file);
       
-      const data = await api.processDocument(formData);
+      const data = await api.processDocument({
+        fileName: fileData.file.name,
+        fileContent: fileContent,
+        analysisType: analysisType
+      });
 
       const analysis = {
         type: analysisType,

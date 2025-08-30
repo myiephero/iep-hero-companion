@@ -64,10 +64,11 @@ async function analyzeWithOpenAI(text: string, analysisType: string, retries = 3
           // Final attempt failed with rate limit - return fallback
           console.log('Rate limit exceeded, returning fallback response');
           return JSON.stringify({
-            analysis: "Document uploaded successfully. AI analysis is temporarily unavailable due to high demand.",
+            summary: "Document uploaded successfully. AI analysis is temporarily unavailable due to high demand.",
             recommendations: ["Please try again in a few minutes for detailed AI analysis", "Document has been saved and can be re-analyzed later"],
-            concerns: ["AI analysis service is currently rate-limited"],
+            areas_of_concern: ["AI analysis service is currently rate-limited"],
             strengths: ["Document upload and storage is functioning properly"],
+            action_items: ["Try re-analyzing this document in a few minutes", "Check system status if issue persists"],
             compliance_score: null,
             status: "pending_analysis"
           });
@@ -82,10 +83,11 @@ async function analyzeWithOpenAI(text: string, analysisType: string, retries = 3
       } else {
         // Final attempt failed with other error
         return JSON.stringify({
-          analysis: "Document uploaded successfully. AI analysis encountered an error.",
+          summary: "Document uploaded successfully. AI analysis encountered an error.",
           recommendations: ["Please try again later", "Document has been saved for future analysis"],
-          concerns: ["AI analysis service encountered an error"],
+          areas_of_concern: ["AI analysis service encountered an error"],
           strengths: ["Document upload and storage is functioning properly"],
+          action_items: ["Try re-analyzing this document later", "Contact support if error persists"],
           compliance_score: null,
           status: "error"
         });
@@ -95,10 +97,11 @@ async function analyzeWithOpenAI(text: string, analysisType: string, retries = 3
         console.error('OpenAI API error:', error);
         // Return a helpful fallback response instead of throwing
         return JSON.stringify({
-          analysis: "Document uploaded successfully. AI analysis is temporarily unavailable due to high demand.",
+          summary: "Document uploaded successfully. AI analysis is temporarily unavailable due to high demand.",
           recommendations: ["Please try again in a few minutes for detailed AI analysis", "Document has been saved and can be re-analyzed later"],
-          concerns: ["AI analysis service is currently rate-limited"],
+          areas_of_concern: ["AI analysis service is currently rate-limited"],
           strengths: ["Document upload and storage is functioning properly"],
+          action_items: ["Try re-analyzing this document in a few minutes", "Check system status if issue persists"],
           compliance_score: null,
           status: "pending_analysis"
         });

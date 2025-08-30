@@ -318,6 +318,22 @@ app.post('/api/process-document', express.json({ limit: '50mb' }), async (req, r
     // Analyze with OpenAI
     const analysis = await analyzeWithOpenAI(fileContent, analysisType);
     
+    // Parse the analysis JSON to store individual fields
+    let parsedAnalysis;
+    try {
+      parsedAnalysis = JSON.parse(analysis);
+    } catch (e) {
+      // If parsing fails, create a fallback structure
+      parsedAnalysis = {
+        summary: analysis,
+        recommendations: [],
+        areas_of_concern: [],
+        strengths: [],
+        action_items: [],
+        compliance_score: null
+      };
+    }
+    
     // Create AI review record
     const reviewId = createId();
     await db.insert(schema.ai_reviews).values({
@@ -325,7 +341,12 @@ app.post('/api/process-document', express.json({ limit: '50mb' }), async (req, r
       user_id: MOCK_USER_ID,
       document_id: documentId,
       review_type: analysisType,
-      ai_analysis: { content: analysis }
+      ai_analysis: parsedAnalysis,
+      recommendations: parsedAnalysis.recommendations,
+      areas_of_concern: parsedAnalysis.areas_of_concern,
+      strengths: parsedAnalysis.strengths,
+      action_items: parsedAnalysis.action_items,
+      compliance_score: parsedAnalysis.compliance_score
     });
 
     res.json({

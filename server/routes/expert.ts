@@ -2,7 +2,6 @@ import express, { Request, Response } from 'express';
 import { db } from '../db';
 import { expert_analyses } from '../../shared/schema';
 import { eq } from 'drizzle-orm';
-import multer from 'multer';
 
 const router = express.Router();
 

@@ -9,29 +9,8 @@ import { DocumentUpload } from "@/components/DocumentUpload";
 import { StudentSelector } from "@/components/StudentSelector";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Brain, FileText, CheckCircle, AlertCircle, TrendingUp, Target, Users, Clock, Download } from "lucide-react";
-// import { supabase } from "@/integrations/supabase/client"; // Removed during migration
 import { useToast } from "@/hooks/use-toast";
-
-interface AIReview {
-  id: string;
-  student_id?: string;
-  document_id?: string;
-  review_type: string;
-  ai_analysis: any;
-  recommendations?: any;
-  compliance_score?: number;
-  areas_of_concern?: any;
-  strengths?: any;
-  suggested_improvements?: any;
-  action_items?: any;
-  priority_level: string;
-  status: string;
-  created_at: string;
-  documents?: {
-    title: string;
-    file_name: string;
-  };
-}
+import { api, type AIReview } from "@/lib/api";
 
 const reviewTypes = [
   { value: 'iep', label: 'IEP Document Review', description: 'Comprehensive analysis of IEP documents' },
@@ -56,29 +35,16 @@ export default function AIIEPReview() {
   const fetchReviews = async () => {
     try {
       setLoading(true);
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) return;
+      
+      // Use new API to fetch reviews
+      const reviewsData = await api.getAIReviews();
+      
+      // Filter by student if selected
+      const filteredReviews = selectedStudent 
+        ? reviewsData.filter(review => review.student_id === selectedStudent)
+        : reviewsData;
 
-      let query = supabase
-        .from('ai_reviews')
-        .select(`
-          *,
-          documents (
-            title,
-            file_name
-          )
-        `)
-        .eq('user_id', user.id)
-        .order('created_at', { ascending: false });
-
-      if (selectedStudent) {
-        query = query.eq('student_id', selectedStudent);
-      }
-
-      const { data, error } = await query;
-
-      if (error) throw error;
-      setReviews(data || []);
+      setReviews(filteredReviews || []);
     } catch (error) {
       console.error('Error fetching reviews:', error);
       toast({

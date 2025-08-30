@@ -185,13 +185,6 @@ export default function AllPagesView() {
       status: "Active"
     },
     {
-      title: "Parent Matching Dashboard",
-      path: "/parent/matching",
-      icon: <MessageSquare className="h-5 w-5" />,
-      description: "Connect with advocates",
-      status: "Active"
-    },
-    {
       title: "Parent Settings",
       path: "/parent/settings",
       icon: <Settings className="h-5 w-5" />,
@@ -279,6 +272,13 @@ export default function AllPagesView() {
       path: "/advocate/tools/advocate-matching",
       icon: <Users className="h-5 w-5" />,
       description: "Client matching for advocates",
+      status: "Active"
+    },
+    {
+      title: "Parent Matching Dashboard",
+      path: "/advocate/matching",
+      icon: <MessageSquare className="h-5 w-5" />,
+      description: "Manage parent-advocate matching workflow",
       status: "Active"
     }
   ];

@@ -886,29 +886,68 @@ function ActionDraftForm({ onSubmit }: { onSubmit: (templateType: string, userIn
 }
 
 // Expert Analysis Tab Component
-function ExpertAnalysisTab({ selectedDoc, userRole }: { selectedDoc: IEPDocument | null, userRole: string }) {
-  const [expertAnalysis, setExpertAnalysis] = useState<any>(null);
+function ExpertAnalysisTab({ 
+  selectedDoc, 
+  userRole, 
+  expertAnalysisResult, 
+  onAnalysisComplete 
+}: { 
+  selectedDoc: IEPDocument | null;
+  userRole: string;
+  expertAnalysisResult: ExpertAnalysisResult | null;
+  onAnalysisComplete: (documentId: string, analysisData: any) => Promise<boolean>;
+}) {
+  const [expertAnalysis, setExpertAnalysis] = useState<any>(expertAnalysisResult?.analysis_data || null);
   const [loading, setLoading] = useState(false);
   const [analysisMode, setAnalysisMode] = useState<'advocate' | 'parent'>(userRole === 'advocate' ? 'advocate' : 'parent');
   const { toast } = useToast();
 
+  // Load existing analysis data when component mounts or result changes
+  useEffect(() => {
+    if (expertAnalysisResult?.analysis_data) {
+      setExpertAnalysis(expertAnalysisResult.analysis_data);
+    } else {
+      setExpertAnalysis(null);
+    }
+  }, [expertAnalysisResult]);
+
   const runExpertAnalysis = async () => {
-    if (!selectedDoc) return;
+    if (!selectedDoc) {
+      toast({
+        title: "No Document Selected",
+        description: "Please upload and ingest a document first.",
+        variant: "destructive",
+      });
+      return;
+    }
     
     setLoading(true);
     try {
       const backendUrl = import.meta.env.VITE_BACKEND_URL || process.env.REACT_APP_BACKEND_URL;
       
       // For now, fetch sample data to demonstrate the UI
+      // In production, this would call the actual expert analysis endpoint
       const response = await fetch(`${backendUrl}/api/expert-analysis-sample?user_role=${analysisMode}`);
       const data = await response.json();
       
       if (data.success) {
         setExpertAnalysis(data.analysis);
-        toast({
-          title: "Expert Analysis Complete",
-          description: `Professional ${analysisMode} analysis with legal compliance review completed.`,
-        });
+        
+        // Store the analysis result in the database
+        const stored = await onAnalysisComplete(selectedDoc.id, data.analysis);
+        
+        if (stored) {
+          toast({
+            title: "Expert Analysis Complete",
+            description: `Professional ${analysisMode} analysis with legal compliance review completed and saved.`,
+          });
+        } else {
+          toast({
+            title: "Analysis Complete with Warning",
+            description: `Analysis completed but couldn't be saved. Results are available this session only.`,
+            variant: "destructive",
+          });
+        }
       } else {
         throw new Error(data.error || 'Analysis failed');
       }

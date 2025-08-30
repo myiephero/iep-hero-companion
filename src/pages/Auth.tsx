@@ -7,7 +7,7 @@ import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { useToast } from "@/hooks/use-toast";
-// // import { supabase } from "@/integrations/supabase/client"; // Removed during migration // Removed during migration
+import { useAuth } from "@/hooks/useAuth";
 import { AlertCircle, Users, Heart, Shield } from "lucide-react";
 
 export default function Auth() {
@@ -19,6 +19,14 @@ export default function Auth() {
   const [error, setError] = useState("");
   const navigate = useNavigate();
   const { toast } = useToast();
+  const { user } = useAuth();
+
+  // If already authenticated, redirect to dashboard
+  useEffect(() => {
+    if (user) {
+      navigate("/");
+    }
+  }, [user, navigate]);
 
 
   const handleSignUp = async (e: React.FormEvent) => {
@@ -32,47 +40,12 @@ export default function Auth() {
     setError("");
 
     try {
-      const redirectUrl = `${window.location.origin}/`;
-      
-      const { data, error: authError } = await supabase.auth.signUp({
-        email,
-        password,
-        options: {
-          emailRedirectTo: redirectUrl,
-          data: {
-            full_name: fullName,
-            role: role
-          }
-        }
+      // Mock sign up - since we're using mock auth, just simulate success
+      toast({
+        title: "Account created!",
+        description: "You're now signed in with the demo account.",
       });
-
-      if (authError) throw authError;
-
-      if (data.session?.user) {
-        // User is signed in immediately (no email confirmation required)
-        const { error: profileError } = await supabase
-          .from("profiles")
-          .insert({
-            user_id: data.session.user.id,
-            full_name: fullName,
-            email,
-            role,
-          });
-
-        if (profileError) throw profileError;
-
-        toast({
-          title: "Account created!",
-          description: "You're now signed in.",
-        });
-        navigate("/");
-      } else {
-        // Email verification required; profile will be created after first sign-in
-        toast({
-          title: "Verify your email",
-          description: "Check your inbox to confirm your account, then sign in.",
-        });
-      }
+      navigate("/");
     } catch (error: any) {
       setError(error.message);
     } finally {
@@ -91,18 +64,11 @@ export default function Auth() {
     setError("");
 
     try {
-      const { error } = await supabase.auth.signInWithPassword({
-        email,
-        password,
-      });
-
-      if (error) throw error;
-
+      // Mock sign in - since we're using mock auth, just simulate success
       toast({
         title: "Welcome back!",
-        description: "You have been signed in successfully.",
+        description: "You're successfully signed in with the demo account.",
       });
-      
       navigate("/");
     } catch (error: any) {
       setError(error.message);

@@ -285,7 +285,8 @@ const ParentStudents = () => {
     }
   };
 
-  const getIEPStatusColor = (status: string) => {
+  const getIEPStatusColor = (status: string | null | undefined) => {
+    if (!status) return "bg-muted text-muted-foreground";
     switch (status.toLowerCase()) {
       case "active": return "bg-success text-success-foreground";
       case "review": return "bg-warning text-warning-foreground";

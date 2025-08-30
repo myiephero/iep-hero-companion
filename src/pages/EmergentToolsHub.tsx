@@ -94,6 +94,15 @@ const emergentTools = [
     category: "Student Management",
     badge: "Core",
     features: ["Goal Tracking", "Service Plans", "Progress Notes", "Timeline View"]
+  },
+  {
+    title: "Expert Analysis",
+    description: "Professional expert analysis and detailed assessments with comprehensive reporting and recommendations.",
+    icon: Target,
+    path: "/tools/expert-analysis",
+    category: "Professional Support",
+    badge: "Pro",
+    features: ["Expert Review", "Detailed Reports", "Professional Insights", "Action Plans"]
   }
 ];
 
@@ -132,7 +141,7 @@ export default function EmergentToolsHub() {
           <div className="flex items-center justify-center gap-4 pt-4">
             <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200">
               <TrendingUp className="h-3 w-3 mr-1" />
-              9 Active Tools
+              10 Active Tools
             </Badge>
             <Badge variant="outline" className="bg-blue-50 text-blue-700 border-blue-200">
               <Brain className="h-3 w-3 mr-1" />

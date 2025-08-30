@@ -88,6 +88,13 @@ export default function AllPagesView() {
 
   const advocatePages = [
     {
+      title: "Advocate Dashboard",
+      path: "/advocate/dashboard",
+      icon: <Briefcase className="h-5 w-5" />,
+      description: "Main dashboard for advocates",
+      status: "Active"
+    },
+    {
       title: "Advocate Students",
       path: "/advocate/students",
       icon: <Users className="h-5 w-5" />,
@@ -96,34 +103,180 @@ export default function AllPagesView() {
       notes: "Removed Supabase dependencies, using new API"
     },
     {
-      title: "Advocate Dashboard",
-      path: "/advocate/dashboard",
-      icon: <Briefcase className="h-5 w-5" />,
-      description: "Main dashboard for advocates",
+      title: "Advocate Messages",
+      path: "/advocate/messages",
+      icon: <MessageSquare className="h-5 w-5" />,
+      description: "Communication with parent clients",
       status: "Active"
     },
     {
-      title: "Matching Dashboard", 
+      title: "Advocate Schedule",
+      path: "/advocate/schedule",
+      icon: <Calendar className="h-5 w-5" />,
+      description: "Manage meetings and availability",
+      status: "Active"
+    },
+    {
+      title: "Create Parent Account",
+      path: "/advocate/create-parent",
+      icon: <Users className="h-5 w-5" />,
+      description: "Create new parent client accounts",
+      status: "Active"
+    },
+    {
+      title: "Advocate Tools Hub",
+      path: "/advocate/tools",
+      icon: <Settings className="h-5 w-5" />,
+      description: "Main tools hub for advocates",
+      status: "Active"
+    },
+    {
+      title: "Advocate Matching",
+      path: "/advocate/matching",
+      icon: <MessageSquare className="h-5 w-5" />,
+      description: "Connect with parent clients",
+      status: "Active"
+    },
+    {
+      title: "Advocate Settings",
+      path: "/advocate/settings",
+      icon: <Settings className="h-5 w-5" />,
+      description: "Account and preference settings",
+      status: "Active"
+    }
+  ];
+
+  const parentTools = [
+    {
+      title: "Parent Tools Hub",
+      path: "/parent/tools",
+      icon: <Settings className="h-5 w-5" />,
+      description: "Main tools hub for parents",
+      status: "Active"
+    },
+    {
+      title: "Smart Letter Generator",
+      path: "/parent/tools/smart-letter",
+      icon: <FileText className="h-5 w-5" />,
+      description: "Generate professional advocacy letters",
+      status: "Active"
+    },
+    {
+      title: "Meeting Prep Wizard",
+      path: "/parent/tools/meeting-prep",
+      icon: <Calendar className="h-5 w-5" />,
+      description: "Prepare for IEP meetings effectively",
+      status: "Active"
+    },
+    {
+      title: "Emergent Tools Hub",
+      path: "/parent/tools/emergent",
+      icon: <Brain className="h-5 w-5" />,
+      description: "AI-powered educational tools",
+      status: "Active"
+    },
+    {
+      title: "Advocate Matching Tool",
+      path: "/parent/tools/advocate-matching",
+      icon: <Users className="h-5 w-5" />,
+      description: "Find qualified advocates in your area",
+      status: "Active"
+    },
+    {
+      title: "Parent Matching Dashboard",
       path: "/parent/matching",
       icon: <MessageSquare className="h-5 w-5" />,
-      description: "Connect parents with qualified advocates",
+      description: "Connect with advocates",
+      status: "Active"
+    },
+    {
+      title: "Parent Settings",
+      path: "/parent/settings",
+      icon: <Settings className="h-5 w-5" />,
+      description: "Account and preference settings",
       status: "Active"
     }
   ];
 
   const specializedTools = [
     {
-      title: "Autism Accommodation Builder",
+      title: "Autism Accommodations (Parent)",
       path: "/parent/tools/autism-accommodations",
       icon: <Heart className="h-5 w-5" />,
       description: "Specialized tools for autism-specific accommodations",
       status: "Active"
     },
     {
-      title: "Gifted/2e Learners",
+      title: "Autism Accommodations (Advocate)",
+      path: "/advocate/tools/autism-accommodations",
+      icon: <Heart className="h-5 w-5" />,
+      description: "Advocate tools for autism accommodations",
+      status: "Active"
+    },
+    {
+      title: "Gifted/2e Learners (Parent)",
       path: "/parent/tools/gifted-2e-learners",
       icon: <GraduationCap className="h-5 w-5" />,
       description: "Resources for gifted and twice-exceptional learners", 
+      status: "Active"
+    },
+    {
+      title: "Gifted/2e Learners (Advocate)",
+      path: "/advocate/tools/gifted-2e-learners",
+      icon: <GraduationCap className="h-5 w-5" />,
+      description: "Advocate resources for gifted learners", 
+      status: "Active"
+    }
+  ];
+
+  const advocateTools = [
+    {
+      title: "Advocate IEP Review",
+      path: "/advocate/tools/iep-review",
+      icon: <TrendingUp className="h-5 w-5" />,
+      description: "IEP review tool for advocates",
+      status: "Working"
+    },
+    {
+      title: "Advocate AI IEP Review",
+      path: "/advocate/tools/ai-iep-review",
+      icon: <Brain className="h-5 w-5" />,
+      description: "AI-powered IEP analysis for advocates",
+      status: "Working"
+    },
+    {
+      title: "Advocate Expert Analysis",
+      path: "/advocate/tools/expert-analysis",
+      icon: <Search className="h-5 w-5" />,
+      description: "Expert analysis tools for advocates",
+      status: "Working"
+    },
+    {
+      title: "Advocate Document Vault",
+      path: "/advocate/tools/document-vault",
+      icon: <FileText className="h-5 w-5" />,
+      description: "Document management for advocates",
+      status: "Active"
+    },
+    {
+      title: "Advocate Smart Letter",
+      path: "/advocate/tools/smart-letter",
+      icon: <FileText className="h-5 w-5" />,
+      description: "Letter generation for advocates",
+      status: "Active"
+    },
+    {
+      title: "Advocate Meeting Prep",
+      path: "/advocate/tools/meeting-prep",
+      icon: <Calendar className="h-5 w-5" />,
+      description: "Meeting preparation for advocates",
+      status: "Active"
+    },
+    {
+      title: "Advocate Matching Tool",
+      path: "/advocate/tools/advocate-matching",
+      icon: <Users className="h-5 w-5" />,
+      description: "Client matching for advocates",
       status: "Active"
     }
   ];
@@ -179,10 +332,12 @@ export default function AllPagesView() {
         </div>
 
         <Tabs defaultValue="main" className="space-y-6">
-          <TabsList className="grid w-full grid-cols-4">
+          <TabsList className="grid w-full grid-cols-6">
             <TabsTrigger value="main">Main Pages</TabsTrigger>
             <TabsTrigger value="iep-tools">IEP Review Tools</TabsTrigger>
-            <TabsTrigger value="advocate">Advocate Tools</TabsTrigger>
+            <TabsTrigger value="parent-tools">Parent Tools</TabsTrigger>
+            <TabsTrigger value="advocate-pages">Advocate Pages</TabsTrigger>
+            <TabsTrigger value="advocate-tools">Advocate Tools</TabsTrigger>
             <TabsTrigger value="specialized">Specialized Tools</TabsTrigger>
           </TabsList>
 
@@ -207,8 +362,17 @@ export default function AllPagesView() {
             </div>
           </TabsContent>
 
-          <TabsContent value="advocate" className="space-y-4">
-            <h2 className="text-xl font-semibold">Advocate-Specific Tools</h2>
+          <TabsContent value="parent-tools" className="space-y-4">
+            <h2 className="text-xl font-semibold">Parent Tools & Features</h2>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              {parentTools.map((page) => (
+                <PageCard key={page.path} page={page} />
+              ))}
+            </div>
+          </TabsContent>
+
+          <TabsContent value="advocate-pages" className="space-y-4">
+            <h2 className="text-xl font-semibold">Advocate Dashboard & Pages</h2>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
               {advocatePages.map((page) => (
                 <PageCard key={page.path} page={page} />
@@ -216,8 +380,20 @@ export default function AllPagesView() {
             </div>
           </TabsContent>
 
+          <TabsContent value="advocate-tools" className="space-y-4">
+            <h2 className="text-xl font-semibold">Advocate Tools</h2>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              {advocateTools.map((page) => (
+                <PageCard key={page.path} page={page} />
+              ))}
+            </div>
+          </TabsContent>
+
           <TabsContent value="specialized" className="space-y-4">
             <h2 className="text-xl font-semibold">Specialized Learning Tools</h2>
+            <p className="text-sm text-muted-foreground mb-4">
+              Tools available for both parents and advocates with role-specific access.
+            </p>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
               {specializedTools.map((page) => (
                 <PageCard key={page.path} page={page} />

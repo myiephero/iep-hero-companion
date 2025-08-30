@@ -16,7 +16,8 @@ import {
   Briefcase,
   Search,
   TrendingUp,
-  Settings
+  Settings,
+  Crown
 } from "lucide-react";
 import { Link } from "react-router-dom";
 
@@ -51,6 +52,20 @@ export default function AllPagesView() {
       path: "/parent/students",
       icon: <GraduationCap className="h-5 w-5" />,
       description: "Manage student information and profiles",
+      status: "Active"
+    },
+    {
+      title: "Parent Pricing",
+      path: "/parent/pricing",
+      icon: <TrendingUp className="h-5 w-5" />,
+      description: "View pricing plans and subscription options",
+      status: "Active"
+    },
+    {
+      title: "Parent HERO Plan",
+      path: "/parent/hero-plan",
+      icon: <Crown className="h-5 w-5" />,
+      description: "Premium IEP support and expert consultation",
       status: "Active"
     },
     {
@@ -182,13 +197,6 @@ export default function AllPagesView() {
       path: "/parent/tools/advocate-matching",
       icon: <Users className="h-5 w-5" />,
       description: "Find qualified advocates in your area",
-      status: "Active"
-    },
-    {
-      title: "Parent Settings",
-      path: "/parent/settings",
-      icon: <Settings className="h-5 w-5" />,
-      description: "Account and preference settings",
       status: "Active"
     }
   ];

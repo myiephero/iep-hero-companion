@@ -221,13 +221,6 @@ export default function AllPagesView() {
       status: "Active"
     },
     {
-      title: "Student Profiles",
-      path: "/parent/tools/student-profiles",
-      icon: <GraduationCap className="h-5 w-5" />,
-      description: "Comprehensive student profiles with goals and progress tracking",
-      status: "Active"
-    },
-    {
       title: "Advocate Matching Tool",
       path: "/parent/tools/advocate-matching",
       icon: <Users className="h-5 w-5" />,

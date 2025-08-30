@@ -32,6 +32,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { useAuth } from "@/hooks/useAuth";
+import { setRole } from "@/lib/session";
 
 interface SidebarItem {
   title: string;
@@ -119,9 +120,23 @@ export function AppSidebar() {
             {!collapsed && (
               <div>
                 <h2 className="font-bold text-lg text-sidebar-foreground">My IEP Hero</h2>
-                <p className="text-xs text-muted-foreground">
-                  {isAdvocate ? 'Advocate Portal' : 'Parent Portal'}
-                </p>
+                <div className="flex items-center gap-2">
+                  <p className="text-xs text-muted-foreground">
+                    {isAdvocate ? 'Advocate Portal' : 'Parent Portal'}
+                  </p>
+                  <Button 
+                    size="sm" 
+                    variant="ghost" 
+                    className="h-5 px-2 text-xs"
+                    onClick={() => {
+                      const newRole = isAdvocate ? 'parent' : 'advocate';
+                      setRole(newRole);
+                      window.location.href = newRole === 'advocate' ? '/advocate/dashboard' : '/parent/dashboard';
+                    }}
+                  >
+                    Switch
+                  </Button>
+                </div>
               </div>
             )}
           </Link>

@@ -64,7 +64,8 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     setProfile({
       user_id: mockUser.id,
       full_name: "Mock User",
-      email: mockUser.email
+      email: mockUser.email,
+      role: "parent" // Default role for development
     });
     setLoading(false);
   }, []);

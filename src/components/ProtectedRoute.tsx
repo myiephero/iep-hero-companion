@@ -21,10 +21,10 @@ export function ProtectedRoute({ children, allowedRoles, redirectTo = "/auth" }:
 
   // Always call hooks in the same order
   useEffect(() => {
-    if (routeRoleHint) {
+    if (routeRoleHint && routeRoleHint !== sessionRole) {
       setRole(routeRoleHint as Role);
     }
-  }, [routeRoleHint]);
+  }, [routeRoleHint, sessionRole]);
 
   // Loading state
   if (loading) {
@@ -61,7 +61,9 @@ export function RoleBasedRedirect({ parentRoute, advocateRoute }: RoleBasedRedir
 
   // Ensure consistent hook order across renders
   useEffect(() => {
-    setRole(userRole as Role);
+    if (userRole !== getRole()) {
+      setRole(userRole as Role);
+    }
   }, [userRole]);
 
   if (loading) {

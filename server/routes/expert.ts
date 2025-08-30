@@ -2,6 +2,7 @@ import express, { Request, Response } from 'express';
 import { db } from '../db';
 import { expert_analyses } from '../../shared/schema';
 import { eq } from 'drizzle-orm';
+import multer from 'multer';
 
 const router = express.Router();
 
@@ -11,13 +12,24 @@ const MOCK_USER_ID = "mock-user-123";
 // POST /api/expert-analysis - Request expert analysis (simplified without file upload for now)
 router.post('/', async (req: Request, res: Response) => {
   try {
-    const { analysis_type = 'comprehensive', student_name = 'Student Analysis' } = req.body;
+    console.log('Request body:', req.body); // Debug log
+    
+    const { 
+      analysis_type = 'comprehensive', 
+      student_name = 'Student Analysis',
+      analysisType = 'comprehensive',
+      studentName = 'Student Analysis'
+    } = req.body || {};
+
+    // Use camelCase or snake_case depending on what's sent
+    const finalAnalysisType = analysis_type || analysisType;
+    const finalStudentName = student_name || studentName;
 
     // Create analysis record - simplified version
     const [analysis] = await db.insert(expert_analyses).values({
       user_id: MOCK_USER_ID,
-      student_name,
-      analysis_type,
+      student_name: finalStudentName,
+      analysis_type: finalAnalysisType,
       file_name: 'uploaded_document.pdf',
       file_type: 'application/pdf',
       file_content: 'Mock file content for development',

@@ -12,6 +12,7 @@ import { Progress } from '@/components/ui/progress';
 import { Textarea } from '@/components/ui/textarea';
 import { Users, Star, Clock, MapPin, DollarSign, Search, Filter, Calendar, Phone, Mail, MessageSquare } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+import { DashboardLayout } from '@/layouts/DashboardLayout';
 
 interface Advocate {
   id: string;
@@ -238,7 +239,8 @@ export default function MatchingDashboard() {
   const specialties = ['autism', 'adhd', 'gifted', 'speech', 'behavioral', 'executive_function', 'twice_exceptional'];
 
   return (
-    <div className="container mx-auto py-8 max-w-7xl">
+    <DashboardLayout>
+      <div className="max-w-7xl mx-auto space-y-6">
       <div className="mb-8">
         <h1 className="text-3xl font-bold text-gray-900 mb-2">Advocate Matching</h1>
         <p className="text-lg text-gray-600">
@@ -532,6 +534,7 @@ export default function MatchingDashboard() {
           </Card>
         </TabsContent>
       </Tabs>
-    </div>
+      </div>
+    </DashboardLayout>
   );
 }

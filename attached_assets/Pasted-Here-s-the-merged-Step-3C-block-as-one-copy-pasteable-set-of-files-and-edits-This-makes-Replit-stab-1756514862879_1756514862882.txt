@@ -1,0 +1,118 @@
+Here’s the merged Step 3C block as one copy-pasteable set of files and edits. This makes Replit stable (no background Express server) while keeping everything in the single Vite dev process.
+
+⸻
+
+
+// file: vite.config.ts
+import { defineConfig, Plugin } from "vite";
+import react from "@vitejs/plugin-react-swc";
+import path from "path";
+import { componentTagger } from "lovable-tagger";
+
+// Tiny dev-only middleware so we don't need a second server process.
+function devApiPlugin(): Plugin {
+  return {
+    name: "dev-api",
+    configureServer(server) {
+      server.middlewares.use("/api/health", (_req, res) => {
+        res.setHeader("Content-Type", "application/json");
+        res.end(JSON.stringify({ ok: true, at: Date.now() }));
+      });
+      // Add lightweight test endpoints here if needed.
+    },
+  };
+}
+
+export default defineConfig(({ mode }) => ({
+  server: {
+    host: "::",
+    port: 8080,
+    allowedHosts: true, // ✅ required for *.replit.dev preview hosts
+  },
+  plugins: [
+    react(),
+    mode === "development" && componentTagger(),
+    devApiPlugin(), // ✅ keeps everything in one process
+  ].filter(Boolean),
+  resolve: {
+    alias: { "@": path.resolve(__dirname, "./src") },
+  },
+}));
+
+# file: .replit
+run = "npm run dev"
+language = "nodejs"
+[env]
+PORT = "8080"
+
+# file: .env.sample  (append these if not present)
+VITE_ANALYZER_URL=                 # e.g. https://mieh-pdf-extractor.<user>.repl.co
+VITE_EMERGENT_ANALYSIS_URL=        # Emergent endpoint that accepts { text }
+
+// file: src/lib/emergentClient.ts
+export async function analyzeIepText(text: string) {
+  const url = import.meta.env.VITE_EMERGENT_ANALYSIS_URL;
+  if (!url) throw new Error("VITE_EMERGENT_ANALYSIS_URL missing");
+  const res = await fetch(url, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ text }),
+  });
+  if (!res.ok) throw new Error(`Emergent analysis failed: ${res.status} ${await res.text()}`);
+  return res.json() as Promise<any>;
+}
+
+// file: src/pages/tools/IEPReview.tsx
+import React, { useRef, useState } from "react";
+import { extractPdfText } from "../../lib/analyzer";
+import { analyzeIepText } from "../../lib/emergentClient";
+
+export default function IEPReview() {
+  const inputRef = useRef<HTMLInputElement | null>(null);
+  const [status, setStatus] = useState<string>("");
+  const [result, setResult] = useState<any>(null);
+
+  async function onUpload(e: React.FormEvent) {
+    e.preventDefault();
+    const f = inputRef.current?.files?.[0];
+    if (!f) return alert("Choose a PDF");
+    try {
+      setStatus("Extracting PDF…");
+      const { text, characters } = await extractPdfText({ file: f });
+      setStatus(`Extracted ${characters} chars. Analyzing…`);
+      const analysis = await analyzeIepText(text);
+      setResult(analysis);
+      setStatus("Done.");
+    } catch (err: any) {
+      setStatus(`Error: ${err.message}`);
+    }
+  }
+
+  return (
+    <section className="container">
+      <form className="card" onSubmit={onUpload}>
+        <label htmlFor="pdf">Upload IEP (PDF)</label>
+        <input id="pdf" type="file" accept="application/pdf" ref={inputRef} />
+        <button type="submit" className="button">Analyze IEP</button>
+        <p className="muted">{status}</p>
+      </form>
+      {result && (
+        <div className="card" style={{ marginTop: "1rem" }}>
+          <h2>Analysis</h2>
+          <pre style={{ whiteSpace: "pre-wrap" }}>{JSON.stringify(result, null, 2)}</pre>
+        </div>
+      )}
+    </section>
+  );
+}
+
+
+⸻
+
+✅ With this single block:
+	•	Replit runs one process only (npm run dev) → no more background server crashes.
+	•	Preview works on your *.replit.dev URL (allowedHosts: true).
+	•	/api/health responds for quick checks.
+	•	IEPReview page → Extractor (Replit FastAPI) → Emergent analysis API → results shown inline.
+
+Do you want me to also add Option B (manual text area input for pasting IEP text) into the same IEPReview.tsx file as a fallback?

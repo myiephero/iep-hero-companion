@@ -212,7 +212,7 @@ export default function EmergentToolsHub() {
                         </div>
                         
                         <Button asChild className="w-full group-hover:shadow-lg transition-all duration-300 font-medium py-2.5 bg-gradient-to-r from-primary to-primary/90 hover:from-primary/90 hover:to-primary">
-                          <Link to={`/${userRole}${tool.path}`}>
+                          <Link to={tool.path}>
                             Open Tool
                             <span className="ml-2 group-hover:translate-x-1 transition-transform duration-300">→</span>
                           </Link>

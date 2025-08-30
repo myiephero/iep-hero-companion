@@ -34,6 +34,19 @@ const readFileAsText = (file: File): Promise<string> => {
   });
 };
 
+// Helper function to read file as base64 (for PDFs)
+const readFileAsBase64 = (file: File): Promise<string> => {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      const result = e.target?.result as string;
+      resolve(result || '');
+    };
+    reader.onerror = () => reject(new Error('Failed to read file'));
+    reader.readAsDataURL(file);
+  });
+};
+
 interface UploadedFile {
   file: File;
   id: string;
@@ -177,8 +190,13 @@ export function DocumentUpload({ onAnalysisComplete }: DocumentUploadProps) {
         });
       }
       
-      // For PDF, DOC, DOCX files - read as text and process
-      const fileContent = await readFileAsText(fileData.file);
+      // For PDF files - read as base64, for others read as text
+      let fileContent: string;
+      if (fileData.file.type === 'application/pdf') {
+        fileContent = await readFileAsBase64(fileData.file);
+      } else {
+        fileContent = await readFileAsText(fileData.file);
+      }
       
       const data = await api.processDocument({
         fileName: fileData.file.name,
@@ -256,7 +274,7 @@ export function DocumentUpload({ onAnalysisComplete }: DocumentUploadProps) {
                   Drag & drop files here, or click to select
                 </p>
                 <p className="text-sm text-muted-foreground">
-                  Supports: TXT, PDF, DOC, DOCX (max 10MB) • For best results, use TXT files
+                  Supports: TXT, PDF, DOC, DOCX (max 10MB) • PDF extraction fully supported!
                 </p>
               </div>
             )}

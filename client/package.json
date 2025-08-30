@@ -1,5 +1,5 @@
 {
-  "name": "my-iep-hero-client",
+  "name": "advocate-matching-client",
   "version": "1.0.0",
   "description": "My IEP Hero - Advocate Matching Client",
   "license": "MIT",
@@ -7,8 +7,9 @@
   "scripts": {
     "dev": "vite",
     "build": "tsc && vite build",
-    "preview": "vite preview",
-    "type-check": "tsc --noEmit"
+    "preview": "vite preview --port 3000 --host 0.0.0.0",
+    "type-check": "tsc --noEmit",
+    "repl-start": "npm run build && npm run preview"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.45.4",
@@ -38,5 +39,8 @@
     "tailwindcss": "^3.4.12",
     "typescript": "^5.6.2",
     "vite": "^5.4.7"
+  },
+  "engines": {
+    "node": ">=18.0.0"
   }
 }

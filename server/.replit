@@ -1,0 +1,13 @@
+[nix]
+channel = "stable-22_11"
+
+[deployment]
+run = ["npm", "run", "repl-start"]
+deploymentTarget = "cloudrun"
+
+[[ports]]
+localPort = 8001
+externalPort = 80
+
+[env]
+NODE_ENV = "production"

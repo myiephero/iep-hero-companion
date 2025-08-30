@@ -24,6 +24,7 @@ import GiftedTwoeLearners from "./pages/GiftedTwoeLearners";
 import ExpertAnalysis from "./pages/ExpertAnalysis";
 import MatchingDashboard from "./pages/MatchingDashboard";
 import EmergentToolsHub from "./pages/EmergentToolsHub";
+import AllPagesView from "./pages/AllPagesView";
 import SmartLetterGenerator from "./pages/SmartLetterGenerator";
 import MeetingPrepWizard from "./pages/MeetingPrepWizard";
 import ParentMeetingPrep from "./pages/ParentMeetingPrep";
@@ -258,6 +259,9 @@ function App() {
               <Route path="/advocate/pricing-plan" element={<AdvocatePricingPlan />} />
               <Route path="/parent/pricing-plan" element={<ParentPricingPlan />} />
               <Route path="/parent/hero-plan" element={<ParentHeroPlan />} />
+              
+              {/* Debug/Testing Tools */}
+              <Route path="/all-pages" element={<AllPagesView />} />
               
               {/* 404 */}
               <Route path="*" element={<NotFound />} />

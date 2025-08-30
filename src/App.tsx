@@ -5,6 +5,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { AuthProvider } from "@/hooks/useAuth";
+import { ThemeProvider } from "@/contexts/ThemeContext";
 import { ProtectedRoute, RoleBasedRedirect } from "@/components/ProtectedRoute";
 import Index from "./pages/Index";
 import Auth from "./pages/Auth";
@@ -33,6 +34,8 @@ import HeroPlan from "./pages/HeroPlan";
 import AdvocateDiscovery from "./pages/AdvocateDiscovery";
 import Profile from "./pages/Profile";
 import Settings from "./pages/Settings";
+import ParentSettings from "./pages/ParentSettings";
+import AdvocateSettings from "./pages/AdvocateSettings";
 import ToolsHub from "./pages/ToolsHub";
 import DocumentVault from "./pages/DocumentVault";
 import AdvocatePricingPlan from "./pages/AdvocatePricingPlan";
@@ -49,8 +52,9 @@ function App() {
       <TooltipProvider>
         <Toaster />
         <Sonner />
-        <AuthProvider>
-          <BrowserRouter>
+        <ThemeProvider>
+          <AuthProvider>
+            <BrowserRouter>
             <Routes>
               <Route path="/" element={<Index />} />
               <Route path="/auth" element={<Auth />} />
@@ -243,12 +247,12 @@ function App() {
               {/* Settings */}
               <Route path="/parent/settings" element={
                 <ProtectedRoute allowedRoles={['parent']}>
-                  <Settings />
+                  <ParentSettings />
                 </ProtectedRoute>
               } />
               <Route path="/advocate/settings" element={
                 <ProtectedRoute allowedRoles={['advocate']}>
-                  <Settings />
+                  <AdvocateSettings />
                 </ProtectedRoute>
               } />
               
@@ -273,8 +277,9 @@ function App() {
             </Routes>
           </BrowserRouter>
         </AuthProvider>
-      </TooltipProvider>
-    </QueryClientProvider>
+      </ThemeProvider>
+    </TooltipProvider>
+  </QueryClientProvider>
   );
 }
 

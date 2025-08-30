@@ -85,6 +85,66 @@ export default function IEPReview() {
   const [activeTab, setActiveTab] = useState('upload');
   
   const { toast } = useToast();
+
+  // Check for existing expert analysis results
+  const checkExpertAnalysisAvailability = async (documentId: string) => {
+    try {
+      const { data: analysisResult, error } = await supabase
+        .from('expert_analysis_results')
+        .select('*')
+        .eq('document_id', documentId)
+        .single();
+
+      if (error) {
+        if (error.code === 'PGRST116') {
+          // No results found - this is expected for new documents
+          setExpertAnalysisResult(null);
+          setExpertAnalysisAvailable(false);
+        } else {
+          console.error('Error checking expert analysis:', error);
+          setExpertAnalysisResult(null);
+          setExpertAnalysisAvailable(false);
+        }
+      } else {
+        // Analysis result found
+        setExpertAnalysisResult(analysisResult);
+        setExpertAnalysisAvailable(true);
+      }
+    } catch (error) {
+      console.error('Error checking expert analysis availability:', error);
+      setExpertAnalysisResult(null);
+      setExpertAnalysisAvailable(false);
+    }
+  };
+
+  // Store expert analysis result after completion
+  const storeExpertAnalysisResult = async (documentId: string, analysisData: any) => {
+    try {
+      const { data, error } = await supabase
+        .from('expert_analysis_results')
+        .upsert({
+          document_id: documentId,
+          user_id: user?.id,
+          analysis_data: analysisData,
+          updated_at: new Date().toISOString()
+        })
+        .select()
+        .single();
+
+      if (error) {
+        console.error('Error storing expert analysis result:', error);
+        return false;
+      }
+
+      setExpertAnalysisResult(data);
+      setExpertAnalysisAvailable(true);
+      return true;
+    } catch (error) {
+      console.error('Error storing expert analysis result:', error);
+      return false;
+    }
+  };
+
   const { user } = useAuth();
 
   useEffect(() => {

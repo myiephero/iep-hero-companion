@@ -18,9 +18,12 @@ async function analyzeWithOpenAI(text: string, analysisType: string, retries = 3
     throw new Error('OpenAI API key not configured');
   }
 
+  // Truncate text to prevent token limit issues (roughly 3000 tokens = 12000 characters)
+  const truncatedText = text.substring(0, 12000);
+  
   const prompt = analysisType === 'iep' ? 
-    `Analyze this IEP document for quality and compliance. Provide detailed feedback on:\n1. Goal appropriateness\n2. Service adequacy\n3. Compliance issues\n4. Recommendations for improvement\n\nDocument text:\n${text}` :
-    `Analyze this document for ${analysisType}:\n\n${text}`;
+    `Analyze this IEP document for quality and compliance. Provide detailed feedback on:\n1. Goal appropriateness\n2. Service adequacy\n3. Compliance issues\n4. Recommendations for improvement\n\nDocument text:\n${truncatedText}` :
+    `Analyze this document for ${analysisType}:\n\n${truncatedText}`;
 
   for (let attempt = 0; attempt <= retries; attempt++) {
     try {

@@ -261,42 +261,46 @@ export default function AdvocateToolsHub() {
                 {advocateTools
                   .filter(tool => tool.category === category)
                   .map((tool) => (
-                    <Card key={tool.title} className="hover:shadow-lg transition-all duration-300 hover:scale-105 group">
-                      <CardHeader className="space-y-3">
-                        <div className="flex items-center justify-between">
-                          <div className="p-3 rounded-lg bg-primary/10 group-hover:bg-primary/20 transition-colors">
-                            <tool.icon className="h-6 w-6 text-primary" />
+                    <Card key={tool.title} className="hover:shadow-xl transition-all duration-300 hover:scale-[1.02] group border-0 shadow-md bg-gradient-to-br from-white to-gray-50/50 dark:from-gray-900 dark:to-gray-800/50">
+                      <CardHeader className="space-y-4 pb-4">
+                        <div className="flex items-start justify-between">
+                          <div className="p-4 rounded-xl bg-gradient-to-br from-primary/10 to-primary/5 group-hover:from-primary/20 group-hover:to-primary/10 transition-all duration-300 shadow-sm">
+                            <tool.icon className="h-7 w-7 text-primary" />
                           </div>
-                          <Badge className={getBadgeVariant(tool.badge)}>
+                          <Badge className={`${getBadgeVariant(tool.badge)} font-medium px-3 py-1 shadow-sm`}>
                             {tool.badge}
                           </Badge>
                         </div>
-                        <div>
-                          <CardTitle className="text-xl group-hover:text-primary transition-colors">
+                        <div className="space-y-3">
+                          <CardTitle className="text-lg font-bold group-hover:text-primary transition-colors leading-tight">
                             {tool.title}
                           </CardTitle>
-                          <CardDescription className="text-sm mt-2 leading-relaxed">
+                          <CardDescription className="text-sm leading-relaxed text-gray-600 dark:text-gray-300">
                             {tool.description}
                           </CardDescription>
                         </div>
                       </CardHeader>
                       
-                      <CardContent className="space-y-4">
-                        <div>
-                          <h4 className="text-sm font-medium mb-2 text-muted-foreground">Key Features:</h4>
-                          <div className="grid grid-cols-2 gap-1">
+                      <CardContent className="space-y-5 pt-0">
+                        <div className="bg-gray-50/50 dark:bg-gray-800/30 rounded-lg p-4 space-y-3">
+                          <h4 className="text-sm font-semibold text-gray-700 dark:text-gray-300 flex items-center gap-2">
+                            <div className="w-2 h-2 bg-primary rounded-full"></div>
+                            Key Features
+                          </h4>
+                          <div className="grid grid-cols-1 gap-2">
                             {tool.features.map((feature, index) => (
-                              <div key={index} className="text-xs text-muted-foreground flex items-center gap-1">
-                                <div className="w-1 h-1 bg-primary rounded-full"></div>
-                                {feature}
+                              <div key={index} className="text-xs text-gray-600 dark:text-gray-400 flex items-center gap-2 py-1">
+                                <div className="w-1.5 h-1.5 bg-primary/60 rounded-full flex-shrink-0"></div>
+                                <span className="font-medium">{feature}</span>
                               </div>
                             ))}
                           </div>
                         </div>
                         
-                        <Button asChild className="w-full group-hover:bg-primary/90 transition-colors">
+                        <Button asChild className="w-full group-hover:shadow-lg transition-all duration-300 font-medium py-2.5 bg-gradient-to-r from-primary to-primary/90 hover:from-primary/90 hover:to-primary">
                           <Link to={`/${userRole}${tool.path}`}>
                             Open Tool
+                            <span className="ml-2 group-hover:translate-x-1 transition-transform duration-300">→</span>
                           </Link>
                         </Button>
                       </CardContent>
@@ -315,42 +319,47 @@ export default function AdvocateToolsHub() {
           </h2>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
             {specializedTools.map((tool) => (
-              <Card key={tool.title} className="hover:shadow-lg transition-all duration-300 hover:scale-105 group bg-gradient-to-br from-primary/5 to-primary/10">
-                <CardHeader className="space-y-3">
-                  <div className="flex items-center justify-between">
-                    <div className="p-3 rounded-lg bg-primary/10 group-hover:bg-primary/20 transition-colors">
-                      <tool.icon className="h-6 w-6 text-primary" />
+              <Card key={tool.title} className="hover:shadow-xl transition-all duration-300 hover:scale-[1.02] group border-0 shadow-md bg-gradient-to-br from-primary/10 via-primary/5 to-transparent overflow-hidden relative">
+                <div className="absolute inset-0 bg-gradient-to-br from-primary/5 to-primary/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                <CardHeader className="space-y-4 pb-4 relative z-10">
+                  <div className="flex items-start justify-between">
+                    <div className="p-4 rounded-xl bg-white/80 dark:bg-gray-900/80 group-hover:bg-white group-hover:shadow-md transition-all duration-300 backdrop-blur-sm">
+                      <tool.icon className="h-7 w-7 text-primary" />
                     </div>
-                    <Badge className={getBadgeVariant(tool.badge)}>
+                    <Badge className={`${getBadgeVariant(tool.badge)} font-medium px-3 py-1 shadow-sm bg-white/90 dark:bg-gray-900/90`}>
                       {tool.badge}
                     </Badge>
                   </div>
-                  <div>
-                    <CardTitle className="text-lg group-hover:text-primary transition-colors">
+                  <div className="space-y-3">
+                    <CardTitle className="text-lg font-bold group-hover:text-primary transition-colors leading-tight">
                       {tool.title}
                     </CardTitle>
-                    <CardDescription className="text-sm mt-2 leading-relaxed">
+                    <CardDescription className="text-sm leading-relaxed text-gray-700 dark:text-gray-300">
                       {tool.description}
                     </CardDescription>
                   </div>
                 </CardHeader>
                 
-                <CardContent className="space-y-4">
-                  <div>
-                    <h4 className="text-sm font-medium mb-2 text-muted-foreground">Key Features:</h4>
-                    <div className="grid grid-cols-1 gap-1">
+                <CardContent className="space-y-5 pt-0 relative z-10">
+                  <div className="bg-white/60 dark:bg-gray-900/30 rounded-lg p-4 space-y-3 backdrop-blur-sm">
+                    <h4 className="text-sm font-semibold text-gray-700 dark:text-gray-300 flex items-center gap-2">
+                      <div className="w-2 h-2 bg-primary rounded-full"></div>
+                      Key Features
+                    </h4>
+                    <div className="grid grid-cols-1 gap-2">
                       {tool.features.map((feature, index) => (
-                        <div key={index} className="text-xs text-muted-foreground flex items-center gap-1">
-                          <div className="w-1 h-1 bg-primary rounded-full"></div>
-                          {feature}
+                        <div key={index} className="text-xs text-gray-700 dark:text-gray-400 flex items-center gap-2 py-1">
+                          <div className="w-1.5 h-1.5 bg-primary/70 rounded-full flex-shrink-0"></div>
+                          <span className="font-medium">{feature}</span>
                         </div>
                       ))}
                     </div>
                   </div>
                   
-                  <Button asChild className="w-full group-hover:bg-primary/90 transition-colors">
+                  <Button asChild className="w-full group-hover:shadow-lg transition-all duration-300 font-medium py-2.5 bg-primary/90 hover:bg-primary backdrop-blur-sm">
                     <Link to={`/${userRole}${tool.path}`}>
                       Open Tool
+                      <span className="ml-2 group-hover:translate-x-1 transition-transform duration-300">→</span>
                     </Link>
                   </Button>
                 </CardContent>

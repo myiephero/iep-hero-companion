@@ -179,6 +179,13 @@ export default function AllPagesView() {
 
   const parentTools = [
     {
+      title: "IEP Review Tool",
+      path: "/parent/tools/iep-review",
+      icon: <TrendingUp className="h-5 w-5" />,
+      description: "Comprehensive IEP review and analysis tool",
+      status: "Active"
+    },
+    {
       title: "AI IEP Review",
       path: "/parent/tools/ai-iep-review",
       icon: <Brain className="h-5 w-5" />,

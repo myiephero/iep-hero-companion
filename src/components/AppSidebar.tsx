@@ -54,7 +54,7 @@ const parentNavigation: SidebarSection[] = [
     items: [
       { title: "Dashboard", url: "/parent/dashboard", icon: LayoutDashboard },
       { title: "My Students", url: "/parent/students", icon: GraduationCap },
-      { title: "Tools Hub", url: "/parent/tools", icon: FileSearch },
+      { title: "Tools Hub", url: "/parent/tools/emergent", icon: FileSearch },
       { title: "Document Vault", url: "/tools/document-vault", icon: FileText },
       { title: "HERO Plan", url: "/upsell/hero-plan", icon: Crown, badge: "Premium" },
     ]

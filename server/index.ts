@@ -79,6 +79,9 @@ async function analyzeWithOpenAI(text: string, analysisType: string, retries = 3
       await new Promise(resolve => setTimeout(resolve, 1000));
     }
   }
+  
+  // This should never be reached, but TypeScript needs it
+  throw new Error('Unexpected error in OpenAI analysis');
 }
 
 const app = express();

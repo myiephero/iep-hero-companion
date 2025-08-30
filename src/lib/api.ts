@@ -1,6 +1,6 @@
-// API client to replace Supabase calls
-// Connect to the Express server running on port 3001
-const API_BASE = 'http://localhost:3001/api';
+// API client to replace Supabase calls  
+// Use relative path since we're on the same domain
+const API_BASE = '/api';
 
 export interface Student {
   id?: string;

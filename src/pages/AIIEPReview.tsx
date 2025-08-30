@@ -9,7 +9,7 @@ import { DocumentUpload } from "@/components/DocumentUpload";
 import { StudentSelector } from "@/components/StudentSelector";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Brain, FileText, CheckCircle, AlertCircle, TrendingUp, Target, Users, Clock, Download } from "lucide-react";
-import { supabase } from "@/integrations/supabase/client";
+// import { supabase } from "@/integrations/supabase/client"; // Removed during migration
 import { useToast } from "@/hooks/use-toast";
 
 interface AIReview {

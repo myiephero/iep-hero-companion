@@ -26,32 +26,9 @@ import {
   CheckCircle,
   Building2
 } from "lucide-react";
-// import { supabase } from "@/integrations/supabase/client"; // Removed during migration
 import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
-
-interface Student {
-  id: string;
-  full_name: string;
-  date_of_birth: string | null;
-  grade_level: string | null;
-  school_name: string | null;
-  district: string | null;
-  disability_category: string | null;
-  iep_status: string;
-  iep_date: string | null;
-  next_review_date: string | null;
-  case_manager: string | null;
-  case_manager_email: string | null;
-  emergency_contact: string | null;
-  emergency_phone: string | null;
-  medical_info: string | null;
-  notes: string | null;
-  created_at: string;
-  updated_at: string;
-  user_id: string;
-  parent_id: string | null;
-}
+import { api, type Student } from "@/lib/api";
 
 interface Client {
   id: string;
@@ -141,37 +118,11 @@ const AdvocateStudents = () => {
     if (!user) return;
 
     try {
-      // First get the advocate-client relationships
-      const { data: relationshipData, error: relationshipError } = await supabase
-        .from("advocate_clients")
-        .select("client_id")
-        .eq("advocate_id", user.id)
-        .eq("status", "active");
-
-      if (relationshipError) throw relationshipError;
-
-      if (!relationshipData || relationshipData.length === 0) {
-        setClients([]);
-        return;
-      }
-
-      // Then get the profile information for each client
-      const clientIds = relationshipData.map(r => r.client_id);
-      const { data: profilesData, error: profilesError } = await supabase
-        .from("profiles")
-        .select("user_id, full_name, email")
-        .in("user_id", clientIds);
-
-      if (profilesError) throw profilesError;
-
-      const clientsData = profilesData?.map(profile => ({
-        id: profile.user_id,
-        client_id: profile.user_id,
-        full_name: profile.full_name || 'Unknown',
-        email: profile.email || ''
-      })) || [];
+      // Use the new API to fetch advocate clients
+      const advocatesData = await api.getAdvocates();
       
-      setClients(clientsData);
+      // For now, return empty array since we need to implement advocate-client relationships
+      setClients([]);
     } catch (error: any) {
       console.error("Error fetching clients:", error);
     }
@@ -181,19 +132,12 @@ const AdvocateStudents = () => {
     if (!user || clients.length === 0) return;
 
     try {
-      const clientIds = clients.map(c => c.client_id);
+      // Use the new API to fetch students
+      const studentsData = await api.getStudents();
+      setStudents(studentsData || []);
       
-      const { data, error } = await supabase
-        .from("students")
-        .select("*")
-        .in("user_id", clientIds)
-        .order("full_name");
-
-      if (error) throw error;
-      setStudents(data || []);
-      
-      if (data && data.length > 0 && !selectedStudentId) {
-        setSelectedStudentId(data[0].id);
+      if (studentsData && studentsData.length > 0 && !selectedStudentId) {
+        setSelectedStudentId(studentsData[0].id!);
       }
     } catch (error: any) {
       console.error("Error fetching students:", error);
@@ -209,43 +153,22 @@ const AdvocateStudents = () => {
     if (!user) return;
 
     try {
-      // Fetch student details
-      const { data: studentData, error: studentError } = await supabase
-        .from("students")
-        .select("*")
-        .eq("id", studentId)
-        .single();
+      // Fetch student details using API
+      const studentsData = await api.getStudents();
+      const studentData = studentsData.find(s => s.id === studentId);
+      if (studentData) {
+        setCurrentStudent(studentData as Student);
+      }
 
-      if (studentError) throw studentError;
-      setCurrentStudent(studentData);
-
-      // Fetch goals
-      const { data: goalsData, error: goalsError } = await supabase
-        .from("goals")
-        .select("*")
-        .eq("student_id", studentId);
-
-      if (goalsError) throw goalsError;
+      // Fetch goals using API
+      const goalsData = await api.getGoals();
       setGoals(goalsData || []);
 
-      // Fetch services
-      const { data: servicesData, error: servicesError } = await supabase
-        .from("services")
-        .select("*")
-        .eq("student_id", studentId);
+      // Fetch services (placeholder - services not implemented in API yet)
+      setServices([]);
 
-      if (servicesError) throw servicesError;
-      setServices(servicesData || []);
-
-      // Fetch cases for this student
-      const { data: casesData, error: casesError } = await supabase
-        .from("cases")
-        .select("*")
-        .eq("student_id", studentId)
-        .eq("advocate_id", user.id);
-
-      if (casesError) throw casesError;
-      setCases(casesData || []);
+      // Fetch cases (placeholder - cases not implemented in API yet)
+      setCases([]);
 
     } catch (error: any) {
       console.error("Error fetching student data:", error);
@@ -269,28 +192,20 @@ const AdvocateStudents = () => {
 
     setLoading(true);
     try {
-      const { data, error } = await supabase
-        .from("students")
-        .insert({
-          user_id: selectedClientId,
-          parent_id: selectedClientId,
-          full_name: newStudent.full_name,
-          date_of_birth: newStudent.date_of_birth || null,
-          grade_level: newStudent.grade_level || null,
-          school_name: newStudent.school_name || null,
-          district: newStudent.district || null,
-          disability_category: newStudent.disability_category || null,
-          case_manager: newStudent.case_manager || null,
-          case_manager_email: newStudent.case_manager_email || null,
-          emergency_contact: newStudent.emergency_contact || null,
-          emergency_phone: newStudent.emergency_phone || null,
-          medical_info: newStudent.medical_info || null,
-          notes: newStudent.notes || null
-        })
-        .select()
-        .single();
-
-      if (error) throw error;
+      const data = await api.createStudent({
+        full_name: newStudent.full_name,
+        date_of_birth: newStudent.date_of_birth || undefined,
+        grade_level: newStudent.grade_level || undefined,
+        school_name: newStudent.school_name || undefined,
+        district: newStudent.district || undefined,
+        disability_category: newStudent.disability_category || undefined,
+        case_manager: newStudent.case_manager || undefined,
+        case_manager_email: newStudent.case_manager_email || undefined,
+        emergency_contact: newStudent.emergency_contact || undefined,
+        emergency_phone: newStudent.emergency_phone || undefined,
+        medical_info: newStudent.medical_info || undefined,
+        notes: newStudent.notes || undefined
+      });
 
       toast({
         title: "Success",
@@ -315,7 +230,9 @@ const AdvocateStudents = () => {
       setSelectedClientId("");
       
       fetchStudents();
-      setSelectedStudentId(data.id);
+      if (data.id) {
+        setSelectedStudentId(data.id);
+      }
     } catch (error: any) {
       console.error("Error adding student:", error);
       toast({

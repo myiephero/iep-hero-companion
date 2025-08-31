@@ -9,7 +9,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { Label } from '@/components/ui/label';
-import { Shield, Folder, Search, Filter, Download, Upload, Eye, Edit, Trash2, Check, X, MoreVertical, Share, User, Calendar, Clock, FileText, Brain } from 'lucide-react';
+import { Shield, Folder, Search, Filter, Download, Upload, Eye, Edit, Trash2, Check, X, MoreVertical, Share, User, Calendar, Clock, FileText, Brain, Square, CheckSquare } from 'lucide-react';
 import { format } from 'date-fns';
 import { api } from '@/lib/api';
 import { useToast } from '@/hooks/use-toast';
@@ -34,6 +34,8 @@ const DocumentVault: React.FC = () => {
   const [selectedStudentId, setSelectedStudentId] = useState('');
   const [viewDialog, setViewDialog] = useState<ViewDialogState>({ document: null, isOpen: false });
   const [activeSection, setActiveSection] = useState<{[key: string]: string}>({});
+  const [selectedDocuments, setSelectedDocuments] = useState<Set<string>>(new Set());
+  const [isSelectMode, setIsSelectMode] = useState(false);
 
   // Queries
   const { data: documents, isLoading, refetch } = useQuery({
@@ -111,6 +113,82 @@ const DocumentVault: React.FC = () => {
     if (confirm(`Are you sure you want to delete "${title}"?`)) {
       deleteDocumentMutation.mutate(id);
     }
+  };
+
+  // Bulk selection functions
+  const toggleDocumentSelection = (documentId: string) => {
+    setSelectedDocuments(prev => {
+      const newSet = new Set(prev);
+      if (newSet.has(documentId)) {
+        newSet.delete(documentId);
+      } else {
+        newSet.add(documentId);
+      }
+      return newSet;
+    });
+  };
+
+  const selectAllDocuments = () => {
+    if (!filteredDocuments) return;
+    const allIds = filteredDocuments.map(doc => doc.id);
+    setSelectedDocuments(new Set(allIds));
+  };
+
+  const deselectAllDocuments = () => {
+    setSelectedDocuments(new Set());
+  };
+
+  const handleBulkDelete = async () => {
+    if (selectedDocuments.size === 0) return;
+    
+    if (window.confirm(`Are you sure you want to delete ${selectedDocuments.size} document(s)? This action cannot be undone.`)) {
+      try {
+        for (const docId of selectedDocuments) {
+          deleteDocumentMutation.mutate(docId);
+        }
+        setSelectedDocuments(new Set());
+        setIsSelectMode(false);
+        toast({
+          title: "Documents deleted",
+          description: `${selectedDocuments.size} document(s) have been successfully deleted.`,
+        });
+      } catch (error) {
+        toast({
+          title: "Error",
+          description: "Failed to delete some documents. Please try again.",
+          variant: "destructive",
+        });
+      }
+    }
+  };
+
+  const handleBulkDownload = () => {
+    if (selectedDocuments.size === 0) return;
+    
+    const selectedDocs = filteredDocuments?.filter(doc => selectedDocuments.has(doc.id)) || [];
+    selectedDocs.forEach(doc => handleDownloadDocument(doc));
+    
+    toast({
+      title: "Downloads started",
+      description: `Started downloading ${selectedDocuments.size} document(s).`,
+    });
+  };
+
+  const handleBulkShare = () => {
+    if (selectedDocuments.size === 0) return;
+    
+    const selectedDocs = filteredDocuments?.filter(doc => selectedDocuments.has(doc.id)) || [];
+    const shareData = selectedDocs.map(doc => ({
+      title: doc.title,
+      type: doc.category,
+      date: doc.created_at
+    }));
+    
+    navigator.clipboard.writeText(JSON.stringify(shareData, null, 2));
+    toast({
+      title: "Copied to clipboard",
+      description: `${selectedDocuments.size} document(s) information copied for sharing.`,
+    });
   };
 
   const handleViewDocument = (doc: Document) => {
@@ -223,7 +301,77 @@ const DocumentVault: React.FC = () => {
                 <Download className="h-4 w-4" />
                 Refresh
               </Button>
+              <Button 
+                onClick={() => setIsSelectMode(!isSelectMode)} 
+                variant={isSelectMode ? "default" : "outline"} 
+                className="gap-2"
+              >
+                {isSelectMode ? <CheckSquare className="h-4 w-4" /> : <Square className="h-4 w-4" />}
+                {isSelectMode ? "Exit Select" : "Select"}
+              </Button>
             </div>
+
+            {/* Bulk Actions Toolbar */}
+            {isSelectMode && (
+              <div className="bg-blue-50 dark:bg-blue-950/30 border border-blue-200 dark:border-blue-800 rounded-lg p-4 mb-6">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-4">
+                    <span className="text-sm font-medium">
+                      {selectedDocuments.size > 0 ? `${selectedDocuments.size} document(s) selected` : 'Select documents to perform bulk actions'}
+                    </span>
+                    {filteredDocuments && filteredDocuments.length > 0 && (
+                      <div className="flex gap-2">
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          onClick={selectAllDocuments}
+                          disabled={selectedDocuments.size === filteredDocuments.length}
+                        >
+                          Select All
+                        </Button>
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          onClick={deselectAllDocuments}
+                          disabled={selectedDocuments.size === 0}
+                        >
+                          Deselect All
+                        </Button>
+                      </div>
+                    )}
+                  </div>
+                  
+                  {selectedDocuments.size > 0 && (
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <Button size="sm" className="gap-2">
+                          <MoreVertical className="h-4 w-4" />
+                          Bulk Actions
+                        </Button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align="end" className="w-48">
+                        <DropdownMenuItem onClick={handleBulkDownload}>
+                          <Download className="h-4 w-4 mr-2" />
+                          Download Selected
+                        </DropdownMenuItem>
+                        <DropdownMenuItem onClick={handleBulkShare}>
+                          <Share className="h-4 w-4 mr-2" />
+                          Share Selected
+                        </DropdownMenuItem>
+                        <DropdownMenuSeparator />
+                        <DropdownMenuItem 
+                          onClick={handleBulkDelete}
+                          className="text-destructive focus:text-destructive focus:bg-destructive/10"
+                        >
+                          <Trash2 className="h-4 w-4 mr-2" />
+                          Delete Selected
+                        </DropdownMenuItem>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
+                  )}
+                </div>
+              </div>
+            )}
 
             {/* Documents Grid */}
             {isLoading ? (
@@ -257,6 +405,18 @@ const DocumentVault: React.FC = () => {
                         <CardContent className="p-6">
                           <div className="flex items-center justify-between mb-6">
                             <div className="flex items-center gap-4">
+                              {isSelectMode && (
+                                <button
+                                  onClick={() => toggleDocumentSelection(doc.id)}
+                                  className="flex-shrink-0"
+                                >
+                                  {selectedDocuments.has(doc.id) ? (
+                                    <CheckSquare className="h-5 w-5 text-blue-600" />
+                                  ) : (
+                                    <Square className="h-5 w-5 text-gray-400 hover:text-gray-600" />
+                                  )}
+                                </button>
+                              )}
                               <div className="p-2 bg-blue-100 dark:bg-blue-900/50 rounded-lg">
                                 <FileText className="h-5 w-5 text-blue-600 dark:text-blue-400" />
                               </div>
@@ -529,6 +689,18 @@ const DocumentVault: React.FC = () => {
                   return (
                     <div key={doc.id} className="flex items-center justify-between p-4 bg-muted/50 rounded-lg hover:bg-muted/70 transition-colors">
                       <div className="flex items-center gap-4">
+                        {isSelectMode && (
+                          <button
+                            onClick={() => toggleDocumentSelection(doc.id)}
+                            className="flex-shrink-0"
+                          >
+                            {selectedDocuments.has(doc.id) ? (
+                              <CheckSquare className="h-5 w-5 text-blue-600" />
+                            ) : (
+                              <Square className="h-5 w-5 text-gray-400 hover:text-gray-600" />
+                            )}
+                          </button>
+                        )}
                         <div className="text-2xl">{getFileTypeIcon(doc.file_type || '')}</div>
                         <div>
                           {editingDocument?.id === doc.id ? (

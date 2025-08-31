@@ -247,11 +247,11 @@ const DocumentVault: React.FC = () => {
       <div className="space-y-8">
         {/* Header */}
         <div className="space-y-2">
-          <h1 className="text-3xl font-bold flex items-center gap-2">
-            <Shield className="h-8 w-8 text-blue-600" />
+          <h1 className="text-2xl md:text-3xl font-bold flex items-center gap-2">
+            <Shield className="h-6 md:h-8 w-6 md:w-8 text-blue-600" />
             Document Vault
           </h1>
-          <p className="text-muted-foreground">
+          <p className="text-muted-foreground text-sm md:text-base">
             Secure storage and management for all your IEP documents
           </p>
         </div>
@@ -273,49 +273,53 @@ const DocumentVault: React.FC = () => {
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <div className="flex flex-col md:flex-row gap-4 mb-6">
+            <div className="flex flex-col gap-4 mb-6">
               <div className="flex-1 relative">
                 <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                 <Input
-                  placeholder="Search by document name, student name, category, or tags..."
+                  placeholder="Search documents..."
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
                   className="pl-10"
                 />
               </div>
-              <Select value={filterType} onValueChange={setFilterType}>
-                <SelectTrigger className="w-full md:w-48">
-                  <Filter className="h-4 w-4 mr-2" />
-                  <SelectValue placeholder="Filter by type" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">All Files</SelectItem>
-                  <SelectItem value="pdf">PDF Files</SelectItem>
-                  <SelectItem value="doc">Word Documents</SelectItem>
-                  <SelectItem value="txt">Text Files</SelectItem>
-                  <SelectItem value="ai review">AI Reviews</SelectItem>
-                  <SelectItem value="upload">Uploaded Files</SelectItem>
-                </SelectContent>
-              </Select>
-              <Button onClick={forceRefresh} variant="outline" className="gap-2">
-                <Download className="h-4 w-4" />
-                Refresh
-              </Button>
-              <Button 
-                onClick={() => setIsSelectMode(!isSelectMode)} 
-                variant={isSelectMode ? "default" : "outline"} 
-                className="gap-2"
-              >
-                {isSelectMode ? <CheckSquare className="h-4 w-4" /> : <Square className="h-4 w-4" />}
-                {isSelectMode ? "Exit Select" : "Select"}
-              </Button>
+              <div className="flex flex-col sm:flex-row gap-2">
+                <Select value={filterType} onValueChange={setFilterType}>
+                  <SelectTrigger className="w-full sm:w-48">
+                    <Filter className="h-4 w-4 mr-2" />
+                    <SelectValue placeholder="Filter by type" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">All Files</SelectItem>
+                    <SelectItem value="pdf">PDF Files</SelectItem>
+                    <SelectItem value="doc">Word Documents</SelectItem>
+                    <SelectItem value="txt">Text Files</SelectItem>
+                    <SelectItem value="ai review">AI Reviews</SelectItem>
+                    <SelectItem value="upload">Uploaded Files</SelectItem>
+                  </SelectContent>
+                </Select>
+                <div className="flex gap-2">
+                  <Button onClick={forceRefresh} variant="outline" className="gap-2 flex-1 sm:flex-initial">
+                    <Download className="h-4 w-4" />
+                    <span className="hidden sm:inline">Refresh</span>
+                  </Button>
+                  <Button 
+                    onClick={() => setIsSelectMode(!isSelectMode)} 
+                    variant={isSelectMode ? "default" : "outline"} 
+                    className="gap-2 flex-1 sm:flex-initial"
+                  >
+                    {isSelectMode ? <CheckSquare className="h-4 w-4" /> : <Square className="h-4 w-4" />}
+                    {isSelectMode ? "Exit Select" : "Select"}
+                  </Button>
+                </div>
+              </div>
             </div>
 
             {/* Bulk Actions Toolbar */}
             {isSelectMode && (
               <div className="bg-blue-50 dark:bg-blue-950/30 border border-blue-200 dark:border-blue-800 rounded-lg p-4 mb-6">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-4">
+                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                  <div className="flex flex-col sm:flex-row sm:items-center gap-4">
                     <span className="text-sm font-medium">
                       {selectedDocuments.size > 0 ? `${selectedDocuments.size} document(s) selected` : 'Select documents to perform bulk actions'}
                     </span>
@@ -404,7 +408,7 @@ const DocumentVault: React.FC = () => {
                       <Card key={doc.id} className="overflow-hidden transition-all duration-200 border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900">
                         <CardContent className="p-6">
                           <div className="flex items-center justify-between mb-6">
-                            <div className="flex items-center gap-4">
+                            <div className="flex items-center gap-2 md:gap-4">
                               {isSelectMode && (
                                 <button
                                   onClick={() => toggleDocumentSelection(doc.id)}
@@ -418,36 +422,39 @@ const DocumentVault: React.FC = () => {
                                 </button>
                               )}
                               <div className="p-2 bg-blue-100 dark:bg-blue-900/50 rounded-lg">
-                                <FileText className="h-5 w-5 text-blue-600 dark:text-blue-400" />
+                                <FileText className="h-4 md:h-5 w-4 md:w-5 text-blue-600 dark:text-blue-400" />
                               </div>
-                              <div>
-                                <h3 className="text-xl font-bold text-gray-900 dark:text-gray-100">Document Review</h3>
-                                <p className="text-sm text-gray-600 dark:text-gray-400">
+                              <div className="min-w-0 flex-1">
+                                <h3 className="text-lg md:text-xl font-bold text-gray-900 dark:text-gray-100 truncate">Document Review</h3>
+                                <p className="text-xs md:text-sm text-gray-600 dark:text-gray-400">
                                   IEP Document Review • {format(new Date(doc.created_at || ''), 'M/d/yyyy')}
                                 </p>
                               </div>
                             </div>
                           </div>
 
-                          <div className="flex flex-wrap items-center gap-2 mb-6">
-                            <Badge className="bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-100">
-                              IEP
-                            </Badge>
-                            <Badge className="bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-100">
-                              MEDIUM COMPLIANCE
-                            </Badge>
-                            <Badge className="bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-100">
-                              GOALS ISSUE
-                            </Badge>
-                            <Badge className="bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-100">
-                              TRANSITION ISSUE
-                            </Badge>
-                            <span className="text-sm text-gray-500">+1 more</span>
-                            <div className="ml-auto flex items-center gap-4">
-                              <Badge variant="outline" className="text-orange-600 border-orange-300">
+                          <div className="flex flex-col sm:flex-row sm:items-center gap-2 mb-6">
+                            <div className="flex flex-wrap items-center gap-2">
+                              <Badge className="bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-100 text-xs">
+                                IEP
+                              </Badge>
+                              <Badge className="bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-100 text-xs">
+                                MEDIUM COMPLIANCE
+                              </Badge>
+                              <Badge className="bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-100 text-xs hidden sm:inline-flex">
+                                GOALS ISSUE
+                              </Badge>
+                              <Badge className="bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-100 text-xs hidden md:inline-flex">
+                                TRANSITION ISSUE
+                              </Badge>
+                              <span className="text-xs sm:text-sm text-gray-500 sm:hidden">+2 more</span>
+                              <span className="text-xs sm:text-sm text-gray-500 hidden sm:inline md:hidden">+1 more</span>
+                            </div>
+                            <div className="flex items-center gap-2 sm:ml-auto">
+                              <Badge variant="outline" className="text-orange-600 border-orange-300 text-xs">
                                 Medium Priority
                               </Badge>
-                              <Badge variant="outline" className="text-orange-600 border-orange-300">
+                              <Badge variant="outline" className="text-orange-600 border-orange-300 text-xs">
                                 75% Compliant
                               </Badge>
                             </div>
@@ -687,8 +694,8 @@ const DocumentVault: React.FC = () => {
 
                   // Regular document rendering for non-AI Analysis documents
                   return (
-                    <div key={doc.id} className="flex items-center justify-between p-4 bg-muted/50 rounded-lg hover:bg-muted/70 transition-colors">
-                      <div className="flex items-center gap-4">
+                    <div key={doc.id} className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 p-4 bg-muted/50 rounded-lg hover:bg-muted/70 transition-colors">
+                      <div className="flex items-center gap-2 md:gap-4 min-w-0 flex-1">
                         {isSelectMode && (
                           <button
                             onClick={() => toggleDocumentSelection(doc.id)}
@@ -701,7 +708,7 @@ const DocumentVault: React.FC = () => {
                             )}
                           </button>
                         )}
-                        <div className="text-2xl">{getFileTypeIcon(doc.file_type || '')}</div>
+                        <div className="text-xl md:text-2xl flex-shrink-0">{getFileTypeIcon(doc.file_type || '')}</div>
                         <div>
                           {editingDocument?.id === doc.id ? (
                             <div className="flex items-center gap-2 mb-2">
@@ -752,15 +759,15 @@ const DocumentVault: React.FC = () => {
                               </Button>
                             </div>
                           )}
-                          <div className="flex items-center gap-4 text-sm text-muted-foreground">
-                            <span>{doc.file_name}</span>
-                            <span>{doc.file_size ? formatFileSize(doc.file_size) : 'Unknown size'}</span>
-                            <div className="flex flex-col gap-1">
+                          <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4 text-sm text-muted-foreground">
+                            <span className="truncate">{doc.file_name}</span>
+                            <span className="text-xs sm:text-sm">{doc.file_size ? formatFileSize(doc.file_size) : 'Unknown size'}</span>
+                            <div className="flex items-center gap-4 text-xs sm:text-sm">
                               <span className="flex items-center gap-1">
                                 <Calendar className="h-3 w-3" />
                                 {format(new Date(doc.created_at || ''), 'MMM d, yyyy')}
                               </span>
-                              <span className="flex items-center gap-1 text-xs text-muted-foreground">
+                              <span className="flex items-center gap-1">
                                 <Clock className="h-3 w-3" />
                                 {format(new Date(doc.created_at || ''), 'h:mm a')}
                               </span>
@@ -786,7 +793,7 @@ const DocumentVault: React.FC = () => {
                           )}
                         </div>
                       </div>
-                      <div className="flex items-center gap-2">
+                      <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2">
                         {doc.confidential && (
                           <Badge variant="secondary" className="text-xs">
                             <Shield className="h-3 w-3 mr-1" />
@@ -794,34 +801,35 @@ const DocumentVault: React.FC = () => {
                           </Badge>
                         )}
                         
-                        <Button 
-                          size="sm" 
-                          variant="outline" 
-                          className="h-8"
-                          onClick={() => handleViewDocument(doc)}
-                          data-testid={`button-view-${doc.id}`}
-                        >
-                          <Eye className="h-4 w-4 mr-1" />
-                          View
-                        </Button>
-                        <Button 
-                          size="sm" 
-                          variant="outline" 
-                          className="h-8"
-                          onClick={() => handleDownloadDocument(doc)}
-                          data-testid={`button-download-${doc.id}`}
-                        >
-                          <Download className="h-4 w-4 mr-1" />
-                          Download
-                        </Button>
+                        <div className="flex items-center gap-2">
+                          <Button 
+                            size="sm" 
+                            variant="outline" 
+                            className="h-8"
+                            onClick={() => handleViewDocument(doc)}
+                            data-testid={`button-view-${doc.id}`}
+                          >
+                            <Eye className="h-4 w-4 sm:mr-1" />
+                            <span className="hidden sm:inline">View</span>
+                          </Button>
+                          <Button 
+                            size="sm" 
+                            variant="outline" 
+                            className="h-8"
+                            onClick={() => handleDownloadDocument(doc)}
+                            data-testid={`button-download-${doc.id}`}
+                          >
+                            <Download className="h-4 w-4 sm:mr-1" />
+                            <span className="hidden sm:inline">Download</span>
+                          </Button>
 
-                        <DropdownMenu>
-                          <DropdownMenuTrigger asChild>
-                            <Button variant="outline" size="sm" className="h-8 w-8 p-0">
-                              <MoreVertical className="h-4 w-4" />
-                            </Button>
-                          </DropdownMenuTrigger>
-                          <DropdownMenuContent align="end" className="w-48">
+                          <DropdownMenu>
+                            <DropdownMenuTrigger asChild>
+                              <Button variant="outline" size="sm" className="h-8 w-8 p-0">
+                                <MoreVertical className="h-4 w-4" />
+                              </Button>
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent align="end" className="w-48">
                             <DropdownMenuItem 
                               onClick={() => handleEditFileName(doc.id, doc.title)}
                               data-testid={`menu-edit-filename-${doc.id}`}
@@ -852,8 +860,9 @@ const DocumentVault: React.FC = () => {
                               <Trash2 className="h-4 w-4 mr-2" />
                               Delete
                             </DropdownMenuItem>
-                          </DropdownMenuContent>
-                        </DropdownMenu>
+                            </DropdownMenuContent>
+                          </DropdownMenu>
+                        </div>
                       </div>
                     </div>
                   );

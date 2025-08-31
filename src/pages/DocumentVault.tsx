@@ -37,10 +37,12 @@ const DocumentVault: React.FC = () => {
   // Queries
   const { data: documents, isLoading, refetch } = useQuery({
     queryKey: ['/api/documents'],
+    queryFn: () => api.getDocuments(),
   });
 
   const { data: students } = useQuery({
     queryKey: ['/api/students'],
+    queryFn: () => api.getStudents(),
   });
 
   // Mutations

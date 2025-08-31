@@ -9,6 +9,8 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger, DialogFooter } from "@/components/ui/dialog";
+import { Label } from "@/components/ui/label";
 import { api } from "@/lib/api";
 import { 
   FileText, 
@@ -21,7 +23,11 @@ import {
   Shield,
   Folder,
   Upload,
-  Trash2
+  Trash2,
+  Edit,
+  User,
+  Check,
+  X
 } from "lucide-react";
 import { format } from "date-fns";
 import { useToast } from "@/hooks/use-toast";
@@ -29,6 +35,10 @@ import { useToast } from "@/hooks/use-toast";
 const DocumentVault = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [filterType, setFilterType] = useState("all");
+  const [editingDocument, setEditingDocument] = useState<{id: string, currentName: string} | null>(null);
+  const [newFileName, setNewFileName] = useState('');
+  const [assigningDocument, setAssigningDocument] = useState<string | null>(null);
+  const [selectedStudentId, setSelectedStudentId] = useState<string>('');
   const { toast } = useToast();
 
   // Force refresh function
@@ -64,6 +74,64 @@ const DocumentVault = () => {
       toast({
         title: "Error",
         description: "Failed to delete document. Please try again.",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const handleEditFileName = (id: string, currentName: string) => {
+    setEditingDocument({ id, currentName });
+    setNewFileName(currentName);
+  };
+
+  const handleUpdateFileName = async () => {
+    if (!editingDocument || !newFileName.trim()) return;
+    
+    try {
+      await api.updateDocument(editingDocument.id, { title: newFileName.trim() });
+      queryClient.invalidateQueries({ queryKey: ['documents'] });
+      toast({
+        title: "Document Updated",
+        description: `Successfully renamed to "${newFileName.trim()}"`,
+      });
+      setEditingDocument(null);
+      setNewFileName('');
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to update document name. Please try again.",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const handleCancelEdit = () => {
+    setEditingDocument(null);
+    setNewFileName('');
+  };
+
+  const handleAssignToStudent = (documentId: string) => {
+    setAssigningDocument(documentId);
+    setSelectedStudentId('');
+  };
+
+  const handleUpdateStudentAssignment = async () => {
+    if (!assigningDocument || !selectedStudentId) return;
+    
+    try {
+      await api.updateDocument(assigningDocument, { student_id: selectedStudentId });
+      queryClient.invalidateQueries({ queryKey: ['documents'] });
+      const student = students?.find(s => s.id === selectedStudentId);
+      toast({
+        title: "Student Assigned",
+        description: `Successfully assigned to ${student?.full_name || 'student'}`,
+      });
+      setAssigningDocument(null);
+      setSelectedStudentId('');
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to assign student. Please try again.",
         variant: "destructive",
       });
     }
@@ -187,7 +255,55 @@ const DocumentVault = () => {
                     <div className="flex items-center gap-4">
                       <div className="text-2xl">{getFileTypeIcon(doc.file_type || '')}</div>
                       <div>
-                        <h4 className="font-medium">{doc.title}</h4>
+                        {editingDocument?.id === doc.id ? (
+                          <div className="flex items-center gap-2 mb-2">
+                            <Input
+                              value={newFileName}
+                              onChange={(e) => setNewFileName(e.target.value)}
+                              className="h-8 text-sm font-medium"
+                              onKeyDown={(e) => {
+                                if (e.key === 'Enter') {
+                                  handleUpdateFileName();
+                                } else if (e.key === 'Escape') {
+                                  handleCancelEdit();
+                                }
+                              }}
+                              autoFocus
+                              data-testid={`input-edit-filename-${doc.id}`}
+                            />
+                            <Button
+                              size="sm"
+                              variant="ghost"
+                              className="h-8 w-8 p-0 text-green-600 hover:text-green-700 hover:bg-green-50"
+                              onClick={handleUpdateFileName}
+                              data-testid={`button-save-filename-${doc.id}`}
+                            >
+                              <Check className="h-4 w-4" />
+                            </Button>
+                            <Button
+                              size="sm"
+                              variant="ghost"
+                              className="h-8 w-8 p-0 text-red-600 hover:text-red-700 hover:bg-red-50"
+                              onClick={handleCancelEdit}
+                              data-testid={`button-cancel-filename-${doc.id}`}
+                            >
+                              <X className="h-4 w-4" />
+                            </Button>
+                          </div>
+                        ) : (
+                          <div className="flex items-center gap-2 group">
+                            <h4 className="font-medium">{doc.title}</h4>
+                            <Button
+                              size="sm"
+                              variant="ghost"
+                              className="h-6 w-6 p-0 opacity-0 group-hover:opacity-100 transition-opacity"
+                              onClick={() => handleEditFileName(doc.id, doc.title)}
+                              data-testid={`button-edit-filename-${doc.id}`}
+                            >
+                              <Edit className="h-3 w-3" />
+                            </Button>
+                          </div>
+                        )}
                         <div className="flex items-center gap-4 text-sm text-muted-foreground">
                           <span>{doc.file_name}</span>
                           <span>{doc.file_size ? formatFileSize(doc.file_size) : 'Unknown size'}</span>
@@ -202,29 +318,27 @@ const DocumentVault = () => {
                             </span>
                           </div>
                         </div>
-                        {doc.student_id && (() => {
-                          const student = students?.find(s => s.id === doc.student_id);
-                          return student ? (
-                            <div className="flex items-center gap-2 mt-1">
+                        <div className="flex items-center gap-2 mt-1 flex-wrap">
+                          {doc.student_id && (() => {
+                            const student = students?.find(s => s.id === doc.student_id);
+                            return student ? (
                               <Badge variant="outline" className="text-xs">
                                 Student: {student.full_name}
                               </Badge>
-                            </div>
-                          ) : null;
-                        })()}
-                        {doc.category && (
-                          <div className="flex items-center gap-2 mt-1">
+                            ) : null;
+                          })()}
+                          {doc.category && (
                             <Badge variant="secondary" className="text-xs">
                               {doc.category}
                             </Badge>
-                          </div>
-                        )}
+                          )}
+                        </div>
                         {doc.description && (
                           <p className="text-sm text-muted-foreground mt-1">{doc.description}</p>
                         )}
                       </div>
                     </div>
-                    <div className="flex items-center gap-2">
+                    <div className="flex items-center gap-2 flex-wrap">
                       {doc.confidential && (
                         <Badge variant="secondary" className="text-xs">
                           <Shield className="h-3 w-3 mr-1" />
@@ -239,6 +353,52 @@ const DocumentVault = () => {
                         <Download className="h-4 w-4 mr-1" />
                         Download
                       </Button>
+                      <Dialog open={assigningDocument === doc.id} onOpenChange={(open) => !open && setAssigningDocument(null)}>
+                        <DialogTrigger asChild>
+                          <Button 
+                            size="sm" 
+                            variant="outline"
+                            onClick={() => handleAssignToStudent(doc.id)}
+                            data-testid={`button-assign-student-${doc.id}`}
+                          >
+                            <User className="h-4 w-4 mr-1" />
+                            Assign Student
+                          </Button>
+                        </DialogTrigger>
+                        <DialogContent className="sm:max-w-[425px]">
+                          <DialogHeader>
+                            <DialogTitle>Assign Student</DialogTitle>
+                            <DialogDescription>
+                              Select a student to assign this document to: {doc.title}
+                            </DialogDescription>
+                          </DialogHeader>
+                          <div className="grid gap-4 py-4">
+                            <div className="grid gap-2">
+                              <Label htmlFor="student-select">Student</Label>
+                              <Select value={selectedStudentId} onValueChange={setSelectedStudentId}>
+                                <SelectTrigger>
+                                  <SelectValue placeholder="Select a student..." />
+                                </SelectTrigger>
+                                <SelectContent>
+                                  {students?.map((student) => (
+                                    <SelectItem key={student.id} value={student.id}>
+                                      {student.full_name}
+                                    </SelectItem>
+                                  ))}
+                                </SelectContent>
+                              </Select>
+                            </div>
+                          </div>
+                          <DialogFooter>
+                            <Button type="button" variant="outline" onClick={() => setAssigningDocument(null)}>
+                              Cancel
+                            </Button>
+                            <Button type="button" onClick={handleUpdateStudentAssignment} disabled={!selectedStudentId}>
+                              Assign Student
+                            </Button>
+                          </DialogFooter>
+                        </DialogContent>
+                      </Dialog>
                       <Button 
                         size="sm" 
                         variant="outline" 

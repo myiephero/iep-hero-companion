@@ -29,7 +29,8 @@ import {
   User,
   Check,
   X,
-  MoreVertical
+  MoreVertical,
+  Share
 } from "lucide-react";
 import { format } from "date-fns";
 import { useToast } from "@/hooks/use-toast";
@@ -137,6 +138,68 @@ const DocumentVault = () => {
         variant: "destructive",
       });
     }
+  };
+
+  const handleViewDocument = (document: any) => {
+    // For now, we'll try to open the document content directly
+    // In a real implementation, this would fetch the document content from the server
+    if (document.content) {
+      // If it's analysis content, show it in a new window
+      const newWindow = window.open('', '_blank');
+      if (newWindow) {
+        newWindow.document.write(`
+          <html>
+            <head><title>${document.title}</title></head>
+            <body style="font-family: Arial, sans-serif; margin: 20px; line-height: 1.6;">
+              <h1>${document.title}</h1>
+              <div style="white-space: pre-wrap;">${document.content}</div>
+            </body>
+          </html>
+        `);
+        newWindow.document.close();
+      }
+    } else {
+      // For original files, we would need the file URL from the server
+      toast({
+        title: "View Document",
+        description: "Document viewer will be implemented soon",
+      });
+    }
+  };
+
+  const handleDownloadDocument = (document: any) => {
+    if (document.content) {
+      // Download analysis as JSON file
+      const blob = new Blob([document.content], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `${document.file_name}`;
+      a.click();
+      URL.revokeObjectURL(url);
+    } else {
+      // For original files, we would need to fetch from server
+      toast({
+        title: "Download Document",
+        description: "Document download will be implemented soon",
+      });
+    }
+  };
+
+  const handleShareDocument = (document: any) => {
+    // Copy document link to clipboard (simplified implementation)
+    const shareUrl = `${window.location.origin}/documents/${document.id}`;
+    navigator.clipboard.writeText(shareUrl).then(() => {
+      toast({
+        title: "Link Copied",
+        description: "Document link copied to clipboard",
+      });
+    }).catch(() => {
+      toast({
+        title: "Share Document",
+        description: "Sharing functionality will be implemented soon",
+      });
+    });
   };
 
   const filteredDocuments = documents?.filter(doc => {
@@ -349,11 +412,23 @@ const DocumentVault = () => {
                       )}
                       
                       {/* Primary Actions - Always Visible */}
-                      <Button size="sm" variant="outline" className="h-8">
+                      <Button 
+                        size="sm" 
+                        variant="outline" 
+                        className="h-8"
+                        onClick={() => handleViewDocument(doc)}
+                        data-testid={`button-view-${doc.id}`}
+                      >
                         <Eye className="h-4 w-4 mr-1" />
                         View
                       </Button>
-                      <Button size="sm" variant="outline" className="h-8">
+                      <Button 
+                        size="sm" 
+                        variant="outline" 
+                        className="h-8"
+                        onClick={() => handleDownloadDocument(doc)}
+                        data-testid={`button-download-${doc.id}`}
+                      >
                         <Download className="h-4 w-4 mr-1" />
                         Download
                       </Button>
@@ -379,6 +454,13 @@ const DocumentVault = () => {
                           >
                             <User className="h-4 w-4 mr-2" />
                             Assign Student
+                          </DropdownMenuItem>
+                          <DropdownMenuItem 
+                            onClick={() => handleShareDocument(doc)}
+                            data-testid={`menu-share-${doc.id}`}
+                          >
+                            <Share className="h-4 w-4 mr-2" />
+                            Share
                           </DropdownMenuItem>
                           <DropdownMenuSeparator />
                           <DropdownMenuItem 

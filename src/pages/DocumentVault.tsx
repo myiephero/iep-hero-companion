@@ -17,6 +17,7 @@ import {
   Download,
   Eye,
   Calendar,
+  Clock,
   Shield,
   Folder,
   Upload,
@@ -163,13 +164,6 @@ const DocumentVault = () => {
               </Button>
             </div>
 
-            {/* Debug Info */}
-            <div className="mb-4 p-2 bg-muted rounded text-sm">
-              <p>Debug: Raw documents count: {documents?.length || 0}</p>
-              <p>Debug: Filtered documents count: {filteredDocuments?.length || 0}</p>
-              <p>Debug: Search term: "{searchTerm}"</p>
-              <p>Debug: Filter type: "{filterType}"</p>
-            </div>
 
             {/* Documents Grid */}
             {isLoading ? (
@@ -197,10 +191,16 @@ const DocumentVault = () => {
                         <div className="flex items-center gap-4 text-sm text-muted-foreground">
                           <span>{doc.file_name}</span>
                           <span>{doc.file_size ? formatFileSize(doc.file_size) : 'Unknown size'}</span>
-                          <span className="flex items-center gap-1">
-                            <Calendar className="h-3 w-3" />
-                            {format(new Date(doc.created_at || ''), 'MMM d, yyyy')}
-                          </span>
+                          <div className="flex flex-col gap-1">
+                            <span className="flex items-center gap-1">
+                              <Calendar className="h-3 w-3" />
+                              {format(new Date(doc.created_at || ''), 'MMM d, yyyy')}
+                            </span>
+                            <span className="flex items-center gap-1 text-xs text-muted-foreground">
+                              <Clock className="h-3 w-3" />
+                              {format(new Date(doc.created_at || ''), 'h:mm a')}
+                            </span>
+                          </div>
                         </div>
                         {doc.student_id && (() => {
                           const student = students?.find(s => s.id === doc.student_id);

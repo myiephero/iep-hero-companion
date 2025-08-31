@@ -18,7 +18,11 @@ import {
   FileCheck,
   Users,
   MessageSquare,
-  Loader2
+  Loader2,
+  Target,
+  TrendingUp,
+  Shield,
+  Clock
 } from "lucide-react";
 
 // Helper function to read file as text
@@ -45,6 +49,195 @@ const readFileAsBase64 = (file: File): Promise<string> => {
     reader.onerror = () => reject(new Error('Failed to read file'));
     reader.readAsDataURL(file);
   });
+};
+
+// IEP Analysis Display Component
+interface IEPAnalysisDisplayProps {
+  analysis: {
+    type: string;
+    content: string;
+    timestamp: string;
+  };
+}
+
+const IEPAnalysisDisplay = ({ analysis }: IEPAnalysisDisplayProps) => {
+  let parsedAnalysis;
+  
+  try {
+    parsedAnalysis = typeof analysis.content === 'string' 
+      ? JSON.parse(analysis.content) 
+      : analysis.content;
+  } catch (error) {
+    // Fallback for non-JSON content
+    return (
+      <div className="mt-4 p-4 bg-muted rounded-lg">
+        <div className="flex items-center gap-2 mb-2">
+          <Brain className="h-4 w-4 text-primary" />
+          <span className="font-medium">{analysis.type.toUpperCase()} Analysis</span>
+          <Badge variant="secondary" className="text-xs">
+            {new Date(analysis.timestamp).toLocaleString()}
+          </Badge>
+        </div>
+        <div className="text-sm whitespace-pre-wrap">{analysis.content}</div>
+      </div>
+    );
+  }
+
+  const getComplianceColor = (score: number) => {
+    if (score >= 80) return 'text-green-600 bg-green-50 border-green-200';
+    if (score >= 60) return 'text-yellow-600 bg-yellow-50 border-yellow-200';
+    return 'text-red-600 bg-red-50 border-red-200';
+  };
+
+  const getStatusColor = (status: string) => {
+    switch (status?.toLowerCase()) {
+      case 'excellent': return 'bg-green-100 text-green-700';
+      case 'good': return 'bg-blue-100 text-blue-700';
+      case 'needs improvement': return 'bg-yellow-100 text-yellow-700';
+      case 'poor': return 'bg-red-100 text-red-700';
+      default: return 'bg-gray-100 text-gray-700';
+    }
+  };
+
+  return (
+    <div className="mt-4 space-y-4">
+      {/* Header */}
+      <div className="flex items-center justify-between p-4 bg-primary/5 rounded-lg border">
+        <div className="flex items-center gap-2">
+          <Brain className="h-5 w-5 text-primary" />
+          <span className="font-semibold text-lg">{analysis.type.toUpperCase()} Analysis Results</span>
+        </div>
+        <div className="flex items-center gap-2">
+          <Badge variant="secondary" className="text-xs">
+            <Clock className="h-3 w-3 mr-1" />
+            {new Date(analysis.timestamp).toLocaleString()}
+          </Badge>
+          {parsedAnalysis.compliance_score && (
+            <Badge className={`${getComplianceColor(parsedAnalysis.compliance_score)} font-medium`}>
+              <Shield className="h-3 w-3 mr-1" />
+              {parsedAnalysis.compliance_score}/100
+            </Badge>
+          )}
+          {parsedAnalysis.status && (
+            <Badge className={getStatusColor(parsedAnalysis.status)}>
+              {parsedAnalysis.status}
+            </Badge>
+          )}
+        </div>
+      </div>
+
+      {/* Summary */}
+      {parsedAnalysis.summary && (
+        <Card>
+          <CardHeader className="pb-3">
+            <CardTitle className="flex items-center gap-2 text-base">
+              <FileText className="h-4 w-4" />
+              Executive Summary
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <p className="text-sm leading-relaxed">{parsedAnalysis.summary}</p>
+          </CardContent>
+        </Card>
+      )}
+
+      {/* Recommendations */}
+      {parsedAnalysis.recommendations && parsedAnalysis.recommendations.length > 0 && (
+        <Card>
+          <CardHeader className="pb-3">
+            <CardTitle className="flex items-center gap-2 text-base">
+              <TrendingUp className="h-4 w-4 text-blue-600" />
+              Key Recommendations
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <ul className="space-y-2">
+              {parsedAnalysis.recommendations.map((rec: string, index: number) => (
+                <li key={index} className="flex items-start gap-2 text-sm">
+                  <Badge variant="outline" className="text-xs font-medium mt-0.5 shrink-0">
+                    {index + 1}
+                  </Badge>
+                  <span className="leading-relaxed">{rec}</span>
+                </li>
+              ))}
+            </ul>
+          </CardContent>
+        </Card>
+      )}
+
+      {/* Areas of Concern */}
+      {parsedAnalysis.areas_of_concern && parsedAnalysis.areas_of_concern.length > 0 && (
+        <Card>
+          <CardHeader className="pb-3">
+            <CardTitle className="flex items-center gap-2 text-base">
+              <AlertCircle className="h-4 w-4 text-amber-600" />
+              Areas of Concern
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <ul className="space-y-2">
+              {parsedAnalysis.areas_of_concern.map((concern: string, index: number) => (
+                <li key={index} className="flex items-start gap-2 text-sm">
+                  <Badge variant="secondary" className="text-xs mt-0.5 shrink-0 bg-amber-100 text-amber-700">
+                    ⚠
+                  </Badge>
+                  <span className="leading-relaxed">{concern}</span>
+                </li>
+              ))}
+            </ul>
+          </CardContent>
+        </Card>
+      )}
+
+      {/* Strengths */}
+      {parsedAnalysis.strengths && parsedAnalysis.strengths.length > 0 && (
+        <Card>
+          <CardHeader className="pb-3">
+            <CardTitle className="flex items-center gap-2 text-base">
+              <CheckCircle className="h-4 w-4 text-green-600" />
+              Identified Strengths
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <ul className="space-y-2">
+              {parsedAnalysis.strengths.map((strength: string, index: number) => (
+                <li key={index} className="flex items-start gap-2 text-sm">
+                  <Badge variant="secondary" className="text-xs mt-0.5 shrink-0 bg-green-100 text-green-700">
+                    ✓
+                  </Badge>
+                  <span className="leading-relaxed">{strength}</span>
+                </li>
+              ))}
+            </ul>
+          </CardContent>
+        </Card>
+      )}
+
+      {/* Action Items */}
+      {parsedAnalysis.action_items && parsedAnalysis.action_items.length > 0 && (
+        <Card>
+          <CardHeader className="pb-3">
+            <CardTitle className="flex items-center gap-2 text-base">
+              <Target className="h-4 w-4 text-purple-600" />
+              Next Steps & Action Items
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <ul className="space-y-2">
+              {parsedAnalysis.action_items.map((action: string, index: number) => (
+                <li key={index} className="flex items-start gap-2 text-sm">
+                  <Badge variant="outline" className="text-xs font-medium mt-0.5 shrink-0 bg-purple-50 text-purple-700 border-purple-200">
+                    {index + 1}
+                  </Badge>
+                  <span className="leading-relaxed">{action}</span>
+                </li>
+              ))}
+            </ul>
+          </CardContent>
+        </Card>
+      )}
+    </div>
+  );
 };
 
 interface UploadedFile {
@@ -382,24 +575,7 @@ export function DocumentUpload({ onAnalysisComplete }: DocumentUploadProps) {
                   </div>
                 )}
 
-                {fileData.analysis && (
-                  <div className="mt-4 p-4 bg-muted rounded-lg">
-                    <div className="flex items-center gap-2 mb-2">
-                      <Brain className="h-4 w-4 text-primary" />
-                      <span className="font-medium">
-                        {fileData.analysis.type.toUpperCase()} Analysis
-                      </span>
-                      <Badge variant="secondary" className="text-xs">
-                        {new Date(fileData.analysis.timestamp).toLocaleString()}
-                      </Badge>
-                    </div>
-                    <div className="text-sm whitespace-pre-wrap">
-                      {typeof fileData.analysis.content === 'string' 
-                        ? fileData.analysis.content 
-                        : JSON.stringify(fileData.analysis.content, null, 2)}
-                    </div>
-                  </div>
-                )}
+                {fileData.analysis && <IEPAnalysisDisplay analysis={fileData.analysis} />}
               </div>
             ))}
           </CardContent>

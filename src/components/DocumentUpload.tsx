@@ -22,7 +22,9 @@ import {
   Target,
   TrendingUp,
   Shield,
-  Clock
+  Clock,
+  ChevronDown,
+  ChevronUp
 } from "lucide-react";
 
 // Helper function to read file as text
@@ -61,7 +63,19 @@ interface IEPAnalysisDisplayProps {
 }
 
 const IEPAnalysisDisplay = ({ analysis }: IEPAnalysisDisplayProps) => {
+  const [collapsedSections, setCollapsedSections] = useState<{[key: string]: boolean}>({});
   let parsedAnalysis;
+
+  const toggleSection = (section: string) => {
+    setCollapsedSections(prev => ({
+      ...prev,
+      [section]: !prev[section]
+    }));
+  };
+
+  const isSectionCollapsed = (section: string) => {
+    return collapsedSections[section] || false;
+  };
   
   try {
     parsedAnalysis = typeof analysis.content === 'string' 
@@ -130,14 +144,30 @@ const IEPAnalysisDisplay = ({ analysis }: IEPAnalysisDisplayProps) => {
       {parsedAnalysis.summary && (
         <Card>
           <CardHeader className="pb-3">
-            <CardTitle className="flex items-center gap-2 text-base">
-              <FileText className="h-4 w-4" />
-              Executive Summary
-            </CardTitle>
+            <div className="flex items-center justify-between">
+              <CardTitle className="flex items-center gap-2 text-base">
+                <FileText className="h-4 w-4" />
+                Executive Summary
+              </CardTitle>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => toggleSection('summary')}
+                className="h-8 w-8 p-0"
+              >
+                {isSectionCollapsed('summary') ? (
+                  <ChevronDown className="h-4 w-4" />
+                ) : (
+                  <ChevronUp className="h-4 w-4" />
+                )}
+              </Button>
+            </div>
           </CardHeader>
-          <CardContent>
-            <p className="text-sm leading-relaxed">{parsedAnalysis.summary}</p>
-          </CardContent>
+          {!isSectionCollapsed('summary') && (
+            <CardContent>
+              <p className="text-sm leading-relaxed">{parsedAnalysis.summary}</p>
+            </CardContent>
+          )}
         </Card>
       )}
 
@@ -145,23 +175,39 @@ const IEPAnalysisDisplay = ({ analysis }: IEPAnalysisDisplayProps) => {
       {parsedAnalysis.recommendations && parsedAnalysis.recommendations.length > 0 && (
         <Card>
           <CardHeader className="pb-3">
-            <CardTitle className="flex items-center gap-2 text-base">
-              <TrendingUp className="h-4 w-4 text-blue-600" />
-              Key Recommendations
-            </CardTitle>
+            <div className="flex items-center justify-between">
+              <CardTitle className="flex items-center gap-2 text-base">
+                <TrendingUp className="h-4 w-4 text-blue-600" />
+                Key Recommendations
+              </CardTitle>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => toggleSection('recommendations')}
+                className="h-8 w-8 p-0"
+              >
+                {isSectionCollapsed('recommendations') ? (
+                  <ChevronDown className="h-4 w-4" />
+                ) : (
+                  <ChevronUp className="h-4 w-4" />
+                )}
+              </Button>
+            </div>
           </CardHeader>
-          <CardContent>
-            <ul className="space-y-2">
-              {parsedAnalysis.recommendations.map((rec: string, index: number) => (
-                <li key={index} className="flex items-start gap-2 text-sm">
-                  <Badge variant="outline" className="text-xs font-medium mt-0.5 shrink-0">
-                    {index + 1}
-                  </Badge>
-                  <span className="leading-relaxed">{rec}</span>
-                </li>
-              ))}
-            </ul>
-          </CardContent>
+          {!isSectionCollapsed('recommendations') && (
+            <CardContent>
+              <ul className="space-y-2">
+                {parsedAnalysis.recommendations.map((rec: string, index: number) => (
+                  <li key={index} className="flex items-start gap-2 text-sm">
+                    <Badge variant="outline" className="text-xs font-medium mt-0.5 shrink-0">
+                      {index + 1}
+                    </Badge>
+                    <span className="leading-relaxed">{rec}</span>
+                  </li>
+                ))}
+              </ul>
+            </CardContent>
+          )}
         </Card>
       )}
 
@@ -169,23 +215,39 @@ const IEPAnalysisDisplay = ({ analysis }: IEPAnalysisDisplayProps) => {
       {parsedAnalysis.areas_of_concern && parsedAnalysis.areas_of_concern.length > 0 && (
         <Card>
           <CardHeader className="pb-3">
-            <CardTitle className="flex items-center gap-2 text-base">
-              <AlertCircle className="h-4 w-4 text-amber-600" />
-              Areas of Concern
-            </CardTitle>
+            <div className="flex items-center justify-between">
+              <CardTitle className="flex items-center gap-2 text-base">
+                <AlertCircle className="h-4 w-4 text-amber-600" />
+                Areas of Concern
+              </CardTitle>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => toggleSection('concerns')}
+                className="h-8 w-8 p-0"
+              >
+                {isSectionCollapsed('concerns') ? (
+                  <ChevronDown className="h-4 w-4" />
+                ) : (
+                  <ChevronUp className="h-4 w-4" />
+                )}
+              </Button>
+            </div>
           </CardHeader>
-          <CardContent>
-            <ul className="space-y-2">
-              {parsedAnalysis.areas_of_concern.map((concern: string, index: number) => (
-                <li key={index} className="flex items-start gap-2 text-sm">
-                  <Badge variant="secondary" className="text-xs mt-0.5 shrink-0 bg-amber-100 text-amber-700">
-                    ⚠
-                  </Badge>
-                  <span className="leading-relaxed">{concern}</span>
-                </li>
-              ))}
-            </ul>
-          </CardContent>
+          {!isSectionCollapsed('concerns') && (
+            <CardContent>
+              <ul className="space-y-2">
+                {parsedAnalysis.areas_of_concern.map((concern: string, index: number) => (
+                  <li key={index} className="flex items-start gap-2 text-sm">
+                    <Badge variant="secondary" className="text-xs mt-0.5 shrink-0 bg-amber-100 text-amber-700">
+                      ⚠
+                    </Badge>
+                    <span className="leading-relaxed">{concern}</span>
+                  </li>
+                ))}
+              </ul>
+            </CardContent>
+          )}
         </Card>
       )}
 
@@ -193,23 +255,39 @@ const IEPAnalysisDisplay = ({ analysis }: IEPAnalysisDisplayProps) => {
       {parsedAnalysis.strengths && parsedAnalysis.strengths.length > 0 && (
         <Card>
           <CardHeader className="pb-3">
-            <CardTitle className="flex items-center gap-2 text-base">
-              <CheckCircle className="h-4 w-4 text-green-600" />
-              Identified Strengths
-            </CardTitle>
+            <div className="flex items-center justify-between">
+              <CardTitle className="flex items-center gap-2 text-base">
+                <CheckCircle className="h-4 w-4 text-green-600" />
+                Identified Strengths
+              </CardTitle>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => toggleSection('strengths')}
+                className="h-8 w-8 p-0"
+              >
+                {isSectionCollapsed('strengths') ? (
+                  <ChevronDown className="h-4 w-4" />
+                ) : (
+                  <ChevronUp className="h-4 w-4" />
+                )}
+              </Button>
+            </div>
           </CardHeader>
-          <CardContent>
-            <ul className="space-y-2">
-              {parsedAnalysis.strengths.map((strength: string, index: number) => (
-                <li key={index} className="flex items-start gap-2 text-sm">
-                  <Badge variant="secondary" className="text-xs mt-0.5 shrink-0 bg-green-100 text-green-700">
-                    ✓
-                  </Badge>
-                  <span className="leading-relaxed">{strength}</span>
-                </li>
-              ))}
-            </ul>
-          </CardContent>
+          {!isSectionCollapsed('strengths') && (
+            <CardContent>
+              <ul className="space-y-2">
+                {parsedAnalysis.strengths.map((strength: string, index: number) => (
+                  <li key={index} className="flex items-start gap-2 text-sm">
+                    <Badge variant="secondary" className="text-xs mt-0.5 shrink-0 bg-green-100 text-green-700">
+                      ✓
+                    </Badge>
+                    <span className="leading-relaxed">{strength}</span>
+                  </li>
+                ))}
+              </ul>
+            </CardContent>
+          )}
         </Card>
       )}
 
@@ -217,23 +295,39 @@ const IEPAnalysisDisplay = ({ analysis }: IEPAnalysisDisplayProps) => {
       {parsedAnalysis.action_items && parsedAnalysis.action_items.length > 0 && (
         <Card>
           <CardHeader className="pb-3">
-            <CardTitle className="flex items-center gap-2 text-base">
-              <Target className="h-4 w-4 text-purple-600" />
-              Next Steps & Action Items
-            </CardTitle>
+            <div className="flex items-center justify-between">
+              <CardTitle className="flex items-center gap-2 text-base">
+                <Target className="h-4 w-4 text-purple-600" />
+                Next Steps & Action Items
+              </CardTitle>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => toggleSection('actions')}
+                className="h-8 w-8 p-0"
+              >
+                {isSectionCollapsed('actions') ? (
+                  <ChevronDown className="h-4 w-4" />
+                ) : (
+                  <ChevronUp className="h-4 w-4" />
+                )}
+              </Button>
+            </div>
           </CardHeader>
-          <CardContent>
-            <ul className="space-y-2">
-              {parsedAnalysis.action_items.map((action: string, index: number) => (
-                <li key={index} className="flex items-start gap-2 text-sm">
-                  <Badge variant="outline" className="text-xs font-medium mt-0.5 shrink-0 bg-purple-50 text-purple-700 border-purple-200">
-                    {index + 1}
-                  </Badge>
-                  <span className="leading-relaxed">{action}</span>
-                </li>
-              ))}
-            </ul>
-          </CardContent>
+          {!isSectionCollapsed('actions') && (
+            <CardContent>
+              <ul className="space-y-2">
+                {parsedAnalysis.action_items.map((action: string, index: number) => (
+                  <li key={index} className="flex items-start gap-2 text-sm">
+                    <Badge variant="outline" className="text-xs font-medium mt-0.5 shrink-0 bg-purple-50 text-purple-700 border-purple-200">
+                      {index + 1}
+                    </Badge>
+                    <span className="leading-relaxed">{action}</span>
+                  </li>
+                ))}
+              </ul>
+            </CardContent>
+          )}
         </Card>
       )}
     </div>

@@ -230,12 +230,12 @@ export default function AIIEPReview() {
                   
                   <CardContent>
                     <Tabs defaultValue="analysis" className="space-y-4">
-                      <TabsList>
-                        <TabsTrigger value="analysis">Analysis</TabsTrigger>
-                        <TabsTrigger value="recommendations">Recommendations</TabsTrigger>
-                        <TabsTrigger value="concerns">Concerns</TabsTrigger>
-                        <TabsTrigger value="strengths">Strengths</TabsTrigger>
-                        <TabsTrigger value="actions">Action Items</TabsTrigger>
+                      <TabsList className="grid w-full grid-cols-5">
+                        <TabsTrigger value="analysis">Executive Summary</TabsTrigger>
+                        <TabsTrigger value="recommendations">Key Recommendations</TabsTrigger>
+                        <TabsTrigger value="concerns">Areas of Concern</TabsTrigger>
+                        <TabsTrigger value="strengths">Identified Strengths</TabsTrigger>
+                        <TabsTrigger value="actions">Next Steps & Action Items</TabsTrigger>
                       </TabsList>
                       
                       <TabsContent value="analysis" className="space-y-4">
@@ -243,7 +243,7 @@ export default function AIIEPReview() {
                           <div className="flex items-center justify-between mb-2">
                             <h4 className="font-medium flex items-center gap-2">
                               <Brain className="h-4 w-4" />
-                              AI Analysis Summary
+                              Executive Summary
                             </h4>
                             <Button
                               variant="ghost"
@@ -263,11 +263,14 @@ export default function AIIEPReview() {
                               <p className="text-sm leading-relaxed">
                                 {(() => {
                                   try {
+                                    console.log('Raw ai_analysis:', review.ai_analysis);
                                     const parsedAnalysis = typeof review.ai_analysis === 'string' 
                                       ? JSON.parse(review.ai_analysis) 
                                       : review.ai_analysis;
-                                    return parsedAnalysis?.summary || 'Analysis not available';
-                                  } catch {
+                                    console.log('Parsed analysis:', parsedAnalysis);
+                                    return parsedAnalysis?.summary || parsedAnalysis?.executive_summary || 'No summary available';
+                                  } catch (error) {
+                                    console.log('Parse error:', error);
                                     return typeof review.ai_analysis === 'string' 
                                       ? review.ai_analysis 
                                       : 'Analysis not available';
@@ -284,7 +287,7 @@ export default function AIIEPReview() {
                           <div className="flex items-center justify-between mb-2">
                             <h4 className="font-medium flex items-center gap-2">
                               <TrendingUp className="h-4 w-4" />
-                              Recommendations
+                              Key Recommendations
                             </h4>
                             <Button
                               variant="ghost"
@@ -388,7 +391,7 @@ export default function AIIEPReview() {
                           <div className="flex items-center justify-between mb-2">
                             <h4 className="font-medium flex items-center gap-2">
                               <CheckCircle className="h-4 w-4" />
-                              Document Strengths
+                              Identified Strengths
                             </h4>
                             <Button
                               variant="ghost"
@@ -440,7 +443,7 @@ export default function AIIEPReview() {
                           <div className="flex items-center justify-between mb-2">
                             <h4 className="font-medium flex items-center gap-2">
                               <Target className="h-4 w-4" />
-                              Recommended Action Items
+                              Next Steps & Action Items
                             </h4>
                             <Button
                               variant="ghost"

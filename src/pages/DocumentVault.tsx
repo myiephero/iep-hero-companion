@@ -252,7 +252,6 @@ const DocumentVault = () => {
         {/* Upload Section */}
         <DocumentUpload onAnalysisComplete={(analysis) => {
           console.log('Analysis completed:', analysis);
-          refetch(); // Refresh the document list
         }} />
 
         {/* Search and Filter */}

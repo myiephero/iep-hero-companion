@@ -218,6 +218,12 @@ class ApiClient {
     });
   }
 
+  async deleteAIReview(reviewId: string): Promise<void> {
+    return this.request(`/ai_reviews/${reviewId}`, {
+      method: 'DELETE',
+    });
+  }
+
   // Goals
   async getGoals(): Promise<Goal[]> {
     return this.request('/goals');

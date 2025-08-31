@@ -252,6 +252,23 @@ app.get('/api/ai_reviews', async (req, res) => {
   }
 });
 
+app.delete('/api/ai_reviews/:id', async (req, res) => {
+  try {
+    const { id } = req.params;
+    
+    await db.delete(schema.ai_reviews)
+      .where(and(
+        eq(schema.ai_reviews.id, id),
+        eq(schema.ai_reviews.user_id, MOCK_USER_ID)
+      ));
+    
+    res.json({ success: true });
+  } catch (error) {
+    console.error('Error deleting AI review:', error);
+    res.status(500).json({ error: 'Failed to delete AI review' });
+  }
+});
+
 // Goals routes
 app.get('/api/goals', async (req, res) => {
   try {

@@ -1,6 +1,7 @@
 
 import { useState, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
+import { queryClient } from "@/lib/queryClient";
 import { DashboardLayout } from "@/layouts/DashboardLayout";
 import { DocumentUpload } from "@/components/DocumentUpload";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -29,6 +30,12 @@ const DocumentVault = () => {
   const [filterType, setFilterType] = useState("all");
   const { toast } = useToast();
 
+  // Force refresh function
+  const forceRefresh = () => {
+    queryClient.invalidateQueries({ queryKey: ['documents'] });
+    refetch();
+  };
+
   // Get students for search functionality
   const { data: students } = useQuery({
     queryKey: ['students'],
@@ -37,7 +44,9 @@ const DocumentVault = () => {
 
   const { data: documents, isLoading, refetch } = useQuery({
     queryKey: ['documents'],
-    queryFn: () => api.getDocuments()
+    queryFn: () => api.getDocuments(),
+    staleTime: 0, // Always refetch to ensure we get the latest data
+    gcTime: 0 // Don't cache the data
   });
 
   const handleDeleteDocument = async (documentId: string, fileName: string) => {
@@ -148,6 +157,18 @@ const DocumentVault = () => {
                   <SelectItem value="upload">Uploaded Files</SelectItem>
                 </SelectContent>
               </Select>
+              <Button onClick={forceRefresh} variant="outline" className="gap-2">
+                <Download className="h-4 w-4" />
+                Refresh
+              </Button>
+            </div>
+
+            {/* Debug Info */}
+            <div className="mb-4 p-2 bg-muted rounded text-sm">
+              <p>Debug: Raw documents count: {documents?.length || 0}</p>
+              <p>Debug: Filtered documents count: {filteredDocuments?.length || 0}</p>
+              <p>Debug: Search term: "{searchTerm}"</p>
+              <p>Debug: Filter type: "{filterType}"</p>
             </div>
 
             {/* Documents Grid */}

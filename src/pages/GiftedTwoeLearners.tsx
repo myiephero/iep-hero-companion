@@ -285,7 +285,7 @@ export default function GiftedTwoeLearners() {
                     <div>
                       <Label className="text-base font-medium">Areas of Giftedness</Label>
                       <p className="text-sm text-muted-foreground mb-3">Select all areas where the student demonstrates exceptional ability.</p>
-                      <div className="grid grid-cols-2 gap-3">
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                         {giftednessAreas.map((area) => (
                           <div key={area} className="flex items-center space-x-2">
                             <Checkbox
@@ -302,7 +302,7 @@ export default function GiftedTwoeLearners() {
                     <div>
                       <Label className="text-base font-medium">Learning Differences (2e Profile)</Label>
                       <p className="text-sm text-muted-foreground mb-3">Select any learning differences or challenges (for twice-exceptional profile).</p>
-                      <div className="grid grid-cols-2 gap-3">
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                         {learningDifferences.map((difference) => (
                           <div key={difference} className="flex items-center space-x-2">
                             <Checkbox

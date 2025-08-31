@@ -141,10 +141,177 @@ const DocumentVault = () => {
   };
 
   const handleViewDocument = (document: any) => {
-    // For now, we'll try to open the document content directly
-    // In a real implementation, this would fetch the document content from the server
-    if (document.content) {
-      // If it's analysis content, show it in a new window
+    if (document.category === 'AI Analysis' && document.content) {
+      // Parse the structured analysis content
+      let analysisData;
+      try {
+        analysisData = JSON.parse(document.content);
+      } catch (error) {
+        analysisData = { rawAnalysis: document.content };
+      }
+
+      // Create a beautiful HTML view for AI Analysis
+      const newWindow = window.open('', '_blank');
+      if (newWindow) {
+        newWindow.document.write(`
+          <html>
+            <head>
+              <title>${document.title}</title>
+              <meta charset="utf-8">
+              <meta name="viewport" content="width=device-width, initial-scale=1">
+              <style>
+                body {
+                  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+                  margin: 0;
+                  padding: 32px;
+                  line-height: 1.6;
+                  background-color: #f8fafc;
+                  color: #1e293b;
+                }
+                .container { max-width: 4xl; margin: 0 auto; }
+                .header {
+                  background: white;
+                  border-radius: 12px;
+                  padding: 24px;
+                  margin-bottom: 24px;
+                  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+                  border-left: 4px solid #3b82f6;
+                }
+                .title { font-size: 28px; font-weight: bold; margin: 0 0 8px 0; }
+                .subtitle { color: #64748b; margin: 0; }
+                .section {
+                  background: white;
+                  border-radius: 12px;
+                  padding: 20px;
+                  margin-bottom: 16px;
+                  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+                  overflow: hidden;
+                }
+                .section-header {
+                  display: flex;
+                  align-items: center;
+                  gap: 12px;
+                  margin-bottom: 16px;
+                  font-weight: 600;
+                  font-size: 18px;
+                }
+                .section-content { font-size: 14px; line-height: 1.6; }
+                .section-content ul { margin: 0; padding-left: 20px; }
+                .section-content li { margin-bottom: 8px; }
+                .blue { border-left: 4px solid #3b82f6; background: #eff6ff; }
+                .blue .section-header { color: #1d4ed8; }
+                .green { border-left: 4px solid #10b981; background: #ecfdf5; }
+                .green .section-header { color: #047857; }
+                .orange { border-left: 4px solid #f59e0b; background: #fffbeb; }
+                .orange .section-header { color: #d97706; }
+                .emerald { border-left: 4px solid #10b981; background: #ecfdf5; }
+                .emerald .section-header { color: #059669; }
+                .purple { border-left: 4px solid #8b5cf6; background: #f3e8ff; }
+                .purple .section-header { color: #7c3aed; }
+                .icon { width: 20px; height: 20px; display: inline-block; }
+                .meta {
+                  display: flex;
+                  gap: 16px;
+                  font-size: 14px;
+                  color: #64748b;
+                  margin-top: 8px;
+                }
+              </style>
+            </head>
+            <body>
+              <div class="container">
+                <div class="header">
+                  <h1 class="title">🧠 ${document.title}</h1>
+                  <p class="subtitle">${document.description || 'AI-powered IEP analysis'}</p>
+                  <div class="meta">
+                    <span>📅 ${new Date(document.created_at).toLocaleDateString()}</span>
+                    <span>🔍 ${analysisData.reviewType || 'Analysis'}</span>
+                    ${analysisData.studentId ? '<span>👤 Student-specific</span>' : ''}
+                  </div>
+                </div>
+                
+                ${analysisData.analysis ? `
+                  ${analysisData.analysis.summary ? `
+                    <div class="section blue">
+                      <div class="section-header">
+                        📄 Summary
+                      </div>
+                      <div class="section-content">
+                        ${Array.isArray(analysisData.analysis.summary) 
+                          ? '<ul>' + analysisData.analysis.summary.map(item => '<li>' + item + '</li>').join('') + '</ul>'
+                          : '<p>' + analysisData.analysis.summary + '</p>'
+                        }
+                      </div>
+                    </div>
+                  ` : ''}
+                  
+                  ${analysisData.analysis.recommendations && analysisData.analysis.recommendations.length > 0 ? `
+                    <div class="section green">
+                      <div class="section-header">
+                        📈 Recommendations
+                      </div>
+                      <div class="section-content">
+                        <ul>
+                          ${analysisData.analysis.recommendations.map(item => '<li>' + item + '</li>').join('')}
+                        </ul>
+                      </div>
+                    </div>
+                  ` : ''}
+                  
+                  ${analysisData.analysis.areas_of_concern && analysisData.analysis.areas_of_concern.length > 0 ? `
+                    <div class="section orange">
+                      <div class="section-header">
+                        ⚠️ Areas of Concern
+                      </div>
+                      <div class="section-content">
+                        <ul>
+                          ${analysisData.analysis.areas_of_concern.map(item => '<li>' + item + '</li>').join('')}
+                        </ul>
+                      </div>
+                    </div>
+                  ` : ''}
+                  
+                  ${analysisData.analysis.strengths && analysisData.analysis.strengths.length > 0 ? `
+                    <div class="section emerald">
+                      <div class="section-header">
+                        ✅ Strengths
+                      </div>
+                      <div class="section-content">
+                        <ul>
+                          ${analysisData.analysis.strengths.map(item => '<li>' + item + '</li>').join('')}
+                        </ul>
+                      </div>
+                    </div>
+                  ` : ''}
+                  
+                  ${analysisData.analysis.action_items && analysisData.analysis.action_items.length > 0 ? `
+                    <div class="section purple">
+                      <div class="section-header">
+                        🎯 Action Items
+                      </div>
+                      <div class="section-content">
+                        <ul>
+                          ${analysisData.analysis.action_items.map(item => '<li>' + item + '</li>').join('')}
+                        </ul>
+                      </div>
+                    </div>
+                  ` : ''}
+                ` : `
+                  <div class="section">
+                    <div class="section-header">📋 Analysis Results</div>
+                    <div class="section-content">
+                      <pre style="white-space: pre-wrap; font-family: inherit;">${analysisData.rawAnalysis || 'No analysis content available'}</pre>
+                    </div>
+                  </div>
+                `}
+              </div>
+            </body>
+          </html>
+        `);
+        newWindow.document.close();
+      }
+    } else if (document.content) {
+      // For other content types, show basic viewer
       const newWindow = window.open('', '_blank');
       if (newWindow) {
         newWindow.document.write(`

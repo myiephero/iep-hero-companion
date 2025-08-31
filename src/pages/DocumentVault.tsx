@@ -33,6 +33,7 @@ const DocumentVault: React.FC = () => {
   const [assigningDocument, setAssigningDocument] = useState<string | null>(null);
   const [selectedStudentId, setSelectedStudentId] = useState('');
   const [viewDialog, setViewDialog] = useState<ViewDialogState>({ document: null, isOpen: false });
+  const [activeSection, setActiveSection] = useState<{[key: string]: string}>({});
 
   // Queries
   const { data: documents, isLoading, refetch } = useQuery({
@@ -302,49 +303,93 @@ const DocumentVault: React.FC = () => {
                             </div>
                           </div>
 
-                          {analysisData && (
-                            <div className="space-y-4 mb-6">
-                              {analysisData.summary && (
-                                <div className="border-l-4 border-blue-500 pl-4 bg-blue-50 dark:bg-blue-950/30 p-4 rounded-lg">
-                                  <h4 className="text-lg font-semibold text-blue-800 dark:text-blue-200 mb-2">Summary</h4>
-                                  <p className="text-blue-700 dark:text-blue-300">{analysisData.summary}</p>
-                                </div>
-                              )}
+                          {analysisData && (() => {
+                            const currentSection = activeSection[doc.id] || 'Analysis';
+                            
+                            const renderSection = () => {
+                              switch(currentSection) {
+                                case 'Analysis':
+                                  return analysisData.summary ? (
+                                    <div className="border-l-4 border-blue-500 pl-4 bg-blue-50 dark:bg-blue-950/30 p-4 rounded-lg">
+                                      <h4 className="text-lg font-semibold text-blue-800 dark:text-blue-200 mb-2">Summary</h4>
+                                      <p className="text-blue-700 dark:text-blue-300">{analysisData.summary}</p>
+                                    </div>
+                                  ) : (
+                                    <div className="text-gray-500 dark:text-gray-400 p-4">No analysis summary available</div>
+                                  );
+                                
+                                case 'Recommendations':
+                                  return analysisData.recommendations ? (
+                                    <div className="border-l-4 border-green-500 pl-4 bg-green-50 dark:bg-green-950/30 p-4 rounded-lg">
+                                      <h4 className="text-lg font-semibold text-green-800 dark:text-green-200 mb-2">Recommendations</h4>
+                                      <p className="text-green-700 dark:text-green-300">{analysisData.recommendations}</p>
+                                    </div>
+                                  ) : (
+                                    <div className="text-gray-500 dark:text-gray-400 p-4">No recommendations available</div>
+                                  );
+                                
+                                case 'Concerns':
+                                  return analysisData.areasOfConcern ? (
+                                    <div className="border-l-4 border-orange-500 pl-4 bg-orange-50 dark:bg-orange-950/30 p-4 rounded-lg">
+                                      <h4 className="text-lg font-semibold text-orange-800 dark:text-orange-200 mb-2">Areas of Concern</h4>
+                                      <p className="text-orange-700 dark:text-orange-300">{analysisData.areasOfConcern}</p>
+                                    </div>
+                                  ) : (
+                                    <div className="text-gray-500 dark:text-gray-400 p-4">No concerns identified</div>
+                                  );
+                                
+                                case 'Strengths':
+                                  return analysisData.strengths ? (
+                                    <div className="border-l-4 border-emerald-500 pl-4 bg-emerald-50 dark:bg-emerald-950/30 p-4 rounded-lg">
+                                      <h4 className="text-lg font-semibold text-emerald-800 dark:text-emerald-200 mb-2">Strengths</h4>
+                                      <p className="text-emerald-700 dark:text-emerald-300">{analysisData.strengths}</p>
+                                    </div>
+                                  ) : (
+                                    <div className="text-gray-500 dark:text-gray-400 p-4">No strengths identified</div>
+                                  );
+                                
+                                case 'Action Items':
+                                  return analysisData.actionItems ? (
+                                    <div className="border-l-4 border-purple-500 pl-4 bg-purple-50 dark:bg-purple-950/30 p-4 rounded-lg">
+                                      <h4 className="text-lg font-semibold text-purple-800 dark:text-purple-200 mb-2">Action Items</h4>
+                                      <p className="text-purple-700 dark:text-purple-300">{analysisData.actionItems}</p>
+                                    </div>
+                                  ) : (
+                                    <div className="text-gray-500 dark:text-gray-400 p-4">No action items available</div>
+                                  );
+                                
+                                default:
+                                  return null;
+                              }
+                            };
 
-                              {analysisData.recommendations && (
-                                <div className="border-l-4 border-green-500 pl-4 bg-green-50 dark:bg-green-950/30 p-4 rounded-lg">
-                                  <h4 className="text-lg font-semibold text-green-800 dark:text-green-200 mb-2">Recommendations</h4>
-                                  <p className="text-green-700 dark:text-green-300">{analysisData.recommendations}</p>
-                                </div>
-                              )}
-
-                              {analysisData.strengths && (
-                                <div className="border-l-4 border-emerald-500 pl-4 bg-emerald-50 dark:bg-emerald-950/30 p-4 rounded-lg">
-                                  <h4 className="text-lg font-semibold text-emerald-800 dark:text-emerald-200 mb-2">Strengths</h4>
-                                  <p className="text-emerald-700 dark:text-emerald-300">{analysisData.strengths}</p>
-                                </div>
-                              )}
-                            </div>
-                          )}
+                            return (
+                              <div className="mb-6">
+                                {renderSection()}
+                              </div>
+                            );
+                          })()}
 
                           {/* Navigation Toolbar for Sections */}
                           <div className="mb-6">
                             <div className="flex items-center gap-2 bg-gray-100 dark:bg-gray-800 p-1 rounded-lg overflow-x-auto">
-                              <button className="px-4 py-2 bg-blue-600 text-white rounded-md text-sm font-medium whitespace-nowrap">
-                                Analysis
-                              </button>
-                              <button className="px-4 py-2 text-gray-600 dark:text-gray-400 rounded-md text-sm font-medium hover:bg-gray-200 dark:hover:bg-gray-700 whitespace-nowrap">
-                                Recommendations
-                              </button>
-                              <button className="px-4 py-2 text-gray-600 dark:text-gray-400 rounded-md text-sm font-medium hover:bg-gray-200 dark:hover:bg-gray-700 whitespace-nowrap">
-                                Concerns
-                              </button>
-                              <button className="px-4 py-2 text-gray-600 dark:text-gray-400 rounded-md text-sm font-medium hover:bg-gray-200 dark:hover:bg-gray-700 whitespace-nowrap">
-                                Strengths
-                              </button>
-                              <button className="px-4 py-2 text-gray-600 dark:text-gray-400 rounded-md text-sm font-medium hover:bg-gray-200 dark:hover:bg-gray-700 whitespace-nowrap">
-                                Action Items
-                              </button>
+                              {['Analysis', 'Recommendations', 'Concerns', 'Strengths', 'Action Items'].map((section) => {
+                                const currentSection = activeSection[doc.id] || 'Analysis';
+                                const isActive = currentSection === section;
+                                return (
+                                  <button
+                                    key={section}
+                                    onClick={() => setActiveSection(prev => ({ ...prev, [doc.id]: section }))}
+                                    className={`px-4 py-2 rounded-md text-sm font-medium whitespace-nowrap transition-colors ${
+                                      isActive
+                                        ? 'bg-blue-600 text-white'
+                                        : 'text-gray-600 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-700'
+                                    }`}
+                                  >
+                                    {section}
+                                  </button>
+                                );
+                              })}
                             </div>
                           </div>
 

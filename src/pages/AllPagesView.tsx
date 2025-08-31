@@ -377,7 +377,7 @@ export default function AllPagesView() {
         </div>
 
         <Tabs defaultValue="main" className="space-y-6">
-          <TabsList className="grid w-full grid-cols-3 lg:grid-cols-7">
+          <TabsList className="grid w-full grid-cols-2 sm:grid-cols-3 lg:grid-cols-7">
             <TabsTrigger value="main">Main</TabsTrigger>
             <TabsTrigger value="parent-pages">Parent Pages</TabsTrigger>
             <TabsTrigger value="parent-tools">Parent Tools</TabsTrigger>

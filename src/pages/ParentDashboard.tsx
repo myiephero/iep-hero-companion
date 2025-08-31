@@ -364,7 +364,7 @@ export default function ParentDashboard() {
             <Card className="premium-card">
             <Tabs defaultValue="goals" className="w-full">
               <div className="border-b border-gray-200 bg-white/50 backdrop-blur-sm rounded-t-xl">
-                <TabsList className="grid w-full grid-cols-3 bg-transparent p-1 h-auto">
+                <TabsList className="grid w-full grid-cols-1 sm:grid-cols-3 bg-transparent p-1 h-auto">
                   <TabsTrigger 
                     value="goals" 
                     className="data-[state=active]:bg-blue-100 data-[state=active]:text-blue-700 data-[state=active]:shadow-sm rounded-lg p-4 font-medium transition-all duration-200 hover:bg-gray-50"

@@ -249,7 +249,7 @@ export default function MatchingDashboard() {
       </div>
 
       <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-        <TabsList className="grid w-full grid-cols-3">
+        <TabsList className="grid w-full grid-cols-1 sm:grid-cols-3">
           <TabsTrigger value="browse">Browse Advocates</TabsTrigger>
           <TabsTrigger value="proposals">My Proposals</TabsTrigger>
           <TabsTrigger value="matches">Active Matches</TabsTrigger>

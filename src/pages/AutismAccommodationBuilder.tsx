@@ -227,7 +227,7 @@ export default function AutismAccommodationBuilder() {
 
         {/* Category Tabs */}
         <Tabs value={selectedCategory} onValueChange={setSelectedCategory}>
-          <TabsList className="grid w-full grid-cols-4 lg:grid-cols-7">
+          <TabsList className="grid w-full grid-cols-2 sm:grid-cols-4 lg:grid-cols-7">
             <TabsTrigger value="all">All</TabsTrigger>
             {accommodationCategories.map((category) => (
               <TabsTrigger key={category.id} value={category.id} className="text-xs">

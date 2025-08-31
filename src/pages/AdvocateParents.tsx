@@ -343,7 +343,7 @@ export default function AdvocateParents() {
                 
                 {/* Parent Details Tabs */}
                 <Tabs defaultValue="overview" className="space-y-6">
-                  <TabsList className="grid w-full grid-cols-3 premium-card">
+                  <TabsList className="grid w-full grid-cols-1 sm:grid-cols-3 premium-card">
                     <TabsTrigger value="overview">Overview</TabsTrigger>
                     <TabsTrigger value="students">Students</TabsTrigger>
                     <TabsTrigger value="communication">Communication</TabsTrigger>

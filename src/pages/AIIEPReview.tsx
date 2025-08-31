@@ -96,7 +96,7 @@ export default function AIIEPReview() {
       documentId,
       studentId: selectedStudent,
       reviewType: selectedReviewType,
-      analysis: analysisData.analysis,
+      analysis: analysisData.content,
       parsedAnalysis: analysisData.parsedAnalysis,
       timestamp: new Date().toISOString(),
       documentName: documentName
@@ -110,1122 +110,475 @@ export default function AIIEPReview() {
     });
   };
 
-  // Save to vault functionality
-  const saveToVault = async (review: AIReview) => {
+  // Save individual review to vault
+  const saveToVault = async (review: TemporaryAIReview) => {
     try {
+      setLoading(true);
       await api.createDocument({
         title: `AI Review - ${getDocumentTitle(review)}`,
-        description: `AI-powered analysis conducted on ${new Date(review.created_at || '').toLocaleDateString()}`,
+        description: `AI-powered analysis conducted on ${new Date(review.timestamp).toLocaleDateString()}`,
         file_name: `ai-review-${review.id}.json`,
         file_path: `vault/ai-reviews/${review.id}.json`,
         file_type: 'application/json',
         file_size: JSON.stringify(review).length,
         category: 'AI Review',
-        tags: generateSmartTags(review),
-        student_id: review.student_id
+        tags: ['ai-analysis', review.reviewType],
+        student_id: review.studentId,
       });
-      
-      // Invalidate documents cache to refresh the vault
-      await import('@/lib/queryClient').then(({ queryClient }) => {
-        queryClient.invalidateQueries({ queryKey: ['documents'] });
-      });
-      
+
       toast({
         title: "Saved to Vault",
-        description: "Review has been saved to your document vault.",
+        description: `Review saved successfully to document vault.`,
       });
+
+      // Remove from temporary reviews
+      setTemporaryReviews(prev => prev.filter(r => r.id !== review.id));
     } catch (error) {
+      console.error('Error saving to vault:', error);
       toast({
-        title: "Error",
-        description: "Failed to save to vault. Please try again.",
+        title: "Save Failed",
+        description: "Failed to save review to vault. Please try again.",
         variant: "destructive",
       });
+    } finally {
+      setLoading(false);
     }
   };
 
-  // Delete review functionality
-  const deleteReview = async (reviewId: string) => {
-    try {
-      await api.deleteAIReview(reviewId);
-      setReviews(prev => prev.filter(r => r.id !== reviewId));
-      
-      toast({
-        title: "Review Deleted",
-        description: "The review has been permanently deleted.",
-      });
-    } catch (error) {
-      toast({
-        title: "Error",
-        description: "Failed to delete review. Please try again.",
-        variant: "destructive",
-      });
-    }
+  // Download review as JSON
+  const downloadReview = (review: TemporaryAIReview) => {
+    const dataStr = JSON.stringify(review, null, 2);
+    const dataUri = 'data:application/json;charset=utf-8,'+ encodeURIComponent(dataStr);
+    
+    const exportFileDefaultName = `ai-review-${getDocumentTitle(review)}-${new Date().toISOString().split('T')[0]}.json`;
+    
+    const linkElement = document.createElement('a');
+    linkElement.setAttribute('href', dataUri);
+    linkElement.setAttribute('download', exportFileDefaultName);
+    linkElement.click();
   };
 
-  // Multi-select functionality
-  const toggleReviewSelection = (reviewId: string) => {
-    setSelectedReviews(prev => {
-      const newSelection = new Set(prev);
-      if (newSelection.has(reviewId)) {
-        newSelection.delete(reviewId);
-      } else {
-        newSelection.add(reviewId);
-      }
-      return newSelection;
+  // Share review (placeholder)
+  const shareReview = (review: TemporaryAIReview) => {
+    navigator.clipboard.writeText(JSON.stringify(review, null, 2));
+    toast({
+      title: "Copied to Clipboard",
+      description: "Review data copied to clipboard for sharing.",
     });
   };
 
+  // Delete review
+  const deleteReview = (reviewId: string) => {
+    setTemporaryReviews(prev => prev.filter(r => r.id !== reviewId));
+    toast({
+      title: "Review Deleted",
+      description: "Temporary review removed.",
+    });
+  };
+
+  // Bulk actions
   const selectAllReviews = () => {
-    setSelectedReviews(new Set(temporaryReviews.map(r => r.id)));
+    const allIds = temporaryReviews.map(r => r.id);
+    setSelectedReviews(new Set(allIds));
   };
 
   const deselectAllReviews = () => {
     setSelectedReviews(new Set());
   };
 
-  const toggleSelectMode = () => {
-    setIsSelectMode(!isSelectMode);
-    if (isSelectMode) {
-      deselectAllReviews();
-    }
-  };
-
-  // Bulk operations functionality
   const bulkSaveToVault = async () => {
-    if (selectedReviews.size === 0) return;
-    
-    try {
-      const selectedReviewsArray = temporaryReviews.filter(r => selectedReviews.has(r.id));
-      const savePromises = selectedReviewsArray.map(review => 
-        api.createDocument({
-          title: `AI Review - ${getDocumentTitle(review)}`,
-          description: `AI-powered analysis conducted on ${new Date(review.created_at || '').toLocaleDateString()}`,
-          file_name: `ai-review-${review.id}.json`,
-          file_path: `vault/ai-reviews/${review.id}.json`,
-          file_type: 'application/json',
-          file_size: JSON.stringify(review).length,
-          category: 'AI Review',
-          tags: generateSmartTags(review),
-          student_id: review.student_id
-        })
-      );
-      
-      await Promise.all(savePromises);
-      
-      // Invalidate documents cache
-      await import('@/lib/queryClient').then(({ queryClient }) => {
-        queryClient.invalidateQueries({ queryKey: ['documents'] });
-      });
-      
-      toast({
-        title: "Saved to Vault",
-        description: `${selectedReviews.size} review${selectedReviews.size > 1 ? 's have' : ' has'} been saved to your document vault.`,
-      });
-    } catch (error) {
-      toast({
-        title: "Error",
-        description: "Failed to save some reviews to vault. Please try again.",
-        variant: "destructive",
-      });
+    const selectedReviewsArray = temporaryReviews.filter(r => selectedReviews.has(r.id));
+    for (const review of selectedReviewsArray) {
+      await saveToVault(review);
     }
+    setSelectedReviews(new Set());
+    setIsSelectMode(false);
   };
 
   const bulkDownload = () => {
-    if (selectedReviews.size === 0) return;
-    
     const selectedReviewsArray = temporaryReviews.filter(r => selectedReviews.has(r.id));
-    
-    selectedReviewsArray.forEach(review => {
-      const analysisData = {
-        title: getDocumentTitle(review) || 'AI Review',
-        date: new Date(review.created_at || '').toLocaleDateString(),
-        student_id: review.student_id,
-        review_type: review.review_type,
-        analysis: review.ai_analysis,
-        recommendations: review.recommendations,
-        areas_of_concern: review.areas_of_concern,
-        strengths: review.strengths,
-        action_items: review.action_items,
-        compliance_score: review.compliance_score,
-        smart_tags: generateSmartTags(review)
-      };
-
-      const blob = new Blob([JSON.stringify(analysisData, null, 2)], { type: 'application/json' });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = `ai-review-${review.id}-${new Date().toISOString().split('T')[0]}.json`;
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
-      URL.revokeObjectURL(url);
-    });
-
-    toast({
-      title: "Downloads Started",
-      description: `${selectedReviews.size} analysis file${selectedReviews.size > 1 ? 's have' : ' has'} been downloaded.`,
-    });
+    selectedReviewsArray.forEach(review => downloadReview(review));
   };
 
-  const bulkShare = async () => {
-    if (selectedReviews.size === 0) return;
-    
+  const bulkShare = () => {
     const selectedReviewsArray = temporaryReviews.filter(r => selectedReviews.has(r.id));
-    const shareUrls = selectedReviewsArray.map(review => 
-      `${window.location.origin}/shared-review/${review.id}`
-    );
+    const combinedData = selectedReviewsArray.map(review => ({
+      title: getDocumentTitle(review),
+      timestamp: review.timestamp,
+      analysis: review.analysis
+    }));
     
-    const shareText = shareUrls.join('\n');
-    
-    try {
-      await navigator.clipboard.writeText(shareText);
-      toast({
-        title: "Links Copied",
-        description: `${selectedReviews.size} share link${selectedReviews.size > 1 ? 's have' : ' has'} been copied to clipboard.`,
-      });
-    } catch (error) {
-      toast({
-        title: "Error",
-        description: "Failed to copy share links. Please try again.",
-        variant: "destructive",
-      });
-    }
-  };
-
-  const bulkDeleteReviews = async () => {
-    if (selectedReviews.size === 0) return;
-    
-    const confirmMessage = `Are you sure you want to delete ${selectedReviews.size} review${selectedReviews.size > 1 ? 's' : ''}? This action cannot be undone.`;
-    
-    if (!confirm(confirmMessage)) return;
-    
-    try {
-      // Delete all selected reviews concurrently
-      const deletePromises = Array.from(selectedReviews).map(reviewId => 
-        api.deleteAIReview(reviewId)
-      );
-      
-      await Promise.all(deletePromises);
-      
-      // Update state to remove deleted reviews
-      setReviews(prev => prev.filter(r => !selectedReviews.has(r.id || '')));
-      
-      // Clear selections and exit select mode
-      setSelectedReviews(new Set());
-      setIsSelectMode(false);
-      
-      toast({
-        title: "Reviews Deleted",
-        description: `${selectedReviews.size} review${selectedReviews.size > 1 ? 's have' : ' has'} been permanently deleted.`,
-      });
-    } catch (error) {
-      toast({
-        title: "Error",
-        description: "Failed to delete some reviews. Please try again.",
-        variant: "destructive",
-      });
-    }
-  };
-
-  // Download analysis functionality
-  const downloadAnalysis = (review: AIReview) => {
-    const analysisData = {
-      title: getDocumentTitle(review) || 'AI Review',
-      date: new Date(review.created_at || '').toLocaleDateString(),
-      student_id: review.student_id,
-      review_type: review.review_type,
-      analysis: review.ai_analysis,
-      recommendations: review.recommendations,
-      areas_of_concern: review.areas_of_concern,
-      strengths: review.strengths,
-      action_items: review.action_items,
-      compliance_score: review.compliance_score,
-      smart_tags: generateSmartTags(review)
-    };
-
-    const blob = new Blob([JSON.stringify(analysisData, null, 2)], { type: 'application/json' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `ai-review-${review.id}-${new Date().toISOString().split('T')[0]}.json`;
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    URL.revokeObjectURL(url);
-
+    navigator.clipboard.writeText(JSON.stringify(combinedData, null, 2));
     toast({
-      title: "Download Started",
-      description: "Analysis file has been downloaded.",
+      title: "Copied to Clipboard",
+      description: `${selectedReviews.size} reviews copied to clipboard.`,
     });
   };
 
-  // Share functionality
-  const shareReview = async (review: AIReview) => {
-    const shareUrl = `${window.location.origin}/shared-review/${review.id}`;
-    
-    if (navigator.share) {
-      try {
-        await navigator.share({
-          title: 'AI IEP Review',
-          text: 'Check out this AI-powered IEP analysis',
-          url: shareUrl,
-        });
-      } catch (error) {
-        // Fallback to clipboard
-        await navigator.clipboard.writeText(shareUrl);
-        toast({
-          title: "Link Copied",
-          description: "Share link copied to clipboard.",
-        });
+  const bulkDeleteReviews = () => {
+    setTemporaryReviews(prev => prev.filter(r => !selectedReviews.has(r.id)));
+    setSelectedReviews(new Set());
+    setIsSelectMode(false);
+    toast({
+      title: "Reviews Deleted",
+      description: `${selectedReviews.size} temporary reviews removed.`,
+    });
+  };
+
+  const toggleReviewSelection = (reviewId: string) => {
+    setSelectedReviews(prev => {
+      const newSet = new Set(prev);
+      if (newSet.has(reviewId)) {
+        newSet.delete(reviewId);
+      } else {
+        newSet.add(reviewId);
       }
-    } else {
-      await navigator.clipboard.writeText(shareUrl);
-      toast({
-        title: "Link Copied",
-        description: "Share link copied to clipboard.",
-      });
-    }
+      return newSet;
+    });
   };
 
-  // Generate smart tags from review content
-  const generateSmartTags = (review: AIReview): string[] => {
-    const tags: string[] = [];
-    
-    // Add review type tag
-    if (review.review_type) {
-      tags.push(review.review_type.toUpperCase());
-    }
-    
-    // Add compliance score tags
-    if (review.compliance_score !== null && review.compliance_score !== undefined) {
-      if (review.compliance_score >= 80) tags.push('HIGH_COMPLIANCE');
-      else if (review.compliance_score >= 60) tags.push('MEDIUM_COMPLIANCE');
-      else tags.push('LOW_COMPLIANCE');
-    }
-    
-    // Analyze areas of concern for tags
-    if (review.areas_of_concern && review.areas_of_concern.length > 0) {
-      const concernText = review.areas_of_concern.join(' ').toLowerCase();
-      if (concernText.includes('goal')) tags.push('GOALS_ISSUE');
-      if (concernText.includes('service')) tags.push('SERVICES_ISSUE');
-      if (concernText.includes('accommodation')) tags.push('ACCOMMODATIONS_ISSUE');
-      if (concernText.includes('transition')) tags.push('TRANSITION_ISSUE');
-      if (concernText.includes('behavior')) tags.push('BEHAVIOR_ISSUE');
-      if (concernText.includes('autism')) tags.push('AUTISM_RELATED');
-      if (concernText.includes('communication')) tags.push('COMMUNICATION_ISSUE');
-    }
-    
-    // Analyze recommendations for tags
-    if (review.recommendations && review.recommendations.length > 0) {
-      const recText = review.recommendations.join(' ').toLowerCase();
-      if (recText.includes('smart')) tags.push('SMART_GOALS_NEEDED');
-      if (recText.includes('training')) tags.push('STAFF_TRAINING_NEEDED');
-      if (recText.includes('meeting')) tags.push('MEETING_CHANGES_NEEDED');
-    }
-    
-    return [...new Set(tags)]; // Remove duplicates
-  };
+  // Render analysis section with proper styling
+  const renderAnalysisSection = (review: TemporaryAIReview, title: string, content: any, colorClass: string, icon: any) => {
+    if (!content || (Array.isArray(content) && content.length === 0)) return null;
 
+    const IconComponent = icon;
+    const isCollapsed = isSectionCollapsed(review.id, title);
 
-  const getComplianceColor = (score?: number) => {
-    if (!score) return 'text-gray-500';
-    if (score >= 80) return 'text-green-600';
-    if (score >= 60) return 'text-yellow-600';
-    return 'text-red-600';
-  };
-
-  const getPriorityColor = (priority: string) => {
-    switch (priority) {
-      case 'critical': return 'bg-red-100 text-red-700 border-red-200';
-      case 'high': return 'bg-orange-100 text-orange-700 border-orange-200';
-      case 'medium': return 'bg-yellow-100 text-yellow-700 border-yellow-200';
-      case 'low': return 'bg-green-100 text-green-700 border-green-200';
-      default: return 'bg-gray-100 text-gray-700 border-gray-200';
-    }
+    return (
+      <div className={`border rounded-lg overflow-hidden ${colorClass}`}>
+        <button
+          onClick={() => toggleSection(review.id, title)}
+          className="w-full p-4 text-left flex items-center justify-between hover:bg-opacity-80 transition-colors"
+        >
+          <div className="flex items-center gap-3">
+            <IconComponent className="h-5 w-5" />
+            <h4 className="font-semibold">{title}</h4>
+          </div>
+          {isCollapsed ? <ChevronDown className="h-4 w-4" /> : <ChevronUp className="h-4 w-4" />}
+        </button>
+        
+        {!isCollapsed && (
+          <div className="p-4 pt-0">
+            {Array.isArray(content) ? (
+              <ul className="space-y-2">
+                {content.map((item, index) => (
+                  <li key={index} className="flex items-start gap-2">
+                    <span className="text-sm opacity-70">•</span>
+                    <span className="text-sm">{typeof item === 'string' ? item : JSON.stringify(item)}</span>
+                  </li>
+                ))}
+              </ul>
+            ) : (
+              <p className="text-sm">{typeof content === 'string' ? content : JSON.stringify(content)}</p>
+            )}
+          </div>
+        )}
+      </div>
+    );
   };
 
   return (
     <DashboardLayout>
-      <div className="space-y-8">
+      <div className="space-y-6">
+        {/* Header */}
         <div>
-          <h1 className="text-3xl font-bold mb-2">AI IEP Review</h1>
-          <p className="text-muted-foreground">
-            Upload IEP documents and receive AI-powered analysis, recommendations, and compliance insights.
+          <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">AI IEP Review</h1>
+          <p className="text-gray-600 dark:text-gray-400">
+            Upload and analyze IEP documents with AI-powered insights
           </p>
         </div>
 
-        {/* Student and Review Type Selection */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <Card>
-            <CardHeader>
-              <CardTitle>Select Student</CardTitle>
-              <CardDescription>
-                Choose a student to associate with this review.
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <StudentSelector
-                selectedStudent={selectedStudent || ""}
-                onStudentChange={(id) => {
-                  setSelectedStudent(id || "");
-                  // Update student name when selection changes
-                  if (id) {
-                    const student = students.find(s => s.id === id);
-                    setSelectedStudentName(student?.full_name || '');
-                  } else {
-                    setSelectedStudentName('');
-                  }
-                }}
-              />
-              {selectedStudentName && (
-                <div className="mt-3 p-3 bg-blue-50 dark:bg-blue-950 rounded-lg border border-blue-200 dark:border-blue-800">
-                  <div className="flex items-center gap-2">
-                    <Users className="h-4 w-4 text-blue-600" />
-                    <span className="text-sm font-medium text-blue-900 dark:text-blue-100">
-                      Selected: {selectedStudentName}
-                    </span>
-                  </div>
-                </div>
-              )}
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader>
-              <CardTitle>Review Type</CardTitle>
-              <CardDescription>
-                Select the type of analysis to perform.
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <Select value={selectedReviewType} onValueChange={setSelectedReviewType}>
-                <SelectTrigger>
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  {reviewTypes.map((type) => (
-                    <SelectItem key={type.value} value={type.value}>
-                      <div>
-                        <div className="font-medium">{type.label}</div>
-                        <div className="text-sm text-muted-foreground">{type.description}</div>
-                      </div>
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </CardContent>
-          </Card>
-        </div>
-
-        {/* Document Upload */}
+        {/* Analysis Configuration */}
         <Card>
           <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Brain className="h-5 w-5" />
-              Upload Document for AI Analysis
-            </CardTitle>
+            <CardTitle>Document Analysis</CardTitle>
             <CardDescription>
-              Upload an IEP document, evaluation report, or related document for AI-powered analysis.
+              Configure your analysis settings and upload documents for AI-powered review.
               The analysis results will appear below after processing.
             </CardDescription>
           </CardHeader>
-          <CardContent>
-            <DocumentUpload
-              onAnalysisComplete={handleAnalysisComplete}
-            />
+          <CardContent className="space-y-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label className="text-sm font-medium mb-2 block">Student (Optional)</label>
+                <StudentSelector 
+                  selectedStudent={selectedStudent}
+                  onStudentChange={(studentId) => {
+                    setSelectedStudent(studentId);
+                    const student = students.find(s => s.id === studentId);
+                    setSelectedStudentName(student?.full_name || "");
+                  }}
+                />
+              </div>
+              <div>
+                <label className="text-sm font-medium mb-2 block">Review Type</label>
+                <Select value={selectedReviewType} onValueChange={setSelectedReviewType}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select review type" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {reviewTypes.map(type => (
+                      <SelectItem key={type.value} value={type.value}>
+                        <div>
+                          <div className="font-medium">{type.label}</div>
+                          <div className="text-sm text-muted-foreground">{type.description}</div>
+                        </div>
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+            
+            <DocumentUpload onAnalysisComplete={(analysis) => {
+              if (analysis.documentId && analysis.documentName) {
+                handleAnalysisComplete(analysis, analysis.documentId, analysis.documentName);
+              }
+            }} />
           </CardContent>
         </Card>
-      </div>
 
-      {/* Analysis Results */}
-      <div className="space-y-4">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <div className="p-2 bg-blue-100 dark:bg-blue-900/50 rounded-lg">
-              <Brain className="h-6 w-6 text-blue-600 dark:text-blue-400" />
-            </div>
-            <div>
-              <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100">AI Review Results</h2>
-              <p className="text-gray-600 dark:text-gray-400">Temporary analysis results - choose what to save</p>
-            </div>
-          </div>
-          <div className="flex items-center gap-2">
-            <Badge variant="secondary" className="text-sm font-medium">
-              {temporaryReviews.length} Review{temporaryReviews.length !== 1 ? 's' : ''}
-            </Badge>
-            {temporaryReviews.length > 0 && (
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => setIsSelectMode(!isSelectMode)}
-                className="flex items-center gap-2"
-              >
-                {isSelectMode ? (
-                  <>
-                    <X className="h-4 w-4" />
-                    Cancel
-                  </>
-                ) : (
-                  <>
-                    <CheckSquare className="h-4 w-4" />
-                    Select Multiple
-                  </>
-                )}
-              </Button>
-            )}
-          </div>
-        </div>
-
-        {/* Bulk Actions Toolbar */}
-        {isSelectMode && selectedReviews.size > 0 && (
-          <div className="flex items-center justify-between p-4 bg-blue-50 dark:bg-blue-950/30 border border-blue-200 dark:border-blue-800 rounded-lg">
+        {/* Analysis Results */}
+        <div className="space-y-4">
+          <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
-              <span className="text-sm font-medium text-blue-900 dark:text-blue-100">
-                {selectedReviews.size} of {temporaryReviews.length} selected
-              </span>
-              <div className="flex gap-1">
+              <div className="p-2 bg-blue-100 dark:bg-blue-900/50 rounded-lg">
+                <Brain className="h-6 w-6 text-blue-600 dark:text-blue-400" />
+              </div>
+              <div>
+                <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100">AI Review Results</h2>
+                <p className="text-gray-600 dark:text-gray-400">Temporary analysis results - choose what to save</p>
+              </div>
+            </div>
+            <div className="flex items-center gap-2">
+              <Badge variant="secondary" className="text-sm font-medium">
+                {temporaryReviews.length} Review{temporaryReviews.length !== 1 ? 's' : ''}
+              </Badge>
+              {temporaryReviews.length > 0 && (
                 <Button
-                  variant="ghost"
+                  variant="outline"
                   size="sm"
-                  onClick={selectAllReviews}
-                  className="text-blue-700 dark:text-blue-300 hover:text-blue-900 dark:hover:text-blue-100"
+                  onClick={() => setIsSelectMode(!isSelectMode)}
+                  className="flex items-center gap-2"
                 >
-                  Select All
+                  {isSelectMode ? (
+                    <>
+                      <X className="h-4 w-4" />
+                      Cancel
+                    </>
+                  ) : (
+                    <>
+                      <CheckSquare className="h-4 w-4" />
+                      Select Multiple
+                    </>
+                  )}
+                </Button>
+              )}
+            </div>
+          </div>
+
+          {/* Bulk Actions Toolbar */}
+          {isSelectMode && selectedReviews.size > 0 && (
+            <div className="flex items-center justify-between p-4 bg-blue-50 dark:bg-blue-950/30 border border-blue-200 dark:border-blue-800 rounded-lg">
+              <div className="flex items-center gap-3">
+                <span className="text-sm font-medium text-blue-900 dark:text-blue-100">
+                  {selectedReviews.size} of {temporaryReviews.length} selected
+                </span>
+                <div className="flex gap-1">
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={selectAllReviews}
+                    className="text-blue-700 dark:text-blue-300 hover:text-blue-900 dark:hover:text-blue-100"
+                  >
+                    Select All
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    size="sm" 
+                    onClick={deselectAllReviews}
+                    className="text-blue-700 dark:text-blue-300 hover:text-blue-900 dark:hover:text-blue-100"
+                  >
+                    Deselect All
+                  </Button>
+                </div>
+              </div>
+              <div className="flex gap-2">
+                <Button
+                  onClick={bulkSaveToVault}
+                  className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white"
+                  size="sm"
+                >
+                  <Save className="h-4 w-4" />
+                  Save to Vault ({selectedReviews.size})
                 </Button>
                 <Button
-                  variant="ghost"
-                  size="sm" 
-                  onClick={deselectAllReviews}
-                  className="text-blue-700 dark:text-blue-300 hover:text-blue-900 dark:hover:text-blue-100"
+                  onClick={bulkDownload}
+                  variant="outline"
+                  className="flex items-center gap-2"
+                  size="sm"
                 >
-                  Deselect All
+                  <Download className="h-4 w-4" />
+                  Download ({selectedReviews.size})
+                </Button>
+                <Button
+                  onClick={bulkShare}
+                  variant="outline"
+                  className="flex items-center gap-2"
+                  size="sm"
+                >
+                  <Share className="h-4 w-4" />
+                  Share ({selectedReviews.size})
+                </Button>
+                <Button
+                  onClick={bulkDeleteReviews}
+                  variant="destructive"
+                  className="flex items-center gap-2"
+                  size="sm"
+                >
+                  <Trash2 className="h-4 w-4" />
+                  Delete ({selectedReviews.size})
                 </Button>
               </div>
             </div>
-            <div className="flex gap-2">
-              <Button
-                onClick={bulkSaveToVault}
-                className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white"
-                size="sm"
-              >
-                <Save className="h-4 w-4" />
-                Save to Vault ({selectedReviews.size})
-              </Button>
-              <Button
-                onClick={bulkDownload}
-                variant="outline"
-                className="flex items-center gap-2"
-                size="sm"
-              >
-                <Download className="h-4 w-4" />
-                Download ({selectedReviews.size})
-              </Button>
-              <Button
-                onClick={bulkShare}
-                variant="outline"
-                className="flex items-center gap-2"
-                size="sm"
-              >
-                <Share className="h-4 w-4" />
-                Share ({selectedReviews.size})
-              </Button>
-              <Button
-                onClick={bulkDelete}
-                variant="destructive"
-                className="flex items-center gap-2"
-                size="sm"
-              >
-                <Trash2 className="h-4 w-4" />
-                Delete ({selectedReviews.size})
-              </Button>
-            </div>
-          </div>
-        )}
-
-        {/* Reviews Display */}
-        <div className="space-y-6">
-          {temporaryReviews.length === 0 ? (
-            <Card className="border-dashed">
-              <CardContent className="flex flex-col items-center justify-center py-12">
-                <Brain className="h-12 w-12 text-muted-foreground mb-4" />
-                <h3 className="text-lg font-semibold mb-2">No Reviews Yet</h3>
-                <p className="text-muted-foreground text-center max-w-md">
-                  Upload and analyze documents above to see AI-powered insights here.
-                </p>
-              </CardContent>
-            </Card>
-          ) : (
-            <div className="space-y-4">
-              {temporaryReviews.map((review) => (
-                <Card key={review.id} className="border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900">
-                  <CardContent className="p-6">
-                    <div className="flex items-center justify-between mb-6">
-                      <div className="flex items-center gap-4">
-                        {isSelectMode && (
-                          <Checkbox
-                            checked={selectedReviews.has(review.id)}
-                            onCheckedChange={(checked) => {
-                              if (checked) {
-                                setSelectedReviews(prev => new Set([...prev, review.id]));
-                              } else {
-                                setSelectedReviews(prev => {
-                                  const newSet = new Set(prev);
-                                  newSet.delete(review.id);
-                                  return newSet;
-                                });
-                              }
-                            }}
-                          />
-                        )}
-                        <div className="p-2 bg-blue-100 dark:bg-blue-900/50 rounded-lg">
-                          <Brain className="h-5 w-5 text-blue-600 dark:text-blue-400" />
-                        </div>
-                        <div>
-                          <h3 className="font-semibold text-gray-900 dark:text-gray-100">{review.documentName}</h3>
-                          <p className="text-sm text-gray-600 dark:text-gray-400">
-                            {new Date(review.timestamp).toLocaleDateString()} • {review.type} Review
-                          </p>
-                        </div>
-                      </div>
-                      <div className="flex items-center gap-2">
-                      <Button 
-                        variant="ghost" 
-                        size="sm" 
-                        onClick={selectAllReviews}
-                        className="text-blue-700 dark:text-blue-300 hover:bg-blue-100 dark:hover:bg-blue-900"
-                        data-testid="button-select-all"
-                      >
-                        Select All
-                      </Button>
-                      <Button 
-                        variant="ghost" 
-                        size="sm" 
-                        onClick={deselectAllReviews}
-                        className="text-blue-700 dark:text-blue-300 hover:bg-blue-100 dark:hover:bg-blue-900"
-                        data-testid="button-deselect-all"
-                      >
-                        Deselect All
-                      </Button>
-                    </div>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <Button 
-                      variant="outline" 
-                      size="sm"
-                      onClick={bulkSaveToVault}
-                      disabled={selectedReviews.size === 0}
-                      className="flex items-center gap-2"
-                      data-testid="button-bulk-save-vault"
-                    >
-                      <Save className="h-4 w-4" />
-                      Save to Vault ({selectedReviews.size})
-                    </Button>
-                    
-                    <Button 
-                      variant="outline" 
-                      size="sm"
-                      onClick={bulkDownload}
-                      disabled={selectedReviews.size === 0}
-                      className="flex items-center gap-2"
-                      data-testid="button-bulk-download"
-                    >
-                      <Download className="h-4 w-4" />
-                      Download ({selectedReviews.size})
-                    </Button>
-                    
-                    <Button 
-                      variant="outline" 
-                      size="sm"
-                      onClick={bulkShare}
-                      disabled={selectedReviews.size === 0}
-                      className="flex items-center gap-2"
-                      data-testid="button-bulk-share"
-                    >
-                      <Share className="h-4 w-4" />
-                      Share ({selectedReviews.size})
-                    </Button>
-                    
-                    <Button 
-                      variant="destructive" 
-                      size="sm"
-                      onClick={bulkDeleteReviews}
-                      disabled={selectedReviews.size === 0}
-                      className="flex items-center gap-2"
-                      data-testid="button-bulk-delete"
-                    >
-                      <Trash2 className="h-4 w-4" />
-                      Delete ({selectedReviews.size})
-                    </Button>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
           )}
 
-          {temporaryReviews.length === 0 ? (
-            <Card>
-              <CardContent className="text-center py-12">
-                <FileText className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
-                <h3 className="text-lg font-medium mb-2">No reviews yet</h3>
-                <p className="text-muted-foreground">
-                  Upload a document above to get started with AI-powered IEP analysis.
-                </p>
-              </CardContent>
-            </Card>
-          ) : (
-            <div className="space-y-6">
-              {temporaryReviews.map((review) => (
-                <Card key={review.id} className={`overflow-hidden transition-all duration-200 ${
-                  isSelectMode && selectedReviews.has(review.id || '') 
-                    ? 'ring-2 ring-blue-500 bg-blue-50/30 dark:bg-blue-950/30' 
-                    : ''
-                }`}>
-                  <CardHeader>
-                    <div className="flex items-center justify-between">
-                      {/* Checkbox for multi-select */}
-                      {isSelectMode && (
-                        <div className="flex items-center mr-4">
-                          <Checkbox
-                            checked={selectedReviews.has(review.id || '')}
-                            onCheckedChange={() => toggleReviewSelection(review.id || '')}
-                            className="h-5 w-5"
-                            data-testid={`checkbox-select-${review.id}`}
-                          />
-                        </div>
-                      )}
-                      <div>
-                        <CardTitle className="flex items-center gap-2">
-                          <FileText className="h-5 w-5" />
-                          {getDocumentTitle(review)}
-                          {selectedStudentName && (
-                            <span className="text-sm font-normal text-muted-foreground">
-                              • {selectedStudentName}
-                            </span>
+          {/* Reviews Display */}
+          <div className="space-y-6">
+            {temporaryReviews.length === 0 ? (
+              <Card className="border-dashed">
+                <CardContent className="flex flex-col items-center justify-center py-12">
+                  <Brain className="h-12 w-12 text-muted-foreground mb-4" />
+                  <h3 className="text-lg font-semibold mb-2">No Reviews Yet</h3>
+                  <p className="text-muted-foreground text-center max-w-md">
+                    Upload and analyze documents above to see AI-powered insights here.
+                  </p>
+                </CardContent>
+              </Card>
+            ) : (
+              <div className="space-y-4">
+                {temporaryReviews.map((review) => (
+                  <Card key={review.id} className="border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900">
+                    <CardContent className="p-6">
+                      <div className="flex items-center justify-between mb-6">
+                        <div className="flex items-center gap-4">
+                          {isSelectMode && (
+                            <Checkbox
+                              checked={selectedReviews.has(review.id)}
+                              onCheckedChange={(checked) => {
+                                if (checked) {
+                                  setSelectedReviews(prev => new Set([...prev, review.id]));
+                                } else {
+                                  setSelectedReviews(prev => {
+                                    const newSet = new Set(prev);
+                                    newSet.delete(review.id);
+                                    return newSet;
+                                  });
+                                }
+                              }}
+                            />
                           )}
-                        </CardTitle>
-                        <CardDescription>
-                          {reviewTypes.find(t => t.value === review.review_type)?.label} • 
-                          {new Date(review.created_at || '').toLocaleDateString()}
-                        </CardDescription>
-                        
-                        {/* Smart Tags Display */}
-                        <div className="flex flex-wrap gap-1 mt-2">
-                          {generateSmartTags(review).slice(0, 4).map((tag) => (
-                            <Badge key={tag} variant="secondary" className="text-xs flex items-center gap-1">
-                              <Tag className="h-3 w-3" />
-                              {tag.replace(/_/g, ' ')}
-                            </Badge>
-                          ))}
-                          {generateSmartTags(review).length > 4 && (
-                            <Badge variant="outline" className="text-xs">
-                              +{generateSmartTags(review).length - 4} more
-                            </Badge>
-                          )}
+                          <div className="p-2 bg-blue-100 dark:bg-blue-900/50 rounded-lg">
+                            <Brain className="h-5 w-5 text-blue-600 dark:text-blue-400" />
+                          </div>
+                          <div>
+                            <h3 className="font-semibold text-gray-900 dark:text-gray-100">{getDocumentTitle(review)}</h3>
+                            <p className="text-sm text-gray-600 dark:text-gray-400">
+                              {new Date(review.timestamp).toLocaleDateString()} • {review.reviewType} Review
+                            </p>
+                          </div>
                         </div>
-                      </div>
-                      <div className="flex flex-col items-end gap-3">
-                        {/* Badges */}
                         <div className="flex items-center gap-2">
-                          <Badge className={getPriorityColor(review.priority_level || 'medium')}>
-                            {review.priority_level ? (review.priority_level.charAt(0).toUpperCase() + review.priority_level.slice(1)) : 'Medium'} Priority
-                          </Badge>
-                          {review.compliance_score && (
-                            <Badge variant="outline" className={getComplianceColor(review.compliance_score)}>
-                              {review.compliance_score}% Compliant
-                            </Badge>
-                          )}
-                        </div>
-                        
-                        {/* Actions Dropdown - Hidden in select mode */}
-                        {!isSelectMode && (
+                          <Button
+                            onClick={() => saveToVault(review)}
+                            className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white"
+                            size="sm"
+                            disabled={loading}
+                          >
+                            <Save className="h-4 w-4" />
+                            Save to Vault
+                          </Button>
                           <DropdownMenu>
                             <DropdownMenuTrigger asChild>
-                              <Button 
-                                variant="outline" 
-                                size="sm" 
-                                className="h-8 w-8 p-0"
-                                data-testid={`button-actions-menu-${review.id}`}
-                              >
+                              <Button variant="outline" size="sm">
                                 <MoreVertical className="h-4 w-4" />
                               </Button>
                             </DropdownMenuTrigger>
-                            <DropdownMenuContent align="end" className="w-48">
-                              <DropdownMenuItem 
-                                onClick={() => saveToVault(review)}
-                                className="flex items-center gap-2 cursor-pointer"
-                                data-testid={`menu-save-vault-${review.id}`}
-                              >
-                                <Save className="h-4 w-4" />
-                                Save to Vault
-                              </DropdownMenuItem>
-                              
-                              <DropdownMenuItem 
-                                onClick={() => downloadAnalysis(review)}
-                                className="flex items-center gap-2 cursor-pointer"
-                                data-testid={`menu-download-${review.id}`}
-                              >
-                                <Download className="h-4 w-4" />
+                            <DropdownMenuContent align="end">
+                              <DropdownMenuItem onClick={() => downloadReview(review)}>
+                                <Download className="h-4 w-4 mr-2" />
                                 Download
                               </DropdownMenuItem>
-                              
-                              <DropdownMenuItem 
-                                onClick={() => shareReview(review)}
-                                className="flex items-center gap-2 cursor-pointer"
-                                data-testid={`menu-share-${review.id}`}
-                              >
-                                <Share className="h-4 w-4" />
+                              <DropdownMenuItem onClick={() => shareReview(review)}>
+                                <Share className="h-4 w-4 mr-2" />
                                 Share
                               </DropdownMenuItem>
-                              
                               <DropdownMenuItem 
-                                onClick={() => {
-                                  if (confirm('Are you sure you want to delete this review? This action cannot be undone.')) {
-                                    deleteReview(review.id || '');
-                                  }
-                                }}
-                                className="flex items-center gap-2 cursor-pointer text-red-600 focus:text-red-600 focus:bg-red-50 dark:focus:bg-red-950"
-                                data-testid={`menu-delete-${review.id}`}
+                                onClick={() => deleteReview(review.id)}
+                                className="text-red-600"
                               >
-                                <Trash2 className="h-4 w-4" />
+                                <Trash2 className="h-4 w-4 mr-2" />
                                 Delete
                               </DropdownMenuItem>
                             </DropdownMenuContent>
                           </DropdownMenu>
+                        </div>
+                      </div>
+
+                      {/* Analysis Content */}
+                      <div className="space-y-4">
+                        {review.parsedAnalysis ? (
+                          <>
+                            {renderAnalysisSection(
+                              review,
+                              "Summary",
+                              review.parsedAnalysis.summary,
+                              "bg-blue-50 dark:bg-blue-950/30 border-blue-200 dark:border-blue-800 text-blue-900 dark:text-blue-100",
+                              FileText
+                            )}
+                            {renderAnalysisSection(
+                              review,
+                              "Recommendations",
+                              review.parsedAnalysis.recommendations,
+                              "bg-green-50 dark:bg-green-950/30 border-green-200 dark:border-green-800 text-green-900 dark:text-green-100",
+                              TrendingUp
+                            )}
+                            {renderAnalysisSection(
+                              review,
+                              "Areas of Concern",
+                              review.parsedAnalysis.areas_of_concern,
+                              "bg-orange-50 dark:bg-orange-950/30 border-orange-200 dark:border-orange-800 text-orange-900 dark:text-orange-100",
+                              AlertCircle
+                            )}
+                            {renderAnalysisSection(
+                              review,
+                              "Strengths",
+                              review.parsedAnalysis.strengths,
+                              "bg-emerald-50 dark:bg-emerald-950/30 border-emerald-200 dark:border-emerald-800 text-emerald-900 dark:text-emerald-100",
+                              CheckCircle
+                            )}
+                            {renderAnalysisSection(
+                              review,
+                              "Action Items",
+                              review.parsedAnalysis.action_items,
+                              "bg-purple-50 dark:bg-purple-950/30 border-purple-200 dark:border-purple-800 text-purple-900 dark:text-purple-100",
+                              Target
+                            )}
+                          </>
+                        ) : (
+                          <div className="p-4 bg-gray-50 dark:bg-gray-800 rounded-lg">
+                            <p className="text-sm text-gray-600 dark:text-gray-400">
+                              {typeof review.analysis === 'string' ? review.analysis : JSON.stringify(review.analysis, null, 2)}
+                            </p>
+                          </div>
                         )}
                       </div>
-                    </div>
-                    
-                    {review.compliance_score && (
-                      <div className="space-y-2">
-                        <div className="flex items-center justify-between text-sm">
-                          <span>Compliance Score</span>
-                          <span className={getComplianceColor(review.compliance_score)}>
-                            {review.compliance_score}%
-                          </span>
-                        </div>
-                        <Progress value={review.compliance_score} className="h-2" />
-                      </div>
-                    )}
-                  </CardHeader>
-                  
-                  <CardContent>
-                    <Tabs defaultValue="analysis" className="space-y-6">
-                      <TabsList className="grid w-full grid-cols-5 bg-muted/30 p-1 rounded-lg">
-                        <TabsTrigger 
-                          value="analysis"
-                          className="text-sm font-medium data-[state=active]:bg-white dark:data-[state=active]:bg-slate-900 data-[state=active]:text-foreground data-[state=active]:shadow-sm transition-all duration-200"
-                        >
-                          Executive Summary
-                        </TabsTrigger>
-                        <TabsTrigger 
-                          value="recommendations"
-                          className="text-sm font-medium data-[state=active]:bg-white dark:data-[state=active]:bg-slate-900 data-[state=active]:text-foreground data-[state=active]:shadow-sm transition-all duration-200"
-                        >
-                          Recommendations
-                        </TabsTrigger>
-                        <TabsTrigger 
-                          value="concerns"
-                          className="text-sm font-medium data-[state=active]:bg-white dark:data-[state=active]:bg-slate-900 data-[state=active]:text-foreground data-[state=active]:shadow-sm transition-all duration-200"
-                        >
-                          Areas of Concern
-                        </TabsTrigger>
-                        <TabsTrigger 
-                          value="strengths"
-                          className="text-sm font-medium data-[state=active]:bg-white dark:data-[state=active]:bg-slate-900 data-[state=active]:text-foreground data-[state=active]:shadow-sm transition-all duration-200"
-                        >
-                          Strengths
-                        </TabsTrigger>
-                        <TabsTrigger 
-                          value="actions"
-                          className="text-sm font-medium data-[state=active]:bg-white dark:data-[state=active]:bg-slate-900 data-[state=active]:text-foreground data-[state=active]:shadow-sm transition-all duration-200"
-                        >
-                          Action Items
-                        </TabsTrigger>
-                      </TabsList>
-                      
-                      <TabsContent value="analysis" className="space-y-4 mt-6">
-                        <div className="bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-blue-950/30 dark:to-indigo-950/30 rounded-xl border border-blue-100 dark:border-blue-800/50 p-6">
-                          <div className="flex items-center justify-between mb-4">
-                            <div className="flex items-center gap-3">
-                              <div className="p-2 bg-blue-100 dark:bg-blue-900/50 rounded-lg">
-                                <Brain className="h-5 w-5 text-blue-600 dark:text-blue-400" />
-                              </div>
-                              <h4 className="text-lg font-semibold text-gray-900 dark:text-gray-100">
-                                Executive Summary
-                              </h4>
-                            </div>
-                            <Button
-                              variant="ghost"
-                              size="sm"
-                              onClick={() => toggleSection(review.id || '', 'analysis')}
-                              className="h-9 w-9 p-0 hover:bg-blue-100 dark:hover:bg-blue-900/50 rounded-lg"
-                            >
-                              {isSectionCollapsed(review.id || '', 'analysis') ? (
-                                <ChevronDown className="h-4 w-4" />
-                              ) : (
-                                <ChevronUp className="h-4 w-4" />
-                              )}
-                            </Button>
-                          </div>
-                          {!isSectionCollapsed(review.id || '', 'analysis') && (
-                            <div className="bg-white/80 dark:bg-gray-900/50 rounded-lg p-5 border border-blue-100 dark:border-blue-800/30">
-                              <div className="prose prose-sm dark:prose-invert max-w-none">
-                                <p className="text-gray-700 dark:text-gray-300 leading-relaxed text-base m-0">
-                                {(() => {
-                                  try {
-                                    const parsedAnalysis = typeof review.ai_analysis === 'string' 
-                                      ? JSON.parse(review.ai_analysis) 
-                                      : review.ai_analysis;
-                                    
-                                    // Check multiple possible locations for summary
-                                    const summary = parsedAnalysis?.summary || 
-                                                  parsedAnalysis?.executive_summary || 
-                                                  'No summary available';
-                                                  
-                                    return summary;
-                                  } catch (error) {
-                                    console.log('Parse error:', error);
-                                    return typeof review.ai_analysis === 'string' 
-                                      ? review.ai_analysis 
-                                      : 'Analysis not available';
-                                  }
-                                })()}
-                                </p>
-                              </div>
-                            </div>
-                          )}
-                        </div>
-                      </TabsContent>
-                      
-                      <TabsContent value="recommendations" className="space-y-4 mt-6">
-                        <div className="bg-gradient-to-br from-green-50 to-emerald-50 dark:from-green-950/30 dark:to-emerald-950/30 rounded-xl border border-green-100 dark:border-green-800/50 p-6">
-                          <div className="flex items-center justify-between mb-4">
-                            <div className="flex items-center gap-3">
-                              <div className="p-2 bg-green-100 dark:bg-green-900/50 rounded-lg">
-                                <TrendingUp className="h-5 w-5 text-green-600 dark:text-green-400" />
-                              </div>
-                              <h4 className="text-lg font-semibold text-gray-900 dark:text-gray-100">
-                                Key Recommendations
-                              </h4>
-                            </div>
-                            <Button
-                              variant="ghost"
-                              size="sm"
-                              onClick={() => toggleSection(review.id || '', 'recommendations')}
-                              className="h-9 w-9 p-0 hover:bg-green-100 dark:hover:bg-green-900/50 rounded-lg"
-                            >
-                              {isSectionCollapsed(review.id || '', 'recommendations') ? (
-                                <ChevronDown className="h-4 w-4" />
-                              ) : (
-                                <ChevronUp className="h-4 w-4" />
-                              )}
-                            </Button>
-                          </div>
-                          {!isSectionCollapsed(review.id || '', 'recommendations') && (
-                            <div className="bg-white/80 dark:bg-gray-900/50 rounded-lg p-5 border border-green-100 dark:border-green-800/30">
-                              {(() => {
-                                try {
-                                  const parsedAnalysis = typeof review.ai_analysis === 'string' 
-                                    ? JSON.parse(review.ai_analysis) 
-                                    : review.ai_analysis;
-                                  const recommendations = parsedAnalysis?.recommendations || review.recommendations;
-                                  
-                                  if (recommendations && Array.isArray(recommendations)) {
-                                    return (
-                                      <ul className="space-y-2">
-                                        {recommendations.map((rec: any, index: number) => (
-                                          <li key={index} className="flex items-start gap-2">
-                                            <CheckCircle className="h-4 w-4 text-green-600 mt-0.5 flex-shrink-0" />
-                                            <span className="text-sm">{typeof rec === 'string' ? rec : rec.text || rec}</span>
-                                          </li>
-                                        ))}
-                                      </ul>
-                                    );
-                                  } else {
-                                    return <p className="text-sm text-muted-foreground">No specific recommendations provided.</p>;
-                                  }
-                                } catch {
-                                  return <p className="text-sm text-muted-foreground">No specific recommendations provided.</p>;
-                                }
-                              })()}
-                            </div>
-                          )}
-                        </div>
-                      </TabsContent>
-                      
-                      <TabsContent value="concerns" className="space-y-4 mt-6">
-                        <div className="bg-gradient-to-br from-orange-50 to-amber-50 dark:from-orange-950/30 dark:to-amber-950/30 rounded-xl border border-orange-100 dark:border-orange-800/50 p-6">
-                          <div className="flex items-center justify-between mb-4">
-                            <div className="flex items-center gap-3">
-                              <div className="p-2 bg-orange-100 dark:bg-orange-900/50 rounded-lg">
-                                <AlertCircle className="h-5 w-5 text-orange-600 dark:text-orange-400" />
-                              </div>
-                              <h4 className="text-lg font-semibold text-gray-900 dark:text-gray-100">
-                                Areas of Concern
-                              </h4>
-                            </div>
-                            <Button
-                              variant="ghost"
-                              size="sm"
-                              onClick={() => toggleSection(review.id || '', 'concerns')}
-                              className="h-9 w-9 p-0 hover:bg-orange-100 dark:hover:bg-orange-900/50 rounded-lg"
-                            >
-                              {isSectionCollapsed(review.id || '', 'concerns') ? (
-                                <ChevronDown className="h-4 w-4" />
-                              ) : (
-                                <ChevronUp className="h-4 w-4" />
-                              )}
-                            </Button>
-                          </div>
-                          {!isSectionCollapsed(review.id || '', 'concerns') && (
-                            <div className="bg-white/80 dark:bg-gray-900/50 rounded-lg p-5 border border-orange-100 dark:border-orange-800/30">
-                              {(() => {
-                                try {
-                                  const parsedAnalysis = typeof review.ai_analysis === 'string' 
-                                    ? JSON.parse(review.ai_analysis) 
-                                    : review.ai_analysis;
-                                  const concerns = parsedAnalysis?.areas_of_concern || review.areas_of_concern;
-                                  
-                                  if (concerns && Array.isArray(concerns)) {
-                                    return (
-                                      <ul className="space-y-3">
-                                        {concerns.map((concern: any, index: number) => (
-                                          <li key={index} className="flex items-start gap-3">
-                                            <AlertCircle className="h-5 w-5 text-orange-600 dark:text-orange-400 mt-0.5 flex-shrink-0" />
-                                            <span className="text-gray-700 dark:text-gray-300 leading-relaxed">{typeof concern === 'string' ? concern : concern.text || concern}</span>
-                                          </li>
-                                        ))}
-                                      </ul>
-                                    );
-                                  } else {
-                                    return <p className="text-gray-600 dark:text-gray-400">No significant concerns identified.</p>;
-                                  }
-                                } catch {
-                                  return <p className="text-gray-600 dark:text-gray-400">No significant concerns identified.</p>;
-                                }
-                              })()}
-                            </div>
-                          )}
-                        </div>
-                      </TabsContent>
-                      
-                      <TabsContent value="strengths" className="space-y-4 mt-6">
-                        <div className="bg-gradient-to-br from-emerald-50 to-teal-50 dark:from-emerald-950/30 dark:to-teal-950/30 rounded-xl border border-emerald-100 dark:border-emerald-800/50 p-6">
-                          <div className="flex items-center justify-between mb-4">
-                            <div className="flex items-center gap-3">
-                              <div className="p-2 bg-emerald-100 dark:bg-emerald-900/50 rounded-lg">
-                                <CheckCircle className="h-5 w-5 text-emerald-600 dark:text-emerald-400" />
-                              </div>
-                              <h4 className="text-lg font-semibold text-gray-900 dark:text-gray-100">
-                                Identified Strengths
-                              </h4>
-                            </div>
-                            <Button
-                              variant="ghost"
-                              size="sm"
-                              onClick={() => toggleSection(review.id || '', 'strengths')}
-                              className="h-9 w-9 p-0 hover:bg-emerald-100 dark:hover:bg-emerald-900/50 rounded-lg"
-                            >
-                              {isSectionCollapsed(review.id || '', 'strengths') ? (
-                                <ChevronDown className="h-4 w-4" />
-                              ) : (
-                                <ChevronUp className="h-4 w-4" />
-                              )}
-                            </Button>
-                          </div>
-                          {!isSectionCollapsed(review.id || '', 'strengths') && (
-                            <div className="bg-white/80 dark:bg-gray-900/50 rounded-lg p-5 border border-emerald-100 dark:border-emerald-800/30">
-                              {(() => {
-                                try {
-                                  const parsedAnalysis = typeof review.ai_analysis === 'string' 
-                                    ? JSON.parse(review.ai_analysis) 
-                                    : review.ai_analysis;
-                                  const strengths = parsedAnalysis?.strengths || review.strengths;
-                                  
-                                  if (strengths && Array.isArray(strengths)) {
-                                    return (
-                                      <ul className="space-y-3">
-                                        {strengths.map((strength: any, index: number) => (
-                                          <li key={index} className="flex items-start gap-3">
-                                            <CheckCircle className="h-5 w-5 text-emerald-600 dark:text-emerald-400 mt-0.5 flex-shrink-0" />
-                                            <span className="text-gray-700 dark:text-gray-300 leading-relaxed">{typeof strength === 'string' ? strength : strength.text || strength}</span>
-                                          </li>
-                                        ))}
-                                      </ul>
-                                    );
-                                  } else {
-                                    return <p className="text-gray-600 dark:text-gray-400">No specific strengths highlighted.</p>;
-                                  }
-                                } catch {
-                                  return <p className="text-gray-600 dark:text-gray-400">No specific strengths highlighted.</p>;
-                                }
-                              })()}
-                            </div>
-                          )}
-                        </div>
-                      </TabsContent>
-                      
-                      <TabsContent value="actions" className="space-y-4 mt-6">
-                        <div className="bg-gradient-to-br from-purple-50 to-violet-50 dark:from-purple-950/30 dark:to-violet-950/30 rounded-xl border border-purple-100 dark:border-purple-800/50 p-6">
-                          <div className="flex items-center justify-between mb-4">
-                            <div className="flex items-center gap-3">
-                              <div className="p-2 bg-purple-100 dark:bg-purple-900/50 rounded-lg">
-                                <Target className="h-5 w-5 text-purple-600 dark:text-purple-400" />
-                              </div>
-                              <h4 className="text-lg font-semibold text-gray-900 dark:text-gray-100">
-                                Next Steps & Action Items
-                              </h4>
-                            </div>
-                            <Button
-                              variant="ghost"
-                              size="sm"
-                              onClick={() => toggleSection(review.id || '', 'actions')}
-                              className="h-9 w-9 p-0 hover:bg-purple-100 dark:hover:bg-purple-900/50 rounded-lg"
-                            >
-                              {isSectionCollapsed(review.id || '', 'actions') ? (
-                                <ChevronDown className="h-4 w-4" />
-                              ) : (
-                                <ChevronUp className="h-4 w-4" />
-                              )}
-                            </Button>
-                          </div>
-                          {!isSectionCollapsed(review.id || '', 'actions') && (
-                            <div className="bg-white/80 dark:bg-gray-900/50 rounded-lg p-5 border border-purple-100 dark:border-purple-800/30">
-                              {(() => {
-                                try {
-                                  const parsedAnalysis = typeof review.ai_analysis === 'string' 
-                                    ? JSON.parse(review.ai_analysis) 
-                                    : review.ai_analysis;
-                                  const actionItems = parsedAnalysis?.action_items || review.action_items;
-                                  
-                                  if (actionItems && Array.isArray(actionItems)) {
-                                    return (
-                                      <ul className="space-y-3">
-                                        {actionItems.map((action: any, index: number) => (
-                                          <li key={index} className="flex items-start gap-3">
-                                            <Target className="h-5 w-5 text-purple-600 dark:text-purple-400 mt-0.5 flex-shrink-0" />
-                                            <span className="text-gray-700 dark:text-gray-300 leading-relaxed">{typeof action === 'string' ? action : action.text || action}</span>
-                                          </li>
-                                        ))}
-                                      </ul>
-                                    );
-                                  } else {
-                                    return <p className="text-gray-600 dark:text-gray-400">No specific action items provided.</p>;
-                                  }
-                                } catch {
-                                  return <p className="text-gray-600 dark:text-gray-400">No specific action items provided.</p>;
-                                }
-                              })()}
-                            </div>
-                          )}
-                        </div>
-                      </TabsContent>
-                    </Tabs>
-                  </CardContent>
-                </Card>
-              ))}
-            </div>
-          )}
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+            )}
+          </div>
         </div>
       </div>
     </DashboardLayout>

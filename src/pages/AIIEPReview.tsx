@@ -8,7 +8,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { DocumentUpload } from "@/components/DocumentUpload";
 import { StudentSelector } from "@/components/StudentSelector";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Brain, FileText, CheckCircle, AlertCircle, TrendingUp, Target, Users, Clock, Download, ChevronDown, ChevronUp } from "lucide-react";
+import { Brain, FileText, CheckCircle, AlertCircle, TrendingUp, Target, Users, Clock, Download, ChevronDown, ChevronUp, Save, Trash2, Share, Tag } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { api, type AIReview } from "@/lib/api";
 
@@ -26,6 +26,8 @@ export default function AIIEPReview() {
   const [selectedReviewType, setSelectedReviewType] = useState<string>("iep");
   const [loading, setLoading] = useState(false);
   const [collapsedSections, setCollapsedSections] = useState<{[key: string]: boolean}>({});
+  const [selectedStudentName, setSelectedStudentName] = useState<string>("");
+  const [students, setStudents] = useState<any[]>([]);
   
   const { toast } = useToast();
 
@@ -44,7 +46,25 @@ export default function AIIEPReview() {
 
   useEffect(() => {
     fetchReviews();
+    fetchStudents();
   }, [selectedStudent]);
+
+  const fetchStudents = async () => {
+    try {
+      const studentsData = await api.getStudents();
+      setStudents(studentsData);
+      
+      // Update selected student name
+      if (selectedStudent) {
+        const student = studentsData.find(s => s.id === selectedStudent);
+        if (student) {
+          setSelectedStudentName(student.full_name);
+        }
+      }
+    } catch (error) {
+      console.error('Error fetching students:', error);
+    }
+  };
 
   const fetchReviews = async () => {
     try {
@@ -69,6 +89,152 @@ export default function AIIEPReview() {
     } finally {
       setLoading(false);
     }
+  };
+
+  // Save to vault functionality
+  const saveToVault = async (review: AIReview) => {
+    try {
+      await api.createDocument({
+        title: `AI Review - ${review.document_title || 'Document'}`,
+        description: `AI-powered analysis conducted on ${new Date(review.created_at || '').toLocaleDateString()}`,
+        file_name: `ai-review-${review.id}.json`,
+        file_path: `vault/ai-reviews/${review.id}.json`,
+        file_type: 'application/json',
+        file_size: JSON.stringify(review).length,
+        category: 'AI Review',
+        tags: generateSmartTags(review),
+        student_id: review.student_id
+      });
+      
+      toast({
+        title: "Saved to Vault",
+        description: "Review has been saved to your document vault.",
+      });
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to save to vault. Please try again.",
+        variant: "destructive",
+      });
+    }
+  };
+
+  // Delete review functionality
+  const deleteReview = async (reviewId: string) => {
+    try {
+      await api.deleteAIReview(reviewId);
+      setReviews(prev => prev.filter(r => r.id !== reviewId));
+      
+      toast({
+        title: "Review Deleted",
+        description: "The review has been permanently deleted.",
+      });
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to delete review. Please try again.",
+        variant: "destructive",
+      });
+    }
+  };
+
+  // Download analysis functionality
+  const downloadAnalysis = (review: AIReview) => {
+    const analysisData = {
+      title: review.document_title || 'AI Review',
+      date: new Date(review.created_at || '').toLocaleDateString(),
+      student_id: review.student_id,
+      review_type: review.review_type,
+      analysis: review.ai_analysis,
+      recommendations: review.recommendations,
+      areas_of_concern: review.areas_of_concern,
+      strengths: review.strengths,
+      action_items: review.action_items,
+      compliance_score: review.compliance_score,
+      smart_tags: generateSmartTags(review)
+    };
+
+    const blob = new Blob([JSON.stringify(analysisData, null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `ai-review-${review.id}-${new Date().toISOString().split('T')[0]}.json`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+
+    toast({
+      title: "Download Started",
+      description: "Analysis file has been downloaded.",
+    });
+  };
+
+  // Share functionality
+  const shareReview = async (review: AIReview) => {
+    const shareUrl = `${window.location.origin}/shared-review/${review.id}`;
+    
+    if (navigator.share) {
+      try {
+        await navigator.share({
+          title: 'AI IEP Review',
+          text: 'Check out this AI-powered IEP analysis',
+          url: shareUrl,
+        });
+      } catch (error) {
+        // Fallback to clipboard
+        await navigator.clipboard.writeText(shareUrl);
+        toast({
+          title: "Link Copied",
+          description: "Share link copied to clipboard.",
+        });
+      }
+    } else {
+      await navigator.clipboard.writeText(shareUrl);
+      toast({
+        title: "Link Copied",
+        description: "Share link copied to clipboard.",
+      });
+    }
+  };
+
+  // Generate smart tags from review content
+  const generateSmartTags = (review: AIReview): string[] => {
+    const tags: string[] = [];
+    
+    // Add review type tag
+    if (review.review_type) {
+      tags.push(review.review_type.toUpperCase());
+    }
+    
+    // Add compliance score tags
+    if (review.compliance_score !== null && review.compliance_score !== undefined) {
+      if (review.compliance_score >= 80) tags.push('HIGH_COMPLIANCE');
+      else if (review.compliance_score >= 60) tags.push('MEDIUM_COMPLIANCE');
+      else tags.push('LOW_COMPLIANCE');
+    }
+    
+    // Analyze areas of concern for tags
+    if (review.areas_of_concern && review.areas_of_concern.length > 0) {
+      const concernText = review.areas_of_concern.join(' ').toLowerCase();
+      if (concernText.includes('goal')) tags.push('GOALS_ISSUE');
+      if (concernText.includes('service')) tags.push('SERVICES_ISSUE');
+      if (concernText.includes('accommodation')) tags.push('ACCOMMODATIONS_ISSUE');
+      if (concernText.includes('transition')) tags.push('TRANSITION_ISSUE');
+      if (concernText.includes('behavior')) tags.push('BEHAVIOR_ISSUE');
+      if (concernText.includes('autism')) tags.push('AUTISM_RELATED');
+      if (concernText.includes('communication')) tags.push('COMMUNICATION_ISSUE');
+    }
+    
+    // Analyze recommendations for tags
+    if (review.recommendations && review.recommendations.length > 0) {
+      const recText = review.recommendations.join(' ').toLowerCase();
+      if (recText.includes('smart')) tags.push('SMART_GOALS_NEEDED');
+      if (recText.includes('training')) tags.push('STAFF_TRAINING_NEEDED');
+      if (recText.includes('meeting')) tags.push('MEETING_CHANGES_NEEDED');
+    }
+    
+    return [...new Set(tags)]; // Remove duplicates
   };
 
 
@@ -111,8 +277,27 @@ export default function AIIEPReview() {
             <CardContent>
               <StudentSelector
                 selectedStudent={selectedStudent || ""}
-                onStudentChange={(id) => setSelectedStudent(id || "")}
+                onStudentChange={(id) => {
+                  setSelectedStudent(id || "");
+                  // Update student name when selection changes
+                  if (id) {
+                    const student = students.find(s => s.id === id);
+                    setSelectedStudentName(student?.full_name || '');
+                  } else {
+                    setSelectedStudentName('');
+                  }
+                }}
               />
+              {selectedStudentName && (
+                <div className="mt-3 p-3 bg-blue-50 dark:bg-blue-950 rounded-lg border border-blue-200 dark:border-blue-800">
+                  <div className="flex items-center gap-2">
+                    <Users className="h-4 w-4 text-blue-600" />
+                    <span className="text-sm font-medium text-blue-900 dark:text-blue-100">
+                      Selected: {selectedStudentName}
+                    </span>
+                  </div>
+                </div>
+              )}
             </CardContent>
           </Card>
 
@@ -196,22 +381,96 @@ export default function AIIEPReview() {
                       <div>
                         <CardTitle className="flex items-center gap-2">
                           <FileText className="h-5 w-5" />
-                          {review.documents?.title || 'Document Review'}
+                          {review.document_title || 'Document Review'}
+                          {selectedStudentName && (
+                            <span className="text-sm font-normal text-muted-foreground">
+                              • {selectedStudentName}
+                            </span>
+                          )}
                         </CardTitle>
                         <CardDescription>
                           {reviewTypes.find(t => t.value === review.review_type)?.label} • 
-                          {new Date(review.created_at).toLocaleDateString()}
+                          {new Date(review.created_at || '').toLocaleDateString()}
                         </CardDescription>
+                        
+                        {/* Smart Tags Display */}
+                        <div className="flex flex-wrap gap-1 mt-2">
+                          {generateSmartTags(review).slice(0, 4).map((tag) => (
+                            <Badge key={tag} variant="secondary" className="text-xs flex items-center gap-1">
+                              <Tag className="h-3 w-3" />
+                              {tag.replace(/_/g, ' ')}
+                            </Badge>
+                          ))}
+                          {generateSmartTags(review).length > 4 && (
+                            <Badge variant="outline" className="text-xs">
+                              +{generateSmartTags(review).length - 4} more
+                            </Badge>
+                          )}
+                        </div>
                       </div>
-                      <div className="flex items-center gap-2">
-                        <Badge className={getPriorityColor(review.priority_level)}>
-                          {review.priority_level ? (review.priority_level.charAt(0).toUpperCase() + review.priority_level.slice(1)) : 'Unknown'} Priority
-                        </Badge>
-                        {review.compliance_score && (
-                          <Badge variant="outline" className={getComplianceColor(review.compliance_score)}>
-                            {review.compliance_score}% Compliant
+                      <div className="flex flex-col items-end gap-3">
+                        {/* Badges */}
+                        <div className="flex items-center gap-2">
+                          <Badge className={getPriorityColor(review.priority_level || 'medium')}>
+                            {review.priority_level ? (review.priority_level.charAt(0).toUpperCase() + review.priority_level.slice(1)) : 'Medium'} Priority
                           </Badge>
-                        )}
+                          {review.compliance_score && (
+                            <Badge variant="outline" className={getComplianceColor(review.compliance_score)}>
+                              {review.compliance_score}% Compliant
+                            </Badge>
+                          )}
+                        </div>
+                        
+                        {/* Action Buttons */}
+                        <div className="flex items-center gap-2">
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => saveToVault(review)}
+                            className="flex items-center gap-1"
+                            data-testid={`button-save-vault-${review.id}`}
+                          >
+                            <Save className="h-4 w-4" />
+                            Save to Vault
+                          </Button>
+                          
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => downloadAnalysis(review)}
+                            className="flex items-center gap-1"
+                            data-testid={`button-download-${review.id}`}
+                          >
+                            <Download className="h-4 w-4" />
+                            Download
+                          </Button>
+                          
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => shareReview(review)}
+                            className="flex items-center gap-1"
+                            data-testid={`button-share-${review.id}`}
+                          >
+                            <Share className="h-4 w-4" />
+                            Share
+                          </Button>
+                          
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => {
+                              if (confirm('Are you sure you want to delete this review? This action cannot be undone.')) {
+                                deleteReview(review.id || '');
+                              }
+                            }}
+                            className="flex items-center gap-1 text-red-600 hover:text-red-700 hover:bg-red-50"
+                            data-testid={`button-delete-${review.id}`}
+                          >
+                            <Trash2 className="h-4 w-4" />
+                            Delete
+                          </Button>
+                        </div>
                       </div>
                     </div>
                     

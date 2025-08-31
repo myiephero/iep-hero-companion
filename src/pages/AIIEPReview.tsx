@@ -12,7 +12,19 @@ import { Brain, FileText, CheckCircle, AlertCircle, TrendingUp, Target, Users, C
 import { useToast } from "@/hooks/use-toast";
 import { Checkbox } from "@/components/ui/checkbox";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
-import { api, type AIReview } from "@/lib/api";
+import { api } from "@/lib/api";
+
+// Temporary AI Review interface for in-memory storage
+interface TemporaryAIReview {
+  id: string;
+  documentId: string;
+  studentId?: string;
+  reviewType: string;
+  analysis: any;
+  parsedAnalysis?: any;
+  timestamp: string;
+  documentName: string;
+}
 
 const reviewTypes = [
   { value: 'iep', label: 'IEP Document Review', description: 'Comprehensive analysis of IEP documents' },
@@ -23,7 +35,7 @@ const reviewTypes = [
 ];
 
 export default function AIIEPReview() {
-  const [reviews, setReviews] = useState<AIReview[]>([]);
+  const [temporaryReviews, setTemporaryReviews] = useState<TemporaryAIReview[]>([]);
   const [selectedStudent, setSelectedStudent] = useState<string>("");
   const [selectedReviewType, setSelectedReviewType] = useState<string>("iep");
   const [loading, setLoading] = useState(false);
@@ -36,19 +48,10 @@ export default function AIIEPReview() {
   const { toast } = useToast();
 
   // Helper function to safely get document title
-  const getDocumentTitle = (review: AIReview): string => {
-    // Try to extract title from ai_analysis if it contains parsed data
-    if (review.ai_analysis) {
-      try {
-        const parsed = typeof review.ai_analysis === 'string' 
-          ? JSON.parse(review.ai_analysis) 
-          : review.ai_analysis;
-        if (parsed?.document_title) return parsed.document_title;
-        if (parsed?.title) return parsed.title;
-      } catch (error) {
-        // Continue with fallback
-      }
-    }
+  const getDocumentTitle = (review: TemporaryAIReview): string => {
+    if (review.documentName) return review.documentName;
+    if (review.parsedAnalysis?.document_title) return review.parsedAnalysis.document_title;
+    if (review.parsedAnalysis?.title) return review.parsedAnalysis.title;
     return 'Document Review';
   };
 
@@ -66,9 +69,8 @@ export default function AIIEPReview() {
   };
 
   useEffect(() => {
-    fetchReviews();
     fetchStudents();
-  }, [selectedStudent]);
+  }, []);
 
   const fetchStudents = async () => {
     try {
@@ -87,29 +89,25 @@ export default function AIIEPReview() {
     }
   };
 
-  const fetchReviews = async () => {
-    try {
-      setLoading(true);
-      
-      // Use new API to fetch reviews
-      const reviewsData = await api.getAIReviews();
-      
-      // Filter by student if selected
-      const filteredReviews = selectedStudent 
-        ? reviewsData.filter(review => review.student_id === selectedStudent)
-        : reviewsData;
-
-      setReviews(filteredReviews || []);
-    } catch (error) {
-      console.error('Error fetching reviews:', error);
-      toast({
-        title: "Error",
-        description: "Failed to load AI reviews. Please try again.",
-        variant: "destructive",
-      });
-    } finally {
-      setLoading(false);
-    }
+  // Function to handle completed analysis from DocumentUpload
+  const handleAnalysisComplete = (analysisData: any, documentId: string, documentName: string) => {
+    const newReview: TemporaryAIReview = {
+      id: `temp-${Date.now()}-${Math.random()}`,
+      documentId,
+      studentId: selectedStudent,
+      reviewType: selectedReviewType,
+      analysis: analysisData.analysis,
+      parsedAnalysis: analysisData.parsedAnalysis,
+      timestamp: new Date().toISOString(),
+      documentName: documentName
+    };
+    
+    setTemporaryReviews(prev => [newReview, ...prev]);
+    
+    toast({
+      title: "Analysis Complete",
+      description: `${selectedReviewType.toUpperCase()} analysis ready for review.`,
+    });
   };
 
   // Save to vault functionality
@@ -178,7 +176,7 @@ export default function AIIEPReview() {
   };
 
   const selectAllReviews = () => {
-    setSelectedReviews(new Set(reviews.map(r => r.id || '')));
+    setSelectedReviews(new Set(temporaryReviews.map(r => r.id)));
   };
 
   const deselectAllReviews = () => {
@@ -197,7 +195,7 @@ export default function AIIEPReview() {
     if (selectedReviews.size === 0) return;
     
     try {
-      const selectedReviewsArray = reviews.filter(r => selectedReviews.has(r.id || ''));
+      const selectedReviewsArray = temporaryReviews.filter(r => selectedReviews.has(r.id));
       const savePromises = selectedReviewsArray.map(review => 
         api.createDocument({
           title: `AI Review - ${getDocumentTitle(review)}`,
@@ -235,7 +233,7 @@ export default function AIIEPReview() {
   const bulkDownload = () => {
     if (selectedReviews.size === 0) return;
     
-    const selectedReviewsArray = reviews.filter(r => selectedReviews.has(r.id || ''));
+    const selectedReviewsArray = temporaryReviews.filter(r => selectedReviews.has(r.id));
     
     selectedReviewsArray.forEach(review => {
       const analysisData = {
@@ -272,7 +270,7 @@ export default function AIIEPReview() {
   const bulkShare = async () => {
     if (selectedReviews.size === 0) return;
     
-    const selectedReviewsArray = reviews.filter(r => selectedReviews.has(r.id || ''));
+    const selectedReviewsArray = temporaryReviews.filter(r => selectedReviews.has(r.id));
     const shareUrls = selectedReviewsArray.map(review => 
       `${window.location.origin}/shared-review/${review.id}`
     );
@@ -533,53 +531,163 @@ export default function AIIEPReview() {
           </CardHeader>
           <CardContent>
             <DocumentUpload
-              onAnalysisComplete={(analysis) => {
-                toast({
-                  title: "Analysis Complete",
-                  description: "Your document has been analyzed successfully!",
-                });
-                fetchReviews();
-              }}
+              onAnalysisComplete={handleAnalysisComplete}
             />
           </CardContent>
         </Card>
+      </div>
+
+      {/* Analysis Results */}
+      <div className="space-y-4">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <div className="p-2 bg-blue-100 dark:bg-blue-900/50 rounded-lg">
+              <Brain className="h-6 w-6 text-blue-600 dark:text-blue-400" />
+            </div>
+            <div>
+              <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100">AI Review Results</h2>
+              <p className="text-gray-600 dark:text-gray-400">Temporary analysis results - choose what to save</p>
+            </div>
+          </div>
+          <div className="flex items-center gap-2">
+            <Badge variant="secondary" className="text-sm font-medium">
+              {temporaryReviews.length} Review{temporaryReviews.length !== 1 ? 's' : ''}
+            </Badge>
+            {temporaryReviews.length > 0 && (
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setIsSelectMode(!isSelectMode)}
+                className="flex items-center gap-2"
+              >
+                {isSelectMode ? (
+                  <>
+                    <X className="h-4 w-4" />
+                    Cancel
+                  </>
+                ) : (
+                  <>
+                    <CheckSquare className="h-4 w-4" />
+                    Select Multiple
+                  </>
+                )}
+              </Button>
+            )}
+          </div>
+        </div>
+
+        {/* Bulk Actions Toolbar */}
+        {isSelectMode && selectedReviews.size > 0 && (
+          <div className="flex items-center justify-between p-4 bg-blue-50 dark:bg-blue-950/30 border border-blue-200 dark:border-blue-800 rounded-lg">
+            <div className="flex items-center gap-3">
+              <span className="text-sm font-medium text-blue-900 dark:text-blue-100">
+                {selectedReviews.size} of {temporaryReviews.length} selected
+              </span>
+              <div className="flex gap-1">
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={selectAllReviews}
+                  className="text-blue-700 dark:text-blue-300 hover:text-blue-900 dark:hover:text-blue-100"
+                >
+                  Select All
+                </Button>
+                <Button
+                  variant="ghost"
+                  size="sm" 
+                  onClick={deselectAllReviews}
+                  className="text-blue-700 dark:text-blue-300 hover:text-blue-900 dark:hover:text-blue-100"
+                >
+                  Deselect All
+                </Button>
+              </div>
+            </div>
+            <div className="flex gap-2">
+              <Button
+                onClick={bulkSaveToVault}
+                className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white"
+                size="sm"
+              >
+                <Save className="h-4 w-4" />
+                Save to Vault ({selectedReviews.size})
+              </Button>
+              <Button
+                onClick={bulkDownload}
+                variant="outline"
+                className="flex items-center gap-2"
+                size="sm"
+              >
+                <Download className="h-4 w-4" />
+                Download ({selectedReviews.size})
+              </Button>
+              <Button
+                onClick={bulkShare}
+                variant="outline"
+                className="flex items-center gap-2"
+                size="sm"
+              >
+                <Share className="h-4 w-4" />
+                Share ({selectedReviews.size})
+              </Button>
+              <Button
+                onClick={bulkDelete}
+                variant="destructive"
+                className="flex items-center gap-2"
+                size="sm"
+              >
+                <Trash2 className="h-4 w-4" />
+                Delete ({selectedReviews.size})
+              </Button>
+            </div>
+          </div>
+        )}
 
         {/* Reviews Display */}
         <div className="space-y-6">
-          <div className="flex items-center justify-between">
-            <h2 className="text-2xl font-semibold">AI Review Results</h2>
-            <div className="flex items-center gap-3">
-              <Badge variant="outline">
-                {reviews.length} Review{reviews.length !== 1 ? 's' : ''}
-              </Badge>
-              {reviews.length > 0 && (
-                <Button 
-                  variant="outline" 
-                  size="sm"
-                  onClick={toggleSelectMode}
-                  className="flex items-center gap-2"
-                  data-testid="button-toggle-select-mode"
-                >
-                  {isSelectMode ? (
-                    <><X className="h-4 w-4" />Cancel</>
-                  ) : (
-                    <><Square className="h-4 w-4" />Select Multiple</>
-                  )}
-                </Button>
-              )}
-            </div>
-          </div>
-
-          {/* Bulk Actions Toolbar */}
-          {isSelectMode && (
-            <Card className="bg-blue-50 dark:bg-blue-950 border-blue-200 dark:border-blue-800">
-              <CardContent className="pt-6">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-4">
-                    <span className="text-sm font-medium text-blue-900 dark:text-blue-100">
-                      {selectedReviews.size} of {reviews.length} selected
-                    </span>
-                    <div className="flex items-center gap-2">
+          {temporaryReviews.length === 0 ? (
+            <Card className="border-dashed">
+              <CardContent className="flex flex-col items-center justify-center py-12">
+                <Brain className="h-12 w-12 text-muted-foreground mb-4" />
+                <h3 className="text-lg font-semibold mb-2">No Reviews Yet</h3>
+                <p className="text-muted-foreground text-center max-w-md">
+                  Upload and analyze documents above to see AI-powered insights here.
+                </p>
+              </CardContent>
+            </Card>
+          ) : (
+            <div className="space-y-4">
+              {temporaryReviews.map((review) => (
+                <Card key={review.id} className="border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900">
+                  <CardContent className="p-6">
+                    <div className="flex items-center justify-between mb-6">
+                      <div className="flex items-center gap-4">
+                        {isSelectMode && (
+                          <Checkbox
+                            checked={selectedReviews.has(review.id)}
+                            onCheckedChange={(checked) => {
+                              if (checked) {
+                                setSelectedReviews(prev => new Set([...prev, review.id]));
+                              } else {
+                                setSelectedReviews(prev => {
+                                  const newSet = new Set(prev);
+                                  newSet.delete(review.id);
+                                  return newSet;
+                                });
+                              }
+                            }}
+                          />
+                        )}
+                        <div className="p-2 bg-blue-100 dark:bg-blue-900/50 rounded-lg">
+                          <Brain className="h-5 w-5 text-blue-600 dark:text-blue-400" />
+                        </div>
+                        <div>
+                          <h3 className="font-semibold text-gray-900 dark:text-gray-100">{review.documentName}</h3>
+                          <p className="text-sm text-gray-600 dark:text-gray-400">
+                            {new Date(review.timestamp).toLocaleDateString()} • {review.type} Review
+                          </p>
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-2">
                       <Button 
                         variant="ghost" 
                         size="sm" 
@@ -654,7 +762,7 @@ export default function AIIEPReview() {
             </Card>
           )}
 
-          {reviews.length === 0 ? (
+          {temporaryReviews.length === 0 ? (
             <Card>
               <CardContent className="text-center py-12">
                 <FileText className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
@@ -666,7 +774,7 @@ export default function AIIEPReview() {
             </Card>
           ) : (
             <div className="space-y-6">
-              {reviews.map((review) => (
+              {temporaryReviews.map((review) => (
                 <Card key={review.id} className={`overflow-hidden transition-all duration-200 ${
                   isSelectMode && selectedReviews.has(review.id || '') 
                     ? 'ring-2 ring-blue-500 bg-blue-50/30 dark:bg-blue-950/30' 

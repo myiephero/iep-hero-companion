@@ -532,6 +532,7 @@ export function DocumentUpload({ onAnalysisComplete }: DocumentUploadProps) {
         file_size: new Blob([fileData.analysis.content]).size,
         category: 'AI Analysis',
         tags: [fileData.analysis.type, 'analysis-result', 'ai-generated'],
+        description: `AI analysis completed on ${new Date(fileData.analysis.timestamp).toLocaleDateString()}`,
         content: fileData.analysis.content
       });
       
@@ -627,14 +628,14 @@ export function DocumentUpload({ onAnalysisComplete }: DocumentUploadProps) {
         content: data.analysis,
         timestamp: new Date().toISOString(),
         documentId: data.documentId,
-        reviewId: data.reviewId
+        parsedAnalysis: data.parsedAnalysis
       };
 
       setFiles(prev => prev.map(f => 
         f.id === fileData.id ? { ...f, analysis } : f
       ));
 
-      onAnalysisComplete?.(analysis);
+      onAnalysisComplete?.(analysis, data.documentId, fileData.file.name);
 
       toast({
         title: "Analysis complete",

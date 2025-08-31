@@ -62,7 +62,7 @@ const DocumentVault = () => {
   const filteredDocuments = documents?.filter(doc => {
     // Find student name for this document
     const student = students?.find(s => s.id === doc.student_id);
-    const studentName = student ? `${student.first_name} ${student.last_name}` : '';
+    const studentName = student ? student.full_name : '';
     
     const matchesSearch = doc.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
                          doc.file_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -186,7 +186,7 @@ const DocumentVault = () => {
                           return student ? (
                             <div className="flex items-center gap-2 mt-1">
                               <Badge variant="outline" className="text-xs">
-                                Student: {student.first_name} {student.last_name}
+                                Student: {student.full_name}
                               </Badge>
                             </div>
                           ) : null;

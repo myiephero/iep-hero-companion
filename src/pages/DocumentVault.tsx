@@ -9,7 +9,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { Label } from '@/components/ui/label';
-import { Shield, Folder, Search, Filter, Download, Upload, Eye, Edit, Trash2, Check, X, MoreVertical, Share, User, Calendar, Clock, FileText } from 'lucide-react';
+import { Shield, Folder, Search, Filter, Download, Upload, Eye, Edit, Trash2, Check, X, MoreVertical, Share, User, Calendar, Clock, FileText, Brain } from 'lucide-react';
 import { format } from 'date-fns';
 import { api } from '@/lib/api';
 import { useToast } from '@/hooks/use-toast';
@@ -327,18 +327,38 @@ const DocumentVault: React.FC = () => {
                             </div>
                           )}
 
+                          {/* Navigation Toolbar for Sections */}
+                          <div className="mb-6">
+                            <div className="flex items-center gap-2 bg-gray-100 dark:bg-gray-800 p-1 rounded-lg overflow-x-auto">
+                              <button className="px-4 py-2 bg-blue-600 text-white rounded-md text-sm font-medium whitespace-nowrap">
+                                Analysis
+                              </button>
+                              <button className="px-4 py-2 text-gray-600 dark:text-gray-400 rounded-md text-sm font-medium hover:bg-gray-200 dark:hover:bg-gray-700 whitespace-nowrap">
+                                Recommendations
+                              </button>
+                              <button className="px-4 py-2 text-gray-600 dark:text-gray-400 rounded-md text-sm font-medium hover:bg-gray-200 dark:hover:bg-gray-700 whitespace-nowrap">
+                                Concerns
+                              </button>
+                              <button className="px-4 py-2 text-gray-600 dark:text-gray-400 rounded-md text-sm font-medium hover:bg-gray-200 dark:hover:bg-gray-700 whitespace-nowrap">
+                                Strengths
+                              </button>
+                              <button className="px-4 py-2 text-gray-600 dark:text-gray-400 rounded-md text-sm font-medium hover:bg-gray-200 dark:hover:bg-gray-700 whitespace-nowrap">
+                                Action Items
+                              </button>
+                            </div>
+                          </div>
+
+                          {/* AI Analysis Summary Header */}
+                          <div className="mb-4">
+                            <div className="flex items-center gap-2 mb-2">
+                              <Brain className="h-5 w-5 text-blue-600" />
+                              <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">AI Analysis Summary</h3>
+                            </div>
+                          </div>
+
                           <div className="flex items-center gap-2">
                             <Button
                               className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white"
-                              size="sm"
-                              onClick={() => handleViewDocument(doc)}
-                            >
-                              <FileText className="h-4 w-4" />
-                              Save to Vault
-                            </Button>
-                            <Button
-                              variant="outline"
-                              className="flex items-center gap-2"
                               size="sm"
                               onClick={() => handleDownloadDocument(doc)}
                             >

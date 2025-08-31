@@ -493,6 +493,11 @@ export function DocumentUpload({ onAnalysisComplete }: DocumentUploadProps) {
         tags: ['uploaded-document']
       });
       
+      // Invalidate documents cache to refresh the vault
+      await import('@/lib/queryClient').then(({ queryClient }) => {
+        queryClient.invalidateQueries({ queryKey: ['documents'] });
+      });
+      
       toast({
         title: "Saved to Vault",
         description: "File has been saved to your document vault.",

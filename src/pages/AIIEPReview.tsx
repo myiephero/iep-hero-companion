@@ -106,6 +106,11 @@ export default function AIIEPReview() {
         student_id: review.student_id
       });
       
+      // Invalidate documents cache to refresh the vault
+      await import('@/lib/queryClient').then(({ queryClient }) => {
+        queryClient.invalidateQueries({ queryKey: ['documents'] });
+      });
+      
       toast({
         title: "Saved to Vault",
         description: "Review has been saved to your document vault.",

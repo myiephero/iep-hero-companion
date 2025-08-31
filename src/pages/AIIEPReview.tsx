@@ -8,7 +8,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { DocumentUpload } from "@/components/DocumentUpload";
 import { StudentSelector } from "@/components/StudentSelector";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Brain, FileText, CheckCircle, AlertCircle, TrendingUp, Target, Users, Clock, Download } from "lucide-react";
+import { Brain, FileText, CheckCircle, AlertCircle, TrendingUp, Target, Users, Clock, Download, ChevronDown, ChevronUp } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { api, type AIReview } from "@/lib/api";
 
@@ -25,8 +25,22 @@ export default function AIIEPReview() {
   const [selectedStudent, setSelectedStudent] = useState<string>("");
   const [selectedReviewType, setSelectedReviewType] = useState<string>("iep");
   const [loading, setLoading] = useState(false);
+  const [collapsedSections, setCollapsedSections] = useState<{[key: string]: boolean}>({});
   
   const { toast } = useToast();
+
+  const toggleSection = (reviewId: string, section: string) => {
+    const key = `${reviewId}-${section}`;
+    setCollapsedSections(prev => ({
+      ...prev,
+      [key]: !prev[key]
+    }));
+  };
+
+  const isSectionCollapsed = (reviewId: string, section: string) => {
+    const key = `${reviewId}-${section}`;
+    return collapsedSections[key] || false;
+  };
 
   useEffect(() => {
     fetchReviews();
@@ -226,162 +240,250 @@ export default function AIIEPReview() {
                       
                       <TabsContent value="analysis" className="space-y-4">
                         <div>
-                          <h4 className="font-medium mb-2 flex items-center gap-2">
-                            <Brain className="h-4 w-4" />
-                            AI Analysis Summary
-                          </h4>
-                          <div className="bg-muted/50 rounded-lg p-4">
-                            <p className="text-sm leading-relaxed">
-                              {(() => {
-                                try {
-                                  const parsedAnalysis = typeof review.ai_analysis === 'string' 
-                                    ? JSON.parse(review.ai_analysis) 
-                                    : review.ai_analysis;
-                                  return parsedAnalysis?.summary || 'Analysis not available';
-                                } catch {
-                                  return typeof review.ai_analysis === 'string' 
-                                    ? review.ai_analysis 
-                                    : 'Analysis not available';
-                                }
-                              })()}
-                            </p>
+                          <div className="flex items-center justify-between mb-2">
+                            <h4 className="font-medium flex items-center gap-2">
+                              <Brain className="h-4 w-4" />
+                              AI Analysis Summary
+                            </h4>
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => toggleSection(review.id || '', 'analysis')}
+                              className="h-8 w-8 p-0"
+                            >
+                              {isSectionCollapsed(review.id || '', 'analysis') ? (
+                                <ChevronDown className="h-4 w-4" />
+                              ) : (
+                                <ChevronUp className="h-4 w-4" />
+                              )}
+                            </Button>
                           </div>
+                          {!isSectionCollapsed(review.id || '', 'analysis') && (
+                            <div className="bg-muted/50 rounded-lg p-4">
+                              <p className="text-sm leading-relaxed">
+                                {(() => {
+                                  try {
+                                    const parsedAnalysis = typeof review.ai_analysis === 'string' 
+                                      ? JSON.parse(review.ai_analysis) 
+                                      : review.ai_analysis;
+                                    return parsedAnalysis?.summary || 'Analysis not available';
+                                  } catch {
+                                    return typeof review.ai_analysis === 'string' 
+                                      ? review.ai_analysis 
+                                      : 'Analysis not available';
+                                  }
+                                })()}
+                              </p>
+                            </div>
+                          )}
                         </div>
                       </TabsContent>
                       
                       <TabsContent value="recommendations" className="space-y-4">
                         <div>
-                          <h4 className="font-medium mb-2 flex items-center gap-2">
-                            <TrendingUp className="h-4 w-4" />
-                            Recommendations
-                          </h4>
-                          {(() => {
-                            try {
-                              const parsedAnalysis = typeof review.ai_analysis === 'string' 
-                                ? JSON.parse(review.ai_analysis) 
-                                : review.ai_analysis;
-                              const recommendations = parsedAnalysis?.recommendations || review.recommendations;
-                              
-                              if (recommendations && Array.isArray(recommendations)) {
-                                return (
-                                  <ul className="space-y-2">
-                                    {recommendations.map((rec: any, index: number) => (
-                                      <li key={index} className="flex items-start gap-2">
-                                        <CheckCircle className="h-4 w-4 text-green-600 mt-0.5 flex-shrink-0" />
-                                        <span className="text-sm">{typeof rec === 'string' ? rec : rec.text || rec}</span>
-                                      </li>
-                                    ))}
-                                  </ul>
-                                );
-                              } else {
-                                return <p className="text-sm text-muted-foreground">No specific recommendations provided.</p>;
-                              }
-                            } catch {
-                              return <p className="text-sm text-muted-foreground">No specific recommendations provided.</p>;
-                            }
-                          })()}
+                          <div className="flex items-center justify-between mb-2">
+                            <h4 className="font-medium flex items-center gap-2">
+                              <TrendingUp className="h-4 w-4" />
+                              Recommendations
+                            </h4>
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => toggleSection(review.id || '', 'recommendations')}
+                              className="h-8 w-8 p-0"
+                            >
+                              {isSectionCollapsed(review.id || '', 'recommendations') ? (
+                                <ChevronDown className="h-4 w-4" />
+                              ) : (
+                                <ChevronUp className="h-4 w-4" />
+                              )}
+                            </Button>
+                          </div>
+                          {!isSectionCollapsed(review.id || '', 'recommendations') && (
+                            <div>
+                              {(() => {
+                                try {
+                                  const parsedAnalysis = typeof review.ai_analysis === 'string' 
+                                    ? JSON.parse(review.ai_analysis) 
+                                    : review.ai_analysis;
+                                  const recommendations = parsedAnalysis?.recommendations || review.recommendations;
+                                  
+                                  if (recommendations && Array.isArray(recommendations)) {
+                                    return (
+                                      <ul className="space-y-2">
+                                        {recommendations.map((rec: any, index: number) => (
+                                          <li key={index} className="flex items-start gap-2">
+                                            <CheckCircle className="h-4 w-4 text-green-600 mt-0.5 flex-shrink-0" />
+                                            <span className="text-sm">{typeof rec === 'string' ? rec : rec.text || rec}</span>
+                                          </li>
+                                        ))}
+                                      </ul>
+                                    );
+                                  } else {
+                                    return <p className="text-sm text-muted-foreground">No specific recommendations provided.</p>;
+                                  }
+                                } catch {
+                                  return <p className="text-sm text-muted-foreground">No specific recommendations provided.</p>;
+                                }
+                              })()}
+                            </div>
+                          )}
                         </div>
                       </TabsContent>
                       
                       <TabsContent value="concerns" className="space-y-4">
                         <div>
-                          <h4 className="font-medium mb-2 flex items-center gap-2">
-                            <AlertCircle className="h-4 w-4" />
-                            Areas of Concern
-                          </h4>
-                          {(() => {
-                            try {
-                              const parsedAnalysis = typeof review.ai_analysis === 'string' 
-                                ? JSON.parse(review.ai_analysis) 
-                                : review.ai_analysis;
-                              const concerns = parsedAnalysis?.areas_of_concern || review.areas_of_concern;
-                              
-                              if (concerns && Array.isArray(concerns)) {
-                                return (
-                                  <ul className="space-y-2">
-                                    {concerns.map((concern: any, index: number) => (
-                                      <li key={index} className="flex items-start gap-2">
-                                        <AlertCircle className="h-4 w-4 text-amber-600 mt-0.5 flex-shrink-0" />
-                                        <span className="text-sm">{typeof concern === 'string' ? concern : concern.text || concern}</span>
-                                      </li>
-                                    ))}
-                                  </ul>
-                                );
-                              } else {
-                                return <p className="text-sm text-muted-foreground">No significant concerns identified.</p>;
-                              }
-                            } catch {
-                              return <p className="text-sm text-muted-foreground">No significant concerns identified.</p>;
-                            }
-                          })()}
+                          <div className="flex items-center justify-between mb-2">
+                            <h4 className="font-medium flex items-center gap-2">
+                              <AlertCircle className="h-4 w-4" />
+                              Areas of Concern
+                            </h4>
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => toggleSection(review.id || '', 'concerns')}
+                              className="h-8 w-8 p-0"
+                            >
+                              {isSectionCollapsed(review.id || '', 'concerns') ? (
+                                <ChevronDown className="h-4 w-4" />
+                              ) : (
+                                <ChevronUp className="h-4 w-4" />
+                              )}
+                            </Button>
+                          </div>
+                          {!isSectionCollapsed(review.id || '', 'concerns') && (
+                            <div>
+                              {(() => {
+                                try {
+                                  const parsedAnalysis = typeof review.ai_analysis === 'string' 
+                                    ? JSON.parse(review.ai_analysis) 
+                                    : review.ai_analysis;
+                                  const concerns = parsedAnalysis?.areas_of_concern || review.areas_of_concern;
+                                  
+                                  if (concerns && Array.isArray(concerns)) {
+                                    return (
+                                      <ul className="space-y-2">
+                                        {concerns.map((concern: any, index: number) => (
+                                          <li key={index} className="flex items-start gap-2">
+                                            <AlertCircle className="h-4 w-4 text-amber-600 mt-0.5 flex-shrink-0" />
+                                            <span className="text-sm">{typeof concern === 'string' ? concern : concern.text || concern}</span>
+                                          </li>
+                                        ))}
+                                      </ul>
+                                    );
+                                  } else {
+                                    return <p className="text-sm text-muted-foreground">No significant concerns identified.</p>;
+                                  }
+                                } catch {
+                                  return <p className="text-sm text-muted-foreground">No significant concerns identified.</p>;
+                                }
+                              })()}
+                            </div>
+                          )}
                         </div>
                       </TabsContent>
                       
                       <TabsContent value="strengths" className="space-y-4">
                         <div>
-                          <h4 className="font-medium mb-2 flex items-center gap-2">
-                            <CheckCircle className="h-4 w-4" />
-                            Document Strengths
-                          </h4>
-                          {(() => {
-                            try {
-                              const parsedAnalysis = typeof review.ai_analysis === 'string' 
-                                ? JSON.parse(review.ai_analysis) 
-                                : review.ai_analysis;
-                              const strengths = parsedAnalysis?.strengths || review.strengths;
-                              
-                              if (strengths && Array.isArray(strengths)) {
-                                return (
-                                  <ul className="space-y-2">
-                                    {strengths.map((strength: any, index: number) => (
-                                      <li key={index} className="flex items-start gap-2">
-                                        <CheckCircle className="h-4 w-4 text-green-600 mt-0.5 flex-shrink-0" />
-                                        <span className="text-sm">{typeof strength === 'string' ? strength : strength.text || strength}</span>
-                                      </li>
-                                    ))}
-                                  </ul>
-                                );
-                              } else {
-                                return <p className="text-sm text-muted-foreground">No specific strengths highlighted.</p>;
-                              }
-                            } catch {
-                              return <p className="text-sm text-muted-foreground">No specific strengths highlighted.</p>;
-                            }
-                          })()}
+                          <div className="flex items-center justify-between mb-2">
+                            <h4 className="font-medium flex items-center gap-2">
+                              <CheckCircle className="h-4 w-4" />
+                              Document Strengths
+                            </h4>
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => toggleSection(review.id || '', 'strengths')}
+                              className="h-8 w-8 p-0"
+                            >
+                              {isSectionCollapsed(review.id || '', 'strengths') ? (
+                                <ChevronDown className="h-4 w-4" />
+                              ) : (
+                                <ChevronUp className="h-4 w-4" />
+                              )}
+                            </Button>
+                          </div>
+                          {!isSectionCollapsed(review.id || '', 'strengths') && (
+                            <div>
+                              {(() => {
+                                try {
+                                  const parsedAnalysis = typeof review.ai_analysis === 'string' 
+                                    ? JSON.parse(review.ai_analysis) 
+                                    : review.ai_analysis;
+                                  const strengths = parsedAnalysis?.strengths || review.strengths;
+                                  
+                                  if (strengths && Array.isArray(strengths)) {
+                                    return (
+                                      <ul className="space-y-2">
+                                        {strengths.map((strength: any, index: number) => (
+                                          <li key={index} className="flex items-start gap-2">
+                                            <CheckCircle className="h-4 w-4 text-green-600 mt-0.5 flex-shrink-0" />
+                                            <span className="text-sm">{typeof strength === 'string' ? strength : strength.text || strength}</span>
+                                          </li>
+                                        ))}
+                                      </ul>
+                                    );
+                                  } else {
+                                    return <p className="text-sm text-muted-foreground">No specific strengths highlighted.</p>;
+                                  }
+                                } catch {
+                                  return <p className="text-sm text-muted-foreground">No specific strengths highlighted.</p>;
+                                }
+                              })()}
+                            </div>
+                          )}
                         </div>
                       </TabsContent>
                       
                       <TabsContent value="actions" className="space-y-4">
                         <div>
-                          <h4 className="font-medium mb-2 flex items-center gap-2">
-                            <Target className="h-4 w-4" />
-                            Recommended Action Items
-                          </h4>
-                          {(() => {
-                            try {
-                              const parsedAnalysis = typeof review.ai_analysis === 'string' 
-                                ? JSON.parse(review.ai_analysis) 
-                                : review.ai_analysis;
-                              const actionItems = parsedAnalysis?.action_items || review.action_items;
-                              
-                              if (actionItems && Array.isArray(actionItems)) {
-                                return (
-                                  <ul className="space-y-2">
-                                    {actionItems.map((action: any, index: number) => (
-                                      <li key={index} className="flex items-start gap-2">
-                                        <Target className="h-4 w-4 text-blue-600 mt-0.5 flex-shrink-0" />
-                                        <span className="text-sm">{typeof action === 'string' ? action : action.text || action}</span>
-                                      </li>
-                                    ))}
-                                  </ul>
-                                );
-                              } else {
-                                return <p className="text-sm text-muted-foreground">No specific action items provided.</p>;
-                              }
-                            } catch {
-                              return <p className="text-sm text-muted-foreground">No specific action items provided.</p>;
-                            }
-                          })()}
+                          <div className="flex items-center justify-between mb-2">
+                            <h4 className="font-medium flex items-center gap-2">
+                              <Target className="h-4 w-4" />
+                              Recommended Action Items
+                            </h4>
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => toggleSection(review.id || '', 'actions')}
+                              className="h-8 w-8 p-0"
+                            >
+                              {isSectionCollapsed(review.id || '', 'actions') ? (
+                                <ChevronDown className="h-4 w-4" />
+                              ) : (
+                                <ChevronUp className="h-4 w-4" />
+                              )}
+                            </Button>
+                          </div>
+                          {!isSectionCollapsed(review.id || '', 'actions') && (
+                            <div>
+                              {(() => {
+                                try {
+                                  const parsedAnalysis = typeof review.ai_analysis === 'string' 
+                                    ? JSON.parse(review.ai_analysis) 
+                                    : review.ai_analysis;
+                                  const actionItems = parsedAnalysis?.action_items || review.action_items;
+                                  
+                                  if (actionItems && Array.isArray(actionItems)) {
+                                    return (
+                                      <ul className="space-y-2">
+                                        {actionItems.map((action: any, index: number) => (
+                                          <li key={index} className="flex items-start gap-2">
+                                            <Target className="h-4 w-4 text-blue-600 mt-0.5 flex-shrink-0" />
+                                            <span className="text-sm">{typeof action === 'string' ? action : action.text || action}</span>
+                                          </li>
+                                        ))}
+                                      </ul>
+                                    );
+                                  } else {
+                                    return <p className="text-sm text-muted-foreground">No specific action items provided.</p>;
+                                  }
+                                } catch {
+                                  return <p className="text-sm text-muted-foreground">No specific action items provided.</p>;
+                                }
+                              })()}
+                            </div>
+                          )}
                         </div>
                       </TabsContent>
                     </Tabs>

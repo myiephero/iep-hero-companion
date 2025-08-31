@@ -251,15 +251,15 @@ const AdvocateStudents = () => {
                 Add Student
               </Button>
             </DialogTrigger>
-            <DialogContent className="max-w-4xl max-h-[90vh] overflow-hidden">
-              <DialogHeader>
-                <DialogTitle>Add New Client Student</DialogTitle>
-                <DialogDescription>
+            <DialogContent className="max-w-3xl max-h-[95vh] overflow-hidden">
+              <DialogHeader className="pb-4">
+                <DialogTitle className="text-xl font-semibold">Add New Client Student</DialogTitle>
+                <DialogDescription className="text-muted-foreground">
                   Add a student to one of your parent clients' accounts.
                 </DialogDescription>
               </DialogHeader>
               
-              <div className="overflow-y-auto max-h-[calc(90vh-160px)] pr-2">
+              <div className="overflow-y-auto max-h-[calc(95vh-200px)] pr-2">
                 <div className="space-y-6">
                   {/* Parent/Guardian Assignment */}
                   <div className="space-y-2">

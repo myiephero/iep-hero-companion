@@ -440,25 +440,11 @@ app.post('/api/process-document', express.json({ limit: '50mb' }), async (req, r
       };
     }
     
-    // Create AI review record
-    const reviewId = createId();
-    await db.insert(schema.ai_reviews).values({
-      id: reviewId,
-      user_id: MOCK_USER_ID,
-      document_id: documentId,
-      review_type: analysisType,
-      ai_analysis: parsedAnalysis,
-      recommendations: parsedAnalysis.recommendations,
-      areas_of_concern: parsedAnalysis.areas_of_concern,
-      strengths: parsedAnalysis.strengths,
-      action_items: parsedAnalysis.action_items,
-      compliance_score: parsedAnalysis.compliance_score
-    });
-
+    // Return analysis without saving to ai_reviews (temporary results only)
     res.json({
       analysis,
       documentId,
-      reviewId
+      parsedAnalysis // Include parsed analysis for frontend use
     });
   } catch (error) {
     console.error('Error processing document:', error);

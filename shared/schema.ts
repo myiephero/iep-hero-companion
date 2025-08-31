@@ -169,6 +169,7 @@ export const documents = pgTable("documents", {
   file_size: integer("file_size"),
   category: varchar("category"),
   tags: json("tags"),
+  content: text("content"), // Add content field for AI analysis results
   confidential: boolean("confidential"),
   uploaded_by: varchar("uploaded_by"),
   created_at: timestamp("created_at").defaultNow(),

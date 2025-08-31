@@ -187,17 +187,20 @@ const AdvocateStudents = () => {
   const openEditDialog = (student: Student) => {
     setEditingStudent(student);
     setNewStudent({
-      first_name: student.first_name || student.full_name.split(' ')[0] || '',
-      last_name: student.last_name || student.full_name.split(' ').slice(1).join(' ') || '',
+      first_name: student.full_name?.split(' ')[0] || '',
+      last_name: student.full_name?.split(' ').slice(1).join(' ') || '',
       date_of_birth: student.date_of_birth || '',
       grade_level: student.grade_level || '',
       school_name: student.school_name || '',
       district: student.district || '',
       iep_status: student.iep_status || 'Active',
-      disabilities: student.disabilities ? student.disabilities.split(', ') : [],
-      current_services: student.current_services ? student.current_services.split(', ') : [],
+      disabilities: [],
+      current_services: [],
       case_manager: student.case_manager || '',
       case_manager_email: student.case_manager_email || '',
+      emergency_contact: '',
+      emergency_phone: '',
+      medical_info: '',
       notes: student.notes || '',
       assigned_client: '',
     });
@@ -217,6 +220,9 @@ const AdvocateStudents = () => {
       current_services: [],
       case_manager: '',
       case_manager_email: '',
+      emergency_contact: '',
+      emergency_phone: '',
+      medical_info: '',
       notes: '',
       assigned_client: '',
     });
@@ -264,8 +270,8 @@ const AdvocateStudents = () => {
       setCurrentStudent(student || null);
       
       const goalsData = await api.getGoals();
-      const studentGoals = goalsData.filter((goal: Goal) => goal.student_id === studentId);
-      setGoals(studentGoals);
+      const studentGoals = goalsData.filter((goal: any) => goal.student_id === studentId);
+      setGoals(studentGoals as Goal[] || []);
       
       // Mock services and cases data for now
       setServices([]);
@@ -586,6 +592,344 @@ const AdvocateStudents = () => {
           </div>
         </div>
       </div>
+
+      {/* Add Student Dialog */}
+      <Dialog open={isAddStudentOpen} onOpenChange={setIsAddStudentOpen}>
+        <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>Add New Student</DialogTitle>
+            <DialogDescription>
+              Add a new student to your client roster. Fill in the information below to create their profile.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-6 py-4">
+            {/* Basic Information */}
+            <div className="space-y-4">
+              <h3 className="text-lg font-semibold border-b pb-2">Basic Information</h3>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <Label htmlFor="first_name">First Name *</Label>
+                  <Input
+                    id="first_name"
+                    value={newStudent.first_name}
+                    onChange={(e) => setNewStudent({...newStudent, first_name: e.target.value})}
+                    placeholder="Enter first name"
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="last_name">Last Name *</Label>
+                  <Input
+                    id="last_name"
+                    value={newStudent.last_name}
+                    onChange={(e) => setNewStudent({...newStudent, last_name: e.target.value})}
+                    placeholder="Enter last name"
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="date_of_birth">Date of Birth</Label>
+                  <Input
+                    id="date_of_birth"
+                    type="date"
+                    value={newStudent.date_of_birth}
+                    onChange={(e) => setNewStudent({...newStudent, date_of_birth: e.target.value})}
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="grade_level">Grade Level</Label>
+                  <Select value={newStudent.grade_level} onValueChange={(value) => setNewStudent({...newStudent, grade_level: value})}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select grade" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="Pre-K">Pre-K</SelectItem>
+                      <SelectItem value="K">Kindergarten</SelectItem>
+                      <SelectItem value="1">1st Grade</SelectItem>
+                      <SelectItem value="2">2nd Grade</SelectItem>
+                      <SelectItem value="3">3rd Grade</SelectItem>
+                      <SelectItem value="4">4th Grade</SelectItem>
+                      <SelectItem value="5">5th Grade</SelectItem>
+                      <SelectItem value="6">6th Grade</SelectItem>
+                      <SelectItem value="7">7th Grade</SelectItem>
+                      <SelectItem value="8">8th Grade</SelectItem>
+                      <SelectItem value="9">9th Grade</SelectItem>
+                      <SelectItem value="10">10th Grade</SelectItem>
+                      <SelectItem value="11">11th Grade</SelectItem>
+                      <SelectItem value="12">12th Grade</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
+            </div>
+
+            {/* School Information */}
+            <div className="space-y-4">
+              <h3 className="text-lg font-semibold border-b pb-2">School Information</h3>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <Label htmlFor="school_name">School Name</Label>
+                  <Input
+                    id="school_name"
+                    value={newStudent.school_name}
+                    onChange={(e) => setNewStudent({...newStudent, school_name: e.target.value})}
+                    placeholder="Enter school name"
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="district">School District</Label>
+                  <Input
+                    id="district"
+                    value={newStudent.district}
+                    onChange={(e) => setNewStudent({...newStudent, district: e.target.value})}
+                    placeholder="Enter school district"
+                  />
+                </div>
+              </div>
+            </div>
+
+            {/* Parent Assignment */}
+            <div className="space-y-4">
+              <h3 className="text-lg font-semibold border-b pb-2">Parent Assignment</h3>
+              <div>
+                <Label htmlFor="assigned_client">Assign to Parent Client *</Label>
+                <Select value={newStudent.assigned_client} onValueChange={(value) => setNewStudent({...newStudent, assigned_client: value})}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select parent client" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {clients.map((client) => (
+                      <SelectItem key={client.id} value={client.client_id}>
+                        {client.full_name || client.email}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+
+            {/* IEP Status */}
+            <div className="space-y-4">
+              <h3 className="text-lg font-semibold border-b pb-2">IEP Status</h3>
+              <div>
+                <Label htmlFor="iep_status">Current IEP Status</Label>
+                <Select value={newStudent.iep_status} onValueChange={(value) => setNewStudent({...newStudent, iep_status: value})}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select IEP status" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="Active">Active</SelectItem>
+                    <SelectItem value="Under Review">Under Review</SelectItem>
+                    <SelectItem value="Expired">Expired</SelectItem>
+                    <SelectItem value="Pending">Pending</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+
+            {/* Additional Information */}
+            <div className="space-y-4">
+              <h3 className="text-lg font-semibold border-b pb-2">Additional Information</h3>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <Label htmlFor="case_manager">Case Manager</Label>
+                  <Input
+                    id="case_manager"
+                    value={newStudent.case_manager}
+                    onChange={(e) => setNewStudent({...newStudent, case_manager: e.target.value})}
+                    placeholder="Enter case manager name"
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="case_manager_email">Case Manager Email</Label>
+                  <Input
+                    id="case_manager_email"
+                    type="email"
+                    value={newStudent.case_manager_email}
+                    onChange={(e) => setNewStudent({...newStudent, case_manager_email: e.target.value})}
+                    placeholder="Enter case manager email"
+                  />
+                </div>
+              </div>
+              <div>
+                <Label htmlFor="notes">Notes</Label>
+                <Textarea
+                  id="notes"
+                  value={newStudent.notes}
+                  onChange={(e) => setNewStudent({...newStudent, notes: e.target.value})}
+                  placeholder="Enter any additional notes about the student..."
+                  rows={3}
+                />
+              </div>
+            </div>
+          </div>
+          <div className="flex justify-end space-x-2">
+            <Button variant="outline" onClick={() => setIsAddStudentOpen(false)}>
+              Cancel
+            </Button>
+            <Button onClick={handleAddStudent} disabled={loading}>
+              {loading ? "Adding..." : "Add Student"}
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Edit Student Dialog */}
+      <Dialog open={isEditStudentOpen} onOpenChange={setIsEditStudentOpen}>
+        <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>Edit Student Information</DialogTitle>
+            <DialogDescription>
+              Update the student's information below. All changes will be saved to their profile.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-6 py-4">
+            {/* Basic Information */}
+            <div className="space-y-4">
+              <h3 className="text-lg font-semibold border-b pb-2">Basic Information</h3>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <Label htmlFor="edit_first_name">First Name *</Label>
+                  <Input
+                    id="edit_first_name"
+                    value={newStudent.first_name}
+                    onChange={(e) => setNewStudent({...newStudent, first_name: e.target.value})}
+                    placeholder="Enter first name"
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="edit_last_name">Last Name *</Label>
+                  <Input
+                    id="edit_last_name"
+                    value={newStudent.last_name}
+                    onChange={(e) => setNewStudent({...newStudent, last_name: e.target.value})}
+                    placeholder="Enter last name"
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="edit_date_of_birth">Date of Birth</Label>
+                  <Input
+                    id="edit_date_of_birth"
+                    type="date"
+                    value={newStudent.date_of_birth}
+                    onChange={(e) => setNewStudent({...newStudent, date_of_birth: e.target.value})}
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="edit_grade_level">Grade Level</Label>
+                  <Select value={newStudent.grade_level} onValueChange={(value) => setNewStudent({...newStudent, grade_level: value})}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select grade" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="Pre-K">Pre-K</SelectItem>
+                      <SelectItem value="K">Kindergarten</SelectItem>
+                      <SelectItem value="1">1st Grade</SelectItem>
+                      <SelectItem value="2">2nd Grade</SelectItem>
+                      <SelectItem value="3">3rd Grade</SelectItem>
+                      <SelectItem value="4">4th Grade</SelectItem>
+                      <SelectItem value="5">5th Grade</SelectItem>
+                      <SelectItem value="6">6th Grade</SelectItem>
+                      <SelectItem value="7">7th Grade</SelectItem>
+                      <SelectItem value="8">8th Grade</SelectItem>
+                      <SelectItem value="9">9th Grade</SelectItem>
+                      <SelectItem value="10">10th Grade</SelectItem>
+                      <SelectItem value="11">11th Grade</SelectItem>
+                      <SelectItem value="12">12th Grade</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
+            </div>
+
+            {/* School Information */}
+            <div className="space-y-4">
+              <h3 className="text-lg font-semibold border-b pb-2">School Information</h3>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <Label htmlFor="edit_school_name">School Name</Label>
+                  <Input
+                    id="edit_school_name"
+                    value={newStudent.school_name}
+                    onChange={(e) => setNewStudent({...newStudent, school_name: e.target.value})}
+                    placeholder="Enter school name"
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="edit_district">School District</Label>
+                  <Input
+                    id="edit_district"
+                    value={newStudent.district}
+                    onChange={(e) => setNewStudent({...newStudent, district: e.target.value})}
+                    placeholder="Enter school district"
+                  />
+                </div>
+              </div>
+            </div>
+
+            {/* IEP Status */}
+            <div className="space-y-4">
+              <h3 className="text-lg font-semibold border-b pb-2">IEP Status</h3>
+              <div>
+                <Label htmlFor="edit_iep_status">Current IEP Status</Label>
+                <Select value={newStudent.iep_status} onValueChange={(value) => setNewStudent({...newStudent, iep_status: value})}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select IEP status" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="Active">Active</SelectItem>
+                    <SelectItem value="Under Review">Under Review</SelectItem>
+                    <SelectItem value="Expired">Expired</SelectItem>
+                    <SelectItem value="Pending">Pending</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+
+            {/* Additional Information */}
+            <div className="space-y-4">
+              <h3 className="text-lg font-semibold border-b pb-2">Additional Information</h3>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <Label htmlFor="edit_case_manager">Case Manager</Label>
+                  <Input
+                    id="edit_case_manager"
+                    value={newStudent.case_manager}
+                    onChange={(e) => setNewStudent({...newStudent, case_manager: e.target.value})}
+                    placeholder="Enter case manager name"
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="edit_case_manager_email">Case Manager Email</Label>
+                  <Input
+                    id="edit_case_manager_email"
+                    type="email"
+                    value={newStudent.case_manager_email}
+                    onChange={(e) => setNewStudent({...newStudent, case_manager_email: e.target.value})}
+                    placeholder="Enter case manager email"
+                  />
+                </div>
+              </div>
+              <div>
+                <Label htmlFor="edit_notes">Notes</Label>
+                <Textarea
+                  id="edit_notes"
+                  value={newStudent.notes}
+                  onChange={(e) => setNewStudent({...newStudent, notes: e.target.value})}
+                  placeholder="Enter any additional notes about the student..."
+                  rows={3}
+                />
+              </div>
+            </div>
+          </div>
+          <div className="flex justify-end space-x-2">
+            <Button variant="outline" onClick={() => setIsEditStudentOpen(false)}>
+              Cancel
+            </Button>
+            <Button onClick={handleEditStudent} disabled={loading}>
+              {loading ? "Saving..." : "Save Changes"}
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
     </DashboardLayout>
   );
 };

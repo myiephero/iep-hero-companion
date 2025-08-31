@@ -28,6 +28,10 @@ import {
 import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
 import { api, type Student } from "@/lib/api";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Textarea } from "@/components/ui/textarea";
 
 interface Client {
   id: string;
@@ -76,6 +80,8 @@ const AdvocateStudents = () => {
   const [cases, setCases] = useState<Case[]>([]);
   const [loading, setLoading] = useState(false);
   const [isAddStudentOpen, setIsAddStudentOpen] = useState(false);
+  const [isEditStudentOpen, setIsEditStudentOpen] = useState(false);
+  const [editingStudent, setEditingStudent] = useState<Student | null>(null);
   const [newStudent, setNewStudent] = useState({
     first_name: "",
     last_name: "",
@@ -97,6 +103,124 @@ const AdvocateStudents = () => {
   
   const { user } = useAuth();
   const { toast } = useToast();
+
+  const handleAddStudent = async () => {
+    if (!newStudent.first_name || !newStudent.last_name || !newStudent.assigned_client) return;
+    
+    setLoading(true);
+    try {
+      const studentData = {
+        ...newStudent,
+        full_name: `${newStudent.first_name} ${newStudent.last_name}`,
+        parent_id: newStudent.assigned_client
+      };
+      
+      const response = await fetch('/api/students', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(studentData),
+      });
+      
+      if (response.ok) {
+        setIsAddStudentOpen(false);
+        resetForm();
+        fetchStudents();
+        toast({
+          title: "Success",
+          description: "Student added successfully",
+        });
+      }
+    } catch (error) {
+      console.error('Error adding student:', error);
+      toast({
+        title: "Error",
+        description: "Failed to add student",
+        variant: "destructive",
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleEditStudent = async () => {
+    if (!editingStudent || !newStudent.first_name || !newStudent.last_name) return;
+    
+    setLoading(true);
+    try {
+      const studentData = {
+        ...newStudent,
+        full_name: `${newStudent.first_name} ${newStudent.last_name}`,
+      };
+      
+      const response = await fetch(`/api/students/${editingStudent.id}`, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(studentData),
+      });
+      
+      if (response.ok) {
+        setIsEditStudentOpen(false);
+        setEditingStudent(null);
+        resetForm();
+        fetchStudents();
+        toast({
+          title: "Success",
+          description: "Student updated successfully",
+        });
+      }
+    } catch (error) {
+      console.error('Error updating student:', error);
+      toast({
+        title: "Error",
+        description: "Failed to update student",
+        variant: "destructive",
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const openEditDialog = (student: Student) => {
+    setEditingStudent(student);
+    setNewStudent({
+      first_name: student.first_name || student.full_name.split(' ')[0] || '',
+      last_name: student.last_name || student.full_name.split(' ').slice(1).join(' ') || '',
+      date_of_birth: student.date_of_birth || '',
+      grade_level: student.grade_level || '',
+      school_name: student.school_name || '',
+      district: student.district || '',
+      iep_status: student.iep_status || 'Active',
+      disabilities: student.disabilities ? student.disabilities.split(', ') : [],
+      current_services: student.current_services ? student.current_services.split(', ') : [],
+      case_manager: student.case_manager || '',
+      case_manager_email: student.case_manager_email || '',
+      notes: student.notes || '',
+      assigned_client: '',
+    });
+    setIsEditStudentOpen(true);
+  };
+
+  const resetForm = () => {
+    setNewStudent({
+      first_name: '',
+      last_name: '',
+      date_of_birth: '',
+      grade_level: '',
+      school_name: '',
+      district: '',
+      iep_status: 'Active',
+      disabilities: [],
+      current_services: [],
+      case_manager: '',
+      case_manager_email: '',
+      notes: '',
+      assigned_client: '',
+    });
+  };
 
   useEffect(() => {
     if (user) {
@@ -241,7 +365,31 @@ const AdvocateStudents = () => {
               Manage your clients' children and track their educational progress
             </p>
           </div>
-          {/* Add Student feature removed as requested */}
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button className="button-premium">
+                <User className="h-4 w-4 mr-2" />
+                Student
+                <Plus className="h-4 w-4 ml-2" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" className="w-48">
+              <DropdownMenuItem onClick={() => {
+                resetForm();
+                setIsAddStudentOpen(true);
+              }}>
+                <Plus className="h-4 w-4 mr-2" />
+                Add New Student
+              </DropdownMenuItem>
+              <DropdownMenuItem 
+                onClick={() => currentStudent ? openEditDialog(currentStudent) : null}
+                disabled={!currentStudent}
+              >
+                <Edit className="h-4 w-4 mr-2" />
+                Edit Current Student
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">

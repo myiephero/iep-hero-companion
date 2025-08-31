@@ -10,8 +10,9 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Progress } from "@/components/ui/progress";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { Checkbox } from "@/components/ui/checkbox";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { StudentSelector } from "@/components/StudentSelector";
 import { 
   User, 
@@ -106,9 +107,131 @@ const ParentStudents = () => {
     current_services: [] as string[]
   });
   const [loading, setLoading] = useState(false);
+  const [isEditStudentOpen, setIsEditStudentOpen] = useState(false);
+  const [editingStudent, setEditingStudent] = useState<Student | null>(null);
   
   const { user } = useAuth();
   const { toast } = useToast();
+
+  const handleAddStudent = async () => {
+    if (!newStudent.first_name || !newStudent.last_name) return;
+    
+    setLoading(true);
+    try {
+      const studentData = {
+        ...newStudent,
+        full_name: `${newStudent.first_name} ${newStudent.last_name}`,
+        parent_id: user?.id
+      };
+      
+      const response = await fetch('/api/students', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(studentData),
+      });
+      
+      if (response.ok) {
+        setIsAddStudentOpen(false);
+        resetForm();
+        fetchStudents();
+        toast({
+          title: "Success",
+          description: "Student added successfully",
+        });
+      }
+    } catch (error) {
+      console.error('Error adding student:', error);
+      toast({
+        title: "Error",
+        description: "Failed to add student",
+        variant: "destructive",
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleEditStudent = async () => {
+    if (!editingStudent || !newStudent.first_name || !newStudent.last_name) return;
+    
+    setLoading(true);
+    try {
+      const studentData = {
+        ...newStudent,
+        full_name: `${newStudent.first_name} ${newStudent.last_name}`,
+      };
+      
+      const response = await fetch(`/api/students/${editingStudent.id}`, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(studentData),
+      });
+      
+      if (response.ok) {
+        setIsEditStudentOpen(false);
+        setEditingStudent(null);
+        resetForm();
+        fetchStudents();
+        toast({
+          title: "Success",
+          description: "Student updated successfully",
+        });
+      }
+    } catch (error) {
+      console.error('Error updating student:', error);
+      toast({
+        title: "Error",
+        description: "Failed to update student",
+        variant: "destructive",
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const openEditDialog = (student: Student) => {
+    setEditingStudent(student);
+    setNewStudent({
+      first_name: student.first_name || student.full_name.split(' ')[0] || '',
+      last_name: student.last_name || student.full_name.split(' ').slice(1).join(' ') || '',
+      date_of_birth: student.date_of_birth || '',
+      grade_level: student.grade_level || '',
+      school_name: student.school_name || '',
+      district: student.district || '',
+      iep_status: student.iep_status || 'Active',
+      disabilities: student.disabilities || [],
+      current_services: student.current_services || [],
+      case_manager: student.case_manager || '',
+      case_manager_email: student.case_manager_email || '',
+      emergency_contact: student.emergency_contact || '',
+      emergency_phone: student.emergency_phone || '',
+      notes: student.notes || '',
+    });
+    setIsEditStudentOpen(true);
+  };
+
+  const resetForm = () => {
+    setNewStudent({
+      first_name: '',
+      last_name: '',
+      date_of_birth: '',
+      grade_level: '',
+      school_name: '',
+      district: '',
+      iep_status: 'Active',
+      disabilities: [],
+      current_services: [],
+      case_manager: '',
+      case_manager_email: '',
+      emergency_contact: '',
+      emergency_phone: '',
+      notes: '',
+    });
+  };
 
   useEffect(() => {
     if (user) {
@@ -182,85 +305,6 @@ const ParentStudents = () => {
     }
   };
 
-  const handleAddStudent = async () => {
-    if (!user || !newStudent.first_name || !newStudent.last_name) {
-      toast({
-        title: "Error",
-        description: "First and last name are required.",
-        variant: "destructive",
-      });
-      return;
-    }
-
-    setLoading(true);
-    try {
-      const response = await fetch('/api/students', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          user_id: user.id,
-          full_name: `${newStudent.first_name} ${newStudent.last_name}`,
-          date_of_birth: newStudent.date_of_birth || null,
-          grade_level: newStudent.grade_level || null,
-          school_name: newStudent.school_name || null,
-          district: newStudent.district || null,
-          iep_status: newStudent.iep_status,
-          disabilities: newStudent.disabilities.join(', '),
-          current_services: newStudent.current_services.join(', '),
-          case_manager: newStudent.case_manager || null,
-          case_manager_email: newStudent.case_manager_email || null,
-          emergency_contact: newStudent.emergency_contact || null,
-          emergency_phone: newStudent.emergency_phone || null,
-          medical_info: newStudent.medical_info || null,
-          notes: newStudent.notes || null
-        }),
-      });
-
-      if (!response.ok) {
-        throw new Error('Failed to create student');
-      }
-
-      const data = await response.json();
-
-      toast({
-        title: "Success",
-        description: "Student added successfully!",
-      });
-
-      setIsAddStudentOpen(false);
-      setNewStudent({
-        first_name: "",
-        last_name: "",
-        date_of_birth: "",
-        grade_level: "",
-        school_name: "",
-        district: "",
-        iep_status: "Active",
-        case_manager: "",
-        case_manager_email: "",
-        emergency_contact: "",
-        emergency_phone: "",
-        medical_info: "",
-        notes: "",
-        disabilities: [],
-        current_services: []
-      });
-      
-      fetchStudents();
-      setSelectedStudentId(data.id);
-    } catch (error: any) {
-      console.error("Error adding student:", error);
-      toast({
-        title: "Error",
-        description: "Failed to add student. Please try again.",
-        variant: "destructive",
-      });
-    } finally {
-      setLoading(false);
-    }
-  };
 
   const updateStudentInfo = async (updates: Partial<Student>) => {
     if (!user || !currentStudent) return;
@@ -319,8 +363,391 @@ const ParentStudents = () => {
               Manage your children's educational profiles and track their progress
             </p>
           </div>
-          {/* Add Student feature removed as requested */}
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button className="button-premium">
+                <User className="h-4 w-4 mr-2" />
+                Student
+                <Plus className="h-4 w-4 ml-2" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" className="w-48">
+              <DropdownMenuItem onClick={() => {
+                resetForm();
+                setIsAddStudentOpen(true);
+              }}>
+                <Plus className="h-4 w-4 mr-2" />
+                Add New Student
+              </DropdownMenuItem>
+              <DropdownMenuItem 
+                onClick={() => currentStudent ? openEditDialog(currentStudent) : null}
+                disabled={!currentStudent}
+              >
+                <Edit className="h-4 w-4 mr-2" />
+                Edit Current Student
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
         </div>
+
+        {/* Add Student Dialog */}
+        <Dialog open={isAddStudentOpen} onOpenChange={setIsAddStudentOpen}>
+          <DialogContent className="max-w-3xl max-h-[95vh] overflow-hidden">
+            <DialogHeader className="pb-4">
+              <DialogTitle className="text-xl font-semibold">Add New Student</DialogTitle>
+              <DialogDescription className="text-muted-foreground">
+                Enter your child's information to create their educational profile.
+              </DialogDescription>
+            </DialogHeader>
+            
+            <div className="overflow-y-auto max-h-[calc(95vh-200px)] pr-2">
+              <div className="space-y-6">
+                {/* Basic Information Section */}
+                <div className="bg-muted/30 p-4 rounded-lg border">
+                  <h3 className="font-medium text-sm text-primary mb-3">Basic Information</h3>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="first_name" className="text-sm font-medium">First Name *</Label>
+                      <Input
+                        id="first_name"
+                        placeholder="Student's first name"
+                        value={newStudent.first_name}
+                        onChange={(e) => setNewStudent(prev => ({ ...prev, first_name: e.target.value }))}
+                        required
+                        className="h-10"
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="last_name" className="text-sm font-medium">Last Name *</Label>
+                      <Input
+                        id="last_name"
+                        placeholder="Student's last name"
+                        value={newStudent.last_name}
+                        onChange={(e) => setNewStudent(prev => ({ ...prev, last_name: e.target.value }))}
+                        required
+                        className="h-10"
+                      />
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="date_of_birth" className="text-sm font-medium">Date of Birth</Label>
+                      <Input
+                        id="date_of_birth"
+                        type="date"
+                        value={newStudent.date_of_birth}
+                        onChange={(e) => setNewStudent(prev => ({ ...prev, date_of_birth: e.target.value }))}
+                        className="h-10"
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="grade_level" className="text-sm font-medium">Grade</Label>
+                      <Select value={newStudent.grade_level} onValueChange={(value) => setNewStudent(prev => ({ ...prev, grade_level: value }))}>
+                        <SelectTrigger className="h-10">
+                          <SelectValue placeholder="Select grade" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="PreK">PreK</SelectItem>
+                          <SelectItem value="K">Kindergarten</SelectItem>
+                          <SelectItem value="1">1st Grade</SelectItem>
+                          <SelectItem value="2">2nd Grade</SelectItem>
+                          <SelectItem value="3">3rd Grade</SelectItem>
+                          <SelectItem value="4">4th Grade</SelectItem>
+                          <SelectItem value="5">5th Grade</SelectItem>
+                          <SelectItem value="6">6th Grade</SelectItem>
+                          <SelectItem value="7">7th Grade</SelectItem>
+                          <SelectItem value="8">8th Grade</SelectItem>
+                          <SelectItem value="9">9th Grade</SelectItem>
+                          <SelectItem value="10">10th Grade</SelectItem>
+                          <SelectItem value="11">11th Grade</SelectItem>
+                          <SelectItem value="12">12th Grade</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                  </div>
+                </div>
+
+                {/* School Information */}
+                <div className="bg-muted/30 p-4 rounded-lg border">
+                  <h3 className="font-medium text-sm text-primary mb-3">School Information</h3>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="school_name" className="text-sm font-medium">School (Optional)</Label>
+                      <Input
+                        id="school_name"
+                        placeholder="Current school"
+                        value={newStudent.school_name}
+                        onChange={(e) => setNewStudent(prev => ({ ...prev, school_name: e.target.value }))}
+                        className="h-10"
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="district" className="text-sm font-medium">District (Optional)</Label>
+                      <Input
+                        id="district"
+                        placeholder="School district"
+                        value={newStudent.district}
+                        onChange={(e) => setNewStudent(prev => ({ ...prev, district: e.target.value }))}
+                        className="h-10"
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                {/* IEP Status */}
+                <div className="bg-muted/30 p-4 rounded-lg border">
+                  <h3 className="font-medium text-sm text-primary mb-3">IEP Information</h3>
+                  <div className="space-y-2">
+                    <Label htmlFor="iep_status" className="text-sm font-medium">IEP Status</Label>
+                    <Select value={newStudent.iep_status} onValueChange={(value) => setNewStudent(prev => ({ ...prev, iep_status: value }))}>
+                      <SelectTrigger className="h-10">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="Active">Active</SelectItem>
+                        <SelectItem value="Developing">Developing</SelectItem>
+                        <SelectItem value="Review">Under Review</SelectItem>
+                        <SelectItem value="Expired">Expired</SelectItem>
+                        <SelectItem value="None">No IEP</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </div>
+
+                {/* Disabilities */}
+                <div className="bg-muted/30 p-4 rounded-lg border">
+                  <h3 className="font-medium text-sm text-primary mb-3">Disabilities (Select all that apply)</h3>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    {[
+                      'Autism Spectrum Disorder',
+                      'ADHD',
+                      'Learning Disability',
+                      'Intellectual Disability',
+                      'Speech/Language Impairment',
+                      'Emotional Behavioral Disorder',
+                      'Other Health Impairment',
+                      'Multiple Disabilities',
+                      'Hearing Impairment',
+                      'Visual Impairment',
+                      'Orthopedic Impairment',
+                      'Traumatic Brain Injury'
+                    ].map((disability) => (
+                      <div key={disability} className="flex items-center space-x-2">
+                        <Checkbox
+                          id={disability}
+                          checked={newStudent.disabilities.includes(disability)}
+                          onCheckedChange={(checked) => {
+                            if (checked) {
+                              setNewStudent(prev => ({
+                                ...prev,
+                                disabilities: [...prev.disabilities, disability]
+                              }));
+                            } else {
+                              setNewStudent(prev => ({
+                                ...prev,
+                                disabilities: prev.disabilities.filter(d => d !== disability)
+                              }));
+                            }
+                          }}
+                        />
+                        <Label htmlFor={disability} className="text-sm">
+                          {disability}
+                        </Label>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Current Services */}
+                <div className="bg-muted/30 p-4 rounded-lg border">
+                  <h3 className="font-medium text-sm text-primary mb-3">Current Services (Select all that apply)</h3>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    {[
+                      'Special Education',
+                      'Speech Therapy',
+                      'Occupational Therapy',
+                      'Physical Therapy',
+                      'Behavioral Support',
+                      'Counseling',
+                      'Assistive Technology',
+                      'Transportation',
+                      'Extended School Year',
+                      'Paraprofessional Support'
+                    ].map((service) => (
+                      <div key={service} className="flex items-center space-x-2">
+                        <Checkbox
+                          id={service}
+                          checked={newStudent.current_services.includes(service)}
+                          onCheckedChange={(checked) => {
+                            if (checked) {
+                              setNewStudent(prev => ({
+                                ...prev,
+                                current_services: [...prev.current_services, service]
+                              }));
+                            } else {
+                              setNewStudent(prev => ({
+                                ...prev,
+                                current_services: prev.current_services.filter(s => s !== service)
+                              }));
+                            }
+                          }}
+                        />
+                        <Label htmlFor={service} className="text-sm">
+                          {service}
+                        </Label>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Additional Information */}
+                <div className="bg-muted/30 p-4 rounded-lg border">
+                  <h3 className="font-medium text-sm text-primary mb-3">Additional Information</h3>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="case_manager" className="text-sm font-medium">Case Manager</Label>
+                      <Input
+                        id="case_manager"
+                        placeholder="Case manager name"
+                        value={newStudent.case_manager}
+                        onChange={(e) => setNewStudent(prev => ({ ...prev, case_manager: e.target.value }))}
+                        className="h-10"
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="case_manager_email" className="text-sm font-medium">Case Manager Email</Label>
+                      <Input
+                        id="case_manager_email"
+                        type="email"
+                        placeholder="case.manager@school.edu"
+                        value={newStudent.case_manager_email}
+                        onChange={(e) => setNewStudent(prev => ({ ...prev, case_manager_email: e.target.value }))}
+                        className="h-10"
+                      />
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="emergency_contact" className="text-sm font-medium">Emergency Contact</Label>
+                      <Input
+                        id="emergency_contact"
+                        placeholder="Emergency contact name"
+                        value={newStudent.emergency_contact}
+                        onChange={(e) => setNewStudent(prev => ({ ...prev, emergency_contact: e.target.value }))}
+                        className="h-10"
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="emergency_phone" className="text-sm font-medium">Emergency Phone</Label>
+                      <Input
+                        id="emergency_phone"
+                        type="tel"
+                        placeholder="(555) 123-4567"
+                        value={newStudent.emergency_phone}
+                        onChange={(e) => setNewStudent(prev => ({ ...prev, emergency_phone: e.target.value }))}
+                        className="h-10"
+                      />
+                    </div>
+                  </div>
+
+                  <div className="space-y-2 mt-4">
+                    <Label htmlFor="notes" className="text-sm font-medium">Notes</Label>
+                    <Textarea
+                      id="notes"
+                      rows={3}
+                      placeholder="Additional information about the student..."
+                      value={newStudent.notes}
+                      onChange={(e) => setNewStudent(prev => ({ ...prev, notes: e.target.value }))}
+                      className="resize-none"
+                    />
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div className="flex justify-end space-x-3 pt-6 border-t">
+              <Button 
+                variant="outline" 
+                onClick={() => setIsAddStudentOpen(false)}
+                className="px-6"
+              >
+                Cancel
+              </Button>
+              <Button 
+                onClick={handleAddStudent} 
+                disabled={loading || !newStudent.first_name || !newStudent.last_name} 
+                className="button-premium px-6"
+              >
+                {loading ? "Adding..." : "Add Student"}
+              </Button>
+            </div>
+          </DialogContent>
+        </Dialog>
+
+        {/* Edit Student Dialog */}
+        <Dialog open={isEditStudentOpen} onOpenChange={setIsEditStudentOpen}>
+          <DialogContent className="max-w-3xl max-h-[95vh] overflow-hidden">
+            <DialogHeader className="pb-4">
+              <DialogTitle className="text-xl font-semibold">Edit Student</DialogTitle>
+              <DialogDescription className="text-muted-foreground">
+                Update {editingStudent?.full_name}'s information.
+              </DialogDescription>
+            </DialogHeader>
+            
+            <div className="overflow-y-auto max-h-[calc(95vh-200px)] pr-2">
+              <div className="space-y-6">
+                {/* Same form as Add Student */}
+                <div className="bg-muted/30 p-4 rounded-lg border">
+                  <h3 className="font-medium text-sm text-primary mb-3">Basic Information</h3>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="edit_first_name" className="text-sm font-medium">First Name *</Label>
+                      <Input
+                        id="edit_first_name"
+                        placeholder="Student's first name"
+                        value={newStudent.first_name}
+                        onChange={(e) => setNewStudent(prev => ({ ...prev, first_name: e.target.value }))}
+                        required
+                        className="h-10"
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="edit_last_name" className="text-sm font-medium">Last Name *</Label>
+                      <Input
+                        id="edit_last_name"
+                        placeholder="Student's last name"
+                        value={newStudent.last_name}
+                        onChange={(e) => setNewStudent(prev => ({ ...prev, last_name: e.target.value }))}
+                        required
+                        className="h-10"
+                      />
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div className="flex justify-end space-x-3 pt-6 border-t">
+              <Button 
+                variant="outline" 
+                onClick={() => {
+                  setIsEditStudentOpen(false);
+                  setEditingStudent(null);
+                }}
+                className="px-6"
+              >
+                Cancel
+              </Button>
+              <Button 
+                onClick={handleEditStudent} 
+                disabled={loading || !newStudent.first_name || !newStudent.last_name} 
+                className="button-premium px-6"
+              >
+                {loading ? "Updating..." : "Update Student"}
+              </Button>
+            </div>
+          </DialogContent>
+        </Dialog>
 
         <StudentSelector
           selectedStudent={selectedStudentId}

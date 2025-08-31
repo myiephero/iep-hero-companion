@@ -801,27 +801,56 @@ export default function AIIEPReview() {
                   </CardHeader>
                   
                   <CardContent>
-                    <Tabs defaultValue="analysis" className="space-y-4">
-                      <TabsList className="grid w-full grid-cols-5">
-                        <TabsTrigger value="analysis">Executive Summary</TabsTrigger>
-                        <TabsTrigger value="recommendations">Key Recommendations</TabsTrigger>
-                        <TabsTrigger value="concerns">Areas of Concern</TabsTrigger>
-                        <TabsTrigger value="strengths">Identified Strengths</TabsTrigger>
-                        <TabsTrigger value="actions">Next Steps & Action Items</TabsTrigger>
+                    <Tabs defaultValue="analysis" className="space-y-6">
+                      <TabsList className="grid w-full grid-cols-5 bg-muted/30 p-1 rounded-lg">
+                        <TabsTrigger 
+                          value="analysis"
+                          className="text-sm font-medium data-[state=active]:bg-white dark:data-[state=active]:bg-slate-900 data-[state=active]:text-foreground data-[state=active]:shadow-sm transition-all duration-200"
+                        >
+                          Executive Summary
+                        </TabsTrigger>
+                        <TabsTrigger 
+                          value="recommendations"
+                          className="text-sm font-medium data-[state=active]:bg-white dark:data-[state=active]:bg-slate-900 data-[state=active]:text-foreground data-[state=active]:shadow-sm transition-all duration-200"
+                        >
+                          Recommendations
+                        </TabsTrigger>
+                        <TabsTrigger 
+                          value="concerns"
+                          className="text-sm font-medium data-[state=active]:bg-white dark:data-[state=active]:bg-slate-900 data-[state=active]:text-foreground data-[state=active]:shadow-sm transition-all duration-200"
+                        >
+                          Areas of Concern
+                        </TabsTrigger>
+                        <TabsTrigger 
+                          value="strengths"
+                          className="text-sm font-medium data-[state=active]:bg-white dark:data-[state=active]:bg-slate-900 data-[state=active]:text-foreground data-[state=active]:shadow-sm transition-all duration-200"
+                        >
+                          Strengths
+                        </TabsTrigger>
+                        <TabsTrigger 
+                          value="actions"
+                          className="text-sm font-medium data-[state=active]:bg-white dark:data-[state=active]:bg-slate-900 data-[state=active]:text-foreground data-[state=active]:shadow-sm transition-all duration-200"
+                        >
+                          Action Items
+                        </TabsTrigger>
                       </TabsList>
                       
-                      <TabsContent value="analysis" className="space-y-4">
-                        <div>
-                          <div className="flex items-center justify-between mb-2">
-                            <h4 className="font-medium flex items-center gap-2">
-                              <Brain className="h-4 w-4" />
-                              Executive Summary
-                            </h4>
+                      <TabsContent value="analysis" className="space-y-4 mt-6">
+                        <div className="bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-blue-950/30 dark:to-indigo-950/30 rounded-xl border border-blue-100 dark:border-blue-800/50 p-6">
+                          <div className="flex items-center justify-between mb-4">
+                            <div className="flex items-center gap-3">
+                              <div className="p-2 bg-blue-100 dark:bg-blue-900/50 rounded-lg">
+                                <Brain className="h-5 w-5 text-blue-600 dark:text-blue-400" />
+                              </div>
+                              <h4 className="text-lg font-semibold text-gray-900 dark:text-gray-100">
+                                Executive Summary
+                              </h4>
+                            </div>
                             <Button
                               variant="ghost"
                               size="sm"
                               onClick={() => toggleSection(review.id || '', 'analysis')}
-                              className="h-8 w-8 p-0"
+                              className="h-9 w-9 p-0 hover:bg-blue-100 dark:hover:bg-blue-900/50 rounded-lg"
                             >
                               {isSectionCollapsed(review.id || '', 'analysis') ? (
                                 <ChevronDown className="h-4 w-4" />
@@ -831,8 +860,9 @@ export default function AIIEPReview() {
                             </Button>
                           </div>
                           {!isSectionCollapsed(review.id || '', 'analysis') && (
-                            <div className="bg-muted/50 rounded-lg p-4">
-                              <p className="text-sm leading-relaxed">
+                            <div className="bg-white/80 dark:bg-gray-900/50 rounded-lg p-5 border border-blue-100 dark:border-blue-800/30">
+                              <div className="prose prose-sm dark:prose-invert max-w-none">
+                                <p className="text-gray-700 dark:text-gray-300 leading-relaxed text-base m-0">
                                 {(() => {
                                   try {
                                     const parsedAnalysis = typeof review.ai_analysis === 'string' 
@@ -852,24 +882,29 @@ export default function AIIEPReview() {
                                       : 'Analysis not available';
                                   }
                                 })()}
-                              </p>
+                                </p>
+                              </div>
                             </div>
                           )}
                         </div>
                       </TabsContent>
                       
-                      <TabsContent value="recommendations" className="space-y-4">
-                        <div>
-                          <div className="flex items-center justify-between mb-2">
-                            <h4 className="font-medium flex items-center gap-2">
-                              <TrendingUp className="h-4 w-4" />
-                              Key Recommendations
-                            </h4>
+                      <TabsContent value="recommendations" className="space-y-4 mt-6">
+                        <div className="bg-gradient-to-br from-green-50 to-emerald-50 dark:from-green-950/30 dark:to-emerald-950/30 rounded-xl border border-green-100 dark:border-green-800/50 p-6">
+                          <div className="flex items-center justify-between mb-4">
+                            <div className="flex items-center gap-3">
+                              <div className="p-2 bg-green-100 dark:bg-green-900/50 rounded-lg">
+                                <TrendingUp className="h-5 w-5 text-green-600 dark:text-green-400" />
+                              </div>
+                              <h4 className="text-lg font-semibold text-gray-900 dark:text-gray-100">
+                                Key Recommendations
+                              </h4>
+                            </div>
                             <Button
                               variant="ghost"
                               size="sm"
                               onClick={() => toggleSection(review.id || '', 'recommendations')}
-                              className="h-8 w-8 p-0"
+                              className="h-9 w-9 p-0 hover:bg-green-100 dark:hover:bg-green-900/50 rounded-lg"
                             >
                               {isSectionCollapsed(review.id || '', 'recommendations') ? (
                                 <ChevronDown className="h-4 w-4" />
@@ -879,7 +914,7 @@ export default function AIIEPReview() {
                             </Button>
                           </div>
                           {!isSectionCollapsed(review.id || '', 'recommendations') && (
-                            <div>
+                            <div className="bg-white/80 dark:bg-gray-900/50 rounded-lg p-5 border border-green-100 dark:border-green-800/30">
                               {(() => {
                                 try {
                                   const parsedAnalysis = typeof review.ai_analysis === 'string' 
@@ -910,18 +945,22 @@ export default function AIIEPReview() {
                         </div>
                       </TabsContent>
                       
-                      <TabsContent value="concerns" className="space-y-4">
-                        <div>
-                          <div className="flex items-center justify-between mb-2">
-                            <h4 className="font-medium flex items-center gap-2">
-                              <AlertCircle className="h-4 w-4" />
-                              Areas of Concern
-                            </h4>
+                      <TabsContent value="concerns" className="space-y-4 mt-6">
+                        <div className="bg-gradient-to-br from-orange-50 to-amber-50 dark:from-orange-950/30 dark:to-amber-950/30 rounded-xl border border-orange-100 dark:border-orange-800/50 p-6">
+                          <div className="flex items-center justify-between mb-4">
+                            <div className="flex items-center gap-3">
+                              <div className="p-2 bg-orange-100 dark:bg-orange-900/50 rounded-lg">
+                                <AlertCircle className="h-5 w-5 text-orange-600 dark:text-orange-400" />
+                              </div>
+                              <h4 className="text-lg font-semibold text-gray-900 dark:text-gray-100">
+                                Areas of Concern
+                              </h4>
+                            </div>
                             <Button
                               variant="ghost"
                               size="sm"
                               onClick={() => toggleSection(review.id || '', 'concerns')}
-                              className="h-8 w-8 p-0"
+                              className="h-9 w-9 p-0 hover:bg-orange-100 dark:hover:bg-orange-900/50 rounded-lg"
                             >
                               {isSectionCollapsed(review.id || '', 'concerns') ? (
                                 <ChevronDown className="h-4 w-4" />
@@ -931,7 +970,7 @@ export default function AIIEPReview() {
                             </Button>
                           </div>
                           {!isSectionCollapsed(review.id || '', 'concerns') && (
-                            <div>
+                            <div className="bg-white/80 dark:bg-gray-900/50 rounded-lg p-5 border border-orange-100 dark:border-orange-800/30">
                               {(() => {
                                 try {
                                   const parsedAnalysis = typeof review.ai_analysis === 'string' 
@@ -941,20 +980,20 @@ export default function AIIEPReview() {
                                   
                                   if (concerns && Array.isArray(concerns)) {
                                     return (
-                                      <ul className="space-y-2">
+                                      <ul className="space-y-3">
                                         {concerns.map((concern: any, index: number) => (
-                                          <li key={index} className="flex items-start gap-2">
-                                            <AlertCircle className="h-4 w-4 text-amber-600 mt-0.5 flex-shrink-0" />
-                                            <span className="text-sm">{typeof concern === 'string' ? concern : concern.text || concern}</span>
+                                          <li key={index} className="flex items-start gap-3">
+                                            <AlertCircle className="h-5 w-5 text-orange-600 dark:text-orange-400 mt-0.5 flex-shrink-0" />
+                                            <span className="text-gray-700 dark:text-gray-300 leading-relaxed">{typeof concern === 'string' ? concern : concern.text || concern}</span>
                                           </li>
                                         ))}
                                       </ul>
                                     );
                                   } else {
-                                    return <p className="text-sm text-muted-foreground">No significant concerns identified.</p>;
+                                    return <p className="text-gray-600 dark:text-gray-400">No significant concerns identified.</p>;
                                   }
                                 } catch {
-                                  return <p className="text-sm text-muted-foreground">No significant concerns identified.</p>;
+                                  return <p className="text-gray-600 dark:text-gray-400">No significant concerns identified.</p>;
                                 }
                               })()}
                             </div>
@@ -962,18 +1001,22 @@ export default function AIIEPReview() {
                         </div>
                       </TabsContent>
                       
-                      <TabsContent value="strengths" className="space-y-4">
-                        <div>
-                          <div className="flex items-center justify-between mb-2">
-                            <h4 className="font-medium flex items-center gap-2">
-                              <CheckCircle className="h-4 w-4" />
-                              Identified Strengths
-                            </h4>
+                      <TabsContent value="strengths" className="space-y-4 mt-6">
+                        <div className="bg-gradient-to-br from-emerald-50 to-teal-50 dark:from-emerald-950/30 dark:to-teal-950/30 rounded-xl border border-emerald-100 dark:border-emerald-800/50 p-6">
+                          <div className="flex items-center justify-between mb-4">
+                            <div className="flex items-center gap-3">
+                              <div className="p-2 bg-emerald-100 dark:bg-emerald-900/50 rounded-lg">
+                                <CheckCircle className="h-5 w-5 text-emerald-600 dark:text-emerald-400" />
+                              </div>
+                              <h4 className="text-lg font-semibold text-gray-900 dark:text-gray-100">
+                                Identified Strengths
+                              </h4>
+                            </div>
                             <Button
                               variant="ghost"
                               size="sm"
                               onClick={() => toggleSection(review.id || '', 'strengths')}
-                              className="h-8 w-8 p-0"
+                              className="h-9 w-9 p-0 hover:bg-emerald-100 dark:hover:bg-emerald-900/50 rounded-lg"
                             >
                               {isSectionCollapsed(review.id || '', 'strengths') ? (
                                 <ChevronDown className="h-4 w-4" />
@@ -983,7 +1026,7 @@ export default function AIIEPReview() {
                             </Button>
                           </div>
                           {!isSectionCollapsed(review.id || '', 'strengths') && (
-                            <div>
+                            <div className="bg-white/80 dark:bg-gray-900/50 rounded-lg p-5 border border-emerald-100 dark:border-emerald-800/30">
                               {(() => {
                                 try {
                                   const parsedAnalysis = typeof review.ai_analysis === 'string' 
@@ -993,20 +1036,20 @@ export default function AIIEPReview() {
                                   
                                   if (strengths && Array.isArray(strengths)) {
                                     return (
-                                      <ul className="space-y-2">
+                                      <ul className="space-y-3">
                                         {strengths.map((strength: any, index: number) => (
-                                          <li key={index} className="flex items-start gap-2">
-                                            <CheckCircle className="h-4 w-4 text-green-600 mt-0.5 flex-shrink-0" />
-                                            <span className="text-sm">{typeof strength === 'string' ? strength : strength.text || strength}</span>
+                                          <li key={index} className="flex items-start gap-3">
+                                            <CheckCircle className="h-5 w-5 text-emerald-600 dark:text-emerald-400 mt-0.5 flex-shrink-0" />
+                                            <span className="text-gray-700 dark:text-gray-300 leading-relaxed">{typeof strength === 'string' ? strength : strength.text || strength}</span>
                                           </li>
                                         ))}
                                       </ul>
                                     );
                                   } else {
-                                    return <p className="text-sm text-muted-foreground">No specific strengths highlighted.</p>;
+                                    return <p className="text-gray-600 dark:text-gray-400">No specific strengths highlighted.</p>;
                                   }
                                 } catch {
-                                  return <p className="text-sm text-muted-foreground">No specific strengths highlighted.</p>;
+                                  return <p className="text-gray-600 dark:text-gray-400">No specific strengths highlighted.</p>;
                                 }
                               })()}
                             </div>
@@ -1014,18 +1057,22 @@ export default function AIIEPReview() {
                         </div>
                       </TabsContent>
                       
-                      <TabsContent value="actions" className="space-y-4">
-                        <div>
-                          <div className="flex items-center justify-between mb-2">
-                            <h4 className="font-medium flex items-center gap-2">
-                              <Target className="h-4 w-4" />
-                              Next Steps & Action Items
-                            </h4>
+                      <TabsContent value="actions" className="space-y-4 mt-6">
+                        <div className="bg-gradient-to-br from-purple-50 to-violet-50 dark:from-purple-950/30 dark:to-violet-950/30 rounded-xl border border-purple-100 dark:border-purple-800/50 p-6">
+                          <div className="flex items-center justify-between mb-4">
+                            <div className="flex items-center gap-3">
+                              <div className="p-2 bg-purple-100 dark:bg-purple-900/50 rounded-lg">
+                                <Target className="h-5 w-5 text-purple-600 dark:text-purple-400" />
+                              </div>
+                              <h4 className="text-lg font-semibold text-gray-900 dark:text-gray-100">
+                                Next Steps & Action Items
+                              </h4>
+                            </div>
                             <Button
                               variant="ghost"
                               size="sm"
                               onClick={() => toggleSection(review.id || '', 'actions')}
-                              className="h-8 w-8 p-0"
+                              className="h-9 w-9 p-0 hover:bg-purple-100 dark:hover:bg-purple-900/50 rounded-lg"
                             >
                               {isSectionCollapsed(review.id || '', 'actions') ? (
                                 <ChevronDown className="h-4 w-4" />
@@ -1035,7 +1082,7 @@ export default function AIIEPReview() {
                             </Button>
                           </div>
                           {!isSectionCollapsed(review.id || '', 'actions') && (
-                            <div>
+                            <div className="bg-white/80 dark:bg-gray-900/50 rounded-lg p-5 border border-purple-100 dark:border-purple-800/30">
                               {(() => {
                                 try {
                                   const parsedAnalysis = typeof review.ai_analysis === 'string' 
@@ -1045,20 +1092,20 @@ export default function AIIEPReview() {
                                   
                                   if (actionItems && Array.isArray(actionItems)) {
                                     return (
-                                      <ul className="space-y-2">
+                                      <ul className="space-y-3">
                                         {actionItems.map((action: any, index: number) => (
-                                          <li key={index} className="flex items-start gap-2">
-                                            <Target className="h-4 w-4 text-blue-600 mt-0.5 flex-shrink-0" />
-                                            <span className="text-sm">{typeof action === 'string' ? action : action.text || action}</span>
+                                          <li key={index} className="flex items-start gap-3">
+                                            <Target className="h-5 w-5 text-purple-600 dark:text-purple-400 mt-0.5 flex-shrink-0" />
+                                            <span className="text-gray-700 dark:text-gray-300 leading-relaxed">{typeof action === 'string' ? action : action.text || action}</span>
                                           </li>
                                         ))}
                                       </ul>
                                     );
                                   } else {
-                                    return <p className="text-sm text-muted-foreground">No specific action items provided.</p>;
+                                    return <p className="text-gray-600 dark:text-gray-400">No specific action items provided.</p>;
                                   }
                                 } catch {
-                                  return <p className="text-sm text-muted-foreground">No specific action items provided.</p>;
+                                  return <p className="text-gray-600 dark:text-gray-400">No specific action items provided.</p>;
                                 }
                               })()}
                             </div>

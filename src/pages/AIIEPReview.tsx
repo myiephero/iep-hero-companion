@@ -232,9 +232,18 @@ export default function AIIEPReview() {
                           </h4>
                           <div className="bg-muted/50 rounded-lg p-4">
                             <p className="text-sm leading-relaxed">
-                              {typeof review.ai_analysis === 'string' 
-                                ? review.ai_analysis 
-                                : review.ai_analysis?.summary || 'Analysis not available'}
+                              {(() => {
+                                try {
+                                  const parsedAnalysis = typeof review.ai_analysis === 'string' 
+                                    ? JSON.parse(review.ai_analysis) 
+                                    : review.ai_analysis;
+                                  return parsedAnalysis?.summary || 'Analysis not available';
+                                } catch {
+                                  return typeof review.ai_analysis === 'string' 
+                                    ? review.ai_analysis 
+                                    : 'Analysis not available';
+                                }
+                              })()}
                             </p>
                           </div>
                         </div>
@@ -246,21 +255,31 @@ export default function AIIEPReview() {
                             <TrendingUp className="h-4 w-4" />
                             Recommendations
                           </h4>
-                          {review.recommendations ? (
-                            <ul className="space-y-2">
-                              {(Array.isArray(review.recommendations) 
-                                ? review.recommendations 
-                                : [review.recommendations]
-                              ).map((rec: any, index: number) => (
-                                <li key={index} className="flex items-start gap-2">
-                                  <CheckCircle className="h-4 w-4 text-green-600 mt-0.5 flex-shrink-0" />
-                                  <span className="text-sm">{typeof rec === 'string' ? rec : rec.text || rec}</span>
-                                </li>
-                              ))}
-                            </ul>
-                          ) : (
-                            <p className="text-sm text-muted-foreground">No specific recommendations provided.</p>
-                          )}
+                          {(() => {
+                            try {
+                              const parsedAnalysis = typeof review.ai_analysis === 'string' 
+                                ? JSON.parse(review.ai_analysis) 
+                                : review.ai_analysis;
+                              const recommendations = parsedAnalysis?.recommendations || review.recommendations;
+                              
+                              if (recommendations && Array.isArray(recommendations)) {
+                                return (
+                                  <ul className="space-y-2">
+                                    {recommendations.map((rec: any, index: number) => (
+                                      <li key={index} className="flex items-start gap-2">
+                                        <CheckCircle className="h-4 w-4 text-green-600 mt-0.5 flex-shrink-0" />
+                                        <span className="text-sm">{typeof rec === 'string' ? rec : rec.text || rec}</span>
+                                      </li>
+                                    ))}
+                                  </ul>
+                                );
+                              } else {
+                                return <p className="text-sm text-muted-foreground">No specific recommendations provided.</p>;
+                              }
+                            } catch {
+                              return <p className="text-sm text-muted-foreground">No specific recommendations provided.</p>;
+                            }
+                          })()}
                         </div>
                       </TabsContent>
                       
@@ -270,21 +289,31 @@ export default function AIIEPReview() {
                             <AlertCircle className="h-4 w-4" />
                             Areas of Concern
                           </h4>
-                          {review.areas_of_concern ? (
-                            <ul className="space-y-2">
-                              {(Array.isArray(review.areas_of_concern) 
-                                ? review.areas_of_concern 
-                                : [review.areas_of_concern]
-                              ).map((concern: any, index: number) => (
-                                <li key={index} className="flex items-start gap-2">
-                                  <AlertCircle className="h-4 w-4 text-amber-600 mt-0.5 flex-shrink-0" />
-                                  <span className="text-sm">{typeof concern === 'string' ? concern : concern.text || concern}</span>
-                                </li>
-                              ))}
-                            </ul>
-                          ) : (
-                            <p className="text-sm text-muted-foreground">No significant concerns identified.</p>
-                          )}
+                          {(() => {
+                            try {
+                              const parsedAnalysis = typeof review.ai_analysis === 'string' 
+                                ? JSON.parse(review.ai_analysis) 
+                                : review.ai_analysis;
+                              const concerns = parsedAnalysis?.areas_of_concern || review.areas_of_concern;
+                              
+                              if (concerns && Array.isArray(concerns)) {
+                                return (
+                                  <ul className="space-y-2">
+                                    {concerns.map((concern: any, index: number) => (
+                                      <li key={index} className="flex items-start gap-2">
+                                        <AlertCircle className="h-4 w-4 text-amber-600 mt-0.5 flex-shrink-0" />
+                                        <span className="text-sm">{typeof concern === 'string' ? concern : concern.text || concern}</span>
+                                      </li>
+                                    ))}
+                                  </ul>
+                                );
+                              } else {
+                                return <p className="text-sm text-muted-foreground">No significant concerns identified.</p>;
+                              }
+                            } catch {
+                              return <p className="text-sm text-muted-foreground">No significant concerns identified.</p>;
+                            }
+                          })()}
                         </div>
                       </TabsContent>
                       
@@ -294,21 +323,31 @@ export default function AIIEPReview() {
                             <CheckCircle className="h-4 w-4" />
                             Document Strengths
                           </h4>
-                          {review.strengths ? (
-                            <ul className="space-y-2">
-                              {(Array.isArray(review.strengths) 
-                                ? review.strengths 
-                                : [review.strengths]
-                              ).map((strength: any, index: number) => (
-                                <li key={index} className="flex items-start gap-2">
-                                  <CheckCircle className="h-4 w-4 text-green-600 mt-0.5 flex-shrink-0" />
-                                  <span className="text-sm">{typeof strength === 'string' ? strength : strength.text || strength}</span>
-                                </li>
-                              ))}
-                            </ul>
-                          ) : (
-                            <p className="text-sm text-muted-foreground">No specific strengths highlighted.</p>
-                          )}
+                          {(() => {
+                            try {
+                              const parsedAnalysis = typeof review.ai_analysis === 'string' 
+                                ? JSON.parse(review.ai_analysis) 
+                                : review.ai_analysis;
+                              const strengths = parsedAnalysis?.strengths || review.strengths;
+                              
+                              if (strengths && Array.isArray(strengths)) {
+                                return (
+                                  <ul className="space-y-2">
+                                    {strengths.map((strength: any, index: number) => (
+                                      <li key={index} className="flex items-start gap-2">
+                                        <CheckCircle className="h-4 w-4 text-green-600 mt-0.5 flex-shrink-0" />
+                                        <span className="text-sm">{typeof strength === 'string' ? strength : strength.text || strength}</span>
+                                      </li>
+                                    ))}
+                                  </ul>
+                                );
+                              } else {
+                                return <p className="text-sm text-muted-foreground">No specific strengths highlighted.</p>;
+                              }
+                            } catch {
+                              return <p className="text-sm text-muted-foreground">No specific strengths highlighted.</p>;
+                            }
+                          })()}
                         </div>
                       </TabsContent>
                       
@@ -318,21 +357,31 @@ export default function AIIEPReview() {
                             <Target className="h-4 w-4" />
                             Recommended Action Items
                           </h4>
-                          {review.action_items ? (
-                            <ul className="space-y-2">
-                              {(Array.isArray(review.action_items) 
-                                ? review.action_items 
-                                : [review.action_items]
-                              ).map((action: any, index: number) => (
-                                <li key={index} className="flex items-start gap-2">
-                                  <Target className="h-4 w-4 text-blue-600 mt-0.5 flex-shrink-0" />
-                                  <span className="text-sm">{typeof action === 'string' ? action : action.text || action}</span>
-                                </li>
-                              ))}
-                            </ul>
-                          ) : (
-                            <p className="text-sm text-muted-foreground">No specific action items provided.</p>
-                          )}
+                          {(() => {
+                            try {
+                              const parsedAnalysis = typeof review.ai_analysis === 'string' 
+                                ? JSON.parse(review.ai_analysis) 
+                                : review.ai_analysis;
+                              const actionItems = parsedAnalysis?.action_items || review.action_items;
+                              
+                              if (actionItems && Array.isArray(actionItems)) {
+                                return (
+                                  <ul className="space-y-2">
+                                    {actionItems.map((action: any, index: number) => (
+                                      <li key={index} className="flex items-start gap-2">
+                                        <Target className="h-4 w-4 text-blue-600 mt-0.5 flex-shrink-0" />
+                                        <span className="text-sm">{typeof action === 'string' ? action : action.text || action}</span>
+                                      </li>
+                                    ))}
+                                  </ul>
+                                );
+                              } else {
+                                return <p className="text-sm text-muted-foreground">No specific action items provided.</p>;
+                              }
+                            } catch {
+                              return <p className="text-sm text-muted-foreground">No specific action items provided.</p>;
+                            }
+                          })()}
                         </div>
                       </TabsContent>
                     </Tabs>

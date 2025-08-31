@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { Badge } from "@/components/ui/badge";
 import { Alert, AlertDescription } from "@/components/ui/alert";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { useToast } from "@/hooks/use-toast";
 import { api } from "@/lib/api";
 import { useAuth } from "@/hooks/useAuth";
@@ -28,7 +29,8 @@ import {
   Edit2,
   Save,
   Share,
-  Tag
+  Tag,
+  MoreVertical
 } from "lucide-react";
 
 // Helper function to read file as text
@@ -828,51 +830,60 @@ export function DocumentUpload({ onAnalysisComplete }: DocumentUploadProps) {
                 </div>
 
                 {fileData.status === 'completed' && (
-                  <div className="flex flex-wrap gap-2">
-                    <Button
-                      size="sm"
-                      variant="outline"
-                      onClick={() => analyzeDocument(fileData, 'iep')}
-                      disabled={analyzing === fileData.id}
-                      className="flex items-center gap-1"
-                    >
-                      {analyzing === fileData.id ? (
-                        <Loader2 className="h-3 w-3 animate-spin" />
-                      ) : (
-                        <FileCheck className="h-3 w-3" />
-                      )}
-                      IEP Analysis
-                    </Button>
-                    
-                    <Button
-                      size="sm"
-                      variant="outline"
-                      onClick={() => analyzeDocument(fileData, 'accommodations')}
-                      disabled={analyzing === fileData.id}
-                      className="flex items-center gap-1"
-                    >
-                      {analyzing === fileData.id ? (
-                        <Loader2 className="h-3 w-3 animate-spin" />
-                      ) : (
-                        <Users className="h-3 w-3" />
-                      )}
-                      Accommodations
-                    </Button>
-                    
-                    <Button
-                      size="sm"
-                      variant="outline"
-                      onClick={() => analyzeDocument(fileData, 'meeting_prep')}
-                      disabled={analyzing === fileData.id}
-                      className="flex items-center gap-1"
-                    >
-                      {analyzing === fileData.id ? (
-                        <Loader2 className="h-3 w-3 animate-spin" />
-                      ) : (
-                        <MessageSquare className="h-3 w-3" />
-                      )}
-                      Meeting Prep
-                    </Button>
+                  <div className="flex items-center gap-2">
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          disabled={analyzing === fileData.id}
+                          className="flex items-center gap-2"
+                        >
+                          {analyzing === fileData.id ? (
+                            <Loader2 className="h-4 w-4 animate-spin" />
+                          ) : (
+                            <Brain className="h-4 w-4" />
+                          )}
+                          AI Analysis
+                          <ChevronDown className="h-3 w-3" />
+                        </Button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align="start" className="w-56">
+                        <DropdownMenuItem 
+                          onClick={() => analyzeDocument(fileData, 'iep')}
+                          disabled={analyzing === fileData.id}
+                          className="flex items-center gap-2"
+                        >
+                          <FileCheck className="h-4 w-4" />
+                          <div>
+                            <div className="font-medium">IEP Analysis</div>
+                            <div className="text-xs text-muted-foreground">Comprehensive IEP review</div>
+                          </div>
+                        </DropdownMenuItem>
+                        <DropdownMenuItem 
+                          onClick={() => analyzeDocument(fileData, 'accommodations')}
+                          disabled={analyzing === fileData.id}
+                          className="flex items-center gap-2"
+                        >
+                          <Users className="h-4 w-4" />
+                          <div>
+                            <div className="font-medium">Accommodations</div>
+                            <div className="text-xs text-muted-foreground">Specialized support recommendations</div>
+                          </div>
+                        </DropdownMenuItem>
+                        <DropdownMenuItem 
+                          onClick={() => analyzeDocument(fileData, 'meeting_prep')}
+                          disabled={analyzing === fileData.id}
+                          className="flex items-center gap-2"
+                        >
+                          <MessageSquare className="h-4 w-4" />
+                          <div>
+                            <div className="font-medium">Meeting Prep</div>
+                            <div className="text-xs text-muted-foreground">IEP meeting preparation</div>
+                          </div>
+                        </DropdownMenuItem>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
                   </div>
                 )}
 

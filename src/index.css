@@ -269,6 +269,30 @@
   .animate-float {
     animation: float 3s ease-in-out infinite;
   }
+
+  /* Dropdown Menu Improvements */
+  [data-radix-popper-content-wrapper] [role="menu"],
+  [data-radix-popper-content-wrapper] [role="listbox"],
+  .dropdown-menu-content,
+  [data-state="open"][data-side] {
+    @apply bg-card/95 backdrop-blur-md border-border;
+    box-shadow: 
+      0 10px 38px -10px rgba(22, 23, 24, 0.35), 
+      0 10px 20px -15px rgba(22, 23, 24, 0.2),
+      0 0 0 1px rgba(255, 255, 255, 0.05);
+  }
+
+  /* Dark mode dropdown improvements */
+  .dark [data-radix-popper-content-wrapper] [role="menu"],
+  .dark [data-radix-popper-content-wrapper] [role="listbox"],
+  .dark .dropdown-menu-content,
+  .dark [data-state="open"][data-side] {
+    @apply bg-card/90 backdrop-blur-md border-border;
+    box-shadow: 
+      0 10px 38px -10px rgba(0, 0, 0, 0.5), 
+      0 10px 20px -15px rgba(0, 0, 0, 0.35),
+      0 0 0 1px rgba(255, 255, 255, 0.1);
+  }
 }
 
 @keyframes fadeIn {

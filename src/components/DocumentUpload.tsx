@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { Badge } from "@/components/ui/badge";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { useToast } from "@/hooks/use-toast";
 import { api } from "@/lib/api";
 import { useAuth } from "@/hooks/useAuth";
@@ -30,7 +30,9 @@ import {
   Save,
   Share,
   Tag,
-  MoreVertical
+  MoreVertical,
+  Eye,
+  Download
 } from "lucide-react";
 
 // Helper function to read file as text
@@ -777,40 +779,89 @@ export function DocumentUpload({ onAnalysisComplete }: DocumentUploadProps) {
                       <AlertCircle className="h-4 w-4 text-red-500" />
                     )}
                   </div>
-                  <div className="flex items-center gap-1">
+                  <div className="flex items-center gap-2">
                     {fileData.status === 'completed' && (
                       <>
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={() => saveToVault(fileData)}
-                          className="flex items-center gap-1 h-8"
-                          data-testid={`button-save-vault-${fileData.id}`}
+                        {/* Primary Actions - Always Visible */}
+                        <Button 
+                          size="sm" 
+                          variant="outline" 
+                          className="h-8"
+                          onClick={() => window.open(URL.createObjectURL(fileData.file), '_blank')}
+                          data-testid={`button-view-${fileData.id}`}
                         >
-                          <Save className="h-3 w-3" />
-                          Save to Vault
+                          <Eye className="h-4 w-4 mr-1" />
+                          View
                         </Button>
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={() => shareFile(fileData)}
-                          className="flex items-center gap-1 h-8"
-                          data-testid={`button-share-${fileData.id}`}
+                        <Button 
+                          size="sm" 
+                          variant="outline" 
+                          className="h-8"
+                          onClick={() => {
+                            const a = document.createElement('a');
+                            a.href = URL.createObjectURL(fileData.file);
+                            a.download = fileData.file.name;
+                            a.click();
+                          }}
+                          data-testid={`button-download-${fileData.id}`}
                         >
-                          <Share className="h-3 w-3" />
-                          Share
+                          <Download className="h-4 w-4 mr-1" />
+                          Download
                         </Button>
+
+                        {/* Secondary Actions - Dropdown Menu */}
+                        <DropdownMenu>
+                          <DropdownMenuTrigger asChild>
+                            <Button variant="outline" size="sm" className="h-8 w-8 p-0" data-testid={`button-menu-${fileData.id}`}>
+                              <MoreVertical className="h-4 w-4" />
+                            </Button>
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent align="end" className="w-48">
+                            <DropdownMenuItem 
+                              onClick={() => saveToVault(fileData)}
+                              data-testid={`menu-save-vault-${fileData.id}`}
+                            >
+                              <Save className="h-4 w-4 mr-2" />
+                              Save to Vault
+                            </DropdownMenuItem>
+                            <DropdownMenuItem 
+                              onClick={() => shareFile(fileData)}
+                              data-testid={`menu-share-${fileData.id}`}
+                            >
+                              <Share className="h-4 w-4 mr-2" />
+                              Share
+                            </DropdownMenuItem>
+                            <DropdownMenuItem 
+                              onClick={() => startEditingFileName(fileData.id)}
+                              data-testid={`menu-edit-name-${fileData.id}`}
+                            >
+                              <Edit2 className="h-4 w-4 mr-2" />
+                              Edit Name
+                            </DropdownMenuItem>
+                            <DropdownMenuSeparator />
+                            <DropdownMenuItem 
+                              onClick={() => removeFile(fileData.id)}
+                              className="text-destructive focus:text-destructive focus:bg-destructive/10"
+                              data-testid={`menu-remove-${fileData.id}`}
+                            >
+                              <X className="h-4 w-4 mr-2" />
+                              Remove
+                            </DropdownMenuItem>
+                          </DropdownMenuContent>
+                        </DropdownMenu>
                       </>
                     )}
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => removeFile(fileData.id)}
-                      className="h-8 w-8 p-0"
-                      data-testid={`button-remove-${fileData.id}`}
-                    >
-                      <X className="h-4 w-4" />
-                    </Button>
+                    {fileData.status !== 'completed' && (
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => removeFile(fileData.id)}
+                        className="h-8 w-8 p-0"
+                        data-testid={`button-remove-${fileData.id}`}
+                      >
+                        <X className="h-4 w-4" />
+                      </Button>
+                    )}
                   </div>
                 </div>
 

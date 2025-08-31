@@ -218,6 +218,21 @@ app.post('/api/documents', async (req, res) => {
   }
 });
 
+app.delete('/api/documents/:id', async (req, res) => {
+  try {
+    const { id } = req.params;
+    await db.delete(schema.documents)
+      .where(and(
+        eq(schema.documents.id, id),
+        eq(schema.documents.user_id, MOCK_USER_ID)
+      ));
+    res.json({ success: true });
+  } catch (error) {
+    console.error('Error deleting document:', error);
+    res.status(500).json({ error: 'Failed to delete document' });
+  }
+});
+
 // AI reviews routes
 app.post('/api/ai_reviews', async (req, res) => {
   try {

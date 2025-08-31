@@ -59,7 +59,11 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
                   </span>
                 )}
                 
-                <Button variant="ghost" size="icon" onClick={() => navigate('/profile')} title="Profile">
+                <Button variant="ghost" size="icon" onClick={() => {
+                  const currentPath = window.location.pathname;
+                  const isAdvocateRoute = currentPath.startsWith('/advocate');
+                  navigate(isAdvocateRoute ? '/advocate/profile' : '/parent/profile');
+                }} title="Profile">
                   <User className="h-4 w-4" />
                 </Button>
                 

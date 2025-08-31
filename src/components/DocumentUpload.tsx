@@ -24,7 +24,11 @@ import {
   Shield,
   Clock,
   ChevronDown,
-  ChevronUp
+  ChevronUp,
+  Edit2,
+  Save,
+  Share,
+  Tag
 } from "lucide-react";
 
 // Helper function to read file as text
@@ -340,6 +344,8 @@ interface UploadedFile {
   progress: number;
   status: 'uploading' | 'completed' | 'error';
   url?: string;
+  editableName?: string;
+  isEditing?: boolean;
   analysis?: {
     type: string;
     content: string;
@@ -447,6 +453,84 @@ export function DocumentUpload({ onAnalysisComplete }: DocumentUploadProps) {
 
   const removeFile = (id: string) => {
     setFiles(prev => prev.filter(f => f.id !== id));
+  };
+
+  const startEditingFileName = (id: string) => {
+    setFiles(prev => prev.map(f => 
+      f.id === id 
+        ? { ...f, isEditing: true, editableName: f.editableName || f.file.name }
+        : f
+    ));
+  };
+
+  const saveFileName = (id: string) => {
+    setFiles(prev => prev.map(f => 
+      f.id === id 
+        ? { ...f, isEditing: false }
+        : f
+    ));
+  };
+
+  const updateFileName = (id: string, newName: string) => {
+    setFiles(prev => prev.map(f => 
+      f.id === id 
+        ? { ...f, editableName: newName }
+        : f
+    ));
+  };
+
+  // Save to vault functionality
+  const saveToVault = async (fileData: UploadedFile) => {
+    try {
+      await api.createDocument({
+        title: fileData.editableName || fileData.file.name,
+        description: `Document uploaded on ${new Date().toLocaleDateString()}`,
+        file_name: fileData.editableName || fileData.file.name,
+        file_path: `vault/uploads/${fileData.id}`,
+        file_type: fileData.file.type,
+        file_size: fileData.file.size,
+        category: 'Upload',
+        tags: ['uploaded-document']
+      });
+      
+      toast({
+        title: "Saved to Vault",
+        description: "File has been saved to your document vault.",
+      });
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to save to vault. Please try again.",
+        variant: "destructive",
+      });
+    }
+  };
+
+  // Share functionality
+  const shareFile = async (fileData: UploadedFile) => {
+    const shareText = `Check out this document: ${fileData.editableName || fileData.file.name}`;
+    
+    if (navigator.share) {
+      try {
+        await navigator.share({
+          title: 'Document Share',
+          text: shareText,
+        });
+      } catch (error) {
+        // Fallback to clipboard
+        await navigator.clipboard.writeText(shareText);
+        toast({
+          title: "Copied to Clipboard",
+          description: "Share text copied to clipboard.",
+        });
+      }
+    } else {
+      await navigator.clipboard.writeText(shareText);
+      toast({
+        title: "Copied to Clipboard",
+        description: "Share text copied to clipboard.",
+      });
+    }
   };
 
   const analyzeDocument = async (fileData: UploadedFile, analysisType: string) => {
@@ -586,9 +670,50 @@ export function DocumentUpload({ onAnalysisComplete }: DocumentUploadProps) {
             {files.map((fileData) => (
               <div key={fileData.id} className="border rounded-lg p-4">
                 <div className="flex items-center justify-between mb-2">
-                  <div className="flex items-center gap-2">
+                  <div className="flex items-center gap-2 flex-1">
                     <FileText className="h-4 w-4" />
-                    <span className="font-medium">{fileData.file.name}</span>
+                    {fileData.isEditing ? (
+                      <div className="flex items-center gap-2 flex-1">
+                        <input
+                          type="text"
+                          value={fileData.editableName || fileData.file.name}
+                          onChange={(e) => updateFileName(fileData.id, e.target.value)}
+                          className="flex-1 px-2 py-1 text-sm border rounded focus:outline-none focus:ring-2 focus:ring-primary"
+                          onKeyDown={(e) => {
+                            if (e.key === 'Enter') saveFileName(fileData.id);
+                            if (e.key === 'Escape') {
+                              setFiles(prev => prev.map(f => 
+                                f.id === fileData.id 
+                                  ? { ...f, isEditing: false, editableName: f.file.name }
+                                  : f
+                              ));
+                            }
+                          }}
+                          autoFocus
+                        />
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => saveFileName(fileData.id)}
+                          className="h-8 w-8 p-0"
+                        >
+                          <Save className="h-3 w-3" />
+                        </Button>
+                      </div>
+                    ) : (
+                      <div className="flex items-center gap-2 flex-1">
+                        <span className="font-medium">{fileData.editableName || fileData.file.name}</span>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => startEditingFileName(fileData.id)}
+                          className="h-6 w-6 p-0 opacity-60 hover:opacity-100"
+                          data-testid={`button-edit-name-${fileData.id}`}
+                        >
+                          <Edit2 className="h-3 w-3" />
+                        </Button>
+                      </div>
+                    )}
                     {fileData.status === 'completed' && (
                       <CheckCircle className="h-4 w-4 text-green-500" />
                     )}
@@ -596,13 +721,41 @@ export function DocumentUpload({ onAnalysisComplete }: DocumentUploadProps) {
                       <AlertCircle className="h-4 w-4 text-red-500" />
                     )}
                   </div>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => removeFile(fileData.id)}
-                  >
-                    <X className="h-4 w-4" />
-                  </Button>
+                  <div className="flex items-center gap-1">
+                    {fileData.status === 'completed' && (
+                      <>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => saveToVault(fileData)}
+                          className="flex items-center gap-1 h-8"
+                          data-testid={`button-save-vault-${fileData.id}`}
+                        >
+                          <Save className="h-3 w-3" />
+                          Save to Vault
+                        </Button>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => shareFile(fileData)}
+                          className="flex items-center gap-1 h-8"
+                          data-testid={`button-share-${fileData.id}`}
+                        >
+                          <Share className="h-3 w-3" />
+                          Share
+                        </Button>
+                      </>
+                    )}
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => removeFile(fileData.id)}
+                      className="h-8 w-8 p-0"
+                      data-testid={`button-remove-${fileData.id}`}
+                    >
+                      <X className="h-4 w-4" />
+                    </Button>
+                  </div>
                 </div>
 
                 {fileData.status === 'uploading' && (

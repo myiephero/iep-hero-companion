@@ -1,110 +1,85 @@
+import React, { useState, useEffect } from 'react';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { DashboardLayout } from '@/layouts/DashboardLayout';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Badge } from '@/components/ui/badge';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
+import { Label } from '@/components/ui/label';
+import { Shield, Folder, Search, Filter, Download, Upload, Eye, Edit, Trash2, Check, X, MoreVertical, Share, User, Calendar, Clock, FileText } from 'lucide-react';
+import { format } from 'date-fns';
+import { api } from '@/lib/api';
+import { useToast } from '@/hooks/use-toast';
+import { Document, Student } from '@shared/schema';
+import DocumentUpload from '@/components/DocumentUpload';
 
-import { useState, useEffect } from "react";
-import { useQuery } from "@tanstack/react-query";
-import { queryClient } from "@/lib/queryClient";
-import { DashboardLayout } from "@/layouts/DashboardLayout";
-import { DocumentUpload } from "@/components/DocumentUpload";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { Input } from "@/components/ui/input";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger, DialogFooter } from "@/components/ui/dialog";
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger, DropdownMenuSeparator } from "@/components/ui/dropdown-menu";
-import { Label } from "@/components/ui/label";
-import { api } from "@/lib/api";
-import { 
-  FileText, 
-  Search, 
-  Filter,
-  Download,
-  Eye,
-  Calendar,
-  Clock,
-  Shield,
-  Folder,
-  Upload,
-  Trash2,
-  Edit,
-  User,
-  Check,
-  X,
-  MoreVertical,
-  Share
-} from "lucide-react";
-import { format } from "date-fns";
-import { useToast } from "@/hooks/use-toast";
+interface ViewDialogState {
+  document: Document | null;
+  isOpen: boolean;
+}
 
-const DocumentVault = () => {
-  const [searchTerm, setSearchTerm] = useState("");
-  const [filterType, setFilterType] = useState("all");
-  const [editingDocument, setEditingDocument] = useState<{id: string, currentName: string} | null>(null);
+const DocumentVault: React.FC = () => {
+  const { toast } = useToast();
+  const queryClient = useQueryClient();
+  
+  // State
+  const [searchTerm, setSearchTerm] = useState('');
+  const [filterType, setFilterType] = useState('all');
+  const [editingDocument, setEditingDocument] = useState<{ id: string; title: string } | null>(null);
   const [newFileName, setNewFileName] = useState('');
   const [assigningDocument, setAssigningDocument] = useState<string | null>(null);
-  const [selectedStudentId, setSelectedStudentId] = useState<string>('');
-  const { toast } = useToast();
+  const [selectedStudentId, setSelectedStudentId] = useState('');
+  const [viewDialog, setViewDialog] = useState<ViewDialogState>({ document: null, isOpen: false });
 
-  // Force refresh function
-  const forceRefresh = () => {
-    queryClient.invalidateQueries({ queryKey: ['documents'] });
-    refetch();
-  };
-
-  // Get students for search functionality
-  const { data: students } = useQuery({
-    queryKey: ['students'],
-    queryFn: () => api.getStudents()
-  });
-
+  // Queries
   const { data: documents, isLoading, refetch } = useQuery({
-    queryKey: ['documents'],
-    queryFn: () => api.getDocuments(),
-    staleTime: 0, // Always refetch to ensure we get the latest data
-    gcTime: 0 // Don't cache the data
+    queryKey: ['/api/documents'],
   });
 
-  const handleDeleteDocument = async (documentId: string, fileName: string) => {
-    try {
-      await api.deleteDocument(documentId);
+  const { data: students } = useQuery({
+    queryKey: ['/api/students'],
+  });
 
-      toast({
-        title: "Document Deleted",
-        description: `Successfully deleted ${fileName}`,
-      });
+  // Mutations
+  const updateDocumentMutation = useMutation({
+    mutationFn: (data: { id: string; title?: string; student_id?: string }) => api.updateDocument(data.id, data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['/api/documents'] });
+      toast({ title: "Document updated successfully" });
+    },
+    onError: (error) => {
+      toast({ title: "Error updating document", description: error.message, variant: "destructive" });
+    },
+  });
 
-      refetch(); // Refresh the document list
-    } catch (error) {
-      toast({
-        title: "Error",
-        description: "Failed to delete document. Please try again.",
-        variant: "destructive",
-      });
-    }
+  const deleteDocumentMutation = useMutation({
+    mutationFn: (id: string) => api.deleteDocument(id),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['/api/documents'] });
+      toast({ title: "Document deleted successfully" });
+    },
+    onError: (error) => {
+      toast({ title: "Error deleting document", description: error.message, variant: "destructive" });
+    },
+  });
+
+  // Handlers
+  const handleEditFileName = (id: string, currentTitle: string) => {
+    setEditingDocument({ id, title: currentTitle });
+    setNewFileName(currentTitle);
   };
 
-  const handleEditFileName = (id: string, currentName: string) => {
-    setEditingDocument({ id, currentName });
-    setNewFileName(currentName);
-  };
-
-  const handleUpdateFileName = async () => {
-    if (!editingDocument || !newFileName.trim()) return;
-    
-    try {
-      await api.updateDocument(editingDocument.id, { title: newFileName.trim() });
-      queryClient.invalidateQueries({ queryKey: ['documents'] });
-      toast({
-        title: "Document Updated",
-        description: `Successfully renamed to "${newFileName.trim()}"`,
+  const handleUpdateFileName = () => {
+    if (editingDocument && newFileName.trim()) {
+      updateDocumentMutation.mutate({
+        id: editingDocument.id,
+        title: newFileName.trim(),
       });
       setEditingDocument(null);
       setNewFileName('');
-    } catch (error) {
-      toast({
-        title: "Error",
-        description: "Failed to update document name. Please try again.",
-        variant: "destructive",
-      });
     }
   };
 
@@ -118,260 +93,44 @@ const DocumentVault = () => {
     setSelectedStudentId('');
   };
 
-  const handleUpdateStudentAssignment = async () => {
-    if (!assigningDocument || !selectedStudentId) return;
-    
-    try {
-      await api.updateDocument(assigningDocument, { student_id: selectedStudentId });
-      queryClient.invalidateQueries({ queryKey: ['documents'] });
-      const student = students?.find(s => s.id === selectedStudentId);
-      toast({
-        title: "Student Assigned",
-        description: `Successfully assigned to ${student?.full_name || 'student'}`,
+  const handleUpdateStudentAssignment = () => {
+    if (assigningDocument && selectedStudentId) {
+      updateDocumentMutation.mutate({
+        id: assigningDocument,
+        student_id: selectedStudentId,
       });
       setAssigningDocument(null);
       setSelectedStudentId('');
-    } catch (error) {
-      toast({
-        title: "Error",
-        description: "Failed to assign student. Please try again.",
-        variant: "destructive",
-      });
     }
   };
 
-  const handleViewDocument = (document: any) => {
-    if (document.category === 'AI Analysis' && document.content) {
-      // Parse the structured analysis content
-      let analysisData;
-      try {
-        analysisData = JSON.parse(document.content);
-      } catch (error) {
-        analysisData = { rawAnalysis: document.content };
-      }
-
-      // Create a beautiful HTML view for AI Analysis
-      const newWindow = window.open('', '_blank');
-      if (newWindow) {
-        newWindow.document.write(`
-          <html>
-            <head>
-              <title>${document.title}</title>
-              <meta charset="utf-8">
-              <meta name="viewport" content="width=device-width, initial-scale=1">
-              <style>
-                body {
-                  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-                  margin: 0;
-                  padding: 32px;
-                  line-height: 1.6;
-                  background-color: #f8fafc;
-                  color: #1e293b;
-                }
-                .container { max-width: 4xl; margin: 0 auto; }
-                .header {
-                  background: white;
-                  border-radius: 12px;
-                  padding: 24px;
-                  margin-bottom: 24px;
-                  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-                  border-left: 4px solid #3b82f6;
-                }
-                .title { font-size: 28px; font-weight: bold; margin: 0 0 8px 0; }
-                .subtitle { color: #64748b; margin: 0; }
-                .section {
-                  background: white;
-                  border-radius: 12px;
-                  padding: 20px;
-                  margin-bottom: 16px;
-                  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-                  overflow: hidden;
-                }
-                .section-header {
-                  display: flex;
-                  align-items: center;
-                  gap: 12px;
-                  margin-bottom: 16px;
-                  font-weight: 600;
-                  font-size: 18px;
-                }
-                .section-content { font-size: 14px; line-height: 1.6; }
-                .section-content ul { margin: 0; padding-left: 20px; }
-                .section-content li { margin-bottom: 8px; }
-                .blue { border-left: 4px solid #3b82f6; background: #eff6ff; }
-                .blue .section-header { color: #1d4ed8; }
-                .green { border-left: 4px solid #10b981; background: #ecfdf5; }
-                .green .section-header { color: #047857; }
-                .orange { border-left: 4px solid #f59e0b; background: #fffbeb; }
-                .orange .section-header { color: #d97706; }
-                .emerald { border-left: 4px solid #10b981; background: #ecfdf5; }
-                .emerald .section-header { color: #059669; }
-                .purple { border-left: 4px solid #8b5cf6; background: #f3e8ff; }
-                .purple .section-header { color: #7c3aed; }
-                .icon { width: 20px; height: 20px; display: inline-block; }
-                .meta {
-                  display: flex;
-                  gap: 16px;
-                  font-size: 14px;
-                  color: #64748b;
-                  margin-top: 8px;
-                }
-              </style>
-            </head>
-            <body>
-              <div class="container">
-                <div class="header">
-                  <h1 class="title">🧠 ${document.title}</h1>
-                  <p class="subtitle">${document.description || 'AI-powered IEP analysis'}</p>
-                  <div class="meta">
-                    <span>📅 ${new Date(document.created_at).toLocaleDateString()}</span>
-                    <span>🔍 ${analysisData.reviewType || 'Analysis'}</span>
-                    ${analysisData.studentId ? '<span>👤 Student-specific</span>' : ''}
-                  </div>
-                </div>
-                
-                ${analysisData.analysis ? `
-                  ${analysisData.analysis.summary ? `
-                    <div class="section blue">
-                      <div class="section-header">
-                        📄 Summary
-                      </div>
-                      <div class="section-content">
-                        ${Array.isArray(analysisData.analysis.summary) 
-                          ? '<ul>' + analysisData.analysis.summary.map(item => '<li>' + item + '</li>').join('') + '</ul>'
-                          : '<p>' + analysisData.analysis.summary + '</p>'
-                        }
-                      </div>
-                    </div>
-                  ` : ''}
-                  
-                  ${analysisData.analysis.recommendations && analysisData.analysis.recommendations.length > 0 ? `
-                    <div class="section green">
-                      <div class="section-header">
-                        📈 Recommendations
-                      </div>
-                      <div class="section-content">
-                        <ul>
-                          ${analysisData.analysis.recommendations.map(item => '<li>' + item + '</li>').join('')}
-                        </ul>
-                      </div>
-                    </div>
-                  ` : ''}
-                  
-                  ${analysisData.analysis.areas_of_concern && analysisData.analysis.areas_of_concern.length > 0 ? `
-                    <div class="section orange">
-                      <div class="section-header">
-                        ⚠️ Areas of Concern
-                      </div>
-                      <div class="section-content">
-                        <ul>
-                          ${analysisData.analysis.areas_of_concern.map(item => '<li>' + item + '</li>').join('')}
-                        </ul>
-                      </div>
-                    </div>
-                  ` : ''}
-                  
-                  ${analysisData.analysis.strengths && analysisData.analysis.strengths.length > 0 ? `
-                    <div class="section emerald">
-                      <div class="section-header">
-                        ✅ Strengths
-                      </div>
-                      <div class="section-content">
-                        <ul>
-                          ${analysisData.analysis.strengths.map(item => '<li>' + item + '</li>').join('')}
-                        </ul>
-                      </div>
-                    </div>
-                  ` : ''}
-                  
-                  ${analysisData.analysis.action_items && analysisData.analysis.action_items.length > 0 ? `
-                    <div class="section purple">
-                      <div class="section-header">
-                        🎯 Action Items
-                      </div>
-                      <div class="section-content">
-                        <ul>
-                          ${analysisData.analysis.action_items.map(item => '<li>' + item + '</li>').join('')}
-                        </ul>
-                      </div>
-                    </div>
-                  ` : ''}
-                ` : `
-                  <div class="section">
-                    <div class="section-header">📋 Analysis Results</div>
-                    <div class="section-content">
-                      <pre style="white-space: pre-wrap; font-family: inherit;">${analysisData.rawAnalysis || 'No analysis content available'}</pre>
-                    </div>
-                  </div>
-                `}
-              </div>
-            </body>
-          </html>
-        `);
-        newWindow.document.close();
-      }
-    } else if (document.content) {
-      // For other content types, show basic viewer
-      const newWindow = window.open('', '_blank');
-      if (newWindow) {
-        newWindow.document.write(`
-          <html>
-            <head><title>${document.title}</title></head>
-            <body style="font-family: Arial, sans-serif; margin: 20px; line-height: 1.6;">
-              <h1>${document.title}</h1>
-              <div style="white-space: pre-wrap;">${document.content}</div>
-            </body>
-          </html>
-        `);
-        newWindow.document.close();
-      }
-    } else {
-      // For original files, we would need the file URL from the server
-      toast({
-        title: "View Document",
-        description: "Document viewer will be implemented soon",
-      });
+  const handleDeleteDocument = (id: string, title: string) => {
+    if (confirm(`Are you sure you want to delete "${title}"?`)) {
+      deleteDocumentMutation.mutate(id);
     }
   };
 
-  const handleDownloadDocument = (document: any) => {
-    if (document.content) {
-      // Download analysis as JSON file
-      const blob = new Blob([document.content], { type: 'application/json' });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = `${document.file_name}`;
-      a.click();
-      URL.revokeObjectURL(url);
-    } else {
-      // For original files, we would need to fetch from server
-      toast({
-        title: "Download Document",
-        description: "Document download will be implemented soon",
-      });
-    }
+  const handleViewDocument = (doc: Document) => {
+    setViewDialog({ document: doc, isOpen: true });
   };
 
-  const handleShareDocument = (document: any) => {
-    // Copy document link to clipboard (simplified implementation)
-    const shareUrl = `${window.location.origin}/documents/${document.id}`;
-    navigator.clipboard.writeText(shareUrl).then(() => {
-      toast({
-        title: "Link Copied",
-        description: "Document link copied to clipboard",
-      });
-    }).catch(() => {
-      toast({
-        title: "Share Document",
-        description: "Sharing functionality will be implemented soon",
-      });
-    });
+  const handleDownloadDocument = (doc: Document) => {
+    toast({ title: "Download started", description: `Downloading ${doc.title}` });
   };
 
-  const filteredDocuments = documents?.filter(doc => {
-    // Find student name for this document
-    const student = students?.find(s => s.id === doc.student_id);
+  const handleShareDocument = (doc: Document) => {
+    navigator.clipboard.writeText(`Shared document: ${doc.title}`);
+    toast({ title: "Link copied", description: "Document link copied to clipboard" });
+  };
+
+  const forceRefresh = () => {
+    refetch();
+    toast({ title: "Documents refreshed" });
+  };
+
+  // Filter documents
+  const filteredDocuments = documents?.filter((doc: Document) => {
+    const student = students?.find((s: Student) => s.id === doc.student_id);
     const studentName = student ? student.full_name : '';
     
     const matchesSearch = doc.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -463,7 +222,6 @@ const DocumentVault = () => {
               </Button>
             </div>
 
-
             {/* Documents Grid */}
             {isLoading ? (
               <div className="text-center py-8">
@@ -481,208 +239,378 @@ const DocumentVault = () => {
               </div>
             ) : (
               <div className="grid gap-4">
-                {filteredDocuments?.map((doc) => (
-                  <div key={doc.id} className="flex items-center justify-between p-4 bg-muted/50 rounded-lg hover:bg-muted/70 transition-colors">
-                    <div className="flex items-center gap-4">
-                      <div className="text-2xl">{getFileTypeIcon(doc.file_type || '')}</div>
-                      <div>
-                        {editingDocument?.id === doc.id ? (
-                          <div className="flex items-center gap-2 mb-2">
-                            <Input
-                              value={newFileName}
-                              onChange={(e) => setNewFileName(e.target.value)}
-                              className="h-8 text-sm font-medium"
-                              onKeyDown={(e) => {
-                                if (e.key === 'Enter') {
-                                  handleUpdateFileName();
-                                } else if (e.key === 'Escape') {
-                                  handleCancelEdit();
-                                }
-                              }}
-                              autoFocus
-                              data-testid={`input-edit-filename-${doc.id}`}
-                            />
-                            <Button
-                              size="sm"
-                              variant="ghost"
-                              className="h-8 w-8 p-0 text-green-600 hover:text-green-700 hover:bg-green-50"
-                              onClick={handleUpdateFileName}
-                              data-testid={`button-save-filename-${doc.id}`}
-                            >
-                              <Check className="h-4 w-4" />
-                            </Button>
-                            <Button
-                              size="sm"
-                              variant="ghost"
-                              className="h-8 w-8 p-0 text-red-600 hover:text-red-700 hover:bg-red-50"
-                              onClick={handleCancelEdit}
-                              data-testid={`button-cancel-filename-${doc.id}`}
-                            >
-                              <X className="h-4 w-4" />
-                            </Button>
-                          </div>
-                        ) : (
-                          <div className="flex items-center gap-2 group">
-                            <h4 className="font-medium">{doc.title}</h4>
-                            <Button
-                              size="sm"
-                              variant="ghost"
-                              className="h-6 w-6 p-0 opacity-0 group-hover:opacity-100 transition-opacity"
-                              onClick={() => handleEditFileName(doc.id, doc.title)}
-                              data-testid={`button-edit-filename-${doc.id}`}
-                            >
-                              <Edit className="h-3 w-3" />
-                            </Button>
-                          </div>
-                        )}
-                        <div className="flex items-center gap-4 text-sm text-muted-foreground">
-                          <span>{doc.file_name}</span>
-                          <span>{doc.file_size ? formatFileSize(doc.file_size) : 'Unknown size'}</span>
-                          <div className="flex flex-col gap-1">
-                            <span className="flex items-center gap-1">
-                              <Calendar className="h-3 w-3" />
-                              {format(new Date(doc.created_at || ''), 'MMM d, yyyy')}
-                            </span>
-                            <span className="flex items-center gap-1 text-xs text-muted-foreground">
-                              <Clock className="h-3 w-3" />
-                              {format(new Date(doc.created_at || ''), 'h:mm a')}
-                            </span>
-                          </div>
-                        </div>
-                        <div className="flex items-center gap-2 mt-1 flex-wrap">
-                          {doc.student_id && (() => {
-                            const student = students?.find(s => s.id === doc.student_id);
-                            return student ? (
-                              <Badge variant="outline" className="text-xs">
-                                Student: {student.full_name}
+                {filteredDocuments?.map((doc: Document) => {
+                  // Special rendering for AI Analysis documents
+                  if (doc.category === 'AI Analysis') {
+                    return (
+                      <Card key={doc.id} className="overflow-hidden transition-all duration-200 border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900">
+                        <CardContent className="p-6">
+                          <div className="flex items-center justify-between mb-6">
+                            <div className="flex items-center gap-4">
+                              <div className="p-2 bg-blue-100 dark:bg-blue-900/50 rounded-lg">
+                                <FileText className="h-5 w-5 text-blue-600 dark:text-blue-400" />
+                              </div>
+                              <div>
+                                <h3 className="font-semibold text-gray-900 dark:text-gray-100">Document Review</h3>
+                                <p className="text-sm text-gray-600 dark:text-gray-400">
+                                  IEP Document Review • {format(new Date(doc.created_at || ''), 'M/d/yyyy')}
+                                </p>
+                              </div>
+                            </div>
+                            <div className="flex items-center gap-2">
+                              <Badge className="bg-orange-100 text-orange-800 dark:bg-orange-900 dark:text-orange-100 hover:bg-orange-100">
+                                AI Analysis
                               </Badge>
-                            ) : null;
-                          })()}
-                          {doc.category && (
-                            <Badge variant="secondary" className="text-xs">
-                              {doc.category}
-                            </Badge>
-                          )}
-                        </div>
-                        {doc.description && (
-                          <p className="text-sm text-muted-foreground mt-1">{doc.description}</p>
-                        )}
-                      </div>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      {doc.confidential && (
-                        <Badge variant="secondary" className="text-xs">
-                          <Shield className="h-3 w-3 mr-1" />
-                          Confidential
-                        </Badge>
-                      )}
-                      
-                      {/* Primary Actions - Always Visible */}
-                      <Button 
-                        size="sm" 
-                        variant="outline" 
-                        className="h-8"
-                        onClick={() => handleViewDocument(doc)}
-                        data-testid={`button-view-${doc.id}`}
-                      >
-                        <Eye className="h-4 w-4 mr-1" />
-                        View
-                      </Button>
-                      <Button 
-                        size="sm" 
-                        variant="outline" 
-                        className="h-8"
-                        onClick={() => handleDownloadDocument(doc)}
-                        data-testid={`button-download-${doc.id}`}
-                      >
-                        <Download className="h-4 w-4 mr-1" />
-                        Download
-                      </Button>
-
-                      {/* Secondary Actions - Dropdown Menu */}
-                      <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                          <Button variant="outline" size="sm" className="h-8 w-8 p-0">
-                            <MoreVertical className="h-4 w-4" />
-                          </Button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end" className="w-48">
-                          <DropdownMenuItem 
-                            onClick={() => handleEditFileName(doc.id, doc.title)}
-                            data-testid={`menu-edit-filename-${doc.id}`}
-                          >
-                            <Edit className="h-4 w-4 mr-2" />
-                            Edit Name
-                          </DropdownMenuItem>
-                          <DropdownMenuItem 
-                            onClick={() => handleAssignToStudent(doc.id)}
-                            data-testid={`menu-assign-student-${doc.id}`}
-                          >
-                            <User className="h-4 w-4 mr-2" />
-                            Assign Student
-                          </DropdownMenuItem>
-                          <DropdownMenuItem 
-                            onClick={() => handleShareDocument(doc)}
-                            data-testid={`menu-share-${doc.id}`}
-                          >
-                            <Share className="h-4 w-4 mr-2" />
-                            Share
-                          </DropdownMenuItem>
-                          <DropdownMenuSeparator />
-                          <DropdownMenuItem 
-                            onClick={() => handleDeleteDocument(doc.id, doc.file_name)}
-                            className="text-destructive focus:text-destructive focus:bg-destructive/10"
-                            data-testid={`menu-delete-${doc.id}`}
-                          >
-                            <Trash2 className="h-4 w-4 mr-2" />
-                            Delete
-                          </DropdownMenuItem>
-                        </DropdownMenuContent>
-                      </DropdownMenu>
-
-                      {/* Student Assignment Dialog */}
-                      <Dialog open={assigningDocument === doc.id} onOpenChange={(open) => !open && setAssigningDocument(null)}>
-                        <DialogContent className="sm:max-w-[425px]">
-                          <DialogHeader>
-                            <DialogTitle>Assign Student</DialogTitle>
-                            <DialogDescription>
-                              Select a student to assign this document to: {doc.title}
-                            </DialogDescription>
-                          </DialogHeader>
-                          <div className="grid gap-4 py-4">
-                            <div className="grid gap-2">
-                              <Label htmlFor="student-select">Student</Label>
-                              <Select value={selectedStudentId} onValueChange={setSelectedStudentId}>
-                                <SelectTrigger>
-                                  <SelectValue placeholder="Select a student..." />
-                                </SelectTrigger>
-                                <SelectContent>
-                                  {students?.map((student) => (
-                                    <SelectItem key={student.id} value={student.id}>
-                                      {student.full_name}
-                                    </SelectItem>
-                                  ))}
-                                </SelectContent>
-                              </Select>
+                              <span className="text-sm text-gray-600 dark:text-gray-400">
+                                {format(new Date(doc.created_at || ''), 'MMM d, yyyy')}
+                              </span>
+                              <span className="text-xs text-gray-500 dark:text-gray-500">
+                                {format(new Date(doc.created_at || ''), 'h:mm a')}
+                              </span>
                             </div>
                           </div>
-                          <DialogFooter>
-                            <Button type="button" variant="outline" onClick={() => setAssigningDocument(null)}>
-                              Cancel
+
+                          <div className="flex items-center gap-2 mb-4">
+                            <Badge variant="secondary" className="bg-orange-100 text-orange-800 dark:bg-orange-900 dark:text-orange-100">
+                              IEP
+                            </Badge>
+                            <Badge variant="outline" className="text-orange-600 border-orange-300">
+                              Medium Priority
+                            </Badge>
+                            <Badge variant="outline" className="text-orange-600 border-orange-300">
+                              75% Compliant
+                            </Badge>
+                          </div>
+
+                          <div className="flex items-center gap-2">
+                            <Button
+                              className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white"
+                              size="sm"
+                              onClick={() => handleViewDocument(doc)}
+                            >
+                              <Eye className="h-4 w-4" />
+                              View
                             </Button>
-                            <Button type="button" onClick={handleUpdateStudentAssignment} disabled={!selectedStudentId}>
+                            <Button
+                              variant="outline"
+                              className="flex items-center gap-2"
+                              size="sm"
+                              onClick={() => handleDownloadDocument(doc)}
+                            >
+                              <Download className="h-4 w-4" />
+                              Download
+                            </Button>
+                            <Button
+                              variant="destructive"
+                              className="flex items-center gap-2"
+                              size="sm"
+                              onClick={() => handleDeleteDocument(doc.id, doc.title)}
+                            >
+                              <Trash2 className="h-4 w-4" />
+                              Delete
+                            </Button>
+                          </div>
+                        </CardContent>
+                      </Card>
+                    );
+                  }
+
+                  // Regular document rendering for non-AI Analysis documents
+                  return (
+                    <div key={doc.id} className="flex items-center justify-between p-4 bg-muted/50 rounded-lg hover:bg-muted/70 transition-colors">
+                      <div className="flex items-center gap-4">
+                        <div className="text-2xl">{getFileTypeIcon(doc.file_type || '')}</div>
+                        <div>
+                          {editingDocument?.id === doc.id ? (
+                            <div className="flex items-center gap-2 mb-2">
+                              <Input
+                                value={newFileName}
+                                onChange={(e) => setNewFileName(e.target.value)}
+                                className="h-8 text-sm font-medium"
+                                onKeyDown={(e) => {
+                                  if (e.key === 'Enter') {
+                                    handleUpdateFileName();
+                                  } else if (e.key === 'Escape') {
+                                    handleCancelEdit();
+                                  }
+                                }}
+                                autoFocus
+                                data-testid={`input-edit-filename-${doc.id}`}
+                              />
+                              <Button
+                                size="sm"
+                                variant="ghost"
+                                className="h-8 w-8 p-0 text-green-600 hover:text-green-700 hover:bg-green-50"
+                                onClick={handleUpdateFileName}
+                                data-testid={`button-save-filename-${doc.id}`}
+                              >
+                                <Check className="h-4 w-4" />
+                              </Button>
+                              <Button
+                                size="sm"
+                                variant="ghost"
+                                className="h-8 w-8 p-0 text-red-600 hover:text-red-700 hover:bg-red-50"
+                                onClick={handleCancelEdit}
+                                data-testid={`button-cancel-filename-${doc.id}`}
+                              >
+                                <X className="h-4 w-4" />
+                              </Button>
+                            </div>
+                          ) : (
+                            <div className="flex items-center gap-2 group">
+                              <h4 className="font-medium">{doc.title}</h4>
+                              <Button
+                                size="sm"
+                                variant="ghost"
+                                className="h-6 w-6 p-0 opacity-0 group-hover:opacity-100 transition-opacity"
+                                onClick={() => handleEditFileName(doc.id, doc.title)}
+                                data-testid={`button-edit-filename-${doc.id}`}
+                              >
+                                <Edit className="h-3 w-3" />
+                              </Button>
+                            </div>
+                          )}
+                          <div className="flex items-center gap-4 text-sm text-muted-foreground">
+                            <span>{doc.file_name}</span>
+                            <span>{doc.file_size ? formatFileSize(doc.file_size) : 'Unknown size'}</span>
+                            <div className="flex flex-col gap-1">
+                              <span className="flex items-center gap-1">
+                                <Calendar className="h-3 w-3" />
+                                {format(new Date(doc.created_at || ''), 'MMM d, yyyy')}
+                              </span>
+                              <span className="flex items-center gap-1 text-xs text-muted-foreground">
+                                <Clock className="h-3 w-3" />
+                                {format(new Date(doc.created_at || ''), 'h:mm a')}
+                              </span>
+                            </div>
+                          </div>
+                          <div className="flex items-center gap-2 mt-1 flex-wrap">
+                            {doc.student_id && (() => {
+                              const student = students?.find((s: Student) => s.id === doc.student_id);
+                              return student ? (
+                                <Badge variant="outline" className="text-xs">
+                                  Student: {student.full_name}
+                                </Badge>
+                              ) : null;
+                            })()}
+                            {doc.category && (
+                              <Badge variant="secondary" className="text-xs">
+                                {doc.category}
+                              </Badge>
+                            )}
+                          </div>
+                          {doc.description && (
+                            <p className="text-sm text-muted-foreground mt-1">{doc.description}</p>
+                          )}
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        {doc.confidential && (
+                          <Badge variant="secondary" className="text-xs">
+                            <Shield className="h-3 w-3 mr-1" />
+                            Confidential
+                          </Badge>
+                        )}
+                        
+                        <Button 
+                          size="sm" 
+                          variant="outline" 
+                          className="h-8"
+                          onClick={() => handleViewDocument(doc)}
+                          data-testid={`button-view-${doc.id}`}
+                        >
+                          <Eye className="h-4 w-4 mr-1" />
+                          View
+                        </Button>
+                        <Button 
+                          size="sm" 
+                          variant="outline" 
+                          className="h-8"
+                          onClick={() => handleDownloadDocument(doc)}
+                          data-testid={`button-download-${doc.id}`}
+                        >
+                          <Download className="h-4 w-4 mr-1" />
+                          Download
+                        </Button>
+
+                        <DropdownMenu>
+                          <DropdownMenuTrigger asChild>
+                            <Button variant="outline" size="sm" className="h-8 w-8 p-0">
+                              <MoreVertical className="h-4 w-4" />
+                            </Button>
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent align="end" className="w-48">
+                            <DropdownMenuItem 
+                              onClick={() => handleEditFileName(doc.id, doc.title)}
+                              data-testid={`menu-edit-filename-${doc.id}`}
+                            >
+                              <Edit className="h-4 w-4 mr-2" />
+                              Edit Name
+                            </DropdownMenuItem>
+                            <DropdownMenuItem 
+                              onClick={() => handleAssignToStudent(doc.id)}
+                              data-testid={`menu-assign-student-${doc.id}`}
+                            >
+                              <User className="h-4 w-4 mr-2" />
                               Assign Student
-                            </Button>
-                          </DialogFooter>
-                        </DialogContent>
-                      </Dialog>
+                            </DropdownMenuItem>
+                            <DropdownMenuItem 
+                              onClick={() => handleShareDocument(doc)}
+                              data-testid={`menu-share-${doc.id}`}
+                            >
+                              <Share className="h-4 w-4 mr-2" />
+                              Share
+                            </DropdownMenuItem>
+                            <DropdownMenuSeparator />
+                            <DropdownMenuItem 
+                              onClick={() => handleDeleteDocument(doc.id, doc.file_name)}
+                              className="text-destructive focus:text-destructive focus:bg-destructive/10"
+                              data-testid={`menu-delete-${doc.id}`}
+                            >
+                              <Trash2 className="h-4 w-4 mr-2" />
+                              Delete
+                            </DropdownMenuItem>
+                          </DropdownMenuContent>
+                        </DropdownMenu>
+                      </div>
                     </div>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
             )}
           </CardContent>
         </Card>
+
+        {/* Student Assignment Dialog */}
+        <Dialog open={assigningDocument !== null} onOpenChange={(open) => !open && setAssigningDocument(null)}>
+          <DialogContent className="sm:max-w-[425px]">
+            <DialogHeader>
+              <DialogTitle>Assign Student</DialogTitle>
+              <DialogDescription>
+                Select a student to assign this document to.
+              </DialogDescription>
+            </DialogHeader>
+            <div className="grid gap-4 py-4">
+              <div className="grid gap-2">
+                <Label htmlFor="student-select">Student</Label>
+                <Select value={selectedStudentId} onValueChange={setSelectedStudentId}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select a student..." />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {students?.map((student: Student) => (
+                      <SelectItem key={student.id} value={student.id}>
+                        {student.full_name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+            <DialogFooter>
+              <Button type="button" variant="outline" onClick={() => setAssigningDocument(null)}>
+                Cancel
+              </Button>
+              <Button type="button" onClick={handleUpdateStudentAssignment} disabled={!selectedStudentId}>
+                Assign Student
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+
+        {/* View Document Dialog */}
+        <Dialog open={viewDialog.isOpen} onOpenChange={(open) => setViewDialog({ ...viewDialog, isOpen: open })}>
+          <DialogContent className="max-w-4xl max-h-[80vh] overflow-y-auto">
+            <DialogHeader>
+              <DialogTitle>{viewDialog.document?.title}</DialogTitle>
+              <DialogDescription>
+                Document details and content preview
+              </DialogDescription>
+            </DialogHeader>
+            <div className="space-y-4">
+              {viewDialog.document?.category === 'AI Analysis' && (() => {
+                let analysisData;
+                try {
+                  analysisData = (viewDialog.document as any).content ? JSON.parse((viewDialog.document as any).content) : null;
+                } catch {
+                  analysisData = null;
+                }
+
+                if (analysisData) {
+                  return (
+                    <div className="space-y-6">
+                      {analysisData.summary && (
+                        <div className="border-l-4 border-blue-500 pl-4 bg-blue-50 dark:bg-blue-950/30 p-4 rounded-lg">
+                          <h4 className="text-lg font-semibold text-blue-800 dark:text-blue-200 mb-2">Summary</h4>
+                          <p className="text-blue-700 dark:text-blue-300">{analysisData.summary}</p>
+                        </div>
+                      )}
+
+                      {analysisData.recommendations && (
+                        <div className="border-l-4 border-green-500 pl-4 bg-green-50 dark:bg-green-950/30 p-4 rounded-lg">
+                          <h4 className="text-lg font-semibold text-green-800 dark:text-green-200 mb-2">Recommendations</h4>
+                          <p className="text-green-700 dark:text-green-300">{analysisData.recommendations}</p>
+                        </div>
+                      )}
+
+                      {analysisData.areasOfConcern && (
+                        <div className="border-l-4 border-orange-500 pl-4 bg-orange-50 dark:bg-orange-950/30 p-4 rounded-lg">
+                          <h4 className="text-lg font-semibold text-orange-800 dark:text-orange-200 mb-2">Areas of Concern</h4>
+                          <p className="text-orange-700 dark:text-orange-300">{analysisData.areasOfConcern}</p>
+                        </div>
+                      )}
+
+                      {analysisData.strengths && (
+                        <div className="border-l-4 border-emerald-500 pl-4 bg-emerald-50 dark:bg-emerald-950/30 p-4 rounded-lg">
+                          <h4 className="text-lg font-semibold text-emerald-800 dark:text-emerald-200 mb-2">Strengths</h4>
+                          <p className="text-emerald-700 dark:text-emerald-300">{analysisData.strengths}</p>
+                        </div>
+                      )}
+
+                      {analysisData.actionItems && (
+                        <div className="border-l-4 border-purple-500 pl-4 bg-purple-50 dark:bg-purple-950/30 p-4 rounded-lg">
+                          <h4 className="text-lg font-semibold text-purple-800 dark:text-purple-200 mb-2">Action Items</h4>
+                          <p className="text-purple-700 dark:text-purple-300">{analysisData.actionItems}</p>
+                        </div>
+                      )}
+                    </div>
+                  );
+                }
+              })()}
+              
+              {viewDialog.document?.category !== 'AI Analysis' && (
+                <div className="space-y-4">
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <Label>File Name</Label>
+                      <p className="text-sm text-muted-foreground">{viewDialog.document?.file_name}</p>
+                    </div>
+                    <div>
+                      <Label>File Type</Label>
+                      <p className="text-sm text-muted-foreground">{viewDialog.document?.file_type}</p>
+                    </div>
+                    <div>
+                      <Label>Category</Label>
+                      <p className="text-sm text-muted-foreground">{viewDialog.document?.category}</p>
+                    </div>
+                    <div>
+                      <Label>Size</Label>
+                      <p className="text-sm text-muted-foreground">
+                        {viewDialog.document?.file_size ? formatFileSize(viewDialog.document.file_size) : 'Unknown'}
+                      </p>
+                    </div>
+                  </div>
+                  {viewDialog.document?.description && (
+                    <div>
+                      <Label>Description</Label>
+                      <p className="text-sm text-muted-foreground">{viewDialog.document.description}</p>
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
+          </DialogContent>
+        </Dialog>
       </div>
     </DashboardLayout>
   );

@@ -531,9 +531,7 @@ export function DocumentUpload({ onAnalysisComplete }: DocumentUploadProps) {
         file_type: 'application/json',
         file_size: new Blob([fileData.analysis.content]).size,
         category: 'AI Analysis',
-        tags: [fileData.analysis.type, 'analysis-result', 'ai-generated'],
-        description: `AI analysis completed on ${new Date(fileData.analysis.timestamp).toLocaleDateString()}`,
-        content: fileData.analysis.content
+        tags: [fileData.analysis.type, 'analysis-result', 'ai-generated']
       });
       
       // Invalidate documents cache to refresh the vault
@@ -635,7 +633,7 @@ export function DocumentUpload({ onAnalysisComplete }: DocumentUploadProps) {
         f.id === fileData.id ? { ...f, analysis } : f
       ));
 
-      onAnalysisComplete?.(analysis, data.documentId, fileData.file.name);
+      onAnalysisComplete?.(analysis);
 
       toast({
         title: "Analysis complete",
@@ -942,3 +940,4 @@ export function DocumentUpload({ onAnalysisComplete }: DocumentUploadProps) {
     </div>
   );
 }
+export default DocumentUpload;

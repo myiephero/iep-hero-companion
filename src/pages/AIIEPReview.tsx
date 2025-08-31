@@ -114,21 +114,44 @@ export default function AIIEPReview() {
   const saveToVault = async (review: TemporaryAIReview) => {
     try {
       setLoading(true);
-      await api.createDocument({
-        title: `AI Review - ${getDocumentTitle(review)}`,
-        description: `AI-powered analysis conducted on ${new Date(review.timestamp).toLocaleDateString()}`,
-        file_name: `ai-review-${review.id}.json`,
+      
+      // Create a structured document that preserves the beautiful formatting
+      const structuredAnalysis = {
+        documentTitle: getDocumentTitle(review),
+        reviewType: review.reviewType,
+        timestamp: review.timestamp,
+        studentId: review.studentId,
+        analysis: review.parsedAnalysis || {
+          summary: typeof review.analysis === 'string' ? review.analysis : JSON.stringify(review.analysis),
+          recommendations: [],
+          areas_of_concern: [],
+          strengths: [],
+          action_items: []
+        },
+        rawAnalysis: review.analysis
+      };
+
+      // Store content in the document for viewing
+      const documentData = {
+        title: `${review.reviewType.toUpperCase()} Analysis - ${getDocumentTitle(review)}`,
+        description: `AI analysis completed on ${new Date(review.timestamp).toLocaleDateString()}`,
+        file_name: `${getDocumentTitle(review).replace(/[^a-zA-Z0-9]/g, '')}.json`,
         file_path: `vault/ai-reviews/${review.id}.json`,
         file_type: 'application/json',
-        file_size: JSON.stringify(review).length,
-        category: 'AI Review',
+        file_size: JSON.stringify(structuredAnalysis).length,
+        category: 'AI Analysis',
         tags: ['ai-analysis', review.reviewType],
         student_id: review.studentId,
-      });
+      };
+
+      // Add content separately to avoid TypeScript issues
+      (documentData as any).content = JSON.stringify(structuredAnalysis);
+
+      await api.createDocument(documentData);
 
       toast({
         title: "Saved to Vault",
-        description: `Review saved successfully to document vault.`,
+        description: `Analysis saved successfully to document vault.`,
       });
 
       // Remove from temporary reviews
@@ -137,7 +160,7 @@ export default function AIIEPReview() {
       console.error('Error saving to vault:', error);
       toast({
         title: "Save Failed",
-        description: "Failed to save review to vault. Please try again.",
+        description: "Failed to save analysis to vault. Please try again.",
         variant: "destructive",
       });
     } finally {

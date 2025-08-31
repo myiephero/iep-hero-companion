@@ -268,6 +268,7 @@ function App() {
               <Route path="/advocate/pricing-plan" element={<AdvocatePricingPlan />} />
               <Route path="/parent/pricing-plan" element={<ParentPricingPlan />} />
               <Route path="/parent/hero-plan" element={<ParentHeroPlan />} />
+              <Route path="/parent-hero-plan" element={<ParentHeroPlan />} />
               
               {/* Debug/Testing Tools */}
               <Route path="/all-pages" element={<AllPagesView />} />

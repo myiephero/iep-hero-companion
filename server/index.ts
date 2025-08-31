@@ -218,6 +218,26 @@ app.post('/api/documents', async (req, res) => {
   }
 });
 
+app.patch('/api/documents/:id', async (req, res) => {
+  try {
+    const { id } = req.params;
+    const updateData = { ...req.body, updated_at: new Date().toISOString() };
+    const [document] = await db.update(schema.documents)
+      .set(updateData)
+      .where(and(eq(schema.documents.id, id), eq(schema.documents.user_id, MOCK_USER_ID)))
+      .returning();
+    
+    if (!document) {
+      return res.status(404).json({ error: 'Document not found' });
+    }
+    
+    res.json(document);
+  } catch (error) {
+    console.error('Error updating document:', error);
+    res.status(500).json({ error: 'Failed to update document' });
+  }
+});
+
 app.delete('/api/documents/:id', async (req, res) => {
   try {
     const { id } = req.params;

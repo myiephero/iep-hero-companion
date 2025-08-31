@@ -205,6 +205,13 @@ class ApiClient {
     });
   }
 
+  async updateDocument(documentId: string, updates: Partial<Document>): Promise<Document> {
+    return this.request(`/documents/${documentId}`, {
+      method: 'PATCH',
+      body: JSON.stringify(updates),
+    });
+  }
+
   async deleteDocument(documentId: string): Promise<void> {
     return this.request(`/documents/${documentId}`, {
       method: 'DELETE',

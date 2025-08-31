@@ -275,62 +275,6 @@ const AdvocateStudents = () => {
     }
   };
 
-  const handleAddStudent = async () => {
-    if (!newStudent.first_name.trim() || !newStudent.last_name.trim() || !newStudent.assigned_client) {
-      toast({
-        title: "Error",
-        description: "First name, last name, and parent client assignment are required.",
-        variant: "destructive",
-      });
-      return;
-    }
-
-    setLoading(true);
-    try {
-      const studentData = {
-        ...newStudent,
-        full_name: `${newStudent.first_name} ${newStudent.last_name}`,
-        disabilities: newStudent.disabilities.join(', '),
-        current_services: newStudent.current_services.join(', ')
-      };
-      await api.createStudent(studentData);
-      
-      toast({
-        title: "Success!",
-        description: "Student has been created successfully.",
-      });
-
-      setNewStudent({
-        first_name: "",
-        last_name: "",
-        date_of_birth: "",
-        grade_level: "",
-        school_name: "",
-        district: "",
-        iep_status: "Active",
-        case_manager: "",
-        case_manager_email: "",
-        emergency_contact: "",
-        emergency_phone: "",
-        medical_info: "",
-        notes: "",
-        assigned_client: "",
-        disabilities: [],
-        current_services: []
-      });
-      setIsAddStudentOpen(false);
-      fetchStudents();
-    } catch (error: any) {
-      console.error("Error creating student:", error);
-      toast({
-        title: "Error",
-        description: error.message || "Failed to create student.",
-        variant: "destructive",
-      });
-    } finally {
-      setLoading(false);
-    }
-  };
 
   const getIEPStatusColor = (status: string | null | undefined) => {
     if (!status) return "bg-muted text-muted-foreground";

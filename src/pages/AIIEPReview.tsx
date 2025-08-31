@@ -263,12 +263,17 @@ export default function AIIEPReview() {
                               <p className="text-sm leading-relaxed">
                                 {(() => {
                                   try {
-                                    console.log('Raw ai_analysis:', review.ai_analysis);
                                     const parsedAnalysis = typeof review.ai_analysis === 'string' 
                                       ? JSON.parse(review.ai_analysis) 
                                       : review.ai_analysis;
-                                    console.log('Parsed analysis:', parsedAnalysis);
-                                    return parsedAnalysis?.summary || parsedAnalysis?.executive_summary || 'No summary available';
+                                    
+                                    // Check multiple possible locations for summary
+                                    const summary = parsedAnalysis?.summary || 
+                                                  parsedAnalysis?.executive_summary || 
+                                                  review.summary ||
+                                                  'No summary available';
+                                                  
+                                    return summary;
                                   } catch (error) {
                                     console.log('Parse error:', error);
                                     return typeof review.ai_analysis === 'string' 

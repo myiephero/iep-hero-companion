@@ -8,8 +8,9 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { DocumentUpload } from "@/components/DocumentUpload";
 import { StudentSelector } from "@/components/StudentSelector";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Brain, FileText, CheckCircle, AlertCircle, TrendingUp, Target, Users, Clock, Download, ChevronDown, ChevronUp, Save, Trash2, Share, Tag } from "lucide-react";
+import { Brain, FileText, CheckCircle, AlertCircle, TrendingUp, Target, Users, Clock, Download, ChevronDown, ChevronUp, Save, Trash2, Share, Tag, Square, CheckSquare, X } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { Checkbox } from "@/components/ui/checkbox";
 import { api, type AIReview } from "@/lib/api";
 
 const reviewTypes = [
@@ -28,8 +29,27 @@ export default function AIIEPReview() {
   const [collapsedSections, setCollapsedSections] = useState<{[key: string]: boolean}>({});
   const [selectedStudentName, setSelectedStudentName] = useState<string>("");
   const [students, setStudents] = useState<any[]>([]);
+  const [selectedReviews, setSelectedReviews] = useState<Set<string>>(new Set());
+  const [isSelectMode, setIsSelectMode] = useState<boolean>(false);
   
   const { toast } = useToast();
+
+  // Helper function to safely get document title
+  const getDocumentTitle = (review: AIReview): string => {
+    // Try to extract title from ai_analysis if it contains parsed data
+    if (review.ai_analysis) {
+      try {
+        const parsed = typeof review.ai_analysis === 'string' 
+          ? JSON.parse(review.ai_analysis) 
+          : review.ai_analysis;
+        if (parsed?.document_title) return parsed.document_title;
+        if (parsed?.title) return parsed.title;
+      } catch (error) {
+        // Continue with fallback
+      }
+    }
+    return 'Document Review';
+  };
 
   const toggleSection = (reviewId: string, section: string) => {
     const key = `${reviewId}-${section}`;
@@ -95,7 +115,7 @@ export default function AIIEPReview() {
   const saveToVault = async (review: AIReview) => {
     try {
       await api.createDocument({
-        title: `AI Review - ${review.document_title || 'Document'}`,
+        title: `AI Review - ${getDocumentTitle(review)}`,
         description: `AI-powered analysis conducted on ${new Date(review.created_at || '').toLocaleDateString()}`,
         file_name: `ai-review-${review.id}.json`,
         file_path: `vault/ai-reviews/${review.id}.json`,
@@ -143,10 +163,74 @@ export default function AIIEPReview() {
     }
   };
 
+  // Multi-select functionality
+  const toggleReviewSelection = (reviewId: string) => {
+    setSelectedReviews(prev => {
+      const newSelection = new Set(prev);
+      if (newSelection.has(reviewId)) {
+        newSelection.delete(reviewId);
+      } else {
+        newSelection.add(reviewId);
+      }
+      return newSelection;
+    });
+  };
+
+  const selectAllReviews = () => {
+    setSelectedReviews(new Set(reviews.map(r => r.id || '')));
+  };
+
+  const deselectAllReviews = () => {
+    setSelectedReviews(new Set());
+  };
+
+  const toggleSelectMode = () => {
+    setIsSelectMode(!isSelectMode);
+    if (isSelectMode) {
+      deselectAllReviews();
+    }
+  };
+
+  // Bulk delete functionality
+  const bulkDeleteReviews = async () => {
+    if (selectedReviews.size === 0) return;
+    
+    const confirmMessage = `Are you sure you want to delete ${selectedReviews.size} review${selectedReviews.size > 1 ? 's' : ''}? This action cannot be undone.`;
+    
+    if (!confirm(confirmMessage)) return;
+    
+    try {
+      // Delete all selected reviews concurrently
+      const deletePromises = Array.from(selectedReviews).map(reviewId => 
+        api.deleteAIReview(reviewId)
+      );
+      
+      await Promise.all(deletePromises);
+      
+      // Update state to remove deleted reviews
+      setReviews(prev => prev.filter(r => !selectedReviews.has(r.id || '')));
+      
+      // Clear selections and exit select mode
+      setSelectedReviews(new Set());
+      setIsSelectMode(false);
+      
+      toast({
+        title: "Reviews Deleted",
+        description: `${selectedReviews.size} review${selectedReviews.size > 1 ? 's have' : ' has'} been permanently deleted.`,
+      });
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to delete some reviews. Please try again.",
+        variant: "destructive",
+      });
+    }
+  };
+
   // Download analysis functionality
   const downloadAnalysis = (review: AIReview) => {
     const analysisData = {
-      title: review.document_title || 'AI Review',
+      title: getDocumentTitle(review) || 'AI Review',
       date: new Date(review.created_at || '').toLocaleDateString(),
       student_id: review.student_id,
       review_type: review.review_type,
@@ -362,10 +446,75 @@ export default function AIIEPReview() {
         <div className="space-y-6">
           <div className="flex items-center justify-between">
             <h2 className="text-2xl font-semibold">AI Review Results</h2>
-            <Badge variant="outline">
-              {reviews.length} Review{reviews.length !== 1 ? 's' : ''}
-            </Badge>
+            <div className="flex items-center gap-3">
+              <Badge variant="outline">
+                {reviews.length} Review{reviews.length !== 1 ? 's' : ''}
+              </Badge>
+              {reviews.length > 0 && (
+                <Button 
+                  variant="outline" 
+                  size="sm"
+                  onClick={toggleSelectMode}
+                  className="flex items-center gap-2"
+                  data-testid="button-toggle-select-mode"
+                >
+                  {isSelectMode ? (
+                    <><X className="h-4 w-4" />Cancel</>
+                  ) : (
+                    <><Square className="h-4 w-4" />Select Multiple</>
+                  )}
+                </Button>
+              )}
+            </div>
           </div>
+
+          {/* Bulk Actions Toolbar */}
+          {isSelectMode && (
+            <Card className="bg-blue-50 dark:bg-blue-950 border-blue-200 dark:border-blue-800">
+              <CardContent className="pt-6">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-4">
+                    <span className="text-sm font-medium text-blue-900 dark:text-blue-100">
+                      {selectedReviews.size} of {reviews.length} selected
+                    </span>
+                    <div className="flex items-center gap-2">
+                      <Button 
+                        variant="ghost" 
+                        size="sm" 
+                        onClick={selectAllReviews}
+                        className="text-blue-700 dark:text-blue-300 hover:bg-blue-100 dark:hover:bg-blue-900"
+                        data-testid="button-select-all"
+                      >
+                        Select All
+                      </Button>
+                      <Button 
+                        variant="ghost" 
+                        size="sm" 
+                        onClick={deselectAllReviews}
+                        className="text-blue-700 dark:text-blue-300 hover:bg-blue-100 dark:hover:bg-blue-900"
+                        data-testid="button-deselect-all"
+                      >
+                        Deselect All
+                      </Button>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <Button 
+                      variant="destructive" 
+                      size="sm"
+                      onClick={bulkDeleteReviews}
+                      disabled={selectedReviews.size === 0}
+                      className="flex items-center gap-2"
+                      data-testid="button-bulk-delete"
+                    >
+                      <Trash2 className="h-4 w-4" />
+                      Delete Selected ({selectedReviews.size})
+                    </Button>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          )}
 
           {reviews.length === 0 ? (
             <Card>
@@ -380,13 +529,28 @@ export default function AIIEPReview() {
           ) : (
             <div className="space-y-6">
               {reviews.map((review) => (
-                <Card key={review.id} className="overflow-hidden">
+                <Card key={review.id} className={`overflow-hidden transition-all duration-200 ${
+                  isSelectMode && selectedReviews.has(review.id || '') 
+                    ? 'ring-2 ring-blue-500 bg-blue-50/30 dark:bg-blue-950/30' 
+                    : ''
+                }`}>
                   <CardHeader>
                     <div className="flex items-center justify-between">
+                      {/* Checkbox for multi-select */}
+                      {isSelectMode && (
+                        <div className="flex items-center mr-4">
+                          <Checkbox
+                            checked={selectedReviews.has(review.id || '')}
+                            onCheckedChange={() => toggleReviewSelection(review.id || '')}
+                            className="h-5 w-5"
+                            data-testid={`checkbox-select-${review.id}`}
+                          />
+                        </div>
+                      )}
                       <div>
                         <CardTitle className="flex items-center gap-2">
                           <FileText className="h-5 w-5" />
-                          {review.document_title || 'Document Review'}
+                          {getDocumentTitle(review)}
                           {selectedStudentName && (
                             <span className="text-sm font-normal text-muted-foreground">
                               • {selectedStudentName}
@@ -426,56 +590,58 @@ export default function AIIEPReview() {
                           )}
                         </div>
                         
-                        {/* Action Buttons */}
-                        <div className="flex items-center gap-2">
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            onClick={() => saveToVault(review)}
-                            className="flex items-center gap-1"
-                            data-testid={`button-save-vault-${review.id}`}
-                          >
-                            <Save className="h-4 w-4" />
-                            Save to Vault
-                          </Button>
-                          
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            onClick={() => downloadAnalysis(review)}
-                            className="flex items-center gap-1"
-                            data-testid={`button-download-${review.id}`}
-                          >
-                            <Download className="h-4 w-4" />
-                            Download
-                          </Button>
-                          
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            onClick={() => shareReview(review)}
-                            className="flex items-center gap-1"
-                            data-testid={`button-share-${review.id}`}
-                          >
-                            <Share className="h-4 w-4" />
-                            Share
-                          </Button>
-                          
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            onClick={() => {
-                              if (confirm('Are you sure you want to delete this review? This action cannot be undone.')) {
-                                deleteReview(review.id || '');
-                              }
-                            }}
-                            className="flex items-center gap-1 text-red-600 hover:text-red-700 hover:bg-red-50"
-                            data-testid={`button-delete-${review.id}`}
-                          >
-                            <Trash2 className="h-4 w-4" />
-                            Delete
-                          </Button>
-                        </div>
+                        {/* Action Buttons - Hidden in select mode */}
+                        {!isSelectMode && (
+                          <div className="flex items-center gap-2">
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              onClick={() => saveToVault(review)}
+                              className="flex items-center gap-1"
+                              data-testid={`button-save-vault-${review.id}`}
+                            >
+                              <Save className="h-4 w-4" />
+                              Save to Vault
+                            </Button>
+                            
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              onClick={() => downloadAnalysis(review)}
+                              className="flex items-center gap-1"
+                              data-testid={`button-download-${review.id}`}
+                            >
+                              <Download className="h-4 w-4" />
+                              Download
+                            </Button>
+                            
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              onClick={() => shareReview(review)}
+                              className="flex items-center gap-1"
+                              data-testid={`button-share-${review.id}`}
+                            >
+                              <Share className="h-4 w-4" />
+                              Share
+                            </Button>
+                            
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              onClick={() => {
+                                if (confirm('Are you sure you want to delete this review? This action cannot be undone.')) {
+                                  deleteReview(review.id || '');
+                                }
+                              }}
+                              className="flex items-center gap-1 text-red-600 hover:text-red-700 hover:bg-red-50"
+                              data-testid={`button-delete-${review.id}`}
+                            >
+                              <Trash2 className="h-4 w-4" />
+                              Delete
+                            </Button>
+                          </div>
+                        )}
                       </div>
                     </div>
                     
@@ -534,7 +700,6 @@ export default function AIIEPReview() {
                                     // Check multiple possible locations for summary
                                     const summary = parsedAnalysis?.summary || 
                                                   parsedAnalysis?.executive_summary || 
-                                                  review.summary ||
                                                   'No summary available';
                                                   
                                     return summary;

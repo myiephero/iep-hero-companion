@@ -759,13 +759,13 @@ export function DocumentUpload({ onAnalysisComplete }: DocumentUploadProps) {
                         </Button>
                       </div>
                     ) : (
-                      <div className="flex items-center gap-2 flex-1">
+                      <div className="flex items-center gap-2 flex-1 group">
                         <span className="font-medium">{fileData.editableName || fileData.file.name}</span>
                         <Button
                           variant="ghost"
                           size="sm"
                           onClick={() => startEditingFileName(fileData.id)}
-                          className="h-6 w-6 p-0 opacity-60 hover:opacity-100"
+                          className="h-6 w-6 p-0 opacity-0 group-hover:opacity-100 transition-opacity"
                           data-testid={`button-edit-name-${fileData.id}`}
                         >
                           <Edit2 className="h-3 w-3" />

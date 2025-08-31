@@ -357,32 +357,83 @@ const DocumentVault: React.FC = () => {
                           </div>
 
                           <div className="flex items-center gap-2">
-                            <Button
-                              className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white"
-                              size="sm"
-                              onClick={() => handleDownloadDocument(doc)}
-                            >
-                              <Download className="h-4 w-4" />
-                              Download
-                            </Button>
-                            <Button
-                              variant="outline"
-                              className="flex items-center gap-2"
-                              size="sm"
-                              onClick={() => handleShareDocument(doc)}
-                            >
-                              <Share className="h-4 w-4" />
-                              Share
-                            </Button>
-                            <Button
-                              variant="destructive"
-                              className="flex items-center gap-2"
-                              size="sm"
-                              onClick={() => handleDeleteDocument(doc.id, doc.title)}
-                            >
-                              <Trash2 className="h-4 w-4" />
-                              Delete
-                            </Button>
+                            {editingDocument?.id === doc.id ? (
+                              <div className="flex items-center gap-2">
+                                <Input
+                                  value={newFileName}
+                                  onChange={(e) => setNewFileName(e.target.value)}
+                                  className="h-8 text-sm font-medium"
+                                  onKeyDown={(e) => {
+                                    if (e.key === 'Enter') {
+                                      handleUpdateFileName();
+                                    } else if (e.key === 'Escape') {
+                                      handleCancelEdit();
+                                    }
+                                  }}
+                                  autoFocus
+                                  data-testid={`input-edit-filename-${doc.id}`}
+                                />
+                                <Button
+                                  size="sm"
+                                  variant="ghost"
+                                  className="h-8 w-8 p-0 text-green-600 hover:text-green-700 hover:bg-green-50"
+                                  onClick={handleUpdateFileName}
+                                  data-testid={`button-save-filename-${doc.id}`}
+                                >
+                                  <Check className="h-4 w-4" />
+                                </Button>
+                                <Button
+                                  size="sm"
+                                  variant="ghost"
+                                  className="h-8 w-8 p-0 text-red-600 hover:text-red-700 hover:bg-red-50"
+                                  onClick={handleCancelEdit}
+                                  data-testid={`button-cancel-filename-${doc.id}`}
+                                >
+                                  <X className="h-4 w-4" />
+                                </Button>
+                              </div>
+                            ) : (
+                              <DropdownMenu>
+                                <DropdownMenuTrigger asChild>
+                                  <Button variant="outline" size="sm" className="flex items-center gap-2">
+                                    <MoreVertical className="h-4 w-4" />
+                                    Actions
+                                  </Button>
+                                </DropdownMenuTrigger>
+                                <DropdownMenuContent align="end" className="w-48">
+                                  <DropdownMenuItem 
+                                    onClick={() => handleEditFileName(doc.id, doc.title)}
+                                    data-testid={`menu-edit-filename-${doc.id}`}
+                                  >
+                                    <Edit className="h-4 w-4 mr-2" />
+                                    Edit Name
+                                  </DropdownMenuItem>
+                                  <DropdownMenuItem 
+                                    onClick={() => handleAssignToStudent(doc.id)}
+                                    data-testid={`menu-assign-student-${doc.id}`}
+                                  >
+                                    <User className="h-4 w-4 mr-2" />
+                                    Assign Student
+                                  </DropdownMenuItem>
+                                  <DropdownMenuItem 
+                                    onClick={() => handleShareDocument(doc)}
+                                    data-testid={`menu-share-${doc.id}`}
+                                  >
+                                    <Share className="h-4 w-4 mr-2" />
+                                    Share
+                                  </DropdownMenuItem>
+                                  <DropdownMenuSeparator />
+                                  <DropdownMenuItem 
+                                    onClick={() => handleDeleteDocument(doc.id, doc.title)}
+                                    className="text-destructive focus:text-destructive focus:bg-destructive/10"
+                                    data-testid={`menu-delete-${doc.id}`}
+                                  >
+                                    <Trash2 className="h-4 w-4 mr-2" />
+                                    Delete
+                                  </DropdownMenuItem>
+                                </DropdownMenuContent>
+                              </DropdownMenu>
+                            )}
                           </div>
                         </CardContent>
                       </Card>

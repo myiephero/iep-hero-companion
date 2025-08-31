@@ -8,9 +8,10 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { DocumentUpload } from "@/components/DocumentUpload";
 import { StudentSelector } from "@/components/StudentSelector";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Brain, FileText, CheckCircle, AlertCircle, TrendingUp, Target, Users, Clock, Download, ChevronDown, ChevronUp, Save, Trash2, Share, Tag, Square, CheckSquare, X } from "lucide-react";
+import { Brain, FileText, CheckCircle, AlertCircle, TrendingUp, Target, Users, Clock, Download, ChevronDown, ChevronUp, Save, Trash2, Share, Tag, Square, CheckSquare, X, MoreVertical } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { Checkbox } from "@/components/ui/checkbox";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { api, type AIReview } from "@/lib/api";
 
 const reviewTypes = [
@@ -590,57 +591,61 @@ export default function AIIEPReview() {
                           )}
                         </div>
                         
-                        {/* Action Buttons - Hidden in select mode */}
+                        {/* Actions Dropdown - Hidden in select mode */}
                         {!isSelectMode && (
-                          <div className="flex items-center gap-2">
-                            <Button
-                              variant="outline"
-                              size="sm"
-                              onClick={() => saveToVault(review)}
-                              className="flex items-center gap-1"
-                              data-testid={`button-save-vault-${review.id}`}
-                            >
-                              <Save className="h-4 w-4" />
-                              Save to Vault
-                            </Button>
-                            
-                            <Button
-                              variant="outline"
-                              size="sm"
-                              onClick={() => downloadAnalysis(review)}
-                              className="flex items-center gap-1"
-                              data-testid={`button-download-${review.id}`}
-                            >
-                              <Download className="h-4 w-4" />
-                              Download
-                            </Button>
-                            
-                            <Button
-                              variant="outline"
-                              size="sm"
-                              onClick={() => shareReview(review)}
-                              className="flex items-center gap-1"
-                              data-testid={`button-share-${review.id}`}
-                            >
-                              <Share className="h-4 w-4" />
-                              Share
-                            </Button>
-                            
-                            <Button
-                              variant="outline"
-                              size="sm"
-                              onClick={() => {
-                                if (confirm('Are you sure you want to delete this review? This action cannot be undone.')) {
-                                  deleteReview(review.id || '');
-                                }
-                              }}
-                              className="flex items-center gap-1 text-red-600 hover:text-red-700 hover:bg-red-50"
-                              data-testid={`button-delete-${review.id}`}
-                            >
-                              <Trash2 className="h-4 w-4" />
-                              Delete
-                            </Button>
-                          </div>
+                          <DropdownMenu>
+                            <DropdownMenuTrigger asChild>
+                              <Button 
+                                variant="outline" 
+                                size="sm" 
+                                className="h-8 w-8 p-0"
+                                data-testid={`button-actions-menu-${review.id}`}
+                              >
+                                <MoreVertical className="h-4 w-4" />
+                              </Button>
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent align="end" className="w-48">
+                              <DropdownMenuItem 
+                                onClick={() => saveToVault(review)}
+                                className="flex items-center gap-2 cursor-pointer"
+                                data-testid={`menu-save-vault-${review.id}`}
+                              >
+                                <Save className="h-4 w-4" />
+                                Save to Vault
+                              </DropdownMenuItem>
+                              
+                              <DropdownMenuItem 
+                                onClick={() => downloadAnalysis(review)}
+                                className="flex items-center gap-2 cursor-pointer"
+                                data-testid={`menu-download-${review.id}`}
+                              >
+                                <Download className="h-4 w-4" />
+                                Download
+                              </DropdownMenuItem>
+                              
+                              <DropdownMenuItem 
+                                onClick={() => shareReview(review)}
+                                className="flex items-center gap-2 cursor-pointer"
+                                data-testid={`menu-share-${review.id}`}
+                              >
+                                <Share className="h-4 w-4" />
+                                Share
+                              </DropdownMenuItem>
+                              
+                              <DropdownMenuItem 
+                                onClick={() => {
+                                  if (confirm('Are you sure you want to delete this review? This action cannot be undone.')) {
+                                    deleteReview(review.id || '');
+                                  }
+                                }}
+                                className="flex items-center gap-2 cursor-pointer text-red-600 focus:text-red-600 focus:bg-red-50 dark:focus:bg-red-950"
+                                data-testid={`menu-delete-${review.id}`}
+                              >
+                                <Trash2 className="h-4 w-4" />
+                                Delete
+                              </DropdownMenuItem>
+                            </DropdownMenuContent>
+                          </DropdownMenu>
                         )}
                       </div>
                     </div>

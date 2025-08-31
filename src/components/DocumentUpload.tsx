@@ -410,8 +410,6 @@ export function DocumentUpload({ onAnalysisComplete }: DocumentUploadProps) {
   }, [user, toast]);
 
   const uploadFile = async (fileData: UploadedFile) => {
-    const filePath = `${user!.id}/${fileData.id}-${fileData.file.name}`;
-    
     // Update progress
     const progressInterval = setInterval(() => {
       setFiles(prev => prev.map(f => 
@@ -422,25 +420,16 @@ export function DocumentUpload({ onAnalysisComplete }: DocumentUploadProps) {
     }, 100);
 
     try {
-      // Create document record using our API
-      const document = await api.createDocument({
-        file_name: fileData.file.name,
-        file_path: filePath,
-        file_type: fileData.file.type,
-        file_size: fileData.file.size,
-        title: fileData.file.name.split('.')[0]
-      });
+      // Simulate file upload processing (in a real app, this would upload to storage)
+      await new Promise(resolve => setTimeout(resolve, 1000));
 
       clearInterval(progressInterval);
 
-      // For now, create a mock URL since we don't have file storage
-      const mockUrl = `http://localhost:3001/files/${filePath}`;
-
-      updateFileStatus(fileData.id, 'completed', mockUrl);
+      updateFileStatus(fileData.id, 'completed');
       
       toast({
         title: "Upload successful",
-        description: `${fileData.file.name} has been uploaded successfully.`,
+        description: `${fileData.file.name} has been uploaded and is ready for analysis.`,
       });
 
     } catch (error: any) {

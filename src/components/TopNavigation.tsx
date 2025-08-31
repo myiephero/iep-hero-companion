@@ -106,7 +106,10 @@ export function TopNavigation() {
               {profile.full_name}
             </span>
           )}
-          <Button variant="ghost" size="icon" onClick={() => navigate('/profile')}>
+          <Button variant="ghost" size="icon" onClick={() => {
+            const isAdvocateRoute = location.pathname.startsWith('/advocate');
+            navigate(isAdvocateRoute ? '/advocate/profile' : '/parent/profile');
+          }}>
             <User className="h-4 w-4" />
           </Button>
           <Button variant="ghost" size="icon" onClick={handleSignOut}>

@@ -205,6 +205,12 @@ class ApiClient {
     });
   }
 
+  async deleteDocument(documentId: string): Promise<void> {
+    return this.request(`/documents/${documentId}`, {
+      method: 'DELETE',
+    });
+  }
+
   // AI Reviews
   async getAIReviews(documentId?: string): Promise<AIReview[]> {
     const endpoint = documentId ? `/ai_reviews?document_id=${documentId}` : '/ai_reviews';

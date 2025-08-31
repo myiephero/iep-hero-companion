@@ -95,9 +95,10 @@ const advocateNavigation: SidebarSection[] = [
   }
 ];
 
-const accountItems: SidebarItem[] = [
-  { title: "Profile", url: "/profile", icon: User },
-  { title: "Settings", url: "/parent/settings", icon: Settings },
+// Dynamic account items based on role
+const getAccountItems = (isAdvocateRoute: boolean): SidebarItem[] => [
+  { title: "Profile", url: isAdvocateRoute ? "/advocate/profile" : "/parent/profile", icon: User },
+  { title: "Settings", url: isAdvocateRoute ? "/advocate/settings" : "/parent/settings", icon: Settings },
 ];
 
 export function AppSidebar() {
@@ -110,6 +111,7 @@ export function AppSidebar() {
   const { profile } = useAuth();
   const isAdvocate = currentPath.startsWith('/advocate');
   const navigation = isAdvocate ? advocateNavigation : parentNavigation;
+  const accountItems = getAccountItems(isAdvocate);
   
   const isActive = (path: string) => currentPath === path;
   

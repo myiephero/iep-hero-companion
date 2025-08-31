@@ -8,7 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-// // import { supabase } from "@/integrations/supabase/client"; // Removed during migration // Removed during migration
+import { api } from "@/lib/api";
 import { 
   FileText, 
   Search, 
@@ -29,27 +29,20 @@ const DocumentVault = () => {
   const [filterType, setFilterType] = useState("all");
   const { toast } = useToast();
 
+  // Get students for search functionality
+  const { data: students } = useQuery({
+    queryKey: ['students'],
+    queryFn: () => api.getStudents()
+  });
+
   const { data: documents, isLoading, refetch } = useQuery({
     queryKey: ['documents'],
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from('documents')
-        .select('*')
-        .order('created_at', { ascending: false });
-      
-      if (error) throw error;
-      return data;
-    }
+    queryFn: () => api.getDocuments()
   });
 
   const handleDeleteDocument = async (documentId: string, fileName: string) => {
     try {
-      const { error } = await supabase
-        .from('documents')
-        .delete()
-        .eq('id', documentId);
-
-      if (error) throw error;
+      await api.deleteDocument(documentId);
 
       toast({
         title: "Document Deleted",
@@ -67,9 +60,20 @@ const DocumentVault = () => {
   };
 
   const filteredDocuments = documents?.filter(doc => {
+    // Find student name for this document
+    const student = students?.find(s => s.id === doc.student_id);
+    const studentName = student ? `${student.first_name} ${student.last_name}` : '';
+    
     const matchesSearch = doc.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         doc.file_name.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesType = filterType === 'all' || doc.file_type?.includes(filterType);
+                         doc.file_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                         studentName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                         doc.category?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                         doc.tags?.some(tag => tag.toLowerCase().includes(searchTerm.toLowerCase()));
+    
+    const matchesType = filterType === 'all' || 
+                       doc.file_type?.includes(filterType) ||
+                       doc.category?.toLowerCase().includes(filterType.toLowerCase());
+    
     return matchesSearch && matchesType;
   });
 
@@ -124,7 +128,7 @@ const DocumentVault = () => {
               <div className="flex-1 relative">
                 <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                 <Input
-                  placeholder="Search documents..."
+                  placeholder="Search by document name, student name, category, or tags..."
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
                   className="pl-10"
@@ -140,6 +144,8 @@ const DocumentVault = () => {
                   <SelectItem value="pdf">PDF Files</SelectItem>
                   <SelectItem value="doc">Word Documents</SelectItem>
                   <SelectItem value="txt">Text Files</SelectItem>
+                  <SelectItem value="ai review">AI Reviews</SelectItem>
+                  <SelectItem value="upload">Uploaded Files</SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -172,9 +178,26 @@ const DocumentVault = () => {
                           <span>{doc.file_size ? formatFileSize(doc.file_size) : 'Unknown size'}</span>
                           <span className="flex items-center gap-1">
                             <Calendar className="h-3 w-3" />
-                            {format(new Date(doc.created_at), 'MMM d, yyyy')}
+                            {format(new Date(doc.created_at || ''), 'MMM d, yyyy')}
                           </span>
                         </div>
+                        {doc.student_id && (() => {
+                          const student = students?.find(s => s.id === doc.student_id);
+                          return student ? (
+                            <div className="flex items-center gap-2 mt-1">
+                              <Badge variant="outline" className="text-xs">
+                                Student: {student.first_name} {student.last_name}
+                              </Badge>
+                            </div>
+                          ) : null;
+                        })()}
+                        {doc.category && (
+                          <div className="flex items-center gap-2 mt-1">
+                            <Badge variant="secondary" className="text-xs">
+                              {doc.category}
+                            </Badge>
+                          </div>
+                        )}
                         {doc.description && (
                           <p className="text-sm text-muted-foreground mt-1">{doc.description}</p>
                         )}

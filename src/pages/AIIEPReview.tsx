@@ -192,7 +192,108 @@ export default function AIIEPReview() {
     }
   };
 
-  // Bulk delete functionality
+  // Bulk operations functionality
+  const bulkSaveToVault = async () => {
+    if (selectedReviews.size === 0) return;
+    
+    try {
+      const selectedReviewsArray = reviews.filter(r => selectedReviews.has(r.id || ''));
+      const savePromises = selectedReviewsArray.map(review => 
+        api.createDocument({
+          title: `AI Review - ${getDocumentTitle(review)}`,
+          description: `AI-powered analysis conducted on ${new Date(review.created_at || '').toLocaleDateString()}`,
+          file_name: `ai-review-${review.id}.json`,
+          file_path: `vault/ai-reviews/${review.id}.json`,
+          file_type: 'application/json',
+          file_size: JSON.stringify(review).length,
+          category: 'AI Review',
+          tags: generateSmartTags(review),
+          student_id: review.student_id
+        })
+      );
+      
+      await Promise.all(savePromises);
+      
+      // Invalidate documents cache
+      await import('@/lib/queryClient').then(({ queryClient }) => {
+        queryClient.invalidateQueries({ queryKey: ['documents'] });
+      });
+      
+      toast({
+        title: "Saved to Vault",
+        description: `${selectedReviews.size} review${selectedReviews.size > 1 ? 's have' : ' has'} been saved to your document vault.`,
+      });
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to save some reviews to vault. Please try again.",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const bulkDownload = () => {
+    if (selectedReviews.size === 0) return;
+    
+    const selectedReviewsArray = reviews.filter(r => selectedReviews.has(r.id || ''));
+    
+    selectedReviewsArray.forEach(review => {
+      const analysisData = {
+        title: getDocumentTitle(review) || 'AI Review',
+        date: new Date(review.created_at || '').toLocaleDateString(),
+        student_id: review.student_id,
+        review_type: review.review_type,
+        analysis: review.ai_analysis,
+        recommendations: review.recommendations,
+        areas_of_concern: review.areas_of_concern,
+        strengths: review.strengths,
+        action_items: review.action_items,
+        compliance_score: review.compliance_score,
+        smart_tags: generateSmartTags(review)
+      };
+
+      const blob = new Blob([JSON.stringify(analysisData, null, 2)], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `ai-review-${review.id}-${new Date().toISOString().split('T')[0]}.json`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    });
+
+    toast({
+      title: "Downloads Started",
+      description: `${selectedReviews.size} analysis file${selectedReviews.size > 1 ? 's have' : ' has'} been downloaded.`,
+    });
+  };
+
+  const bulkShare = async () => {
+    if (selectedReviews.size === 0) return;
+    
+    const selectedReviewsArray = reviews.filter(r => selectedReviews.has(r.id || ''));
+    const shareUrls = selectedReviewsArray.map(review => 
+      `${window.location.origin}/shared-review/${review.id}`
+    );
+    
+    const shareText = shareUrls.join('\n');
+    
+    try {
+      await navigator.clipboard.writeText(shareText);
+      toast({
+        title: "Links Copied",
+        description: `${selectedReviews.size} share link${selectedReviews.size > 1 ? 's have' : ' has'} been copied to clipboard.`,
+      });
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to copy share links. Please try again.",
+        variant: "destructive",
+      });
+    }
+  };
+
   const bulkDeleteReviews = async () => {
     if (selectedReviews.size === 0) return;
     
@@ -501,6 +602,42 @@ export default function AIIEPReview() {
                   </div>
                   <div className="flex items-center gap-2">
                     <Button 
+                      variant="outline" 
+                      size="sm"
+                      onClick={bulkSaveToVault}
+                      disabled={selectedReviews.size === 0}
+                      className="flex items-center gap-2"
+                      data-testid="button-bulk-save-vault"
+                    >
+                      <Save className="h-4 w-4" />
+                      Save to Vault ({selectedReviews.size})
+                    </Button>
+                    
+                    <Button 
+                      variant="outline" 
+                      size="sm"
+                      onClick={bulkDownload}
+                      disabled={selectedReviews.size === 0}
+                      className="flex items-center gap-2"
+                      data-testid="button-bulk-download"
+                    >
+                      <Download className="h-4 w-4" />
+                      Download ({selectedReviews.size})
+                    </Button>
+                    
+                    <Button 
+                      variant="outline" 
+                      size="sm"
+                      onClick={bulkShare}
+                      disabled={selectedReviews.size === 0}
+                      className="flex items-center gap-2"
+                      data-testid="button-bulk-share"
+                    >
+                      <Share className="h-4 w-4" />
+                      Share ({selectedReviews.size})
+                    </Button>
+                    
+                    <Button 
                       variant="destructive" 
                       size="sm"
                       onClick={bulkDeleteReviews}
@@ -509,7 +646,7 @@ export default function AIIEPReview() {
                       data-testid="button-bulk-delete"
                     >
                       <Trash2 className="h-4 w-4" />
-                      Delete Selected ({selectedReviews.size})
+                      Delete ({selectedReviews.size})
                     </Button>
                   </div>
                 </div>

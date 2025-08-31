@@ -64,9 +64,10 @@ interface IEPAnalysisDisplayProps {
     content: string;
     timestamp: string;
   };
+  onSaveToVault?: () => void;
 }
 
-const IEPAnalysisDisplay = ({ analysis }: IEPAnalysisDisplayProps) => {
+const IEPAnalysisDisplay = ({ analysis, onSaveToVault }: IEPAnalysisDisplayProps) => {
   const [collapsedSections, setCollapsedSections] = useState<{[key: string]: boolean}>({});
   let parsedAnalysis;
 
@@ -140,6 +141,17 @@ const IEPAnalysisDisplay = ({ analysis }: IEPAnalysisDisplayProps) => {
             <Badge className={getStatusColor(parsedAnalysis.status)}>
               {parsedAnalysis.status}
             </Badge>
+          )}
+          {onSaveToVault && (
+            <Button
+              onClick={onSaveToVault}
+              size="sm"
+              className="gap-2"
+              data-testid={`button-save-analysis-vault`}
+            >
+              <Save className="h-3 w-3" />
+              Save Analysis to Vault
+            </Button>
           )}
         </div>
       </div>
@@ -511,6 +523,43 @@ export function DocumentUpload({ onAnalysisComplete }: DocumentUploadProps) {
     }
   };
 
+  const saveAnalysisToVault = async (fileData: UploadedFile) => {
+    if (!fileData.analysis) return;
+    
+    try {
+      const analysisTitle = `${fileData.analysis.type.toUpperCase()} Analysis - ${fileData.editableName || fileData.file.name}`;
+      const analysisDescription = `${fileData.analysis.type} analysis completed on ${new Date(fileData.analysis.timestamp).toLocaleDateString()}`;
+      
+      await api.createDocument({
+        title: analysisTitle,
+        description: analysisDescription,
+        file_name: `${analysisTitle}.json`,
+        file_path: `vault/analysis/${fileData.id}-${fileData.analysis.type}`,
+        file_type: 'application/json',
+        file_size: new Blob([fileData.analysis.content]).size,
+        category: 'AI Analysis',
+        tags: [fileData.analysis.type, 'analysis-result', 'ai-generated'],
+        content: fileData.analysis.content
+      });
+      
+      // Invalidate documents cache to refresh the vault
+      await import('@/lib/queryClient').then(({ queryClient }) => {
+        queryClient.invalidateQueries({ queryKey: ['documents'] });
+      });
+      
+      toast({
+        title: "Analysis Saved to Vault",
+        description: `${fileData.analysis.type.toUpperCase()} analysis has been saved to your document vault.`,
+      });
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to save analysis to vault. Please try again.",
+        variant: "destructive",
+      });
+    }
+  };
+
   // Share functionality
   const shareFile = async (fileData: UploadedFile) => {
     const shareText = `Check out this document: ${fileData.editableName || fileData.file.name}`;
@@ -827,7 +876,12 @@ export function DocumentUpload({ onAnalysisComplete }: DocumentUploadProps) {
                   </div>
                 )}
 
-                {fileData.analysis && <IEPAnalysisDisplay analysis={fileData.analysis} />}
+                {fileData.analysis && (
+                  <IEPAnalysisDisplay 
+                    analysis={fileData.analysis} 
+                    onSaveToVault={() => saveAnalysisToVault(fileData)}
+                  />
+                )}
               </div>
             ))}
           </CardContent>

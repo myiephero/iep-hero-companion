@@ -319,40 +319,80 @@ const DocumentVault: React.FC = () => {
                                   );
                                 
                                 case 'Recommendations':
-                                  return analysisData.recommendations ? (
+                                  return (analysisData.recommendations && analysisData.recommendations.length > 0) ? (
                                     <div className="border-l-4 border-green-500 pl-4 bg-green-50 dark:bg-green-950/30 p-4 rounded-lg">
                                       <h4 className="text-lg font-semibold text-green-800 dark:text-green-200 mb-2">Recommendations</h4>
-                                      <p className="text-green-700 dark:text-green-300">{analysisData.recommendations}</p>
+                                      <div className="text-green-700 dark:text-green-300">
+                                        {Array.isArray(analysisData.recommendations) ? (
+                                          <ul className="list-disc list-inside space-y-1">
+                                            {analysisData.recommendations.map((rec: string, index: number) => (
+                                              <li key={index}>{rec}</li>
+                                            ))}
+                                          </ul>
+                                        ) : (
+                                          <p>{analysisData.recommendations}</p>
+                                        )}
+                                      </div>
                                     </div>
                                   ) : (
                                     <div className="text-gray-500 dark:text-gray-400 p-4">No recommendations available</div>
                                   );
                                 
                                 case 'Concerns':
-                                  return analysisData.areasOfConcern ? (
+                                  return (analysisData.areas_of_concern && analysisData.areas_of_concern.length > 0) ? (
                                     <div className="border-l-4 border-orange-500 pl-4 bg-orange-50 dark:bg-orange-950/30 p-4 rounded-lg">
                                       <h4 className="text-lg font-semibold text-orange-800 dark:text-orange-200 mb-2">Areas of Concern</h4>
-                                      <p className="text-orange-700 dark:text-orange-300">{analysisData.areasOfConcern}</p>
+                                      <div className="text-orange-700 dark:text-orange-300">
+                                        {Array.isArray(analysisData.areas_of_concern) ? (
+                                          <ul className="list-disc list-inside space-y-1">
+                                            {analysisData.areas_of_concern.map((concern: string, index: number) => (
+                                              <li key={index}>{concern}</li>
+                                            ))}
+                                          </ul>
+                                        ) : (
+                                          <p>{analysisData.areas_of_concern}</p>
+                                        )}
+                                      </div>
                                     </div>
                                   ) : (
                                     <div className="text-gray-500 dark:text-gray-400 p-4">No concerns identified</div>
                                   );
                                 
                                 case 'Strengths':
-                                  return analysisData.strengths ? (
+                                  return (analysisData.strengths && analysisData.strengths.length > 0) ? (
                                     <div className="border-l-4 border-emerald-500 pl-4 bg-emerald-50 dark:bg-emerald-950/30 p-4 rounded-lg">
                                       <h4 className="text-lg font-semibold text-emerald-800 dark:text-emerald-200 mb-2">Strengths</h4>
-                                      <p className="text-emerald-700 dark:text-emerald-300">{analysisData.strengths}</p>
+                                      <div className="text-emerald-700 dark:text-emerald-300">
+                                        {Array.isArray(analysisData.strengths) ? (
+                                          <ul className="list-disc list-inside space-y-1">
+                                            {analysisData.strengths.map((strength: string, index: number) => (
+                                              <li key={index}>{strength}</li>
+                                            ))}
+                                          </ul>
+                                        ) : (
+                                          <p>{analysisData.strengths}</p>
+                                        )}
+                                      </div>
                                     </div>
                                   ) : (
                                     <div className="text-gray-500 dark:text-gray-400 p-4">No strengths identified</div>
                                   );
                                 
                                 case 'Action Items':
-                                  return analysisData.actionItems ? (
+                                  return (analysisData.action_items && analysisData.action_items.length > 0) ? (
                                     <div className="border-l-4 border-purple-500 pl-4 bg-purple-50 dark:bg-purple-950/30 p-4 rounded-lg">
                                       <h4 className="text-lg font-semibold text-purple-800 dark:text-purple-200 mb-2">Action Items</h4>
-                                      <p className="text-purple-700 dark:text-purple-300">{analysisData.actionItems}</p>
+                                      <div className="text-purple-700 dark:text-purple-300">
+                                        {Array.isArray(analysisData.action_items) ? (
+                                          <ul className="list-disc list-inside space-y-1">
+                                            {analysisData.action_items.map((item: string, index: number) => (
+                                              <li key={index}>{item}</li>
+                                            ))}
+                                          </ul>
+                                        ) : (
+                                          <p>{analysisData.action_items}</p>
+                                        )}
+                                      </div>
                                     </div>
                                   ) : (
                                     <div className="text-gray-500 dark:text-gray-400 p-4">No action items available</div>

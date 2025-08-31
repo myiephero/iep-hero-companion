@@ -342,7 +342,7 @@ const StudentProfiles = () => {
                   Enter the student's information to create their profile.
                 </DialogDescription>
               </DialogHeader>
-              <div className="grid grid-cols-2 gap-4 max-h-96 overflow-y-auto">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 max-h-96 overflow-y-auto">
                 <div className="space-y-2">
                   <Label htmlFor="full_name">Full Name *</Label>
                   <Input
@@ -473,11 +473,15 @@ const StudentProfiles = () => {
                   </Avatar>
                   <div className="flex-1">
                     <CardTitle className="text-2xl">{currentStudent.full_name}</CardTitle>
-                    <CardDescription className="flex items-center space-x-4 mt-2">
-                      <span>{currentStudent.grade_level ? `Grade ${currentStudent.grade_level}` : 'Grade not specified'}</span>
-                      <span>•</span>
-                      <span>{currentStudent.school_name || 'School not specified'}</span>
-                      <span>•</span>
+                    <CardDescription className="flex flex-col sm:flex-row sm:items-center space-y-2 sm:space-y-0 sm:space-x-4 mt-2">
+                      <div className="flex items-center space-x-2 text-sm">
+                        <span>{currentStudent.grade_level ? `Grade ${currentStudent.grade_level}` : 'Grade not specified'}</span>
+                        <span className="hidden sm:inline">•</span>
+                      </div>
+                      <div className="flex items-center space-x-2 text-sm">
+                        <span>{currentStudent.school_name || 'School not specified'}</span>
+                        <span className="hidden sm:inline">•</span>
+                      </div>
                       <Badge className={getIEPStatusColor(currentStudent.iep_status)}>
                         IEP {currentStudent.iep_status}
                       </Badge>
@@ -488,11 +492,11 @@ const StudentProfiles = () => {
             </Card>
 
             <Tabs defaultValue="overview" className="space-y-6">
-              <TabsList className="grid w-full grid-cols-4">
-                <TabsTrigger value="overview">Overview</TabsTrigger>
-                <TabsTrigger value="goals">Goals ({goals.length})</TabsTrigger>
-                <TabsTrigger value="services">Services ({services.length})</TabsTrigger>
-                <TabsTrigger value="accommodations">Accommodations ({accommodations.length})</TabsTrigger>
+              <TabsList className="grid w-full grid-cols-2 sm:grid-cols-4 gap-1">
+                <TabsTrigger value="overview" className="text-xs sm:text-sm">Overview</TabsTrigger>
+                <TabsTrigger value="goals" className="text-xs sm:text-sm">Goals ({goals.length})</TabsTrigger>
+                <TabsTrigger value="services" className="text-xs sm:text-sm">Services ({services.length})</TabsTrigger>
+                <TabsTrigger value="accommodations" className="text-xs sm:text-sm px-1 sm:px-3">Accommodations ({accommodations.length})</TabsTrigger>
               </TabsList>
 
               <TabsContent value="overview" className="space-y-6">
@@ -686,7 +690,7 @@ const StudentProfiles = () => {
                           </div>
                         </CardHeader>
                         <CardContent>
-                          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
+                          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 text-sm">
                             <div>
                               <Label className="text-xs font-medium text-muted-foreground">
                                 Frequency

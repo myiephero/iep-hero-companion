@@ -323,7 +323,7 @@ const ParentStudents = () => {
                   Enter your child's information to create their educational profile.
                 </DialogDescription>
               </DialogHeader>
-              <div className="grid grid-cols-2 gap-4 max-h-96 overflow-y-auto">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 max-h-96 overflow-y-auto">
                 <div className="space-y-2">
                   <Label htmlFor="full_name">Full Name *</Label>
                   <Input

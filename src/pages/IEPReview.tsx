@@ -309,7 +309,7 @@ export default function IEPReview() {
         </div>
 
         <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-          <TabsList className="grid w-full grid-cols-4">
+          <TabsList className="grid w-full grid-cols-2 sm:grid-cols-4">
             <TabsTrigger value="upload">Upload</TabsTrigger>
             <TabsTrigger value="ingest" disabled={!selectedDoc}>Ingest</TabsTrigger>
             <TabsTrigger value="analyze" disabled={ingestStatus !== 'completed'}>Analyze</TabsTrigger>

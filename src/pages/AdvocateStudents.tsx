@@ -445,7 +445,7 @@ const AdvocateStudents = () => {
                 </Card>
 
                 <Tabs defaultValue="overview" className="space-y-6">
-                  <TabsList className="grid w-full grid-cols-4 premium-card">
+                  <TabsList className="grid w-full grid-cols-2 sm:grid-cols-4 premium-card">
                     <TabsTrigger value="overview">Overview</TabsTrigger>
                     <TabsTrigger value="goals">Goals ({goals.length})</TabsTrigger>
                     <TabsTrigger value="services">Services ({services.length})</TabsTrigger>

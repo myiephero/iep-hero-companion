@@ -10,6 +10,7 @@ import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger, DialogFooter } from "@/components/ui/dialog";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger, DropdownMenuSeparator } from "@/components/ui/dropdown-menu";
 import { Label } from "@/components/ui/label";
 import { api } from "@/lib/api";
 import { 
@@ -27,7 +28,8 @@ import {
   Edit,
   User,
   Check,
-  X
+  X,
+  MoreVertical
 } from "lucide-react";
 import { format } from "date-fns";
 import { useToast } from "@/hooks/use-toast";
@@ -338,33 +340,60 @@ const DocumentVault = () => {
                         )}
                       </div>
                     </div>
-                    <div className="flex items-center gap-2 flex-wrap">
+                    <div className="flex items-center gap-2">
                       {doc.confidential && (
                         <Badge variant="secondary" className="text-xs">
                           <Shield className="h-3 w-3 mr-1" />
                           Confidential
                         </Badge>
                       )}
-                      <Button size="sm" variant="outline">
+                      
+                      {/* Primary Actions - Always Visible */}
+                      <Button size="sm" variant="outline" className="h-8">
                         <Eye className="h-4 w-4 mr-1" />
                         View
                       </Button>
-                      <Button size="sm" variant="outline">
+                      <Button size="sm" variant="outline" className="h-8">
                         <Download className="h-4 w-4 mr-1" />
                         Download
                       </Button>
-                      <Dialog open={assigningDocument === doc.id} onOpenChange={(open) => !open && setAssigningDocument(null)}>
-                        <DialogTrigger asChild>
-                          <Button 
-                            size="sm" 
-                            variant="outline"
-                            onClick={() => handleAssignToStudent(doc.id)}
-                            data-testid={`button-assign-student-${doc.id}`}
-                          >
-                            <User className="h-4 w-4 mr-1" />
-                            Assign Student
+
+                      {/* Secondary Actions - Dropdown Menu */}
+                      <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                          <Button variant="outline" size="sm" className="h-8 w-8 p-0">
+                            <MoreVertical className="h-4 w-4" />
                           </Button>
-                        </DialogTrigger>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end" className="w-48">
+                          <DropdownMenuItem 
+                            onClick={() => handleEditFileName(doc.id, doc.title)}
+                            data-testid={`menu-edit-filename-${doc.id}`}
+                          >
+                            <Edit className="h-4 w-4 mr-2" />
+                            Edit Name
+                          </DropdownMenuItem>
+                          <DropdownMenuItem 
+                            onClick={() => handleAssignToStudent(doc.id)}
+                            data-testid={`menu-assign-student-${doc.id}`}
+                          >
+                            <User className="h-4 w-4 mr-2" />
+                            Assign Student
+                          </DropdownMenuItem>
+                          <DropdownMenuSeparator />
+                          <DropdownMenuItem 
+                            onClick={() => handleDeleteDocument(doc.id, doc.file_name)}
+                            className="text-destructive focus:text-destructive focus:bg-destructive/10"
+                            data-testid={`menu-delete-${doc.id}`}
+                          >
+                            <Trash2 className="h-4 w-4 mr-2" />
+                            Delete
+                          </DropdownMenuItem>
+                        </DropdownMenuContent>
+                      </DropdownMenu>
+
+                      {/* Student Assignment Dialog */}
+                      <Dialog open={assigningDocument === doc.id} onOpenChange={(open) => !open && setAssigningDocument(null)}>
                         <DialogContent className="sm:max-w-[425px]">
                           <DialogHeader>
                             <DialogTitle>Assign Student</DialogTitle>
@@ -399,15 +428,6 @@ const DocumentVault = () => {
                           </DialogFooter>
                         </DialogContent>
                       </Dialog>
-                      <Button 
-                        size="sm" 
-                        variant="outline" 
-                        onClick={() => handleDeleteDocument(doc.id, doc.file_name)}
-                        className="text-destructive hover:text-destructive hover:bg-destructive/10"
-                      >
-                        <Trash2 className="h-4 w-4 mr-1" />
-                        Delete
-                      </Button>
                     </div>
                   </div>
                 ))}

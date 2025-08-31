@@ -523,15 +523,19 @@ export function DocumentUpload({ onAnalysisComplete }: DocumentUploadProps) {
       const analysisTitle = `${fileData.analysis.type.toUpperCase()} Analysis - ${fileData.editableName || fileData.file.name}`;
       const analysisDescription = `${fileData.analysis.type} analysis completed on ${new Date(fileData.analysis.timestamp).toLocaleDateString()}`;
       
+      // Store the structured parsed analysis data
+      const structuredContent = JSON.stringify((fileData.analysis as any).parsedAnalysis || JSON.parse(fileData.analysis.content));
+      
       await api.createDocument({
         title: analysisTitle,
         description: analysisDescription,
         file_name: `${analysisTitle}.json`,
         file_path: `vault/analysis/${fileData.id}-${fileData.analysis.type}`,
         file_type: 'application/json',
-        file_size: new Blob([fileData.analysis.content]).size,
+        file_size: new Blob([structuredContent]).size,
         category: 'AI Analysis',
-        tags: [fileData.analysis.type, 'analysis-result', 'ai-generated']
+        tags: [fileData.analysis.type, 'analysis-result', 'ai-generated'],
+        content: structuredContent
       });
       
       // Invalidate documents cache to refresh the vault

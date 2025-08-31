@@ -244,6 +244,13 @@ const DocumentVault: React.FC = () => {
                 {filteredDocuments?.map((doc: Document) => {
                   // Special rendering for AI Analysis documents
                   if (doc.category === 'AI Analysis') {
+                    let analysisData;
+                    try {
+                      analysisData = (doc as any).content ? JSON.parse((doc as any).content) : null;
+                    } catch {
+                      analysisData = null;
+                    }
+
                     return (
                       <Card key={doc.id} className="overflow-hidden transition-all duration-200 border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900">
                         <CardContent className="p-6">
@@ -253,36 +260,72 @@ const DocumentVault: React.FC = () => {
                                 <FileText className="h-5 w-5 text-blue-600 dark:text-blue-400" />
                               </div>
                               <div>
-                                <h3 className="font-semibold text-gray-900 dark:text-gray-100">Document Review</h3>
+                                <h3 className="text-xl font-bold text-gray-900 dark:text-gray-100">Document Review</h3>
                                 <p className="text-sm text-gray-600 dark:text-gray-400">
                                   IEP Document Review • {format(new Date(doc.created_at || ''), 'M/d/yyyy')}
                                 </p>
                               </div>
                             </div>
-                            <div className="flex items-center gap-2">
-                              <Badge className="bg-orange-100 text-orange-800 dark:bg-orange-900 dark:text-orange-100 hover:bg-orange-100">
-                                AI Analysis
+                          </div>
+
+                          <div className="flex flex-wrap items-center gap-2 mb-6">
+                            <Badge className="bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-100">
+                              IEP
+                            </Badge>
+                            <Badge className="bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-100">
+                              MEDIUM COMPLIANCE
+                            </Badge>
+                            <Badge className="bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-100">
+                              GOALS ISSUE
+                            </Badge>
+                            <Badge className="bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-100">
+                              TRANSITION ISSUE
+                            </Badge>
+                            <span className="text-sm text-gray-500">+1 more</span>
+                            <div className="ml-auto flex items-center gap-4">
+                              <Badge variant="outline" className="text-orange-600 border-orange-300">
+                                Medium Priority
                               </Badge>
-                              <span className="text-sm text-gray-600 dark:text-gray-400">
-                                {format(new Date(doc.created_at || ''), 'MMM d, yyyy')}
-                              </span>
-                              <span className="text-xs text-gray-500 dark:text-gray-500">
-                                {format(new Date(doc.created_at || ''), 'h:mm a')}
-                              </span>
+                              <Badge variant="outline" className="text-orange-600 border-orange-300">
+                                75% Compliant
+                              </Badge>
                             </div>
                           </div>
 
-                          <div className="flex items-center gap-2 mb-4">
-                            <Badge variant="secondary" className="bg-orange-100 text-orange-800 dark:bg-orange-900 dark:text-orange-100">
-                              IEP
-                            </Badge>
-                            <Badge variant="outline" className="text-orange-600 border-orange-300">
-                              Medium Priority
-                            </Badge>
-                            <Badge variant="outline" className="text-orange-600 border-orange-300">
-                              75% Compliant
-                            </Badge>
+                          <div className="mb-6">
+                            <div className="flex items-center justify-between mb-2">
+                              <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Compliance Score</span>
+                              <span className="text-sm font-bold text-orange-600">75%</span>
+                            </div>
+                            <div className="w-full bg-gray-200 rounded-full h-2 dark:bg-gray-700">
+                              <div className="bg-gradient-to-r from-blue-500 to-orange-500 h-2 rounded-full" style={{ width: '75%' }}></div>
+                            </div>
                           </div>
+
+                          {analysisData && (
+                            <div className="space-y-4 mb-6">
+                              {analysisData.summary && (
+                                <div className="border-l-4 border-blue-500 pl-4 bg-blue-50 dark:bg-blue-950/30 p-4 rounded-lg">
+                                  <h4 className="text-lg font-semibold text-blue-800 dark:text-blue-200 mb-2">Summary</h4>
+                                  <p className="text-blue-700 dark:text-blue-300">{analysisData.summary}</p>
+                                </div>
+                              )}
+
+                              {analysisData.recommendations && (
+                                <div className="border-l-4 border-green-500 pl-4 bg-green-50 dark:bg-green-950/30 p-4 rounded-lg">
+                                  <h4 className="text-lg font-semibold text-green-800 dark:text-green-200 mb-2">Recommendations</h4>
+                                  <p className="text-green-700 dark:text-green-300">{analysisData.recommendations}</p>
+                                </div>
+                              )}
+
+                              {analysisData.strengths && (
+                                <div className="border-l-4 border-emerald-500 pl-4 bg-emerald-50 dark:bg-emerald-950/30 p-4 rounded-lg">
+                                  <h4 className="text-lg font-semibold text-emerald-800 dark:text-emerald-200 mb-2">Strengths</h4>
+                                  <p className="text-emerald-700 dark:text-emerald-300">{analysisData.strengths}</p>
+                                </div>
+                              )}
+                            </div>
+                          )}
 
                           <div className="flex items-center gap-2">
                             <Button
@@ -290,8 +333,8 @@ const DocumentVault: React.FC = () => {
                               size="sm"
                               onClick={() => handleViewDocument(doc)}
                             >
-                              <Eye className="h-4 w-4" />
-                              View
+                              <FileText className="h-4 w-4" />
+                              Save to Vault
                             </Button>
                             <Button
                               variant="outline"
@@ -301,6 +344,15 @@ const DocumentVault: React.FC = () => {
                             >
                               <Download className="h-4 w-4" />
                               Download
+                            </Button>
+                            <Button
+                              variant="outline"
+                              className="flex items-center gap-2"
+                              size="sm"
+                              onClick={() => handleShareDocument(doc)}
+                            >
+                              <Share className="h-4 w-4" />
+                              Share
                             </Button>
                             <Button
                               variant="destructive"

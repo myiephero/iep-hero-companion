@@ -410,14 +410,16 @@ const AdvocateStudents = () => {
                       </Avatar>
                       <div className="flex-1">
                         <CardTitle className="text-2xl text-gradient">{currentStudent.full_name}</CardTitle>
-                        <CardDescription className="flex items-center space-x-4 mt-2">
-                          <span>{currentStudent.grade_level ? `Grade ${currentStudent.grade_level}` : 'Grade not specified'}</span>
-                          <span>•</span>
-                          <span>{currentStudent.school_name || 'School not specified'}</span>
-                          <span>•</span>
-                          <Badge className={getIEPStatusColor(currentStudent.iep_status)}>
-                            IEP {currentStudent.iep_status || 'Not Set'}
-                          </Badge>
+                        <CardDescription>
+                          <div className="flex items-center space-x-4 mt-2">
+                            <span>{currentStudent.grade_level ? `Grade ${currentStudent.grade_level}` : 'Grade not specified'}</span>
+                            <span>•</span>
+                            <span>{currentStudent.school_name || 'School not specified'}</span>
+                            <span>•</span>
+                            <Badge className={getIEPStatusColor(currentStudent.iep_status)}>
+                              IEP {currentStudent.iep_status || 'Not Set'}
+                            </Badge>
+                          </div>
                         </CardDescription>
                       </div>
                     </div>

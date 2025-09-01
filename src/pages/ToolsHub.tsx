@@ -17,7 +17,8 @@ import {
   Folder,
   Star,
   Zap,
-  Brain
+  Brain,
+  PenTool
 } from "lucide-react";
 
 interface Tool {
@@ -36,6 +37,14 @@ const parentTools: Tool[] = [
     icon: <FileSearch className="h-6 w-6" />,
     url: "/tools/iep-review",
     category: "Analysis"
+  },
+  {
+    title: "Smart Letter Generator",
+    description: "Create professional advocacy letters with templates and AI assistance",
+    icon: <PenTool className="h-6 w-6" />,
+    url: "/tools/smart-letter-generator",
+    category: "Communication",
+    badge: "Popular"
   },
   {
     title: "Accommodation Builder",
@@ -68,6 +77,14 @@ const advocateTools: Tool[] = [
     icon: <FileSearch className="h-6 w-6" />,
     url: "/tools/iep-review",
     category: "Analysis"
+  },
+  {
+    title: "Smart Letter Generator",
+    description: "Create professional advocacy letters with legal templates and client customization",
+    icon: <PenTool className="h-6 w-6" />,
+    url: "/tools/smart-letter-generator",
+    category: "Communication",
+    badge: "Pro"
   },
   {
     title: "Accommodation Builder",

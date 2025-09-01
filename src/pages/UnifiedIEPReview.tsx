@@ -487,11 +487,14 @@ ${userInputs.parentName || '[Parent Name]'}`;
                   </div>
                 </div>
                 
-                <DocumentUpload onAnalysisComplete={(analysis) => {
-                  if (analysis.documentId && analysis.documentName) {
-                    handleAnalysisComplete(analysis, analysis.documentId, analysis.documentName);
-                  }
-                }} />
+                <DocumentUpload 
+                  selectedAnalysisType={selectedReviewType}
+                  onAnalysisComplete={(analysis) => {
+                    if (analysis.documentId && analysis.documentName) {
+                      handleAnalysisComplete(analysis, analysis.documentId, analysis.documentName);
+                    }
+                  }} 
+                />
               </CardContent>
             </Card>
           </TabsContent>

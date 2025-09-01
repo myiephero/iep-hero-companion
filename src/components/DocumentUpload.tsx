@@ -73,9 +73,10 @@ interface IEPAnalysisDisplayProps {
   };
   onSaveToVault?: () => void;
   onCreateLetter?: () => void;
+  onMeetingPrep?: () => void;
 }
 
-const IEPAnalysisDisplay = ({ analysis, onSaveToVault, onCreateLetter }: IEPAnalysisDisplayProps) => {
+const IEPAnalysisDisplay = ({ analysis, onSaveToVault, onCreateLetter, onMeetingPrep }: IEPAnalysisDisplayProps) => {
   const [collapsedSections, setCollapsedSections] = useState<{[key: string]: boolean}>({});
   let parsedAnalysis;
 
@@ -150,7 +151,7 @@ const IEPAnalysisDisplay = ({ analysis, onSaveToVault, onCreateLetter }: IEPAnal
               {parsedAnalysis.status}
             </Badge>
           )}
-          {(onSaveToVault || onCreateLetter) && (
+          {(onSaveToVault || onCreateLetter || onMeetingPrep) && (
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button 
@@ -182,6 +183,16 @@ const IEPAnalysisDisplay = ({ analysis, onSaveToVault, onCreateLetter }: IEPAnal
                   >
                     <MessageSquare className="h-4 w-4" />
                     Create Letter
+                  </DropdownMenuItem>
+                )}
+                {onMeetingPrep && (
+                  <DropdownMenuItem 
+                    onClick={onMeetingPrep}
+                    className="flex items-center gap-2"
+                    data-testid="menu-meeting-prep"
+                  >
+                    <Users className="h-4 w-4" />
+                    Meeting Prep
                   </DropdownMenuItem>
                 )}
                 <DropdownMenuSeparator />
@@ -1066,6 +1077,14 @@ export function DocumentUpload({ onAnalysisComplete, selectedAnalysisType = 'iep
                         title: "Create Letter",
                         description: "Letter creation functionality will be implemented soon.",
                       });
+                    }}
+                    onMeetingPrep={() => {
+                      // Route based on user role
+                      if (user?.user_metadata?.role === 'advocate') {
+                        window.location.href = '/advocate/schedule';
+                      } else {
+                        window.location.href = '/parent/meeting-prep';
+                      }
                     }}
                   />
                 )}

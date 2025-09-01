@@ -841,27 +841,6 @@ const DocumentVault: React.FC = () => {
                         )}
                         
                         <div className="flex items-center gap-2">
-                          <Button 
-                            size="sm" 
-                            variant="outline" 
-                            className="h-8"
-                            onClick={() => handleViewDocument(doc)}
-                            data-testid={`button-view-${doc.id}`}
-                          >
-                            <Eye className="h-4 w-4 sm:mr-1" />
-                            <span className="hidden sm:inline">View</span>
-                          </Button>
-                          <Button 
-                            size="sm" 
-                            variant="outline" 
-                            className="h-8"
-                            onClick={() => handleDownloadDocument(doc)}
-                            data-testid={`button-download-${doc.id}`}
-                          >
-                            <Download className="h-4 w-4 sm:mr-1" />
-                            <span className="hidden sm:inline">Download</span>
-                          </Button>
-
                           <DropdownMenu>
                             <DropdownMenuTrigger asChild>
                               <Button variant="outline" size="sm" className="h-8 w-8 p-0">
@@ -869,6 +848,21 @@ const DocumentVault: React.FC = () => {
                               </Button>
                             </DropdownMenuTrigger>
                             <DropdownMenuContent align="end" className="w-48">
+                            <DropdownMenuItem 
+                              onClick={() => handleViewDocument(doc)}
+                              data-testid={`menu-view-${doc.id}`}
+                            >
+                              <Eye className="h-4 w-4 mr-2" />
+                              View
+                            </DropdownMenuItem>
+                            <DropdownMenuItem 
+                              onClick={() => handleDownloadDocument(doc)}
+                              data-testid={`menu-download-${doc.id}`}
+                            >
+                              <Download className="h-4 w-4 mr-2" />
+                              Download
+                            </DropdownMenuItem>
+                            <DropdownMenuSeparator />
                             <DropdownMenuItem 
                               onClick={() => handleEditFileName(doc.id, doc.title)}
                               data-testid={`menu-edit-filename-${doc.id}`}

@@ -309,7 +309,12 @@ const DocumentVault: React.FC = () => {
                     className="gap-2 flex-1 sm:flex-initial"
                   >
                     {isSelectMode ? <CheckSquare className="h-4 w-4" /> : <Square className="h-4 w-4" />}
-                    {isSelectMode ? "Exit Select" : "Select"}
+                    <span className="hidden sm:inline">
+                      {isSelectMode ? "Exit Select" : "Select Multiple Files"}
+                    </span>
+                    <span className="sm:hidden">
+                      {isSelectMode ? "Exit" : "Select"}
+                    </span>
                   </Button>
                 </div>
               </div>

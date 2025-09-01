@@ -191,6 +191,36 @@ const DocumentVault: React.FC = () => {
     });
   };
 
+  const handleBulkAssignStudent = () => {
+    if (selectedDocuments.size === 0) return;
+    
+    // Set up for bulk assignment - use a special indicator for bulk mode
+    setAssigningDocument('BULK_ASSIGN');
+    setSelectedStudentId('');
+  };
+
+  const handleBulkStudentAssignment = () => {
+    if (assigningDocument === 'BULK_ASSIGN' && selectedStudentId) {
+      // Update all selected documents with the chosen student
+      selectedDocuments.forEach(docId => {
+        updateDocumentMutation.mutate({
+          id: docId,
+          student_id: selectedStudentId,
+        });
+      });
+      
+      toast({
+        title: "Documents assigned",
+        description: `${selectedDocuments.size} document(s) assigned to student successfully.`,
+      });
+      
+      setAssigningDocument(null);
+      setSelectedStudentId('');
+      setSelectedDocuments(new Set());
+      setIsSelectMode(false);
+    }
+  };
+
   const handleViewDocument = (doc: Document) => {
     setViewDialog({ document: doc, isOpen: true });
   };
@@ -366,6 +396,10 @@ const DocumentVault: React.FC = () => {
                         <DropdownMenuItem onClick={handleBulkShare}>
                           <Share className="h-4 w-4 mr-2" />
                           Share Selected
+                        </DropdownMenuItem>
+                        <DropdownMenuItem onClick={handleBulkAssignStudent}>
+                          <User className="h-4 w-4 mr-2" />
+                          Assign Student
                         </DropdownMenuItem>
                         <DropdownMenuSeparator />
                         <DropdownMenuItem 
@@ -881,9 +915,17 @@ const DocumentVault: React.FC = () => {
         <Dialog open={assigningDocument !== null} onOpenChange={(open) => !open && setAssigningDocument(null)}>
           <DialogContent className="sm:max-w-[425px]">
             <DialogHeader>
-              <DialogTitle>Assign Student</DialogTitle>
+              <DialogTitle>
+                {assigningDocument === 'BULK_ASSIGN' 
+                  ? `Assign ${selectedDocuments.size} Documents to Student`
+                  : 'Assign Student'
+                }
+              </DialogTitle>
               <DialogDescription>
-                Select a student to assign this document to.
+                {assigningDocument === 'BULK_ASSIGN'
+                  ? `Select a student to assign all ${selectedDocuments.size} selected documents to.`
+                  : 'Select a student to assign this document to.'
+                }
               </DialogDescription>
             </DialogHeader>
             <div className="grid gap-4 py-4">
@@ -907,8 +949,12 @@ const DocumentVault: React.FC = () => {
               <Button type="button" variant="outline" onClick={() => setAssigningDocument(null)}>
                 Cancel
               </Button>
-              <Button type="button" onClick={handleUpdateStudentAssignment} disabled={!selectedStudentId}>
-                Assign Student
+              <Button 
+                type="button" 
+                onClick={assigningDocument === 'BULK_ASSIGN' ? handleBulkStudentAssignment : handleUpdateStudentAssignment} 
+                disabled={!selectedStudentId}
+              >
+                {assigningDocument === 'BULK_ASSIGN' ? 'Assign All Documents' : 'Assign Student'}
               </Button>
             </DialogFooter>
           </DialogContent>

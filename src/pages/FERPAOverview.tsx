@@ -13,14 +13,62 @@ import {
   ExternalLink,
   ArrowLeft,
   Key,
-  Users
+  Users,
+  Copy
 } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { Link } from "react-router-dom";
+import { useToast } from "@/hooks/use-toast";
 
 export default function FERPAOverview() {
   const { profile } = useAuth();
   const isAdvocateUser = profile?.role === 'advocate';
+  const { toast } = useToast();
+
+  const sampleRequest = `I am writing to request copies of all educational records for my child, [Child's Name], DOB: [Date], Student ID: [ID#].
+
+Please provide these records within the 45-day timeframe required by FERPA.
+
+Specifically, I am requesting:
+- Academic transcripts and report cards
+- IEP documents and evaluations
+- 504 Plan documentation
+- Disciplinary records
+- Health records maintained by the school
+- Standardized test scores
+- Attendance records
+
+If there are any fees associated with copying these records, please inform me in advance. I can be reached at [Your Phone] or [Your Email].
+
+Thank you for your prompt attention to this matter.
+
+Sincerely,
+[Your Name]
+[Your Relationship to Student]
+[Date]`;
+
+  const downloadTemplate = () => {
+    const blob = new Blob([sampleRequest], { type: 'text/plain' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `FERPA-Request-Template-${new Date().toISOString().split('T')[0]}.txt`;
+    a.click();
+    URL.revokeObjectURL(url);
+    
+    toast({
+      title: "Template Downloaded",
+      description: "FERPA request template has been downloaded to your device."
+    });
+  };
+
+  const copyTemplate = () => {
+    navigator.clipboard.writeText(sampleRequest);
+    toast({
+      title: "Template Copied",
+      description: "FERPA request template has been copied to your clipboard."
+    });
+  };
 
   return (
     <DashboardLayout>
@@ -206,9 +254,37 @@ export default function FERPAOverview() {
                       <div className="flex-1">
                         <h4 className="font-semibold mb-1">{step.title}</h4>
                         <p className="text-sm text-muted-foreground mb-2">{step.description}</p>
-                        <Button variant="outline" size="sm">
-                          {step.action}
-                        </Button>
+                        {index === 0 && (
+                          <Link to="/parent/tools/smart-letter-generator?template=ferpa-request">
+                            <Button variant="outline" size="sm">
+                              Use our FERPA Request Template
+                            </Button>
+                          </Link>
+                        )}
+                        {index === 1 && (
+                          <Link to="/timeline-calculator">
+                            <Button variant="outline" size="sm">
+                              Track your request deadline
+                            </Button>
+                          </Link>
+                        )}
+                        {index === 2 && (
+                          <Button variant="outline" size="sm" onClick={() => {
+                            toast({
+                              title: "Scheduling Feature",
+                              description: "Contact your school's main office to schedule a records review appointment."
+                            });
+                          }}>
+                            Schedule review appointment
+                          </Button>
+                        )}
+                        {index === 3 && (
+                          <Link to="/parent/tools/smart-letter-generator?template=correction-request">
+                            <Button variant="outline" size="sm">
+                              Submit correction request
+                            </Button>
+                          </Link>
+                        )}
                       </div>
                     </div>
                   ))}
@@ -254,17 +330,17 @@ export default function FERPAOverview() {
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-3">
-                <Link href="/parent/tools/smart-letter-generator?template=ferpa-request">
+                <Link to="/parent/tools/smart-letter-generator?template=ferpa-request">
                   <Button className="w-full justify-start">
                     <FileText className="h-4 w-4 mr-2" />
                     Generate FERPA Request
                   </Button>
                 </Link>
-                <Button variant="outline" className="w-full justify-start">
+                <Button variant="outline" className="w-full justify-start" onClick={downloadTemplate}>
                   <Download className="h-4 w-4 mr-2" />
                   Download Template
                 </Button>
-                <Link href="/timeline-calculator">
+                <Link to="/timeline-calculator">
                   <Button variant="outline" className="w-full justify-start">
                     <Clock className="h-4 w-4 mr-2" />
                     Calculate Deadlines
@@ -317,8 +393,8 @@ export default function FERPAOverview() {
                     "Please provide these records within the 45-day timeframe required by FERPA."
                   </p>
                 </div>
-                <Button variant="ghost" size="sm" className="w-full mt-3">
-                  <Download className="h-4 w-4 mr-2" />
+                <Button variant="ghost" size="sm" className="w-full mt-3" onClick={copyTemplate}>
+                  <Copy className="h-4 w-4 mr-2" />
                   Use This Template
                 </Button>
               </CardContent>

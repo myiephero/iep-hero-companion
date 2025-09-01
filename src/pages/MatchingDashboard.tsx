@@ -253,10 +253,10 @@ export default function MatchingDashboard() {
                         <div className="flex justify-between items-start">
                           <div>
                             <CardTitle className="text-lg">
-                              Match Request from {proposal.student?.name}'s Family
+                              Match Request from {proposal.student?.full_name}'s Family
                             </CardTitle>
                             <CardDescription>
-                              {proposal.student?.grade} Grade • {proposal.student?.needs.join(', ')}
+                              {proposal.student?.grade_level} • {proposal.student?.disability_category || 'Special Education Support'}
                             </CardDescription>
                           </div>
                           <Badge variant="secondary">
@@ -267,15 +267,21 @@ export default function MatchingDashboard() {
                       <CardContent className="space-y-4">
                         <div>
                           <Label className="font-medium">Student Background</Label>
-                          <p className="text-sm text-gray-600 mt-1">{proposal.student?.narrative}</p>
+                          <p className="text-sm text-gray-600 mt-1">{proposal.student?.notes || 'No additional notes provided'}</p>
                         </div>
                         
                         <div className="flex flex-wrap gap-2">
-                          {proposal.student?.needs.map(need => (
-                            <Badge key={need} variant="outline">
-                              {need.replace('_', ' ')}
+                          {proposal.student?.disability_category && (
+                            <Badge variant="outline">
+                              {proposal.student.disability_category}
                             </Badge>
-                          ))}
+                          )}
+                          <Badge variant="outline">
+                            {proposal.student?.grade_level}
+                          </Badge>
+                          <Badge variant="outline">
+                            {proposal.student?.school_name}
+                          </Badge>
                         </div>
 
                         <div className="flex items-center justify-between pt-4 border-t">

@@ -246,7 +246,8 @@ const ParentStudents = () => {
       // Add cache-busting timestamp and proper auth headers to force fresh data
       const response = await fetch(`/api/students?_t=${Date.now()}`, {
         headers: {
-          'Cache-Control': 'no-cache'
+          'Cache-Control': 'no-cache',
+          'Authorization': `Bearer mock-token-${user.id}`
         }
       });
       if (!response.ok) {

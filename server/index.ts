@@ -20,7 +20,14 @@ function getUserId(req: express.Request): string {
   // For development, we use the mock user ID from the authorization header
   const authHeader = req.headers.authorization;
   if (authHeader && authHeader.startsWith('Bearer mock-token-')) {
-    const role = authHeader.replace('Bearer mock-token-', '');
+    // Extract the user ID from the token (now includes real test user IDs)
+    const userId = authHeader.replace('Bearer mock-token-', '');
+    // If it's a real test user ID, return it directly
+    if (userId.startsWith('test-')) {
+      return userId;
+    }
+    // Otherwise, handle old format role-based tokens
+    const role = userId;
     return `mock-${role}-user-${role === 'advocate' ? '456' : '123'}`;
   }
   // Fallback to role-based detection from user-agent or path
@@ -166,6 +173,21 @@ const PORT = Number(process.env.PORT) || 3001;
 app.use(cors());
 app.use(express.json({ limit: '50mb' }));
 app.use(express.urlencoded({ limit: '50mb', extended: true }));
+
+// Profile routes
+app.get('/api/profiles/:userId', async (req, res) => {
+  try {
+    const { userId } = req.params;
+    const [profile] = await db.select().from(schema.profiles).where(eq(schema.profiles.user_id, userId));
+    if (!profile) {
+      return res.status(404).json({ error: 'Profile not found' });
+    }
+    res.json(profile);
+  } catch (error) {
+    console.error('Error fetching profile:', error);
+    res.status(500).json({ error: 'Failed to fetch profile' });
+  }
+});
 
 // Mock authentication for now
 // Note: MOCK_USER_ID replaced with getUserId() function for proper user isolation

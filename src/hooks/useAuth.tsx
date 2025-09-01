@@ -18,6 +18,7 @@ interface AuthContextType {
   loading: boolean;
   profile: any | null;
   signOut: () => Promise<void>;
+  switchUser: (userId: string, role: 'parent' | 'advocate') => void;
 }
 
 const AuthContext = createContext<AuthContextType>({
@@ -26,6 +27,7 @@ const AuthContext = createContext<AuthContextType>({
   loading: true,
   profile: null,
   signOut: async () => {},
+  switchUser: () => {},
 });
 
 export const useAuth = () => {
@@ -46,46 +48,102 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
   const [loading, setLoading] = useState(true);
   const [profile, setProfile] = useState<any | null>(null);
 
-  useEffect(() => {
-    // Mock authentication during migration with role-based user isolation
-    const getCurrentRole = () => {
-      const path = window.location.pathname;
-      if (path.includes('/advocate/')) return 'advocate';
-      if (path.includes('/parent/')) return 'parent';
-      const savedRole = localStorage.getItem('miephero_active_role');
-      return savedRole || 'parent';
-    };
+  const loadUserProfile = async (userId: string) => {
+    try {
+      const response = await fetch(`/api/profiles/${userId}`);
+      if (response.ok) {
+        const profileData = await response.json();
+        return profileData;
+      }
+    } catch (error) {
+      console.warn('Failed to load user profile:', error);
+    }
+    return null;
+  };
 
-    const currentRole = getCurrentRole();
-    // Create role-specific mock user IDs to prevent document sharing
-    const roleBasedUserId = `mock-${currentRole}-user-${currentRole === 'advocate' ? '456' : '123'}`;
-    
+  const setupAuthenticatedUser = async (userId: string, role: string, profileData?: any) => {
     const mockUser: MockUser = {
-      id: roleBasedUserId,
-      email: `${currentRole}@example.com`,
-      user_metadata: { role: currentRole }
+      id: userId,
+      email: profileData?.email || `${role}@example.com`,
+      user_metadata: { role }
     };
     
     const mockSession: MockSession = {
       user: mockUser,
-      access_token: `mock-token-${currentRole}`
+      access_token: `mock-token-${userId}`
     };
     
     setUser(mockUser);
     setSession(mockSession);
     setProfile({
-      user_id: mockUser.id,
-      full_name: `Mock ${currentRole.charAt(0).toUpperCase() + currentRole.slice(1)}`,
-      email: mockUser.email,
-      role: currentRole
+      user_id: userId,
+      full_name: profileData?.full_name || `Mock ${role.charAt(0).toUpperCase() + role.slice(1)}`,
+      email: profileData?.email || mockUser.email,
+      role: profileData?.role || role
     });
-    setLoading(false);
+  };
+
+  useEffect(() => {
+    const initializeAuth = async () => {
+      // Check for stored test user or determine role from URL
+      const getCurrentRole = () => {
+        const path = window.location.pathname;
+        if (path.includes('/advocate/')) return 'advocate';
+        if (path.includes('/parent/')) return 'parent';
+        const savedRole = localStorage.getItem('miephero_active_role');
+        return savedRole || 'parent';
+      };
+
+      const getStoredTestUser = () => {
+        const savedUserId = localStorage.getItem('miephero_test_user_id');
+        const savedRole = localStorage.getItem('miephero_test_user_role');
+        return savedUserId && savedRole ? { userId: savedUserId, role: savedRole } : null;
+      };
+
+      const storedUser = getStoredTestUser();
+      const currentRole = getCurrentRole();
+      
+      if (storedUser) {
+        // Use stored test user
+        const profileData = await loadUserProfile(storedUser.userId);
+        await setupAuthenticatedUser(storedUser.userId, storedUser.role, profileData);
+      } else {
+        // Use default test users based on role
+        const defaultTestUsers = {
+          parent: 'test-parent-001',
+          advocate: 'test-advocate-001'
+        };
+        
+        const testUserId = defaultTestUsers[currentRole as keyof typeof defaultTestUsers];
+        const profileData = await loadUserProfile(testUserId);
+        await setupAuthenticatedUser(testUserId, currentRole, profileData);
+      }
+      
+      setLoading(false);
+    };
+
+    initializeAuth();
   }, []);
 
   const signOut = async () => {
+    localStorage.removeItem('miephero_test_user_id');
+    localStorage.removeItem('miephero_test_user_role');
     setUser(null);
     setSession(null);
     setProfile(null);
+  };
+
+  const switchUser = async (userId: string, role: 'parent' | 'advocate') => {
+    localStorage.setItem('miephero_test_user_id', userId);
+    localStorage.setItem('miephero_test_user_role', role);
+    localStorage.setItem('miephero_active_role', role);
+    
+    const profileData = await loadUserProfile(userId);
+    await setupAuthenticatedUser(userId, role, profileData);
+    
+    // Navigate to appropriate dashboard
+    const dashboardUrl = role === 'advocate' ? '/advocate/dashboard' : '/parent/dashboard';
+    window.location.href = dashboardUrl;
   };
 
   const value = {
@@ -94,6 +152,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     loading,
     profile,
     signOut,
+    switchUser,
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

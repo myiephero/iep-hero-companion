@@ -239,7 +239,7 @@ function App() {
                   <AIIEPReview />
                 </ProtectedRoute>
               } />
-              <Route path="/advocate/tools/smart-letter" element={
+              <Route path="/advocate/tools/smart-letter-generator" element={
                 <ProtectedRoute allowedRoles={['advocate']}>
                   <SmartLetterGenerator />
                 </ProtectedRoute>

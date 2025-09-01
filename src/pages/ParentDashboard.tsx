@@ -863,8 +863,8 @@ export default function ParentDashboard() {
                               key={insight.id} 
                               className="group hover:shadow-md transition-all duration-200 flex items-center justify-between p-4 border border-gray-200 rounded-xl hover:border-gray-300 w-full text-left cursor-pointer hover:bg-gray-50"
                               onClick={() => {
-                                // Navigate to the IEP review page to show analysis results
-                                window.location.href = '/parent/tools/iep-review';
+                                // Navigate to the Document Vault to show the most recent IEP review
+                                window.location.href = '/tools/document-vault';
                               }}
                             >
                               <div className="flex items-center gap-3">

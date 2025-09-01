@@ -20,6 +20,7 @@ import ParentStudents from "./pages/ParentStudents";
 import AdvocateStudents from "./pages/AdvocateStudents";
 import IEPReview from "./pages/IEPReview";
 import AIIEPReview from "./pages/AIIEPReview";
+import UnifiedIEPReview from "./pages/UnifiedIEPReview";
 import AutismAccommodations from "./pages/AutismAccommodations";
 import AutismAccommodationBuilder from "./pages/AutismAccommodationBuilder";
 import AdvocateMatchingTool from "./pages/AdvocateMatchingTool";
@@ -140,6 +141,11 @@ function App() {
                   <AIIEPReview />
                 </ProtectedRoute>
               } />
+              <Route path="/parent/tools/unified-iep-review" element={
+                <ProtectedRoute allowedRoles={['parent']}>
+                  <UnifiedIEPReview />
+                </ProtectedRoute>
+              } />
               <Route path="/parent/tools/autism-accommodations" element={
                 <ProtectedRoute allowedRoles={['parent']}>
                   <AutismAccommodationBuilder />
@@ -160,6 +166,11 @@ function App() {
               <Route path="/advocate/tools/iep-review" element={
                 <ProtectedRoute allowedRoles={['advocate']}>
                   <IEPReview />
+                </ProtectedRoute>
+              } />
+              <Route path="/advocate/tools/unified-iep-review" element={
+                <ProtectedRoute allowedRoles={['advocate']}>
+                  <UnifiedIEPReview />
                 </ProtectedRoute>
               } />
               <Route path="/advocate/tools/autism-accommodations" element={
@@ -246,6 +257,7 @@ function App() {
                <Route path="/tools/document-vault" element={<RoleBasedRedirect parentRoute="/parent/tools/document-vault" advocateRoute="/advocate/tools/document-vault" />} />
               <Route path="/tools/iep-review" element={<RoleBasedRedirect parentRoute="/parent/tools/iep-review" advocateRoute="/advocate/tools/iep-review" />} />
               <Route path="/tools/ai-iep-review" element={<RoleBasedRedirect parentRoute="/parent/tools/ai-iep-review" advocateRoute="/advocate/tools/ai-iep-review" />} />
+              <Route path="/tools/unified-iep-review" element={<RoleBasedRedirect parentRoute="/parent/tools/unified-iep-review" advocateRoute="/advocate/tools/unified-iep-review" />} />
               <Route path="/tools/autism-accommodations" element={<RoleBasedRedirect parentRoute="/parent/tools/autism-accommodations" advocateRoute="/advocate/tools/autism-accommodations" />} />
               <Route path="/tools/advocate-matching" element={<RoleBasedRedirect parentRoute="/parent/tools/advocate-matching" advocateRoute="/advocate/tools/advocate-matching" />} />
               <Route path="/tools/gifted-2e-learners" element={<RoleBasedRedirect parentRoute="/parent/tools/gifted-2e-learners" advocateRoute="/advocate/tools/gifted-2e-learners" />} />

@@ -15,22 +15,13 @@ const getUserRole = () => {
 
 const emergentTools = [
   {
-    title: "IEP Review Tool",
-    description: "Comprehensive IEP review and analysis with detailed feedback, compliance checking, and improvement recommendations.",
-    icon: TrendingUp,
-    path: "/tools/iep-review",
-    category: "IEP Analysis",
-    badge: "Core",
-    features: ["Comprehensive Review", "Compliance Check", "Goal Analysis", "Progress Tracking"]
-  },
-  {
-    title: "AI IEP Review",
-    description: "Upload and analyze IEP documents with AI-powered insights, compliance checking, and personalized recommendations.",
+    title: "Unified IEP Review",
+    description: "Comprehensive AI-powered IEP analysis with quality scoring, compliance checks, bulk operations, and action letter generation.",
     icon: Brain,
-    path: "/tools/ai-iep-review",
-    category: "AI Tools",
-    badge: "New",
-    features: ["Document Analysis", "Compliance Check", "AI Recommendations", "Goal Analysis"]
+    path: "/tools/unified-iep-review",
+    category: "IEP Analysis",
+    badge: "Enhanced",
+    features: ["AI Analysis", "Quality Scoring", "Compliance Check", "Action Letters", "Bulk Operations"]
   },
   {
     title: "Autism Accommodation Builder",
@@ -112,6 +103,7 @@ const getBadgeVariant = (badge: string) => {
   switch (badge) {
     case "Core": return "bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border-slate-200 dark:border-slate-600";
     case "New": return "bg-green-100 dark:bg-green-900 text-green-700 dark:text-green-300 border-green-200 dark:border-green-700";
+    case "Enhanced": return "bg-gradient-to-r from-blue-100 to-purple-100 dark:from-blue-900 dark:to-purple-900 text-blue-800 dark:text-blue-200 border-blue-300 dark:border-blue-600";
     case "Specialized": return "bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300 border-blue-200 dark:border-blue-700";
     case "Connect": return "bg-purple-100 dark:bg-purple-900 text-purple-700 dark:text-purple-300 border-purple-200 dark:border-purple-700";
     case "2e": return "bg-yellow-100 dark:bg-yellow-900 text-yellow-700 dark:text-yellow-300 border-yellow-200 dark:border-yellow-700";

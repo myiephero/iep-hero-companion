@@ -5,6 +5,8 @@ import { Input } from "@/components/ui/input";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Search, Send, Paperclip } from "lucide-react";
+import { useLocation } from "react-router-dom";
+import { useState, useEffect } from "react";
 
 const conversations = [
   {
@@ -37,6 +39,20 @@ const conversations = [
 ];
 
 export default function AdvocateMessages() {
+  const location = useLocation();
+  const [selectedConversation, setSelectedConversation] = useState(null);
+  const [newMessageText, setNewMessageText] = useState('');
+  
+  // Check if we're coming from a match proposal
+  useEffect(() => {
+    if (location.state?.newMessage) {
+      const { parentId, studentName, proposalId } = location.state.newMessage;
+      // Pre-populate the message input with a starter message
+      setNewMessageText(`Hi! I received your match request for ${studentName}. I'd love to learn more about their needs and how I can help. Would you like to schedule a brief call to discuss?`);
+      // You could also set selectedConversation to highlight or create a new conversation
+    }
+  }, [location.state]);
+
   return (
     <DashboardLayout>
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 h-[calc(100vh-8rem)]">
@@ -125,7 +141,12 @@ export default function AdvocateMessages() {
                 <Button variant="ghost" size="icon">
                   <Paperclip className="h-4 w-4" />
                 </Button>
-                <Input placeholder="Type your message..." className="flex-1" />
+                <Input 
+                  placeholder="Type your message..." 
+                  className="flex-1" 
+                  value={newMessageText}
+                  onChange={(e) => setNewMessageText(e.target.value)}
+                />
                 <Button size="icon">
                   <Send className="h-4 w-4" />
                 </Button>

@@ -8,14 +8,14 @@ const router = express.Router();
 function getUserId(req: express.Request): string {
   const authHeader = req.headers.authorization;
   if (authHeader && authHeader.startsWith('Bearer mock-token-')) {
-    const role = authHeader.replace('Bearer mock-token-', '');
-    return `mock-${role}-user-${role === 'advocate' ? '456' : '123'}`;
+    const userId = authHeader.replace('Bearer mock-token-', '');
+    return userId;
   }
   const path = req.path || '';
   if (path.includes('advocate')) {
-    return 'mock-advocate-user-456';
+    return 'test-advocate-001';
   }
-  return 'mock-parent-user-123';
+  return 'test-parent-001';
 }
 
 // Matching algorithm weights
@@ -88,9 +88,7 @@ router.get('/', async (req: Request, res: Response) => {
 // POST /api/match/propose - Create match proposals
 router.post('/propose', async (req: Request, res: Response) => {
   try {
-    console.log('Match proposal request received:', req.body);
     const userId = getUserId(req);
-    console.log('User ID:', userId);
     const { student_id, advocate_ids, reason = {} } = req.body;
 
     if (!student_id || !advocate_ids || !Array.isArray(advocate_ids)) {

@@ -11,6 +11,9 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Progress } from "@/components/ui/progress";
 import { Separator } from "@/components/ui/separator";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger, DropdownMenuSeparator } from "@/components/ui/dropdown-menu";
+import { Switch } from "@/components/ui/switch";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { 
   Calendar, 
   CheckCircle, 
@@ -33,7 +36,12 @@ import {
   Eye,
   ChevronRight,
   HelpCircle,
-  Sparkles
+  Sparkles,
+  Save,
+  FolderOpen,
+  Settings,
+  ChevronDown,
+  Loader2
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
@@ -42,6 +50,9 @@ const MeetingPrepWizard = () => {
   const [currentStep, setCurrentStep] = useState(1);
   const [responses, setResponses] = useState({});
   const [selectedMeetingType, setSelectedMeetingType] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
+  const [autoSave, setAutoSave] = useState(true);
+  const [saveFormat, setSaveFormat] = useState('pdf');
 
   const meetingTypes = [
     {
@@ -285,12 +296,80 @@ const MeetingPrepWizard = () => {
     ]
   };
 
-  const generatePrepSheet = () => {
-    // This would generate a comprehensive prep sheet
-    toast({
-      title: "Prep Sheet Generated",
-      description: "Your meeting preparation sheet is ready for download."
-    });
+  const generatePrepSheet = async () => {
+    setIsLoading(true);
+    try {
+      await new Promise(resolve => setTimeout(resolve, 2000)); // Simulate generation
+      toast({
+        title: "Prep Sheet Generated!",
+        description: "Your meeting preparation sheet has been created successfully."
+      });
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to generate prep sheet. Please try again.",
+        variant: "destructive"
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const saveToVault = async (format: string) => {
+    setIsLoading(true);
+    try {
+      await new Promise(resolve => setTimeout(resolve, 1500)); // Simulate save
+      toast({
+        title: "Saved to Vault!",
+        description: `Meeting prep results saved as ${format.toUpperCase()} to your document vault.`
+      });
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to save to vault. Please try again.",
+        variant: "destructive"
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const emailToTeam = async () => {
+    setIsLoading(true);
+    try {
+      await new Promise(resolve => setTimeout(resolve, 1000)); // Simulate email
+      toast({
+        title: "Email Sent!",
+        description: "Meeting prep materials have been emailed to your team."
+      });
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to send email. Please try again.",
+        variant: "destructive"
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const setReminder = async () => {
+    setIsLoading(true);
+    try {
+      await new Promise(resolve => setTimeout(resolve, 800)); // Simulate reminder
+      toast({
+        title: "Reminder Set!",
+        description: "Follow-up reminders have been scheduled."
+      });
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to set reminder. Please try again.",
+        variant: "destructive"
+      });
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const nextStep = () => {
@@ -516,56 +595,195 @@ const MeetingPrepWizard = () => {
                     </div>
                   </div>
 
-                  <div className="grid gap-4 md:grid-cols-2">
-                    <Card className="p-4">
-                      <h3 className="font-semibold mb-2 flex items-center gap-2">
-                        <Download className="h-4 w-4" />
-                        Download Options
-                      </h3>
-                      <div className="space-y-2">
-                        <Button className="w-full" onClick={generatePrepSheet}>
-                          <Download className="h-4 w-4 mr-2" />
-                          Download PDF Prep Sheet
-                        </Button>
-                        <Button variant="outline" className="w-full">
-                          <Printer className="h-4 w-4 mr-2" />
-                          Print Version
-                        </Button>
+                  <TooltipProvider>
+                    {/* Auto-save Toggle */}
+                    <Card className="p-4 bg-gradient-to-r from-blue-50 to-indigo-50 border-blue-200">
+                      <div className="flex items-center justify-between mb-4">
+                        <div className="flex items-center gap-2">
+                          <Settings className="h-4 w-4 text-blue-600" />
+                          <span className="font-medium text-blue-900">Save Settings</span>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <Label htmlFor="auto-save" className="text-sm text-blue-700">Auto-save to vault</Label>
+                          <Switch 
+                            id="auto-save" 
+                            checked={autoSave} 
+                            onCheckedChange={setAutoSave}
+                          />
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <Label className="text-sm text-blue-700">Format:</Label>
+                        <Select value={saveFormat} onValueChange={setSaveFormat}>
+                          <SelectTrigger className="w-32">
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="pdf">PDF</SelectItem>
+                            <SelectItem value="docx">Word</SelectItem>
+                            <SelectItem value="txt">Text</SelectItem>
+                          </SelectContent>
+                        </Select>
                       </div>
                     </Card>
-                    
-                    <Card className="p-4">
-                      <h3 className="font-semibold mb-2 flex items-center gap-2">
-                        <Send className="h-4 w-4" />
-                        Share & Follow-up
-                      </h3>
-                      <div className="space-y-2">
-                        <Button variant="outline" className="w-full">
-                          <Send className="h-4 w-4 mr-2" />
-                          Email to Team
-                        </Button>
-                        <Button variant="outline" className="w-full">
-                          <Calendar className="h-4 w-4 mr-2" />
-                          Set Follow-up Reminders
-                        </Button>
-                      </div>
-                    </Card>
-                  </div>
 
-                  <div className="flex justify-between pt-4">
-                    <Button variant="outline" onClick={prevStep}>
+                    <div className="grid gap-4 md:grid-cols-2">
+                      <Card className="p-3 md:p-4">
+                        <h3 className="font-semibold mb-3 flex items-center gap-2 text-sm md:text-base">
+                          <Download className="h-4 w-4" />
+                          Download Options
+                        </h3>
+                        <div className="space-y-3">
+                          <DropdownMenu>
+                            <DropdownMenuTrigger asChild>
+                              <Button className="w-full button-premium" disabled={isLoading}>
+                                {isLoading ? (
+                                  <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                                ) : (
+                                  <Download className="h-4 w-4 mr-2" />
+                                )}
+                                Download PDF Prep Sheet
+                                <ChevronDown className="h-4 w-4 ml-auto" />
+                              </Button>
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent className="w-56">
+                              <DropdownMenuItem onClick={generatePrepSheet}>
+                                <FileText className="h-4 w-4 mr-2" />
+                                Standard PDF
+                              </DropdownMenuItem>
+                              <DropdownMenuItem onClick={() => generatePrepSheet()}>
+                                <Eye className="h-4 w-4 mr-2" />
+                                PDF with Notes
+                              </DropdownMenuItem>
+                              <DropdownMenuSeparator />
+                              <DropdownMenuItem onClick={() => saveToVault('pdf')}>
+                                <Save className="h-4 w-4 mr-2" />
+                                Save to Vault
+                              </DropdownMenuItem>
+                            </DropdownMenuContent>
+                          </DropdownMenu>
+                          
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <Button variant="outline" className="w-full" disabled={isLoading}>
+                                <Printer className="h-4 w-4 mr-2" />
+                                Print Version
+                              </Button>
+                            </TooltipTrigger>
+                            <TooltipContent>
+                              <p>Print-optimized format</p>
+                            </TooltipContent>
+                          </Tooltip>
+                        </div>
+                      </Card>
+                      
+                      <Card className="p-3 md:p-4">
+                        <h3 className="font-semibold mb-3 flex items-center gap-2 text-sm md:text-base">
+                          <Send className="h-4 w-4" />
+                          Share & Follow-up
+                        </h3>
+                        <div className="space-y-3">
+                          <DropdownMenu>
+                            <DropdownMenuTrigger asChild>
+                              <Button variant="outline" className="w-full" disabled={isLoading}>
+                                {isLoading ? (
+                                  <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                                ) : (
+                                  <Send className="h-4 w-4 mr-2" />
+                                )}
+                                Email to Team
+                                <ChevronDown className="h-4 w-4 ml-auto" />
+                              </Button>
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent className="w-56">
+                              <DropdownMenuItem onClick={emailToTeam}>
+                                <Users className="h-4 w-4 mr-2" />
+                                Send to IEP Team
+                              </DropdownMenuItem>
+                              <DropdownMenuItem onClick={emailToTeam}>
+                                <Users className="h-4 w-4 mr-2" />
+                                Send to Advocate
+                              </DropdownMenuItem>
+                              <DropdownMenuItem onClick={emailToTeam}>
+                                <MessageSquare className="h-4 w-4 mr-2" />
+                                Send with Message
+                              </DropdownMenuItem>
+                            </DropdownMenuContent>
+                          </DropdownMenu>
+                          
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <Button variant="outline" className="w-full" onClick={setReminder} disabled={isLoading}>
+                                <Calendar className="h-4 w-4 mr-2" />
+                                Set Follow-up Reminders
+                              </Button>
+                            </TooltipTrigger>
+                            <TooltipContent>
+                              <p>Schedule post-meeting reminders</p>
+                            </TooltipContent>
+                          </Tooltip>
+                        </div>
+                      </Card>
+                    </div>
+
+                    {/* Vault Access */}
+                    <Card className="p-4 bg-gradient-to-r from-green-50 to-emerald-50 border-green-200">
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-2">
+                          <FolderOpen className="h-5 w-5 text-green-600" />
+                          <div>
+                            <h3 className="font-semibold text-green-900">Meeting Prep Results Vault</h3>
+                            <p className="text-sm text-green-700">All your prep materials are automatically saved here</p>
+                          </div>
+                        </div>
+                        <Button variant="ghost" className="text-green-700 hover:bg-green-100">
+                          <Eye className="h-4 w-4 mr-2" />
+                          View Vault
+                        </Button>
+                      </div>
+                    </Card>
+                  </TooltipProvider>
+
+                  <div className="flex justify-between pt-6">
+                    <Button variant="outline" onClick={prevStep} disabled={isLoading}>
                       <ArrowLeft className="h-4 w-4 mr-2" />
                       Back to Edit
                     </Button>
-                    <Button onClick={() => {
-                      toast({
-                        title: "Meeting Prep Complete!",
-                        description: "Your preparation materials have been generated successfully."
-                      });
-                    }}>
-                      <CheckCircle className="h-4 w-4 mr-2" />
-                      Complete Preparation
-                    </Button>
+                    <div className="flex gap-2">
+                      <Button 
+                        variant="outline" 
+                        onClick={() => saveToVault(saveFormat)}
+                        disabled={isLoading}
+                        className="hidden sm:flex"
+                      >
+                        {isLoading ? (
+                          <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                        ) : (
+                          <Save className="h-4 w-4 mr-2" />
+                        )}
+                        Save to Vault
+                      </Button>
+                      <Button 
+                        onClick={() => {
+                          if (autoSave) {
+                            saveToVault(saveFormat);
+                          }
+                          toast({
+                            title: "Meeting Prep Complete!",
+                            description: "Your preparation materials have been generated successfully."
+                          });
+                        }}
+                        disabled={isLoading}
+                        className="button-premium"
+                      >
+                        {isLoading ? (
+                          <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                        ) : (
+                          <CheckCircle className="h-4 w-4 mr-2" />
+                        )}
+                        Complete Preparation
+                      </Button>
+                    </div>
                   </div>
                 </CardContent>
               </Card>

@@ -278,7 +278,7 @@ export default function ParentDashboard() {
                 <Button 
                   size="lg" 
                   className="button-premium text-lg px-8 py-4 h-auto font-semibold"
-                  onClick={() => navigate('/parent/tools')}
+                  onClick={() => navigate('/parent/tools/emergent')}
                 >
                   <Rocket className="h-5 w-5 mr-3" />
                   Explore Premium Tools

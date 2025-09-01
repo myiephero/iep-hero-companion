@@ -44,15 +44,17 @@ export function StudentSelector({
     if (!user) return;
     
     try {
-      const response = await fetch('/api/students', {
+      const response = await fetch(`/api/students?_t=${Date.now()}`, {
         headers: {
-          'Authorization': `Bearer mock-token-${user.id}`
+          'Authorization': `Bearer mock-token-${user.id}`,
+          'Cache-Control': 'no-cache'
         }
       });
       if (!response.ok) {
         throw new Error('Failed to fetch students');
       }
       const data = await response.json();
+      console.log('StudentSelector: Fetched students for user', user.id, ':', data);
       setStudents(data || []);
     } catch (error) {
       console.error('Error fetching students:', error);

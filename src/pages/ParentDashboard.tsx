@@ -859,7 +859,14 @@ export default function ParentDashboard() {
                       <CardContent>
                         <div className="space-y-3">
                           {insights.map((insight) => (
-                            <div key={insight.id} className="group hover:shadow-md transition-all duration-200 flex items-center justify-between p-4 border border-gray-200 rounded-xl hover:border-gray-300">
+                            <button
+                              key={insight.id} 
+                              className="group hover:shadow-md transition-all duration-200 flex items-center justify-between p-4 border border-gray-200 rounded-xl hover:border-gray-300 w-full text-left cursor-pointer hover:bg-gray-50"
+                              onClick={() => {
+                                // Navigate to the IEP review page to show analysis results
+                                window.location.href = '/parent/tools/iep-review';
+                              }}
+                            >
                               <div className="flex items-center gap-3">
                                 <div className="p-2 bg-amber-100 rounded-lg">
                                   <BookOpen className="h-4 w-4 text-amber-600" />
@@ -878,7 +885,7 @@ export default function ParentDashboard() {
                                 </Badge>
                                 <ChevronRight className="h-4 w-4 text-gray-400 group-hover:text-gray-600 transition-colors" />
                               </div>
-                            </div>
+                            </button>
                           ))}
                         </div>
                       </CardContent>

@@ -234,12 +234,6 @@ const ParentStudents = () => {
   };
 
   useEffect(() => {
-    if (user) {
-      fetchStudents();
-    }
-  }, [user]);
-
-  useEffect(() => {
     if (selectedStudentId) {
       fetchStudentData(selectedStudentId);
     }
@@ -249,7 +243,13 @@ const ParentStudents = () => {
     if (!user) return;
 
     try {
-      const response = await fetch('/api/students');
+      // Add cache-busting timestamp and proper auth headers to force fresh data
+      const response = await fetch(`/api/students?_t=${Date.now()}`, {
+        headers: {
+          'Authorization': `Bearer ${session?.access_token}`,
+          'Cache-Control': 'no-cache'
+        }
+      });
       if (!response.ok) {
         throw new Error('Failed to fetch students');
       }
@@ -267,6 +267,19 @@ const ParentStudents = () => {
         variant: "destructive",
       });
     }
+  };
+
+  // Force refresh students when user changes
+  useEffect(() => {
+    if (user && session) {
+      // Clear existing data first
+      setStudents([]);
+      setSelectedStudentId(null);
+      setCurrentStudent(null);
+      // Then fetch fresh data
+      fetchStudents();
+    }
+  }, [user?.id, session?.access_token]); // Depend on user ID and token changes
   };
 
   const fetchStudentData = async (studentId: string) => {

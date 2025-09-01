@@ -197,6 +197,14 @@ app.get('/api/students', async (req, res) => {
   try {
     const userId = getUserId(req);
     const students = await db.select().from(schema.students).where(eq(schema.students.user_id, userId));
+    
+    // Add cache-busting headers to force fresh data
+    res.set({
+      'Cache-Control': 'no-cache, no-store, must-revalidate',
+      'Pragma': 'no-cache',
+      'Expires': '0'
+    });
+    
     res.json(students);
   } catch (error) {
     console.error('Error fetching students:', error);

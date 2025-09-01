@@ -53,13 +53,24 @@ const SmartLetterGenerator = () => {
     timestamp: string;
   } | null>(null);
 
-  // Handle URL parameters for analysis context
+  // Handle URL parameters for analysis context and templates
   useEffect(() => {
     const urlParams = new URLSearchParams(window.location.search);
     const context = urlParams.get('context');
     const analysisType = urlParams.get('analysisType');
     const fileName = urlParams.get('fileName');
     const timestamp = urlParams.get('timestamp');
+    const template = urlParams.get('template');
+
+    // Handle direct template parameter (from FERPA Overview links)
+    if (template) {
+      setSelectedTemplate(template);
+      toast({
+        title: "Template Pre-selected",
+        description: "Template loaded from your previous page.",
+      });
+      return;
+    }
 
     if (context === 'analysis' && analysisType) {
       setAnalysisContext({
@@ -151,6 +162,15 @@ const SmartLetterGenerator = () => {
       urgency: "Standard",
       timeframe: "10 days",
       complexity: "Simple"
+    },
+    {
+      id: "correction-request",
+      title: "Educational Record Correction",
+      description: "Request correction of inaccurate records",
+      category: "Records Correction",
+      urgency: "Standard",
+      timeframe: "45 days",
+      complexity: "Medium"
     }
   ];
 

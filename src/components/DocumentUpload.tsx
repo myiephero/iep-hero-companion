@@ -1073,10 +1073,19 @@ export function DocumentUpload({ onAnalysisComplete, selectedAnalysisType = 'iep
                     analysis={fileData.analysis} 
                     onSaveToVault={() => saveAnalysisToVault(fileData)}
                     onCreateLetter={() => {
-                      toast({
-                        title: "Create Letter",
-                        description: "Letter creation functionality will be implemented soon.",
+                      // Create letter based on analysis results
+                      const analysisType = fileData.analysis?.type;
+                      let letterRoute = '/tools/smart-letter-generator';
+                      
+                      // Pass analysis context via URL parameters
+                      const params = new URLSearchParams({
+                        context: 'analysis',
+                        analysisType: analysisType || '',
+                        fileName: fileData.editableName || fileData.file.name,
+                        timestamp: fileData.analysis?.timestamp || new Date().toISOString()
                       });
+                      
+                      window.location.href = `${letterRoute}?${params.toString()}`;
                     }}
                     onMeetingPrep={() => {
                       // Route based on user role

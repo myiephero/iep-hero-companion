@@ -291,7 +291,7 @@ export default function MatchingDashboard() {
       <DashboardLayout>
         <div className="space-y-6">
           <div>
-            <h1 className="text-3xl font-bold tracking-tight">Advocate Matching</h1>
+            <h1 className="text-3xl font-bold tracking-tight">Client Matching</h1>
             <p className="text-muted-foreground">
               Review incoming match proposals and connect with new families
             </p>

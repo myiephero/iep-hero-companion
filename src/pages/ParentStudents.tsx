@@ -246,7 +246,6 @@ const ParentStudents = () => {
       // Add cache-busting timestamp and proper auth headers to force fresh data
       const response = await fetch(`/api/students?_t=${Date.now()}`, {
         headers: {
-          'Authorization': `Bearer ${session?.access_token}`,
           'Cache-Control': 'no-cache'
         }
       });
@@ -271,7 +270,7 @@ const ParentStudents = () => {
 
   // Force refresh students when user changes
   useEffect(() => {
-    if (user && session) {
+    if (user) {
       // Clear existing data first
       setStudents([]);
       setSelectedStudentId(null);
@@ -279,8 +278,7 @@ const ParentStudents = () => {
       // Then fetch fresh data
       fetchStudents();
     }
-  }, [user?.id, session?.access_token]); // Depend on user ID and token changes
-  };
+  }, [user?.id]); // Depend on user ID changes
 
   const fetchStudentData = async (studentId: string) => {
     if (!user) return;

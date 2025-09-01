@@ -33,14 +33,22 @@ export function StudentSelector({
   const selectValue = selectedStudent === "" ? "no-student" : selectedStudent;
 
   useEffect(() => {
-    fetchStudents();
-  }, [user]);
+    if (user) {
+      setLoading(true);
+      setStudents([]); // Clear existing students first
+      fetchStudents();
+    }
+  }, [user?.id]); // Depend on user ID changes
 
   const fetchStudents = async () => {
     if (!user) return;
     
     try {
-      const response = await fetch('/api/students');
+      const response = await fetch('/api/students', {
+        headers: {
+          'Authorization': `Bearer mock-token-${user.id}`
+        }
+      });
       if (!response.ok) {
         throw new Error('Failed to fetch students');
       }

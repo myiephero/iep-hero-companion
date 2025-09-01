@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
-import { Search, Send, Paperclip } from "lucide-react";
+import { Search, Send, Paperclip, MessageSquare } from "lucide-react";
 import { useLocation } from "react-router-dom";
 import { useState, useEffect } from "react";
 
@@ -171,26 +171,40 @@ export default function AdvocateMessages() {
             </div>
             
             <div className="flex-1 p-4 overflow-y-auto space-y-4">
-              <div className="flex justify-start">
-                <div className="bg-muted p-3 rounded-lg max-w-xs">
-                  <p className="text-sm">Hello! I received your IEP review. Thank you so much for the detailed analysis.</p>
-                  <span className="text-xs text-muted-foreground">10:30 AM</span>
+              {/* Show empty state for new conversations */}
+              {selectedConversation?.isNew ? (
+                <div className="flex items-center justify-center h-full">
+                  <div className="text-center text-muted-foreground">
+                    <div className="text-6xl mb-4">💬</div>
+                    <p className="text-lg font-medium mb-2">New Conversation</p>
+                    <p className="text-sm">Send your first message to start the conversation with {selectedConversation.name}</p>
+                  </div>
                 </div>
-              </div>
-              
-              <div className="flex justify-end">
-                <div className="bg-primary p-3 rounded-lg max-w-xs text-primary-foreground">
-                  <p className="text-sm">You're welcome! I've identified several areas where we can strengthen Ava's supports. Would you like to schedule a call to discuss?</p>
-                  <span className="text-xs opacity-80">10:32 AM</span>
-                </div>
-              </div>
-              
-              <div className="flex justify-start">
-                <div className="bg-muted p-3 rounded-lg max-w-xs">
-                  <p className="text-sm">Yes, that would be great. When are you available this week?</p>
-                  <span className="text-xs text-muted-foreground">10:35 AM</span>
-                </div>
-              </div>
+              ) : (
+                /* Show existing conversation messages */
+                <>
+                  <div className="flex justify-start">
+                    <div className="bg-muted p-3 rounded-lg max-w-xs">
+                      <p className="text-sm">Hello! I received your IEP review. Thank you so much for the detailed analysis.</p>
+                      <span className="text-xs text-muted-foreground">10:30 AM</span>
+                    </div>
+                  </div>
+                  
+                  <div className="flex justify-end">
+                    <div className="bg-primary p-3 rounded-lg max-w-xs text-primary-foreground">
+                      <p className="text-sm">You're welcome! I've identified several areas where we can strengthen Ava's supports. Would you like to schedule a call to discuss?</p>
+                      <span className="text-xs opacity-80">10:32 AM</span>
+                    </div>
+                  </div>
+                  
+                  <div className="flex justify-start">
+                    <div className="bg-muted p-3 rounded-lg max-w-xs">
+                      <p className="text-sm">Yes, that would be great. When are you available this week?</p>
+                      <span className="text-xs text-muted-foreground">10:35 AM</span>
+                    </div>
+                  </div>
+                </>
+              )}
             </div>
             
             <div className="p-4 border-t">

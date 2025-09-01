@@ -435,14 +435,7 @@ ${userInputs.parentName || '[Parent Name]'}`;
           </p>
         </div>
 
-        <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-          <TabsList className="grid w-full grid-cols-3">
-            <TabsTrigger value="analyze">Analyze Documents</TabsTrigger>
-            <TabsTrigger value="results">Review Results</TabsTrigger>
-            <TabsTrigger value="actions">Action Plans</TabsTrigger>
-          </TabsList>
-
-          <TabsContent value="analyze" className="space-y-6">
+        <div className="space-y-6">
             {/* Analysis Configuration */}
             <Card>
               <CardHeader>
@@ -464,9 +457,6 @@ ${userInputs.parentName || '[Parent Name]'}`;
                 />
               </CardContent>
             </Card>
-          </TabsContent>
-
-          <TabsContent value="results" className="space-y-6">
             {/* Results Header */}
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">
@@ -711,9 +701,6 @@ ${userInputs.parentName || '[Parent Name]'}`;
                 </div>
               )}
             </div>
-          </TabsContent>
-
-          <TabsContent value="actions" className="space-y-6">
             <div className="flex items-center justify-between">
               <div>
                 <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100">Action Plans & Letters</h2>
@@ -787,8 +774,7 @@ ${userInputs.parentName || '[Parent Name]'}`;
                 ))
               )}
             </div>
-          </TabsContent>
-        </Tabs>
+        </div>
 
         {/* Action Draft Generation Dialog */}
         <Dialog open={actionDraftOpen} onOpenChange={setActionDraftOpen}>

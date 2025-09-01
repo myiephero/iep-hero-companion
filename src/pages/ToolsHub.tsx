@@ -42,7 +42,7 @@ const parentTools: Tool[] = [
     title: "Smart Letter Generator",
     description: "Create professional advocacy letters with templates and AI assistance",
     icon: <PenTool className="h-6 w-6" />,
-    url: "/tools/smart-letter-generator",
+    url: "/parent/tools/smart-letter-generator",
     category: "Communication",
     badge: "Popular"
   },
@@ -82,7 +82,7 @@ const advocateTools: Tool[] = [
     title: "Smart Letter Generator",
     description: "Create professional advocacy letters with legal templates and client customization",
     icon: <PenTool className="h-6 w-6" />,
-    url: "/tools/smart-letter-generator",
+    url: "/advocate/tools/smart-letter-generator",
     category: "Communication",
     badge: "Pro"
   },

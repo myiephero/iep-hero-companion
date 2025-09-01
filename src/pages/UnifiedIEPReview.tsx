@@ -455,40 +455,7 @@ ${userInputs.parentName || '[Parent Name]'}`;
                 </CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div>
-                    <label className="text-sm font-medium mb-2 block">Student (Optional)</label>
-                    <StudentSelector 
-                      selectedStudent={selectedStudent}
-                      onStudentChange={(studentId) => {
-                        setSelectedStudent(studentId);
-                        const student = students.find(s => s.id === studentId);
-                        setSelectedStudentName(student?.full_name || "");
-                      }}
-                    />
-                  </div>
-                  <div>
-                    <label className="text-sm font-medium mb-2 block">Analysis Type</label>
-                    <Select value={selectedReviewType} onValueChange={setSelectedReviewType}>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select analysis type" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {reviewTypes.map(type => (
-                          <SelectItem key={type.value} value={type.value}>
-                            <div>
-                              <div className="font-medium">{type.label}</div>
-                              <div className="text-sm text-muted-foreground">{type.description}</div>
-                            </div>
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </div>
-                </div>
-                
                 <DocumentUpload 
-                  selectedAnalysisType={selectedReviewType}
                   onAnalysisComplete={(analysis) => {
                     if (analysis.documentId && analysis.documentName) {
                       handleAnalysisComplete(analysis, analysis.documentId, analysis.documentName);

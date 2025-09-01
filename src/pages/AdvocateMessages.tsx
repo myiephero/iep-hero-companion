@@ -218,7 +218,20 @@ export default function AdvocateMessages() {
                   value={newMessageText}
                   onChange={(e) => setNewMessageText(e.target.value)}
                 />
-                <Button size="icon">
+                <Button size="icon" onClick={() => {
+                  if (newMessageText.trim() && selectedConversation) {
+                    // For now, just clear the message to simulate sending
+                    // In a real app, this would call an API to send the message
+                    setNewMessageText('');
+                    
+                    // Update the conversation to show it's no longer new
+                    if (selectedConversation.isNew) {
+                      const updatedConversation = { ...selectedConversation, isNew: false, lastMessage: 'Message sent' };
+                      setSelectedConversation(updatedConversation);
+                      setDynamicConversations([updatedConversation]);
+                    }
+                  }
+                }}>
                   <Send className="h-4 w-4" />
                 </Button>
               </div>

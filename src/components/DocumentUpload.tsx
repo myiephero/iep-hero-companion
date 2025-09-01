@@ -32,7 +32,8 @@ import {
   Tag,
   MoreVertical,
   Eye,
-  Download
+  Download,
+  UserPlus
 } from "lucide-react";
 
 // Helper function to read file as text
@@ -802,6 +803,16 @@ export function DocumentUpload({ onAnalysisComplete, selectedAnalysisType = 'iep
                             >
                               <Download className="h-4 w-4 mr-2" />
                               Download
+                            </DropdownMenuItem>
+                            <DropdownMenuItem 
+                              onClick={() => {
+                                // TODO: Implement assign to student functionality
+                                console.log('Assign to student clicked for file:', fileData.file.name);
+                              }}
+                              data-testid={`menu-assign-student-${fileData.id}`}
+                            >
+                              <UserPlus className="h-4 w-4 mr-2" />
+                              Assign to Student
                             </DropdownMenuItem>
                             <DropdownMenuSeparator />
                             <DropdownMenuItem 

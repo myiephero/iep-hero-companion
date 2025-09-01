@@ -252,7 +252,8 @@ const DocumentVault: React.FC = () => {
     
     const matchesType = filterType === 'all' || 
                        doc.file_type?.includes(filterType) ||
-                       doc.category?.toLowerCase().includes(filterType.toLowerCase());
+                       doc.category?.toLowerCase().includes(filterType.toLowerCase()) ||
+                       (filterType === 'ai review' && doc.category === 'AI Analysis');
     
     return matchesSearch && matchesType;
   });

@@ -32,6 +32,7 @@ import {
   Wand2
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { useEffect } from "react";
 
 const SmartLetterGenerator = () => {
   const { toast } = useToast();
@@ -39,6 +40,55 @@ const SmartLetterGenerator = () => {
   const [selectedTemplate, setSelectedTemplate] = useState("");
   const [letterContent, setLetterContent] = useState("");
   const [isGenerating, setIsGenerating] = useState(false);
+  const [analysisContext, setAnalysisContext] = useState<{
+    analysisType: string;
+    fileName: string;
+    timestamp: string;
+  } | null>(null);
+
+  // Handle URL parameters for analysis context
+  useEffect(() => {
+    const urlParams = new URLSearchParams(window.location.search);
+    const context = urlParams.get('context');
+    const analysisType = urlParams.get('analysisType');
+    const fileName = urlParams.get('fileName');
+    const timestamp = urlParams.get('timestamp');
+
+    if (context === 'analysis' && analysisType) {
+      setAnalysisContext({
+        analysisType,
+        fileName: fileName || '',
+        timestamp: timestamp || ''
+      });
+
+      // Auto-select appropriate template based on analysis type
+      let suggestedTemplate = '';
+      switch (analysisType.toLowerCase()) {
+        case 'iep_quality':
+        case 'goal_analysis':
+          suggestedTemplate = 'iep-meeting-request';
+          break;
+        case 'compliance':
+          suggestedTemplate = 'prior-written-notice';
+          break;
+        case 'accommodation':
+          suggestedTemplate = 'accommodation-request';
+          break;
+        case 'meeting_prep':
+          suggestedTemplate = 'iep-meeting-request';
+          break;
+        default:
+          suggestedTemplate = 'iep-meeting-request';
+      }
+      setSelectedTemplate(suggestedTemplate);
+
+      // Show context notification
+      toast({
+        title: "Analysis Context Loaded",
+        description: `Pre-selected template based on your ${analysisType.replace('_', ' ')} analysis.`,
+      });
+    }
+  }, [toast]);
 
   const letterTemplates = [
     {
@@ -141,13 +191,33 @@ const SmartLetterGenerator = () => {
     // Simulate AI generation
     setTimeout(() => {
       const template = letterTemplates.find(t => t.id === selectedTemplate);
+      
+      // Generate analysis-aware content
+      let analysisContextText = '';
+      if (analysisContext) {
+        switch (analysisContext.analysisType.toLowerCase()) {
+          case 'iep_quality':
+            analysisContextText = `\n\nBased on my recent analysis of the current IEP document (${analysisContext.fileName}), I have identified several areas that require attention and discussion. This analysis was completed on ${new Date(analysisContext.timestamp).toLocaleDateString()}.`;
+            break;
+          case 'compliance':
+            analysisContextText = `\n\nMy recent compliance analysis of the current IEP document (${analysisContext.fileName}) has revealed potential compliance concerns that need to be addressed. This analysis was completed on ${new Date(analysisContext.timestamp).toLocaleDateString()}.`;
+            break;
+          case 'accommodation':
+            analysisContextText = `\n\nFollowing my analysis of current accommodations (${analysisContext.fileName}), I would like to discuss modifications and improvements to better support my child's needs. This analysis was completed on ${new Date(analysisContext.timestamp).toLocaleDateString()}.`;
+            break;
+          case 'meeting_prep':
+            analysisContextText = `\n\nI have completed a thorough preparation analysis (${analysisContext.fileName}) for our upcoming meeting and would like to schedule time to discuss the findings. This analysis was completed on ${new Date(analysisContext.timestamp).toLocaleDateString()}.`;
+            break;
+          default:
+            analysisContextText = `\n\nBased on my recent document analysis (${analysisContext.fileName}), I believe it would be beneficial to meet and discuss the findings. This analysis was completed on ${new Date(analysisContext.timestamp).toLocaleDateString()}.`;
+        }
+      }
+      
       const generatedContent = `Dear Dr. Martinez,
 
-I am writing to formally request ${template?.title.toLowerCase()} for my child, Emma Thompson, who is currently enrolled in 4th Grade at Lincoln Elementary School.
+I am writing to formally request ${template?.title.toLowerCase()} for my child, Emma Thompson, who is currently enrolled in 4th Grade at Lincoln Elementary School.${analysisContextText}
 
-[This is where the AI-generated content would appear based on the selected template and form data]
-
-As Emma's parent/guardian, I am requesting this under the provisions of the Individuals with Disabilities Education Act (IDEA) and Section 504 of the Rehabilitation Act.
+${analysisContextText ? 'The analysis has provided valuable insights that I believe warrant discussion and potential action. ' : ''}As Emma's parent/guardian, I am requesting this under the provisions of the Individuals with Disabilities Education Act (IDEA) and Section 504 of the Rehabilitation Act.
 
 Please provide written confirmation of receipt of this request and the anticipated timeline for response.
 
@@ -167,7 +237,7 @@ Date: ${new Date().toLocaleDateString()}`;
       
       toast({
         title: "Letter Generated Successfully",
-        description: "Your letter has been generated and is ready for review."
+        description: "Your analysis-informed letter has been generated and is ready for review."
       });
     }, 2000);
   };

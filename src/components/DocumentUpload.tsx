@@ -775,32 +775,6 @@ export function DocumentUpload({ onAnalysisComplete, selectedAnalysisType = 'iep
                   <div className="flex items-center gap-2">
                     {fileData.status === 'completed' && (
                       <>
-                        {/* Primary Actions - Always Visible */}
-                        <Button 
-                          size="sm" 
-                          variant="outline" 
-                          className="h-8"
-                          onClick={() => window.open(URL.createObjectURL(fileData.file), '_blank')}
-                          data-testid={`button-view-${fileData.id}`}
-                        >
-                          <Eye className="h-4 w-4 mr-1" />
-                          View
-                        </Button>
-                        <Button 
-                          size="sm" 
-                          variant="outline" 
-                          className="h-8"
-                          onClick={() => {
-                            const a = document.createElement('a');
-                            a.href = URL.createObjectURL(fileData.file);
-                            a.download = fileData.file.name;
-                            a.click();
-                          }}
-                          data-testid={`button-download-${fileData.id}`}
-                        >
-                          <Download className="h-4 w-4 mr-1" />
-                          Download
-                        </Button>
 
                         {/* Secondary Actions - Dropdown Menu */}
                         <DropdownMenu>

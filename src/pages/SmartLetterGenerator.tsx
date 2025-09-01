@@ -10,6 +10,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Checkbox } from "@/components/ui/checkbox";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Progress } from "@/components/ui/progress";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { 
   FileText, 
   Download, 
@@ -29,7 +30,9 @@ import {
   Eye,
   History,
   FileType,
-  Wand2
+  Wand2,
+  ChevronDown,
+  Settings
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useEffect } from "react";
@@ -271,6 +274,30 @@ Date: ${new Date().toLocaleDateString()}`;
     });
   };
 
+  const handleLetterHistory = () => {
+    toast({
+      title: "Letter History",
+      description: "Viewing your letter history..."
+    });
+    // TODO: Implement letter history functionality
+  };
+
+  const handleMyTemplates = () => {
+    toast({
+      title: "My Templates",
+      description: "Loading your custom templates..."
+    });
+    // TODO: Implement custom templates functionality
+  };
+
+  const handleSettings = () => {
+    toast({
+      title: "Preferences",
+      description: "Opening letter generation preferences..."
+    });
+    // TODO: Implement preferences/settings functionality
+  };
+
   const downloadLetter = () => {
     const blob = new Blob([letterContent], { type: 'text/plain' });
     const url = URL.createObjectURL(blob);
@@ -297,16 +324,29 @@ Date: ${new Date().toLocaleDateString()}`;
               Generate professional FERPA, IEP, and advocacy letters with AI assistance
             </p>
           </div>
-          <div className="flex gap-2">
-            <Button variant="outline">
-              <History className="h-4 w-4 mr-2" />
-              Letter History
-            </Button>
-            <Button variant="outline">
-              <FileType className="h-4 w-4 mr-2" />
-              My Templates
-            </Button>
-          </div>
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="outline">
+                <Settings className="h-4 w-4 mr-2" />
+                Tools & History
+                <ChevronDown className="h-4 w-4 ml-2" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" className="w-56">
+              <DropdownMenuItem onClick={() => handleLetterHistory()}>
+                <History className="h-4 w-4 mr-2" />
+                Letter History
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => handleMyTemplates()}>
+                <FileType className="h-4 w-4 mr-2" />
+                My Templates
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => handleSettings()}>
+                <Settings className="h-4 w-4 mr-2" />
+                Preferences
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
         </div>
 
         {/* Progress Indicator */}

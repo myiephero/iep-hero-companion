@@ -244,6 +244,49 @@ class ApiClient {
     });
   }
 
+  // Matching
+  async getMatchProposals(): Promise<any[]> {
+    return this.request('/match');
+  }
+
+  async getAdvocateProposals(): Promise<any[]> {
+    return this.request('/match/advocate');
+  }
+
+  async createMatchProposal(studentId: string, advocateIds: string[], reason?: any): Promise<any> {
+    return this.request('/match/propose', {
+      method: 'POST',
+      body: JSON.stringify({
+        student_id: studentId,
+        advocate_ids: advocateIds,
+        reason
+      }),
+    });
+  }
+
+  async requestIntroCall(proposalId: string, scheduledAt?: Date, notes?: string): Promise<any> {
+    return this.request(`/match/${proposalId}/intro`, {
+      method: 'POST',
+      body: JSON.stringify({
+        when_ts: scheduledAt?.toISOString(),
+        notes
+      }),
+    });
+  }
+
+  async acceptProposal(proposalId: string): Promise<any> {
+    return this.request(`/match/${proposalId}/accept`, {
+      method: 'POST',
+    });
+  }
+
+  async declineProposal(proposalId: string, reason?: string): Promise<any> {
+    return this.request(`/match/${proposalId}/decline`, {
+      method: 'POST',
+      body: JSON.stringify({ reason }),
+    });
+  }
+
   async deleteAIReview(reviewId: string): Promise<void> {
     return this.request(`/ai_reviews/${reviewId}`, {
       method: 'DELETE',

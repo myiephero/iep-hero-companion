@@ -240,131 +240,88 @@ export default function AdvocateToolsHub() {
           </div>
         </div>
 
-        {/* Professional Tools Grid by Category */}
-        <div className="space-y-8">
-          {categories.map((category) => (
-            <div key={category}>
-              <h2 className="text-2xl font-semibold mb-4 flex items-center gap-2">
-                {category === "AI Tools" && <Brain className="h-6 w-6" />}
-                {category === "Communication" && <MessageSquare className="h-6 w-6" />}
-                {category === "Legal Support" && <Scale className="h-6 w-6" />}
-                {category === "Meeting Support" && <Lightbulb className="h-6 w-6" />}
-                {category === "Data Analysis" && <BarChart3 className="h-6 w-6" />}
-                {category === "IEP Planning" && <Target className="h-6 w-6" />}
-                {category === "Professional Support" && <Users className="h-6 w-6" />}
-                {category === "Case Management" && <Clipboard className="h-6 w-6" />}
-                {category === "Behavioral Support" && <Smile className="h-6 w-6" />}
-                {category}
-              </h2>
-              
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {advocateTools
-                  .filter(tool => tool.category === category)
-                  .map((tool) => (
-                    <Card key={tool.title} className="hover:shadow-xl transition-all duration-300 hover:scale-[1.02] group border-0 shadow-md bg-gradient-to-br from-white to-gray-50/50 dark:from-gray-900 dark:to-gray-800/50">
-                      <CardHeader className="space-y-4 pb-4">
-                        <div className="flex items-start justify-between">
-                          <div className="p-4 rounded-xl bg-gradient-to-br from-primary/10 to-primary/5 group-hover:from-primary/20 group-hover:to-primary/10 transition-all duration-300 shadow-sm">
-                            <tool.icon className="h-7 w-7 text-primary" />
-                          </div>
-                          <Badge className={`${getBadgeVariant(tool.badge)} font-medium px-3 py-1 shadow-sm`}>
-                            {tool.badge}
-                          </Badge>
-                        </div>
-                        <div className="space-y-3">
-                          <CardTitle className="text-lg font-bold group-hover:text-primary transition-colors leading-tight">
-                            {tool.title}
-                          </CardTitle>
-                          <CardDescription className="text-sm leading-relaxed text-gray-600 dark:text-gray-300">
-                            {tool.description}
-                          </CardDescription>
-                        </div>
-                      </CardHeader>
-                      
-                      <CardContent className="space-y-5 pt-0">
-                        <div className="bg-gray-50/50 dark:bg-gray-800/30 rounded-lg p-4 space-y-3">
-                          <h4 className="text-sm font-semibold text-gray-700 dark:text-gray-300 flex items-center gap-2">
-                            <div className="w-2 h-2 bg-primary rounded-full"></div>
-                            Key Features
-                          </h4>
-                          <div className="grid grid-cols-1 gap-2">
-                            {tool.features.map((feature, index) => (
-                              <div key={index} className="text-xs text-gray-600 dark:text-gray-400 flex items-center gap-2 py-1">
-                                <div className="w-1.5 h-1.5 bg-primary/60 rounded-full flex-shrink-0"></div>
-                                <span className="font-medium">{feature}</span>
-                              </div>
-                            ))}
-                          </div>
-                        </div>
-                        
-                        <Button asChild className="w-full group-hover:shadow-lg transition-all duration-300 font-medium py-2.5 bg-gradient-to-r from-primary to-primary/90 hover:from-primary/90 hover:to-primary">
-                          <Link to={`/${userRole}${tool.path}`}>
-                            Open Tool
-                            <span className="ml-2 group-hover:translate-x-1 transition-transform duration-300">→</span>
-                          </Link>
-                        </Button>
-                      </CardContent>
-                    </Card>
-                  ))}
-              </div>
-            </div>
-          ))}
-        </div>
-
-        {/* Specialized Tools Section */}
-        <div className="space-y-4">
-          <h2 className="text-2xl font-semibold flex items-center gap-2">
-            <Zap className="h-6 w-6" />
-            Specialized Assessment Tools
-          </h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            {specializedTools.map((tool) => (
-              <Card key={tool.title} className="hover:shadow-xl transition-all duration-300 hover:scale-[1.02] group border-0 shadow-md bg-gradient-to-br from-primary/10 via-primary/5 to-transparent overflow-hidden relative">
-                <div className="absolute inset-0 bg-gradient-to-br from-primary/5 to-primary/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-                <CardHeader className="space-y-4 pb-4 relative z-10">
-                  <div className="flex items-start justify-between">
-                    <div className="p-4 rounded-xl bg-white/80 dark:bg-gray-900/80 group-hover:bg-white group-hover:shadow-md transition-all duration-300 backdrop-blur-sm">
-                      <tool.icon className="h-7 w-7 text-primary" />
+        {/* Compact Professional Tools Grid - All Tools Visible */}
+        <div className="space-y-6">
+          <h2 className="text-2xl font-semibold text-center">Complete Professional Toolbox</h2>
+          
+          {/* Main Professional Tools */}
+          <div>
+            <h3 className="text-lg font-medium mb-4 text-center text-gray-700">Core Professional Tools</h3>
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 gap-4">
+              {advocateTools.map((tool) => (
+                <Card key={tool.title} className="hover:shadow-lg transition-all duration-200 hover:scale-[1.02] group border border-gray-200 hover:border-primary/30 bg-white h-fit">
+                  <CardHeader className="pb-3 pt-4 px-4">
+                    <div className="flex flex-col items-center text-center space-y-3">
+                      <div className="p-3 rounded-lg bg-primary/10 group-hover:bg-primary/20 transition-all duration-200">
+                        <tool.icon className="h-6 w-6 text-primary" />
+                      </div>
+                      <div className="space-y-2">
+                        <Badge className={`${getBadgeVariant(tool.badge)} text-xs px-2 py-1`}>
+                          {tool.badge}
+                        </Badge>
+                        <CardTitle className="text-sm font-semibold group-hover:text-primary transition-colors leading-tight">
+                          {tool.title}
+                        </CardTitle>
+                      </div>
                     </div>
-                    <Badge className={`${getBadgeVariant(tool.badge)} font-medium px-3 py-1 shadow-sm bg-white/90 dark:bg-gray-900/90`}>
-                      {tool.badge}
-                    </Badge>
-                  </div>
-                  <div className="space-y-3">
-                    <CardTitle className="text-lg font-bold group-hover:text-primary transition-colors leading-tight">
-                      {tool.title}
-                    </CardTitle>
-                    <CardDescription className="text-sm leading-relaxed text-gray-700 dark:text-gray-300">
-                      {tool.description}
-                    </CardDescription>
-                  </div>
-                </CardHeader>
-                
-                <CardContent className="space-y-5 pt-0 relative z-10">
-                  <div className="bg-white/60 dark:bg-gray-900/30 rounded-lg p-4 space-y-3 backdrop-blur-sm">
-                    <h4 className="text-sm font-semibold text-gray-700 dark:text-gray-300 flex items-center gap-2">
-                      <div className="w-2 h-2 bg-primary rounded-full"></div>
-                      Key Features
-                    </h4>
-                    <div className="grid grid-cols-1 gap-2">
-                      {tool.features.map((feature, index) => (
-                        <div key={index} className="text-xs text-gray-700 dark:text-gray-400 flex items-center gap-2 py-1">
-                          <div className="w-1.5 h-1.5 bg-primary/70 rounded-full flex-shrink-0"></div>
-                          <span className="font-medium">{feature}</span>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
+                  </CardHeader>
                   
-                  <Button asChild className="w-full group-hover:shadow-lg transition-all duration-300 font-medium py-2.5 bg-primary/90 hover:bg-primary backdrop-blur-sm">
-                    <Link to={`/${userRole}${tool.path}`}>
-                      Open Tool
-                      <span className="ml-2 group-hover:translate-x-1 transition-transform duration-300">→</span>
-                    </Link>
-                  </Button>
-                </CardContent>
-              </Card>
-            ))}
+                  <CardContent className="pt-0 px-4 pb-4">
+                    <div className="space-y-3">
+                      <p className="text-xs text-gray-600 dark:text-gray-400 text-center leading-relaxed">
+                        {tool.description.length > 80 ? `${tool.description.substring(0, 80)}...` : tool.description}
+                      </p>
+                      
+                      <Button asChild size="sm" className="w-full text-xs py-2 bg-primary hover:bg-primary/90">
+                        <Link to={`/${userRole}${tool.path}`}>
+                          Open Tool
+                        </Link>
+                      </Button>
+                    </div>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          </div>
+
+          {/* Specialized Tools Section */}
+          <div>
+            <h3 className="text-lg font-medium mb-4 text-center text-gray-700">Specialized Assessment Tools</h3>
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+              {specializedTools.map((tool) => (
+                <Card key={tool.title} className="hover:shadow-lg transition-all duration-200 hover:scale-[1.02] group border border-gray-200 hover:border-primary/30 bg-gradient-to-br from-primary/5 to-white h-fit">
+                  <CardHeader className="pb-3 pt-4 px-4">
+                    <div className="flex flex-col items-center text-center space-y-3">
+                      <div className="p-3 rounded-lg bg-white/80 group-hover:bg-white group-hover:shadow-md transition-all duration-200">
+                        <tool.icon className="h-6 w-6 text-primary" />
+                      </div>
+                      <div className="space-y-2">
+                        <Badge className={`${getBadgeVariant(tool.badge)} text-xs px-2 py-1`}>
+                          {tool.badge}
+                        </Badge>
+                        <CardTitle className="text-sm font-semibold group-hover:text-primary transition-colors leading-tight">
+                          {tool.title}
+                        </CardTitle>
+                      </div>
+                    </div>
+                  </CardHeader>
+                  
+                  <CardContent className="pt-0 px-4 pb-4">
+                    <div className="space-y-3">
+                      <p className="text-xs text-gray-600 dark:text-gray-400 text-center leading-relaxed">
+                        {tool.description.length > 80 ? `${tool.description.substring(0, 80)}...` : tool.description}
+                      </p>
+                      
+                      <Button asChild size="sm" className="w-full text-xs py-2 bg-primary hover:bg-primary/90">
+                        <Link to={`/${userRole}${tool.path}`}>
+                          Open Tool
+                        </Link>
+                      </Button>
+                    </div>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
           </div>
         </div>
 

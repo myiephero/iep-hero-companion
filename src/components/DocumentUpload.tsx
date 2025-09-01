@@ -875,20 +875,81 @@ export function DocumentUpload({ onAnalysisComplete, selectedAnalysisType = 'iep
 
                 {fileData.status === 'completed' && (
                   <div className="flex items-center gap-2">
-                    <Button
-                      size="sm"
-                      variant="outline"
-                      disabled={analyzing === fileData.id}
-                      onClick={() => analyzeDocument(fileData, selectedAnalysisType)}
-                      className="flex items-center gap-2"
-                    >
-                      {analyzing === fileData.id ? (
-                        <Loader2 className="h-4 w-4 animate-spin" />
-                      ) : (
-                        <Brain className="h-4 w-4" />
-                      )}
-                      AI Analysis
-                    </Button>
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          disabled={analyzing === fileData.id}
+                          className="flex items-center gap-2"
+                        >
+                          {analyzing === fileData.id ? (
+                            <Loader2 className="h-4 w-4 animate-spin" />
+                          ) : (
+                            <Brain className="h-4 w-4" />
+                          )}
+                          AI Analysis
+                          <ChevronDown className="h-3 w-3" />
+                        </Button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align="start" className="w-56">
+                        <DropdownMenuItem 
+                          onClick={() => analyzeDocument(fileData, 'iep_quality')}
+                          disabled={analyzing === fileData.id}
+                          className="flex items-center gap-2"
+                        >
+                          <FileCheck className="h-4 w-4" />
+                          <div>
+                            <div className="font-medium">IEP Quality Review</div>
+                            <div className="text-xs text-muted-foreground">Comprehensive quality analysis with scoring</div>
+                          </div>
+                        </DropdownMenuItem>
+                        <DropdownMenuItem 
+                          onClick={() => analyzeDocument(fileData, 'compliance_check')}
+                          disabled={analyzing === fileData.id}
+                          className="flex items-center gap-2"
+                        >
+                          <Shield className="h-4 w-4" />
+                          <div>
+                            <div className="font-medium">Compliance Analysis</div>
+                            <div className="text-xs text-muted-foreground">Check IDEA compliance and requirements</div>
+                          </div>
+                        </DropdownMenuItem>
+                        <DropdownMenuItem 
+                          onClick={() => analyzeDocument(fileData, 'accommodation')}
+                          disabled={analyzing === fileData.id}
+                          className="flex items-center gap-2"
+                        >
+                          <Users className="h-4 w-4" />
+                          <div>
+                            <div className="font-medium">Accommodation Analysis</div>
+                            <div className="text-xs text-muted-foreground">Review accommodation effectiveness</div>
+                          </div>
+                        </DropdownMenuItem>
+                        <DropdownMenuItem 
+                          onClick={() => analyzeDocument(fileData, 'meeting_prep')}
+                          disabled={analyzing === fileData.id}
+                          className="flex items-center gap-2"
+                        >
+                          <MessageSquare className="h-4 w-4" />
+                          <div>
+                            <div className="font-medium">Meeting Preparation</div>
+                            <div className="text-xs text-muted-foreground">Prepare for IEP meetings</div>
+                          </div>
+                        </DropdownMenuItem>
+                        <DropdownMenuItem 
+                          onClick={() => analyzeDocument(fileData, 'goal_analysis')}
+                          disabled={analyzing === fileData.id}
+                          className="flex items-center gap-2"
+                        >
+                          <Target className="h-4 w-4" />
+                          <div>
+                            <div className="font-medium">Goal Analysis</div>
+                            <div className="text-xs text-muted-foreground">Analyze IEP goals and progress</div>
+                          </div>
+                        </DropdownMenuItem>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
                   </div>
                 )}
 

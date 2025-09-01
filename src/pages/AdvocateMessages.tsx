@@ -42,14 +42,30 @@ export default function AdvocateMessages() {
   const location = useLocation();
   const [selectedConversation, setSelectedConversation] = useState(null);
   const [newMessageText, setNewMessageText] = useState('');
+  const [dynamicConversations, setDynamicConversations] = useState([]);
   
   // Check if we're coming from a match proposal
   useEffect(() => {
     if (location.state?.newMessage) {
       const { parentId, studentName, proposalId } = location.state.newMessage;
+      
+      // Create a new conversation for this parent
+      const newConversation = {
+        id: `new-${proposalId}`,
+        name: `${studentName}'s Family`,
+        student: studentName,
+        lastMessage: "New conversation started",
+        time: "now",
+        unread: 0,
+        avatar: studentName?.split(' ').map(n => n[0]).join('') || 'NF',
+        isNew: true
+      };
+      
+      setDynamicConversations([newConversation]);
+      setSelectedConversation(newConversation);
+      
       // Pre-populate the message input with a starter message
       setNewMessageText(`Hello! Thank you for considering me as an advocate for ${studentName}. I'd love to learn more about ${studentName}'s specific needs and how I can best support your family. Would you be available for a brief introductory call this week to discuss your goals and next steps?`);
-      // You could also set selectedConversation to highlight or create a new conversation
     }
   }, [location.state]);
 
@@ -67,10 +83,45 @@ export default function AdvocateMessages() {
               </div>
             </div>
             <div className="flex-1 overflow-y-auto">
+              {/* Show dynamic conversations first (new ones from match proposals) */}
+              {dynamicConversations.map((conversation) => (
+                <div
+                  key={conversation.id}
+                  className={`p-4 border-b hover:bg-muted/50 cursor-pointer transition-colors ${
+                    selectedConversation?.id === conversation.id ? 'bg-muted/50' : ''
+                  }`}
+                  onClick={() => setSelectedConversation(conversation)}
+                >
+                  <div className="flex items-start gap-3">
+                    <Avatar className="h-10 w-10">
+                      <AvatarImage src={`/placeholder-new.jpg`} />
+                      <AvatarFallback>{conversation.avatar}</AvatarFallback>
+                    </Avatar>
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center justify-between">
+                        <p className="font-medium truncate">{conversation.name}</p>
+                        <span className="text-xs text-muted-foreground">{conversation.time}</span>
+                      </div>
+                      <p className="text-sm text-muted-foreground mb-1">{conversation.student}</p>
+                      <p className="text-sm truncate">{conversation.lastMessage}</p>
+                      {conversation.isNew && (
+                        <Badge variant="default" className="mt-2 text-xs">
+                          New Match Request
+                        </Badge>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              ))}
+              
+              {/* Show existing conversations */}
               {conversations.map((conversation) => (
                 <div
                   key={conversation.id}
-                  className="p-4 border-b hover:bg-muted/50 cursor-pointer transition-colors"
+                  className={`p-4 border-b hover:bg-muted/50 cursor-pointer transition-colors ${
+                    selectedConversation?.id === conversation.id ? 'bg-muted/50' : ''
+                  }`}
+                  onClick={() => setSelectedConversation(conversation)}
                 >
                   <div className="flex items-start gap-3">
                     <Avatar className="h-10 w-10">
@@ -105,24 +156,15 @@ export default function AdvocateMessages() {
                 <Avatar className="h-10 w-10">
                   <AvatarImage src="/placeholder-1.jpg" />
                   <AvatarFallback>
-                    {location.state?.newMessage ? 
-                      (location.state.newMessage.studentName?.split(' ').map(n => n[0]).join('') || 'SF') :
-                      'JP'
-                    }
+                    {selectedConversation?.avatar || 'JP'}
                   </AvatarFallback>
                 </Avatar>
                 <div>
                   <p className="font-medium">
-                    {location.state?.newMessage ? 
-                      `${location.state.newMessage.studentName}'s Family` :
-                      'Jordan Peterson'
-                    }
+                    {selectedConversation?.name || 'Jordan Peterson'}
                   </p>
                   <p className="text-sm text-muted-foreground">
-                    {location.state?.newMessage ? 
-                      location.state.newMessage.studentName :
-                      'Ava (Grade 3)'
-                    }
+                    {selectedConversation?.student || 'Ava (Grade 3)'}
                   </p>
                 </div>
               </div>

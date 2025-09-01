@@ -45,6 +45,10 @@ import AdvocatePricingPlan from "./pages/AdvocatePricingPlan";
 import ParentPricingPlan from "./pages/ParentPricingPlan";
 import ParentHeroPlan from "./pages/ParentHeroPlan";
 import AdvocateToolsHub from "./pages/AdvocateToolsHub";
+import IDEARightsGuide from "./pages/IDEARightsGuide";
+import FERPAOverview from "./pages/FERPAOverview";
+import Plan504Guide from "./pages/Plan504Guide";
+import TimelineCalculator from "./pages/TimelineCalculator";
 import NotFound from "./pages/NotFound";
 
 import { queryClient } from "./lib/queryClient";
@@ -296,6 +300,28 @@ function App() {
               <Route path="/parent/pricing-plan" element={<ParentPricingPlan />} />
               <Route path="/parent/hero-plan" element={<ParentHeroPlan />} />
               <Route path="/parent-hero-plan" element={<ParentHeroPlan />} />
+              
+              {/* Legal Resources - Available to both roles */}
+              <Route path="/idea-rights-guide" element={
+                <ProtectedRoute allowedRoles={['parent', 'advocate']}>
+                  <IDEARightsGuide />
+                </ProtectedRoute>
+              } />
+              <Route path="/ferpa-overview" element={
+                <ProtectedRoute allowedRoles={['parent', 'advocate']}>
+                  <FERPAOverview />
+                </ProtectedRoute>
+              } />
+              <Route path="/504-plan-guide" element={
+                <ProtectedRoute allowedRoles={['parent', 'advocate']}>
+                  <Plan504Guide />
+                </ProtectedRoute>
+              } />
+              <Route path="/timeline-calculator" element={
+                <ProtectedRoute allowedRoles={['parent', 'advocate']}>
+                  <TimelineCalculator />
+                </ProtectedRoute>
+              } />
               
               {/* Debug/Testing Tools */}
               <Route path="/all-pages" element={<AllPagesView />} />

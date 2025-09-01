@@ -16,6 +16,7 @@ import { DashboardLayout } from '@/layouts/DashboardLayout';
 import { useAuth } from '@/hooks/useAuth';
 import { api as apiClient } from '@/lib/api';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useNavigate } from 'react-router-dom';
 
 // Use API types
 interface Student {
@@ -63,6 +64,7 @@ export default function MatchingDashboard() {
   const [activeTab, setActiveTab] = useState('browse');
   const { toast } = useToast();
   const queryClient = useQueryClient();
+  const navigate = useNavigate();
 
   // Determine if user is an advocate or parent based on URL
   const isAdvocate = window.location.pathname.includes('/advocate/');
@@ -208,6 +210,16 @@ export default function MatchingDashboard() {
     declineProposalMutation.mutate({ proposalId, reason: 'Not a good fit at this time' });
   };
 
+  const handleSendMessage = (proposal: MatchProposal) => {
+    // Navigate to messages page with parent information pre-populated
+    const parentInfo = {
+      parentId: proposal.parent_id,
+      studentName: proposal.student?.full_name,
+      proposalId: proposal.id
+    };
+    navigate('/advocate/messages', { state: { newMessage: parentInfo } });
+  };
+
   // Render different layouts based on user role
   if (isAdvocate) {
     return (
@@ -294,6 +306,12 @@ export default function MatchingDashboard() {
                               onClick={() => handleDeclineProposal(proposal.id)}
                             >
                               Decline
+                            </Button>
+                            <Button 
+                              variant="secondary"
+                              onClick={() => handleSendMessage(proposal)}
+                            >
+                              Send Message
                             </Button>
                             <Button onClick={() => handleAcceptProposal(proposal.id)}>
                               Accept Match

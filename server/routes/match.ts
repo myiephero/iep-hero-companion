@@ -88,7 +88,9 @@ router.get('/', async (req: Request, res: Response) => {
 // POST /api/match/propose - Create match proposals
 router.post('/propose', async (req: Request, res: Response) => {
   try {
+    console.log('Match proposal request received:', req.body);
     const userId = getUserId(req);
+    console.log('User ID:', userId);
     const { student_id, advocate_ids, reason = {} } = req.body;
 
     if (!student_id || !advocate_ids || !Array.isArray(advocate_ids)) {
@@ -107,7 +109,7 @@ router.post('/propose', async (req: Request, res: Response) => {
       return res.status(404).json({ error: 'Student not found' });
     }
 
-    const createdProposals = [];
+    const createdProposals: any[] = [];
 
     for (const advocateId of advocate_ids) {
       // Verify advocate exists

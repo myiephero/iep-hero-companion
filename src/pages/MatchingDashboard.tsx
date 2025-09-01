@@ -14,33 +14,33 @@ import { Users, Star, Clock, MapPin, DollarSign, Search, Filter, Calendar, Phone
 import { useToast } from '@/hooks/use-toast';
 import { DashboardLayout } from '@/layouts/DashboardLayout';
 import { useAuth } from '@/hooks/useAuth';
+import { api as apiClient } from '@/lib/api';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+
+// Use API types
+interface Student {
+  id: string;
+  full_name: string;
+  grade_level: string;
+  special_needs: string[];
+  user_id: string;
+  created_at: Date;
+  updated_at: Date;
+}
 
 interface Advocate {
   id: string;
-  name: string;
-  email: string;
-  bio: string;
-  tags: string[];
-  languages: string[];
-  timezone: string;
-  hourly_rate: number;
-  experience_years: number;
-  rating: number;
-  max_caseload: number;
-  current_caseload: number;
-  location: string;
-  avatar_url?: string;
-}
-
-interface Student {
-  id: string;
-  name: string;
-  grade: string;
-  needs: string[];
-  languages: string[];
-  timezone: string;
-  budget?: number;
-  narrative: string;
+  full_name: string;
+  email?: string;
+  bio?: string;
+  specializations: string[];
+  years_experience?: number;
+  rate_per_hour?: number;
+  rating?: number;
+  location?: string;
+  user_id: string;
+  created_at: Date;
+  updated_at: Date;
 }
 
 interface MatchProposal {
@@ -57,156 +57,67 @@ interface MatchProposal {
 
 export default function MatchingDashboard() {
   const { user } = useAuth();
-  const [students, setStudents] = useState<Student[]>([]);
-  const [advocates, setAdvocates] = useState<Advocate[]>([]);
-  const [proposals, setProposals] = useState<MatchProposal[]>([]);
   const [selectedStudent, setSelectedStudent] = useState<Student | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
   const [filterSpecialty, setFilterSpecialty] = useState('all');
-  const [loading, setLoading] = useState(false);
   const [activeTab, setActiveTab] = useState('browse');
   const { toast } = useToast();
+  const queryClient = useQueryClient();
 
   // Determine if user is an advocate or parent based on URL
   const isAdvocate = window.location.pathname.includes('/advocate/');
+  const userRole = user?.user_metadata?.role || 'parent';
 
-  // Mock data
-  useEffect(() => {
-    if (isAdvocate) {
-      // Mock data for advocates - incoming proposals from families
-      setProposals([
-        {
-          id: 'prop1',
-          student_id: '1',
-          advocate_id: 'adv1',
-          score: 85,
-          status: 'pending',
-          created_at: new Date().toISOString(),
-          student: {
-            id: '1',
-            name: 'Emma Johnson',
-            grade: '5th',
-            needs: ['autism', 'speech', 'behavioral'],
-            languages: ['English'],
-            timezone: 'America/New_York',
-            narrative: 'Emma is a bright 5th grader with autism who needs support with behavioral interventions.'
-          }
-        },
-        {
-          id: 'prop2',
-          student_id: '2',
-          advocate_id: 'adv1',
-          score: 78,
-          status: 'pending',
-          created_at: new Date(Date.now() - 86400000).toISOString(),
-          student: {
-            id: '2',
-            name: 'Michael Chen',
-            grade: '8th',
-            needs: ['adhd', 'executive_function', 'gifted'],
-            languages: ['English', 'Mandarin'],
-            timezone: 'America/Los_Angeles',
-            narrative: 'Michael is twice-exceptional with ADHD and giftedness, needing advanced academic support.'
-          }
-        }
-      ]);
-    } else {
-      // Mock data for parents
-      setStudents([
-        {
-          id: '1',
-          name: 'Emma Johnson',
-          grade: '5th',
-          needs: ['autism', 'speech', 'behavioral'],
-          languages: ['English'],
-          timezone: 'America/New_York',
-          budget: 150,
-          narrative: 'Emma is a bright 5th grader with autism who needs support with behavioral interventions and speech therapy goals.'
-        },
-        {
-          id: '2',
-          name: 'Michael Chen',
-          grade: '8th',
-          needs: ['adhd', 'executive_function', 'gifted'],
-          languages: ['English', 'Mandarin'],
-          timezone: 'America/Los_Angeles',
-          budget: 200,
-          narrative: 'Michael is twice-exceptional with ADHD and giftedness, needing advanced academic support with executive function skills.'
-        }
-      ]);
+  // Fetch real data from API
+  const { data: students = [], isLoading: studentsLoading } = useQuery({
+    queryKey: ['students'],
+    queryFn: () => apiClient.getStudents(),
+    enabled: !isAdvocate // Only load for parents
+  });
 
-      setAdvocates([
-        {
-          id: 'adv1',
-          name: 'Dr. Sarah Williams',
-          email: 'sarah@example.com',
-          bio: 'Certified special education advocate with 15 years of experience specializing in autism spectrum disorders.',
-          tags: ['autism', 'behavioral', 'speech', 'sensory'],
-          languages: ['English', 'Spanish'],
-          timezone: 'America/New_York',
-          hourly_rate: 125,
-          experience_years: 15,
-          rating: 4.9,
-          max_caseload: 8,
-          current_caseload: 5,
-          location: 'New York, NY'
-        },
-        {
-          id: 'adv2',
-          name: 'James Rodriguez',
-          email: 'james@example.com',
-          bio: 'Former special education teacher turned advocate, focusing on twice-exceptional and gifted students.',
-          tags: ['gifted', 'twice_exceptional', 'adhd', 'executive_function'],
-          languages: ['English', 'Spanish'],
-          timezone: 'America/Los_Angeles',
-          hourly_rate: 175,
-          experience_years: 12,
-          rating: 4.8,
-          max_caseload: 6,
-          current_caseload: 4,
-          location: 'Los Angeles, CA'
-        },
-        {
-          id: 'adv3',
-          name: 'Maria Santos',
-          email: 'maria@example.com',
-          bio: 'Bilingual advocate specializing in language development and cultural advocacy for diverse learners.',
-          tags: ['language', 'ell', 'cultural', 'communication'],
-          languages: ['English', 'Spanish', 'Portuguese'],
-          timezone: 'America/Chicago',
-          hourly_rate: 140,
-          experience_years: 10,
-          rating: 4.7,
-          max_caseload: 7,
-          current_caseload: 3,
-          location: 'Chicago, IL'
-        }
-      ]);
+  const { data: advocates = [], isLoading: advocatesLoading } = useQuery({
+    queryKey: ['advocates'],
+    queryFn: () => apiClient.getAdvocates(),
+    enabled: !isAdvocate // Only load for parents
+  });
 
-      // Mock some proposals for parents too
-      setProposals([
-        {
-          id: 'prop3',
-          student_id: '1',
-          advocate_id: 'adv1',
-          score: 85,
-          status: 'pending',
-          created_at: new Date().toISOString(),
-          student: students.find(s => s.id === '1'),
-          advocate: advocates.find(a => a.id === 'adv1')
-        }
-      ]);
-    }
-  }, [isAdvocate]);
+  // Different API calls based on user role
+  const { data: proposalsData, isLoading: proposalsLoading } = useQuery({
+    queryKey: ['match-proposals', userRole],
+    queryFn: () => isAdvocate ? apiClient.getAdvocateProposals() : apiClient.getMatchProposals()
+  });
+
+  const proposals = Array.isArray(proposalsData) ? proposalsData : [];
 
   const filteredAdvocates = advocates.filter(advocate => {
-    const matchesSearch = advocate.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         advocate.bio.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         advocate.tags.some(tag => tag.toLowerCase().includes(searchTerm.toLowerCase()));
+    const matchesSearch = advocate.full_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                         (advocate.bio || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
+                         (advocate.specializations || []).some(spec => spec.toLowerCase().includes(searchTerm.toLowerCase()));
     
-    const matchesSpecialty = filterSpecialty === 'all' || advocate.tags.includes(filterSpecialty);
+    const matchesSpecialty = filterSpecialty === 'all' || (advocate.specializations || []).includes(filterSpecialty);
     
     return matchesSearch && matchesSpecialty;
+  });
+
+  // Mutations for match proposals
+  const createProposalMutation = useMutation({
+    mutationFn: ({ studentId, advocateIds }: { studentId: string; advocateIds: string[] }) => 
+      apiClient.createMatchProposal(studentId, advocateIds, { manual_match: true }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['match-proposals'] });
+      toast({
+        title: "Match Proposal Sent",
+        description: "Your proposal has been sent to the advocate for review.",
+      });
+      setActiveTab('proposals');
+    },
+    onError: () => {
+      toast({
+        title: "Error",
+        description: "Failed to create match proposal. Please try again.",
+        variant: "destructive",
+      });
+    }
   });
 
   const handleCreateProposal = async (advocateId: string) => {
@@ -219,70 +130,82 @@ export default function MatchingDashboard() {
       return;
     }
 
-    setLoading(true);
-    
-    // Simulate API call
-    setTimeout(() => {
-      const newProposal = {
-        id: `prop_${Date.now()}`,
-        student_id: selectedStudent.id,
-        advocate_id: advocateId,
-        score: Math.floor(Math.random() * 40) + 60,
-        status: 'pending' as const,
-        created_at: new Date().toISOString(),
-        student: selectedStudent,
-        advocate: advocates.find(a => a.id === advocateId)
-      };
-      
-      setProposals(prev => [...prev, newProposal]);
-      setLoading(false);
-      
-      toast({
-        title: "Match Proposal Sent",
-        description: "Your proposal has been sent to the advocate for review.",
-      });
-      
-      setActiveTab('proposals');
-    }, 1000);
+    createProposalMutation.mutate({
+      studentId: selectedStudent.id,
+      advocateIds: [advocateId]
+    });
   };
 
+  const introCallMutation = useMutation({
+    mutationFn: ({ proposalId, notes }: { proposalId: string; notes?: string }) => 
+      apiClient.requestIntroCall(proposalId, undefined, notes),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['match-proposals'] });
+      toast({
+        title: "Intro Call Requested",
+        description: "The advocate has been notified of your intro call request.",
+      });
+    },
+    onError: () => {
+      toast({
+        title: "Error",
+        description: "Failed to request intro call.",
+        variant: "destructive",
+      });
+    }
+  });
+
+  // Mutations for advocate actions
+  const acceptProposalMutation = useMutation({
+    mutationFn: (proposalId: string) => apiClient.acceptProposal(proposalId),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['match-proposals', userRole] });
+      toast({
+        title: "Proposal Accepted",
+        description: "You've accepted this match proposal. The family will be notified.",
+      });
+    },
+    onError: () => {
+      toast({
+        title: "Error",
+        description: "Failed to accept proposal.",
+        variant: "destructive",
+      });
+    }
+  });
+
+  const declineProposalMutation = useMutation({
+    mutationFn: ({ proposalId, reason }: { proposalId: string; reason?: string }) => 
+      apiClient.declineProposal(proposalId, reason),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['match-proposals', userRole] });
+      toast({
+        title: "Proposal Declined",
+        description: "You've declined this match proposal.",
+      });
+    },
+    onError: () => {
+      toast({
+        title: "Error",
+        description: "Failed to decline proposal.",
+        variant: "destructive",
+      });
+    }
+  });
+
   const handleIntroRequest = async (proposalId: string) => {
-    setProposals(prev => prev.map(p => 
-      p.id === proposalId 
-        ? { ...p, status: 'intro_requested' as const }
-        : p
-    ));
-    
-    toast({
-      title: "Intro Call Requested",
-      description: "The advocate has been notified of your intro call request.",
+    introCallMutation.mutate({
+      proposalId,
+      notes: 'Looking forward to discussing this match opportunity'
     });
   };
 
   const handleAcceptProposal = (proposalId: string) => {
-    setProposals(prev => prev.map(p => 
-      p.id === proposalId 
-        ? { ...p, status: 'accepted' as const }
-        : p
-    ));
-    
-    toast({
-      title: "Proposal Accepted",
-      description: "You've accepted this match proposal. The family will be notified.",
-    });
+    acceptProposalMutation.mutate(proposalId);
   };
 
   const handleDeclineProposal = (proposalId: string) => {
-    setProposals(prev => prev.map(p => 
-      p.id === proposalId 
-        ? { ...p, status: 'declined' as const }
-        : p
-    ));
-    
-    toast({
-      title: "Proposal Declined",
-      description: "You've declined this match proposal.",
-    });
+    declineProposalMutation.mutate({ proposalId, reason: 'Not a good fit at this time' });
   };
 
   // Render different layouts based on user role
@@ -472,7 +395,7 @@ export default function MatchingDashboard() {
                 <SelectContent>
                   {students.map(student => (
                     <SelectItem key={student.id} value={student.id}>
-                      {student.name} (Grade {student.grade})
+                      {student.full_name} (Grade {student.grade_level})
                     </SelectItem>
                   ))}
                 </SelectContent>
@@ -485,58 +408,58 @@ export default function MatchingDashboard() {
                   <CardHeader>
                     <div className="flex items-start space-x-3">
                       <Avatar className="h-12 w-12">
-                        <AvatarImage src={advocate.avatar_url} />
+                        <AvatarImage src="" />
                         <AvatarFallback>
-                          {advocate.name.split(' ').map(n => n[0]).join('')}
+                          {advocate.full_name.split(' ').map(n => n[0]).join('')}
                         </AvatarFallback>
                       </Avatar>
                       <div className="flex-1 min-w-0">
-                        <CardTitle className="text-lg">{advocate.name}</CardTitle>
+                        <CardTitle className="text-lg">{advocate.full_name}</CardTitle>
                         <div className="flex items-center space-x-2 mt-1">
                           <div className="flex items-center">
                             <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />
-                            <span className="text-sm font-medium ml-1">{advocate.rating}</span>
+                            <span className="text-sm font-medium ml-1">{advocate.rating || 5.0}</span>
                           </div>
                           <span className="text-sm text-gray-500">•</span>
-                          <span className="text-sm text-gray-500">{advocate.experience_years} years</span>
+                          <span className="text-sm text-gray-500">{advocate.years_experience || 0} years</span>
                         </div>
                       </div>
                     </div>
                   </CardHeader>
                   <CardContent className="space-y-4">
-                    <p className="text-sm text-gray-600 line-clamp-3">{advocate.bio}</p>
+                    <p className="text-sm text-gray-600 line-clamp-3">{advocate.bio || 'Experienced special education advocate.'}</p>
                     
                     <div className="flex items-center text-sm text-gray-600">
                       <MapPin className="h-4 w-4 mr-2" />
-                      {advocate.location}
+                      {advocate.location || 'Location not specified'}
                     </div>
                     <div className="flex items-center text-sm text-gray-600">
                       <DollarSign className="h-4 w-4 mr-2" />
-                      ${advocate.hourly_rate}/hour
+                      ${advocate.rate_per_hour || 150}/hour
                     </div>
                     <div className="flex items-center text-sm text-gray-600">
                       <Users className="h-4 w-4 mr-2" />
-                      {advocate.current_caseload}/{advocate.max_caseload} cases
+                      Available for new cases
                     </div>
 
                     <div className="flex flex-wrap gap-1">
-                      {advocate.tags.slice(0, 4).map(tag => (
-                        <Badge key={tag} variant="secondary" className="text-xs">
-                          {tag.replace('_', ' ')}
+                      {(advocate.specializations || []).slice(0, 4).map(spec => (
+                        <Badge key={spec} variant="secondary" className="text-xs">
+                          {spec.replace('_', ' ')}
                         </Badge>
                       ))}
-                      {advocate.tags.length > 4 && (
+                      {(advocate.specializations || []).length > 4 && (
                         <Badge variant="outline" className="text-xs">
-                          +{advocate.tags.length - 4} more
+                          +{(advocate.specializations || []).length - 4} more
                         </Badge>
                       )}
                     </div>
 
                     <div className="space-y-2">
                       <Label className="text-sm font-medium">Availability</Label>
-                      <Progress value={(1 - advocate.current_caseload / advocate.max_caseload) * 100} className="h-2" />
+                      <Progress value={80} className="h-2" />
                       <span className="text-xs text-gray-500">
-                        {advocate.max_caseload - advocate.current_caseload} slots available
+                        Available for new cases
                       </span>
                     </div>
 
@@ -548,7 +471,7 @@ export default function MatchingDashboard() {
                       </DialogTrigger>
                       <DialogContent className="sm:max-w-[425px]">
                         <DialogHeader>
-                          <DialogTitle>Request Match with {advocate.name}</DialogTitle>
+                          <DialogTitle>Request Match with {advocate.full_name}</DialogTitle>
                           <DialogDescription>
                             Review the match details and send your request.
                           </DialogDescription>
@@ -557,16 +480,16 @@ export default function MatchingDashboard() {
                           <div className="space-y-4">
                             <div>
                               <Label className="font-medium">Student</Label>
-                              <p className="text-sm">{selectedStudent.name} (Grade {selectedStudent.grade})</p>
+                              <p className="text-sm">{selectedStudent.full_name} (Grade {selectedStudent.grade_level})</p>
                             </div>
                             <div>
                               <Label className="font-medium">Advocate</Label>
-                              <p className="text-sm">{advocate.name}</p>
+                              <p className="text-sm">{advocate.full_name}</p>
                             </div>
                             <div>
                               <Label className="font-medium">Student Needs</Label>
                               <div className="flex flex-wrap gap-1 mt-1">
-                                {selectedStudent.needs.map(need => (
+                                {(selectedStudent.special_needs || []).map(need => (
                                   <Badge key={need} variant="outline" className="text-xs">
                                     {need.replace('_', ' ')}
                                   </Badge>
@@ -576,24 +499,24 @@ export default function MatchingDashboard() {
                             <div>
                               <Label className="font-medium">Advocate Specializations</Label>
                               <div className="flex flex-wrap gap-1 mt-1">
-                                {advocate.tags.map(tag => (
+                                {(advocate.specializations || []).map(spec => (
                                   <Badge 
-                                    key={tag} 
-                                    variant={selectedStudent.needs.includes(tag) ? "default" : "secondary"} 
+                                    key={spec} 
+                                    variant={(selectedStudent.special_needs || []).includes(spec) ? "default" : "secondary"} 
                                     className="text-xs"
                                   >
-                                    {tag.replace('_', ' ')}
-                                    {selectedStudent.needs.includes(tag) && ' ✓'}
+                                    {spec.replace('_', ' ')}
+                                    {(selectedStudent.special_needs || []).includes(spec) && ' ✓'}
                                   </Badge>
                                 ))}
                               </div>
                             </div>
                             <Button 
                               onClick={() => handleCreateProposal(advocate.id)}
-                              disabled={loading}
+                              disabled={createProposalMutation.isPending}
                               data-testid="button-send-match-request"
                             >
-                              {loading ? 'Sending...' : 'Send Match Request'}
+                              {createProposalMutation.isPending ? 'Sending...' : 'Send Match Request'}
                             </Button>
                           </div>
                         ) : (

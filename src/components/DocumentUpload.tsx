@@ -371,9 +371,10 @@ interface UploadedFile {
 
 interface DocumentUploadProps {
   onAnalysisComplete?: (analysis: any) => void;
+  selectedAnalysisType?: string;
 }
 
-export function DocumentUpload({ onAnalysisComplete }: DocumentUploadProps) {
+export function DocumentUpload({ onAnalysisComplete, selectedAnalysisType = 'iep_quality' }: DocumentUploadProps) {
   const [files, setFiles] = useState<UploadedFile[]>([]);
   const [analyzing, setAnalyzing] = useState<string | null>(null);
   const { toast } = useToast();
@@ -874,59 +875,20 @@ export function DocumentUpload({ onAnalysisComplete }: DocumentUploadProps) {
 
                 {fileData.status === 'completed' && (
                   <div className="flex items-center gap-2">
-                    <DropdownMenu>
-                      <DropdownMenuTrigger asChild>
-                        <Button
-                          size="sm"
-                          variant="outline"
-                          disabled={analyzing === fileData.id}
-                          className="flex items-center gap-2"
-                        >
-                          {analyzing === fileData.id ? (
-                            <Loader2 className="h-4 w-4 animate-spin" />
-                          ) : (
-                            <Brain className="h-4 w-4" />
-                          )}
-                          AI Analysis
-                          <ChevronDown className="h-3 w-3" />
-                        </Button>
-                      </DropdownMenuTrigger>
-                      <DropdownMenuContent align="start" className="w-56">
-                        <DropdownMenuItem 
-                          onClick={() => analyzeDocument(fileData, 'iep')}
-                          disabled={analyzing === fileData.id}
-                          className="flex items-center gap-2"
-                        >
-                          <FileCheck className="h-4 w-4" />
-                          <div>
-                            <div className="font-medium">IEP Analysis</div>
-                            <div className="text-xs text-muted-foreground">Comprehensive IEP review</div>
-                          </div>
-                        </DropdownMenuItem>
-                        <DropdownMenuItem 
-                          onClick={() => analyzeDocument(fileData, 'accommodations')}
-                          disabled={analyzing === fileData.id}
-                          className="flex items-center gap-2"
-                        >
-                          <Users className="h-4 w-4" />
-                          <div>
-                            <div className="font-medium">Accommodations</div>
-                            <div className="text-xs text-muted-foreground">Specialized support recommendations</div>
-                          </div>
-                        </DropdownMenuItem>
-                        <DropdownMenuItem 
-                          onClick={() => analyzeDocument(fileData, 'meeting_prep')}
-                          disabled={analyzing === fileData.id}
-                          className="flex items-center gap-2"
-                        >
-                          <MessageSquare className="h-4 w-4" />
-                          <div>
-                            <div className="font-medium">Meeting Prep</div>
-                            <div className="text-xs text-muted-foreground">IEP meeting preparation</div>
-                          </div>
-                        </DropdownMenuItem>
-                      </DropdownMenuContent>
-                    </DropdownMenu>
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      disabled={analyzing === fileData.id}
+                      onClick={() => analyzeDocument(fileData, selectedAnalysisType)}
+                      className="flex items-center gap-2"
+                    >
+                      {analyzing === fileData.id ? (
+                        <Loader2 className="h-4 w-4 animate-spin" />
+                      ) : (
+                        <Brain className="h-4 w-4" />
+                      )}
+                      AI Analysis
+                    </Button>
                   </div>
                 )}
 

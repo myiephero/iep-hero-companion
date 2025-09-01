@@ -118,8 +118,8 @@ router.post('/propose', async (req: Request, res: Response) => {
       if (!advocate) continue;
 
       // Calculate match score
-      const studentNeeds = student.special_needs || [];
-      const score = calculateMatchScore(studentNeeds, advocate.specializations);
+      const studentNeeds = student.disability_category ? [student.disability_category] : [];
+      const score = calculateMatchScore(studentNeeds, advocate.specializations || []);
 
       // Create proposal
       const [proposal] = await db.insert(schema.match_proposals)
@@ -133,7 +133,9 @@ router.post('/propose', async (req: Request, res: Response) => {
         })
         .returning();
 
-      createdProposals.push(proposal);
+      if (proposal) {
+        createdProposals.push(proposal);
+      }
     }
 
     res.json({

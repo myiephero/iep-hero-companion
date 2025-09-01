@@ -785,6 +785,26 @@ export function DocumentUpload({ onAnalysisComplete, selectedAnalysisType = 'iep
                           </DropdownMenuTrigger>
                           <DropdownMenuContent align="end" className="w-48">
                             <DropdownMenuItem 
+                              onClick={() => window.open(URL.createObjectURL(fileData.file), '_blank')}
+                              data-testid={`menu-view-${fileData.id}`}
+                            >
+                              <Eye className="h-4 w-4 mr-2" />
+                              View
+                            </DropdownMenuItem>
+                            <DropdownMenuItem 
+                              onClick={() => {
+                                const a = document.createElement('a');
+                                a.href = URL.createObjectURL(fileData.file);
+                                a.download = fileData.file.name;
+                                a.click();
+                              }}
+                              data-testid={`menu-download-${fileData.id}`}
+                            >
+                              <Download className="h-4 w-4 mr-2" />
+                              Download
+                            </DropdownMenuItem>
+                            <DropdownMenuSeparator />
+                            <DropdownMenuItem 
                               onClick={() => saveToVault(fileData)}
                               data-testid={`menu-save-vault-${fileData.id}`}
                             >

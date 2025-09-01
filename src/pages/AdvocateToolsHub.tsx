@@ -274,7 +274,7 @@ export default function AdvocateToolsHub() {
                     </div>
                     
                     <Button asChild size="sm" className="w-full text-xs py-2 bg-gradient-to-r from-primary to-primary/90 hover:from-primary/90 hover:to-primary dark:from-primary dark:to-primary/90 shadow-sm">
-                      <Link to={tool.path.startsWith('/tools/') ? tool.path : `/${userRole}${tool.path}`}>
+                      <Link to={tool.path.startsWith('/advocate/') || tool.path.startsWith('/parent/') ? tool.path : `/${userRole}${tool.path}`}>
                         Open Tool
                       </Link>
                     </Button>
@@ -314,7 +314,7 @@ export default function AdvocateToolsHub() {
                     </div>
                     
                     <Button asChild size="sm" className="w-full text-xs py-2 bg-gradient-to-r from-primary to-primary/90 hover:from-primary/90 hover:to-primary dark:from-primary dark:to-primary/90 shadow-sm">
-                      <Link to={tool.path.startsWith('/tools/') ? tool.path : `/${userRole}${tool.path}`}>
+                      <Link to={tool.path.startsWith('/advocate/') || tool.path.startsWith('/parent/') ? tool.path : `/${userRole}${tool.path}`}>
                         Open Tool
                       </Link>
                     </Button>

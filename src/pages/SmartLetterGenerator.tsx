@@ -96,7 +96,7 @@ const SmartLetterGenerator = () => {
     }
   }, [toast]);
 
-  const letterTemplates = [
+  const parentTemplates = [
     {
       id: "ferpa-request",
       title: "FERPA Records Request",
@@ -150,26 +150,86 @@ const SmartLetterGenerator = () => {
       urgency: "Standard",
       timeframe: "10 days",
       complexity: "Simple"
+    }
+  ];
+
+  const advocateTemplates = [
+    {
+      id: "professional-evaluation-request",
+      title: "Professional Evaluation Request",
+      description: "Formal evaluation request with legal citations and IDEA compliance requirements",
+      category: "Evaluation",
+      urgency: "High",
+      timeframe: "60 days",
+      complexity: "Complex"
     },
     {
-      id: "advocacy-referral",
-      title: "Advocacy Service Referral",
-      description: "Professional advocacy service introduction",
-      category: "Professional",
-      urgency: "Standard",
-      timeframe: "7 days",
-      complexity: "Medium"
+      id: "comprehensive-service-request",
+      title: "Comprehensive Service Request",
+      description: "Detailed service request with FAPE justification and LRE analysis",
+      category: "Services",
+      urgency: "High",
+      timeframe: "30 days",
+      complexity: "Complex"
+    },
+    {
+      id: "placement-advocacy",
+      title: "Placement Advocacy Letter",
+      description: "Professional placement recommendation with legal precedent citations",
+      category: "Placement",
+      urgency: "High",
+      timeframe: "immediate",
+      complexity: "Complex"
     },
     {
       id: "case-summary",
-      title: "Case Summary Letter",
-      description: "Comprehensive case overview for schools",
+      title: "Case Summary & Analysis",
+      description: "Comprehensive case overview with compliance assessment",
       category: "Professional",
       urgency: "Standard",
       timeframe: "5 days",
       complexity: "Complex"
+    },
+    {
+      id: "legal-notice",
+      title: "Legal Notice & Demand",
+      description: "Formal legal notice with compliance requirements and deadlines",
+      category: "Legal",
+      urgency: "Urgent",
+      timeframe: "10 days",
+      complexity: "Complex"
+    },
+    {
+      id: "due-process-notice",
+      title: "Due Process Hearing Notice",
+      description: "Formal due process complaint filing with legal requirements",
+      category: "Legal",
+      urgency: "Urgent",
+      timeframe: "2 years",
+      complexity: "Complex"
+    },
+    {
+      id: "expert-testimony",
+      title: "Expert Opinion Letter",
+      description: "Professional opinion for hearings with qualifications and analysis",
+      category: "Legal",
+      urgency: "High",
+      timeframe: "14 days",
+      complexity: "Complex"
+    },
+    {
+      id: "compliance-review",
+      title: "IEP Compliance Review",
+      description: "Systematic review of IEP compliance with regulatory standards",
+      category: "Professional",
+      urgency: "Standard",
+      timeframe: "30 days",
+      complexity: "Complex"
     }
   ];
+
+  // Use role-appropriate templates
+  const letterTemplates = isAdvocateUser ? advocateTemplates : parentTemplates;
 
   const recentLetters = [
     {
@@ -216,32 +276,38 @@ const SmartLetterGenerator = () => {
     setTimeout(() => {
       const template = letterTemplates.find(t => t.id === selectedTemplate);
       
-      // Generate analysis-aware content
+      // Generate role-specific analysis-aware content
       let analysisContextText = '';
       if (analysisContext) {
+        const rolePrefix = isAdvocateUser ? "My professional analysis" : "Based on my recent analysis";
+        const roleAction = isAdvocateUser ? "requires immediate attention and formal review" : "I would like to discuss";
+        
         switch (analysisContext.analysisType.toLowerCase()) {
           case 'iep_quality':
-            analysisContextText = `\n\nBased on my recent analysis of the current IEP document (${analysisContext.fileName}), I have identified several areas that require attention and discussion. This analysis was completed on ${new Date(analysisContext.timestamp).toLocaleDateString()}.`;
+            analysisContextText = `\n\n${rolePrefix} of the current IEP document (${analysisContext.fileName}) has identified several compliance and quality issues that ${roleAction}. This comprehensive analysis was completed on ${new Date(analysisContext.timestamp).toLocaleDateString()}.`;
             break;
           case 'compliance':
-            analysisContextText = `\n\nMy recent compliance analysis of the current IEP document (${analysisContext.fileName}) has revealed potential compliance concerns that need to be addressed. This analysis was completed on ${new Date(analysisContext.timestamp).toLocaleDateString()}.`;
+            analysisContextText = `\n\n${rolePrefix} of the current IEP document (${analysisContext.fileName}) has revealed significant compliance concerns that ${roleAction} ${isAdvocateUser ? "in accordance with IDEA regulations" : "to ensure my child receives appropriate services"}. This analysis was completed on ${new Date(analysisContext.timestamp).toLocaleDateString()}.`;
             break;
           case 'accommodation':
-            analysisContextText = `\n\nFollowing my analysis of current accommodations (${analysisContext.fileName}), I would like to discuss modifications and improvements to better support my child's needs. This analysis was completed on ${new Date(analysisContext.timestamp).toLocaleDateString()}.`;
+            analysisContextText = `\n\nFollowing ${rolePrefix.toLowerCase()} of current accommodations (${analysisContext.fileName}), ${isAdvocateUser ? "I recommend immediate modifications to ensure FAPE compliance" : "I would like to discuss modifications and improvements to better support my child's needs"}. This analysis was completed on ${new Date(analysisContext.timestamp).toLocaleDateString()}.`;
             break;
           case 'meeting_prep':
-            analysisContextText = `\n\nI have completed a thorough preparation analysis (${analysisContext.fileName}) for our upcoming meeting and would like to schedule time to discuss the findings. This analysis was completed on ${new Date(analysisContext.timestamp).toLocaleDateString()}.`;
+            analysisContextText = `\n\n${rolePrefix} and preparation review (${analysisContext.fileName}) ${isAdvocateUser ? "indicates the need for formal meeting to address compliance issues" : "has been completed for our upcoming meeting and I would like to schedule time to discuss the findings"}. This analysis was completed on ${new Date(analysisContext.timestamp).toLocaleDateString()}.`;
             break;
           default:
-            analysisContextText = `\n\nBased on my recent document analysis (${analysisContext.fileName}), I believe it would be beneficial to meet and discuss the findings. This analysis was completed on ${new Date(analysisContext.timestamp).toLocaleDateString()}.`;
+            analysisContextText = `\n\n${rolePrefix} of relevant documentation (${analysisContext.fileName}) ${isAdvocateUser ? "indicates the need for formal review and potential corrective action" : "suggests it would be beneficial to meet and discuss the findings"}. This analysis was completed on ${new Date(analysisContext.timestamp).toLocaleDateString()}.`;
         }
       }
       
-      const generatedContent = `Dear Dr. Martinez,
+      // Generate role-specific letter content
+      const parentContent = `Dear Dr. Martinez,
 
 I am writing to formally request ${template?.title.toLowerCase()} for my child, Emma Thompson, who is currently enrolled in 4th Grade at Lincoln Elementary School.${analysisContextText}
 
 ${analysisContextText ? 'The analysis has provided valuable insights that I believe warrant discussion and potential action. ' : ''}As Emma's parent/guardian, I am requesting this under the provisions of the Individuals with Disabilities Education Act (IDEA) and Section 504 of the Rehabilitation Act.
+
+I look forward to working collaboratively with the IEP team to ensure Emma receives the appropriate educational support she needs to succeed.
 
 Please provide written confirmation of receipt of this request and the anticipated timeline for response.
 
@@ -254,6 +320,38 @@ Phone: (555) 123-4567
 Email: sarah.thompson@email.com
 
 Date: ${new Date().toLocaleDateString()}`;
+
+      const advocateContent = `FORMAL NOTICE AND REQUEST
+Re: ${template?.title.toUpperCase()} - Emma Thompson, DOB: [DATE]
+
+Dear Dr. Martinez:
+
+I am writing in my professional capacity as a special education advocate to formally request ${template?.title.toLowerCase()} for Emma Thompson, currently enrolled in 4th Grade at Lincoln Elementary School, Springfield District.${analysisContextText}
+
+${analysisContextText ? 'This professional assessment indicates immediate action is required to ensure compliance with federal mandates. ' : ''}This request is made pursuant to the Individuals with Disabilities Education Act (IDEA), 20 U.S.C. § 1400 et seq., Section 504 of the Rehabilitation Act of 1973, 29 U.S.C. § 794, and applicable state regulations.
+
+LEGAL REQUIREMENTS AND TIMELINE:
+Please be advised that this request triggers specific legal obligations and timelines as outlined in 34 CFR § 300.301 and related provisions. Your district is required to provide written notice of action within 10 business days of receipt of this request.
+
+I expect full compliance with all procedural safeguards and look forward to your prompt response confirming receipt and outlining the district's proposed timeline for completion.
+
+Should you have questions regarding this request or require additional documentation, please contact me directly.
+
+Professional regards,
+
+[Professional Advocate Name]
+Special Education Advocate
+Professional License #: [LICENSE]
+Phone: (555) 987-6543
+Email: advocate@iephero.com
+
+cc: Parent/Guardian - Sarah Thompson
+    Special Education Director
+    File
+
+Date: ${new Date().toLocaleDateString()}`;
+
+      const generatedContent = isAdvocateUser ? advocateContent : parentContent;
 
       setLetterContent(generatedContent);
       setIsGenerating(false);
@@ -319,9 +417,16 @@ Date: ${new Date().toLocaleDateString()}`;
         {/* Header */}
         <div className="flex justify-between items-center">
           <div>
-            <h1 className="text-3xl font-bold">Smart Letter Generator</h1>
+            <h1 className="text-3xl font-bold flex items-center gap-2">
+              <Wand2 className="h-8 w-8 text-primary" />
+              Smart Letter Generator
+              {isAdvocateUser && <Badge variant="outline" className="ml-2 bg-purple-50 text-purple-700 border-purple-200">Professional</Badge>}
+            </h1>
             <p className="text-muted-foreground">
-              Generate professional FERPA, IEP, and advocacy letters with AI assistance
+              {isAdvocateUser 
+                ? "Generate professional advocacy letters with legal language, compliance features, and expert documentation"
+                : "Generate professional FERPA, IEP, and advocacy letters with AI assistance tailored for parents"
+              }
             </p>
           </div>
           <DropdownMenu>

@@ -62,8 +62,7 @@ const parentNavigation: SidebarSection[] = [
   {
     title: "Quick Tools",
     items: [
-      { title: "IEP Review", url: "/parent/tools/iep-review", icon: FileSearch, badge: "AI" },
-      { title: "Expert Analysis", url: "/parent/tools/expert-analysis", icon: ClipboardCheck, badge: "Pro" },
+      { title: "Unified IEP Review", url: "/parent/tools/unified-iep-review", icon: FileSearch, badge: "Enhanced" },
       { title: "Find Advocates", url: "/parent/matching", icon: UserCheck },
       { title: "Messages", url: "/parent/messages", icon: MessageSquare },
       { title: "Accommodations", url: "/parent/tools/autism-accommodations", icon: Building2 },
@@ -88,8 +87,7 @@ const advocateNavigation: SidebarSection[] = [
   {
     title: "Quick Tools",
     items: [
-      { title: "IEP Review", url: "/advocate/tools/iep-review", icon: FileSearch },
-      { title: "Expert Analysis", url: "/advocate/tools/expert-analysis", icon: ClipboardCheck },
+      { title: "Unified IEP Review", url: "/advocate/tools/unified-iep-review", icon: FileSearch, badge: "Enhanced" },
       { title: "Client Matching", url: "/advocate/matching", icon: UserCheck },
       { title: "Accommodations", url: "/advocate/tools/autism-accommodations", icon: Building2 },
     ]

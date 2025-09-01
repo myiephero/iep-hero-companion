@@ -96,6 +96,7 @@ export default function UnifiedIEPReview() {
   const [actionDrafts, setActionDrafts] = useState<ActionDraft[]>([]);
   const [actionDraftOpen, setActionDraftOpen] = useState(false);
   const [activeTab, setActiveTab] = useState('analyze');
+  const [letterType, setLetterType] = useState<string>("");
   
   const { toast } = useToast();
 
@@ -623,6 +624,7 @@ ${userInputs.parentName || '[Parent Name]'}`;
                             <Button
                               onClick={() => {
                                 setSelectedReview(review);
+                                setLetterType("");
                                 setActionDraftOpen(true);
                               }}
                               variant="outline"
@@ -850,7 +852,7 @@ ${userInputs.parentName || '[Parent Name]'}`;
                 
                 <div className="grid gap-2">
                   <Label htmlFor="templateType">Letter Type</Label>
-                  <Select name="templateType" required>
+                  <Select name="templateType" value={letterType} onValueChange={setLetterType} required>
                     <SelectTrigger>
                       <SelectValue placeholder="Select letter type" />
                     </SelectTrigger>

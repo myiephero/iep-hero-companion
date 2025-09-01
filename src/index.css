@@ -113,6 +113,58 @@
     --transition-bounce: all 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
   }
 
+  /* Enhanced Card Variants */
+  .card-elevated {
+    @apply bg-surface-elevated border-border-light shadow-md backdrop-blur-sm;
+  }
+  
+  .card-glass {
+    @apply bg-surface-glass border-white/20 backdrop-blur-md shadow-glass;
+  }
+  
+  .card-premium {
+    @apply bg-card border-l-4 border-l-primary/60 border-t border-r border-b border-border shadow-sm;
+  }
+  
+  .card-minimal {
+    @apply bg-card/50 border-border/50 shadow-xs hover:bg-card hover:border-border;
+  }
+  
+  .card-hero {
+    @apply bg-gradient-card border-primary/10 shadow-lg backdrop-blur-sm relative;
+  }
+  
+  /* Enhanced Hover Effects */
+  .hover-lift {
+    @apply transform transition-all duration-300 hover:scale-[1.02] hover:shadow-xl;
+  }
+  
+  .hover-glow {
+    @apply transition-all duration-300 hover:shadow-glow;
+  }
+  
+  .interactive-card {
+    @apply cursor-pointer transition-all duration-300 hover:shadow-lg active:scale-[0.98];
+  }
+  
+  /* Gradient Text Effects */
+  .gradient-text-primary {
+    @apply bg-gradient-to-r from-primary to-primary-light bg-clip-text text-transparent;
+  }
+  
+  .gradient-text-accent {
+    @apply bg-gradient-to-r from-accent to-accent-light bg-clip-text text-transparent;
+  }
+  
+  /* Enhanced Button Variants */
+  .btn-glow {
+    @apply shadow-button hover:shadow-button-hover transition-all duration-200;
+  }
+  
+  .btn-gradient {
+    @apply bg-gradient-to-r from-primary to-primary-light hover:from-primary-dark hover:to-primary;
+  }
+
   .dark {
     /* Dark Mode - Premium & Elegant */
     --background: 210 40% 6%;

@@ -156,6 +156,23 @@ export const cases = pgTable("cases", {
   updated_at: timestamp("updated_at").defaultNow(),
 });
 
+// Match proposals table
+export const match_proposals = pgTable("match_proposals", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  student_id: varchar("student_id").notNull(),
+  advocate_id: varchar("advocate_id").notNull(),
+  parent_id: varchar("parent_id").notNull(),
+  score: integer("score").notNull(),
+  status: varchar("status").notNull().default('pending'), // pending, scheduled, accepted, declined
+  match_reason: json("match_reason"),
+  decline_reason: text("decline_reason"),
+  intro_call_requested: boolean("intro_call_requested").default(false),
+  intro_call_scheduled_at: timestamp("intro_call_scheduled_at"),
+  intro_call_notes: text("intro_call_notes"),
+  created_at: timestamp("created_at").defaultNow(),
+  updated_at: timestamp("updated_at").defaultNow(),
+});
+
 // Documents table
 export const documents = pgTable("documents", {
   id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
@@ -337,3 +354,9 @@ export const expert_analyses = pgTable("expert_analyses", {
 
 export type ExpertAnalysis = typeof expert_analyses.$inferSelect;
 export type InsertExpertAnalysis = typeof expert_analyses.$inferInsert;
+
+export type MatchProposal = typeof match_proposals.$inferSelect;
+export type InsertMatchProposal = typeof match_proposals.$inferInsert;
+
+export type Advocate = typeof advocates.$inferSelect;
+export type InsertAdvocate = typeof advocates.$inferInsert;

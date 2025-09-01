@@ -56,7 +56,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
         return profileData;
       }
     } catch (error) {
-      console.warn('Failed to load user profile:', error);
+      // Failed to load user profile - continuing with default
     }
     return null;
   };

@@ -461,10 +461,11 @@ export function DocumentUpload({ onAnalysisComplete, selectedAnalysisType = 'iep
   useEffect(() => {
     const fetchStudents = async () => {
       try {
-        const response = await api.get('/api/students');
-        setStudents(response.data || []);
+        const response = await fetch('/api/students');
+        const data = await response.json();
+        setStudents(data || []);
       } catch (error) {
-        console.error('Error fetching students:', error);
+        // Error fetching students - continuing with empty list
       }
     };
     fetchStudents();
@@ -494,7 +495,7 @@ export function DocumentUpload({ onAnalysisComplete, selectedAnalysisType = 'iep
       try {
         await uploadFile(fileData);
       } catch (error) {
-        console.error('Upload failed:', error);
+        // Upload failed - error handled by toast notification
         updateFileStatus(fileData.id, 'error');
       }
     }
@@ -625,8 +626,7 @@ export function DocumentUpload({ onAnalysisComplete, selectedAnalysisType = 'iep
         file_type: 'application/json',
         file_size: new Blob([structuredContent]).size,
         category: 'AI Analysis',
-        tags: [fileData.analysis.type, 'analysis-result', 'ai-generated'],
-        content: structuredContent
+        tags: [fileData.analysis.type, 'analysis-result', 'ai-generated']
       });
       
       // Invalidate documents cache to refresh the vault
@@ -760,7 +760,7 @@ export function DocumentUpload({ onAnalysisComplete, selectedAnalysisType = 'iep
       });
 
     } catch (error: any) {
-      console.error('Analysis failed:', error);
+      // Analysis failed - error handled by UI state
       toast({
         title: "Analysis failed", 
         description: error.message || "Failed to analyze document. Please try uploading a text (.txt) file for best results.",

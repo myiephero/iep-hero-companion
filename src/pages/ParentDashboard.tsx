@@ -743,7 +743,7 @@ export default function ParentDashboard() {
                       <h3 className="text-xl font-semibold mb-2 text-gray-900">Discover AI insights</h3>
                       <p className="text-gray-600 mb-6 max-w-md mx-auto">Upload and analyze IEP documents to get data-driven insights and recommendations.</p>
                       <Button asChild className="bg-gradient-to-r from-amber-600 to-orange-600 hover:from-amber-700 hover:to-orange-700 text-white shadow-lg hover:shadow-xl transition-all duration-200 rounded-xl px-8 py-3">
-                        <a href="/tools/iep-review">
+                        <a href="/parent/tools/unified-iep-review">
                           <Sparkles className="h-4 w-4 mr-2" />
                           Analyze IEP Document
                         </a>

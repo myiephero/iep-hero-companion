@@ -250,11 +250,13 @@ class ApiClient {
 
   // Matching
   async getMatchProposals(): Promise<any[]> {
-    return this.request('/match');
+    const response = await this.request('/match');
+    return response.proposals || [];
   }
 
   async getAdvocateProposals(): Promise<any[]> {
-    return this.request('/match/advocate');
+    const response = await this.request('/match/advocate');
+    return response.proposals || [];
   }
 
   async createMatchProposal(studentId: string, advocateIds: string[], reason?: any): Promise<any> {

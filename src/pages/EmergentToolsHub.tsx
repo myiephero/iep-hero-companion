@@ -110,15 +110,15 @@ const categories = Array.from(new Set(emergentTools.map(tool => tool.category)))
 
 const getBadgeVariant = (badge: string) => {
   switch (badge) {
-    case "Core": return "bg-slate-100 text-slate-700 border-slate-200";
-    case "New": return "bg-green-100 text-green-700 border-green-200";
-    case "Specialized": return "bg-blue-100 text-blue-700 border-blue-200";
-    case "Connect": return "bg-purple-100 text-purple-700 border-purple-200";
-    case "2e": return "bg-yellow-100 text-yellow-700 border-yellow-200";
-    case "Templates": return "bg-orange-100 text-orange-700 border-orange-200";
-    case "Prep": return "bg-indigo-100 text-indigo-700 border-indigo-200";
-    case "Secure": return "bg-red-100 text-red-700 border-red-200";
-    default: return "bg-gray-100 text-gray-700 border-gray-200";
+    case "Core": return "bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border-slate-200 dark:border-slate-600";
+    case "New": return "bg-green-100 dark:bg-green-900 text-green-700 dark:text-green-300 border-green-200 dark:border-green-700";
+    case "Specialized": return "bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300 border-blue-200 dark:border-blue-700";
+    case "Connect": return "bg-purple-100 dark:bg-purple-900 text-purple-700 dark:text-purple-300 border-purple-200 dark:border-purple-700";
+    case "2e": return "bg-yellow-100 dark:bg-yellow-900 text-yellow-700 dark:text-yellow-300 border-yellow-200 dark:border-yellow-700";
+    case "Templates": return "bg-orange-100 dark:bg-orange-900 text-orange-700 dark:text-orange-300 border-orange-200 dark:border-orange-700";
+    case "Prep": return "bg-indigo-100 dark:bg-indigo-900 text-indigo-700 dark:text-indigo-300 border-indigo-200 dark:border-indigo-700";
+    case "Secure": return "bg-red-100 dark:bg-red-900 text-red-700 dark:text-red-300 border-red-200 dark:border-red-700";
+    default: return "bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 border-gray-200 dark:border-gray-600";
   }
 };
 
@@ -160,35 +160,35 @@ export default function EmergentToolsHub() {
           
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
             {emergentTools.map((tool) => (
-              <Card key={tool.title} className="hover:shadow-lg transition-all duration-200 hover:scale-[1.02] group border border-gray-200 hover:border-primary/30 bg-white h-fit">
-                <CardHeader className="pb-3 pt-4 px-4">
+              <Card key={tool.title} className="hover:shadow-xl transition-all duration-200 hover:scale-[1.02] group border border-gray-200 hover:border-primary/30 bg-white dark:bg-gray-800 dark:border-gray-700 dark:hover:border-primary/50 h-[280px] flex flex-col">
+                <CardHeader className="pb-3 pt-4 px-4 flex-shrink-0">
                   <div className="flex flex-col items-center text-center space-y-3">
-                    <div className="p-3 rounded-lg bg-primary/10 group-hover:bg-primary/20 transition-all duration-200">
-                      <tool.icon className="h-6 w-6 text-primary" />
+                    <div className="p-3 rounded-lg bg-gradient-to-br from-primary/10 to-primary/5 dark:from-primary/20 dark:to-primary/10 group-hover:from-primary/20 group-hover:to-primary/10 dark:group-hover:from-primary/30 dark:group-hover:to-primary/20 transition-all duration-200 shadow-sm">
+                      <tool.icon className="h-6 w-6 text-primary dark:text-primary" />
                     </div>
                     <div className="space-y-2">
-                      <Badge className={`${getBadgeVariant(tool.badge)} text-xs px-2 py-1`}>
+                      <Badge className={`${getBadgeVariant(tool.badge)} text-xs px-2 py-1 shadow-sm`}>
                         {tool.badge}
                       </Badge>
-                      <CardTitle className="text-sm font-semibold group-hover:text-primary transition-colors leading-tight">
+                      <CardTitle className="text-sm font-semibold group-hover:text-primary transition-colors leading-tight dark:text-gray-100">
                         {tool.title}
                       </CardTitle>
                     </div>
                   </div>
                 </CardHeader>
                 
-                <CardContent className="pt-0 px-4 pb-4">
-                  <div className="space-y-3">
-                    <p className="text-xs text-gray-600 dark:text-gray-400 text-center leading-relaxed">
+                <CardContent className="pt-0 px-4 pb-4 flex-1 flex flex-col justify-between">
+                  <div className="space-y-3 flex-1">
+                    <p className="text-xs text-gray-600 dark:text-gray-300 text-center leading-relaxed">
                       {tool.description.length > 80 ? `${tool.description.substring(0, 80)}...` : tool.description}
                     </p>
-                    
-                    <Button asChild size="sm" className="w-full text-xs py-2 bg-primary hover:bg-primary/90">
-                      <Link to={tool.path}>
-                        Open Tool
-                      </Link>
-                    </Button>
                   </div>
+                  
+                  <Button asChild size="sm" className="w-full text-xs py-2 bg-gradient-to-r from-primary to-primary/90 hover:from-primary/90 hover:to-primary dark:from-primary dark:to-primary/90 shadow-sm">
+                    <Link to={tool.path}>
+                      Open Tool
+                    </Link>
+                  </Button>
                 </CardContent>
               </Card>
             ))}

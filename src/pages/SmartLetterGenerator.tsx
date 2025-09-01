@@ -37,6 +37,7 @@ import {
 import { useToast } from "@/hooks/use-toast";
 import { useEffect } from "react";
 import { useAuth } from "@/hooks/useAuth";
+import { Link } from "react-router-dom";
 
 const SmartLetterGenerator = () => {
   const { toast } = useToast();
@@ -789,43 +790,57 @@ Date: ${new Date().toLocaleDateString()}`;
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-2">
-                {isAdvocateUser ? (
+{isAdvocateUser ? (
                   <>
-                    <Button variant="ghost" size="sm" className="w-full justify-start">
-                      <BookOpen className="h-4 w-4 mr-2" />
-                      IDEA Legal Framework
-                    </Button>
+                    <Link to="/idea-rights-guide">
+                      <Button variant="ghost" size="sm" className="w-full justify-start">
+                        <BookOpen className="h-4 w-4 mr-2" />
+                        IDEA Legal Framework
+                      </Button>
+                    </Link>
                     <Button variant="ghost" size="sm" className="w-full justify-start">
                       <Scale className="h-4 w-4 mr-2" />
                       Case Law Database
                     </Button>
-                    <Button variant="ghost" size="sm" className="w-full justify-start">
-                      <FileText className="h-4 w-4 mr-2" />
-                      Compliance Checklist
-                    </Button>
-                    <Button variant="ghost" size="sm" className="w-full justify-start">
-                      <Calendar className="h-4 w-4 mr-2" />
-                      Legal Timeline Tracker
-                    </Button>
+                    <Link to="/ferpa-overview">
+                      <Button variant="ghost" size="sm" className="w-full justify-start">
+                        <FileText className="h-4 w-4 mr-2" />
+                        FERPA Legal Guide
+                      </Button>
+                    </Link>
+                    <Link to="/timeline-calculator">
+                      <Button variant="ghost" size="sm" className="w-full justify-start">
+                        <Calendar className="h-4 w-4 mr-2" />
+                        Legal Timeline Tracker
+                      </Button>
+                    </Link>
                   </>
                 ) : (
                   <>
-                    <Button variant="ghost" size="sm" className="w-full justify-start">
-                      <BookOpen className="h-4 w-4 mr-2" />
-                      IDEA Rights Guide
-                    </Button>
-                    <Button variant="ghost" size="sm" className="w-full justify-start">
-                      <FileText className="h-4 w-4 mr-2" />
-                      FERPA Overview
-                    </Button>
-                    <Button variant="ghost" size="sm" className="w-full justify-start">
-                      <Target className="h-4 w-4 mr-2" />
-                      504 Plan Guide
-                    </Button>
-                    <Button variant="ghost" size="sm" className="w-full justify-start">
-                      <Calendar className="h-4 w-4 mr-2" />
-                      Timeline Calculator
-                    </Button>
+                    <Link to="/idea-rights-guide">
+                      <Button variant="ghost" size="sm" className="w-full justify-start">
+                        <BookOpen className="h-4 w-4 mr-2" />
+                        IDEA Rights Guide
+                      </Button>
+                    </Link>
+                    <Link to="/ferpa-overview">
+                      <Button variant="ghost" size="sm" className="w-full justify-start">
+                        <FileText className="h-4 w-4 mr-2" />
+                        FERPA Overview
+                      </Button>
+                    </Link>
+                    <Link to="/504-plan-guide">
+                      <Button variant="ghost" size="sm" className="w-full justify-start">
+                        <Target className="h-4 w-4 mr-2" />
+                        504 Plan Guide
+                      </Button>
+                    </Link>
+                    <Link to="/timeline-calculator">
+                      <Button variant="ghost" size="sm" className="w-full justify-start">
+                        <Calendar className="h-4 w-4 mr-2" />
+                        Timeline Calculator
+                      </Button>
+                    </Link>
                   </>
                 )}
               </CardContent>

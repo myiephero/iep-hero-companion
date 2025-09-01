@@ -47,25 +47,37 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
   const [profile, setProfile] = useState<any | null>(null);
 
   useEffect(() => {
-    // Mock authentication during migration
+    // Mock authentication during migration with role-based user isolation
+    const getCurrentRole = () => {
+      const path = window.location.pathname;
+      if (path.includes('/advocate/')) return 'advocate';
+      if (path.includes('/parent/')) return 'parent';
+      const savedRole = localStorage.getItem('miephero_active_role');
+      return savedRole || 'parent';
+    };
+
+    const currentRole = getCurrentRole();
+    // Create role-specific mock user IDs to prevent document sharing
+    const roleBasedUserId = `mock-${currentRole}-user-${currentRole === 'advocate' ? '456' : '123'}`;
+    
     const mockUser: MockUser = {
-      id: "mock-user-123",
-      email: "user@example.com",
-      user_metadata: {}
+      id: roleBasedUserId,
+      email: `${currentRole}@example.com`,
+      user_metadata: { role: currentRole }
     };
     
     const mockSession: MockSession = {
       user: mockUser,
-      access_token: "mock-token"
+      access_token: `mock-token-${currentRole}`
     };
     
     setUser(mockUser);
     setSession(mockSession);
     setProfile({
       user_id: mockUser.id,
-      full_name: "Mock User",
+      full_name: `Mock ${currentRole.charAt(0).toUpperCase() + currentRole.slice(1)}`,
       email: mockUser.email,
-      role: "parent" // Default role for development
+      role: currentRole
     });
     setLoading(false);
   }, []);

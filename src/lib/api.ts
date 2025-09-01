@@ -149,9 +149,22 @@ export interface Advocate {
 class ApiClient {
   private async request(endpoint: string, options: RequestInit = {}) {
     try {
+      // Get the current user's auth token from local storage or session
+      const getCurrentRole = () => {
+        const path = window.location.pathname;
+        if (path.includes('/advocate/')) return 'advocate';
+        if (path.includes('/parent/')) return 'parent';
+        const savedRole = localStorage.getItem('miephero_active_role');
+        return savedRole || 'parent';
+      };
+
+      const currentRole = getCurrentRole();
+      const authToken = `mock-token-${currentRole}`;
+
       const response = await fetch(`${API_BASE}${endpoint}`, {
         headers: {
           'Content-Type': 'application/json',
+          'Authorization': `Bearer ${authToken}`,
           ...options.headers,
         },
         ...options,

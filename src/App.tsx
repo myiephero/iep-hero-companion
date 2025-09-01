@@ -119,7 +119,6 @@ function App() {
               
               {/* Tools Routes - Role-Based */}
               <Route path="/tools/hub" element={<RoleBasedRedirect parentRoute="/parent/tools" advocateRoute="/advocate/tools" />} />
-              <Route path="/tools/smart-letter-generator" element={<SmartLetterGenerator />} />
               <Route path="/parent/tools" element={
                 <ProtectedRoute allowedRoles={['parent']}>
                   <ToolsHub />
@@ -157,8 +156,15 @@ function App() {
                   <MeetingPrepWizard />
                 </ProtectedRoute>
               } />
-              <Route path="/parent/tools/smart-letter" element={
+              <Route path="/parent/tools/smart-letter-generator" element={
                 <ProtectedRoute allowedRoles={['parent']}>
+                  <SmartLetterGenerator />
+                </ProtectedRoute>
+              } />
+              
+              {/* Advocate Tools - Namespaced */}
+              <Route path="/advocate/tools/smart-letter-generator" element={
+                <ProtectedRoute allowedRoles={['advocate']}>
                   <SmartLetterGenerator />
                 </ProtectedRoute>
               } />

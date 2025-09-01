@@ -1,4 +1,4 @@
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect } from "react";
 import { useDropzone } from "react-dropzone";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -6,6 +6,8 @@ import { Progress } from "@/components/ui/progress";
 import { Badge } from "@/components/ui/badge";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
 import { api } from "@/lib/api";
 import { useAuth } from "@/hooks/useAuth";
@@ -375,11 +377,33 @@ interface DocumentUploadProps {
   selectedAnalysisType?: string;
 }
 
+interface Student {
+  id: string;
+  full_name: string;
+  grade_level?: string;
+}
+
 export function DocumentUpload({ onAnalysisComplete, selectedAnalysisType = 'iep_quality' }: DocumentUploadProps) {
   const [files, setFiles] = useState<UploadedFile[]>([]);
   const [analyzing, setAnalyzing] = useState<string | null>(null);
+  const [assignStudentFileId, setAssignStudentFileId] = useState<string | null>(null);
+  const [students, setStudents] = useState<Student[]>([]);
+  const [selectedStudentId, setSelectedStudentId] = useState<string>("");
   const { toast } = useToast();
   const { user } = useAuth();
+
+  // Fetch students on component mount
+  useEffect(() => {
+    const fetchStudents = async () => {
+      try {
+        const response = await api.get('/api/students');
+        setStudents(response.data || []);
+      } catch (error) {
+        console.error('Error fetching students:', error);
+      }
+    };
+    fetchStudents();
+  }, []);
 
   const onDrop = useCallback(async (acceptedFiles: File[]) => {
     if (!user) {
@@ -583,6 +607,30 @@ export function DocumentUpload({ onAnalysisComplete, selectedAnalysisType = 'iep
         description: "Share text copied to clipboard.",
       });
     }
+  };
+
+  // Assign student functionality
+  const handleAssignStudent = () => {
+    if (!selectedStudentId || !assignStudentFileId) return;
+    
+    const selectedStudent = students.find(s => s.id === selectedStudentId);
+    if (!selectedStudent) return;
+
+    // Update the file with assigned student
+    setFiles(prev => prev.map(file => 
+      file.id === assignStudentFileId 
+        ? { ...file, assignedStudentId: selectedStudentId, assignedStudentName: selectedStudent.full_name }
+        : file
+    ));
+
+    toast({
+      title: "Student Assigned",
+      description: `File assigned to ${selectedStudent.full_name}`,
+    });
+
+    // Reset dialog state
+    setAssignStudentFileId(null);
+    setSelectedStudentId("");
   };
 
   const analyzeDocument = async (fileData: UploadedFile, analysisType: string) => {
@@ -805,10 +853,7 @@ export function DocumentUpload({ onAnalysisComplete, selectedAnalysisType = 'iep
                               Download
                             </DropdownMenuItem>
                             <DropdownMenuItem 
-                              onClick={() => {
-                                // TODO: Implement assign to student functionality
-                                console.log('Assign to student clicked for file:', fileData.file.name);
-                              }}
+                              onClick={() => setAssignStudentFileId(fileData.id)}
                               data-testid={`menu-assign-student-${fileData.id}`}
                             >
                               <UserPlus className="h-4 w-4 mr-2" />
@@ -969,6 +1014,62 @@ export function DocumentUpload({ onAnalysisComplete, selectedAnalysisType = 'iep
           </CardContent>
         </Card>
       )}
+
+      {/* Assign Student Dialog */}
+      <Dialog open={!!assignStudentFileId} onOpenChange={(open) => {
+        if (!open) {
+          setAssignStudentFileId(null);
+          setSelectedStudentId("");
+        }
+      }}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Assign to Student</DialogTitle>
+            <DialogDescription>
+              Select a student to assign this document to for tracking and organization.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4">
+            <div>
+              <label className="text-sm font-medium mb-2 block">Select Student</label>
+              <Select value={selectedStudentId} onValueChange={setSelectedStudentId}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Choose a student..." />
+                </SelectTrigger>
+                <SelectContent>
+                  {students.map((student) => (
+                    <SelectItem key={student.id} value={student.id}>
+                      <div>
+                        <div className="font-medium">{student.full_name}</div>
+                        {student.grade_level && (
+                          <div className="text-sm text-muted-foreground">Grade {student.grade_level}</div>
+                        )}
+                      </div>
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="flex justify-end gap-2">
+              <Button 
+                variant="outline" 
+                onClick={() => {
+                  setAssignStudentFileId(null);
+                  setSelectedStudentId("");
+                }}
+              >
+                Cancel
+              </Button>
+              <Button 
+                onClick={handleAssignStudent}
+                disabled={!selectedStudentId}
+              >
+                Assign Student
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

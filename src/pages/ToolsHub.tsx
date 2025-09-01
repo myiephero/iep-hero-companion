@@ -147,29 +147,38 @@ const ToolsHub = () => {
           </p>
         </div>
 
-        {/* Quick Access Card */}
-        <Card className="bg-gradient-card border-0">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Folder className="h-5 w-5" />
+        {/* Quick Access Card - Premium Hero Style */}
+        <Card className="card-hero overflow-hidden">
+          <div className="absolute inset-0 bg-gradient-hero opacity-5"></div>
+          <CardHeader className="relative">
+            <CardTitle className="flex items-center gap-3 text-xl">
+              <div className="w-10 h-10 rounded-full bg-gradient-to-br from-primary to-accent flex items-center justify-center shadow-lg">
+                <Zap className="h-5 w-5 text-primary-foreground" />
+              </div>
               Quick Access
             </CardTitle>
-            <CardDescription>
+            <CardDescription className="text-base opacity-90">
               Your most used tools for efficient advocacy
             </CardDescription>
           </CardHeader>
-          <CardContent>
-            <div className="flex flex-wrap gap-3">
-              <Button asChild>
-                <Link to="/tools/document-vault">
-                  <Folder className="h-4 w-4 mr-2" />
-                  Open Document Vault
+          <CardContent className="relative">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <Button asChild size="lg" className="h-14 bg-gradient-to-r from-primary to-primary-light hover:from-primary-dark hover:to-primary shadow-button hover:shadow-button-hover transition-all duration-200">
+                <Link to="/tools/document-vault" className="flex items-center gap-3">
+                  <Folder className="h-5 w-5" />
+                  <div className="text-left">
+                    <div className="font-semibold">Document Vault</div>
+                    <div className="text-xs opacity-90">Manage files</div>
+                  </div>
                 </Link>
               </Button>
-              <Button variant="outline" asChild>
-                <Link to="/tools/iep-review">
-                  <Upload className="h-4 w-4 mr-2" />
-                  Upload & Analyze
+              <Button asChild variant="outline" size="lg" className="h-14 border-primary/20 hover:border-primary/40 hover:bg-primary/5 transition-all duration-200">
+                <Link to="/tools/iep-review" className="flex items-center gap-3">
+                  <Upload className="h-5 w-5" />
+                  <div className="text-left">
+                    <div className="font-semibold">Upload & Analyze</div>
+                    <div className="text-xs opacity-70">AI-powered review</div>
+                  </div>
                 </Link>
               </Button>
             </div>
@@ -191,54 +200,87 @@ const ToolsHub = () => {
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {tools
                 .filter(tool => tool.category === category)
-                .map((tool) => (
-                  <Card key={tool.title} className="bg-card hover:shadow-md transition-all duration-300 group">
-                    <CardContent className="p-6">
-                      <div className="space-y-4">
-                        <div className="w-12 h-12 rounded-lg bg-muted flex items-center justify-center text-muted-foreground group-hover:bg-primary group-hover:text-primary-foreground transition-colors">
-                          {tool.icon}
-                        </div>
-                        <div>
-                          <h3 className="font-semibold mb-1 flex items-center gap-2">
-                            {tool.title}
+                .map((tool, index) => {
+                  // Different card styles for visual variety
+                  const cardStyles = [
+                    "card-elevated", // Enhanced shadow with gradient
+                    "card-glass", // Glass morphism effect
+                    "card-premium", // Premium design with border accent
+                    "card-minimal", // Clean minimal design
+                  ];
+                  const cardStyle = cardStyles[index % cardStyles.length];
+                  
+                  return (
+                    <Card key={tool.title} className={`${cardStyle} group cursor-pointer transform hover:scale-[1.02] transition-all duration-300 hover:shadow-xl hover:shadow-primary/10`}>
+                      <CardContent className="p-6 h-full">
+                        <div className="space-y-4 h-full flex flex-col">
+                          {/* Icon with enhanced styling */}
+                          <div className="relative">
+                            <div className="w-14 h-14 rounded-xl bg-gradient-to-br from-primary/10 to-accent/10 flex items-center justify-center text-primary group-hover:from-primary group-hover:to-accent group-hover:text-primary-foreground transition-all duration-300 shadow-sm">
+                              {tool.icon}
+                            </div>
                             {tool.badge && (
-                              <Badge variant="secondary" className="text-xs">
+                              <Badge 
+                                variant={tool.badge === 'Popular' ? 'default' : tool.badge === 'Premium' ? 'secondary' : 'outline'} 
+                                className={`absolute -top-2 -right-2 text-xs font-medium ${
+                                  tool.badge === 'Popular' ? 'bg-gradient-to-r from-secondary to-secondary-light text-secondary-foreground shadow-sm' :
+                                  tool.badge === 'Premium' ? 'bg-gradient-to-r from-warning to-warning-light text-warning-foreground shadow-sm' :
+                                  tool.badge === 'Pro' ? 'bg-gradient-to-r from-accent to-accent-light text-accent-foreground shadow-sm' :
+                                  'bg-success/10 text-success border-success/20'
+                                }`}
+                              >
                                 {tool.badge}
                               </Badge>
                             )}
-                          </h3>
-                          <p className="text-sm text-muted-foreground">{tool.description}</p>
+                          </div>
+                          
+                          {/* Content with better typography */}
+                          <div className="flex-1">
+                            <h3 className="font-bold text-lg mb-2 text-foreground group-hover:text-primary transition-colors duration-200">
+                              {tool.title}
+                            </h3>
+                            <p className="text-sm text-muted-foreground leading-relaxed group-hover:text-foreground/80 transition-colors duration-200">
+                              {tool.description}
+                            </p>
+                          </div>
+                          
+                          {/* Enhanced button */}
+                          <Button asChild className="w-full bg-gradient-to-r from-primary to-primary-light hover:from-primary-dark hover:to-primary shadow-button hover:shadow-button-hover transition-all duration-200 group-hover:scale-105">
+                            <Link to={tool.url} className="flex items-center gap-2">
+                              Open Tool
+                              <Zap className="h-4 w-4 opacity-70 group-hover:opacity-100 transition-opacity" />
+                            </Link>
+                          </Button>
                         </div>
-                        <Button asChild variant="outline" size="sm" className="w-full">
-                          <Link to={tool.url}>
-                            Open Tool
-                          </Link>
-                        </Button>
-                      </div>
-                    </CardContent>
-                  </Card>
-                ))}
+                      </CardContent>
+                    </Card>
+                  );
+                })}
             </div>
           </div>
         ))}
 
-        {/* Help Section */}
-        <Card className="bg-surface border-0">
+        {/* Help Section - Interactive Support Card */}
+        <Card className="card-glass border-primary/10">
           <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Shield className="h-5 w-5" />
+            <CardTitle className="flex items-center gap-3">
+              <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-success/20 to-success/10 flex items-center justify-center">
+                <Shield className="h-4 w-4 text-success" />
+              </div>
               Need Help?
             </CardTitle>
           </CardHeader>
-          <CardContent className="space-y-3">
-            <p className="text-sm text-muted-foreground">
-              Can't find what you're looking for? Our support team is here to help.
+          <CardContent className="space-y-4">
+            <p className="text-sm text-muted-foreground leading-relaxed">
+              Can't find what you're looking for? Our expert support team is here to help you succeed.
             </p>
-            <div className="flex gap-3">
-              <Button variant="outline" size="sm">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <Button variant="outline" size="sm" className="hover:bg-success/10 hover:border-success/30 hover:text-success transition-all duration-200">
+                <MessageSquare className="h-4 w-4 mr-2" />
                 Contact Support
               </Button>
-              <Button variant="outline" size="sm">
+              <Button variant="outline" size="sm" className="hover:bg-primary/10 hover:border-primary/30 hover:text-primary transition-all duration-200">
+                <FileText className="h-4 w-4 mr-2" />
                 View Documentation
               </Button>
             </div>

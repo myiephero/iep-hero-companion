@@ -50,6 +50,7 @@ import FERPAOverview from "./pages/FERPAOverview";
 import Plan504Guide from "./pages/Plan504Guide";
 import TimelineCalculator from "./pages/TimelineCalculator";
 import NotFound from "./pages/NotFound";
+import CardShowcase from "./pages/CardShowcase";
 
 import { queryClient } from "./lib/queryClient";
 

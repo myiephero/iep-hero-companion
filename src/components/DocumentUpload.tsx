@@ -72,9 +72,10 @@ interface IEPAnalysisDisplayProps {
     timestamp: string;
   };
   onSaveToVault?: () => void;
+  onCreateLetter?: () => void;
 }
 
-const IEPAnalysisDisplay = ({ analysis, onSaveToVault }: IEPAnalysisDisplayProps) => {
+const IEPAnalysisDisplay = ({ analysis, onSaveToVault, onCreateLetter }: IEPAnalysisDisplayProps) => {
   const [collapsedSections, setCollapsedSections] = useState<{[key: string]: boolean}>({});
   let parsedAnalysis;
 
@@ -149,16 +150,69 @@ const IEPAnalysisDisplay = ({ analysis, onSaveToVault }: IEPAnalysisDisplayProps
               {parsedAnalysis.status}
             </Badge>
           )}
-          {onSaveToVault && (
-            <Button
-              onClick={onSaveToVault}
-              size="sm"
-              className="gap-2"
-              data-testid={`button-save-analysis-vault`}
-            >
-              <Save className="h-3 w-3" />
-              Save Analysis to Vault
-            </Button>
+          {(onSaveToVault || onCreateLetter) && (
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button 
+                  size="sm"
+                  className="gap-2 bg-blue-600 hover:bg-blue-700 text-white"
+                  data-testid="button-analysis-actions"
+                >
+                  <Save className="h-3 w-3" />
+                  Actions
+                  <ChevronDown className="h-2 w-2" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-48">
+                {onSaveToVault && (
+                  <DropdownMenuItem 
+                    onClick={onSaveToVault}
+                    className="flex items-center gap-2"
+                    data-testid="menu-save-vault"
+                  >
+                    <Save className="h-4 w-4" />
+                    Save to Vault
+                  </DropdownMenuItem>
+                )}
+                {onCreateLetter && (
+                  <DropdownMenuItem 
+                    onClick={onCreateLetter}
+                    className="flex items-center gap-2"
+                    data-testid="menu-create-letter"
+                  >
+                    <MessageSquare className="h-4 w-4" />
+                    Create Letter
+                  </DropdownMenuItem>
+                )}
+                <DropdownMenuSeparator />
+                <DropdownMenuItem 
+                  onClick={() => {
+                    const dataStr = JSON.stringify(analysis, null, 2);
+                    const dataUri = 'data:application/json;charset=utf-8,'+ encodeURIComponent(dataStr);
+                    const exportFileDefaultName = `${analysis.type}-analysis-${new Date().toISOString().split('T')[0]}.json`;
+                    const linkElement = document.createElement('a');
+                    linkElement.setAttribute('href', dataUri);
+                    linkElement.setAttribute('download', exportFileDefaultName);
+                    linkElement.click();
+                  }}
+                  className="flex items-center gap-2"
+                  data-testid="menu-export-analysis"
+                >
+                  <Download className="h-4 w-4" />
+                  Export Analysis
+                </DropdownMenuItem>
+                <DropdownMenuItem 
+                  onClick={() => {
+                    navigator.clipboard.writeText(JSON.stringify(analysis, null, 2));
+                  }}
+                  className="flex items-center gap-2"
+                  data-testid="menu-copy-clipboard"
+                >
+                  <Share className="h-4 w-4" />
+                  Copy to Clipboard
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
           )}
         </div>
       </div>
@@ -1007,6 +1061,12 @@ export function DocumentUpload({ onAnalysisComplete, selectedAnalysisType = 'iep
                   <IEPAnalysisDisplay 
                     analysis={fileData.analysis} 
                     onSaveToVault={() => saveAnalysisToVault(fileData)}
+                    onCreateLetter={() => {
+                      toast({
+                        title: "Create Letter",
+                        description: "Letter creation functionality will be implemented soon.",
+                      });
+                    }}
                   />
                 )}
               </div>

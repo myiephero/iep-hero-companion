@@ -105,6 +105,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
       
       if (storedUser) {
         // Use stored test user
+        localStorage.setItem('active_user_id', storedUser.userId);
         const profileData = await loadUserProfile(storedUser.userId);
         await setupAuthenticatedUser(storedUser.userId, storedUser.role, profileData);
       } else {
@@ -115,6 +116,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
         };
         
         const testUserId = defaultTestUsers[currentRole as keyof typeof defaultTestUsers];
+        localStorage.setItem('active_user_id', testUserId);
         const profileData = await loadUserProfile(testUserId);
         await setupAuthenticatedUser(testUserId, currentRole, profileData);
       }
@@ -137,6 +139,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     localStorage.setItem('miephero_test_user_id', userId);
     localStorage.setItem('miephero_test_user_role', role);
     localStorage.setItem('miephero_active_role', role);
+    localStorage.setItem('active_user_id', userId);
     
     const profileData = await loadUserProfile(userId);
     await setupAuthenticatedUser(userId, role, profileData);

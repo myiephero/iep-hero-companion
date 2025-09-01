@@ -149,8 +149,12 @@ export interface Advocate {
 class ApiClient {
   private async request(endpoint: string, options: RequestInit = {}) {
     try {
-      // Get the current user's auth token from local storage or session
-      const getCurrentRole = () => {
+      // Get the current user ID from localStorage (set by UserSwitcher)
+      const getCurrentUserId = () => {
+        const activeUserId = localStorage.getItem('active_user_id');
+        if (activeUserId) return activeUserId;
+        
+        // Fallback to role-based detection
         const path = window.location.pathname;
         if (path.includes('/advocate/')) return 'advocate';
         if (path.includes('/parent/')) return 'parent';
@@ -158,8 +162,8 @@ class ApiClient {
         return savedRole || 'parent';
       };
 
-      const currentRole = getCurrentRole();
-      const authToken = `mock-token-${currentRole}`;
+      const currentUserId = getCurrentUserId();
+      const authToken = `mock-token-${currentUserId}`;
 
       const response = await fetch(`${API_BASE}${endpoint}`, {
         headers: {

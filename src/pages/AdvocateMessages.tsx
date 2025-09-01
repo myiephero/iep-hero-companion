@@ -48,7 +48,7 @@ export default function AdvocateMessages() {
     if (location.state?.newMessage) {
       const { parentId, studentName, proposalId } = location.state.newMessage;
       // Pre-populate the message input with a starter message
-      setNewMessageText(`Hi! I received your match request for ${studentName}. I'd love to learn more about their needs and how I can help. Would you like to schedule a brief call to discuss?`);
+      setNewMessageText(`Hello! Thank you for considering me as an advocate for ${studentName}. I'd love to learn more about ${studentName}'s specific needs and how I can best support your family. Would you be available for a brief introductory call this week to discuss your goals and next steps?`);
       // You could also set selectedConversation to highlight or create a new conversation
     }
   }, [location.state]);
@@ -104,11 +104,26 @@ export default function AdvocateMessages() {
               <div className="flex items-center gap-3">
                 <Avatar className="h-10 w-10">
                   <AvatarImage src="/placeholder-1.jpg" />
-                  <AvatarFallback>JP</AvatarFallback>
+                  <AvatarFallback>
+                    {location.state?.newMessage ? 
+                      (location.state.newMessage.studentName?.split(' ').map(n => n[0]).join('') || 'SF') :
+                      'JP'
+                    }
+                  </AvatarFallback>
                 </Avatar>
                 <div>
-                  <p className="font-medium">Jordan Peterson</p>
-                  <p className="text-sm text-muted-foreground">Ava (Grade 3)</p>
+                  <p className="font-medium">
+                    {location.state?.newMessage ? 
+                      `${location.state.newMessage.studentName}'s Family` :
+                      'Jordan Peterson'
+                    }
+                  </p>
+                  <p className="text-sm text-muted-foreground">
+                    {location.state?.newMessage ? 
+                      location.state.newMessage.studentName :
+                      'Ava (Grade 3)'
+                    }
+                  </p>
                 </div>
               </div>
             </div>

@@ -268,7 +268,7 @@ function App() {
               <Route path="/tools/autism-accommodations" element={<RoleBasedRedirect parentRoute="/parent/tools/autism-accommodations" advocateRoute="/advocate/tools/autism-accommodations" />} />
               <Route path="/tools/advocate-matching" element={<RoleBasedRedirect parentRoute="/parent/tools/advocate-matching" advocateRoute="/advocate/tools/advocate-matching" />} />
               <Route path="/tools/gifted-2e-learners" element={<RoleBasedRedirect parentRoute="/parent/tools/gifted-2e-learners" advocateRoute="/advocate/tools/gifted-2e-learners" />} />
-              <Route path="/tools/smart-letter" element={<RoleBasedRedirect parentRoute="/parent/tools/smart-letter" advocateRoute="/advocate/tools/smart-letter" />} />
+              <Route path="/tools/smart-letter" element={<RoleBasedRedirect parentRoute="/parent/tools/smart-letter-generator" advocateRoute="/advocate/tools/smart-letter-generator" />} />
               <Route path="/tools/meeting-prep" element={<RoleBasedRedirect parentRoute="/parent/tools/meeting-prep" advocateRoute="/advocate/tools/meeting-prep" />} />
               
               {/* Settings */}

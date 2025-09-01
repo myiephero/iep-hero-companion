@@ -621,12 +621,24 @@ Date: ${new Date().toLocaleDateString()}`;
                   <div className="p-4 bg-muted/50 rounded-lg">
                     <div className="flex items-center gap-2 mb-2">
                       <Lightbulb className="h-4 w-4 text-amber-500" />
-                      <span className="text-sm font-medium">AI Suggestions</span>
+                      <span className="text-sm font-medium">{isAdvocateUser ? 'Professional Guidelines' : 'Helpful Tips'}</span>
                     </div>
                     <ul className="text-sm text-muted-foreground space-y-1">
-                      <li>• Consider adding specific examples of your concerns</li>
-                      <li>• Include any previous communications or documentation</li>
-                      <li>• Verify all contact information is current</li>
+                      {isAdvocateUser ? (
+                        <>
+                          <li>• Ensure all regulatory citations are accurate and current</li>
+                          <li>• Include specific timeline requirements per federal guidelines</li>
+                          <li>• Document all previous communications and responses</li>
+                          <li>• Use precise legal terminology for maximum impact</li>
+                        </>
+                      ) : (
+                        <>
+                          <li>• Consider adding specific examples of your concerns</li>
+                          <li>• Include any previous communications or documentation</li>
+                          <li>• Verify all contact information is current</li>
+                          <li>• Keep a collaborative and positive tone</li>
+                        </>
+                      )}
                     </ul>
                   </div>
 
@@ -673,41 +685,50 @@ Date: ${new Date().toLocaleDateString()}`;
                     Send & Track Letter
                   </CardTitle>
                   <CardDescription>
-                    Choose how to send your letter and set up tracking
+                    {isAdvocateUser 
+                      ? "Deliver professional correspondence with formal tracking and legal documentation" 
+                      : "Choose how to send your letter and set up tracking"}
                   </CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-6">
                   <div className="grid gap-4 md:grid-cols-2">
                     <Card className="p-4">
-                      <h3 className="font-semibold mb-2">Email Delivery</h3>
+                      <h3 className="font-semibold mb-2">{isAdvocateUser ? 'Professional Email Delivery' : 'Email Delivery'}</h3>
                       <p className="text-sm text-muted-foreground mb-3">
-                        Send directly via email with read receipts
+                        {isAdvocateUser 
+                          ? 'Send via secure email with delivery confirmation and legal timestamp'
+                          : 'Send directly via email with read receipts'}
                       </p>
                       <Button className="w-full">
                         <Mail className="h-4 w-4 mr-2" />
-                        Send via Email
+                        {isAdvocateUser ? 'Send Professional Email' : 'Send via Email'}
                       </Button>
                     </Card>
                     <Card className="p-4">
-                      <h3 className="font-semibold mb-2">Print & Mail</h3>
+                      <h3 className="font-semibold mb-2">{isAdvocateUser ? 'Certified Mail Package' : 'Print & Mail'}</h3>
                       <p className="text-sm text-muted-foreground mb-3">
-                        Download formatted PDF for printing
+                        {isAdvocateUser 
+                          ? 'Download with certified mail instructions and legal formatting'
+                          : 'Download formatted PDF for printing'}
                       </p>
                       <Button variant="outline" className="w-full">
                         <Download className="h-4 w-4 mr-2" />
-                        Download PDF
+                        {isAdvocateUser ? 'Prepare Legal Document' : 'Download PDF'}
                       </Button>
                     </Card>
                   </div>
 
-                  <div className="p-4 bg-blue-50 rounded-lg">
+                  <div className={`p-4 rounded-lg ${isAdvocateUser ? 'bg-purple-50' : 'bg-blue-50'}`}>
                     <div className="flex items-start gap-2">
-                      <Shield className="h-5 w-5 text-blue-600 mt-0.5" />
+                      <Shield className={`h-5 w-5 mt-0.5 ${isAdvocateUser ? 'text-purple-600' : 'text-blue-600'}`} />
                       <div>
-                        <h4 className="font-semibold text-blue-900">Tracking & Follow-up</h4>
-                        <p className="text-sm text-blue-700 mt-1">
-                          We'll automatically track response deadlines and send you reminders. 
-                          You'll receive notifications when it's time to follow up.
+                        <h4 className={`font-semibold ${isAdvocateUser ? 'text-purple-900' : 'text-blue-900'}`}>
+                          {isAdvocateUser ? 'Legal Compliance Tracking' : 'Tracking & Follow-up'}
+                        </h4>
+                        <p className={`text-sm mt-1 ${isAdvocateUser ? 'text-purple-700' : 'text-blue-700'}`}>
+                          {isAdvocateUser 
+                            ? 'Automatic tracking of legal deadlines per IDEA regulations. System monitors district compliance with 10-day response requirements and escalation protocols.'
+                            : 'We\'ll automatically track response deadlines and send you reminders. You\'ll receive notifications when it\'s time to follow up.'}
                         </p>
                       </div>
                     </div>
@@ -764,26 +785,49 @@ Date: ${new Date().toLocaleDateString()}`;
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
                   <Scale className="h-5 w-5" />
-                  Legal Resources
+                  {isAdvocateUser ? 'Professional Resources' : 'Legal Resources'}
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-2">
-                <Button variant="ghost" size="sm" className="w-full justify-start">
-                  <BookOpen className="h-4 w-4 mr-2" />
-                  IDEA Rights Guide
-                </Button>
-                <Button variant="ghost" size="sm" className="w-full justify-start">
-                  <FileText className="h-4 w-4 mr-2" />
-                  FERPA Overview
-                </Button>
-                <Button variant="ghost" size="sm" className="w-full justify-start">
-                  <Target className="h-4 w-4 mr-2" />
-                  504 Plan Guide
-                </Button>
-                <Button variant="ghost" size="sm" className="w-full justify-start">
-                  <Calendar className="h-4 w-4 mr-2" />
-                  Timeline Calculator
-                </Button>
+                {isAdvocateUser ? (
+                  <>
+                    <Button variant="ghost" size="sm" className="w-full justify-start">
+                      <BookOpen className="h-4 w-4 mr-2" />
+                      IDEA Legal Framework
+                    </Button>
+                    <Button variant="ghost" size="sm" className="w-full justify-start">
+                      <Scale className="h-4 w-4 mr-2" />
+                      Case Law Database
+                    </Button>
+                    <Button variant="ghost" size="sm" className="w-full justify-start">
+                      <FileText className="h-4 w-4 mr-2" />
+                      Compliance Checklist
+                    </Button>
+                    <Button variant="ghost" size="sm" className="w-full justify-start">
+                      <Calendar className="h-4 w-4 mr-2" />
+                      Legal Timeline Tracker
+                    </Button>
+                  </>
+                ) : (
+                  <>
+                    <Button variant="ghost" size="sm" className="w-full justify-start">
+                      <BookOpen className="h-4 w-4 mr-2" />
+                      IDEA Rights Guide
+                    </Button>
+                    <Button variant="ghost" size="sm" className="w-full justify-start">
+                      <FileText className="h-4 w-4 mr-2" />
+                      FERPA Overview
+                    </Button>
+                    <Button variant="ghost" size="sm" className="w-full justify-start">
+                      <Target className="h-4 w-4 mr-2" />
+                      504 Plan Guide
+                    </Button>
+                    <Button variant="ghost" size="sm" className="w-full justify-start">
+                      <Calendar className="h-4 w-4 mr-2" />
+                      Timeline Calculator
+                    </Button>
+                  </>
+                )}
               </CardContent>
             </Card>
           </div>

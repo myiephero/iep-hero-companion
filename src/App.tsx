@@ -13,6 +13,7 @@ import Auth from "./pages/Auth";
 import ParentDashboard from "./pages/ParentDashboard";
 import AdvocateDashboard from "./pages/AdvocateDashboard";
 import AdvocateMessages from "./pages/AdvocateMessages";
+import ParentMessages from "./pages/ParentMessages";
 import AdvocateSchedule from "./pages/AdvocateSchedule";
 import AdvocateParents from "./pages/AdvocateParents";
 import ParentStudents from "./pages/ParentStudents";
@@ -75,6 +76,11 @@ function App() {
               <Route path="/parent/students" element={
                 <ProtectedRoute allowedRoles={['parent']}>
                   <ParentStudents />
+                </ProtectedRoute>
+              } />
+              <Route path="/parent/messages" element={
+                <ProtectedRoute allowedRoles={['parent']}>
+                  <ParentMessages />
                 </ProtectedRoute>
               } />
               

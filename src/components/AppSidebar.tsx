@@ -65,6 +65,7 @@ const parentNavigation: SidebarSection[] = [
       { title: "IEP Review", url: "/parent/tools/iep-review", icon: FileSearch, badge: "AI" },
       { title: "Expert Analysis", url: "/parent/tools/expert-analysis", icon: ClipboardCheck, badge: "Pro" },
       { title: "Find Advocates", url: "/parent/matching", icon: UserCheck },
+      { title: "Messages", url: "/parent/messages", icon: MessageSquare },
       { title: "Accommodations", url: "/parent/tools/autism-accommodations", icon: Building2 },
       { title: "Meeting Prep", url: "/parent/tools/meeting-prep", icon: Calendar },
     ]

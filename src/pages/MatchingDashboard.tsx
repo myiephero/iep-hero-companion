@@ -15,7 +15,19 @@ import { useToast } from '@/hooks/use-toast';
 import { DashboardLayout } from '@/layouts/DashboardLayout';
 import { api as apiClient } from '@/lib/api';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import type { Student, Advocate } from '../../shared/schema';
+import type { Advocate } from '../../shared/schema';
+
+// Define Student interface locally since it's not exported from schema
+interface Student {
+  id: string;
+  full_name: string;
+  grade_level: string;
+  special_needs: string[];
+  user_id: string;
+  created_at: Date;
+  updated_at: Date;
+}
+import { useAuth } from '@/hooks/useAuth';
 
 interface MatchProposal {
   id: string;
@@ -30,12 +42,17 @@ interface MatchProposal {
 }
 
 export default function MatchingDashboard() {
+  const { user } = useAuth();
   const [selectedStudent, setSelectedStudent] = useState<Student | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
   const [filterSpecialty, setFilterSpecialty] = useState('all');
   const [activeTab, setActiveTab] = useState('browse');
   const { toast } = useToast();
   const queryClient = useQueryClient();
+
+  // Determine if user is an advocate or parent
+  const userRole = user?.user_metadata?.role || 'parent';
+  const isAdvocate = userRole === 'advocate';
 
   // Fetch real data from API
   const { data: students = [], isLoading: studentsLoading } = useQuery({
@@ -48,12 +65,14 @@ export default function MatchingDashboard() {
     queryFn: () => apiClient.getAdvocates()
   });
 
+  // Different API calls based on user role
   const { data: proposalsData, isLoading: proposalsLoading } = useQuery({
-    queryKey: ['match-proposals'],
-    queryFn: () => apiClient.getMatchProposals()
+    queryKey: ['match-proposals', userRole],
+    queryFn: () => isAdvocate ? apiClient.getAdvocateProposals() : apiClient.getMatchProposals(),
+    enabled: true // Always enable the query
   });
 
-  const proposals = proposalsData?.proposals || [];
+  const proposals = (proposalsData as any)?.proposals || [];
 
   // Mutations for match proposals
   const createProposalMutation = useMutation({
@@ -128,6 +147,52 @@ export default function MatchingDashboard() {
     });
   };
 
+  // Mutations for advocate actions
+  const acceptProposalMutation = useMutation({
+    mutationFn: (proposalId: string) => apiClient.acceptProposal(proposalId),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['match-proposals', userRole] });
+      toast({
+        title: "Proposal Accepted",
+        description: "You've accepted this match proposal. The family will be notified.",
+      });
+    },
+    onError: () => {
+      toast({
+        title: "Error",
+        description: "Failed to accept proposal.",
+        variant: "destructive",
+      });
+    }
+  });
+
+  const declineProposalMutation = useMutation({
+    mutationFn: ({ proposalId, reason }: { proposalId: string; reason?: string }) => 
+      apiClient.declineProposal(proposalId, reason),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['match-proposals', userRole] });
+      toast({
+        title: "Proposal Declined",
+        description: "You've declined this match proposal.",
+      });
+    },
+    onError: () => {
+      toast({
+        title: "Error",
+        description: "Failed to decline proposal.",
+        variant: "destructive",
+      });
+    }
+  });
+
+  const handleAcceptProposal = (proposalId: string) => {
+    acceptProposalMutation.mutate(proposalId);
+  };
+
+  const handleDeclineProposal = (proposalId: string) => {
+    declineProposalMutation.mutate({ proposalId, reason: 'Not a good fit at this time' });
+  };
+
   const getScoreColor = (score: number) => {
     if (score >= 80) return 'text-green-600';
     if (score >= 60) return 'text-amber-600';
@@ -140,23 +205,45 @@ export default function MatchingDashboard() {
     <DashboardLayout>
       <div className="max-w-7xl mx-auto space-y-6">
       <div className="mb-8">
-        <h1 className="text-3xl font-bold text-gray-900 mb-2">Advocate Matching</h1>
+        <h1 className="text-3xl font-bold text-gray-900 mb-2">
+          {isAdvocate ? 'Client Matching' : 'Advocate Matching'}
+        </h1>
         <p className="text-lg text-gray-600">
-          Find and connect with the perfect advocate for your child's needs
+          {isAdvocate 
+            ? 'Review incoming match proposals and connect with new families'
+            : 'Find and connect with the perfect advocate for your child\'s needs'
+          }
         </p>
       </div>
 
       <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
         <TabsList className="grid w-full grid-cols-1 sm:grid-cols-3">
-          <TabsTrigger value="browse">Browse Advocates</TabsTrigger>
-          <TabsTrigger value="proposals">My Proposals</TabsTrigger>
+          <TabsTrigger value="browse">
+            {isAdvocate ? 'Browse Families' : 'Browse Advocates'}
+          </TabsTrigger>
+          <TabsTrigger value="proposals">
+            {isAdvocate ? 'Incoming Proposals' : 'My Proposals'}
+          </TabsTrigger>
           <TabsTrigger value="matches">Active Matches</TabsTrigger>
         </TabsList>
 
         <TabsContent value="browse" className="space-y-6">
-          <div className="flex flex-col md:flex-row gap-4 mb-6">
-            <div className="flex-1">
-              <Label htmlFor="search">Search Advocates</Label>
+          {isAdvocate ? (
+            // Advocate view - show families/students needing advocates
+            <div className="text-center py-12">
+              <Users className="mx-auto h-12 w-12 text-gray-400 mb-4" />
+              <h3 className="text-lg font-semibold text-gray-900 mb-2">Family Browse Coming Soon</h3>
+              <p className="text-gray-600">
+                Browse families seeking advocates feature will be available soon.
+                For now, check your incoming proposals.
+              </p>
+            </div>
+          ) : (
+            // Parent view - show advocates to browse
+            <div className="space-y-6">
+              <div className="flex flex-col md:flex-row gap-4 mb-6">
+                <div className="flex-1">
+                  <Label htmlFor="search">Search Advocates</Label>
               <div className="relative">
                 <Search className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
                 <Input
@@ -206,8 +293,8 @@ export default function MatchingDashboard() {
             </div>
           </div>
 
-          <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
-            {filteredAdvocates.map((advocate) => (
+              <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
+                {filteredAdvocates.map((advocate) => (
               <Card key={advocate.id} className="hover:shadow-lg transition-shadow">
                 <CardHeader>
                   <div className="flex items-start justify-between">
@@ -344,14 +431,18 @@ export default function MatchingDashboard() {
                   </Dialog>
                 </CardContent>
               </Card>
-            ))}
-          </div>
+                ))}
+              </div>
+            </div>
+          )}
         </TabsContent>
 
         <TabsContent value="proposals" className="space-y-6">
           <div className="flex justify-between items-center">
-            <h2 className="text-2xl font-semibold">Match Proposals</h2>
-            <Button onClick={() => queryClient.invalidateQueries({ queryKey: ['match-proposals'] })} variant="outline">
+            <h2 className="text-2xl font-semibold">
+              {isAdvocate ? 'Incoming Proposals' : 'My Proposals'}
+            </h2>
+            <Button onClick={() => queryClient.invalidateQueries({ queryKey: ['match-proposals', userRole] })} variant="outline">
               Refresh
             </Button>
           </div>
@@ -360,13 +451,20 @@ export default function MatchingDashboard() {
             <Card>
               <CardContent className="p-12 text-center">
                 <MessageSquare className="mx-auto h-12 w-12 text-gray-400 mb-4" />
-                <h3 className="text-lg font-semibold text-gray-900 mb-2">No proposals yet</h3>
+                <h3 className="text-lg font-semibold text-gray-900 mb-2">
+                  {isAdvocate ? 'No incoming proposals' : 'No proposals yet'}
+                </h3>
                 <p className="text-gray-600 mb-4">
-                  Browse advocates and send match requests to get started
+                  {isAdvocate 
+                    ? 'When families send you match requests, they\'ll appear here'
+                    : 'Browse advocates and send match requests to get started'
+                  }
                 </p>
-                <Button onClick={() => setActiveTab('browse')}>
-                  Browse Advocates
-                </Button>
+                {!isAdvocate && (
+                  <Button onClick={() => setActiveTab('browse')}>
+                    Browse Advocates
+                  </Button>
+                )}
               </CardContent>
             </Card>
           ) : (
@@ -400,7 +498,25 @@ export default function MatchingDashboard() {
                     </div>
 
                     <div className="flex justify-end space-x-2">
-                      {proposal.status === 'pending' && (
+                      {isAdvocate && proposal.status === 'pending' && (
+                        <>
+                          <Button 
+                            onClick={() => handleAcceptProposal(proposal.id)}
+                            variant="default"
+                            size="sm"
+                          >
+                            Accept
+                          </Button>
+                          <Button 
+                            onClick={() => handleDeclineProposal(proposal.id)}
+                            variant="outline"
+                            size="sm"
+                          >
+                            Decline
+                          </Button>
+                        </>
+                      )}
+                      {!isAdvocate && proposal.status === 'pending' && (
                         <Button 
                           onClick={() => handleIntroRequest(proposal.id)}
                           variant="outline"

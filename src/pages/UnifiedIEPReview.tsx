@@ -429,9 +429,9 @@ ${userInputs.parentName || '[Parent Name]'}`;
       <div className="space-y-6">
         {/* Header */}
         <div>
-          <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">Unified IEP Review</h1>
+          <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">AI-Powered IEP Analysis</h1>
           <p className="text-gray-600 dark:text-gray-400">
-            Comprehensive AI-powered IEP analysis with quality scoring, compliance checks, and action planning
+            Upload and analyze IEP documents with comprehensive quality scoring, compliance verification, and actionable recommendations
           </p>
         </div>
 
@@ -441,10 +441,10 @@ ${userInputs.parentName || '[Parent Name]'}`;
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
                   <Rocket className="h-5 w-5" />
-                  Document Analysis Configuration
+                  Analysis Configuration
                 </CardTitle>
                 <CardDescription>
-                  Upload and analyze IEP documents with comprehensive AI-powered insights including quality scoring and compliance checks.
+                  Configure your analysis preferences and select the type of review you'd like to perform.
                 </CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">

@@ -693,6 +693,21 @@ const DocumentVault: React.FC = () => {
                                 </DropdownMenuTrigger>
                                 <DropdownMenuContent align="end" className="w-48">
                                   <DropdownMenuItem 
+                                    onClick={() => handleViewDocument(doc)}
+                                    data-testid={`menu-view-${doc.id}`}
+                                  >
+                                    <Eye className="h-4 w-4 mr-2" />
+                                    View
+                                  </DropdownMenuItem>
+                                  <DropdownMenuItem 
+                                    onClick={() => handleDownloadDocument(doc)}
+                                    data-testid={`menu-download-${doc.id}`}
+                                  >
+                                    <Download className="h-4 w-4 mr-2" />
+                                    Download
+                                  </DropdownMenuItem>
+                                  <DropdownMenuSeparator />
+                                  <DropdownMenuItem 
                                     onClick={() => handleEditFileName(doc.id, doc.title)}
                                     data-testid={`menu-edit-filename-${doc.id}`}
                                   >

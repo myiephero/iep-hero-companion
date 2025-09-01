@@ -33,9 +33,12 @@ import {
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useEffect } from "react";
+import { useAuth } from "@/hooks/useAuth";
 
 const SmartLetterGenerator = () => {
   const { toast } = useToast();
+  const { profile } = useAuth();
+  const isAdvocateUser = profile?.role === 'advocate';
   const [currentStep, setCurrentStep] = useState(1);
   const [selectedTemplate, setSelectedTemplate] = useState("");
   const [letterContent, setLetterContent] = useState("");
@@ -144,6 +147,24 @@ const SmartLetterGenerator = () => {
       urgency: "Standard",
       timeframe: "10 days",
       complexity: "Simple"
+    },
+    {
+      id: "advocacy-referral",
+      title: "Advocacy Service Referral",
+      description: "Professional advocacy service introduction",
+      category: "Professional",
+      urgency: "Standard",
+      timeframe: "7 days",
+      complexity: "Medium"
+    },
+    {
+      id: "case-summary",
+      title: "Case Summary Letter",
+      description: "Comprehensive case overview for schools",
+      category: "Professional",
+      urgency: "Standard",
+      timeframe: "5 days",
+      complexity: "Complex"
     }
   ];
 

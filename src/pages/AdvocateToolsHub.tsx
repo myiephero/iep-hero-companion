@@ -47,7 +47,7 @@ const advocateTools = [
     title: "Smart Letter Generator",
     description: "Generate legally sound advocacy letters with professional templates and customization options.",
     icon: PenTool,
-    path: "/tools/smart-letter",
+    path: "/tools/smart-letter-generator",
     category: "Communication",
     badge: "Templates",
     features: ["Legal Language", "Professional Format", "Customization", "Client Templates"]

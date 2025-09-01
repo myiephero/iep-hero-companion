@@ -119,6 +119,7 @@ function App() {
               
               {/* Tools Routes - Role-Based */}
               <Route path="/tools/hub" element={<RoleBasedRedirect parentRoute="/parent/tools" advocateRoute="/advocate/tools" />} />
+              <Route path="/tools/smart-letter-generator" element={<SmartLetterGenerator />} />
               <Route path="/parent/tools" element={
                 <ProtectedRoute allowedRoles={['parent']}>
                   <ToolsHub />

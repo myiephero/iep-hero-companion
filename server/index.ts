@@ -14,6 +14,24 @@ function createId(): string {
   return Date.now().toString(36) + Math.random().toString(36).substr(2);
 }
 
+// Middleware to extract user ID from mock authentication headers
+function getUserId(req: express.Request): string {
+  // In production, this would extract from JWT token or session
+  // For development, we use the mock user ID from the authorization header
+  const authHeader = req.headers.authorization;
+  if (authHeader && authHeader.startsWith('Bearer mock-token-')) {
+    const role = authHeader.replace('Bearer mock-token-', '');
+    return `mock-${role}-user-${role === 'advocate' ? '456' : '123'}`;
+  }
+  // Fallback to role-based detection from user-agent or path
+  const userAgent = req.headers['user-agent'] || '';
+  const path = req.path || '';
+  if (path.includes('advocate') || userAgent.includes('advocate')) {
+    return 'mock-advocate-user-456';
+  }
+  return 'mock-parent-user-123';
+}
+
 // OpenAI Analysis Function
 async function analyzeWithOpenAI(text: string, analysisType: string, retries = 3): Promise<string> {
   const apiKey = process.env.OPENAI_API_KEY;
@@ -150,12 +168,13 @@ app.use(express.json({ limit: '50mb' }));
 app.use(express.urlencoded({ limit: '50mb', extended: true }));
 
 // Mock authentication for now
-const MOCK_USER_ID = "mock-user-123";
+// Note: MOCK_USER_ID replaced with getUserId() function for proper user isolation
 
 // Students routes
 app.get('/api/students', async (req, res) => {
   try {
-    const students = await db.select().from(schema.students).where(eq(schema.students.user_id, MOCK_USER_ID));
+    const userId = getUserId(req);
+    const students = await db.select().from(schema.students).where(eq(schema.students.user_id, userId));
     res.json(students);
   } catch (error) {
     console.error('Error fetching students:', error);
@@ -165,7 +184,8 @@ app.get('/api/students', async (req, res) => {
 
 app.post('/api/students', async (req, res) => {
   try {
-    const studentData = { ...req.body, user_id: MOCK_USER_ID };
+    const userId = getUserId(req);
+    const studentData = { ...req.body, user_id: userId };
     const [student] = await db.insert(schema.students).values(studentData).returning();
     res.json(student);
   } catch (error) {
@@ -177,7 +197,8 @@ app.post('/api/students', async (req, res) => {
 // Autism accommodations routes
 app.get('/api/autism_accommodations', async (req, res) => {
   try {
-    const accommodations = await db.select().from(schema.autism_accommodations).where(eq(schema.autism_accommodations.user_id, MOCK_USER_ID));
+    const userId = getUserId(req);
+    const accommodations = await db.select().from(schema.autism_accommodations).where(eq(schema.autism_accommodations.user_id, userId));
     res.json(accommodations);
   } catch (error) {
     console.error('Error fetching autism accommodations:', error);
@@ -187,7 +208,8 @@ app.get('/api/autism_accommodations', async (req, res) => {
 
 app.post('/api/autism_accommodations', async (req, res) => {
   try {
-    const accommodationData = { ...req.body, user_id: MOCK_USER_ID };
+    const userId = getUserId(req);
+    const accommodationData = { ...req.body, user_id: userId };
     const [accommodation] = await db.insert(schema.autism_accommodations).values(accommodationData).returning();
     res.json(accommodation);
   } catch (error) {
@@ -199,7 +221,8 @@ app.post('/api/autism_accommodations', async (req, res) => {
 // Documents routes
 app.get('/api/documents', async (req, res) => {
   try {
-    const documents = await db.select().from(schema.documents).where(eq(schema.documents.user_id, MOCK_USER_ID));
+    const userId = getUserId(req);
+    const documents = await db.select().from(schema.documents).where(eq(schema.documents.user_id, userId));
     res.json(documents);
   } catch (error) {
     console.error('Error fetching documents:', error);
@@ -209,7 +232,8 @@ app.get('/api/documents', async (req, res) => {
 
 app.post('/api/documents', async (req, res) => {
   try {
-    const documentData = { ...req.body, user_id: MOCK_USER_ID };
+    const userId = getUserId(req);
+    const documentData = { ...req.body, user_id: userId };
     const [document] = await db.insert(schema.documents).values(documentData).returning();
     res.json(document);
   } catch (error) {
@@ -222,9 +246,10 @@ app.patch('/api/documents/:id', async (req, res) => {
   try {
     const { id } = req.params;
     const updateData = { ...req.body, updated_at: new Date().toISOString() };
+    const userId = getUserId(req);
     const [document] = await db.update(schema.documents)
       .set(updateData)
-      .where(and(eq(schema.documents.id, id), eq(schema.documents.user_id, MOCK_USER_ID)))
+      .where(and(eq(schema.documents.id, id), eq(schema.documents.user_id, userId)))
       .returning();
     
     if (!document) {
@@ -241,10 +266,11 @@ app.patch('/api/documents/:id', async (req, res) => {
 app.delete('/api/documents/:id', async (req, res) => {
   try {
     const { id } = req.params;
+    const userId = getUserId(req);
     await db.delete(schema.documents)
       .where(and(
         eq(schema.documents.id, id),
-        eq(schema.documents.user_id, MOCK_USER_ID)
+        eq(schema.documents.user_id, userId)
       ));
     res.json({ success: true });
   } catch (error) {
@@ -256,7 +282,8 @@ app.delete('/api/documents/:id', async (req, res) => {
 // AI reviews routes
 app.post('/api/ai_reviews', async (req, res) => {
   try {
-    const reviewData = { ...req.body, user_id: MOCK_USER_ID };
+    const userId = getUserId(req);
+    const reviewData = { ...req.body, user_id: userId };
     const [review] = await db.insert(schema.ai_reviews).values(reviewData).returning();
     res.json(review);
   } catch (error) {
@@ -269,16 +296,17 @@ app.get('/api/ai_reviews', async (req, res) => {
   try {
     const { document_id } = req.query;
     
+    const userId = getUserId(req);
     if (document_id) {
       const reviews = await db.select().from(schema.ai_reviews)
         .where(and(
-          eq(schema.ai_reviews.user_id, MOCK_USER_ID),
+          eq(schema.ai_reviews.user_id, userId),
           eq(schema.ai_reviews.document_id, document_id as string)
         ));
       res.json(reviews);
     } else {
       const reviews = await db.select().from(schema.ai_reviews)
-        .where(eq(schema.ai_reviews.user_id, MOCK_USER_ID));
+        .where(eq(schema.ai_reviews.user_id, userId));
       res.json(reviews);
     }
   } catch (error) {
@@ -291,10 +319,11 @@ app.delete('/api/ai_reviews/:id', async (req, res) => {
   try {
     const { id } = req.params;
     
+    const userId = getUserId(req);
     await db.delete(schema.ai_reviews)
       .where(and(
         eq(schema.ai_reviews.id, id),
-        eq(schema.ai_reviews.user_id, MOCK_USER_ID)
+        eq(schema.ai_reviews.user_id, userId)
       ));
     
     res.json({ success: true });
@@ -307,7 +336,8 @@ app.delete('/api/ai_reviews/:id', async (req, res) => {
 // Goals routes
 app.get('/api/goals', async (req, res) => {
   try {
-    const goals = await db.select().from(schema.goals).where(eq(schema.goals.user_id, MOCK_USER_ID));
+    const userId = getUserId(req);
+    const goals = await db.select().from(schema.goals).where(eq(schema.goals.user_id, userId));
     res.json(goals);
   } catch (error) {
     console.error('Error fetching goals:', error);
@@ -317,7 +347,8 @@ app.get('/api/goals', async (req, res) => {
 
 app.post('/api/goals', async (req, res) => {
   try {
-    const goalData = { ...req.body, user_id: MOCK_USER_ID };
+    const userId = getUserId(req);
+    const goalData = { ...req.body, user_id: userId };
     const [goal] = await db.insert(schema.goals).values(goalData).returning();
     res.json(goal);
   } catch (error) {
@@ -329,7 +360,8 @@ app.post('/api/goals', async (req, res) => {
 // Meetings routes
 app.get('/api/meetings', async (req, res) => {
   try {
-    const meetings = await db.select().from(schema.meetings).where(eq(schema.meetings.user_id, MOCK_USER_ID));
+    const userId = getUserId(req);
+    const meetings = await db.select().from(schema.meetings).where(eq(schema.meetings.user_id, userId));
     res.json(meetings);
   } catch (error) {
     console.error('Error fetching meetings:', error);
@@ -339,7 +371,8 @@ app.get('/api/meetings', async (req, res) => {
 
 app.post('/api/meetings', async (req, res) => {
   try {
-    const meetingData = { ...req.body, user_id: MOCK_USER_ID };
+    const userId = getUserId(req);
+    const meetingData = { ...req.body, user_id: userId };
     const [meeting] = await db.insert(schema.meetings).values(meetingData).returning();
     res.json(meeting);
   } catch (error) {
@@ -361,7 +394,8 @@ app.get('/api/advocates', async (req, res) => {
 
 app.post('/api/advocates', async (req, res) => {
   try {
-    const advocateData = { ...req.body, user_id: MOCK_USER_ID };
+    const userId = getUserId(req);
+    const advocateData = { ...req.body, user_id: userId };
     const [advocate] = await db.insert(schema.advocates).values(advocateData).returning();
     res.json(advocate);
   } catch (error) {
@@ -413,7 +447,7 @@ app.post('/api/process-document', express.json({ limit: '50mb' }), async (req, r
     const documentId = createId();
     await db.insert(schema.documents).values({
       id: documentId,
-      user_id: MOCK_USER_ID,
+      user_id: getUserId(req),
       title: fileName.split('.')[0],
       file_name: fileName,
       file_path: `uploads/${documentId}-${fileName}`,
@@ -533,7 +567,7 @@ app.post('/api/iep-analyze', async (req, res) => {
     const analysisId = createId();
     await db.insert(schema.ai_reviews).values({
       id: analysisId,
-      user_id: MOCK_USER_ID,
+      user_id: getUserId(req),
       document_id: docId,
       review_type: kind || 'iep',
       ai_analysis: { content: analysis, studentContext }

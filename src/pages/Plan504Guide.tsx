@@ -17,10 +17,67 @@ import {
 } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { Link } from "react-router-dom";
+import { useToast } from "@/hooks/use-toast";
 
 export default function Plan504Guide() {
   const { profile } = useAuth();
   const isAdvocateUser = profile?.role === 'advocate';
+  const { toast } = useToast();
+
+  const downloadChecklist = () => {
+    const checklistContent = `504 ACCOMMODATION CHECKLIST
+
+CLASSROOM ACCOMMODATIONS:
+☐ Extended time on tests and assignments
+☐ Preferential seating
+☐ Reduced distractions
+☐ Alternative testing location
+☐ Breaks during long activities
+☐ Modified assignments or expectations
+☐ Use of assistive technology
+☐ Note-taking assistance
+☐ Audio recordings of lessons
+
+TESTING ACCOMMODATIONS:
+☐ Extended time (time and a half, double time)
+☐ Small group testing
+☐ Reading test questions aloud
+☐ Large print or audio format
+☐ Frequent breaks
+☐ Alternative testing dates
+☐ Use of word processor
+☐ Calculator for non-math subjects
+
+COMMUNICATION SUPPORTS:
+☐ Regular progress monitoring
+☐ Home-school communication log
+☐ Modified homework assignments
+☐ Visual schedules and reminders
+☐ Social skills support
+☐ Behavior intervention plan
+☐ Crisis intervention plan
+
+Remember: These accommodations must be:
+- Necessary due to the disability
+- Appropriate for the student's needs
+- Effective in providing equal access
+- Regularly reviewed and updated
+
+Generated on: ${new Date().toLocaleDateString()}`;
+
+    const blob = new Blob([checklistContent], { type: 'text/plain' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `504-Accommodation-Checklist-${new Date().toISOString().split('T')[0]}.txt`;
+    a.click();
+    URL.revokeObjectURL(url);
+    
+    toast({
+      title: "Checklist Downloaded",
+      description: "504 accommodation checklist has been downloaded to your device."
+    });
+  };
 
   return (
     <DashboardLayout>
@@ -300,19 +357,19 @@ export default function Plan504Guide() {
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-3">
-                <Link href="/parent/tools/smart-letter-generator?template=504-request">
+                <Link to="/parent/tools/smart-letter-generator?template=evaluation-request">
                   <Button className="w-full justify-start">
                     <FileText className="h-4 w-4 mr-2" />
                     Request 504 Evaluation
                   </Button>
                 </Link>
-                <Link href="/parent/tools/smart-letter-generator?template=accommodation-request">
+                <Link to="/parent/tools/smart-letter-generator?template=accommodation-request">
                   <Button variant="outline" className="w-full justify-start">
                     <Target className="h-4 w-4 mr-2" />
                     Request Accommodations
                   </Button>
                 </Link>
-                <Button variant="outline" className="w-full justify-start">
+                <Button variant="outline" className="w-full justify-start" onClick={downloadChecklist}>
                   <Download className="h-4 w-4 mr-2" />
                   Accommodation Checklist
                 </Button>

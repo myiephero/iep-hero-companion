@@ -54,7 +54,7 @@ const emergentTools = [
     title: "Smart Letter Generator",
     description: "Generate professional advocacy letters with templates for various special education situations.",
     icon: FileText,
-    path: "/parent/tools/smart-letter",
+    path: "/parent/tools/smart-letter-generator",
     category: "Communication",
     badge: "Templates",
     features: ["Letter Templates", "Legal Language", "Customization", "Professional Format"]

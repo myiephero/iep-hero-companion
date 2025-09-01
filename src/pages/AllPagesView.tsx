@@ -208,7 +208,7 @@ export default function AllPagesView() {
     },
     {
       title: "Smart Letter Generator",
-      path: "/parent/tools/smart-letter",
+      path: "/parent/tools/smart-letter-generator",
       icon: <FileText className="h-5 w-5" />,
       description: "Generate professional advocacy letters",
       status: "Active"
@@ -305,7 +305,7 @@ export default function AllPagesView() {
     },
     {
       title: "Advocate Smart Letter",
-      path: "/advocate/tools/smart-letter",
+      path: "/advocate/tools/smart-letter-generator",
       icon: <FileText className="h-5 w-5" />,
       description: "Letter generation for advocates",
       status: "Active"

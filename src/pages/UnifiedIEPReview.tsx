@@ -572,63 +572,65 @@ ${userInputs.parentName || '[Parent Name]'}`;
                             </div>
                           </div>
                           <div className="flex items-center gap-2">
-                            <Button
-                              onClick={() => saveToVault(review)}
-                              className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white"
-                              size="sm"
-                              disabled={loading}
-                            >
-                              <Save className="h-4 w-4" />
-                              Save to Vault
-                            </Button>
-                            <Button
-                              onClick={() => {
-                                setSelectedReview(review);
-                                setLetterType("");
-                                setActionDraftOpen(true);
-                              }}
-                              variant="outline"
-                              size="sm"
-                              className="flex items-center gap-2"
-                            >
-                              <MessageSquare className="h-4 w-4" />
-                              Create Letter
-                            </Button>
                             <DropdownMenu>
                               <DropdownMenuTrigger asChild>
-                                <Button variant="outline" size="sm">
-                                  <MoreVertical className="h-4 w-4" />
+                                <Button 
+                                  className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white"
+                                  size="sm"
+                                  disabled={loading}
+                                >
+                                  <Save className="h-4 w-4" />
+                                  Actions
+                                  <ChevronDown className="h-3 w-3" />
                                 </Button>
                               </DropdownMenuTrigger>
-                              <DropdownMenuContent align="end">
-                                <DropdownMenuItem onClick={() => {
-                                  const dataStr = JSON.stringify(review, null, 2);
-                                  const dataUri = 'data:application/json;charset=utf-8,'+ encodeURIComponent(dataStr);
-                                  const exportFileDefaultName = `iep-review-${getDocumentTitle(review)}-${new Date().toISOString().split('T')[0]}.json`;
-                                  const linkElement = document.createElement('a');
-                                  linkElement.setAttribute('href', dataUri);
-                                  linkElement.setAttribute('download', exportFileDefaultName);
-                                  linkElement.click();
-                                }}>
-                                  <Download className="h-4 w-4 mr-2" />
-                                  Download
-                                </DropdownMenuItem>
-                                <DropdownMenuItem onClick={() => {
-                                  navigator.clipboard.writeText(JSON.stringify(review, null, 2));
-                                  toast({
-                                    title: "Copied to Clipboard",
-                                    description: "Review data copied to clipboard.",
-                                  });
-                                }}>
-                                  <Share className="h-4 w-4 mr-2" />
-                                  Share
+                              <DropdownMenuContent align="end" className="w-48">
+                                <DropdownMenuItem 
+                                  onClick={() => saveToVault(review)}
+                                  className="flex items-center gap-2"
+                                >
+                                  <Save className="h-4 w-4" />
+                                  Save to Vault
                                 </DropdownMenuItem>
                                 <DropdownMenuItem 
-                                  onClick={() => deleteReview(review.id)}
-                                  className="text-red-600"
+                                  onClick={() => {
+                                    setSelectedReview(review);
+                                    setLetterType("");
+                                    setActionDraftOpen(true);
+                                  }}
+                                  className="flex items-center gap-2"
                                 >
-                                  <Trash2 className="h-4 w-4 mr-2" />
-                                  Delete
+                                  <MessageSquare className="h-4 w-4" />
+                                  Create Letter
+                                </DropdownMenuItem>
+                                <DropdownMenuSeparator />
+                                <DropdownMenuItem 
+                                  onClick={() => {
+                                    const dataStr = JSON.stringify(review, null, 2);
+                                    const dataUri = 'data:application/json;charset=utf-8,'+ encodeURIComponent(dataStr);
+                                    const exportFileDefaultName = `iep-review-${getDocumentTitle(review)}-${new Date().toISOString().split('T')[0]}.json`;
+                                    const linkElement = document.createElement('a');
+                                    linkElement.setAttribute('href', dataUri);
+                                    linkElement.setAttribute('download', exportFileDefaultName);
+                                    linkElement.click();
+                                  }}
+                                  className="flex items-center gap-2"
+                                >
+                                  <Download className="h-4 w-4" />
+                                  Export Analysis
+                                </DropdownMenuItem>
+                                <DropdownMenuItem 
+                                  onClick={() => {
+                                    navigator.clipboard.writeText(JSON.stringify(review, null, 2));
+                                    toast({
+                                      title: "Copied to Clipboard",
+                                      description: "Review data copied to clipboard.",
+                                    });
+                                  }}
+                                  className="flex items-center gap-2"
+                                >
+                                  <Share className="h-4 w-4" />
+                                  Copy to Clipboard
                                 </DropdownMenuItem>
                               </DropdownMenuContent>
                             </DropdownMenu>

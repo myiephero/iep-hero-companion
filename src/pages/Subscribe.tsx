@@ -17,6 +17,24 @@ const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLIC_KEY);
 // Parent pricing tiers (matching ParentPricingPlan.tsx)
 const PARENT_PRICING = [
   {
+    id: 'free',
+    name: 'Free',
+    price: 0,
+    period: '/month',
+    description: 'Essential tools to get started',
+    features: [
+      'Template Library access',
+      'Education Hub',
+      'Basic IEP tracking',
+      'Community support',
+      'Mobile app access'
+    ],
+    icon: <Heart className="h-6 w-6" />,
+    gradient: 'from-gray-500 to-gray-600',
+    popular: false,
+    isFree: true
+  },
+  {
     id: 'basic',
     name: 'Basic',
     price: 19,
@@ -69,6 +87,26 @@ const PARENT_PRICING = [
     icon: <Crown className="h-6 w-6" />,
     gradient: 'from-purple-500 to-purple-600',
     priceId: 'price_parent_premium_4900'
+  },
+  {
+    id: 'hero-family-pack',
+    name: 'Hero Family Pack',
+    price: 495,
+    period: '/one-time',
+    description: 'Complete advocacy package with expert support',
+    features: [
+      'Advocate Pairing',
+      'Strategy Call included',
+      'Document Review service',
+      'IEP Meeting support',
+      '30-Day Complete Toolbox Access',
+      'One-time comprehensive package'
+    ],
+    icon: <Crown className="h-6 w-6" />,
+    gradient: 'from-amber-500 to-orange-600',
+    popular: false,
+    isOneTime: true,
+    priceId: 'price_parent_hero_49500'
   }
 ];
 
@@ -224,6 +262,15 @@ export default function Subscribe() {
     }
   }, [pricingTiers, selectedPlan]);
 
+  const handleFreePlan = () => {
+    toast({
+      title: "Free Plan Selected",
+      description: "To get started with the free plan, please sign in first.",
+    });
+    // Redirect to login for free plan signup
+    window.location.href = '/api/login';
+  };
+
   const handleSubscribe = async (plan: any) => {
     setIsLoading(true);
     try {
@@ -301,7 +348,8 @@ export default function Subscribe() {
           </p>
         </div>
 
-        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5" 
+             style={{ gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))' }}>
           {pricingTiers.map((tier) => (
             <Card 
               key={tier.id}
@@ -345,11 +393,13 @@ export default function Subscribe() {
                 </ul>
                 
                 <Button 
-                  onClick={() => handleSubscribe(tier)}
+                  onClick={() => tier.isFree ? handleFreePlan() : handleSubscribe(tier)}
                   size="lg" 
                   className={`w-full ${
                     tier.popular 
                       ? 'bg-primary hover:bg-primary/90' 
+                      : tier.isFree
+                      ? 'bg-gray-500 hover:bg-gray-600 text-white'
                       : 'bg-secondary hover:bg-secondary/90 text-secondary-foreground'
                   }`}
                   disabled={isLoading}
@@ -359,6 +409,10 @@ export default function Subscribe() {
                       <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white mr-3"></div>
                       Setting up...
                     </>
+                  ) : tier.isFree ? (
+                    'Get Started Free'
+                  ) : tier.isOneTime ? (
+                    `One-time Payment $${tier.price}`
                   ) : (
                     `Subscribe to ${tier.name}`
                   )}

@@ -393,13 +393,24 @@ export default function Subscribe() {
                 </ul>
                 
                 <Button 
-                  onClick={() => tier.isFree ? handleFreePlan() : handleSubscribe(tier)}
+                  onClick={() => {
+                    if (tier.isFree) {
+                      handleFreePlan();
+                    } else if (tier.isOneTime && tier.name === 'Hero Family Pack') {
+                      // Redirect to enhanced Hero Family Pack upsell page
+                      window.location.href = '/parent/subscribe/upsell/hero-plan';
+                    } else {
+                      handleSubscribe(tier);
+                    }
+                  }}
                   size="lg" 
                   className={`w-full ${
                     tier.popular 
                       ? 'bg-primary hover:bg-primary/90' 
                       : tier.isFree
                       ? 'bg-gray-500 hover:bg-gray-600 text-white'
+                      : tier.isOneTime
+                      ? 'bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 text-white'
                       : 'bg-secondary hover:bg-secondary/90 text-secondary-foreground'
                   }`}
                   disabled={isLoading}

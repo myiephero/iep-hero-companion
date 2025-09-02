@@ -16,7 +16,6 @@ import {
   Phone, 
   Target,
   Smile,
-  Zap,
   PenTool,
   UserPlus,
   GraduationCap,
@@ -247,18 +246,16 @@ export default function AdvocateToolsHub() {
           {/* Main Professional Tools */}
           <div>
             <h3 className="text-lg font-medium mb-4 text-center text-gray-700">Core Professional Tools</h3>
-            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
               {advocateTools.map((tool) => (
-                <Card key={tool.title} className="card-elevated group cursor-pointer transform hover:scale-[1.02] transition-all duration-300 hover:shadow-xl hover:shadow-primary/10">
-                  <CardContent className="p-4 text-center">
-                    <div className="space-y-3">
-                      <div className="relative">
-                        <div className="w-12 h-12 mx-auto rounded-xl bg-gradient-to-br from-primary/10 to-accent/10 flex items-center justify-center text-primary group-hover:from-primary group-hover:to-accent group-hover:text-primary-foreground transition-all duration-300 shadow-sm">
-                          <tool.icon className="h-6 w-6" />
-                        </div>
+                <Card key={tool.title} className="hover:shadow-xl transition-all duration-200 hover:scale-[1.02] group border border-gray-200 hover:border-primary/30 bg-gradient-to-br from-primary/5 to-white dark:from-primary/10 dark:to-gray-800 dark:border-gray-700 dark:hover:border-primary/50 h-[280px] flex flex-col">
+                  <CardHeader className="pb-3 pt-4 px-4 flex-shrink-0">
+                    <div className="flex flex-col items-center text-center space-y-3">
+                      <div className="p-3 rounded-lg bg-white/80 dark:bg-gray-900/80 group-hover:bg-white dark:group-hover:bg-gray-900 group-hover:shadow-md transition-all duration-200 backdrop-blur-sm">
+                        <tool.icon className="h-6 w-6 text-primary dark:text-primary" />
                       </div>
-                      <div>
-                        <Badge className={`mb-2 text-xs font-medium shadow-sm ${
+                      <div className="space-y-2">
+                        <Badge className={`text-xs px-3 py-1 font-medium shadow-sm ${
                           tool.badge === 'Pro' ? 'bg-gradient-to-r from-accent to-accent-light text-accent-foreground' :
                           tool.badge === 'Templates' ? 'bg-gradient-to-r from-secondary to-secondary-light text-secondary-foreground' :
                           tool.badge === 'Legal' ? 'bg-gradient-to-r from-primary to-primary-light text-primary-foreground' :
@@ -271,18 +268,25 @@ export default function AdvocateToolsHub() {
                         }`}>
                           {tool.badge}
                         </Badge>
-                        <h3 className="font-semibold text-sm mb-1 group-hover:text-primary transition-colors">{tool.title}</h3>
-                        <p className="text-xs text-muted-foreground leading-tight mb-3">
-                          {tool.description.length > 60 ? `${tool.description.substring(0, 60)}...` : tool.description}
-                        </p>
+                        <CardTitle className="text-sm font-semibold group-hover:text-primary transition-colors leading-tight dark:text-gray-100">
+                          {tool.title}
+                        </CardTitle>
                       </div>
-                      <Button asChild size="sm" className="w-full h-8 text-xs bg-gradient-to-r from-primary to-primary-light hover:from-primary-dark hover:to-primary shadow-button hover:shadow-button-hover transition-all duration-200 group-hover:scale-105">
-                        <Link to={tool.path.startsWith('/advocate/') || tool.path.startsWith('/parent/') ? tool.path : `/${userRole}${tool.path}`} className="flex items-center justify-center w-full h-full gap-1">
-                          Open Tool
-                          <Zap className="h-3 w-3 opacity-70 group-hover:opacity-100 transition-opacity" />
-                        </Link>
-                      </Button>
                     </div>
+                  </CardHeader>
+                  
+                  <CardContent className="pt-0 px-4 pb-4 flex-1 flex flex-col justify-between">
+                    <div className="space-y-3 flex-1">
+                      <p className="text-xs text-gray-600 dark:text-gray-300 text-center leading-relaxed">
+                        {tool.description.length > 80 ? `${tool.description.substring(0, 80)}...` : tool.description}
+                      </p>
+                    </div>
+                    
+                    <Button asChild size="sm" className="w-full text-xs py-2 bg-gradient-to-r from-primary to-primary/90 hover:from-primary/90 hover:to-primary dark:from-primary dark:to-primary/90 shadow-sm">
+                      <Link to={tool.path.startsWith('/advocate/') || tool.path.startsWith('/parent/') ? tool.path : `/${userRole}${tool.path}`}>
+                        Open Tool
+                      </Link>
+                    </Button>
                   </CardContent>
                 </Card>
               ))}
@@ -292,18 +296,16 @@ export default function AdvocateToolsHub() {
           {/* Specialized Tools Section */}
           <div>
             <h3 className="text-lg font-medium mb-4 text-center text-gray-700">Specialized Assessment Tools</h3>
-            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
               {specializedTools.map((tool) => (
-                <Card key={tool.title} className="card-glass group cursor-pointer transform hover:scale-[1.02] transition-all duration-300 hover:shadow-xl hover:shadow-primary/10">
-                  <CardContent className="p-4 text-center">
-                    <div className="space-y-3">
-                      <div className="relative">
-                        <div className="w-12 h-12 mx-auto rounded-xl bg-gradient-to-br from-primary/10 to-accent/10 flex items-center justify-center text-primary group-hover:from-primary group-hover:to-accent group-hover:text-primary-foreground transition-all duration-300 shadow-sm">
-                          <tool.icon className="h-6 w-6" />
-                        </div>
+                <Card key={tool.title} className="hover:shadow-xl transition-all duration-200 hover:scale-[1.02] group border border-gray-200 hover:border-primary/30 bg-gradient-to-br from-primary/5 to-white dark:from-primary/10 dark:to-gray-800 dark:border-gray-700 dark:hover:border-primary/50 h-[280px] flex flex-col">
+                  <CardHeader className="pb-3 pt-4 px-4 flex-shrink-0">
+                    <div className="flex flex-col items-center text-center space-y-3">
+                      <div className="p-3 rounded-lg bg-white/80 dark:bg-gray-900/80 group-hover:bg-white dark:group-hover:bg-gray-900 group-hover:shadow-md transition-all duration-200 backdrop-blur-sm">
+                        <tool.icon className="h-6 w-6 text-primary dark:text-primary" />
                       </div>
-                      <div>
-                        <Badge className={`mb-2 text-xs font-medium shadow-sm ${
+                      <div className="space-y-2">
+                        <Badge className={`text-xs px-3 py-1 font-medium shadow-sm ${
                           tool.badge === 'Pro' ? 'bg-gradient-to-r from-accent to-accent-light text-accent-foreground' :
                           tool.badge === 'Templates' ? 'bg-gradient-to-r from-secondary to-secondary-light text-secondary-foreground' :
                           tool.badge === 'Legal' ? 'bg-gradient-to-r from-primary to-primary-light text-primary-foreground' :
@@ -320,18 +322,25 @@ export default function AdvocateToolsHub() {
                         }`}>
                           {tool.badge}
                         </Badge>
-                        <h3 className="font-semibold text-sm mb-1 group-hover:text-primary transition-colors">{tool.title}</h3>
-                        <p className="text-xs text-muted-foreground leading-tight mb-3">
-                          {tool.description.length > 60 ? `${tool.description.substring(0, 60)}...` : tool.description}
-                        </p>
+                        <CardTitle className="text-sm font-semibold group-hover:text-primary transition-colors leading-tight dark:text-gray-100">
+                          {tool.title}
+                        </CardTitle>
                       </div>
-                      <Button asChild size="sm" className="w-full h-8 text-xs bg-gradient-to-r from-primary to-primary-light hover:from-primary-dark hover:to-primary shadow-button hover:shadow-button-hover transition-all duration-200 group-hover:scale-105">
-                        <Link to={tool.path.startsWith('/advocate/') || tool.path.startsWith('/parent/') ? tool.path : `/${userRole}${tool.path}`} className="flex items-center justify-center w-full h-full gap-1">
-                          Open Tool
-                          <Zap className="h-3 w-3 opacity-70 group-hover:opacity-100 transition-opacity" />
-                        </Link>
-                      </Button>
                     </div>
+                  </CardHeader>
+                  
+                  <CardContent className="pt-0 px-4 pb-4 flex-1 flex flex-col justify-between">
+                    <div className="space-y-3 flex-1">
+                      <p className="text-xs text-gray-600 dark:text-gray-300 text-center leading-relaxed">
+                        {tool.description.length > 80 ? `${tool.description.substring(0, 80)}...` : tool.description}
+                      </p>
+                    </div>
+                    
+                    <Button asChild size="sm" className="w-full text-xs py-2 bg-gradient-to-r from-primary to-primary/90 hover:from-primary/90 hover:to-primary dark:from-primary dark:to-primary/90 shadow-sm">
+                      <Link to={tool.path.startsWith('/advocate/') || tool.path.startsWith('/parent/') ? tool.path : `/${userRole}${tool.path}`}>
+                        Open Tool
+                      </Link>
+                    </Button>
                   </CardContent>
                 </Card>
               ))}

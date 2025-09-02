@@ -98,10 +98,10 @@ const Index = () => {
                       variant="outline" 
                       size="lg"
                       onClick={() => {
-                        window.location.href = `/${selectedRole}/pricing`;
+                        window.location.href = `/${selectedRole}/subscribe`;
                       }}
                     >
-                      View {selectedRole === 'parent' ? 'Parent' : 'Advocate'} Pricing
+                      {selectedRole === 'parent' ? 'Subscribe as Parent' : 'Subscribe as Advocate'}
                     </Button>
                   </div>
                 )}

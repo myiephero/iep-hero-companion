@@ -5,8 +5,11 @@ import { loadStripe } from '@stripe/stripe-js';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
+import { Switch } from '@/components/ui/switch';
+import { Label } from '@/components/ui/label';
 import { Check, Star, Zap, Crown, Heart } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+import { queryClient } from '@/lib/queryClient';
 
 // Initialize Stripe
 if (!import.meta.env.VITE_STRIPE_PUBLIC_KEY) {
@@ -136,12 +139,10 @@ const ADVOCATE_PRICING = [
 
 interface SubscriptionFormProps {
   clientSecret: string;
-  planName: string;
-  planPrice: number;
-  planPeriod: string;
+  billingPeriod: 'monthly' | 'annual';
 }
 
-function SubscriptionForm({ clientSecret, planName, planPrice, planPeriod }: SubscriptionFormProps) {
+function SubscriptionForm({ clientSecret, billingPeriod }: SubscriptionFormProps) {
   const stripe = useStripe();
   const elements = useElements();
   const { toast } = useToast();
@@ -172,7 +173,7 @@ function SubscriptionForm({ clientSecret, planName, planPrice, planPeriod }: Sub
     } else {
       toast({
         title: "Subscription Created!",
-        description: `You're now subscribed to ${planName}!`,
+        description: `You're now subscribed to IEP Hero ${billingPeriod} plan!`,
       });
     }
 
@@ -184,18 +185,11 @@ function SubscriptionForm({ clientSecret, planName, planPrice, planPeriod }: Sub
       <PaymentElement />
       <Button 
         type="submit" 
-        size="lg" 
-        className="w-full" 
-        disabled={!stripe || !elements || isLoading}
+        disabled={!stripe || isLoading}
+        className="w-full"
+        size="lg"
       >
-        {isLoading ? (
-          <>
-            <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white mr-3"></div>
-            Processing...
-          </>
-        ) : (
-          `Subscribe for $${planPrice}${planPeriod}`
-        )}
+        {isLoading ? 'Processing...' : `Subscribe ${billingPeriod === 'annual' ? 'Annually' : 'Monthly'}`}
       </Button>
     </form>
   );
@@ -258,26 +252,21 @@ export default function Subscribe() {
     }
   };
 
-  if (clientSecret && selectedPlan) {
+  if (clientSecret) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-primary/5 to-accent/5 py-12">
         <div className="container mx-auto px-4 max-w-2xl">
           <div className="text-center mb-8">
             <h1 className="text-3xl font-bold text-gray-900 mb-2">Complete Your Subscription</h1>
             <p className="text-gray-600">
-              You're subscribing to {selectedPlan.name} for ${selectedPlan.price}{selectedPlan.period}
+              You're subscribing to the {billingPeriod} plan for ${currentPlan.amount}/{currentPlan.period}
             </p>
           </div>
 
           <Card>
             <CardContent className="p-6">
               <Elements stripe={stripePromise} options={{ clientSecret }}>
-                <SubscriptionForm 
-                  clientSecret={clientSecret} 
-                  planName={selectedPlan.name}
-                  planPrice={selectedPlan.price}
-                  planPeriod={selectedPlan.period}
-                />
+                <SubscriptionForm clientSecret={clientSecret} billingPeriod={billingPeriod} />
               </Elements>
             </CardContent>
           </Card>
@@ -288,88 +277,121 @@ export default function Subscribe() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-primary/5 to-accent/5 py-12">
-      <div className="container mx-auto px-4 max-w-6xl">
+      <div className="container mx-auto px-4 max-w-4xl">
         <div className="text-center mb-12">
           <h1 className="text-4xl font-bold text-gray-900 mb-4">
-            {role === 'parent' ? 'Parent' : 'Advocate'} Subscription Plans
+            Choose Your IEP Hero Plan
           </h1>
-          <p className="text-xl text-gray-600 max-w-2xl mx-auto">
-            {role === 'parent' 
-              ? 'Choose the perfect plan to advocate effectively for your child\'s educational needs' 
-              : 'Select the right tools and features to grow your advocacy practice'
-            }
+          <p className="text-xl text-gray-600 mb-8">
+            Get unlimited access to professional IEP advocacy tools
           </p>
+
+          {/* Billing Toggle */}
+          <div className="flex items-center justify-center space-x-4 mb-8">
+            <Label htmlFor="billing-toggle" className="text-base">Monthly</Label>
+            <Switch
+              id="billing-toggle"
+              checked={isAnnual}
+              onCheckedChange={setIsAnnual}
+            />
+            <Label htmlFor="billing-toggle" className="text-base">
+              Annual 
+              {PRICING.annual.savings && (
+                <Badge variant="secondary" className="ml-2">
+                  Save {PRICING.annual.savings}%
+                </Badge>
+              )}
+            </Label>
+          </div>
         </div>
 
-        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-          {pricingTiers.map((tier) => (
-            <Card 
-              key={tier.id}
-              className={`relative transition-all duration-300 hover:shadow-lg ${
-                tier.popular ? 'ring-2 ring-primary scale-105' : 'hover:scale-102'
-              }`}
-            >
-              {tier.popular && (
-                <div className="absolute -top-3 left-1/2 transform -translate-x-1/2">
-                  <Badge className="bg-primary text-primary-foreground">
-                    Most Popular
-                  </Badge>
-                </div>
+        <div className="grid md:grid-cols-2 gap-8 max-w-3xl mx-auto">
+          {/* Free Plan */}
+          <Card className="relative border-2">
+            <CardHeader>
+              <CardTitle className="text-2xl">Free Trial</CardTitle>
+              <CardDescription>Try IEP Hero for free</CardDescription>
+              <div className="text-3xl font-bold">
+                $0<span className="text-lg font-normal text-gray-600">/month</span>
+              </div>
+            </CardHeader>
+            <CardContent>
+              <ul className="space-y-3 mb-6">
+                <li className="flex items-center">
+                  <Check className="h-5 w-5 text-green-500 mr-3" />
+                  <span>3 document analyses</span>
+                </li>
+                <li className="flex items-center">
+                  <Check className="h-5 w-5 text-green-500 mr-3" />
+                  <span>Basic document vault</span>
+                </li>
+                <li className="flex items-center">
+                  <Check className="h-5 w-5 text-green-500 mr-3" />
+                  <span>Community support</span>
+                </li>
+              </ul>
+              <Button variant="outline" className="w-full" disabled>
+                Current Plan
+              </Button>
+            </CardContent>
+          </Card>
+
+          {/* Premium Plan */}
+          <Card className="relative border-2 border-primary shadow-lg">
+            <div className="absolute -top-4 left-1/2 transform -translate-x-1/2">
+              <Badge className="bg-primary text-primary-foreground px-4 py-1">
+                <Star className="h-4 w-4 mr-1" />
+                Recommended
+              </Badge>
+            </div>
+            <CardHeader>
+              <CardTitle className="text-2xl">IEP Hero Pro</CardTitle>
+              <CardDescription>Full access to all features</CardDescription>
+              <div className="text-3xl font-bold">
+                ${currentPlan.amount}
+                <span className="text-lg font-normal text-gray-600">/{currentPlan.period}</span>
+              </div>
+              {isAnnual && (
+                <p className="text-sm text-green-600 font-medium">
+                  Save ${((PRICING.monthly.amount * 12) - PRICING.annual.amount).toFixed(2)} vs monthly
+                </p>
               )}
-              
-              <CardHeader className="text-center pb-6">
-                <div className={`inline-flex items-center justify-center w-12 h-12 bg-gradient-to-r ${tier.gradient} rounded-2xl mb-4 mx-auto`}>
-                  {tier.icon}
-                </div>
-                <CardTitle className="text-xl font-bold">{tier.name}</CardTitle>
-                {tier.seats && (
-                  <div className="text-sm text-muted-foreground">{tier.seats}</div>
+            </CardHeader>
+            <CardContent>
+              <ul className="space-y-3 mb-6">
+                {features.map((feature, index) => (
+                  <li key={index} className="flex items-center">
+                    <Check className="h-5 w-5 text-green-500 mr-3" />
+                    <span>{feature}</span>
+                  </li>
+                ))}
+              </ul>
+              <Button 
+                onClick={handleSubscribe}
+                disabled={isLoading}
+                className="w-full"
+                size="lg"
+              >
+                {isLoading ? (
+                  <>
+                    <Zap className="h-4 w-4 mr-2 animate-spin" />
+                    Setting up...
+                  </>
+                ) : (
+                  <>
+                    <Zap className="h-4 w-4 mr-2" />
+                    Start {billingPeriod === 'annual' ? 'Annual' : 'Monthly'} Plan
+                  </>
                 )}
-                <CardDescription className="text-muted-foreground mb-4">
-                  {tier.description}
-                </CardDescription>
-                <div className="flex items-baseline justify-center gap-1">
-                  <span className="text-3xl font-bold">${tier.price}</span>
-                  <span className="text-muted-foreground">{tier.period}</span>
-                </div>
-              </CardHeader>
-              
-              <CardContent className="pt-0">
-                <ul className="space-y-3 mb-6">
-                  {tier.features.map((feature, index) => (
-                    <li key={index} className="flex items-start gap-3">
-                      <Check className="h-5 w-5 text-green-500 flex-shrink-0 mt-0.5" />
-                      <span className="text-sm text-muted-foreground">{feature}</span>
-                    </li>
-                  ))}
-                </ul>
-                
-                <Button 
-                  onClick={() => handleSubscribe(tier)}
-                  size="lg" 
-                  className={`w-full ${
-                    tier.popular 
-                      ? 'bg-primary hover:bg-primary/90' 
-                      : 'bg-secondary hover:bg-secondary/90 text-secondary-foreground'
-                  }`}
-                  disabled={isLoading}
-                >
-                  {isLoading ? (
-                    <>
-                      <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white mr-3"></div>
-                      Setting up...
-                    </>
-                  ) : (
-                    `Subscribe to ${tier.name}`
-                  )}
-                </Button>
-              </CardContent>
-            </Card>
-          ))}
+              </Button>
+            </CardContent>
+          </Card>
         </div>
-        
-        <div className="text-center mt-8 text-sm text-gray-500">
-          Cancel anytime • 30-day money-back guarantee • Secure payment processing
+
+        <div className="text-center mt-12">
+          <p className="text-gray-600">
+            No contracts. Cancel anytime. 30-day money-back guarantee.
+          </p>
         </div>
       </div>
     </div>

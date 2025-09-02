@@ -279,8 +279,8 @@ export default function AdvocateToolsHub() {
                   
                   <CardContent className="pt-0 px-4 pb-4 flex-1 flex flex-col justify-between">
                     <div className="space-y-3 flex-1">
-                      <p className="text-xs text-gray-600 dark:text-gray-300 text-center leading-relaxed">
-                        {tool.description.length > 80 ? `${tool.description.substring(0, 80)}...` : tool.description}
+                      <p className="text-xs text-gray-600 dark:text-gray-300 text-center leading-relaxed h-12 overflow-hidden line-clamp-3">
+                        {tool.description}
                       </p>
                     </div>
                     
@@ -329,8 +329,8 @@ export default function AdvocateToolsHub() {
                   
                   <CardContent className="pt-0 px-4 pb-4 flex-1 flex flex-col justify-between">
                     <div className="space-y-3 flex-1">
-                      <p className="text-xs text-gray-600 dark:text-gray-300 text-center leading-relaxed">
-                        {tool.description.length > 80 ? `${tool.description.substring(0, 80)}...` : tool.description}
+                      <p className="text-xs text-gray-600 dark:text-gray-300 text-center leading-relaxed h-12 overflow-hidden line-clamp-3">
+                        {tool.description}
                       </p>
                     </div>
                     

@@ -678,6 +678,76 @@ app.post('/api/invite-parent', async (req, res) => {
   }
 });
 
+// AI Draft Generation endpoint
+app.post('/api/generate-draft', async (req, res) => {
+  try {
+    const { type, studentName, context } = req.body;
+    
+    if (!type || !studentName) {
+      return res.status(400).json({ error: 'Type and student name are required' });
+    }
+
+    let prompt = '';
+    
+    switch (type) {
+      case 'mood':
+        prompt = `Write a professional emotional observation note for ${studentName} (${context.grade}). 
+Current mood indicator: ${context.mood}
+Additional context: ${context.notes || 'None provided'}
+
+Generate a professional note that:
+- Documents the emotional state objectively
+- Uses appropriate educational/psychological terminology
+- Includes contextual observations
+- Suggests follow-up considerations
+- Maintains professional tone suitable for IEP documentation
+
+Keep it concise (2-3 sentences) but thorough.`;
+        break;
+        
+      case 'behavior':
+        prompt = `Create a professional behavioral observation report for ${studentName} (${context.grade}).
+Initial notes: ${context.initialNotes || 'General behavioral observation needed'}
+
+Generate a structured behavioral report that includes:
+- Objective description of observed behaviors
+- Environmental context and potential triggers
+- Duration and frequency when applicable
+- Interventions attempted and their effectiveness
+- Recommendations for future support
+
+Use professional educational language appropriate for IEP meetings and documentation.`;
+        break;
+        
+      case 'intervention':
+        prompt = `Develop a professional intervention plan for ${studentName} (${context.grade}).
+Current considerations: ${context.currentPlan || 'Comprehensive support plan needed'}
+
+Create a structured intervention plan including:
+- Specific, measurable goals
+- Evidence-based intervention strategies
+- Implementation timeline and steps
+- Success metrics and monitoring methods
+- Required resources and personnel
+- Review and adjustment protocols
+
+Use professional educational terminology suitable for IEP team review and implementation.`;
+        break;
+        
+      default:
+        return res.status(400).json({ error: 'Invalid draft type' });
+    }
+
+    // Generate the draft using the existing OpenAI function
+    const draft = await analyzeWithOpenAI(prompt, `${type} draft generation`);
+    
+    res.json({ draft });
+  } catch (error) {
+    console.error('Error generating draft:', error);
+    res.status(500).json({ error: 'Failed to generate draft' });
+  }
+});
+
 // Mount new route modules
 app.use('/api/match', matchRoutes);
 app.use('/api/expert-analysis', expertRoutes);

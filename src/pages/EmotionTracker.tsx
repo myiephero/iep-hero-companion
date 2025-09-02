@@ -239,10 +239,61 @@ export default function EmotionTracker() {
       grade: students.find(s => s.id === selectedStudent)?.grade
     });
     if (draft) {
-      setBehaviorEntry(draft);
+      // Format the AI response for better readability
+      let formattedDraft = draft;
+      
+      // If it's a JSON response, extract and format it
+      try {
+        const parsed = JSON.parse(draft);
+        if (parsed.observation) {
+          formattedDraft = `BEHAVIORAL OBSERVATION REPORT
+
+Date: ${new Date().toLocaleDateString()}
+Student: ${students.find(s => s.id === selectedStudent)?.name}
+Observer: [Your Name]
+
+OBSERVATION:
+${parsed.observation}
+
+CONTEXT & TRIGGERS:
+${parsed.context || 'Environmental factors and potential triggers to be noted.'}
+
+INTERVENTIONS USED:
+${parsed.interventions || 'Record any immediate interventions or strategies implemented.'}
+
+RECOMMENDATIONS:
+${parsed.recommendations || 'Suggested follow-up actions and monitoring strategies.'}
+
+NOTES:
+${parsed.notes || 'Additional relevant observations or considerations.'}`;
+        }
+      } catch (e) {
+        // If not JSON, check if it needs formatting
+        if (!draft.includes('BEHAVIORAL OBSERVATION') && !draft.includes('Date:')) {
+          formattedDraft = `BEHAVIORAL OBSERVATION REPORT
+
+Date: ${new Date().toLocaleDateString()}
+Student: ${students.find(s => s.id === selectedStudent)?.name}
+Observer: [Your Name]
+
+OBSERVATION:
+${draft}
+
+CONTEXT & TRIGGERS:
+[Record environmental factors and potential triggers]
+
+INTERVENTIONS USED:
+[Note any immediate interventions or strategies implemented]
+
+RECOMMENDATIONS:
+[Suggested follow-up actions and monitoring strategies]`;
+        }
+      }
+      
+      setBehaviorEntry(formattedDraft);
       toast({
         title: "AI Draft Generated",
-        description: "Please review and edit the behavioral observation before saving.",
+        description: "Professional behavioral observation created. Please review and customize before saving.",
         variant: "default"
       });
     }
@@ -446,13 +497,22 @@ export default function EmotionTracker() {
                         id="behavior-entry"
                         value={behaviorEntry}
                         onChange={(e) => setBehaviorEntry(e.target.value)}
-                        placeholder="Describe the observed behavior, context, triggers, and interventions used..."
-                        rows={4}
+                        placeholder="Click 'AI Draft' to generate a professional behavioral observation report, or describe the observed behavior, context, triggers, and interventions used..."
+                        rows={behaviorEntry.includes('BEHAVIORAL OBSERVATION REPORT') ? 12 : 4}
+                        className={behaviorEntry.includes('BEHAVIORAL OBSERVATION REPORT') ? 'font-mono text-sm' : ''}
                       />
                       {behaviorEntry && (
-                        <p className="text-xs text-muted-foreground mt-1">
-                          💡 Review and edit this professional observation before saving
-                        </p>
+                        <div className="mt-2 space-y-1">
+                          {behaviorEntry.includes('BEHAVIORAL OBSERVATION REPORT') && (
+                            <div className="flex items-center gap-2 text-xs text-blue-600 bg-blue-50 px-2 py-1 rounded">
+                              <Sparkles className="h-3 w-3" />
+                              AI-Generated Professional Report - Review and customize as needed
+                            </div>
+                          )}
+                          <p className="text-xs text-muted-foreground">
+                            💡 Review and edit this professional observation before saving
+                          </p>
+                        </div>
                       )}
                     </div>
                     <div className="flex gap-2">

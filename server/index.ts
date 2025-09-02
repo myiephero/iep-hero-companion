@@ -709,14 +709,21 @@ Keep it concise (2-3 sentences) but thorough.`;
         prompt = `Create a professional behavioral observation report for ${studentName} (${context.grade}).
 Initial notes: ${context.initialNotes || 'General behavioral observation needed'}
 
-Generate a structured behavioral report that includes:
-- Objective description of observed behaviors
-- Environmental context and potential triggers
-- Duration and frequency when applicable
-- Interventions attempted and their effectiveness
-- Recommendations for future support
+Respond with a structured JSON format:
+{
+  "observation": "Detailed objective description of observed behaviors using professional terminology",
+  "context": "Environmental context, settings, times, and potential triggers",
+  "interventions": "Specific interventions attempted and their effectiveness",
+  "recommendations": "Evidence-based recommendations for future support and monitoring",
+  "notes": "Additional professional observations or considerations"
+}
 
-Use professional educational language appropriate for IEP meetings and documentation.`;
+Focus on:
+- Objective, observable behaviors (not interpretations)
+- Professional educational/psychological terminology
+- Specific contextual details
+- Data-driven recommendations
+- IEP-appropriate language`;
         break;
         
       case 'intervention':

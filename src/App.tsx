@@ -49,6 +49,11 @@ import IDEARightsGuide from "./pages/IDEARightsGuide";
 import FERPAOverview from "./pages/FERPAOverview";
 import Plan504Guide from "./pages/Plan504Guide";
 import TimelineCalculator from "./pages/TimelineCalculator";
+import ProgressAnalyzer from "./pages/ProgressAnalyzer";
+import GoalGenerator from "./pages/GoalGenerator";
+import AskAIDocs from "./pages/AskAIDocs";
+import ProgressNotes from "./pages/ProgressNotes";
+import CommunicationTracker from "./pages/CommunicationTracker";
 import NotFound from "./pages/NotFound";
 import CardShowcase from "./pages/CardShowcase";
 
@@ -321,6 +326,33 @@ function App() {
               <Route path="/timeline-calculator" element={
                 <ProtectedRoute allowedRoles={['parent', 'advocate']}>
                   <TimelineCalculator />
+                </ProtectedRoute>
+              } />
+              
+              {/* Advocate-specific tools */}
+              <Route path="/advocate/tools/progress-analyzer" element={
+                <ProtectedRoute allowedRoles={['advocate']}>
+                  <ProgressAnalyzer />
+                </ProtectedRoute>
+              } />
+              <Route path="/advocate/tools/goal-generator" element={
+                <ProtectedRoute allowedRoles={['advocate']}>
+                  <GoalGenerator />
+                </ProtectedRoute>
+              } />
+              <Route path="/advocate/tools/ask-ai-docs" element={
+                <ProtectedRoute allowedRoles={['advocate']}>
+                  <AskAIDocs />
+                </ProtectedRoute>
+              } />
+              <Route path="/advocate/tools/progress-notes" element={
+                <ProtectedRoute allowedRoles={['advocate']}>
+                  <ProgressNotes />
+                </ProtectedRoute>
+              } />
+              <Route path="/advocate/tools/communication-tracker" element={
+                <ProtectedRoute allowedRoles={['advocate']}>
+                  <CommunicationTracker />
                 </ProtectedRoute>
               } />
               

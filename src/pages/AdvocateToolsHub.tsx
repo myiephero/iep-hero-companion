@@ -7,22 +7,23 @@ import {
   Brain, 
   FileText, 
   Users, 
+  Calendar,
   Scale,
   Lightbulb, 
   BarChart3, 
+  Target,
   MessageSquare, 
-  Sparkles, 
+  Star,
   Clipboard, 
   Phone, 
-  Target,
+  FileBarChart,
   Smile,
   Zap,
   PenTool,
-  UserPlus,
+  Sparkles,
   GraduationCap,
-  TrendingUp,
-  BookOpen,
-  Building
+  Building,
+  TrendingUp
 } from "lucide-react";
 
 // Get user role from current location
@@ -38,7 +39,7 @@ const advocateTools = [
     title: "AI IEP Review & Compliance",
     description: "Upload and analyze IEP documents with AI-powered insights, compliance checking, and professional recommendations.",
     icon: Brain,
-    path: "/tools/ai-iep-review",
+    path: "/unified-iep-review",
     category: "AI Tools",
     badge: "Pro",
     features: ["Document Analysis", "Compliance Check", "AI Recommendations", "Legal Review"]
@@ -47,7 +48,7 @@ const advocateTools = [
     title: "Smart Letter Generator",
     description: "Generate legally sound advocacy letters with professional templates and customization options.",
     icon: PenTool,
-    path: "/advocate/tools/smart-letter-generator",
+    path: "/smart-letter-generator",
     category: "Communication",
     badge: "Templates",
     features: ["Legal Language", "Professional Format", "Customization", "Client Templates"]
@@ -56,7 +57,7 @@ const advocateTools = [
     title: "Rights Explainer",
     description: "Plain-language legal rights guide with comprehensive special education law explanations.",
     icon: Scale,
-    path: "/tools/rights-explainer",
+    path: "/idea-rights-guide",
     category: "Legal Support",
     badge: "Legal",
     features: ["Legal Rights", "Plain Language", "Case Examples", "Resource Links"]
@@ -65,7 +66,7 @@ const advocateTools = [
     title: "Meeting Prep Assistant",
     description: "Generate talking points, meeting agendas, and professional preparation materials for IEP meetings.",
     icon: Lightbulb,
-    path: "/tools/meeting-prep",
+    path: "/meeting-prep-wizard",
     category: "Meeting Support",
     badge: "Prep",
     features: ["Meeting Agenda", "Talking Points", "Legal Strategy", "Documentation"]
@@ -74,7 +75,7 @@ const advocateTools = [
     title: "Progress Analyzer",
     description: "Data-driven analysis and recommendations for IEP goals with professional reporting capabilities.",
     icon: BarChart3,
-    path: "/tools/progress-analyzer",
+    path: "/advocate/tools/progress-analyzer",
     category: "Data Analysis",
     badge: "Analytics",
     features: ["Data Analysis", "Progress Reports", "Goal Tracking", "Outcome Metrics"]
@@ -83,7 +84,7 @@ const advocateTools = [
     title: "IEP Goal Generator",
     description: "AI-powered SMART goal creation with professional standards and compliance verification.",
     icon: Target,
-    path: "/tools/goal-generator",
+    path: "/advocate/tools/goal-generator",
     category: "IEP Planning",
     badge: "SMART",
     features: ["SMART Goals", "Standards Alignment", "Progress Metrics", "Compliance Check"]
@@ -101,7 +102,7 @@ const advocateTools = [
     title: "Ask AI About Docs",
     description: "Query uploaded documents with AI assistance for quick insights and professional analysis.",
     icon: Sparkles,
-    path: "/tools/ask-ai-docs",
+    path: "/advocate/tools/ask-ai-docs",
     category: "AI Tools",
     badge: "AI",
     features: ["Document Query", "AI Analysis", "Quick Insights", "Professional Reports"]
@@ -110,7 +111,7 @@ const advocateTools = [
     title: "Progress Notes & Service Log",
     description: "Comprehensive tracking of service delivery, client interactions, and professional outcomes.",
     icon: Clipboard,
-    path: "/tools/progress-notes",
+    path: "/advocate/tools/progress-notes",
     category: "Case Management",
     badge: "Tracking",
     features: ["Service Logs", "Progress Notes", "Billing Support", "Compliance Records"]
@@ -119,7 +120,7 @@ const advocateTools = [
     title: "Communication Tracker",
     description: "Monitor and document all parent-school communications with professional analysis and recommendations.",
     icon: Phone,
-    path: "/tools/communication-tracker",
+    path: "/advocate/tools/communication-tracker",
     category: "Case Management",
     badge: "Monitor",
     features: ["Communication Log", "Analysis Tools", "Follow-up Tracking", "Legal Documentation"]

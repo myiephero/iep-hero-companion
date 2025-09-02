@@ -310,6 +310,7 @@ function App() {
                   <ParentHeroPlan />
                 </ProtectedRoute>
               } />
+              <Route path="/upsell/hero-plan" element={<HeroPlan />} />
               <Route path="/subscribe" element={<Subscribe />} />
               <Route path="/advocate/discovery" element={<AdvocateDiscovery />} />
               

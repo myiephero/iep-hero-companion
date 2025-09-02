@@ -9,6 +9,7 @@ import { useState } from "react";
 
 const Index = () => {
   const { user } = useAuth();
+  const [authMode, setAuthMode] = useState<'signin' | 'create'>('signin');
   const [selectedRole, setSelectedRole] = useState<'parent' | 'advocate'>('parent');
 
   const features = [
@@ -56,67 +57,119 @@ const Index = () => {
                 </p>
               </div>
               
-              <div className="flex flex-col sm:flex-row gap-4">
-                <Button 
-                  variant="hero" 
-                  size="lg"
-                  onClick={() => {
-                    if (user) {
-                      window.location.href = "/parent/dashboard";
-                    } else {
-                      window.location.href = "/api/login";
-                    }
-                  }}
-                >
-                  {user ? "Parent Dashboard" : "Sign In / Create Account"} <ArrowRight className="ml-2 h-5 w-5" />
-                </Button>
-                {!user && (
-                  <div className="space-y-4">
-                    <div className="flex items-center justify-center space-x-1 bg-muted rounded-lg p-1">
-                      <button
-                        onClick={() => setSelectedRole('parent')}
-                        className={`px-6 py-2 rounded-md text-sm font-medium transition-all ${
-                          selectedRole === 'parent'
-                            ? 'bg-background text-foreground shadow-sm'
-                            : 'text-muted-foreground hover:text-foreground'
-                        }`}
-                      >
-                        Parent
-                      </button>
-                      <button
-                        onClick={() => setSelectedRole('advocate')}
-                        className={`px-6 py-2 rounded-md text-sm font-medium transition-all ${
-                          selectedRole === 'advocate'
-                            ? 'bg-background text-foreground shadow-sm'
-                            : 'text-muted-foreground hover:text-foreground'
-                        }`}
-                      >
-                        Advocate
-                      </button>
-                    </div>
-                    <Button 
-                      variant="outline" 
-                      size="lg"
-                      onClick={() => {
-                        window.location.href = `/${selectedRole}/subscribe`;
-                      }}
-                    >
-                      {selectedRole === 'parent' ? 'Subscribe as Parent' : 'Subscribe as Advocate'}
-                    </Button>
-                  </div>
-                )}
-                {user && (
+              {user ? (
+                // Logged in user - show dashboard options
+                <div className="flex flex-col sm:flex-row gap-4">
+                  <Button 
+                    variant="hero" 
+                    size="lg"
+                    onClick={() => window.location.href = "/parent/dashboard"}
+                  >
+                    Parent Dashboard <ArrowRight className="ml-2 h-5 w-5" />
+                  </Button>
                   <Button 
                     variant="outline" 
                     size="lg"
-                    onClick={() => {
-                      window.location.href = "/advocate/dashboard";
-                    }}
+                    onClick={() => window.location.href = "/advocate/dashboard"}
                   >
                     Advocate Portal
                   </Button>
-                )}
-              </div>
+                </div>
+              ) : (
+                // Not logged in - show auth toggle
+                <div className="space-y-6">
+                  {/* Sign In / Create Account Toggle */}
+                  <div className="flex items-center justify-center space-x-1 bg-muted rounded-lg p-1 max-w-xs mx-auto">
+                    <button
+                      onClick={() => setAuthMode('signin')}
+                      className={`flex-1 px-6 py-3 rounded-md text-sm font-medium transition-all ${
+                        authMode === 'signin'
+                          ? 'bg-primary text-primary-foreground shadow-sm'
+                          : 'text-muted-foreground hover:text-foreground'
+                      }`}
+                      data-testid="toggle-signin"
+                    >
+                      Sign In
+                    </button>
+                    <button
+                      onClick={() => setAuthMode('create')}
+                      className={`flex-1 px-6 py-3 rounded-md text-sm font-medium transition-all ${
+                        authMode === 'create'
+                          ? 'bg-primary text-primary-foreground shadow-sm'
+                          : 'text-muted-foreground hover:text-foreground'
+                      }`}
+                      data-testid="toggle-create"
+                    >
+                      Create Account
+                    </button>
+                  </div>
+
+                  {authMode === 'signin' ? (
+                    // Sign In Mode
+                    <div className="text-center">
+                      <Button 
+                        variant="hero" 
+                        size="lg"
+                        onClick={() => window.location.href = "/api/login"}
+                        data-testid="button-signin"
+                      >
+                        Sign In to Your Account <ArrowRight className="ml-2 h-5 w-5" />
+                      </Button>
+                      <p className="text-sm text-muted-foreground mt-3">
+                        Access your dashboard, documents, and advocacy tools
+                      </p>
+                    </div>
+                  ) : (
+                    // Create Account Mode
+                    <div className="space-y-4">
+                      <div className="text-center">
+                        <h3 className="text-lg font-semibold mb-3">Choose Your Role</h3>
+                        <div className="flex items-center justify-center space-x-1 bg-muted rounded-lg p-1 max-w-xs mx-auto">
+                          <button
+                            onClick={() => setSelectedRole('parent')}
+                            className={`flex-1 px-6 py-2 rounded-md text-sm font-medium transition-all ${
+                              selectedRole === 'parent'
+                                ? 'bg-background text-foreground shadow-sm'
+                                : 'text-muted-foreground hover:text-foreground'
+                            }`}
+                            data-testid="role-parent"
+                          >
+                            Parent
+                          </button>
+                          <button
+                            onClick={() => setSelectedRole('advocate')}
+                            className={`flex-1 px-6 py-2 rounded-md text-sm font-medium transition-all ${
+                              selectedRole === 'advocate'
+                                ? 'bg-background text-foreground shadow-sm'
+                                : 'text-muted-foreground hover:text-foreground'
+                            }`}
+                            data-testid="role-advocate"
+                          >
+                            Advocate
+                          </button>
+                        </div>
+                      </div>
+                      
+                      <div className="text-center">
+                        <Button 
+                          variant="hero" 
+                          size="lg"
+                          onClick={() => window.location.href = `/${selectedRole}/subscribe`}
+                          data-testid={`button-create-${selectedRole}`}
+                        >
+                          View {selectedRole === 'parent' ? 'Parent' : 'Advocate'} Plans <ArrowRight className="ml-2 h-5 w-5" />
+                        </Button>
+                        <p className="text-sm text-muted-foreground mt-3">
+                          {selectedRole === 'parent' 
+                            ? 'Get AI-powered IEP tools and connect with advocates'
+                            : 'Join our network and help families succeed'
+                          }
+                        </p>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              )}
 
               <div className="flex flex-wrap items-center gap-6 text-sm text-muted-foreground">
                 <div className="flex items-center gap-2">

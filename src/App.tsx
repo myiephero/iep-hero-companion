@@ -58,6 +58,7 @@ import AdvocacyReports from "./pages/AdvocacyReports";
 import EmotionTracker from "./pages/EmotionTracker";
 import Plan504Builder from "./pages/Plan504Builder";
 import OTRecommender from "./pages/OTRecommender";
+import ParentEmotionTracker from "./pages/ParentEmotionTracker";
 import NotFound from "./pages/NotFound";
 import CardShowcase from "./pages/CardShowcase";
 
@@ -377,6 +378,13 @@ function App() {
               <Route path="/advocate/tools/ot-recommender" element={
                 <ProtectedRoute allowedRoles={['advocate']}>
                   <OTRecommender />
+                </ProtectedRoute>
+              } />
+              
+              {/* Parent Tools */}
+              <Route path="/parent/tools/emotion-tracker" element={
+                <ProtectedRoute allowedRoles={['parent']}>
+                  <ParentEmotionTracker />
                 </ProtectedRoute>
               } />
               

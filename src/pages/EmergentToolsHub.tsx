@@ -3,7 +3,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Link } from "react-router-dom";
-import { Brain, FileText, Users, Star, Zap, Building, BookOpen, MessageSquare, Target, TrendingUp } from "lucide-react";
+import { Brain, FileText, Users, Star, Zap, Building, BookOpen, MessageSquare, Target, TrendingUp, Smile } from "lucide-react";
 
 // Get user role from current location
 const getUserRole = () => {
@@ -94,6 +94,15 @@ const emergentTools = [
     category: "Professional Support",
     badge: "Pro",
     features: ["Expert Review", "Detailed Reports", "Professional Insights", "Action Plans"]
+  },
+  {
+    title: "Emotion Tracker",
+    description: "Track your child's emotional well-being and behavioral patterns to support their success and communicate with school teams.",
+    icon: Smile,
+    path: "/parent/tools/emotion-tracker",
+    category: "Wellness Support",
+    badge: "Wellness",
+    features: ["Daily Check-ins", "Mood Tracking", "Pattern Analysis", "Family Support"]
   }
 ];
 
@@ -110,6 +119,7 @@ const getBadgeVariant = (badge: string) => {
     case "Templates": return "bg-orange-100 dark:bg-orange-900 text-orange-700 dark:text-orange-300 border-orange-200 dark:border-orange-700";
     case "Prep": return "bg-indigo-100 dark:bg-indigo-900 text-indigo-700 dark:text-indigo-300 border-indigo-200 dark:border-indigo-700";
     case "Secure": return "bg-red-100 dark:bg-red-900 text-red-700 dark:text-red-300 border-red-200 dark:border-red-700";
+    case "Wellness": return "bg-emerald-100 dark:bg-emerald-900 text-emerald-700 dark:text-emerald-300 border-emerald-200 dark:border-emerald-700";
     default: return "bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 border-gray-200 dark:border-gray-600";
   }
 };

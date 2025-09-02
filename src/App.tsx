@@ -45,6 +45,7 @@ import DocumentVault from "./pages/DocumentVault";
 import AdvocatePricingPlan from "./pages/AdvocatePricingPlan";
 import ParentPricingPlan from "./pages/ParentPricingPlan";
 import ParentHeroPlan from "./pages/ParentHeroPlan";
+import ParentHeroUpsell from "./pages/ParentHeroUpsell";
 import AdvocateToolsHub from "./pages/AdvocateToolsHub";
 import IDEARightsGuide from "./pages/IDEARightsGuide";
 import FERPAOverview from "./pages/FERPAOverview";
@@ -310,6 +311,7 @@ function App() {
                   <ParentHeroPlan />
                 </ProtectedRoute>
               } />
+              <Route path="/parent/subscribe/upsell/hero-plan" element={<ParentHeroUpsell />} />
               <Route path="/upsell/hero-plan" element={<HeroPlan />} />
               <Route path="/subscribe" element={<Subscribe />} />
               <Route path="/advocate/discovery" element={<AdvocateDiscovery />} />

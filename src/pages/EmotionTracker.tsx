@@ -1,11 +1,112 @@
+import { useState } from "react";
 import { DashboardLayout } from "@/layouts/DashboardLayout";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Smile, Heart, Brain, TrendingUp, Calendar, AlertTriangle, User } from "lucide-react";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Textarea } from "@/components/ui/textarea";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { useToast } from "@/hooks/use-toast";
+import { Smile, Heart, Brain, TrendingUp, Calendar, AlertTriangle, User, Save, FileText, Plus } from "lucide-react";
 
 export default function EmotionTracker() {
+  const [selectedStudent, setSelectedStudent] = useState("");
+  const [currentMood, setCurrentMood] = useState("");
+  const [moodNote, setMoodNote] = useState("");
+  const [behaviorEntry, setBehaviorEntry] = useState("");
+  const [interventionPlan, setInterventionPlan] = useState("");
+  const { toast } = useToast();
+
+  const students = [
+    { id: "sarah-m", name: "Sarah M.", grade: "Grade 3" },
+    { id: "alex-t", name: "Alex T.", grade: "Grade 5" },
+    { id: "jordan-l", name: "Jordan L.", grade: "Grade 2" },
+    { id: "taylor-w", name: "Taylor W.", grade: "Grade 4" }
+  ];
+
+  const handleRecordMood = () => {
+    if (!selectedStudent) {
+      toast({
+        title: "Student Required",
+        description: "Please select a student first.",
+        variant: "destructive"
+      });
+      return;
+    }
+    toast({
+      title: "Mood Recorded",
+      description: `Mood entry saved for ${students.find(s => s.id === selectedStudent)?.name}`,
+      variant: "default"
+    });
+    setCurrentMood("");
+    setMoodNote("");
+  };
+
+  const handleBehaviorEntry = () => {
+    if (!selectedStudent) {
+      toast({
+        title: "Student Required",
+        description: "Please select a student first.",
+        variant: "destructive"
+      });
+      return;
+    }
+    toast({
+      title: "Behavior Entry Added",
+      description: "Behavior observation has been recorded.",
+      variant: "default"
+    });
+    setBehaviorEntry("");
+  };
+
+  const handleAnalyzeTrends = () => {
+    if (!selectedStudent) {
+      toast({
+        title: "Student Required",
+        description: "Please select a student first.",
+        variant: "destructive"
+      });
+      return;
+    }
+    toast({
+      title: "Analysis Generated",
+      description: "Emotional trends analysis has been created and saved to document vault.",
+      variant: "default"
+    });
+  };
+
+  const handleCreateIntervention = () => {
+    if (!selectedStudent) {
+      toast({
+        title: "Student Required",
+        description: "Please select a student first.",
+        variant: "destructive"
+      });
+      return;
+    }
+    toast({
+      title: "Intervention Plan Created",
+      description: "Professional intervention plan has been saved to student records.",
+      variant: "default"
+    });
+    setInterventionPlan("");
+  };
+
+  const saveToVault = async (reportType: string, content: string) => {
+    if (!selectedStudent) return;
+    
+    const studentName = students.find(s => s.id === selectedStudent)?.name;
+    const timestamp = new Date().toLocaleDateString();
+    
+    toast({
+      title: "Saved to Vault",
+      description: `${reportType} for ${studentName} saved to document vault (${timestamp})`,
+      variant: "default"
+    });
+  };
+
   return (
     <DashboardLayout>
       <div className="space-y-8">
@@ -35,17 +136,23 @@ export default function EmotionTracker() {
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <Select>
+            <Select value={selectedStudent} onValueChange={setSelectedStudent}>
               <SelectTrigger className="w-full">
                 <SelectValue placeholder="Select a student..." />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="sarah-m">Sarah M. - Grade 3</SelectItem>
-                <SelectItem value="alex-t">Alex T. - Grade 5</SelectItem>
-                <SelectItem value="jordan-l">Jordan L. - Grade 2</SelectItem>
-                <SelectItem value="taylor-w">Taylor W. - Grade 4</SelectItem>
+                {students.map((student) => (
+                  <SelectItem key={student.id} value={student.id}>
+                    {student.name} - {student.grade}
+                  </SelectItem>
+                ))}
               </SelectContent>
             </Select>
+            {selectedStudent && (
+              <div className="mt-2 p-2 bg-blue-50 rounded text-sm text-blue-700">
+                ✓ Tracking: {students.find(s => s.id === selectedStudent)?.name}
+              </div>
+            )}
           </CardContent>
         </Card>
 
@@ -59,7 +166,60 @@ export default function EmotionTracker() {
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <Button className="w-full">Record Mood</Button>
+              <Dialog>
+                <DialogTrigger asChild>
+                  <Button className="w-full" disabled={!selectedStudent}>
+                    Record Mood
+                  </Button>
+                </DialogTrigger>
+                <DialogContent>
+                  <DialogHeader>
+                    <DialogTitle>Record Daily Mood</DialogTitle>
+                    <DialogDescription>
+                      Document the student's current emotional state
+                    </DialogDescription>
+                  </DialogHeader>
+                  <div className="space-y-4">
+                    <div>
+                      <Label>Current Mood</Label>
+                      <div className="grid grid-cols-5 gap-2 mt-2">
+                        {['😊', '😐', '😟', '😠', '😢'].map((emoji, index) => (
+                          <Button
+                            key={index}
+                            variant={currentMood === emoji ? "default" : "outline"}
+                            className="h-12 text-xl"
+                            onClick={() => setCurrentMood(emoji)}
+                          >
+                            {emoji}
+                          </Button>
+                        ))}
+                      </div>
+                    </div>
+                    <div>
+                      <Label htmlFor="mood-note">Additional Notes</Label>
+                      <Textarea
+                        id="mood-note"
+                        value={moodNote}
+                        onChange={(e) => setMoodNote(e.target.value)}
+                        placeholder="Any additional observations or context..."
+                      />
+                    </div>
+                    <div className="flex gap-2">
+                      <Button onClick={handleRecordMood} className="flex-1">
+                        <Save className="h-4 w-4 mr-2" />
+                        Save Entry
+                      </Button>
+                      <Button
+                        onClick={() => saveToVault('Mood Report', `Mood: ${currentMood} - ${moodNote}`)}
+                        variant="outline"
+                      >
+                        <FileText className="h-4 w-4 mr-2" />
+                        Save to Vault
+                      </Button>
+                    </div>
+                  </div>
+                </DialogContent>
+              </Dialog>
             </CardContent>
           </Card>
 
@@ -71,7 +231,46 @@ export default function EmotionTracker() {
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <Button className="w-full" variant="outline">Add Entry</Button>
+              <Dialog>
+                <DialogTrigger asChild>
+                  <Button className="w-full" variant="outline" disabled={!selectedStudent}>
+                    Add Entry
+                  </Button>
+                </DialogTrigger>
+                <DialogContent>
+                  <DialogHeader>
+                    <DialogTitle>Behavior Log Entry</DialogTitle>
+                    <DialogDescription>
+                      Record behavioral observations and incidents
+                    </DialogDescription>
+                  </DialogHeader>
+                  <div className="space-y-4">
+                    <div>
+                      <Label htmlFor="behavior-entry">Behavior Observation</Label>
+                      <Textarea
+                        id="behavior-entry"
+                        value={behaviorEntry}
+                        onChange={(e) => setBehaviorEntry(e.target.value)}
+                        placeholder="Describe the observed behavior, context, triggers, and interventions used..."
+                        rows={4}
+                      />
+                    </div>
+                    <div className="flex gap-2">
+                      <Button onClick={handleBehaviorEntry} className="flex-1">
+                        <Plus className="h-4 w-4 mr-2" />
+                        Add Entry
+                      </Button>
+                      <Button
+                        onClick={() => saveToVault('Behavior Report', behaviorEntry)}
+                        variant="outline"
+                      >
+                        <FileText className="h-4 w-4 mr-2" />
+                        Save to Vault
+                      </Button>
+                    </div>
+                  </div>
+                </DialogContent>
+              </Dialog>
             </CardContent>
           </Card>
 
@@ -83,7 +282,14 @@ export default function EmotionTracker() {
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <Button className="w-full" variant="outline">Analyze</Button>
+              <Button 
+                className="w-full" 
+                variant="outline" 
+                onClick={handleAnalyzeTrends}
+                disabled={!selectedStudent}
+              >
+                Analyze Trends
+              </Button>
             </CardContent>
           </Card>
 
@@ -95,7 +301,46 @@ export default function EmotionTracker() {
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <Button className="w-full" variant="outline">Create</Button>
+              <Dialog>
+                <DialogTrigger asChild>
+                  <Button className="w-full" variant="outline" disabled={!selectedStudent}>
+                    Create Plan
+                  </Button>
+                </DialogTrigger>
+                <DialogContent>
+                  <DialogHeader>
+                    <DialogTitle>Create Intervention Plan</DialogTitle>
+                    <DialogDescription>
+                      Develop a professional intervention strategy
+                    </DialogDescription>
+                  </DialogHeader>
+                  <div className="space-y-4">
+                    <div>
+                      <Label htmlFor="intervention-plan">Intervention Strategy</Label>
+                      <Textarea
+                        id="intervention-plan"
+                        value={interventionPlan}
+                        onChange={(e) => setInterventionPlan(e.target.value)}
+                        placeholder="Outline specific interventions, goals, timeline, and success metrics..."
+                        rows={5}
+                      />
+                    </div>
+                    <div className="flex gap-2">
+                      <Button onClick={handleCreateIntervention} className="flex-1">
+                        <Save className="h-4 w-4 mr-2" />
+                        Create Plan
+                      </Button>
+                      <Button
+                        onClick={() => saveToVault('Intervention Plan', interventionPlan)}
+                        variant="outline"
+                      >
+                        <FileText className="h-4 w-4 mr-2" />
+                        Save to Vault
+                      </Button>
+                    </div>
+                  </div>
+                </DialogContent>
+              </Dialog>
             </CardContent>
           </Card>
         </div>

@@ -20,6 +20,9 @@ export default function EmotionTracker() {
   const [behaviorEntry, setBehaviorEntry] = useState("");
   const [interventionPlan, setInterventionPlan] = useState("");
   const [aiDraftLoading, setAiDraftLoading] = useState(false);
+  const [showCopingStrategies, setShowCopingStrategies] = useState(false);
+  const [showWarningMonitor, setShowWarningMonitor] = useState(false);
+  const [showScheduleAdjust, setShowScheduleAdjust] = useState(false);
   const { toast } = useToast();
 
   const students = [
@@ -27,6 +30,39 @@ export default function EmotionTracker() {
     { id: "alex-t", name: "Alex T.", grade: "Grade 5" },
     { id: "jordan-l", name: "Jordan L.", grade: "Grade 2" },
     { id: "taylor-w", name: "Taylor W.", grade: "Grade 4" }
+  ];
+
+  const copingStrategiesList = [
+    "Deep breathing exercises (4-7-8 technique)",
+    "Progressive muscle relaxation",
+    "Mindfulness body scan meditation",
+    "Positive affirmations and self-talk",
+    "Physical movement breaks (stretching, walking)",
+    "Sensory tools (stress ball, fidget items)",
+    "Visualization and guided imagery",
+    "Counting techniques (count to 10, backwards from 100)",
+    "Music or nature sounds for calming",
+    "Journaling thoughts and feelings",
+    "Art or creative expression",
+    "Safe space identification and retreat"
+  ];
+
+  const warningSignsDetails = [
+    { sign: "Increased irritability", frequency: "3x this week", severity: "Moderate", action: "Monitor during transitions" },
+    { sign: "Social withdrawal", frequency: "Daily for 2 days", severity: "High", action: "Peer buddy system implemented" },
+    { sign: "Academic regression", frequency: "2 assignments", severity: "Moderate", action: "Additional support scheduled" },
+    { sign: "Sleep disruption", frequency: "Ongoing", severity: "High", action: "Parent conference needed" },
+    { sign: "Appetite changes", frequency: "This week", severity: "Low", action: "Continue monitoring" },
+    { sign: "Difficulty concentrating", frequency: "4x this week", severity: "Moderate", action: "Break frequency increased" }
+  ];
+
+  const supportScheduleDetails = [
+    { time: "9:00 AM", activity: "Morning check-in", duration: "5 min", status: "Active", notes: "Assess overnight rest and morning readiness" },
+    { time: "10:30 AM", activity: "Mid-morning break", duration: "10 min", status: "Active", notes: "Movement break if needed" },
+    { time: "12:00 PM", activity: "Lunch assessment", duration: "5 min", status: "Active", notes: "Social interaction and appetite check" },
+    { time: "2:00 PM", activity: "Afternoon check", duration: "5 min", status: "Active", notes: "Energy level and focus assessment" },
+    { time: "3:00 PM", activity: "End-of-day support", duration: "10 min", status: "Active", notes: "Transition preparation and day review" },
+    { time: "6:00 PM", activity: "Evening reflection", duration: "15 min", status: "Optional", notes: "Home-school communication and next-day prep" }
   ];
 
   const handleRecordMood = () => {
@@ -633,7 +669,60 @@ export default function EmotionTracker() {
                 <li>• Physical movement breaks</li>
                 <li>• Positive self-talk</li>
               </ul>
-              <Button size="sm" className="w-full mt-3">View All</Button>
+              <Dialog open={showCopingStrategies} onOpenChange={setShowCopingStrategies}>
+                <DialogTrigger asChild>
+                  <Button size="sm" className="w-full mt-3" data-testid="button-view-all-coping">View All</Button>
+                </DialogTrigger>
+                <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
+                  <DialogHeader>
+                    <DialogTitle>Complete Coping Strategies Toolkit</DialogTitle>
+                    <DialogDescription>
+                      Comprehensive list of evidence-based emotional regulation techniques
+                    </DialogDescription>
+                  </DialogHeader>
+                  <div className="space-y-4">
+                    {copingStrategiesList.map((strategy, index) => (
+                      <div key={index} className="flex items-start gap-3 p-3 border rounded-lg">
+                        <div className="w-6 h-6 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center text-sm font-medium mt-0.5">
+                          {index + 1}
+                        </div>
+                        <div className="flex-1">
+                          <p className="text-sm">{strategy}</p>
+                        </div>
+                      </div>
+                    ))}
+                    <div className="flex gap-2 pt-4">
+                      <Button 
+                        onClick={() => {
+                          const strategiesDoc = {
+                            title: `Coping Strategies Toolkit - ${new Date().toLocaleDateString()}`,
+                            description: `Complete coping strategies reference for ${selectedStudent ? students.find(s => s.id === selectedStudent)?.name : 'student'}`,
+                            file_name: `coping_strategies_${Date.now()}.json`,
+                            file_path: `/vault/coping-strategies/`,
+                            file_type: 'application/json',
+                            file_size: JSON.stringify(copingStrategiesList).length,
+                            category: 'Emotional Support',
+                            tags: ['coping-strategies', 'emotional-regulation', 'toolkit'],
+                            content: JSON.stringify({ strategies: copingStrategiesList, timestamp: new Date().toISOString() }),
+                            confidential: true
+                          };
+                          api.createDocument(strategiesDoc).then(() => {
+                            toast({ title: "Saved to Vault", description: "Coping strategies toolkit saved successfully." });
+                            queryClient.invalidateQueries({ queryKey: ['documents'] });
+                          }).catch(() => {
+                            toast({ title: "Save Failed", description: "Could not save to vault.", variant: "destructive" });
+                          });
+                        }}
+                        className="flex-1"
+                        data-testid="button-save-strategies"
+                      >
+                        <Save className="w-4 h-4 mr-2" />
+                        Save to Vault
+                      </Button>
+                    </div>
+                  </div>
+                </DialogContent>
+              </Dialog>
             </CardContent>
           </Card>
 
@@ -651,7 +740,68 @@ export default function EmotionTracker() {
                 <li>• Academic regression</li>
                 <li>• Sleep disruption</li>
               </ul>
-              <Button size="sm" className="w-full mt-3" variant="outline">Monitor</Button>
+              <Dialog open={showWarningMonitor} onOpenChange={setShowWarningMonitor}>
+                <DialogTrigger asChild>
+                  <Button size="sm" className="w-full mt-3" variant="outline" data-testid="button-monitor-warnings">Monitor</Button>
+                </DialogTrigger>
+                <DialogContent className="max-w-3xl max-h-[80vh] overflow-y-auto">
+                  <DialogHeader>
+                    <DialogTitle>Warning Signs Monitoring Dashboard</DialogTitle>
+                    <DialogDescription>
+                      Detailed tracking and intervention status for behavioral warning signs
+                    </DialogDescription>
+                  </DialogHeader>
+                  <div className="space-y-4">
+                    {warningSignsDetails.map((warning, index) => (
+                      <div key={index} className="p-4 border rounded-lg space-y-2">
+                        <div className="flex justify-between items-start">
+                          <h4 className="font-medium">{warning.sign}</h4>
+                          <Badge variant={warning.severity === 'High' ? 'destructive' : warning.severity === 'Moderate' ? 'default' : 'secondary'}>
+                            {warning.severity}
+                          </Badge>
+                        </div>
+                        <div className="grid grid-cols-2 gap-4 text-sm">
+                          <div>
+                            <span className="text-muted-foreground">Frequency:</span> {warning.frequency}
+                          </div>
+                          <div>
+                            <span className="text-muted-foreground">Action Taken:</span> {warning.action}
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                    <div className="flex gap-2 pt-4">
+                      <Button 
+                        onClick={() => {
+                          const monitoringDoc = {
+                            title: `Warning Signs Monitoring Report - ${new Date().toLocaleDateString()}`,
+                            description: `Behavioral warning signs tracking and intervention status for ${selectedStudent ? students.find(s => s.id === selectedStudent)?.name : 'student'}`,
+                            file_name: `warning_signs_monitor_${Date.now()}.json`,
+                            file_path: `/vault/monitoring-reports/`,
+                            file_type: 'application/json',
+                            file_size: JSON.stringify(warningSignsDetails).length,
+                            category: 'Behavioral Monitoring',
+                            tags: ['warning-signs', 'behavioral-monitoring', 'intervention-tracking'],
+                            content: JSON.stringify({ warnings: warningSignsDetails, reportDate: new Date().toISOString() }),
+                            confidential: true
+                          };
+                          api.createDocument(monitoringDoc).then(() => {
+                            toast({ title: "Saved to Vault", description: "Warning signs monitoring report saved successfully." });
+                            queryClient.invalidateQueries({ queryKey: ['documents'] });
+                          }).catch(() => {
+                            toast({ title: "Save Failed", description: "Could not save to vault.", variant: "destructive" });
+                          });
+                        }}
+                        className="flex-1"
+                        data-testid="button-save-monitoring"
+                      >
+                        <Save className="w-4 h-4 mr-2" />
+                        Save Monitoring Report
+                      </Button>
+                    </div>
+                  </div>
+                </DialogContent>
+              </Dialog>
             </CardContent>
           </Card>
 
@@ -669,7 +819,76 @@ export default function EmotionTracker() {
                 <li>• Afternoon support (3:00 PM)</li>
                 <li>• Evening reflection (6:00 PM)</li>
               </ul>
-              <Button size="sm" className="w-full mt-3" variant="outline">Adjust</Button>
+              <Dialog open={showScheduleAdjust} onOpenChange={setShowScheduleAdjust}>
+                <DialogTrigger asChild>
+                  <Button size="sm" className="w-full mt-3" variant="outline" data-testid="button-adjust-schedule">Adjust</Button>
+                </DialogTrigger>
+                <DialogContent className="max-w-4xl max-h-[80vh] overflow-y-auto">
+                  <DialogHeader>
+                    <DialogTitle>Support Schedule Management</DialogTitle>
+                    <DialogDescription>
+                      Review and adjust daily support intervention schedule
+                    </DialogDescription>
+                  </DialogHeader>
+                  <div className="space-y-4">
+                    <div className="grid gap-4">
+                      {supportScheduleDetails.map((item, index) => (
+                        <div key={index} className="p-4 border rounded-lg space-y-3">
+                          <div className="flex justify-between items-start">
+                            <div className="space-y-1">
+                              <h4 className="font-medium">{item.activity}</h4>
+                              <p className="text-sm text-muted-foreground">{item.notes}</p>
+                            </div>
+                            <Badge variant={item.status === 'Active' ? 'default' : 'secondary'}>
+                              {item.status}
+                            </Badge>
+                          </div>
+                          <div className="grid grid-cols-3 gap-4 text-sm">
+                            <div>
+                              <span className="text-muted-foreground">Time:</span> {item.time}
+                            </div>
+                            <div>
+                              <span className="text-muted-foreground">Duration:</span> {item.duration}
+                            </div>
+                            <div>
+                              <span className="text-muted-foreground">Status:</span> {item.status}
+                            </div>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                    <div className="flex gap-2 pt-4">
+                      <Button 
+                        onClick={() => {
+                          const scheduleDoc = {
+                            title: `Support Schedule Plan - ${new Date().toLocaleDateString()}`,
+                            description: `Daily support intervention schedule for ${selectedStudent ? students.find(s => s.id === selectedStudent)?.name : 'student'}`,
+                            file_name: `support_schedule_${Date.now()}.json`,
+                            file_path: `/vault/support-schedules/`,
+                            file_type: 'application/json',
+                            file_size: JSON.stringify(supportScheduleDetails).length,
+                            category: 'Support Planning',
+                            tags: ['support-schedule', 'daily-plan', 'intervention-timing'],
+                            content: JSON.stringify({ schedule: supportScheduleDetails, planDate: new Date().toISOString() }),
+                            confidential: true
+                          };
+                          api.createDocument(scheduleDoc).then(() => {
+                            toast({ title: "Saved to Vault", description: "Support schedule plan saved successfully." });
+                            queryClient.invalidateQueries({ queryKey: ['documents'] });
+                          }).catch(() => {
+                            toast({ title: "Save Failed", description: "Could not save to vault.", variant: "destructive" });
+                          });
+                        }}
+                        className="flex-1"
+                        data-testid="button-save-schedule"
+                      >
+                        <Save className="w-4 h-4 mr-2" />
+                        Save Schedule Plan
+                      </Button>
+                    </div>
+                  </div>
+                </DialogContent>
+              </Dialog>
             </CardContent>
           </Card>
         </div>

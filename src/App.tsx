@@ -310,11 +310,7 @@ function App() {
                   <ParentHeroPlan />
                 </ProtectedRoute>
               } />
-              <Route path="/subscribe" element={
-                <ProtectedRoute allowedRoles={['parent', 'advocate']}>
-                  <Subscribe />
-                </ProtectedRoute>
-              } />
+              <Route path="/subscribe" element={<Subscribe />} />
               <Route path="/advocate/discovery" element={<AdvocateDiscovery />} />
               
               {/* Pricing Plans */}

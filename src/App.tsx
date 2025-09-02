@@ -264,6 +264,11 @@ function App() {
                   <MeetingPrepWizard />
                 </ProtectedRoute>
               } />
+              <Route path="/advocate/meeting-prep-wizard" element={
+                <ProtectedRoute allowedRoles={['advocate']}>
+                  <MeetingPrepWizard />
+                </ProtectedRoute>
+              } />
               <Route path="/advocate/tools/expert-analysis" element={
                 <ProtectedRoute allowedRoles={['advocate']}>
                   <ExpertAnalysis />

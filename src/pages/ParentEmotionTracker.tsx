@@ -2,10 +2,9 @@ import { DashboardLayout } from "@/layouts/DashboardLayout";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Smile, Heart, Brain, TrendingUp, Calendar, AlertTriangle, User } from "lucide-react";
+import { Smile, Heart, Brain, TrendingUp, Calendar, AlertTriangle } from "lucide-react";
 
-export default function EmotionTracker() {
+export default function ParentEmotionTracker() {
   return (
     <DashboardLayout>
       <div className="space-y-8">
@@ -13,41 +12,15 @@ export default function EmotionTracker() {
         <div className="text-center space-y-4">
           <div className="flex items-center justify-center gap-2 mb-4">
             <Smile className="h-8 w-8 text-primary" />
-            <h1 className="text-4xl font-bold">Emotion Tracker</h1>
+            <h1 className="text-4xl font-bold">My Child's Emotion Tracker</h1>
           </div>
           <p className="text-xl text-muted-foreground max-w-3xl mx-auto">
-            Student well-being monitoring tools with professional behavioral analysis and intervention planning.
+            Track your child's emotional well-being and behavioral patterns to support their success.
           </p>
           <Badge className="bg-gradient-to-r from-success to-success-light text-success-foreground">
-            Wellness Monitoring
+            Family Wellness
           </Badge>
         </div>
-
-        {/* Student Selector */}
-        <Card className="card-elevated">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <User className="h-5 w-5 text-primary" />
-              Select Student
-            </CardTitle>
-            <CardDescription>
-              Choose the student to track emotional well-being
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <Select>
-              <SelectTrigger className="w-full">
-                <SelectValue placeholder="Select a student..." />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="sarah-m">Sarah M. - Grade 3</SelectItem>
-                <SelectItem value="alex-t">Alex T. - Grade 5</SelectItem>
-                <SelectItem value="jordan-l">Jordan L. - Grade 2</SelectItem>
-                <SelectItem value="taylor-w">Taylor W. - Grade 4</SelectItem>
-              </SelectContent>
-            </Select>
-          </CardContent>
-        </Card>
 
         {/* Quick Actions */}
         <div className="grid gap-4 md:grid-cols-4">
@@ -67,11 +40,11 @@ export default function EmotionTracker() {
             <CardHeader className="pb-3">
               <CardTitle className="flex items-center gap-2 text-sm">
                 <Brain className="h-4 w-4 text-primary" />
-                Behavior Log
+                Behavior Notes
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <Button className="w-full" variant="outline">Add Entry</Button>
+              <Button className="w-full" variant="outline">Add Note</Button>
             </CardContent>
           </Card>
 
@@ -79,23 +52,23 @@ export default function EmotionTracker() {
             <CardHeader className="pb-3">
               <CardTitle className="flex items-center gap-2 text-sm">
                 <TrendingUp className="h-4 w-4 text-primary" />
-                View Trends
+                View Progress
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <Button className="w-full" variant="outline">Analyze</Button>
+              <Button className="w-full" variant="outline">See Trends</Button>
             </CardContent>
           </Card>
 
           <Card className="card-elevated">
             <CardHeader className="pb-3">
               <CardTitle className="flex items-center gap-2 text-sm">
-                <AlertTriangle className="h-4 w-4 text-primary" />
-                Intervention Plan
+                <Calendar className="h-4 w-4 text-primary" />
+                Share Report
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <Button className="w-full" variant="outline">Create</Button>
+              <Button className="w-full" variant="outline">Generate</Button>
             </CardContent>
           </Card>
         </div>
@@ -106,41 +79,41 @@ export default function EmotionTracker() {
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <Heart className="h-5 w-5 text-red-500" />
-                Today's Emotional Status
+                Today's Emotional Check-in
               </CardTitle>
               <CardDescription>
-                Current emotional well-being assessment
+                How is your child feeling today?
               </CardDescription>
             </CardHeader>
             <CardContent>
               <div className="space-y-4">
                 <div className="grid grid-cols-5 gap-2">
-                  <div className="text-center p-3 bg-green-100 rounded-lg">
+                  <div className="text-center p-3 bg-green-100 rounded-lg cursor-pointer hover:bg-green-200 transition-colors">
                     <div className="text-2xl mb-1">😊</div>
                     <p className="text-xs">Happy</p>
                   </div>
-                  <div className="text-center p-3 bg-blue-100 rounded-lg">
+                  <div className="text-center p-3 bg-blue-100 rounded-lg cursor-pointer hover:bg-blue-200 transition-colors">
                     <div className="text-2xl mb-1">😐</div>
-                    <p className="text-xs">Neutral</p>
+                    <p className="text-xs">Okay</p>
                   </div>
-                  <div className="text-center p-3 bg-yellow-100 rounded-lg">
+                  <div className="text-center p-3 bg-yellow-100 rounded-lg cursor-pointer hover:bg-yellow-200 transition-colors">
                     <div className="text-2xl mb-1">😟</div>
                     <p className="text-xs">Worried</p>
                   </div>
-                  <div className="text-center p-3 bg-orange-100 rounded-lg">
+                  <div className="text-center p-3 bg-orange-100 rounded-lg cursor-pointer hover:bg-orange-200 transition-colors">
                     <div className="text-2xl mb-1">😠</div>
-                    <p className="text-xs">Angry</p>
+                    <p className="text-xs">Frustrated</p>
                   </div>
-                  <div className="text-center p-3 bg-red-100 rounded-lg">
+                  <div className="text-center p-3 bg-red-100 rounded-lg cursor-pointer hover:bg-red-200 transition-colors">
                     <div className="text-2xl mb-1">😢</div>
                     <p className="text-xs">Sad</p>
                   </div>
                 </div>
                 <div className="pt-2">
                   <p className="text-sm text-muted-foreground mb-3">
-                    Last recorded: 2 hours ago - "Feeling good after math success"
+                    Last recorded: This morning - "Excited about art class today!"
                   </p>
-                  <Button className="w-full">Update Status</Button>
+                  <Button className="w-full">Update How They're Feeling</Button>
                 </div>
               </div>
             </CardContent>
@@ -150,10 +123,10 @@ export default function EmotionTracker() {
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <TrendingUp className="h-5 w-5 text-blue-500" />
-                Weekly Patterns
+                This Week's Pattern
               </CardTitle>
               <CardDescription>
-                Emotional trends and behavioral patterns
+                Your child's emotional trends over the past week
               </CardDescription>
             </CardHeader>
             <CardContent>
@@ -168,41 +141,41 @@ export default function EmotionTracker() {
                   <div>Sun</div>
                 </div>
                 <div className="grid grid-cols-7 gap-1">
-                  <div className="h-8 bg-green-200 rounded"></div>
-                  <div className="h-8 bg-green-300 rounded"></div>
-                  <div className="h-8 bg-yellow-200 rounded"></div>
-                  <div className="h-8 bg-green-200 rounded"></div>
-                  <div className="h-8 bg-green-400 rounded"></div>
-                  <div className="h-8 bg-blue-200 rounded"></div>
-                  <div className="h-8 bg-green-200 rounded"></div>
+                  <div className="h-8 bg-green-200 rounded" title="Happy day"></div>
+                  <div className="h-8 bg-green-300 rounded" title="Great day"></div>
+                  <div className="h-8 bg-yellow-200 rounded" title="Mixed emotions"></div>
+                  <div className="h-8 bg-green-200 rounded" title="Good day"></div>
+                  <div className="h-8 bg-green-400 rounded" title="Excellent day"></div>
+                  <div className="h-8 bg-blue-200 rounded" title="Calm day"></div>
+                  <div className="h-8 bg-green-200 rounded" title="Happy day"></div>
                 </div>
                 <div className="text-sm text-muted-foreground">
-                  <p>• Green: Positive emotions (5 days)</p>
-                  <p>• Yellow: Neutral/Mixed (1 day)</p>
-                  <p>• Blue: Calm/Relaxed (1 day)</p>
+                  <p>• Mostly positive emotions this week! 🌟</p>
+                  <p>• Wednesday had some challenges</p>
+                  <p>• Weekend was peaceful and happy</p>
                 </div>
               </div>
             </CardContent>
           </Card>
         </div>
 
-        {/* Intervention Tools */}
+        {/* Family Support Tools */}
         <div className="grid gap-4 md:grid-cols-3">
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2 text-sm">
                 <Brain className="h-4 w-4" />
-                Coping Strategies
+                Helpful Strategies
               </CardTitle>
             </CardHeader>
             <CardContent>
               <ul className="space-y-2 text-sm">
-                <li>• Deep breathing exercises</li>
-                <li>• Mindfulness techniques</li>
+                <li>• Take deep breaths together</li>
+                <li>• Use a calm-down corner</li>
+                <li>• Practice gratitude sharing</li>
                 <li>• Physical movement breaks</li>
-                <li>• Positive self-talk</li>
               </ul>
-              <Button size="sm" className="w-full mt-3">View All</Button>
+              <Button size="sm" className="w-full mt-3">Learn More</Button>
             </CardContent>
           </Card>
 
@@ -210,17 +183,17 @@ export default function EmotionTracker() {
             <CardHeader>
               <CardTitle className="flex items-center gap-2 text-sm">
                 <AlertTriangle className="h-4 w-4" />
-                Warning Signs
+                Watch For Signs
               </CardTitle>
             </CardHeader>
             <CardContent>
               <ul className="space-y-2 text-sm">
-                <li>• Increased irritability</li>
-                <li>• Social withdrawal</li>
-                <li>• Academic regression</li>
-                <li>• Sleep disruption</li>
+                <li>• Changes in sleep patterns</li>
+                <li>• Withdrawal from activities</li>
+                <li>• Increased meltdowns</li>
+                <li>• School avoidance</li>
               </ul>
-              <Button size="sm" className="w-full mt-3" variant="outline">Monitor</Button>
+              <Button size="sm" className="w-full mt-3" variant="outline">Get Guidance</Button>
             </CardContent>
           </Card>
 
@@ -228,51 +201,55 @@ export default function EmotionTracker() {
             <CardHeader>
               <CardTitle className="flex items-center gap-2 text-sm">
                 <Calendar className="h-4 w-4" />
-                Support Schedule
+                Daily Routine
               </CardTitle>
             </CardHeader>
             <CardContent>
               <ul className="space-y-2 text-sm">
-                <li>• Morning check-in (9:00 AM)</li>
-                <li>• Mid-day assessment (12:00 PM)</li>
-                <li>• Afternoon support (3:00 PM)</li>
-                <li>• Evening reflection (6:00 PM)</li>
+                <li>• Morning check-in (8:00 AM)</li>
+                <li>• After-school chat (3:30 PM)</li>
+                <li>• Dinner reflection (6:00 PM)</li>
+                <li>• Bedtime gratitude (8:00 PM)</li>
               </ul>
-              <Button size="sm" className="w-full mt-3" variant="outline">Adjust</Button>
+              <Button size="sm" className="w-full mt-3" variant="outline">Customize</Button>
             </CardContent>
           </Card>
         </div>
 
-        {/* Professional Notes */}
+        {/* Family Notes & Observations */}
         <Card>
           <CardHeader>
-            <CardTitle>Professional Analysis & Notes</CardTitle>
+            <CardTitle>Family Notes & Observations</CardTitle>
             <CardDescription>
-              Behavioral observations and intervention recommendations
+              Track important moments and patterns you notice at home
             </CardDescription>
           </CardHeader>
           <CardContent>
             <div className="space-y-3">
-              <div className="p-3 border rounded-lg">
+              <div className="p-3 border rounded-lg bg-green-50">
                 <div className="flex items-center justify-between mb-2">
-                  <h4 className="font-medium text-sm">Positive Progress Note</h4>
-                  <span className="text-xs text-muted-foreground">Jan 15, 2024</span>
+                  <h4 className="font-medium text-sm">Great Progress! 🌟</h4>
+                  <span className="text-xs text-muted-foreground">Today</span>
                 </div>
                 <p className="text-xs text-muted-foreground">
-                  Student showed significant improvement in emotional regulation during math activities. 
-                  Recommend continuing current coping strategies and increasing positive reinforcement.
+                  Used the breathing technique we practiced when frustrated with homework. 
+                  Calmed down much faster than usual!
                 </p>
               </div>
               
-              <div className="p-3 border rounded-lg bg-yellow-50">
+              <div className="p-3 border rounded-lg">
                 <div className="flex items-center justify-between mb-2">
-                  <h4 className="font-medium text-sm">Intervention Adjustment</h4>
-                  <span className="text-xs text-muted-foreground">Jan 14, 2024</span>
+                  <h4 className="font-medium text-sm">Pattern Notice</h4>
+                  <span className="text-xs text-muted-foreground">Yesterday</span>
                 </div>
                 <p className="text-xs text-muted-foreground">
-                  Increased anxiety noted during transitions. Implementing visual schedule and 
-                  advance warnings. Monitor for 2 weeks before next adjustment.
+                  Seems more anxious on Sundays. Might be related to thinking about the school week ahead. 
+                  Will try Sunday evening prep routine.
                 </p>
+              </div>
+              
+              <div className="pt-2">
+                <Button className="w-full" variant="outline">Add New Observation</Button>
               </div>
             </div>
           </CardContent>

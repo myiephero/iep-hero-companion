@@ -5,9 +5,11 @@ import { Badge } from "@/components/ui/badge";
 import { CheckCircle, Users, FileText, MessageSquare, Shield, ArrowRight } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import heroImage from "@/assets/hero-image.jpg";
+import { useState } from "react";
 
 const Index = () => {
   const { user } = useAuth();
+  const [selectedRole, setSelectedRole] = useState<'parent' | 'advocate'>('parent');
 
   const features = [
     {
@@ -68,19 +70,52 @@ const Index = () => {
                 >
                   {user ? "Parent Dashboard" : "Sign In / Create Account"} <ArrowRight className="ml-2 h-5 w-5" />
                 </Button>
-                <Button 
-                  variant="outline" 
-                  size="lg"
-                  onClick={() => {
-                    if (user) {
+                {!user && (
+                  <div className="space-y-4">
+                    <div className="flex items-center justify-center space-x-1 bg-muted rounded-lg p-1">
+                      <button
+                        onClick={() => setSelectedRole('parent')}
+                        className={`px-6 py-2 rounded-md text-sm font-medium transition-all ${
+                          selectedRole === 'parent'
+                            ? 'bg-background text-foreground shadow-sm'
+                            : 'text-muted-foreground hover:text-foreground'
+                        }`}
+                      >
+                        Parent
+                      </button>
+                      <button
+                        onClick={() => setSelectedRole('advocate')}
+                        className={`px-6 py-2 rounded-md text-sm font-medium transition-all ${
+                          selectedRole === 'advocate'
+                            ? 'bg-background text-foreground shadow-sm'
+                            : 'text-muted-foreground hover:text-foreground'
+                        }`}
+                      >
+                        Advocate
+                      </button>
+                    </div>
+                    <Button 
+                      variant="outline" 
+                      size="lg"
+                      onClick={() => {
+                        window.location.href = `/${selectedRole}/pricing`;
+                      }}
+                    >
+                      View {selectedRole === 'parent' ? 'Parent' : 'Advocate'} Pricing
+                    </Button>
+                  </div>
+                )}
+                {user && (
+                  <Button 
+                    variant="outline" 
+                    size="lg"
+                    onClick={() => {
                       window.location.href = "/advocate/dashboard";
-                    } else {
-                      window.location.href = "/subscribe";
-                    }
-                  }}
-                >
-                  {user ? "Advocate Portal" : "View Pricing"}
-                </Button>
+                    }}
+                  >
+                    Advocate Portal
+                  </Button>
+                )}
               </div>
 
               <div className="flex flex-wrap items-center gap-6 text-sm text-muted-foreground">

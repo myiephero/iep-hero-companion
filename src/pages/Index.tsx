@@ -55,15 +55,31 @@ const Index = () => {
               </div>
               
               <div className="flex flex-col sm:flex-row gap-4">
-                <Button asChild variant="hero" size="lg">
-                  <Link to={user ? "/parent/dashboard" : "/auth"}>
-                    {user ? "Parent Dashboard" : "Get Started"} <ArrowRight className="ml-2 h-5 w-5" />
-                  </Link>
+                <Button 
+                  variant="hero" 
+                  size="lg"
+                  onClick={() => {
+                    if (user) {
+                      window.location.href = "/parent/dashboard";
+                    } else {
+                      window.location.href = "/api/login";
+                    }
+                  }}
+                >
+                  {user ? "Parent Dashboard" : "Sign In / Create Account"} <ArrowRight className="ml-2 h-5 w-5" />
                 </Button>
-                <Button asChild variant="outline" size="lg">
-                  <Link to={user ? "/advocate/dashboard" : "/auth"}>
-                    {user ? "Advocate Portal" : "Sign In"}
-                  </Link>
+                <Button 
+                  variant="outline" 
+                  size="lg"
+                  onClick={() => {
+                    if (user) {
+                      window.location.href = "/advocate/dashboard";
+                    } else {
+                      window.location.href = "/subscribe";
+                    }
+                  }}
+                >
+                  {user ? "Advocate Portal" : "View Pricing"}
                 </Button>
               </div>
 
@@ -138,15 +154,28 @@ const Index = () => {
               Join thousands of parents who have transformed their IEP experience.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <Button asChild variant="secondary" size="lg">
-                <Link to={user ? "/parent/dashboard" : "/auth"}>
-                  {user ? "Go to Dashboard" : "Get Started Free"}
-                </Link>
+              <Button 
+                variant="secondary" 
+                size="lg"
+                onClick={() => {
+                  if (user) {
+                    window.location.href = "/parent/dashboard";
+                  } else {
+                    window.location.href = "/api/login";
+                  }
+                }}
+              >
+                {user ? "Go to Dashboard" : "Get Started Free"}
               </Button>
-              <Button asChild variant="outline" size="lg" className="border-white text-white hover:bg-white hover:text-primary">
-                <Link to="/parent-hero-plan">
-                  View HERO Plan
-                </Link>
+              <Button 
+                variant="outline" 
+                size="lg" 
+                className="border-white text-white hover:bg-white hover:text-primary"
+                onClick={() => {
+                  window.location.href = "/subscribe";
+                }}
+              >
+                View Pricing
               </Button>
             </div>
           </div>

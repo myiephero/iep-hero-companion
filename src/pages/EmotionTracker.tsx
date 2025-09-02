@@ -9,6 +9,8 @@ import { Textarea } from "@/components/ui/textarea";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
+import { api } from "@/lib/api";
+import { queryClient } from "@/lib/queryClient";
 import { Smile, Heart, Brain, TrendingUp, Calendar, AlertTriangle, User, Save, FileText, Plus, Sparkles, Loader2 } from "lucide-react";
 
 export default function EmotionTracker() {
@@ -96,16 +98,53 @@ export default function EmotionTracker() {
   };
 
   const saveToVault = async (reportType: string, content: string) => {
-    if (!selectedStudent) return;
+    if (!selectedStudent || !content.trim()) {
+      toast({
+        title: "Cannot Save",
+        description: "Please select a student and ensure content is not empty.",
+        variant: "destructive"
+      });
+      return;
+    }
     
-    const studentName = students.find(s => s.id === selectedStudent)?.name;
-    const timestamp = new Date().toLocaleDateString();
-    
-    toast({
-      title: "Saved to Vault",
-      description: `${reportType} for ${studentName} saved to document vault (${timestamp})`,
-      variant: "default"
-    });
+    try {
+      const studentName = students.find(s => s.id === selectedStudent)?.name;
+      const timestamp = new Date().toISOString();
+      
+      const documentData = {
+        title: `${reportType} - ${studentName}`,
+        description: `${reportType} created on ${new Date().toLocaleDateString()} for student ${studentName}`,
+        file_name: `${reportType.toLowerCase().replace(/\s+/g, '_')}_${selectedStudent}_${Date.now()}.txt`,
+        file_path: `/vault/emotion_tracker/${selectedStudent}/`,
+        file_type: 'text/plain',
+        file_size: content.length,
+        category: 'emotional_tracking',
+        tags: [reportType.toLowerCase(), 'emotion_tracker', selectedStudent],
+        content: content,
+        confidential: true,
+        student_id: selectedStudent
+      };
+
+      const savedDocument = await api.createDocument(documentData);
+      
+      // Invalidate documents cache to refresh the vault
+      queryClient.invalidateQueries({ queryKey: ['documents'] });
+      
+      toast({
+        title: "Saved to Vault",
+        description: `${reportType} for ${studentName} successfully saved to document vault`,
+        variant: "default"
+      });
+      
+      return savedDocument;
+    } catch (error) {
+      console.error('Error saving to vault:', error);
+      toast({
+        title: "Save Failed",
+        description: "Unable to save to document vault. Please try again.",
+        variant: "destructive"
+      });
+    }
   };
 
   const generateAIDraft = async (type: 'mood' | 'behavior' | 'intervention', context: any) => {

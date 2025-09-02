@@ -44,6 +44,8 @@ import {
   Loader2
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { api } from "@/lib/api";
+import { queryClient } from "@/lib/queryClient";
 
 const MeetingPrepWizard = () => {
   const { toast } = useToast();
@@ -318,14 +320,41 @@ const MeetingPrepWizard = () => {
   const saveToVault = async (format: string) => {
     setIsLoading(true);
     try {
-      await new Promise(resolve => setTimeout(resolve, 1500)); // Simulate save
+      // Create meeting prep content
+      const meetingPrepContent = {
+        meetingType: selectedMeetingType,
+        responses: responses,
+        currentStep: currentStep,
+        timestamp: new Date().toISOString(),
+        preparedBy: "IEP Hero Platform"
+      };
+      
+      const documentData = {
+        title: `Meeting Prep - ${meetingTypes.find(t => t.id === selectedMeetingType)?.title || 'IEP Meeting'}`,
+        description: `Meeting preparation materials created on ${new Date().toLocaleDateString()}`,
+        file_name: `meeting_prep_${selectedMeetingType}_${Date.now()}.${format}`,
+        file_path: `/vault/meeting_prep/${selectedMeetingType}/`,
+        file_type: format === 'pdf' ? 'application/pdf' : 'application/json',
+        file_size: JSON.stringify(meetingPrepContent).length,
+        category: 'Meeting Preparation',
+        tags: ['meeting-prep', selectedMeetingType, 'iep-planning'],
+        content: JSON.stringify(meetingPrepContent),
+        confidential: true
+      };
+
+      await api.createDocument(documentData);
+      
+      // Invalidate documents cache to refresh the vault
+      queryClient.invalidateQueries({ queryKey: ['documents'] });
+      
       toast({
         title: "Saved to Vault!",
         description: `Meeting prep results saved as ${format.toUpperCase()} to your document vault.`
       });
     } catch (error) {
+      console.error('Error saving to vault:', error);
       toast({
-        title: "Error",
+        title: "Save Failed",
         description: "Failed to save to vault. Please try again.",
         variant: "destructive"
       });

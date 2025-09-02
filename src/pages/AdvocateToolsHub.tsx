@@ -16,6 +16,7 @@ import {
   Phone, 
   Target,
   Smile,
+  Zap,
   PenTool,
   UserPlus,
   GraduationCap,
@@ -246,13 +247,13 @@ export default function AdvocateToolsHub() {
           {/* Main Professional Tools */}
           <div>
             <h3 className="text-lg font-medium mb-4 text-center text-gray-700">Core Professional Tools</h3>
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 gap-4">
               {advocateTools.map((tool) => (
-                <Card key={tool.title} className="hover:shadow-xl transition-all duration-200 hover:scale-[1.02] group border border-gray-200 hover:border-primary/30 bg-gradient-to-br from-primary/5 to-white dark:from-primary/10 dark:to-gray-800 dark:border-gray-700 dark:hover:border-primary/50 h-[280px] flex flex-col">
+                <Card key={tool.title} className="card-elevated group cursor-pointer transform hover:scale-[1.05] transition-all duration-300 hover:shadow-xl hover:shadow-primary/10 h-[280px] flex flex-col">
                   <CardHeader className="pb-3 pt-4 px-4 flex-shrink-0">
                     <div className="flex flex-col items-center text-center space-y-3">
-                      <div className="p-3 rounded-lg bg-white/80 dark:bg-gray-900/80 group-hover:bg-white dark:group-hover:bg-gray-900 group-hover:shadow-md transition-all duration-200 backdrop-blur-sm">
-                        <tool.icon className="h-6 w-6 text-primary dark:text-primary" />
+                      <div className="w-14 h-14 rounded-xl bg-gradient-to-br from-primary/10 to-accent/10 flex items-center justify-center text-primary group-hover:from-primary group-hover:to-accent group-hover:text-primary-foreground transition-all duration-300 shadow-lg group-hover:shadow-xl">
+                        <tool.icon className="h-7 w-7" />
                       </div>
                       <div className="space-y-2">
                         <Badge className={`text-xs px-3 py-1 font-medium shadow-sm ${
@@ -314,10 +315,6 @@ export default function AdvocateToolsHub() {
                           tool.badge === 'SMART' ? 'bg-gradient-to-r from-warning to-warning-light text-warning-foreground' :
                           tool.badge === 'Secure' ? 'bg-gradient-to-r from-destructive to-destructive-light text-destructive-foreground' :
                           tool.badge === 'AI' ? 'bg-gradient-to-r from-primary to-accent text-primary-foreground' :
-                          tool.badge === 'Autism' ? 'bg-gradient-to-r from-primary to-primary-light text-primary-foreground' :
-                          tool.badge === '2e' ? 'bg-gradient-to-r from-warning to-warning-light text-warning-foreground' :
-                          tool.badge === '504' ? 'bg-gradient-to-r from-secondary to-secondary-light text-secondary-foreground' :
-                          tool.badge === 'OT' ? 'bg-gradient-to-r from-success to-success-light text-success-foreground' :
                           'bg-gradient-to-r from-success to-success-light text-success-foreground'
                         }`}>
                           {tool.badge}

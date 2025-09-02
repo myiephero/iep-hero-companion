@@ -178,11 +178,19 @@ const Index = () => {
                 </div>
                 <div className="flex items-center gap-2">
                   <CheckCircle className="h-4 w-4 text-success" />
+                  HIPAA Secure
+                </div>
+                <div className="flex items-center gap-2">
+                  <CheckCircle className="h-4 w-4 text-success" />
+                  Certified Advocates
+                </div>
+                <div className="flex items-center gap-2">
+                  <CheckCircle className="h-4 w-4 text-success" />
                   Bank-Level Security
                 </div>
                 <div className="flex items-center gap-2">
                   <CheckCircle className="h-4 w-4 text-success" />
-                  Expert Reviewed
+                  Supports IDEA/FAPE
                 </div>
               </div>
             </div>

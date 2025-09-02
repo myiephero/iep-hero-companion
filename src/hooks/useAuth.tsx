@@ -54,6 +54,16 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
           const userData = await response.json();
           setUser(userData);
           setProfile(userData);
+          
+          // Check if this is a new user without a role/subscription
+          // If so, redirect to onboarding
+          if (userData && !userData.role && !userData.subscriptionStatus) {
+            // This is a new user who just authenticated but hasn't completed onboarding
+            const currentPath = window.location.pathname;
+            if (!currentPath.includes('/onboarding') && !currentPath.includes('/subscribe')) {
+              window.location.href = '/onboarding';
+            }
+          }
         } else {
           // User not authenticated
           setUser(null);

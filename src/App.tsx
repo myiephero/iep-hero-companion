@@ -47,6 +47,7 @@ import ParentPricingPlan from "./pages/ParentPricingPlan";
 import ParentHeroPlan from "./pages/ParentHeroPlan";
 import ParentHeroUpsell from "./pages/ParentHeroUpsell";
 import AdvocateToolsHub from "./pages/AdvocateToolsHub";
+import Onboarding from "./pages/Onboarding";
 import IDEARightsGuide from "./pages/IDEARightsGuide";
 import FERPAOverview from "./pages/FERPAOverview";
 import Plan504Guide from "./pages/Plan504Guide";
@@ -79,6 +80,7 @@ function App() {
             <Routes>
               <Route path="/" element={<Index />} />
               <Route path="/auth" element={<Auth />} />
+              <Route path="/onboarding" element={<Onboarding />} />
               
               {/* Parent Routes - Protected */}
               <Route path="/parent/dashboard" element={

@@ -129,7 +129,7 @@ const advocateTools = [
     title: "Advocacy Reports",
     description: "Generate comprehensive client reports with professional analysis and actionable recommendations.",
     icon: FileText,
-    path: "/tools/advocacy-reports",
+    path: "/advocate/tools/advocacy-reports",
     category: "Professional Support",
     badge: "Reports",
     features: ["Client Reports", "Progress Analysis", "Legal Summary", "Action Plans"]
@@ -138,7 +138,7 @@ const advocateTools = [
     title: "Emotion Tracker",
     description: "Student well-being monitoring tools with professional behavioral analysis and intervention planning.",
     icon: Smile,
-    path: "/tools/emotion-tracker",
+    path: "/advocate/tools/emotion-tracker",
     category: "Behavioral Support",
     badge: "Wellness",
     features: ["Behavior Tracking", "Intervention Plans", "Progress Monitoring", "Professional Analysis"]
@@ -150,7 +150,7 @@ const specializedTools = [
     title: "Autism Accommodation Builder",
     description: "Professional autism-specific accommodations with sensory, communication, and behavioral support.",
     icon: Brain,
-    path: "/tools/autism-accommodations",
+    path: "/autism-accommodations",
     category: "Specialized Needs",
     badge: "Autism",
     features: ["Sensory Support", "Communication Plans", "Behavioral Strategies", "Professional Standards"]
@@ -159,7 +159,7 @@ const specializedTools = [
     title: "Gifted & 2e Learners",
     description: "Comprehensive support for gifted and twice-exceptional learners with professional assessment tools.",
     icon: GraduationCap,
-    path: "/tools/gifted-2e-learners",
+    path: "/gifted-2e-learners",
     category: "Specialized Needs",
     badge: "2e",
     features: ["Giftedness Assessment", "Learning Differences", "Acceleration Plans", "Professional Evaluation"]
@@ -168,7 +168,7 @@ const specializedTools = [
     title: "504 Plan Builder",
     description: "Section 504 accommodation planning with legal compliance and professional documentation.",
     icon: Building,
-    path: "/tools/504-plan-builder",
+    path: "/advocate/tools/504-plan-builder",
     category: "Legal Planning",
     badge: "504",
     features: ["504 Compliance", "Accommodation Plans", "Legal Standards", "Documentation Tools"]
@@ -177,7 +177,7 @@ const specializedTools = [
     title: "OT Activity Recommender",
     description: "Professional occupational therapy activity suggestions and adaptations for IEP implementation.",
     icon: Zap,
-    path: "/tools/ot-recommender",
+    path: "/advocate/tools/ot-recommender",
     category: "Therapeutic Support",
     badge: "OT",
     features: ["OT Activities", "Professional Adaptations", "Progress Tracking", "Therapy Plans"]

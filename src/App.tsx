@@ -54,6 +54,10 @@ import GoalGenerator from "./pages/GoalGenerator";
 import AskAIDocs from "./pages/AskAIDocs";
 import ProgressNotes from "./pages/ProgressNotes";
 import CommunicationTracker from "./pages/CommunicationTracker";
+import AdvocacyReports from "./pages/AdvocacyReports";
+import EmotionTracker from "./pages/EmotionTracker";
+import Plan504Builder from "./pages/Plan504Builder";
+import OTRecommender from "./pages/OTRecommender";
 import NotFound from "./pages/NotFound";
 import CardShowcase from "./pages/CardShowcase";
 
@@ -353,6 +357,26 @@ function App() {
               <Route path="/advocate/tools/communication-tracker" element={
                 <ProtectedRoute allowedRoles={['advocate']}>
                   <CommunicationTracker />
+                </ProtectedRoute>
+              } />
+              <Route path="/advocate/tools/advocacy-reports" element={
+                <ProtectedRoute allowedRoles={['advocate']}>
+                  <AdvocacyReports />
+                </ProtectedRoute>
+              } />
+              <Route path="/advocate/tools/emotion-tracker" element={
+                <ProtectedRoute allowedRoles={['advocate']}>
+                  <EmotionTracker />
+                </ProtectedRoute>
+              } />
+              <Route path="/advocate/tools/504-plan-builder" element={
+                <ProtectedRoute allowedRoles={['advocate']}>
+                  <Plan504Builder />
+                </ProtectedRoute>
+              } />
+              <Route path="/advocate/tools/ot-recommender" element={
+                <ProtectedRoute allowedRoles={['advocate']}>
+                  <OTRecommender />
                 </ProtectedRoute>
               } />
               

@@ -8,35 +8,44 @@ import expertRoutes from './routes/expert';
 import { createRequire } from 'module';
 const require = createRequire(import.meta.url);
 const pdf = require('pdf-parse');
+import { setupAuth, isAuthenticated } from './replitAuth';
+import { storage } from './storage';
+import Stripe from 'stripe';
+
+// Initialize Stripe
+if (!process.env.STRIPE_SECRET_KEY) {
+  throw new Error('Missing required Stripe secret: STRIPE_SECRET_KEY');
+}
+const stripe = new Stripe(process.env.STRIPE_SECRET_KEY, {
+  apiVersion: "2025-08-27.basil",
+});
 
 // Generate simple IDs since we don't have cuid2
 function createId(): string {
   return Date.now().toString(36) + Math.random().toString(36).substr(2);
 }
 
-// Middleware to extract user ID from mock authentication headers
+// Middleware to extract user ID from authenticated session
 function getUserId(req: express.Request): string {
-  // In production, this would extract from JWT token or session
-  // For development, we use the mock user ID from the authorization header
+  // In production with Replit Auth, get user ID from session
+  const user = (req as any).user;
+  if (user && user.claims && user.claims.sub) {
+    return user.claims.sub;
+  }
+  
+  // Fallback for mock authentication during development
   const authHeader = req.headers.authorization;
   if (authHeader && authHeader.startsWith('Bearer mock-token-')) {
-    // Extract the user ID from the token (now includes real test user IDs)
     const userId = authHeader.replace('Bearer mock-token-', '');
-    // If it's a real test user ID, return it directly
     if (userId.startsWith('test-')) {
       return userId;
     }
-    // Otherwise, handle old format role-based tokens
     const role = userId;
     return `mock-${role}-user-${role === 'advocate' ? '456' : '123'}`;
   }
-  // Fallback to role-based detection from user-agent or path
-  const userAgent = req.headers['user-agent'] || '';
-  const path = req.path || '';
-  if (path.includes('advocate') || userAgent.includes('advocate')) {
-    return 'mock-advocate-user-456';
-  }
-  return 'mock-parent-user-123';
+  
+  // Default fallback
+  return 'anonymous-user';
 }
 
 // OpenAI Analysis Function
@@ -174,6 +183,96 @@ app.use(cors());
 app.use(express.json({ limit: '50mb' }));
 app.use(express.urlencoded({ limit: '50mb', extended: true }));
 
+// Initialize Replit Auth
+(async () => {
+  await setupAuth(app);
+})();
+
+// Auth routes
+app.get('/api/auth/user', isAuthenticated, async (req: any, res) => {
+  try {
+    const userId = req.user.claims.sub;
+    const user = await storage.getUser(userId);
+    res.json(user);
+  } catch (error) {
+    console.error("Error fetching user:", error);
+    res.status(500).json({ message: "Failed to fetch user" });
+  }
+});
+
+// Stripe subscription routes
+app.post('/api/create-subscription', isAuthenticated, async (req: any, res) => {
+  try {
+    const userId = req.user.claims.sub;
+    const { priceId, billingPeriod } = req.body;
+    
+    let user = await storage.getUser(userId);
+    if (!user) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+
+    // Create Stripe customer if not exists
+    let customerId = user.stripeCustomerId;
+    if (!customerId) {
+      const customer = await stripe.customers.create({
+        email: user.email || '',
+        name: `${user.firstName || ''} ${user.lastName || ''}`.trim(),
+        metadata: { userId }
+      });
+      customerId = customer.id;
+      
+      // Update user with customer ID
+      await db.update(schema.users)
+        .set({ stripeCustomerId: customerId })
+        .where(eq(schema.users.id, userId));
+    }
+
+    // Create subscription
+    const subscription = await stripe.subscriptions.create({
+      customer: customerId,
+      items: [{
+        price: priceId,
+      }],
+      payment_behavior: 'default_incomplete',
+      expand: ['latest_invoice.payment_intent'],
+    });
+
+    // Update user with subscription ID
+    await db.update(schema.users)
+      .set({ stripeSubscriptionId: subscription.id })
+      .where(eq(schema.users.id, userId));
+
+    res.json({
+      subscriptionId: subscription.id,
+      clientSecret: (subscription.latest_invoice as any)?.payment_intent?.client_secret,
+    });
+  } catch (error) {
+    console.error('Error creating subscription:', error);
+    res.status(500).json({ error: 'Failed to create subscription' });
+  }
+});
+
+app.get('/api/subscription-status', isAuthenticated, async (req: any, res) => {
+  try {
+    const userId = req.user.claims.sub;
+    const user = await storage.getUser(userId);
+    
+    if (!user?.stripeSubscriptionId) {
+      return res.json({ status: 'no_subscription' });
+    }
+
+    const subscription = await stripe.subscriptions.retrieve(user.stripeSubscriptionId);
+    res.json({
+      status: subscription.status,
+      currentPeriodEnd: subscription.current_period_end,
+      cancelAtPeriodEnd: subscription.cancel_at_period_end,
+    });
+  } catch (error) {
+    console.error('Error checking subscription status:', error);
+    res.status(500).json({ error: 'Failed to check subscription status' });
+  }
+});
+
 // Profile routes
 app.get('/api/profiles/:userId', async (req, res) => {
   try {
@@ -188,9 +287,6 @@ app.get('/api/profiles/:userId', async (req, res) => {
     res.status(500).json({ error: 'Failed to fetch profile' });
   }
 });
-
-// Mock authentication for now
-// Note: MOCK_USER_ID replaced with getUserId() function for proper user isolation
 
 // Students routes
 app.get('/api/students', async (req, res) => {

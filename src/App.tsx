@@ -31,6 +31,7 @@ import EmergentToolsHub from "./pages/EmergentToolsHub";
 import AllPagesView from "./pages/AllPagesView";
 import SmartLetterGenerator from "./pages/SmartLetterGenerator";
 import MeetingPrepWizard from "./pages/MeetingPrepWizard";
+import Subscribe from "./pages/Subscribe";
 import ParentMeetingPrep from "./pages/ParentMeetingPrep";
 import StudentProfiles from "./pages/StudentProfiles";
 import HeroPlan from "./pages/HeroPlan";
@@ -307,6 +308,11 @@ function App() {
               <Route path="/parent/upsell/hero-plan" element={
                 <ProtectedRoute allowedRoles={['parent']}>
                   <ParentHeroPlan />
+                </ProtectedRoute>
+              } />
+              <Route path="/subscribe" element={
+                <ProtectedRoute allowedRoles={['parent', 'advocate']}>
+                  <Subscribe />
                 </ProtectedRoute>
               } />
               <Route path="/advocate/discovery" element={<AdvocateDiscovery />} />

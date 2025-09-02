@@ -9,7 +9,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
-import { Smile, Heart, Brain, TrendingUp, Calendar, AlertTriangle, User, Save, FileText, Plus } from "lucide-react";
+import { Smile, Heart, Brain, TrendingUp, Calendar, AlertTriangle, User, Save, FileText, Plus, Sparkles, Loader2 } from "lucide-react";
 
 export default function EmotionTracker() {
   const [selectedStudent, setSelectedStudent] = useState("");
@@ -17,6 +17,7 @@ export default function EmotionTracker() {
   const [moodNote, setMoodNote] = useState("");
   const [behaviorEntry, setBehaviorEntry] = useState("");
   const [interventionPlan, setInterventionPlan] = useState("");
+  const [aiDraftLoading, setAiDraftLoading] = useState(false);
   const { toast } = useToast();
 
   const students = [
@@ -105,6 +106,86 @@ export default function EmotionTracker() {
       description: `${reportType} for ${studentName} saved to document vault (${timestamp})`,
       variant: "default"
     });
+  };
+
+  const generateAIDraft = async (type: 'mood' | 'behavior' | 'intervention', context: any) => {
+    setAiDraftLoading(true);
+    try {
+      const studentName = students.find(s => s.id === selectedStudent)?.name;
+      const response = await fetch('/api/generate-draft', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          type,
+          studentName,
+          context,
+        }),
+      });
+      
+      if (!response.ok) {
+        throw new Error('Failed to generate draft');
+      }
+      
+      const data = await response.json();
+      return data.draft;
+    } catch (error) {
+      toast({
+        title: "AI Draft Failed",
+        description: "Unable to generate draft. Please write manually.",
+        variant: "destructive"
+      });
+      return '';
+    } finally {
+      setAiDraftLoading(false);
+    }
+  };
+
+  const handleGenerateMoodDraft = async () => {
+    const draft = await generateAIDraft('mood', {
+      mood: currentMood,
+      notes: moodNote,
+      grade: students.find(s => s.id === selectedStudent)?.grade
+    });
+    if (draft) {
+      setMoodNote(draft);
+      toast({
+        title: "AI Draft Generated",
+        description: "Please review and edit the professional note before saving.",
+        variant: "default"
+      });
+    }
+  };
+
+  const handleGenerateBehaviorDraft = async () => {
+    const draft = await generateAIDraft('behavior', {
+      initialNotes: behaviorEntry,
+      grade: students.find(s => s.id === selectedStudent)?.grade
+    });
+    if (draft) {
+      setBehaviorEntry(draft);
+      toast({
+        title: "AI Draft Generated",
+        description: "Please review and edit the behavioral observation before saving.",
+        variant: "default"
+      });
+    }
+  };
+
+  const handleGenerateInterventionDraft = async () => {
+    const draft = await generateAIDraft('intervention', {
+      currentPlan: interventionPlan,
+      grade: students.find(s => s.id === selectedStudent)?.grade
+    });
+    if (draft) {
+      setInterventionPlan(draft);
+      toast({
+        title: "AI Draft Generated",
+        description: "Please review and customize the intervention plan before saving.",
+        variant: "default"
+      });
+    }
   };
 
   return (
@@ -196,13 +277,35 @@ export default function EmotionTracker() {
                       </div>
                     </div>
                     <div>
-                      <Label htmlFor="mood-note">Additional Notes</Label>
+                      <div className="flex items-center justify-between">
+                        <Label htmlFor="mood-note">Additional Notes</Label>
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="sm"
+                          onClick={handleGenerateMoodDraft}
+                          disabled={aiDraftLoading || !currentMood}
+                          className="text-xs"
+                        >
+                          {aiDraftLoading ? (
+                            <Loader2 className="h-3 w-3 mr-1 animate-spin" />
+                          ) : (
+                            <Sparkles className="h-3 w-3 mr-1" />
+                          )}
+                          AI Draft
+                        </Button>
+                      </div>
                       <Textarea
                         id="mood-note"
                         value={moodNote}
                         onChange={(e) => setMoodNote(e.target.value)}
                         placeholder="Any additional observations or context..."
                       />
+                      {moodNote && (
+                        <p className="text-xs text-muted-foreground mt-1">
+                          💡 Review and edit this draft before saving
+                        </p>
+                      )}
                     </div>
                     <div className="flex gap-2">
                       <Button onClick={handleRecordMood} className="flex-1">
@@ -246,7 +349,24 @@ export default function EmotionTracker() {
                   </DialogHeader>
                   <div className="space-y-4">
                     <div>
-                      <Label htmlFor="behavior-entry">Behavior Observation</Label>
+                      <div className="flex items-center justify-between">
+                        <Label htmlFor="behavior-entry">Behavior Observation</Label>
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="sm"
+                          onClick={handleGenerateBehaviorDraft}
+                          disabled={aiDraftLoading}
+                          className="text-xs"
+                        >
+                          {aiDraftLoading ? (
+                            <Loader2 className="h-3 w-3 mr-1 animate-spin" />
+                          ) : (
+                            <Sparkles className="h-3 w-3 mr-1" />
+                          )}
+                          AI Draft
+                        </Button>
+                      </div>
                       <Textarea
                         id="behavior-entry"
                         value={behaviorEntry}
@@ -254,6 +374,11 @@ export default function EmotionTracker() {
                         placeholder="Describe the observed behavior, context, triggers, and interventions used..."
                         rows={4}
                       />
+                      {behaviorEntry && (
+                        <p className="text-xs text-muted-foreground mt-1">
+                          💡 Review and edit this professional observation before saving
+                        </p>
+                      )}
                     </div>
                     <div className="flex gap-2">
                       <Button onClick={handleBehaviorEntry} className="flex-1">
@@ -316,7 +441,24 @@ export default function EmotionTracker() {
                   </DialogHeader>
                   <div className="space-y-4">
                     <div>
-                      <Label htmlFor="intervention-plan">Intervention Strategy</Label>
+                      <div className="flex items-center justify-between">
+                        <Label htmlFor="intervention-plan">Intervention Strategy</Label>
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="sm"
+                          onClick={handleGenerateInterventionDraft}
+                          disabled={aiDraftLoading}
+                          className="text-xs"
+                        >
+                          {aiDraftLoading ? (
+                            <Loader2 className="h-3 w-3 mr-1 animate-spin" />
+                          ) : (
+                            <Sparkles className="h-3 w-3 mr-1" />
+                          )}
+                          AI Draft
+                        </Button>
+                      </div>
                       <Textarea
                         id="intervention-plan"
                         value={interventionPlan}
@@ -324,6 +466,11 @@ export default function EmotionTracker() {
                         placeholder="Outline specific interventions, goals, timeline, and success metrics..."
                         rows={5}
                       />
+                      {interventionPlan && (
+                        <p className="text-xs text-muted-foreground mt-1">
+                          💡 Review and customize this plan before implementing
+                        </p>
+                      )}
                     </div>
                     <div className="flex gap-2">
                       <Button onClick={handleCreateIntervention} className="flex-1">

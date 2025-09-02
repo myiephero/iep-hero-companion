@@ -319,6 +319,12 @@ function App() {
               <Route path="/parent/hero-plan" element={<ParentHeroPlan />} />
               <Route path="/parent-hero-plan" element={<ParentHeroPlan />} />
               
+              {/* Role-specific subscription routes */}
+              <Route path="/parent/pricing" element={<ParentPricingPlan />} />
+              <Route path="/advocate/pricing" element={<AdvocatePricingPlan />} />
+              <Route path="/parent/subscribe" element={<Subscribe />} />
+              <Route path="/advocate/subscribe" element={<Subscribe />} />
+              
               {/* Legal Resources - Available to both roles */}
               <Route path="/idea-rights-guide" element={
                 <ProtectedRoute allowedRoles={['parent', 'advocate']}>

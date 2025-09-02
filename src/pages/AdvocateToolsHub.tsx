@@ -250,7 +250,7 @@ export default function AdvocateToolsHub() {
             <h3 className="text-lg font-medium mb-4 text-center text-gray-700">Core Professional Tools</h3>
             <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 gap-4">
               {advocateTools.map((tool) => (
-                <Card key={tool.title} className="card-elevated group cursor-pointer transform hover:scale-[1.05] transition-all duration-300 hover:shadow-xl hover:shadow-primary/10 h-[280px] flex flex-col">
+                <Card key={tool.title} className="card-elevated group cursor-pointer transform hover:scale-[1.05] transition-all duration-300 hover:shadow-xl hover:shadow-primary/10 flex flex-col">
                   <CardHeader className="pb-3 pt-4 px-4 flex-shrink-0">
                     <div className="flex flex-col items-center text-center space-y-3">
                       <div className="w-14 h-14 rounded-xl bg-gradient-to-br from-primary/10 to-accent/10 flex items-center justify-center text-primary group-hover:from-primary group-hover:to-accent group-hover:text-primary-foreground transition-all duration-300 shadow-lg group-hover:shadow-xl">
@@ -278,8 +278,8 @@ export default function AdvocateToolsHub() {
                   </CardHeader>
                   
                   <CardContent className="pt-0 px-4 pb-4 flex-1 flex flex-col justify-between">
-                    <div className="space-y-3 flex-1">
-                      <p className="text-xs text-gray-600 dark:text-gray-300 text-center leading-relaxed h-12 overflow-hidden line-clamp-3">
+                    <div className="space-y-3 flex-1 flex items-center">
+                      <p className="text-xs text-gray-600 dark:text-gray-300 text-center leading-relaxed">
                         {tool.description}
                       </p>
                     </div>
@@ -300,7 +300,7 @@ export default function AdvocateToolsHub() {
             <h3 className="text-lg font-medium mb-4 text-center text-gray-700">Specialized Assessment Tools</h3>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
               {specializedTools.map((tool) => (
-                <Card key={tool.title} className="hover:shadow-xl transition-all duration-200 hover:scale-[1.02] group border border-gray-200 hover:border-primary/30 bg-gradient-to-br from-primary/5 to-white dark:from-primary/10 dark:to-gray-800 dark:border-gray-700 dark:hover:border-primary/50 h-[280px] flex flex-col">
+                <Card key={tool.title} className="hover:shadow-xl transition-all duration-200 hover:scale-[1.02] group border border-gray-200 hover:border-primary/30 bg-gradient-to-br from-primary/5 to-white dark:from-primary/10 dark:to-gray-800 dark:border-gray-700 dark:hover:border-primary/50 flex flex-col">
                   <CardHeader className="pb-3 pt-4 px-4 flex-shrink-0">
                     <div className="flex flex-col items-center text-center space-y-3">
                       <div className="p-3 rounded-lg bg-white/80 dark:bg-gray-900/80 group-hover:bg-white dark:group-hover:bg-gray-900 group-hover:shadow-md transition-all duration-200 backdrop-blur-sm">
@@ -328,8 +328,8 @@ export default function AdvocateToolsHub() {
                   </CardHeader>
                   
                   <CardContent className="pt-0 px-4 pb-4 flex-1 flex flex-col justify-between">
-                    <div className="space-y-3 flex-1">
-                      <p className="text-xs text-gray-600 dark:text-gray-300 text-center leading-relaxed h-12 overflow-hidden line-clamp-3">
+                    <div className="space-y-3 flex-1 flex items-center">
+                      <p className="text-xs text-gray-600 dark:text-gray-300 text-center leading-relaxed">
                         {tool.description}
                       </p>
                     </div>

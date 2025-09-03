@@ -56,7 +56,7 @@ export default function AccountCreated() {
                   <span className="flex-shrink-0 w-6 h-6 bg-primary/10 rounded-full flex items-center justify-center text-sm font-medium">
                     3
                   </span>
-                  <span>Start using your IEP Hero account!</span>
+                  <span>Start using your My IEP Hero account!</span>
                 </li>
               </ol>
             </div>

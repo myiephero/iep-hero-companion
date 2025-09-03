@@ -79,7 +79,9 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
             const currentPath = window.location.pathname;
             if (currentPath === '/auth' || currentPath === '/onboarding') {
               // Redirect to appropriate dashboard
-              const dashboardPath = userData.role === 'parent' ? '/parent/dashboard' : '/advocate/dashboard';
+              const dashboardPath = userData.role === 'parent' 
+                ? `/parent/dashboard-${userData.subscriptionPlan || 'free'}` 
+                : '/advocate/dashboard';
               window.location.href = dashboardPath;
             }
           }

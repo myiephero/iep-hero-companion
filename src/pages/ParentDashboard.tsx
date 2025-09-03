@@ -16,6 +16,7 @@ import { useToast } from "@/hooks/use-toast";
 import { DashboardLayout } from "@/layouts/DashboardLayout";
 import { useAuth } from "@/hooks/useAuth";
 import { useNavigate } from "react-router-dom";
+import { SubscriptionPlan, hasFeatureAccess, getPlanFeatures, normalizeSubscriptionPlan, getPlanDisplayName } from "@/lib/planAccess";
 
 interface Goal {
   id: string;
@@ -49,7 +50,11 @@ interface AIInsight {
   review_type: string;
 }
 
-export default function ParentDashboard() {
+interface ParentDashboardProps {
+  plan?: SubscriptionPlan;
+}
+
+export default function ParentDashboard({ plan }: ParentDashboardProps) {
   const [goals, setGoals] = useState<Goal[]>([]);
   const [meetings, setMeetings] = useState<Meeting[]>([]);
   const [insights, setInsights] = useState<AIInsight[]>([]);
@@ -59,6 +64,11 @@ export default function ParentDashboard() {
   const { toast } = useToast();
   const { user } = useAuth();
   const navigate = useNavigate();
+
+  // Determine the user's subscription plan
+  const userPlan = plan || normalizeSubscriptionPlan(user?.subscriptionPlan);
+  const planFeatures = getPlanFeatures(userPlan);
+  const planName = getPlanDisplayName(userPlan);
 
   // Form states
   const [goalForm, setGoalForm] = useState({

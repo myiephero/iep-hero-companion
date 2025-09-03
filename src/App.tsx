@@ -94,6 +94,31 @@ function App() {
                   <ParentDashboard />
                 </ProtectedRoute>
               } />
+              <Route path="/parent/dashboard-free" element={
+                <ProtectedRoute allowedRoles={['parent']}>
+                  <ParentDashboard plan="free" />
+                </ProtectedRoute>
+              } />
+              <Route path="/parent/dashboard-basic" element={
+                <ProtectedRoute allowedRoles={['parent']}>
+                  <ParentDashboard plan="basic" />
+                </ProtectedRoute>
+              } />
+              <Route path="/parent/dashboard-plus" element={
+                <ProtectedRoute allowedRoles={['parent']}>
+                  <ParentDashboard plan="plus" />
+                </ProtectedRoute>
+              } />
+              <Route path="/parent/dashboard-premium" element={
+                <ProtectedRoute allowedRoles={['parent']}>
+                  <ParentDashboard plan="premium" />
+                </ProtectedRoute>
+              } />
+              <Route path="/parent/dashboard-hero" element={
+                <ProtectedRoute allowedRoles={['parent']}>
+                  <ParentDashboard plan="hero" />
+                </ProtectedRoute>
+              } />
               <Route path="/parent/meeting-prep" element={
                 <ProtectedRoute allowedRoles={['parent']}>
                   <ParentMeetingPrep />

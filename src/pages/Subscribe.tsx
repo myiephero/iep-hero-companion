@@ -250,101 +250,6 @@ function SubscriptionForm({
 
   return (
     <div className="space-y-6">
-      {/* Express Payment Options */}
-      {expressPaymentEnabled && (
-        <div className="space-y-4">
-          <div className="text-center">
-            <span className="text-sm font-medium text-muted-foreground bg-background px-3">
-              Express Checkout
-            </span>
-          </div>
-          
-          {/* Real Apple Pay & Google Pay Buttons */}
-          <div className="grid grid-cols-2 gap-3">
-            <Button 
-              variant="outline" 
-              className="h-12 bg-black text-white hover:bg-gray-800 transition-all duration-200 border-gray-300"
-              onClick={() => {
-                toast({
-                  title: "Apple Pay", 
-                  description: "Apple Pay coming soon! Use card payment below for now."
-                });
-              }}
-            >
-              <span className="text-lg">🍎</span>
-              <span className="ml-2">Apple Pay</span>
-            </Button>
-            
-            <Button 
-              variant="outline" 
-              className="h-12 bg-blue-500 text-white hover:bg-blue-600 transition-all duration-200"
-              onClick={() => {
-                toast({
-                  title: "Google Pay", 
-                  description: "Google Pay coming soon! Use card payment below for now."
-                });
-              }}
-            >
-              <span className="text-lg font-bold">G</span>
-              <span className="ml-2">Google Pay</span>
-            </Button>
-          </div>
-
-          {/* Alternative Payment Methods */}
-          <div className="grid grid-cols-4 gap-2">
-            <Button 
-              variant="outline" 
-              size="sm" 
-              className="h-16 flex flex-col items-center justify-center bg-blue-50 hover:bg-blue-100"
-              onClick={() => toast({ title: "Card Payment", description: "Use the form below to pay with any card" })}
-            >
-              <div className="text-xl mb-1">💳</div>
-              <span className="text-xs">Card</span>
-            </Button>
-            
-            <Button 
-              variant="outline" 
-              size="sm" 
-              className="h-16 flex flex-col items-center justify-center bg-purple-50 hover:bg-purple-100"
-              onClick={() => toast({ title: "Klarna", description: "Buy now, pay later options coming soon!" })}
-            >
-              <div className="text-xl mb-1">🔮</div>
-              <span className="text-xs">Klarna</span>
-            </Button>
-            
-            <Button 
-              variant="outline" 
-              size="sm" 
-              className="h-16 flex flex-col items-center justify-center bg-green-50 hover:bg-green-100"
-              onClick={() => toast({ title: "Cash App Pay", description: "Cash App Pay integration coming soon!" })}
-            >
-              <div className="text-xl mb-1">💚</div>
-              <span className="text-xs">Cash App</span>
-            </Button>
-            
-            <Button 
-              variant="outline" 
-              size="sm" 
-              className="h-16 flex flex-col items-center justify-center bg-orange-50 hover:bg-orange-100"
-              onClick={() => toast({ title: "Amazon Pay", description: "Amazon Pay integration coming soon!" })}
-            >
-              <div className="text-xl mb-1">📦</div>
-              <span className="text-xs">Amazon</span>
-            </Button>
-          </div>
-          
-          <div className="relative">
-            <div className="absolute inset-0 flex items-center">
-              <span className="w-full border-t" />
-            </div>
-            <div className="relative flex justify-center text-xs uppercase">
-              <span className="bg-background px-2 text-muted-foreground">
-                Or pay with card
-              </span>
-            </div>
-          </div>
-        </div>
-      )}
 
       <form onSubmit={handleSubmit} className="space-y-6">
         {/* Smart Card Detection */}
@@ -518,13 +423,13 @@ export default function Subscribe() {
     return <div className="fixed inset-0 pointer-events-none z-50">{confettiPieces}</div>;
   };
   
-  // Auto-select the popular plan if none selected
+  // Auto-select the popular plan if none selected (only once)
   useEffect(() => {
-    if (!selectedPlan) {
+    if (!selectedPlan && pricingTiers.length > 0) {
       const popularPlan = pricingTiers.find(p => p.popular) || pricingTiers[0];
       setSelectedPlan(popularPlan);
     }
-  }, [pricingTiers, selectedPlan]);
+  }, [pricingTiers.length]); // Only trigger when pricing tiers are loaded
 
   const handleFreePlan = () => {
     toast({
@@ -552,14 +457,6 @@ export default function Subscribe() {
       });
       
       const data = await response.json();
-      console.log('Subscription response:', data);
-      console.log('Response structure:', {
-        hasClientSecret: !!data.clientSecret,
-        clientSecretType: typeof data.clientSecret,
-        clientSecretValue: data.clientSecret ? 'present' : 'missing',
-        responseKeys: Object.keys(data),
-        fullData: JSON.stringify(data, null, 2)
-      });
       
       if (!response.ok) {
         // Handle authentication errors specifically
@@ -585,8 +482,6 @@ export default function Subscribe() {
           description: `Setting up ${plan.name} subscription for $${plan.price}. Use test card: 4242 4242 4242 4242`,
         });
       } else {
-        console.error('No clientSecret in response:', data);
-        console.error('Full response debug:', JSON.stringify(data, null, 2));
         throw new Error(data.error || 'No payment client secret received');
       }
     } catch (error: any) {
@@ -653,7 +548,8 @@ export default function Subscribe() {
                   value={selectedPlan.id} 
                   onValueChange={(value) => {
                     const newPlan = pricingTiers.find(p => p.id === value && !p.isFree);
-                    if (newPlan) {
+                    if (newPlan && newPlan.id !== selectedPlan?.id) {
+                      setSelectedPlan(newPlan);
                       setClientSecret("");
                       setCheckoutStep(1);
                       handleSubscribe(newPlan);

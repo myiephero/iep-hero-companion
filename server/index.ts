@@ -189,6 +189,30 @@ app.use(cors());
 app.use(express.json({ limit: '50mb' }));
 app.use(express.urlencoded({ limit: '50mb', extended: true }));
 
+// Add session middleware for custom login
+import session from 'express-session';
+import connectPg from 'connect-pg-simple';
+
+const PostgresSessionStore = connectPg(session);
+const sessionTtl = 7 * 24 * 60 * 60 * 1000; // 1 week
+
+app.use(session({
+  secret: process.env.SESSION_SECRET || 'fallback-secret-for-dev',
+  store: new PostgresSessionStore({
+    conString: process.env.DATABASE_URL,
+    createTableIfMissing: true,
+    ttl: sessionTtl,
+    tableName: "sessions",
+  }),
+  resave: false,
+  saveUninitialized: false,
+  cookie: {
+    httpOnly: true,
+    secure: false, // Set to true in production with HTTPS
+    maxAge: sessionTtl,
+  },
+}));
+
 // Initialize Replit Auth
 (async () => {
   await setupAuth(app);

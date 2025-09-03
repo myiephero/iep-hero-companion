@@ -624,7 +624,7 @@ app.post('/api/custom-login', async (req: any, res) => {
         role: user.role,
         subscriptionPlan: user.subscriptionPlan
       },
-      redirectTo: user.role === 'parent' ? `/parent/dashboard-${user.subscriptionPlan || 'free'}` : '/advocate/dashboard'
+      redirectTo: user.role === 'parent' ? `/parent/dashboard-${user.subscriptionPlan?.toLowerCase().replace(/\s+/g, '') || 'free'}` : '/advocate/dashboard'
     });
   } catch (error) {
     console.error('Login error:', error);

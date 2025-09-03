@@ -79,8 +79,9 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
             const currentPath = window.location.pathname;
             if (currentPath === '/auth' || currentPath === '/onboarding') {
               // Redirect to appropriate dashboard
+              const planSlug = userData.subscriptionPlan?.toLowerCase().replace(/\s+/g, '') || 'free';
               const dashboardPath = userData.role === 'parent' 
-                ? `/parent/dashboard-${userData.subscriptionPlan || 'free'}` 
+                ? `/parent/dashboard-${planSlug}` 
                 : '/advocate/dashboard';
               window.location.href = dashboardPath;
             }

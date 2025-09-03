@@ -34,10 +34,10 @@ export default function CustomLogin() {
           description: "You've been signed in successfully.",
         });
         
-        // Add a small delay and force a full page reload to ensure auth state is refreshed
+        // Add a delay and force a full page reload to ensure auth state is refreshed
         setTimeout(() => {
           window.location.href = data.redirectTo || '/parent/dashboard';
-        }, 500);
+        }, 1500);
       } else {
         toast({
           title: "Sign In Failed",

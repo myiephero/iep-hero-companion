@@ -19,6 +19,10 @@ export const users = pgTable("users", {
   lastName: varchar("last_name"),
   profileImageUrl: varchar("profile_image_url"),
   role: varchar("role").default('parent'), // Default role
+  password: varchar("password"), // For email/password auth
+  emailVerified: boolean("email_verified").default(false),
+  subscriptionStatus: varchar("subscription_status"),
+  subscriptionPlan: varchar("subscription_plan"),
   stripeCustomerId: varchar("stripe_customer_id"),
   stripeSubscriptionId: varchar("stripe_subscription_id"),
   createdAt: timestamp("created_at").defaultNow(),

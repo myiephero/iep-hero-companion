@@ -334,6 +334,116 @@ app.post('/api/create-payment-intent', isAuthenticated, async (req: any, res) =>
   }
 });
 
+// Create checkout session (no auth required - payment first!)
+app.post('/api/create-checkout-session', async (req: any, res) => {
+  try {
+    const { priceId, planName, planId, role, amount } = req.body;
+    
+    // Create payment intent for the plan amount
+    const paymentIntent = await stripe.paymentIntents.create({
+      amount: Math.round(amount * 100), // Convert to cents
+      currency: 'usd',
+      metadata: {
+        priceId,
+        planName,
+        planId,
+        role,
+        checkoutSession: 'true'
+      },
+      automatic_payment_methods: {
+        enabled: true,
+      },
+    });
+
+    res.json({
+      clientSecret: paymentIntent.client_secret,
+      paymentIntentId: paymentIntent.id
+    });
+  } catch (error) {
+    console.error('Error creating checkout session:', error);
+    res.status(500).json({ error: 'Failed to create checkout session' });
+  }
+});
+
+// Create account with completed payment
+app.post('/api/create-account-with-payment', async (req: any, res) => {
+  try {
+    const { 
+      email, 
+      password, 
+      firstName, 
+      lastName, 
+      role, 
+      planId, 
+      planName, 
+      paymentIntentId,
+      stripeCustomerId 
+    } = req.body;
+
+    // Check if email already exists
+    const existingUser = await db.select()
+      .from(schema.users)
+      .where(eq(schema.users.email, email))
+      .limit(1);
+
+    if (existingUser.length > 0) {
+      return res.status(400).json({ 
+        message: 'An account with this email already exists. Please sign in instead.' 
+      });
+    }
+
+    // Create user account (initially unverified)
+    const userId = createId();
+    const hashedPassword = await hashPassword(password);
+    
+    await db.insert(schema.users).values({
+      id: userId,
+      email,
+      firstName,
+      lastName,
+      role,
+      emailVerified: false, // Will be verified via email
+      password: hashedPassword,
+      stripeCustomerId: stripeCustomerId || null,
+      subscriptionStatus: 'active',
+      subscriptionPlan: planId,
+      createdAt: new Date(),
+      updatedAt: new Date()
+    });
+
+    // Create profile
+    await db.insert(schema.profiles).values({
+      user_id: userId,
+      role,
+      full_name: `${firstName} ${lastName}`,
+      email
+    });
+
+    // TODO: Send email verification
+    console.log(`Account created for ${email} - Email verification would be sent here`);
+
+    res.json({ 
+      success: true, 
+      message: 'Account created successfully',
+      userId,
+      needsEmailVerification: true
+    });
+  } catch (error) {
+    console.error('Error creating account:', error);
+    res.status(500).json({ 
+      message: 'Failed to create account. Please contact support.' 
+    });
+  }
+});
+
+// Simple password hashing (you might want to use bcrypt in production)
+async function hashPassword(password: string): Promise<string> {
+  const crypto = await import('crypto');
+  const salt = crypto.randomBytes(16).toString('hex');
+  const hash = crypto.pbkdf2Sync(password, salt, 1000, 64, 'sha256').toString('hex');
+  return `${salt}:${hash}`;
+}
+
 // Pre-signup subscription intent (for new users who need to sign up first)
 app.post('/api/create-subscription-intent', async (req: any, res) => {
   try {

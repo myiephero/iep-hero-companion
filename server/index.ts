@@ -11,6 +11,7 @@ const pdf = require('pdf-parse');
 import { setupAuth, isAuthenticated } from './replitAuth';
 import { storage } from './storage';
 import Stripe from 'stripe';
+import { sendVerificationEmail, sendWelcomeEmail } from './emailService';
 
 // Initialize Stripe
 if (!process.env.STRIPE_SECRET_KEY) {
@@ -23,6 +24,11 @@ const stripe = new Stripe(process.env.STRIPE_SECRET_KEY, {
 // Generate simple IDs since we don't have cuid2
 function createId(): string {
   return Date.now().toString(36) + Math.random().toString(36).substr(2);
+}
+
+// Generate verification token
+function generateVerificationToken(): string {
+  return Date.now().toString(36) + Math.random().toString(36).substr(2) + Math.random().toString(36).substr(2);
 }
 
 // Middleware to extract user ID from authenticated session
@@ -405,6 +411,7 @@ app.post('/api/create-account-with-payment', async (req: any, res) => {
     // Create user account (initially unverified)
     const userId = createId();
     const hashedPassword = await hashPassword(password);
+    const verificationToken = generateVerificationToken();
     
     await db.insert(schema.users).values({
       id: userId,
@@ -413,6 +420,7 @@ app.post('/api/create-account-with-payment', async (req: any, res) => {
       lastName,
       role,
       emailVerified: false, // Will be verified via email
+      verificationToken,
       password: hashedPassword,
       stripeCustomerId: stripeCustomerId || null,
       subscriptionStatus: 'active',
@@ -429,8 +437,19 @@ app.post('/api/create-account-with-payment', async (req: any, res) => {
       email
     });
 
-    // TODO: Send email verification
-    console.log(`Account created for ${email} - Email verification would be sent here`);
+    // Send verification email
+    const emailSent = await sendVerificationEmail({
+      email,
+      firstName,
+      lastName,
+      verificationToken
+    });
+
+    if (emailSent) {
+      console.log(`Verification email sent successfully to ${email}`);
+    } else {
+      console.error(`Failed to send verification email to ${email}`);
+    }
 
     res.json({ 
       success: true, 
@@ -442,6 +461,62 @@ app.post('/api/create-account-with-payment', async (req: any, res) => {
     console.error('Error creating account:', error);
     res.status(500).json({ 
       message: 'Failed to create account. Please contact support.' 
+    });
+  }
+});
+
+// Email verification endpoint
+app.get('/api/verify-email', async (req: any, res) => {
+  try {
+    const { token } = req.query;
+
+    if (!token) {
+      return res.status(400).json({ 
+        message: 'Verification token is required' 
+      });
+    }
+
+    // Find user with this verification token
+    const [user] = await db.select()
+      .from(schema.users)
+      .where(eq(schema.users.verificationToken, token))
+      .limit(1);
+
+    if (!user) {
+      return res.status(400).json({ 
+        message: 'Invalid or expired verification token' 
+      });
+    }
+
+    if (user.emailVerified) {
+      return res.status(400).json({ 
+        message: 'Email is already verified' 
+      });
+    }
+
+    // Verify the email and clear the token
+    await db.update(schema.users)
+      .set({ 
+        emailVerified: true,
+        verificationToken: null,
+        updatedAt: new Date()
+      })
+      .where(eq(schema.users.id, user.id));
+
+    // Send welcome email
+    await sendWelcomeEmail(user.email!, user.firstName || 'User');
+
+    console.log(`Email verified successfully for ${user.email}`);
+
+    res.json({ 
+      success: true, 
+      message: 'Email verified successfully',
+      redirectTo: '/dashboard'
+    });
+  } catch (error) {
+    console.error('Error verifying email:', error);
+    res.status(500).json({ 
+      message: 'Failed to verify email. Please contact support.' 
     });
   }
 });

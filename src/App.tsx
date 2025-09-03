@@ -35,6 +35,7 @@ import Subscribe from "./pages/Subscribe";
 import SubscriptionSuccess from "./pages/SubscriptionSuccess";
 import SubscriptionSetup from "./pages/SubscriptionSetup";
 import AccountCreated from "./pages/AccountCreated";
+import VerifyEmail from "./pages/VerifyEmail";
 import ParentMeetingPrep from "./pages/ParentMeetingPrep";
 import StudentProfiles from "./pages/StudentProfiles";
 import HeroPlan from "./pages/HeroPlan";
@@ -347,6 +348,7 @@ function App() {
               <Route path="/subscription-success" element={<SubscriptionSuccess />} />
               <Route path="/subscription-setup" element={<SubscriptionSetup />} />
               <Route path="/account-created" element={<AccountCreated />} />
+              <Route path="/verify-email" element={<VerifyEmail />} />
               
               {/* Legal Resources - Available to both roles */}
               <Route path="/idea-rights-guide" element={

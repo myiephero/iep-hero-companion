@@ -21,6 +21,7 @@ export const users = pgTable("users", {
   role: varchar("role").default('parent'), // Default role
   password: varchar("password"), // For email/password auth
   emailVerified: boolean("email_verified").default(false),
+  verificationToken: varchar("verification_token"), // Email verification token
   subscriptionStatus: varchar("subscription_status"),
   subscriptionPlan: varchar("subscription_plan"),
   stripeCustomerId: varchar("stripe_customer_id"),

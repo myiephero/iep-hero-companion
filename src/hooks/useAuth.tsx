@@ -46,6 +46,17 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
   useEffect(() => {
     const checkAuth = async () => {
       try {
+        // Skip auth check for public pages like pricing
+        const currentPath = window.location.pathname;
+        const publicPaths = ['/parent/pricing', '/advocate/pricing', '/'];
+        
+        if (publicPaths.some(path => currentPath.includes(path))) {
+          setUser(null);
+          setProfile(null);
+          setLoading(false);
+          return;
+        }
+
         const response = await fetch('/api/auth/user', {
           credentials: 'include'
         });
@@ -65,12 +76,12 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
             }
           }
         } else {
-          // User not authenticated
+          // User not authenticated - this is OK for public pages
           setUser(null);
           setProfile(null);
         }
       } catch (error) {
-        console.error('Auth check failed:', error);
+        // Silently handle auth errors for public pages
         setUser(null);
         setProfile(null);
       } finally {

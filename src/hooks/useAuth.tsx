@@ -68,11 +68,19 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
           
           // Check if this is a new user without a role/subscription
           // If so, redirect to onboarding
-          if (userData && !userData.role && !userData.subscriptionStatus) {
+          if (userData && !userData.role && !userData.subscriptionStatus && !userData.subscriptionPlan) {
             // This is a new user who just authenticated but hasn't completed onboarding
             const currentPath = window.location.pathname;
             if (!currentPath.includes('/onboarding') && !currentPath.includes('/subscribe')) {
               window.location.href = '/onboarding';
+            }
+          } else if (userData && userData.role) {
+            // User has a role - check if they should be redirected to dashboard
+            const currentPath = window.location.pathname;
+            if (currentPath === '/auth' || currentPath === '/onboarding') {
+              // Redirect to appropriate dashboard
+              const dashboardPath = userData.role === 'parent' ? '/parent/dashboard' : '/advocate/dashboard';
+              window.location.href = dashboardPath;
             }
           }
         } else {

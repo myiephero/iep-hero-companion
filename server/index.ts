@@ -368,6 +368,8 @@ app.post('/api/create-checkout-session', async (req: any, res) => {
 // Create account with completed payment
 app.post('/api/create-account-with-payment', async (req: any, res) => {
   try {
+    console.log('Create account request body:', req.body);
+    
     const { 
       email, 
       password, 
@@ -379,6 +381,14 @@ app.post('/api/create-account-with-payment', async (req: any, res) => {
       paymentIntentId,
       stripeCustomerId 
     } = req.body;
+
+    // Validate required fields
+    if (!email || !password || !firstName || !lastName || !role) {
+      console.log('Missing required fields:', { email: !!email, password: !!password, firstName: !!firstName, lastName: !!lastName, role: !!role });
+      return res.status(400).json({ 
+        message: 'All fields are required: email, password, firstName, lastName, role' 
+      });
+    }
 
     // Check if email already exists
     const existingUser = await db.select()

@@ -5,20 +5,66 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Badge } from '@/components/ui/badge';
 import { ArrowRight, Users, Briefcase, Heart, CheckCircle } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
+import { useToast } from '@/hooks/use-toast';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 
 const Onboarding = () => {
   const [selectedRole, setSelectedRole] = useState<'parent' | 'advocate' | null>(null);
   const navigate = useNavigate();
   const { user } = useAuth();
+  const { toast } = useToast();
+  const queryClient = useQueryClient();
 
   const handleRoleSelection = (role: 'parent' | 'advocate') => {
     setSelectedRole(role);
   };
 
+  const setupUserMutation = useMutation({
+    mutationFn: async (role: 'parent' | 'advocate') => {
+      // Create user profile with role and free subscription
+      const response = await fetch('/api/onboarding/setup', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        credentials: 'include',
+        body: JSON.stringify({
+          role: role,
+          subscriptionPlan: 'free'
+        })
+      });
+      
+      if (!response.ok) {
+        throw new Error('Failed to setup account');
+      }
+      
+      return response.json();
+    },
+    onSuccess: (data) => {
+      toast({
+        title: "Welcome aboard!",
+        description: `Your ${selectedRole} account has been set up successfully.`,
+      });
+      
+      // Invalidate user query to refresh with new role
+      queryClient.invalidateQueries({ queryKey: ['/api/auth/user'] });
+      
+      // Redirect to appropriate dashboard
+      navigate(`/${selectedRole}/dashboard`);
+    },
+    onError: (error: any) => {
+      console.error('Setup error:', error);
+      toast({
+        title: "Setup Error",
+        description: "There was an issue setting up your account. Please try again.",
+        variant: "destructive",
+      });
+    },
+  });
+
   const handleContinue = () => {
     if (selectedRole) {
-      // Redirect to the appropriate subscription page
-      navigate(`/${selectedRole}/subscribe`);
+      setupUserMutation.mutate(selectedRole);
     }
   };
 
@@ -140,14 +186,23 @@ const Onboarding = () => {
             <Button 
               size="lg"
               onClick={handleContinue}
-              disabled={!selectedRole}
+              disabled={!selectedRole || setupUserMutation.isPending}
               className="text-lg px-8 py-6"
               data-testid="button-continue-onboarding"
             >
-              Continue as {selectedRole ? (selectedRole === 'parent' ? 'Parent' : 'Advocate') : '...'}
-              <ArrowRight className="ml-2 h-5 w-5" />
+              {setupUserMutation.isPending ? (
+                <div className="flex items-center gap-2">
+                  <div className="animate-spin h-4 w-4 border-2 border-current border-t-transparent rounded-full" />
+                  Setting up your account...
+                </div>
+              ) : (
+                <>
+                  Continue as {selectedRole ? (selectedRole === 'parent' ? 'Parent' : 'Advocate') : '...'}
+                  <ArrowRight className="ml-2 h-5 w-5" />
+                </>
+              )}
             </Button>
-            {!selectedRole && (
+            {!selectedRole && !setupUserMutation.isPending && (
               <p className="text-sm text-muted-foreground mt-3">
                 Please select your role to continue
               </p>

@@ -2,21 +2,12 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Alert, AlertDescription } from "@/components/ui/alert";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/hooks/useAuth";
-import { AlertCircle, Users, Heart, Shield } from "lucide-react";
+import { Users, Heart, Shield } from "lucide-react";
 
 export default function Auth() {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [fullName, setFullName] = useState("");
-  const [role, setRole] = useState<"parent" | "advocate">("parent");
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState("");
   const navigate = useNavigate();
   const { toast } = useToast();
   const { user } = useAuth();
@@ -29,52 +20,10 @@ export default function Auth() {
   }, [user, navigate]);
 
 
-  const handleSignUp = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!email || !password || !fullName) {
-      setError("All fields are required");
-      return;
-    }
-
+  const handleAuth = () => {
     setLoading(true);
-    setError("");
-
-    try {
-      // Mock sign up - since we're using mock auth, just simulate success
-      toast({
-        title: "Account created!",
-        description: "You're now signed in with the demo account.",
-      });
-      navigate("/");
-    } catch (error: any) {
-      setError(error.message);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleSignIn = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!email || !password) {
-      setError("Email and password are required");
-      return;
-    }
-
-    setLoading(true);
-    setError("");
-
-    try {
-      // Mock sign in - since we're using mock auth, just simulate success
-      toast({
-        title: "Welcome back!",
-        description: "You're successfully signed in with the demo account.",
-      });
-      navigate("/");
-    } catch (error: any) {
-      setError(error.message);
-    } finally {
-      setLoading(false);
-    }
+    // Redirect to Replit OAuth for authentication
+    window.location.href = '/api/login';
   };
 
   return (
@@ -93,117 +42,38 @@ export default function Auth() {
           <CardHeader className="space-y-1">
             <CardTitle className="text-2xl text-center">Welcome</CardTitle>
             <CardDescription className="text-center">
-              Sign in to your account or create a new one
+              Get started with your IEP Hero account
             </CardDescription>
           </CardHeader>
-          <CardContent>
-            <Tabs defaultValue="signin" className="space-y-4">
-              <TabsList className="grid w-full grid-cols-2">
-                <TabsTrigger value="signin">Sign In</TabsTrigger>
-                <TabsTrigger value="signup">Sign Up</TabsTrigger>
-              </TabsList>
+          <CardContent className="space-y-6">
+            <div className="text-center space-y-4">
+              <p className="text-sm text-muted-foreground">
+                Sign in with your Replit account to access the platform
+              </p>
               
-              {error && (
-                <Alert variant="destructive">
-                  <AlertCircle className="h-4 w-4" />
-                  <AlertDescription>{error}</AlertDescription>
-                </Alert>
-              )}
-
-              <TabsContent value="signin" className="space-y-4">
-                <form onSubmit={handleSignIn} className="space-y-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="email">Email</Label>
-                    <Input
-                      id="email"
-                      type="email"
-                      placeholder="Enter your email"
-                      value={email}
-                      onChange={(e) => setEmail(e.target.value)}
-                      required
-                    />
+              <Button 
+                onClick={handleAuth} 
+                className="w-full h-12 text-lg font-medium"
+                disabled={loading}
+                data-testid="button-auth-replit"
+              >
+                {loading ? (
+                  <div className="flex items-center gap-2">
+                    <div className="animate-spin h-4 w-4 border-2 border-current border-t-transparent rounded-full" />
+                    Connecting...
                   </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="password">Password</Label>
-                    <Input
-                      id="password"
-                      type="password"
-                      placeholder="Enter your password"
-                      value={password}
-                      onChange={(e) => setPassword(e.target.value)}
-                      required
-                    />
+                ) : (
+                  <div className="flex items-center gap-2">
+                    <Shield className="h-5 w-5" />
+                    Continue with Replit
                   </div>
-                  <Button type="submit" className="w-full" disabled={loading}>
-                    {loading ? "Signing in..." : "Sign In"}
-                  </Button>
-                </form>
-              </TabsContent>
-
-              <TabsContent value="signup" className="space-y-4">
-                <form onSubmit={handleSignUp} className="space-y-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="fullName">Full Name</Label>
-                    <Input
-                      id="fullName"
-                      type="text"
-                      placeholder="Enter your full name"
-                      value={fullName}
-                      onChange={(e) => setFullName(e.target.value)}
-                      required
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="signupEmail">Email</Label>
-                    <Input
-                      id="signupEmail"
-                      type="email"
-                      placeholder="Enter your email"
-                      value={email}
-                      onChange={(e) => setEmail(e.target.value)}
-                      required
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="signupPassword">Password</Label>
-                    <Input
-                      id="signupPassword"
-                      type="password"
-                      placeholder="Create a password"
-                      value={password}
-                      onChange={(e) => setPassword(e.target.value)}
-                      required
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label>I am a:</Label>
-                    <div className="grid grid-cols-2 gap-2">
-                      <Button
-                        type="button"
-                        variant={role === "parent" ? "default" : "outline"}
-                        onClick={() => setRole("parent")}
-                        className="flex items-center gap-2"
-                      >
-                        <Heart className="h-4 w-4" />
-                        Parent
-                      </Button>
-                      <Button
-                        type="button"
-                        variant={role === "advocate" ? "default" : "outline"}
-                        onClick={() => setRole("advocate")}
-                        className="flex items-center gap-2"
-                      >
-                        <Shield className="h-4 w-4" />
-                        Advocate
-                      </Button>
-                    </div>
-                  </div>
-                  <Button type="submit" className="w-full" disabled={loading}>
-                    {loading ? "Creating account..." : "Create Account"}
-                  </Button>
-                </form>
-              </TabsContent>
-            </Tabs>
+                )}
+              </Button>
+              
+              <p className="text-xs text-muted-foreground">
+                New users will complete role selection and subscription setup after authentication
+              </p>
+            </div>
           </CardContent>
         </Card>
 

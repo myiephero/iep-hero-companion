@@ -230,12 +230,24 @@ const HeroPlan = () => {
                 </div>
                 
                 <div className="flex flex-col sm:flex-row gap-4 justify-center max-w-md mx-auto">
-                  <Button variant="secondary" size="lg" className="flex-1">
-                    Start HERO Plan
+                  <Button 
+                    variant="secondary" 
+                    size="lg" 
+                    className="flex-1"
+                    onClick={() => window.location.href = '/subscribe?plan=hero'}
+                    data-testid="button-start-hero-plan"
+                  >
+                    Start HERO Plan ($495)
                     <ArrowRight className="ml-2 h-5 w-5" />
                   </Button>
-                  <Button variant="outline" size="lg" className="border-white text-white hover:bg-white hover:text-primary">
-                    Schedule Consultation
+                  <Button 
+                    variant="outline" 
+                    size="lg" 
+                    className="border-white text-white hover:bg-white hover:text-primary"
+                    onClick={() => window.location.href = '/parent/subscribe'}
+                    data-testid="button-view-all-plans-hero"
+                  >
+                    View All Plans
                   </Button>
                 </div>
                 

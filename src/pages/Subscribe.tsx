@@ -644,18 +644,6 @@ export default function Subscribe() {
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
             {/* Main Content - Left Column */}
             <div className="lg:col-span-2 space-y-4">
-              {/* Smart Recommendations */}
-              <Card className="bg-gradient-to-r from-blue-50 to-indigo-50 border-blue-200 animate-slide-in">
-                <CardContent className="p-4">
-                  <div className="flex items-center gap-2 mb-2">
-                    <TrendingUp className="h-4 w-4 text-blue-600" />
-                    <span className="text-sm font-medium text-blue-900">Smart Recommendation</span>
-                  </div>
-                  <p className="text-sm text-blue-800">
-                    {role === 'parent' ? '87% of parents with similar needs choose this plan for optimal IEP support' : 'Most advocates in your region prefer this plan for comprehensive client management'}
-                  </p>
-                </CardContent>
-              </Card>
 
 
               {/* Plan Selection Dropdown */}

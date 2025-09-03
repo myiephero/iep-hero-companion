@@ -32,6 +32,7 @@ import AllPagesView from "./pages/AllPagesView";
 import SmartLetterGenerator from "./pages/SmartLetterGenerator";
 import MeetingPrepWizard from "./pages/MeetingPrepWizard";
 import Subscribe from "./pages/Subscribe";
+import SubscriptionSuccess from "./pages/SubscriptionSuccess";
 import ParentMeetingPrep from "./pages/ParentMeetingPrep";
 import StudentProfiles from "./pages/StudentProfiles";
 import HeroPlan from "./pages/HeroPlan";
@@ -295,6 +296,18 @@ function App() {
               <Route path="/tools/smart-letter" element={<RoleBasedRedirect parentRoute="/parent/tools/smart-letter-generator" advocateRoute="/advocate/tools/smart-letter-generator" />} />
               <Route path="/tools/meeting-prep" element={<RoleBasedRedirect parentRoute="/parent/tools/meeting-prep" advocateRoute="/advocate/tools/meeting-prep" />} />
               
+              {/* Profile */}
+              <Route path="/parent/profile" element={
+                <ProtectedRoute allowedRoles={['parent']}>
+                  <Profile />
+                </ProtectedRoute>
+              } />
+              <Route path="/advocate/profile" element={
+                <ProtectedRoute allowedRoles={['advocate']}>
+                  <Profile />
+                </ProtectedRoute>
+              } />
+              
               {/* Settings */}
               <Route path="/parent/settings" element={
                 <ProtectedRoute allowedRoles={['parent']}>
@@ -329,6 +342,7 @@ function App() {
               <Route path="/advocate/pricing" element={<AdvocatePricingPlan />} />
               <Route path="/parent/subscribe" element={<Subscribe />} />
               <Route path="/advocate/subscribe" element={<Subscribe />} />
+              <Route path="/subscription-success" element={<SubscriptionSuccess />} />
               
               {/* Legal Resources - Available to both roles */}
               <Route path="/idea-rights-guide" element={

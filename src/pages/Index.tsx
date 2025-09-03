@@ -58,22 +58,34 @@ const Index = () => {
               </div>
               
               {user ? (
-                // Logged in user - show dashboard options
+                // Logged in user - redirect based on their role
                 <div className="flex flex-col sm:flex-row gap-4">
-                  <Button 
-                    variant="hero" 
-                    size="lg"
-                    onClick={() => window.location.href = "/parent/dashboard"}
-                  >
-                    Parent Dashboard <ArrowRight className="ml-2 h-5 w-5" />
-                  </Button>
-                  <Button 
-                    variant="outline" 
-                    size="lg"
-                    onClick={() => window.location.href = "/advocate/dashboard"}
-                  >
-                    Advocate Portal
-                  </Button>
+                  {user.role ? (
+                    <Button 
+                      variant="hero" 
+                      size="lg"
+                      onClick={() => window.location.href = `/${user.role}/dashboard`}
+                    >
+                      Go to {user.role === 'parent' ? 'Parent' : 'Advocate'} Dashboard <ArrowRight className="ml-2 h-5 w-5" />
+                    </Button>
+                  ) : (
+                    <>
+                      <Button 
+                        variant="hero" 
+                        size="lg"
+                        onClick={() => window.location.href = "/parent/dashboard"}
+                      >
+                        Parent Dashboard <ArrowRight className="ml-2 h-5 w-5" />
+                      </Button>
+                      <Button 
+                        variant="outline" 
+                        size="lg"
+                        onClick={() => window.location.href = "/advocate/dashboard"}
+                      >
+                        Advocate Portal
+                      </Button>
+                    </>
+                  )}
                 </div>
               ) : (
                 // Not logged in - show auth toggle
@@ -251,7 +263,7 @@ const Index = () => {
                 size="lg"
                 onClick={() => {
                   if (user) {
-                    window.location.href = "/parent/dashboard";
+                    window.location.href = user.role ? `/${user.role}/dashboard` : "/parent/dashboard";
                   } else {
                     window.location.href = "/api/login";
                   }

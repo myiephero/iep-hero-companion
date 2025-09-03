@@ -57,12 +57,15 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
           return;
         }
 
+        console.log('🔍 Checking auth for path:', currentPath);
         const response = await fetch('/api/auth/user', {
           credentials: 'include'
         });
+        console.log('🔍 Auth response status:', response.status);
         
         if (response.ok) {
           const userData = await response.json();
+          console.log('✅ User data loaded:', userData.email, userData.role, userData.subscriptionPlan);
           setUser(userData);
           setProfile(userData);
           
@@ -88,6 +91,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
           }
         } else {
           // User not authenticated - this is OK for public pages
+          console.log('❌ Auth failed, status:', response.status);
           setUser(null);
           setProfile(null);
         }

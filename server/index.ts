@@ -334,6 +334,40 @@ app.post('/api/create-payment-intent', isAuthenticated, async (req: any, res) =>
   }
 });
 
+// Pre-signup subscription intent (for new users who need to sign up first)
+app.post('/api/create-subscription-intent', async (req: any, res) => {
+  try {
+    const { priceId, planName, planId, role } = req.body;
+    
+    // Store subscription intent in session
+    if (req.session) {
+      req.session.subscriptionIntent = {
+        priceId,
+        planName, 
+        planId,
+        role,
+        timestamp: Date.now()
+      };
+    }
+    
+    // Check if user is already authenticated
+    if (req.isAuthenticated && req.isAuthenticated()) {
+      // User is logged in, proceed directly with subscription
+      return res.redirect(307, '/api/create-subscription');
+    }
+    
+    // User needs to sign up/login first
+    res.json({ 
+      requiresAuth: true,
+      message: 'Please sign in to complete your subscription',
+      loginUrl: '/api/login'
+    });
+  } catch (error) {
+    console.error('Error creating subscription intent:', error);
+    res.status(500).json({ error: 'Failed to create subscription intent' });
+  }
+});
+
 // Stripe subscription routes (keeping for reference but using payment intent for testing)
 app.post('/api/create-subscription', isAuthenticated, async (req: any, res) => {
   try {

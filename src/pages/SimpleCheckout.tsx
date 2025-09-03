@@ -85,7 +85,8 @@ export default function SimpleCheckout({ plan, role, onClose, isOpen }: SimpleCh
 
   const initializePayment = async () => {
     try {
-      const response = await fetch('/api/create-subscription', {
+      // First try to create subscription intent (works for both authenticated and non-authenticated users)
+      const response = await fetch('/api/create-subscription-intent', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -97,19 +98,23 @@ export default function SimpleCheckout({ plan, role, onClose, isOpen }: SimpleCh
       });
 
       if (!response.ok) {
-        if (response.status === 401) {
-          toast({
-            title: "Please Sign In",
-            description: "You need to be logged in to subscribe.",
-            variant: "destructive",
-          });
-          window.location.href = '/api/login';
-          return;
-        }
-        throw new Error('Failed to create subscription');
+        throw new Error('Failed to create subscription intent');
       }
 
       const data = await response.json();
+      
+      // If user needs to authenticate first
+      if (data.requiresAuth) {
+        toast({
+          title: "Sign In Required",
+          description: "Redirecting you to sign in to complete your subscription...",
+        });
+        // Redirect to login, which will handle the subscription after auth
+        window.location.href = data.loginUrl;
+        return;
+      }
+
+      // If user is already authenticated, we should get a client secret
       if (data.clientSecret) {
         setClientSecret(data.clientSecret);
       } else {

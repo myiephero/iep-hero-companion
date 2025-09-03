@@ -135,9 +135,32 @@ export async function setupAuth(app: Express) {
     // Use the actual Replit domain instead of localhost
     const domain = process.env.REPLIT_DOMAINS!.split(",")[0];
     passport.authenticate(`replitauth:${domain}`, {
-      successReturnToOrRedirect: "/",
       failureRedirect: "/api/login",
-    })(req, res, next);
+    })(req, res, (err) => {
+      if (err) {
+        return next(err);
+      }
+      
+      // Check for subscription intent after successful login
+      const subscriptionIntent = (req.session as any)?.subscriptionIntent;
+      if (subscriptionIntent) {
+        // Clear the intent from session
+        delete (req.session as any).subscriptionIntent;
+        
+        // Redirect to subscription completion flow
+        const params = new URLSearchParams({
+          priceId: subscriptionIntent.priceId,
+          planName: subscriptionIntent.planName,
+          planId: subscriptionIntent.planId,
+          role: subscriptionIntent.role
+        });
+        
+        return res.redirect(`/subscription-setup?${params.toString()}`);
+      }
+      
+      // Default redirect
+      res.redirect("/");
+    });
   });
 
   app.get("/api/logout", (req, res) => {

@@ -194,8 +194,40 @@ app.use(express.urlencoded({ limit: '50mb', extended: true }));
   await setupAuth(app);
 })();
 
-// Auth routes
-app.get('/api/auth/user', isAuthenticated, async (req: any, res) => {
+// Unified auth endpoint that checks both Replit Auth and custom login
+app.get('/api/auth/user', async (req: any, res) => {
+  try {
+    // First check for custom login session
+    if (req.session && req.session.userId) {
+      const [user] = await db.select()
+        .from(schema.users)
+        .where(eq(schema.users.id, req.session.userId))
+        .limit(1);
+      
+      if (user) {
+        return res.json(user);
+      }
+    }
+
+    // Then check for Replit Auth (for legacy users)
+    if (req.isAuthenticated && req.isAuthenticated()) {
+      const userId = req.user.claims.sub;
+      const user = await storage.getUser(userId);
+      if (user) {
+        return res.json(user);
+      }
+    }
+
+    // No authentication found
+    res.status(401).json({ message: "Not authenticated" });
+  } catch (error) {
+    console.error("Error fetching user:", error);
+    res.status(500).json({ message: "Failed to fetch user" });
+  }
+});
+
+// Legacy Replit Auth endpoint (kept for compatibility)
+app.get('/api/auth/replit-user', isAuthenticated, async (req: any, res) => {
   try {
     const userId = req.user.claims.sub;
     const user = await storage.getUser(userId);

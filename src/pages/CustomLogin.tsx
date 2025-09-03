@@ -22,6 +22,7 @@ export default function CustomLogin() {
       const response = await fetch('/api/custom-login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
+        credentials: 'include', // Important for session cookies
         body: JSON.stringify({ email, password }),
       });
 
@@ -33,8 +34,8 @@ export default function CustomLogin() {
           description: "You've been signed in successfully.",
         });
         
-        // Redirect to dashboard
-        window.location.href = data.redirectTo || '/dashboard';
+        // Force a full page reload to ensure auth state is refreshed
+        window.location.href = data.redirectTo || '/parent/dashboard';
       } else {
         toast({
           title: "Sign In Failed",

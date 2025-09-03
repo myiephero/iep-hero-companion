@@ -5,7 +5,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Badge } from '@/components/ui/badge';
 import { Check, Star, Zap, Crown, Heart } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
-import SimpleCheckout from './SimpleCheckout';
+import CheckoutFirst from './CheckoutFirst';
 
 // Parent pricing tiers
 const PARENT_PRICING = [
@@ -267,8 +267,8 @@ export default function Subscribe() {
           ))}
         </div>
 
-        {/* Simple Checkout Dialog */}
-        <SimpleCheckout
+        {/* Checkout First Dialog */}
+        <CheckoutFirst
           plan={selectedPlan}
           role={role}
           isOpen={showCheckout}

@@ -250,7 +250,7 @@ export default function CheckoutFirst({ plan, role, isOpen, onClose }: {
           planName: plan.name,
           planId: plan.id,
           role: role,
-          amount: plan.price
+          amount: parseFloat(plan.price.replace('$', ''))
         })
       });
 

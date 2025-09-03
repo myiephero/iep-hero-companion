@@ -529,6 +529,79 @@ async function hashPassword(password: string): Promise<string> {
   return `${salt}:${hash}`;
 }
 
+// Verify password
+async function verifyPassword(password: string, hashedPassword: string): Promise<boolean> {
+  const crypto = await import('crypto');
+  const [salt, hash] = hashedPassword.split(':');
+  const verifyHash = crypto.pbkdf2Sync(password, salt, 1000, 64, 'sha256').toString('hex');
+  return hash === verifyHash;
+}
+
+// Custom login endpoint for My IEP Hero users
+app.post('/api/custom-login', async (req: any, res) => {
+  try {
+    const { email, password } = req.body;
+
+    if (!email || !password) {
+      return res.status(400).json({ 
+        message: 'Email and password are required' 
+      });
+    }
+
+    // Find user by email
+    const [user] = await db.select()
+      .from(schema.users)
+      .where(eq(schema.users.email, email))
+      .limit(1);
+
+    if (!user) {
+      return res.status(401).json({ 
+        message: 'Invalid email or password' 
+      });
+    }
+
+    // Check if email is verified
+    if (!user.emailVerified) {
+      return res.status(401).json({ 
+        message: 'Please verify your email address before signing in' 
+      });
+    }
+
+    // Verify password
+    const isValidPassword = await verifyPassword(password, user.password!);
+    if (!isValidPassword) {
+      return res.status(401).json({ 
+        message: 'Invalid email or password' 
+      });
+    }
+
+    // Create session/token for the user (simplified - you might want to use JWT)
+    if (req.session) {
+      req.session.userId = user.id;
+      req.session.userRole = user.role;
+    }
+
+    res.json({ 
+      success: true,
+      message: 'Login successful',
+      user: {
+        id: user.id,
+        email: user.email,
+        firstName: user.firstName,
+        lastName: user.lastName,
+        role: user.role,
+        subscriptionPlan: user.subscriptionPlan
+      },
+      redirectTo: user.role === 'parent' ? '/parent/dashboard' : '/advocate/dashboard'
+    });
+  } catch (error) {
+    console.error('Login error:', error);
+    res.status(500).json({ 
+      message: 'Login failed. Please try again.' 
+    });
+  }
+});
+
 // Pre-signup subscription intent (for new users who need to sign up first)
 app.post('/api/create-subscription-intent', async (req: any, res) => {
   try {

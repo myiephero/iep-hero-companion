@@ -68,6 +68,7 @@ import OTRecommender from "./pages/OTRecommender";
 import ParentEmotionTracker from "./pages/ParentEmotionTracker";
 import NotFound from "./pages/NotFound";
 import CardShowcase from "./pages/CardShowcase";
+import CustomLogin from "./pages/CustomLogin";
 
 import { queryClient } from "./lib/queryClient";
 
@@ -84,6 +85,7 @@ function App() {
             <Routes>
               <Route path="/" element={<Index />} />
               <Route path="/auth" element={<Auth />} />
+              <Route path="/login" element={<CustomLogin />} />
               <Route path="/onboarding" element={<Onboarding />} />
               
               {/* Parent Routes - Protected */}

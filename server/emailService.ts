@@ -11,7 +11,10 @@ export interface EmailVerificationData {
 
 export async function sendVerificationEmail(data: EmailVerificationData): Promise<boolean> {
   try {
-    const verificationUrl = `${process.env.VITE_APP_URL || 'http://localhost:8080'}/verify-email?token=${data.verificationToken}`;
+    // Get the current domain from Replit environment
+    const currentDomain = process.env.REPLIT_DOMAINS?.split(',')[0] || 'localhost:8080';
+    const protocol = currentDomain.includes('localhost') ? 'http' : 'https';
+    const verificationUrl = `${protocol}://${currentDomain}/verify-email?token=${data.verificationToken}`;
     
     const htmlContent = `
 <!DOCTYPE html>

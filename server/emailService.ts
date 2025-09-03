@@ -101,7 +101,7 @@ Need help? Contact us at support@myiephero.com
 `;
 
     const { data: result, error } = await resend.emails.send({
-      from: 'My IEP Hero <noreply@myiephero.com>',
+      from: 'My IEP Hero <onboarding@resend.dev>',
       to: [data.email],
       subject: 'Verify Your My IEP Hero Account - Complete Your Setup',
       html: htmlContent,
@@ -176,7 +176,7 @@ export async function sendWelcomeEmail(email: string, firstName: string): Promis
 </html>`;
 
     const { data: result, error } = await resend.emails.send({
-      from: 'My IEP Hero <noreply@myiephero.com>',
+      from: 'My IEP Hero <onboarding@resend.dev>',
       to: [email],
       subject: 'Welcome to My IEP Hero - Your Account is Ready!',
       html: htmlContent,

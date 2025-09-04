@@ -183,6 +183,24 @@ export async function setupAuth(app: Express) {
 }
 
 export const isAuthenticated: RequestHandler = async (req, res, next) => {
+  // First check for custom token-based auth (My IEP Hero users)
+  const token = req.headers.authorization?.replace('Bearer ', '');
+  if (token && (global as any).activeTokens && (global as any).activeTokens[token]) {
+    const tokenData = (global as any).activeTokens[token];
+    // Check if token is not expired (24 hours)
+    if (Date.now() - tokenData.createdAt < 24 * 60 * 60 * 1000) {
+      // Add user info to request for consistency
+      (req as any).user = {
+        claims: {
+          sub: tokenData.userId
+        },
+        role: tokenData.userRole
+      };
+      return next();
+    }
+  }
+
+  // Fallback to Replit Auth
   const user = req.user as any;
 
   if (!req.isAuthenticated() || !user.expires_at) {

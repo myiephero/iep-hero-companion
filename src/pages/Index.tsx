@@ -122,7 +122,7 @@ const Index = () => {
                       <Button 
                         variant="hero" 
                         size="lg"
-                        onClick={() => window.location.href = "/login"}
+                        onClick={() => window.location.href = "/auth"}
                         data-testid="button-signin"
                       >
                         Sign In to Your Account <ArrowRight className="ml-2 h-5 w-5" />
@@ -265,7 +265,7 @@ const Index = () => {
                   if (user) {
                     window.location.href = user.role ? `/${user.role}/dashboard` : "/parent/dashboard";
                   } else {
-                    window.location.href = "/login";
+                    window.location.href = "/auth";
                   }
                 }}
               >

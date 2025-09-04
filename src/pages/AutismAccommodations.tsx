@@ -345,9 +345,9 @@ const AutismAccommodations = () => {
                       {category.items.map((item) => (
                         <div 
                           key={item.id} 
-                          className="flex items-start justify-between p-4 rounded-lg bg-surface border border-border hover:border-primary/20 transition-colors"
+                          className="flex flex-col gap-3 p-4 rounded-lg bg-surface border border-border hover:border-primary/20 transition-colors"
                         >
-                          <div className="flex-1 space-y-2">
+                          <div className="space-y-2">
                             <div className="flex items-center gap-2">
                               <h5 className="font-medium text-sm">{item.title}</h5>
                               {item.recommended && (
@@ -365,7 +365,8 @@ const AutismAccommodations = () => {
                             disabled={addedAccommodations.includes(item.id)}
                             size="sm"
                             variant={addedAccommodations.includes(item.id) ? "secondary" : "default"}
-                            className="ml-4 min-w-[140px]"
+                            className="w-full"
+                            data-testid={`button-add-accommodation-${item.id}`}
                           >
                             {addedAccommodations.includes(item.id) ? (
                               <>

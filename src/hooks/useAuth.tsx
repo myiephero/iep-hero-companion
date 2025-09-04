@@ -151,6 +151,14 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
 
   const signOut = async () => {
     try {
+      // Clear the authentication token from localStorage first
+      localStorage.removeItem('authToken');
+      
+      // Clear user state immediately
+      setUser(null);
+      setProfile(null);
+      
+      // Then call the server logout endpoint
       window.location.href = '/api/logout';
     } catch (error) {
       console.error('Sign out failed:', error);

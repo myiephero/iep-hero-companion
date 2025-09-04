@@ -14,7 +14,7 @@ import { Users, Star, Clock, MapPin, DollarSign, Search, Filter, Calendar, Phone
 import { useToast } from '@/hooks/use-toast';
 import { DashboardLayout } from '@/layouts/DashboardLayout';
 import { useAuth } from '@/hooks/useAuth';
-import { api as apiClient } from '@/lib/api';
+import { apiRequest } from '@/lib/queryClient';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useNavigate } from 'react-router-dom';
 
@@ -70,23 +70,33 @@ export default function MatchingDashboard() {
   const isAdvocate = window.location.pathname.includes('/advocate/');
   const userRole = user?.user_metadata?.role || 'parent';
 
-  // Fetch real data from API
+  // Fetch real data from API using proper authentication
   const { data: students = [], isLoading: studentsLoading } = useQuery({
     queryKey: ['students'],
-    queryFn: () => apiClient.getStudents(),
+    queryFn: async () => {
+      const response = await apiRequest('GET', '/api/students');
+      return await response.json();
+    },
     enabled: !isAdvocate // Only load for parents
   });
 
   const { data: advocates = [], isLoading: advocatesLoading } = useQuery({
     queryKey: ['advocates'],
-    queryFn: () => apiClient.getAdvocates(),
+    queryFn: async () => {
+      const response = await apiRequest('GET', '/api/advocates');
+      return await response.json();
+    },
     enabled: !isAdvocate // Only load for parents
   });
 
   // Different API calls based on user role
   const { data: proposalsData, isLoading: proposalsLoading } = useQuery({
     queryKey: ['match-proposals', userRole],
-    queryFn: () => isAdvocate ? apiClient.getAdvocateProposals() : apiClient.getMatchProposals()
+    queryFn: async () => {
+      const endpoint = isAdvocate ? '/api/match/advocate-proposals' : '/api/match';
+      const response = await apiRequest('GET', endpoint);
+      return await response.json();
+    }
   });
 
   const proposals = Array.isArray(proposalsData) ? proposalsData : [];
@@ -103,8 +113,14 @@ export default function MatchingDashboard() {
 
   // Mutations for match proposals
   const createProposalMutation = useMutation({
-    mutationFn: ({ studentId, advocateIds }: { studentId: string; advocateIds: string[] }) => 
-      apiClient.createMatchProposal(studentId, advocateIds, { manual_match: true }),
+    mutationFn: async ({ studentId, advocateIds }: { studentId: string; advocateIds: string[] }) => {
+      const response = await apiRequest('POST', '/api/match', {
+        student_id: studentId,
+        advocate_ids: advocateIds,
+        manual_match: true
+      });
+      return await response.json();
+    },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['match-proposals'] });
       toast({
@@ -139,8 +155,10 @@ export default function MatchingDashboard() {
   };
 
   const introCallMutation = useMutation({
-    mutationFn: ({ proposalId, notes }: { proposalId: string; notes?: string }) => 
-      apiClient.requestIntroCall(proposalId, undefined, notes),
+    mutationFn: async ({ proposalId, notes }: { proposalId: string; notes?: string }) => {
+      const response = await apiRequest('POST', `/api/match/${proposalId}/intro`, { notes });
+      return await response.json();
+    },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['match-proposals'] });
       toast({

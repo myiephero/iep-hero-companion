@@ -7,7 +7,6 @@ import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { AuthProvider } from "@/hooks/useAuth";
 import { ThemeProvider } from "@/contexts/ThemeContext";
 import { ProtectedRoute, RoleBasedRedirect } from "@/components/ProtectedRoute";
-import { UserSwitcher } from "@/components/UserSwitcher";
 import Index from "./pages/Index";
 import Auth from "./pages/Auth";
 import ParentDashboard from "./pages/ParentDashboard";
@@ -79,7 +78,6 @@ function App() {
         <Sonner />
         <ThemeProvider>
           <AuthProvider>
-            <UserSwitcher />
             <BrowserRouter>
             <Routes>
               <Route path="/" element={<Index />} />

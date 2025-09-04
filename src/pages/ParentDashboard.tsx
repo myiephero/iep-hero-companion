@@ -555,25 +555,125 @@ export default function ParentDashboard({ plan }: ParentDashboardProps) {
                   </Dialog>
                 </div>
 
-                <div className="grid gap-4">
+                <div className="grid gap-6">
                   {goals.length === 0 ? (
-                    <Card className="border-0 shadow-lg bg-gradient-to-br from-blue-50 to-indigo-50 overflow-hidden">
-                      <CardContent className="text-center py-12">
-                        <div className="relative">
-                          <div className="absolute inset-0 bg-gradient-to-r from-blue-400 to-indigo-400 rounded-full blur-xl opacity-20 animate-pulse"></div>
-                          <Target className="h-16 w-16 mx-auto text-blue-500 mb-4 relative" />
-                        </div>
-                        <h3 className="text-xl font-semibold mb-2 text-gray-900">Ready to set your first goal?</h3>
-                        <p className="text-gray-600 mb-6 max-w-md mx-auto">Start tracking your child's IEP goals and celebrate every milestone along the way.</p>
-                        <Button 
-                          onClick={() => setShowGoalDialog(true)}
-                          className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white shadow-lg hover:shadow-xl transition-all duration-200 rounded-xl px-8 py-3"
-                        >
-                          <Plus className="h-4 w-4 mr-2" />
-                          Create Your First Goal
-                        </Button>
-                      </CardContent>
-                    </Card>
+                    <div className="space-y-6">
+                      {/* Main Welcome Card */}
+                      <Card className="border-0 shadow-xl bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 overflow-hidden relative">
+                        <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-blue-400/20 to-indigo-400/20 rounded-full blur-2xl"></div>
+                        <div className="absolute bottom-0 left-0 w-24 h-24 bg-gradient-to-br from-purple-400/20 to-pink-400/20 rounded-full blur-xl"></div>
+                        <CardContent className="relative text-center py-12 px-8">
+                          <div className="relative mb-6">
+                            <div className="absolute inset-0 bg-gradient-to-r from-blue-400 to-indigo-400 rounded-full blur-xl opacity-30 animate-pulse"></div>
+                            <Target className="h-20 w-20 mx-auto text-blue-600 relative drop-shadow-lg" />
+                          </div>
+                          <h3 className="text-3xl font-bold mb-3 text-gray-900">Let's Start Your IEP Journey!</h3>
+                          <p className="text-lg text-gray-700 mb-8 max-w-2xl mx-auto leading-relaxed">
+                            Track your child's progress, celebrate achievements, and stay organized with personalized IEP goal management designed for families like yours.
+                          </p>
+                          <div className="flex flex-col sm:flex-row gap-4 justify-center">
+                            <Button 
+                              onClick={() => setShowGoalDialog(true)}
+                              className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white shadow-lg hover:shadow-xl transition-all duration-300 rounded-xl px-8 py-4 text-lg font-semibold"
+                            >
+                              <Plus className="h-5 w-5 mr-2" />
+                              Create Your First Goal
+                            </Button>
+                            <Button 
+                              variant="outline"
+                              onClick={() => navigate('/parent/tools')}
+                              className="border-2 border-blue-200 hover:border-blue-300 text-blue-700 hover:bg-blue-50 shadow-md hover:shadow-lg transition-all duration-300 rounded-xl px-8 py-4 text-lg font-semibold"
+                            >
+                              <BookOpen className="h-5 w-5 mr-2" />
+                              Explore Tools
+                            </Button>
+                          </div>
+                        </CardContent>
+                      </Card>
+
+                      {/* Quick Start Guide */}
+                      <div className="grid md:grid-cols-2 gap-6">
+                        <Card className="border-0 shadow-lg hover:shadow-xl transition-all duration-300 bg-white group">
+                          <CardContent className="p-6">
+                            <div className="flex items-start gap-4">
+                              <div className="p-3 bg-gradient-to-br from-green-100 to-emerald-100 rounded-xl group-hover:scale-110 transition-transform duration-300">
+                                <CheckCircle2 className="h-6 w-6 text-green-600" />
+                              </div>
+                              <div className="flex-1">
+                                <h4 className="text-lg font-semibold text-gray-900 mb-2">Start Simple</h4>
+                                <p className="text-gray-600 mb-4">Begin with one meaningful goal from your child's current IEP. Focus on something you can track daily or weekly.</p>
+                                <div className="flex flex-wrap gap-2">
+                                  <Badge variant="secondary" className="bg-green-50 text-green-700 border-green-200">📚 Reading fluency</Badge>
+                                  <Badge variant="secondary" className="bg-blue-50 text-blue-700 border-blue-200">🎯 Focus time</Badge>
+                                  <Badge variant="secondary" className="bg-purple-50 text-purple-700 border-purple-200">💬 Communication</Badge>
+                                </div>
+                              </div>
+                            </div>
+                          </CardContent>
+                        </Card>
+
+                        <Card className="border-0 shadow-lg hover:shadow-xl transition-all duration-300 bg-white group">
+                          <CardContent className="p-6">
+                            <div className="flex items-start gap-4">
+                              <div className="p-3 bg-gradient-to-br from-blue-100 to-indigo-100 rounded-xl group-hover:scale-110 transition-transform duration-300">
+                                <TrendingUp className="h-6 w-6 text-blue-600" />
+                              </div>
+                              <div className="flex-1">
+                                <h4 className="text-lg font-semibold text-gray-900 mb-2">Track Progress</h4>
+                                <p className="text-gray-600 mb-4">Update goal progress regularly and celebrate small wins. Visual progress tracking helps motivate both you and your child.</p>
+                                <div className="space-y-2">
+                                  <div className="flex items-center gap-2 text-sm text-gray-600">
+                                    <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
+                                    <span>Weekly check-ins</span>
+                                  </div>
+                                  <div className="flex items-center gap-2 text-sm text-gray-600">
+                                    <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+                                    <span>Milestone celebrations</span>
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+                          </CardContent>
+                        </Card>
+                      </div>
+
+                      {/* Goal Type Examples */}
+                      <Card className="border-0 shadow-lg bg-gradient-to-r from-gray-50 to-gray-100 overflow-hidden">
+                        <CardContent className="p-8">
+                          <div className="text-center mb-6">
+                            <h4 className="text-xl font-semibold text-gray-900 mb-2">Common IEP Goal Categories</h4>
+                            <p className="text-gray-600">Choose the type that best matches your child's current focus areas</p>
+                          </div>
+                          <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
+                            <div className="text-center p-4 bg-white rounded-xl shadow-sm hover:shadow-md transition-all duration-200 cursor-pointer group" onClick={() => setGoalForm({...goalForm, goal_type: 'academic'})}>
+                              <div className="text-2xl mb-2 group-hover:scale-110 transition-transform duration-200">📚</div>
+                              <div className="text-sm font-medium text-gray-900">Academic</div>
+                              <div className="text-xs text-gray-500 mt-1">Reading, Math, Writing</div>
+                            </div>
+                            <div className="text-center p-4 bg-white rounded-xl shadow-sm hover:shadow-md transition-all duration-200 cursor-pointer group" onClick={() => setGoalForm({...goalForm, goal_type: 'behavioral'})}>
+                              <div className="text-2xl mb-2 group-hover:scale-110 transition-transform duration-200">🎯</div>
+                              <div className="text-sm font-medium text-gray-900">Behavioral</div>
+                              <div className="text-xs text-gray-500 mt-1">Self-regulation, Focus</div>
+                            </div>
+                            <div className="text-center p-4 bg-white rounded-xl shadow-sm hover:shadow-md transition-all duration-200 cursor-pointer group" onClick={() => setGoalForm({...goalForm, goal_type: 'social'})}>
+                              <div className="text-2xl mb-2 group-hover:scale-110 transition-transform duration-200">👥</div>
+                              <div className="text-sm font-medium text-gray-900">Social</div>
+                              <div className="text-xs text-gray-500 mt-1">Peer interaction, Teamwork</div>
+                            </div>
+                            <div className="text-center p-4 bg-white rounded-xl shadow-sm hover:shadow-md transition-all duration-200 cursor-pointer group" onClick={() => setGoalForm({...goalForm, goal_type: 'communication'})}>
+                              <div className="text-2xl mb-2 group-hover:scale-110 transition-transform duration-200">💬</div>
+                              <div className="text-sm font-medium text-gray-900">Communication</div>
+                              <div className="text-xs text-gray-500 mt-1">Speech, Language</div>
+                            </div>
+                            <div className="text-center p-4 bg-white rounded-xl shadow-sm hover:shadow-md transition-all duration-200 cursor-pointer group" onClick={() => setGoalForm({...goalForm, goal_type: 'life_skills'})}>
+                              <div className="text-2xl mb-2 group-hover:scale-110 transition-transform duration-200">🌟</div>
+                              <div className="text-sm font-medium text-gray-900">Life Skills</div>
+                              <div className="text-xs text-gray-500 mt-1">Independence, Daily tasks</div>
+                            </div>
+                          </div>
+                        </CardContent>
+                      </Card>
+                    </div>
                   ) : (
                     goals.map((goal) => (
                       <Card key={goal.id} className="group hover:shadow-xl transition-all duration-300 border-0 shadow-lg bg-white overflow-hidden">

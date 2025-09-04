@@ -35,6 +35,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { useAuth } from "@/hooks/useAuth";
 import { setRole } from "@/lib/session";
+import { normalizeSubscriptionPlan, getPlanDashboardRoute } from "@/lib/planAccess";
 
 interface SidebarItem {
   title: string;
@@ -48,11 +49,11 @@ interface SidebarSection {
   items: SidebarItem[];
 }
 
-const parentNavigation: SidebarSection[] = [
+const getParentNavigation = (dashboardUrl: string): SidebarSection[] => [
   {
     title: "Parent Portal",
     items: [
-      { title: "Dashboard", url: "/parent/dashboard", icon: LayoutDashboard },
+      { title: "Dashboard", url: dashboardUrl, icon: LayoutDashboard },
       { title: "My Students", url: "/parent/students", icon: GraduationCap },
       { title: "Tools Hub", url: "/parent/tools/emergent", icon: FileSearch },
       { title: "Document Vault", url: "/tools/document-vault", icon: FileText },
@@ -107,9 +108,14 @@ export function AppSidebar() {
   const collapsed = state === "collapsed";
 
   // Determine which navigation to show based on current route (priority) or user role
-  const { profile } = useAuth();
+  const { profile, user } = useAuth();
   const isAdvocate = currentPath.startsWith('/advocate');
-  const navigation = isAdvocate ? advocateNavigation : parentNavigation;
+  
+  // Generate plan-specific dashboard URL for parents
+  const userPlan = normalizeSubscriptionPlan(user?.subscriptionPlan);
+  const dashboardUrl = isAdvocate ? '/advocate/dashboard' : `/parent/dashboard-${userPlan}`;
+  
+  const navigation = isAdvocate ? advocateNavigation : getParentNavigation(dashboardUrl);
   const accountItems = getAccountItems(isAdvocate);
   
   const isActive = (path: string) => currentPath === path;
@@ -137,7 +143,13 @@ export function AppSidebar() {
                     onClick={() => {
                       const newRole = isAdvocate ? 'parent' : 'advocate';
                       setRole(newRole);
-                      window.location.href = newRole === 'advocate' ? '/advocate/dashboard' : '/parent/dashboard';
+                      if (newRole === 'advocate') {
+                        window.location.href = '/advocate/dashboard';
+                      } else {
+                        // Use the user's current plan for dashboard redirect
+                        const plan = normalizeSubscriptionPlan(user?.subscriptionPlan);
+                        window.location.href = `/parent/dashboard-${plan}`;
+                      }
                     }}
                   >
                     Switch

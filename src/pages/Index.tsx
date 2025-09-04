@@ -63,7 +63,7 @@ const Index = () => {
         
         // Redirect based on user role and subscription
         if (userData.role === 'parent') {
-          window.location.href = `/parent/dashboard-${userData.subscription_tier}`;
+          window.location.href = `/parent/dashboard-${userData.subscriptionPlan}`;
         } else {
           window.location.href = "/advocate/dashboard";
         }

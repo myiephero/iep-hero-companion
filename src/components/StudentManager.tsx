@@ -136,6 +136,11 @@ export function StudentManager({ onStudentSelect, selectedStudentId }: StudentMa
         title: "Success",
         description: "Student created successfully"
       });
+
+      // Refresh the page to ensure all student lists update
+      setTimeout(() => {
+        window.location.reload();
+      }, 1500);
     } catch (error) {
       console.error('Error creating student:', error);
       toast({

@@ -140,6 +140,11 @@ const ParentStudents = () => {
           title: "Success",
           description: "Student added successfully",
         });
+
+        // Refresh the page to ensure all student lists update across the application
+        setTimeout(() => {
+          window.location.reload();
+        }, 1500);
       }
     } catch (error) {
       console.error('Error adding student:', error);

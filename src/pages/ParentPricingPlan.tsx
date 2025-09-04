@@ -104,9 +104,17 @@ const ParentPricingPlan = () => {
           <h1 className="text-4xl lg:text-5xl font-bold text-white">
             Empower Your Child's <span className="text-blue-400">IEP Journey</span>
           </h1>
-          <p className="text-lg text-gray-300 max-w-2xl mx-auto">
+          <p className="text-lg text-gray-300 max-w-2xl mx-auto mb-6">
             Choose the perfect plan to advocate effectively for your child's educational needs
           </p>
+          <div className="bg-blue-900/30 border border-blue-500/30 rounded-lg p-6 max-w-4xl mx-auto">
+            <p className="text-white font-medium text-lg">
+              "We provide the <span className="text-blue-400">platform, tools, and coordination</span>. Your matched advocate provides the <span className="text-blue-400">professional services</span>. Together, we make sure you're never alone in this journey."
+            </p>
+            <p className="text-blue-300 text-sm mt-2">
+              — The Operating System for IEP Advocacy
+            </p>
+          </div>
         </div>
 
         {/* 4 Equal-sized Cards */}
@@ -166,7 +174,7 @@ const ParentPricingPlan = () => {
           ))}
         </div>
 
-        {/* Hero Family Pack - Large as 4 cards combined */}
+        {/* Hero Family Pack - Hybrid Model */}
         <div className="max-w-6xl mx-auto">
           <Card className="bg-gradient-to-r from-orange-600 to-pink-600 border-orange-500 relative overflow-hidden min-h-[400px]">
             <div className="absolute inset-0 bg-gradient-to-r from-orange-600/90 to-pink-600/90" />
@@ -179,59 +187,78 @@ const ParentPricingPlan = () => {
                     </div>
                     <div>
                       <h3 className="text-2xl font-bold text-white">Hero Family Pack</h3>
-                      <p className="text-orange-100">Complete advocacy package with expert support</p>
+                      <p className="text-orange-100">Platform onboarding + ongoing premium subscription</p>
                     </div>
                   </div>
                   
-                  <div className="grid md:grid-cols-2 gap-6 mb-8">
-                    <div className="space-y-3">
+                  <div className="mb-6">
+                    <h4 className="text-lg font-semibold text-white mb-3">$495 One-Time Setup Includes:</h4>
+                    <div className="grid md:grid-cols-1 gap-2 mb-4">
                       <div className="flex items-center gap-2 text-white">
                         <Check className="h-4 w-4 text-orange-200" />
-                        <span className="text-sm">Everything in Premium</span>
+                        <span className="text-sm">AI-powered IEP review & analysis</span>
                       </div>
                       <div className="flex items-center gap-2 text-white">
                         <Check className="h-4 w-4 text-orange-200" />
-                        <span className="text-sm">Dedicated advocate assignment</span>
+                        <span className="text-sm">30-minute strategy consultation</span>
                       </div>
                       <div className="flex items-center gap-2 text-white">
                         <Check className="h-4 w-4 text-orange-200" />
-                        <span className="text-sm">Monthly strategy sessions</span>
+                        <span className="text-sm">Certified advocate matching</span>
                       </div>
                       <div className="flex items-center gap-2 text-white">
                         <Check className="h-4 w-4 text-orange-200" />
-                        <span className="text-sm">Priority document review</span>
+                        <span className="text-sm">Complete platform setup & training</span>
                       </div>
                     </div>
                     
-                    <div className="space-y-3">
+                    <h4 className="text-lg font-semibold text-white mb-3">$199/Month Ongoing Includes:</h4>
+                    <div className="grid md:grid-cols-1 gap-2 mb-6">
                       <div className="flex items-center gap-2 text-white">
                         <Check className="h-4 w-4 text-orange-200" />
-                        <span className="text-sm">Unlimited storage</span>
+                        <span className="text-sm">All Premium platform features</span>
                       </div>
                       <div className="flex items-center gap-2 text-white">
                         <Check className="h-4 w-4 text-orange-200" />
-                        <span className="text-sm">24/7 emergency support</span>
+                        <span className="text-sm">Ongoing advocate communication hub</span>
                       </div>
                       <div className="flex items-center gap-2 text-white">
                         <Check className="h-4 w-4 text-orange-200" />
-                        <span className="text-sm">IEP meeting attendance</span>
+                        <span className="text-sm">Advanced AI insights & analytics</span>
                       </div>
                       <div className="flex items-center gap-2 text-white">
                         <Check className="h-4 w-4 text-orange-200" />
-                        <span className="text-sm">Legal consultation access</span>
+                        <span className="text-sm">Unlimited document storage & organization</span>
                       </div>
+                      <div className="flex items-center gap-2 text-white">
+                        <Check className="h-4 w-4 text-orange-200" />
+                        <span className="text-sm">Priority platform support</span>
+                      </div>
+                    </div>
+                    
+                    <div className="bg-white/10 rounded-lg p-4 mb-6">
+                      <p className="text-sm text-orange-100">
+                        <strong>Note:</strong> Your matched advocate sets their own rates for professional services (IEP meeting attendance, hourly consultations, etc.). We facilitate the connection and provide organized data.
+                      </p>
                     </div>
                   </div>
                 </div>
                 
                 <div className="text-center lg:text-right">
                   <div className="mb-6">
-                    <div className="text-sm text-orange-100 mb-2">Starting at</div>
-                    <div className="flex items-baseline justify-center lg:justify-end gap-2">
-                      <span className="text-4xl font-bold text-white">$199</span>
-                      <span className="text-orange-100">/month</span>
+                    <div className="text-sm text-orange-100 mb-2">Hybrid Investment</div>
+                    <div className="space-y-2">
+                      <div className="flex items-baseline justify-center lg:justify-end gap-2">
+                        <span className="text-3xl font-bold text-white">$495</span>
+                        <span className="text-orange-100">one-time</span>
+                      </div>
+                      <div className="text-orange-200">+</div>
+                      <div className="flex items-baseline justify-center lg:justify-end gap-2">
+                        <span className="text-3xl font-bold text-white">$199</span>
+                        <span className="text-orange-100">/month</span>
+                      </div>
                     </div>
-                    <div className="text-sm text-orange-200 mt-2">Includes up to 3 children</div>
+                    <div className="text-sm text-orange-200 mt-2">Covers your entire family</div>
                   </div>
                   
                   <Button 
@@ -240,7 +267,7 @@ const ParentPricingPlan = () => {
                     onClick={() => handlePlanSelection('hero')}
                     data-testid="button-select-hero"
                   >
-                    Choose Hero Plan
+                    Start Hero Plan
                   </Button>
                 </div>
               </div>

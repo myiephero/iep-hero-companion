@@ -1,5 +1,4 @@
 import { useState } from "react";
-import { DashboardLayout } from "@/layouts/DashboardLayout";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -116,7 +115,6 @@ const ParentPricingPlan = () => {
 
 
   return (
-    <DashboardLayout>
       <div className="min-h-screen">
         {/* Hero Section */}
         <div className="relative overflow-hidden">
@@ -204,7 +202,6 @@ const ParentPricingPlan = () => {
         </div>
 
       </div>
-    </DashboardLayout>
   );
 };
 

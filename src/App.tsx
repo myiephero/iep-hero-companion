@@ -67,7 +67,6 @@ import OTRecommender from "./pages/OTRecommender";
 import ParentEmotionTracker from "./pages/ParentEmotionTracker";
 import NotFound from "./pages/NotFound";
 import CardShowcase from "./pages/CardShowcase";
-import PricingSelection from "./pages/PricingSelection";
 
 import { queryClient } from "./lib/queryClient";
 
@@ -82,7 +81,6 @@ function App() {
             <BrowserRouter>
             <Routes>
               <Route path="/" element={<Index />} />
-              <Route path="/pricing" element={<PricingSelection />} />
               <Route path="/auth" element={<Auth />} />
               <Route path="/onboarding" element={<Onboarding />} />
               

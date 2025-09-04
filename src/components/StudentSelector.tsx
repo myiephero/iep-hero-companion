@@ -44,18 +44,9 @@ export function StudentSelector({
     if (!user) return;
     
     try {
-      // Use authenticated request with Bearer token
-      const token = localStorage.getItem('authToken');
-      const response = await fetch('/api/students', {
-        credentials: 'include',
-        headers: {
-          'Content-Type': 'application/json',
-          ...(token && { Authorization: `Bearer ${token}` })
-        }
-      });
-      if (!response.ok) {
-        throw new Error('Failed to fetch students');
-      }
+      // Use apiRequest from queryClient for proper authentication
+      const { apiRequest } = await import('@/lib/queryClient');
+      const response = await apiRequest('GET', '/api/students');
       const data = await response.json();
       setStudents(data || []);
     } catch (error) {

@@ -124,11 +124,14 @@ const ParentStudents = () => {
         parent_id: user?.id
       };
       
+      const token = localStorage.getItem('authToken');
       const response = await fetch('/api/students', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
+          ...(token && { Authorization: `Bearer ${token}` })
         },
+        credentials: 'include',
         body: JSON.stringify(studentData),
       });
       
@@ -168,11 +171,14 @@ const ParentStudents = () => {
         full_name: `${newStudent.first_name} ${newStudent.last_name}`,
       };
       
+      const token = localStorage.getItem('authToken');
       const response = await fetch(`/api/students/${editingStudent.id}`, {
         method: 'PATCH',
         headers: {
           'Content-Type': 'application/json',
+          ...(token && { Authorization: `Bearer ${token}` })
         },
+        credentials: 'include',
         body: JSON.stringify(studentData),
       });
       
@@ -301,7 +307,13 @@ const ParentStudents = () => {
 
       // Fetch goals using API
       try {
-        const goalsResponse = await fetch('/api/goals');
+        const token = localStorage.getItem('authToken');
+        const goalsResponse = await fetch('/api/goals', {
+          headers: {
+            ...(token && { Authorization: `Bearer ${token}` })
+          },
+          credentials: 'include'
+        });
         if (goalsResponse.ok) {
           const goalsData = await goalsResponse.json();
           setGoals(goalsData || []);

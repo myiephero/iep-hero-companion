@@ -33,24 +33,28 @@ function generateVerificationToken(): string {
 
 // Middleware to extract user ID from authenticated session
 function getUserId(req: express.Request): string {
-  // In production with Replit Auth, get user ID from session
+  // First check for token-based auth (custom login system)
+  const token = req.headers.authorization?.replace('Bearer ', '');
+  if (token && global.activeTokens && global.activeTokens[token]) {
+    const tokenData = global.activeTokens[token];
+    // Check if token is not expired (24 hours)
+    if (Date.now() - tokenData.createdAt < 24 * 60 * 60 * 1000) {
+      return tokenData.userId;
+    }
+  }
+  
+  // Check for Replit Auth session
   const user = (req as any).user;
   if (user && user.claims && user.claims.sub) {
     return user.claims.sub;
   }
   
-  // Fallback for mock authentication during development
-  const authHeader = req.headers.authorization;
-  if (authHeader && authHeader.startsWith('Bearer mock-token-')) {
-    const userId = authHeader.replace('Bearer mock-token-', '');
-    if (userId.startsWith('test-')) {
-      return userId;
-    }
-    const role = userId;
-    return `mock-${role}-user-${role === 'advocate' ? '456' : '123'}`;
-  }
+  // Log when we can't find user ID to debug authentication issues
+  console.warn('getUserId: Could not extract user ID from request. Session authenticated:', !!(req as any).isAuthenticated?.());
+  console.warn('getUserId: Headers:', req.headers.authorization ? 'Bearer token present' : 'No auth header');
+  console.warn('getUserId: User object:', user ? 'User object exists' : 'No user object');
   
-  // Default fallback
+  // Default fallback - but this should rarely be used in production
   return 'anonymous-user';
 }
 
@@ -986,9 +990,9 @@ app.get('/api/profiles/:userId', async (req, res) => {
 });
 
 // Students routes
-app.get('/api/students', async (req, res) => {
+app.get('/api/students', isAuthenticated, async (req: any, res) => {
   try {
-    const userId = getUserId(req);
+    const userId = req.user.claims.sub;
     const students = await db.select().from(schema.students).where(eq(schema.students.user_id, userId));
     
     // Add cache-busting headers to force fresh data
@@ -1005,9 +1009,9 @@ app.get('/api/students', async (req, res) => {
   }
 });
 
-app.post('/api/students', async (req, res) => {
+app.post('/api/students', isAuthenticated, async (req: any, res) => {
   try {
-    const userId = getUserId(req);
+    const userId = req.user.claims.sub;
     const studentData = { ...req.body, user_id: userId };
     const [student] = await db.insert(schema.students).values(studentData).returning();
     res.json(student);

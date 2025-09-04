@@ -63,9 +63,10 @@ const Index = () => {
         
         // Redirect based on user role and subscription
         if (userData.role === 'parent') {
-          window.location.href = `/parent/dashboard-${userData.subscriptionPlan}`;
+          // Force a page refresh to ensure auth state is properly loaded
+          window.location.replace(`/parent/dashboard-${userData.subscriptionPlan}`);
         } else {
-          window.location.href = "/advocate/dashboard";
+          window.location.replace("/advocate/dashboard");
         }
       } else {
         const errorData = await response.json();

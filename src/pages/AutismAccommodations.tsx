@@ -1,4 +1,5 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useQuery } from "@tanstack/react-query";
 import { TopNavigation } from "@/components/TopNavigation";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -17,16 +18,27 @@ import {
   Download,
   Sparkles,
   Plus,
-  Check
+  Check,
+  Save
 } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
+import { apiRequest } from "@/lib/queryClient";
 
 const AutismAccommodations = () => {
   const [selectedStudent, setSelectedStudent] = useState<string>("");
   const [activeCategory, setActiveCategory] = useState<string>("all");
   const [addedAccommodations, setAddedAccommodations] = useState<string[]>([]);
   const { toast } = useToast();
+
+  // Fetch students from API
+  const { data: students } = useQuery({
+    queryKey: ['/api/students'],
+    queryFn: async () => {
+      const response = await apiRequest('GET', '/api/students');
+      return response.json();
+    },
+  });
 
   const accommodationCategories = [
     {
@@ -169,6 +181,71 @@ const AutismAccommodations = () => {
     });
   };
 
+  const saveToVault = async () => {
+    if (addedAccommodations.length === 0) {
+      toast({
+        title: "No accommodations selected",
+        description: "Please add some accommodations first",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    try {
+      const selectedAccommodationsList = addedAccommodations.map((id) => {
+        const accommodation = accommodationCategories
+          .flatMap(cat => cat.items)
+          .find(item => item.id === id);
+        return accommodation ? {
+          id: accommodation.id,
+          title: accommodation.title,
+          description: accommodation.description,
+          category: accommodationCategories.find(cat => cat.items.some(item => item.id === id))?.title || 'Unknown'
+        } : null;
+      }).filter(Boolean);
+
+      const studentName = selectedStudent && students?.find((s: any) => s.id === selectedStudent)?.full_name || "General";
+      const documentTitle = `Autism Accommodations - ${studentName}`;
+      const documentContent = {
+        studentId: selectedStudent || null,
+        studentName: studentName,
+        accommodations: selectedAccommodationsList,
+        createdDate: new Date().toISOString(),
+        categories: accommodationCategories.map(cat => ({
+          id: cat.id,
+          title: cat.title,
+          description: cat.description
+        }))
+      };
+
+      const response = await apiRequest('POST', '/api/documents', {
+        title: documentTitle,
+        description: `Autism accommodation plan created on ${new Date().toLocaleDateString()}`,
+        file_name: `${documentTitle}.json`,
+        file_path: `vault/accommodations/${Date.now()}-autism-accommodations`,
+        file_type: 'application/json',
+        file_size: new Blob([JSON.stringify(documentContent, null, 2)]).size,
+        category: 'Accommodation Plan',
+        tags: ['autism', 'accommodations', 'plan'],
+        content: JSON.stringify(documentContent, null, 2),
+        student_id: selectedStudent || null
+      });
+
+      toast({
+        title: "Saved to Vault",
+        description: "Accommodation plan has been saved to your document vault",
+      });
+
+    } catch (error) {
+      console.error('Error saving to vault:', error);
+      toast({
+        title: "Error",
+        description: "Failed to save to vault. Please try again.",
+        variant: "destructive",
+      });
+    }
+  };
+
   return (
     <div className="min-h-screen bg-background">
       <TopNavigation />
@@ -204,9 +281,11 @@ const AutismAccommodations = () => {
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="">General Accommodations</SelectItem>
-                    <SelectItem value="student1">Hudson Levine - Grade 8</SelectItem>
-                    <SelectItem value="student2">Hazel Levine - Grade 2</SelectItem>
-                    <SelectItem value="student3">Holly Pocket - PreK</SelectItem>
+                    {students?.map((student: any) => (
+                      <SelectItem key={student.id} value={student.id}>
+                        {student.full_name} - {student.grade_level ? `Grade ${student.grade_level}` : 'No Grade'}
+                      </SelectItem>
+                    ))}
                   </SelectContent>
                 </Select>
               </div>
@@ -351,7 +430,17 @@ const AutismAccommodations = () => {
 
           {/* Action Buttons */}
           <div className="space-y-4">
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+              <Button 
+                variant="default" 
+                size="lg" 
+                className="w-full"
+                disabled={addedAccommodations.length === 0}
+                onClick={saveToVault}
+              >
+                <Save className="h-4 w-4 mr-2" />
+                Save to Vault
+              </Button>
               <Button 
                 variant="hero" 
                 size="lg" 

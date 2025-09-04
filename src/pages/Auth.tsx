@@ -51,8 +51,9 @@ export default function Auth() {
           description: "You've been signed in successfully.",
         });
         
+        // Force refresh the page to trigger auth state update
         setTimeout(() => {
-          window.location.href = data.redirectTo || '/parent/dashboard';
+          window.location.reload();
         }, 1500);
       } else {
         toast({

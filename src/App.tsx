@@ -107,6 +107,11 @@ function App() {
                   <ParentDashboard plan="plus" />
                 </ProtectedRoute>
               } />
+              <Route path="/parent/dashboard-explorer" element={
+                <ProtectedRoute allowedRoles={['parent']}>
+                  <ParentDashboard plan="explorer" />
+                </ProtectedRoute>
+              } />
               <Route path="/parent/dashboard-premium" element={
                 <ProtectedRoute allowedRoles={['parent']}>
                   <ParentDashboard plan="premium" />

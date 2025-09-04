@@ -461,15 +461,28 @@ export function DocumentUpload({ onAnalysisComplete, selectedAnalysisType = 'iep
   useEffect(() => {
     const fetchStudents = async () => {
       try {
-        const response = await fetch('/api/students');
-        const data = await response.json();
-        setStudents(data || []);
+        // Use authenticated request with Bearer token
+        const token = localStorage.getItem('authToken');
+        const response = await fetch('/api/students', {
+          credentials: 'include',
+          headers: {
+            'Content-Type': 'application/json',
+            ...(token && { Authorization: `Bearer ${token}` })
+          }
+        });
+        if (response.ok) {
+          const data = await response.json();
+          setStudents(data || []);
+        }
       } catch (error) {
         // Error fetching students - continuing with empty list
+        console.error('Error fetching students:', error);
       }
     };
-    fetchStudents();
-  }, []);
+    if (user) {
+      fetchStudents();
+    }
+  }, [user]);
 
   const onDrop = useCallback(async (acceptedFiles: File[]) => {
     if (!user) {
@@ -1125,7 +1138,7 @@ export function DocumentUpload({ onAnalysisComplete, selectedAnalysisType = 'iep
                   <SelectValue placeholder="Choose a student..." />
                 </SelectTrigger>
                 <SelectContent>
-                  {students.map((student) => (
+                  {(students || []).map((student) => (
                     <SelectItem key={student.id} value={student.id}>
                       <div>
                         <div className="font-medium">{student.full_name}</div>

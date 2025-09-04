@@ -49,17 +49,24 @@ interface SidebarSection {
   items: SidebarItem[];
 }
 
-const getParentNavigation = (dashboardUrl: string): SidebarSection[] => [
-  {
-    title: "Parent Portal",
-    items: [
-      { title: "Dashboard", url: dashboardUrl, icon: LayoutDashboard },
-      { title: "My Students", url: "/parent/students", icon: GraduationCap },
-      { title: "Tools Hub", url: "/parent/tools/emergent", icon: FileSearch },
-      { title: "Document Vault", url: "/tools/document-vault", icon: FileText },
-      { title: "HERO Plan", url: "/upsell/hero-plan", icon: Crown, badge: "Premium" },
-    ]
-  },
+const getParentNavigation = (dashboardUrl: string, userPlan: string): SidebarSection[] => {
+  const baseItems: SidebarItem[] = [
+    { title: "Dashboard", url: dashboardUrl, icon: LayoutDashboard },
+    { title: "My Students", url: "/parent/students", icon: GraduationCap },
+    { title: "Tools Hub", url: "/parent/tools/emergent", icon: FileSearch },
+    { title: "Document Vault", url: "/tools/document-vault", icon: FileText },
+  ];
+
+  // Only show HERO Plan upgrade if user is not already on Hero plan
+  if (userPlan !== 'hero') {
+    baseItems.push({ title: "HERO Plan", url: "/upsell/hero-plan", icon: Crown, badge: "Premium" });
+  }
+
+  return [
+    {
+      title: "Parent Portal",
+      items: baseItems
+    },
   {
     title: "Quick Tools",
     items: [
@@ -70,7 +77,8 @@ const getParentNavigation = (dashboardUrl: string): SidebarSection[] => [
       { title: "Meeting Prep", url: "/parent/tools/meeting-prep", icon: Calendar },
     ]
   }
-];
+  ];
+};
 
 const advocateNavigation: SidebarSection[] = [
   {
@@ -115,7 +123,7 @@ export function AppSidebar() {
   const userPlan = normalizeSubscriptionPlan(user?.subscriptionPlan);
   const dashboardUrl = isAdvocate ? '/advocate/dashboard' : `/parent/dashboard-${userPlan}`;
   
-  const navigation = isAdvocate ? advocateNavigation : getParentNavigation(dashboardUrl);
+  const navigation = isAdvocate ? advocateNavigation : getParentNavigation(dashboardUrl, userPlan);
   const accountItems = getAccountItems(isAdvocate);
   
   const isActive = (path: string) => currentPath === path;

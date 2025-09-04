@@ -9,7 +9,7 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSepara
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
-import { api } from "@/lib/api";
+import { apiRequest } from "@/lib/queryClient";
 import { useAuth } from "@/hooks/useAuth";
 import { 
   Upload, 
@@ -592,7 +592,7 @@ export function DocumentUpload({ onAnalysisComplete, selectedAnalysisType = 'iep
   // Save to vault functionality
   const saveToVault = async (fileData: UploadedFile) => {
     try {
-      await api.createDocument({
+      const response = await apiRequest('POST', '/api/documents', {
         title: fileData.editableName || fileData.file.name,
         description: `Document uploaded on ${new Date().toLocaleDateString()}`,
         file_name: fileData.editableName || fileData.file.name,
@@ -605,7 +605,7 @@ export function DocumentUpload({ onAnalysisComplete, selectedAnalysisType = 'iep
       
       // Invalidate documents cache to refresh the vault
       await import('@/lib/queryClient').then(({ queryClient }) => {
-        queryClient.invalidateQueries({ queryKey: ['documents'] });
+        queryClient.invalidateQueries({ queryKey: ['/api/documents'] });
       });
       
       toast({
@@ -631,7 +631,7 @@ export function DocumentUpload({ onAnalysisComplete, selectedAnalysisType = 'iep
       // Store the structured parsed analysis data
       const structuredContent = JSON.stringify((fileData.analysis as any).parsedAnalysis || JSON.parse(fileData.analysis.content));
       
-      await api.createDocument({
+      const response = await apiRequest('POST', '/api/documents', {
         title: analysisTitle,
         description: analysisDescription,
         file_name: `${analysisTitle}.json`,
@@ -644,7 +644,7 @@ export function DocumentUpload({ onAnalysisComplete, selectedAnalysisType = 'iep
       
       // Invalidate documents cache to refresh the vault
       await import('@/lib/queryClient').then(({ queryClient }) => {
-        queryClient.invalidateQueries({ queryKey: ['documents'] });
+        queryClient.invalidateQueries({ queryKey: ['/api/documents'] });
       });
       
       toast({

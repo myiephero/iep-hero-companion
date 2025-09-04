@@ -11,7 +11,7 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSepara
 import { Label } from '@/components/ui/label';
 import { Shield, Folder, Search, Filter, Download, Upload, Eye, Edit, Trash2, Check, X, MoreVertical, Share, User, Calendar, Clock, FileText, Brain, Square, CheckSquare } from 'lucide-react';
 import { format } from 'date-fns';
-import { api } from '@/lib/api';
+import { apiRequest } from '@/lib/queryClient';
 import { useToast } from '@/hooks/use-toast';
 import { Document, Student } from '@shared/schema';
 import DocumentUpload from '@/components/DocumentUpload';
@@ -37,20 +37,29 @@ const DocumentVault: React.FC = () => {
   const [selectedDocuments, setSelectedDocuments] = useState<Set<string>>(new Set());
   const [isSelectMode, setIsSelectMode] = useState(false);
 
-  // Queries
+  // Queries  
   const { data: documents, isLoading, refetch } = useQuery({
     queryKey: ['/api/documents'],
-    queryFn: () => api.getDocuments(),
+    queryFn: async () => {
+      const response = await apiRequest('GET', '/api/documents');
+      return response.json();
+    },
   });
 
   const { data: students } = useQuery({
     queryKey: ['/api/students'],
-    queryFn: () => api.getStudents(),
+    queryFn: async () => {
+      const response = await apiRequest('GET', '/api/students');
+      return response.json();
+    },
   });
 
   // Mutations
   const updateDocumentMutation = useMutation({
-    mutationFn: (data: { id: string; title?: string; student_id?: string }) => api.updateDocument(data.id, data),
+    mutationFn: async (data: { id: string; title?: string; student_id?: string }) => {
+      const response = await apiRequest('PATCH', `/api/documents/${data.id}`, data);
+      return response.json();
+    },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['/api/documents'] });
       toast({ title: "Document updated successfully" });
@@ -61,7 +70,10 @@ const DocumentVault: React.FC = () => {
   });
 
   const deleteDocumentMutation = useMutation({
-    mutationFn: (id: string) => api.deleteDocument(id),
+    mutationFn: async (id: string) => {
+      const response = await apiRequest('DELETE', `/api/documents/${id}`);
+      return response.json();
+    },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['/api/documents'] });
       toast({ title: "Document deleted successfully" });

@@ -32,8 +32,8 @@ const Auth = () => {
           description: "Redirecting to your dashboard...",
         });
         
-        // Immediately redirect - session is created, just go to the protected route
-        window.location.href = '/parent/dashboard-hero';
+        // Force a full page reload to ensure session cookies are properly set
+        window.location.replace('/parent/dashboard-hero');
       } else {
         const data = await response.json();
         toast({

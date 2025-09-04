@@ -27,7 +27,7 @@ export function TopNavigation() {
         title: "Signed out successfully",
         description: "You have been logged out of your account.",
       });
-      navigate("/auth");
+      navigate("/");
     } catch (error) {
       toast({
         title: "Error signing out",

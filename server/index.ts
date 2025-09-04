@@ -307,15 +307,16 @@ app.put('/api/auth/update-profile', async (req: any, res) => {
       return res.status(401).json({ error: 'Not authenticated' });
     }
     
-    const { firstName, lastName, email, phoneNumber } = req.body;
+    const { firstName, lastName, email, phoneNumber, subscriptionPlan } = req.body;
     
     // Update user table
-    if (firstName || lastName || email) {
+    if (firstName || lastName || email || subscriptionPlan) {
       await db.update(schema.users)
         .set({ 
           firstName: firstName || undefined,
           lastName: lastName || undefined,
           email: email || undefined,
+          subscriptionPlan: subscriptionPlan || undefined,
           updatedAt: new Date()
         })
         .where(eq(schema.users.id, userId));

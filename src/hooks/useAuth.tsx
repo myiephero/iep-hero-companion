@@ -46,10 +46,11 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
   useEffect(() => {
     const checkAuth = async () => {
       try {
-        // Skip auth check for public pages like pricing
+        // Skip auth check only for pricing pages (not home page)
         const currentPath = window.location.pathname;
-        const publicPaths = ['/parent/pricing', '/advocate/pricing', '/'];
+        const publicPaths = ['/parent/pricing', '/advocate/pricing'];
         
+        // Only skip auth for truly public pages, NOT for the home page or dashboard routes
         if (publicPaths.some(path => currentPath.includes(path))) {
           setUser(null);
           setProfile(null);
@@ -61,10 +62,20 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
         
         // Get token and make authenticated request
         const token = localStorage.getItem('authToken');
+        console.log('🔍 Found token:', token ? 'YES' : 'NO');
+        
+        if (!token) {
+          console.log('❌ No token found, setting user to null');
+          setUser(null);
+          setProfile(null);
+          setLoading(false);
+          return;
+        }
+        
         const response = await fetch('/api/auth/user', {
           credentials: 'include',
           headers: {
-            ...(token && { Authorization: `Bearer ${token}` }),
+            Authorization: `Bearer ${token}`,
           }
         });
         console.log('🔍 Auth response status:', response.status);

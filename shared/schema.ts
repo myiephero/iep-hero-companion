@@ -36,7 +36,7 @@ export type User = typeof users.$inferSelect;
 // Profiles table - extended user information
 export const profiles = pgTable("profiles", {
   id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
-  user_id: varchar("user_id").notNull(),
+  user_id: varchar("user_id").notNull().unique(),
   full_name: varchar("full_name"),
   email: varchar("email"),
   phone: varchar("phone"),

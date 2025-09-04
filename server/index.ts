@@ -214,13 +214,28 @@ app.get('/api/auth/user', async (req: any, res) => {
         const isValidTimestamp = Date.now() - timestamp < 24 * 60 * 60 * 1000;
         
         if (isValidTimestamp) {
-          const [user] = await db.select()
+          const [userResult] = await db.select({
+            id: schema.users.id,
+            email: schema.users.email,
+            firstName: schema.users.firstName,
+            lastName: schema.users.lastName,
+            profileImageUrl: schema.users.profileImageUrl,
+            role: schema.users.role,
+            subscriptionPlan: schema.users.subscriptionPlan,
+            subscriptionStatus: schema.users.subscriptionStatus,
+            stripeCustomerId: schema.users.stripeCustomerId,
+            stripeSubscriptionId: schema.users.stripeSubscriptionId,
+            createdAt: schema.users.createdAt,
+            updatedAt: schema.users.updatedAt,
+            phoneNumber: schema.profiles.phone
+          })
             .from(schema.users)
+            .leftJoin(schema.profiles, eq(schema.users.id, schema.profiles.user_id))
             .where(eq(schema.users.id, userId))
             .limit(1);
           
-          if (user) {
-            return res.json(user);
+          if (userResult) {
+            return res.json(userResult);
           }
         }
       }
@@ -229,9 +244,28 @@ app.get('/api/auth/user', async (req: any, res) => {
     // Then check for Replit Auth (for legacy users)
     if (req.isAuthenticated && req.isAuthenticated()) {
       const userId = req.user.claims.sub;
-      const user = await storage.getUser(userId);
-      if (user) {
-        return res.json(user);
+      const [userResult] = await db.select({
+        id: schema.users.id,
+        email: schema.users.email,
+        firstName: schema.users.firstName,
+        lastName: schema.users.lastName,
+        profileImageUrl: schema.users.profileImageUrl,
+        role: schema.users.role,
+        subscriptionPlan: schema.users.subscriptionPlan,
+        subscriptionStatus: schema.users.subscriptionStatus,
+        stripeCustomerId: schema.users.stripeCustomerId,
+        stripeSubscriptionId: schema.users.stripeSubscriptionId,
+        createdAt: schema.users.createdAt,
+        updatedAt: schema.users.updatedAt,
+        phoneNumber: schema.profiles.phone
+      })
+        .from(schema.users)
+        .leftJoin(schema.profiles, eq(schema.users.id, schema.profiles.user_id))
+        .where(eq(schema.users.id, userId))
+        .limit(1);
+      
+      if (userResult) {
+        return res.json(userResult);
       }
     }
 
@@ -240,6 +274,84 @@ app.get('/api/auth/user', async (req: any, res) => {
   } catch (error) {
     console.error("Error fetching user:", error);
     res.status(500).json({ message: "Failed to fetch user" });
+  }
+});
+
+// Update profile endpoint
+app.put('/api/auth/update-profile', async (req: any, res) => {
+  try {
+    let userId;
+    
+    // First check for token-based auth
+    const token = req.headers.authorization?.replace('Bearer ', '');
+    
+    if (token) {
+      const tokenParts = token.split('-');
+      if (tokenParts.length >= 3) {
+        const extractedUserId = tokenParts[0];
+        const timestamp = parseInt(tokenParts[1]);
+        const isValidTimestamp = Date.now() - timestamp < 24 * 60 * 60 * 1000;
+        
+        if (isValidTimestamp) {
+          userId = extractedUserId;
+        }
+      }
+    }
+    
+    // Fall back to Replit Auth
+    if (!userId && req.isAuthenticated && req.isAuthenticated()) {
+      userId = req.user.claims.sub;
+    }
+    
+    if (!userId) {
+      return res.status(401).json({ error: 'Not authenticated' });
+    }
+    
+    const { firstName, lastName, email, phoneNumber } = req.body;
+    
+    // Update user table
+    if (firstName || lastName || email) {
+      await db.update(schema.users)
+        .set({ 
+          firstName: firstName || undefined,
+          lastName: lastName || undefined,
+          email: email || undefined,
+          updatedAt: new Date()
+        })
+        .where(eq(schema.users.id, userId));
+    }
+    
+    // Update or create profile for phone number
+    if (phoneNumber !== undefined) {
+      // First try to find existing profile
+      const [existingProfile] = await db.select()
+        .from(schema.profiles)
+        .where(eq(schema.profiles.user_id, userId))
+        .limit(1);
+      
+      if (existingProfile) {
+        // Update existing profile
+        await db.update(schema.profiles)
+          .set({
+            phone: phoneNumber || null,
+            updated_at: new Date()
+          })
+          .where(eq(schema.profiles.user_id, userId));
+      } else {
+        // Create new profile
+        await db.insert(schema.profiles)
+          .values({
+            user_id: userId,
+            phone: phoneNumber || null,
+            updated_at: new Date()
+          });
+      }
+    }
+    
+    res.json({ success: true });
+  } catch (error) {
+    console.error('Error updating profile:', error);
+    res.status(500).json({ error: 'Failed to update profile' });
   }
 });
 

@@ -32,8 +32,10 @@ const Auth = () => {
           description: "Redirecting to your dashboard...",
         });
         
-        // Force a full page reload to ensure session cookies are properly set
-        window.location.replace('/parent/dashboard-hero');
+        // Give the session cookie time to be set before redirecting
+        setTimeout(() => {
+          window.location.replace('/parent/dashboard-hero');
+        }, 100);
       } else {
         const data = await response.json();
         toast({

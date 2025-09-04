@@ -168,7 +168,7 @@ const Index = () => {
                             variant="outline" 
                             size="lg"
                             className="font-semibold px-8 py-4"
-                            onClick={() => window.location.href = "/parent/pricing"}
+                            onClick={() => window.location.href = "/pricing"}
                             data-testid="button-pricing"
                           >
                             View Pricing
@@ -337,7 +337,7 @@ const Index = () => {
                 variant="outline" 
                 size="lg"
                 className="bg-white/10 hover:bg-white/20 border-white/30 text-white hover:text-white"
-                onClick={() => window.location.href = "/parent/pricing"}
+                onClick={() => window.location.href = "/pricing"}
                 data-testid="button-cta-secondary"
               >
                 View Pricing

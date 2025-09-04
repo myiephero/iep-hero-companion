@@ -1078,7 +1078,7 @@ app.post('/api/documents', async (req, res) => {
 app.patch('/api/documents/:id', async (req, res) => {
   try {
     const { id } = req.params;
-    const updateData = { ...req.body, updated_at: new Date().toISOString() };
+    const updateData = { ...req.body, updated_at: new Date() };
     const userId = getUserId(req);
     const [document] = await db.update(schema.documents)
       .set(updateData)

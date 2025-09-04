@@ -571,21 +571,14 @@ export default function ParentDashboard({ plan }: ParentDashboardProps) {
                           <p className="text-lg text-gray-700 mb-8 max-w-2xl mx-auto leading-relaxed">
                             Track your child's progress, celebrate achievements, and stay organized with personalized IEP goal management designed for families like yours.
                           </p>
-                          <div className="flex flex-col sm:flex-row gap-4 justify-center">
+                          <div className="flex justify-center">
                             <Button 
                               onClick={() => setShowGoalDialog(true)}
                               className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white shadow-lg hover:shadow-xl transition-all duration-300 rounded-xl px-8 py-4 text-lg font-semibold"
+                              data-testid="button-create-first-goal"
                             >
                               <Plus className="h-5 w-5 mr-2" />
                               Create Your First Goal
-                            </Button>
-                            <Button 
-                              variant="outline"
-                              onClick={() => navigate('/parent/tools')}
-                              className="border-2 border-blue-200 hover:border-blue-300 text-blue-700 hover:bg-blue-50 shadow-md hover:shadow-lg transition-all duration-300 rounded-xl px-8 py-4 text-lg font-semibold"
-                            >
-                              <BookOpen className="h-5 w-5 mr-2" />
-                              Explore Tools
                             </Button>
                           </div>
                         </CardContent>

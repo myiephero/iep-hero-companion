@@ -225,6 +225,9 @@ app.use(session({
 
 // Unified auth endpoint that checks both Replit Auth and custom login
 app.get('/api/auth/user', async (req: any, res) => {
+  console.log('🔍 /api/auth/user called from:', req.headers['user-agent']?.substring(0, 50));
+  console.log('🔍 Session exists:', !!req.session);
+  console.log('🔍 Session userId:', req.session?.userId);
   try {
     // First check for custom login session
     if (req.session && req.session.userId) {

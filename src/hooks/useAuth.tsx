@@ -96,20 +96,40 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
               window.location.href = '/onboarding';
             }
           } else if (userData && userData.role) {
-            // User has a role - check if they should be redirected to dashboard
+            // User has a role - handle plan-specific routing
             const currentPath = window.location.pathname;
+            
+            // Define all supported plans
+            const supportedPlans = ['free', 'basic', 'plus', 'explorer', 'premium', 'hero'];
+            const planSlug = userData.subscriptionPlan?.toLowerCase().replace(/\s+/g, '') || 'free';
+            const normalizedPlan = supportedPlans.includes(planSlug) ? planSlug : 'free';
+            
+            // Generate correct dashboard path based on role and plan
+            const correctDashboardPath = userData.role === 'parent' 
+              ? `/parent/dashboard-${normalizedPlan}` 
+              : userData.role === 'advocate'
+                ? '/advocate/dashboard'
+                : '/'; // Fallback for unknown roles
+            
+            // Redirect scenarios
             if (currentPath === '/auth' || currentPath === '/onboarding') {
-              // Redirect to appropriate dashboard
-              const planSlug = userData.subscriptionPlan?.toLowerCase().replace(/\s+/g, '') || 'free';
-              const dashboardPath = userData.role === 'parent' 
-                ? `/parent/dashboard-${planSlug}` 
-                : '/advocate/dashboard';
-              window.location.href = dashboardPath;
-            } else if (userData.role === 'parent' && currentPath === '/parent/dashboard') {
-              // Redirect generic parent dashboard to plan-specific dashboard
-              const planSlug = userData.subscriptionPlan?.toLowerCase().replace(/\s+/g, '') || 'free';
-              const dashboardPath = `/parent/dashboard-${planSlug}`;
-              window.location.href = dashboardPath;
+              // Post-authentication/onboarding redirect
+              window.location.href = correctDashboardPath;
+            } else if (userData.role === 'parent') {
+              // Handle parent dashboard redirections
+              const isOnGenericDashboard = currentPath === '/parent/dashboard';
+              const isOnWrongPlanDashboard = currentPath.startsWith('/parent/dashboard-') && 
+                                           currentPath !== correctDashboardPath;
+              
+              if (isOnGenericDashboard || isOnWrongPlanDashboard) {
+                window.location.href = correctDashboardPath;
+              }
+            } else if (userData.role === 'advocate') {
+              // Handle advocate dashboard redirections
+              if (currentPath === '/advocate/dashboard-generic' || 
+                  currentPath.startsWith('/parent/dashboard')) {
+                window.location.href = '/advocate/dashboard';
+              }
             }
           }
         } else {

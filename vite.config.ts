@@ -14,6 +14,9 @@ export default defineConfig(({ mode }) => ({
         changeOrigin: true,
         secure: false,
         ws: true,
+        cookieDomainRewrite: {
+          'localhost:3001': 'localhost:8080'
+        },
         configure: (proxy, _options) => {
           proxy.on('error', (err, _req, _res) => {
             console.log('proxy error', err);

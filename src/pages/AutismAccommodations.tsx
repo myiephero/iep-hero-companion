@@ -206,50 +206,74 @@ const AutismAccommodations = () => {
           )}
 
           {/* Action Buttons */}
-          <div className="flex flex-col sm:flex-row gap-4">
-            <Button 
-              variant="hero" 
-              size="lg" 
-              className="flex-1"
-              disabled={selectedCount === 0}
-            >
-              <Download className="h-4 w-4 mr-2" />
-              Generate IEP Language
-            </Button>
-            <Button 
-              variant="outline" 
-              size="lg"
-              disabled={selectedCount === 0}
-            >
-              <Eye className="h-4 w-4 mr-2" />
-              Preview Document
-            </Button>
-            <Button asChild variant="secondary" size="lg">
-              <Link to="/upsell/hero-plan">
-                Get Expert Review
-                <ArrowRight className="h-4 w-4 ml-2" />
-              </Link>
-            </Button>
+          <div className="space-y-4">
+            {/* Primary Actions */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <Button 
+                variant="hero" 
+                size="lg" 
+                className="w-full"
+                disabled={selectedCount === 0}
+              >
+                <Download className="h-4 w-4 mr-2" />
+                Generate IEP Language
+              </Button>
+              <Button 
+                variant="outline" 
+                size="lg"
+                className="w-full"
+                disabled={selectedCount === 0}
+              >
+                <Eye className="h-4 w-4 mr-2" />
+                Preview Document
+              </Button>
+            </div>
+            
+            {/* Secondary Action */}
+            <div className="flex justify-center">
+              <Button asChild variant="secondary" size="lg" className="min-w-48">
+                <Link to="/upsell/hero-plan">
+                  Get Expert Review
+                  <ArrowRight className="h-4 w-4 ml-2" />
+                </Link>
+              </Button>
+            </div>
           </div>
 
           {/* Tips */}
-          <Card className="bg-surface border-0">
+          <Card className="bg-surface border-0 mt-8">
             <CardHeader>
-              <CardTitle className="text-lg">💡 Tips for Success</CardTitle>
+              <CardTitle className="text-lg flex items-center gap-2">
+                <Sparkles className="h-5 w-5 text-primary" />
+                Tips for Success
+              </CardTitle>
             </CardHeader>
-            <CardContent className="space-y-2 text-sm text-muted-foreground">
-              <p>• Start with recommended accommodations - they're based on research and best practices</p>
-              <p>• Consider your child's specific sensory needs and learning style</p>
-              <p>• Accommodations should be individualized to your child's unique profile</p>
-              <p>• Include specific details about implementation (frequency, duration, settings)</p>
+            <CardContent className="space-y-3 text-sm text-muted-foreground">
+              <div className="flex items-start gap-2">
+                <span className="text-primary">•</span>
+                <p>Start with recommended accommodations - they're based on research and best practices</p>
+              </div>
+              <div className="flex items-start gap-2">
+                <span className="text-primary">•</span>
+                <p>Consider your child's specific sensory needs and learning style</p>
+              </div>
+              <div className="flex items-start gap-2">
+                <span className="text-primary">•</span>
+                <p>Accommodations should be individualized to your child's unique profile</p>
+              </div>
+              <div className="flex items-start gap-2">
+                <span className="text-primary">•</span>
+                <p>Include specific details about implementation (frequency, duration, settings)</p>
+              </div>
             </CardContent>
           </Card>
 
           {/* Back Navigation */}
-          <div className="flex justify-center pt-4">
-            <Button asChild variant="ghost">
-              <Link to="/tools/hub">
-                ← Back to Tools Hub
+          <div className="flex justify-center pt-6 pb-4">
+            <Button asChild variant="ghost" size="sm">
+              <Link to="/tools/hub" className="flex items-center gap-2">
+                <ArrowRight className="h-4 w-4 rotate-180" />
+                Back to Tools Hub
               </Link>
             </Button>
           </div>

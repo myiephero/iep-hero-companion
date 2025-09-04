@@ -276,7 +276,7 @@ export default function ParentDashboard({ plan }: ParentDashboardProps) {
               
               <h1 className="text-5xl md:text-7xl font-bold mb-6 leading-tight">
                 <span className="text-gradient text-glow">
-                  {user?.user_metadata?.full_name ? `Welcome back, ${user.user_metadata.full_name.split(' ')[0]}!` : 'Welcome, Hero!'}
+                  {user?.firstName ? `Welcome back, ${user.firstName}!` : 'Welcome, Hero!'}
                 </span>
               </h1>
               
@@ -316,75 +316,77 @@ export default function ParentDashboard({ plan }: ParentDashboardProps) {
           </div>
         </div>
 
-        {/* Upgrade Section for Stripe Testing */}
-        <div className="px-6 py-8">
-          <div className="max-w-7xl mx-auto">
-            <Card className="border-0 shadow-xl bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 text-white overflow-hidden">
-              <CardContent className="p-8">
-                <div className="flex flex-col lg:flex-row items-center justify-between gap-8">
-                  <div className="flex-1 text-center lg:text-left">
-                    <div className="flex items-center justify-center lg:justify-start gap-3 mb-4">
-                      <div className="p-2 bg-white/20 rounded-xl">
-                        <Rocket className="h-6 w-6 text-white" />
+        {/* Upgrade Section for Stripe Testing - Only show for free/basic users */}
+        {userPlan === 'free' && (
+          <div className="px-6 py-8">
+            <div className="max-w-7xl mx-auto">
+              <Card className="border-0 shadow-xl bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 text-white overflow-hidden">
+                <CardContent className="p-8">
+                  <div className="flex flex-col lg:flex-row items-center justify-between gap-8">
+                    <div className="flex-1 text-center lg:text-left">
+                      <div className="flex items-center justify-center lg:justify-start gap-3 mb-4">
+                        <div className="p-2 bg-white/20 rounded-xl">
+                          <Rocket className="h-6 w-6 text-white" />
+                        </div>
+                        <Badge variant="secondary" className="bg-white/20 text-white border-white/30 font-semibold">
+                          Free Plan Active
+                        </Badge>
                       </div>
-                      <Badge variant="secondary" className="bg-white/20 text-white border-white/30 font-semibold">
-                        Free Plan Active
-                      </Badge>
+                      <h2 className="text-3xl font-bold mb-3">🚀 Unlock Premium IEP Tools</h2>
+                      <p className="text-white/90 mb-6 text-lg">
+                        Test our payment system! Get AI-powered analysis, smart letters, and expert advocate matching.
+                      </p>
+                      <div className="flex flex-wrap justify-center lg:justify-start gap-6 text-sm">
+                        <div className="flex items-center gap-2">
+                          <CheckCircle2 className="h-5 w-5 text-green-300" />
+                          <span className="font-medium">AI Document Analysis</span>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <CheckCircle2 className="h-5 w-5 text-green-300" />
+                          <span className="font-medium">Smart Letter Generator</span>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <CheckCircle2 className="h-5 w-5 text-green-300" />
+                          <span className="font-medium">Expert Advocate Network</span>
+                        </div>
+                      </div>
                     </div>
-                    <h2 className="text-3xl font-bold mb-3">🚀 Unlock Premium IEP Tools</h2>
-                    <p className="text-white/90 mb-6 text-lg">
-                      Test our payment system! Get AI-powered analysis, smart letters, and expert advocate matching.
-                    </p>
-                    <div className="flex flex-wrap justify-center lg:justify-start gap-6 text-sm">
-                      <div className="flex items-center gap-2">
-                        <CheckCircle2 className="h-5 w-5 text-green-300" />
-                        <span className="font-medium">AI Document Analysis</span>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <CheckCircle2 className="h-5 w-5 text-green-300" />
-                        <span className="font-medium">Smart Letter Generator</span>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <CheckCircle2 className="h-5 w-5 text-green-300" />
-                        <span className="font-medium">Expert Advocate Network</span>
-                      </div>
+                    <div className="flex flex-col gap-4 min-w-[280px]">
+                      <Button 
+                        onClick={() => navigate('/parent/subscribe')}
+                        size="lg"
+                        className="bg-white text-purple-600 hover:bg-white/90 font-bold text-lg py-4 px-8 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300"
+                        data-testid="button-view-all-plans"
+                      >
+                        <Star className="h-5 w-5 mr-2" />
+                        View All Plans & Test Payments
+                      </Button>
+                      <Button 
+                        onClick={() => navigate('/upsell/hero-plan')}
+                        variant="outline" 
+                        size="lg"
+                        className="border-2 border-white/30 text-white hover:bg-white/10 font-bold text-lg py-4 px-8 rounded-xl backdrop-blur-sm"
+                        data-testid="button-hero-plan-test"
+                      >
+                        <Trophy className="h-5 w-5 mr-2" />
+                        Test Hero Plan ($495)
+                      </Button>
+                      <Button 
+                        onClick={() => navigate('/subscribe')}
+                        variant="ghost"
+                        size="lg"
+                        className="text-white/80 hover:text-white hover:bg-white/5 font-medium"
+                        data-testid="button-quick-subscribe"
+                      >
+                        Quick Subscribe Test →
+                      </Button>
                     </div>
                   </div>
-                  <div className="flex flex-col gap-4 min-w-[280px]">
-                    <Button 
-                      onClick={() => navigate('/parent/subscribe')}
-                      size="lg"
-                      className="bg-white text-purple-600 hover:bg-white/90 font-bold text-lg py-4 px-8 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300"
-                      data-testid="button-view-all-plans"
-                    >
-                      <Star className="h-5 w-5 mr-2" />
-                      View All Plans & Test Payments
-                    </Button>
-                    <Button 
-                      onClick={() => navigate('/upsell/hero-plan')}
-                      variant="outline" 
-                      size="lg"
-                      className="border-2 border-white/30 text-white hover:bg-white/10 font-bold text-lg py-4 px-8 rounded-xl backdrop-blur-sm"
-                      data-testid="button-hero-plan-test"
-                    >
-                      <Trophy className="h-5 w-5 mr-2" />
-                      Test Hero Plan ($495)
-                    </Button>
-                    <Button 
-                      onClick={() => navigate('/subscribe')}
-                      variant="ghost"
-                      size="lg"
-                      className="text-white/80 hover:text-white hover:bg-white/5 font-medium"
-                      data-testid="button-quick-subscribe"
-                    >
-                      Quick Subscribe Test →
-                    </Button>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
+                </CardContent>
+              </Card>
+            </div>
           </div>
-        </div>
+        )}
 
         {/* Main Content Grid */}
         <div className="px-6 pb-16">

@@ -5,6 +5,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { Crown, User, LogOut } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
+import { normalizeSubscriptionPlan } from "@/lib/planAccess";
 
 interface DashboardLayoutProps {
   children: React.ReactNode;
@@ -14,6 +15,10 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
   const navigate = useNavigate();
   const { user, profile, signOut } = useAuth();
   const { toast } = useToast();
+  
+  // Determine user's subscription plan to conditionally show upgrade buttons
+  const userPlan = normalizeSubscriptionPlan(user?.subscriptionPlan);
+  const isPaidUser = userPlan !== 'free';
 
   const handleSignOut = async () => {
     try {
@@ -45,19 +50,24 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
                 <div className="font-semibold text-base md:text-lg">My IEP Hero</div>
               </div>
               <div className="flex items-center gap-1 md:gap-3">
-                <Button asChild variant="hero" size="sm" className="hidden sm:flex">
-                  <Link to="/upsell/hero-plan">
-                    <Crown className="h-4 w-4 mr-1" />
-                    HERO Plan
-                  </Link>
-                </Button>
-                
-                {/* Mobile Hero Plan Button */}
-                <Button asChild variant="hero" size="sm" className="sm:hidden">
-                  <Link to="/upsell/hero-plan">
-                    <Crown className="h-4 w-4" />
-                  </Link>
-                </Button>
+                {/* Only show HERO Plan buttons for free users */}
+                {!isPaidUser && (
+                  <>
+                    <Button asChild variant="hero" size="sm" className="hidden sm:flex">
+                      <Link to="/upsell/hero-plan">
+                        <Crown className="h-4 w-4 mr-1" />
+                        HERO Plan
+                      </Link>
+                    </Button>
+                    
+                    {/* Mobile Hero Plan Button */}
+                    <Button asChild variant="hero" size="sm" className="sm:hidden">
+                      <Link to="/upsell/hero-plan">
+                        <Crown className="h-4 w-4" />
+                      </Link>
+                    </Button>
+                  </>
+                )}
                 
                 {/* User Display */}
                 {(profile?.full_name || user?.email) && (

@@ -199,13 +199,9 @@ app.use(express.urlencoded({ limit: '50mb', extended: true }));
 
 // Unified auth endpoint that checks both Replit Auth and custom login
 app.get('/api/auth/user', async (req: any, res) => {
-  console.log('🔍 /api/auth/user called from:', req.headers['user-agent']?.substring(0, 50));
-  console.log('🔍 Session exists:', !!req.session);
-  console.log('🔍 Session userId:', req.session?.userId);
   try {
     // First check for token-based auth
     const token = req.headers.authorization?.replace('Bearer ', '');
-    console.log('🔍 Token received:', token?.substring(0, 20) + '...');
     
     if (token) {
       // Parse token to extract userId (token format: userId-timestamp-random)
@@ -218,18 +214,14 @@ app.get('/api/auth/user', async (req: any, res) => {
         const isValidTimestamp = Date.now() - timestamp < 24 * 60 * 60 * 1000;
         
         if (isValidTimestamp) {
-          console.log('🔍 Extracted userId from token:', userId);
           const [user] = await db.select()
             .from(schema.users)
             .where(eq(schema.users.id, userId))
             .limit(1);
           
           if (user) {
-            console.log('✅ User found for token:', user.email);
             return res.json(user);
           }
-        } else {
-          console.log('❌ Token expired');
         }
       }
     }
@@ -339,6 +331,37 @@ app.get('/api/stripe/test', isAuthenticated, async (req: any, res) => {
     console.error('Stripe test error:', error);
     res.status(500).json({ 
       error: 'Stripe connection failed', 
+      message: error.message 
+    });
+  }
+});
+
+// Update user plan for testing (temporary endpoint)
+app.put('/api/test/update-plan', async (req: any, res) => {
+  try {
+    const { userId, subscriptionPlan } = req.body;
+    
+    if (!userId || !subscriptionPlan) {
+      return res.status(400).json({ error: 'userId and subscriptionPlan are required' });
+    }
+
+    await db.update(schema.users)
+      .set({ 
+        subscriptionPlan: subscriptionPlan,
+        updatedAt: new Date()
+      })
+      .where(eq(schema.users.id, userId));
+
+    const updatedUser = await storage.getUser(userId);
+    res.json({ 
+      success: true, 
+      message: `User plan updated to ${subscriptionPlan}`,
+      user: updatedUser 
+    });
+  } catch (error: any) {
+    console.error('Error updating user plan:', error);
+    res.status(500).json({ 
+      error: 'Failed to update user plan', 
       message: error.message 
     });
   }

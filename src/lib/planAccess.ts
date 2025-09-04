@@ -1,6 +1,6 @@
 // Subscription plan access control utility
 
-export type SubscriptionPlan = 'free' | 'basic' | 'plus' | 'premium' | 'hero';
+export type SubscriptionPlan = 'free' | 'basic' | 'plus' | 'explorer' | 'premium' | 'hero';
 
 export interface PlanFeatures {
   // Core features
@@ -82,6 +82,23 @@ export const PLAN_FEATURES: Record<SubscriptionPlan, PlanFeatures> = {
     unlimitedStorage: false,
     storageLimit: '5GB'
   },
+  explorer: {
+    basicIEPTracking: true,
+    documentStorage: true,
+    letterTemplates: true,
+    progressTracking: true,
+    selfIEPTools: true,
+    goalDashboard: true,
+    liveChatSupport: true,
+    fullIEPReview: true,
+    advancedAnalytics: false,
+    multiChildSupport: false,
+    familyDashboard: false,
+    prioritySupport: true,
+    strategyCalls: false,
+    unlimitedStorage: false,
+    storageLimit: '7GB'
+  },
   premium: {
     basicIEPTracking: true,
     documentStorage: true,
@@ -143,7 +160,7 @@ export function normalizeSubscriptionPlan(plan: string | null | undefined): Subs
     case 'hero_family_pack':
       return 'hero';
     default:
-      if (['free', 'basic', 'plus', 'premium', 'hero'].includes(normalized)) {
+      if (['free', 'basic', 'plus', 'explorer', 'premium', 'hero'].includes(normalized)) {
         return normalized as SubscriptionPlan;
       }
       return 'free'; // Default fallback
@@ -152,7 +169,7 @@ export function normalizeSubscriptionPlan(plan: string | null | undefined): Subs
 
 // Check if user should be upgraded (for upsell prompts)
 export function shouldShowUpgrade(currentPlan: SubscriptionPlan, requiredPlan: SubscriptionPlan): boolean {
-  const planOrder: SubscriptionPlan[] = ['free', 'basic', 'plus', 'premium', 'hero'];
+  const planOrder: SubscriptionPlan[] = ['free', 'basic', 'plus', 'explorer', 'premium', 'hero'];
   const currentIndex = planOrder.indexOf(currentPlan);
   const requiredIndex = planOrder.indexOf(requiredPlan);
   return currentIndex < requiredIndex;
@@ -164,6 +181,7 @@ export function getPlanDisplayName(plan: SubscriptionPlan): string {
     case 'free': return 'Free';
     case 'basic': return 'Basic';
     case 'plus': return 'Plus';
+    case 'explorer': return 'Explorer';
     case 'premium': return 'Premium';
     case 'hero': return 'Hero Family Pack';
     default: return 'Free';

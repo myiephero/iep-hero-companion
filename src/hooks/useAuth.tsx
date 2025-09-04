@@ -8,6 +8,8 @@ interface User {
   lastName?: string;
   profileImageUrl?: string;
   role?: string;
+  subscriptionPlan?: string;
+  subscriptionStatus?: string;
 }
 
 interface AuthContextType {
@@ -58,14 +60,10 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
           return;
         }
 
-        console.log('🔍 Checking auth for path:', currentPath);
-        
         // Get token and make authenticated request
         const token = localStorage.getItem('authToken');
-        console.log('🔍 Found token:', token ? 'YES' : 'NO');
         
         if (!token) {
-          console.log('❌ No token found, setting user to null');
           setUser(null);
           setProfile(null);
           setLoading(false);
@@ -78,11 +76,9 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
             Authorization: `Bearer ${token}`,
           }
         });
-        console.log('🔍 Auth response status:', response.status);
         
         if (response.ok) {
           const userData = await response.json();
-          console.log('✅ User data loaded:', userData.email, userData.role, userData.subscriptionPlan);
           setUser(userData);
           setProfile(userData);
           
@@ -108,7 +104,6 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
           }
         } else {
           // User not authenticated - this is OK for public pages
-          console.log('❌ Auth failed, status:', response.status);
           setUser(null);
           setProfile(null);
         }

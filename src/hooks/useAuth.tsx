@@ -105,6 +105,11 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
                 ? `/parent/dashboard-${planSlug}` 
                 : '/advocate/dashboard';
               window.location.href = dashboardPath;
+            } else if (userData.role === 'parent' && currentPath === '/parent/dashboard') {
+              // Redirect generic parent dashboard to plan-specific dashboard
+              const planSlug = userData.subscriptionPlan?.toLowerCase().replace(/\s+/g, '') || 'free';
+              const dashboardPath = `/parent/dashboard-${planSlug}`;
+              window.location.href = dashboardPath;
             }
           }
         } else {

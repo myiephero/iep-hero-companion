@@ -107,7 +107,7 @@ export default function Profile() {
               <div className="space-y-3">
                 <div 
                   className="flex items-center gap-3 p-3 bg-muted/50 rounded-lg hover:bg-muted cursor-pointer transition-colors"
-                  onClick={() => navigate('/parent/vault')}
+                  onClick={() => navigate('/parent/tools/document-vault')}
                   data-testid="activity-iep-review"
                 >
                   <Clock className="h-4 w-4 text-muted-foreground" />
@@ -118,7 +118,7 @@ export default function Profile() {
                 </div>
                 <div 
                   className="flex items-center gap-3 p-3 bg-muted/50 rounded-lg hover:bg-muted cursor-pointer transition-colors"
-                  onClick={() => navigate('/parent/vault')}
+                  onClick={() => navigate('/parent/tools/document-vault')}
                   data-testid="activity-meeting-scheduled"
                 >
                   <Clock className="h-4 w-4 text-muted-foreground" />
@@ -129,7 +129,7 @@ export default function Profile() {
                 </div>
                 <div 
                   className="flex items-center gap-3 p-3 bg-muted/50 rounded-lg hover:bg-muted cursor-pointer transition-colors"
-                  onClick={() => navigate('/parent/vault')}
+                  onClick={() => navigate('/parent/tools/document-vault')}
                   data-testid="activity-document-uploaded"
                 >
                   <Clock className="h-4 w-4 text-muted-foreground" />

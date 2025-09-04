@@ -44,9 +44,11 @@ export function StudentSelector({
     if (!user) return;
     
     try {
+      // Use credentials: 'include' to send session cookies for Replit Auth
       const response = await fetch('/api/students', {
+        credentials: 'include',
         headers: {
-          'Authorization': `Bearer mock-token-${user.id}`
+          'Content-Type': 'application/json'
         }
       });
       if (!response.ok) {

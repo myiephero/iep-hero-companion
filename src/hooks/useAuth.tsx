@@ -58,8 +58,14 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
         }
 
         console.log('🔍 Checking auth for path:', currentPath);
+        
+        // Get token and make authenticated request
+        const token = localStorage.getItem('authToken');
         const response = await fetch('/api/auth/user', {
-          credentials: 'include'
+          credentials: 'include',
+          headers: {
+            ...(token && { Authorization: `Bearer ${token}` }),
+          }
         });
         console.log('🔍 Auth response status:', response.status);
         

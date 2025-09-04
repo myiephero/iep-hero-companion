@@ -32,10 +32,8 @@ const Auth = () => {
           description: "Redirecting to your dashboard...",
         });
         
-        // Simple, direct redirect after short delay
-        setTimeout(() => {
-          window.location.href = '/parent/dashboard-hero';
-        }, 500);
+        // Immediately redirect - session is created, just go to the protected route
+        window.location.href = '/parent/dashboard-hero';
       } else {
         const data = await response.json();
         toast({

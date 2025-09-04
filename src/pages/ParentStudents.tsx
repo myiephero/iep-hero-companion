@@ -249,10 +249,13 @@ const ParentStudents = () => {
 
     try {
       // Add cache-busting timestamp and proper auth headers to force fresh data
+      const token = localStorage.getItem('authToken');
       const response = await fetch(`/api/students?_t=${Date.now()}`, {
+        credentials: 'include',
         headers: {
           'Cache-Control': 'no-cache',
-          'Authorization': `Bearer mock-token-${user.id}`
+          'Content-Type': 'application/json',
+          ...(token && { Authorization: `Bearer ${token}` })
         }
       });
       if (!response.ok) {

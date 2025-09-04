@@ -44,11 +44,13 @@ export function StudentSelector({
     if (!user) return;
     
     try {
-      // Use credentials: 'include' to send session cookies for Replit Auth
+      // Use authenticated request with Bearer token
+      const token = localStorage.getItem('authToken');
       const response = await fetch('/api/students', {
         credentials: 'include',
         headers: {
-          'Content-Type': 'application/json'
+          'Content-Type': 'application/json',
+          ...(token && { Authorization: `Bearer ${token}` })
         }
       });
       if (!response.ok) {

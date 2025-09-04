@@ -27,15 +27,20 @@ const Auth = () => {
       });
 
       if (response.ok) {
+        const data = await response.json();
+        
+        // Store token in localStorage for immediate use
+        if (data.token) {
+          localStorage.setItem('authToken', data.token);
+        }
+        
         toast({
           title: "Success!",
           description: "Redirecting to your dashboard...",
         });
         
-        // Give the session cookie time to be set before redirecting
-        setTimeout(() => {
-          window.location.replace('/parent/dashboard-hero');
-        }, 100);
+        // Redirect immediately
+        window.location.replace('/parent/dashboard-hero');
       } else {
         const data = await response.json();
         toast({

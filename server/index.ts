@@ -203,11 +203,13 @@ app.get('/api/auth/user', async (req: any, res) => {
   console.log('🔍 Session exists:', !!req.session);
   console.log('🔍 Session userId:', req.session?.userId);
   try {
-    // First check for custom login session
-    if (req.session && req.session.userId) {
+    // First check for token-based auth
+    const token = req.headers.authorization?.replace('Bearer ', '');
+    if (token && global.activeTokens?.[token]) {
+      const tokenData = global.activeTokens[token];
       const [user] = await db.select()
         .from(schema.users)
-        .where(eq(schema.users.id, req.session.userId))
+        .where(eq(schema.users.id, tokenData.userId))
         .limit(1);
       
       if (user) {
@@ -613,19 +615,21 @@ app.post('/api/custom-login', async (req: any, res) => {
       });
     }
 
-    // Create session/token for the user (simplified - you might want to use JWT)
-    if (req.session) {
-      req.session.userId = user.id;
-      req.session.userRole = user.role;
-      console.log('🚀 Custom login: Session created for user:', user.id);
-      console.log('🚀 Session ID:', req.session.id);
-    } else {
-      console.log('❌ Custom login: No session object found!');
-    }
+    // Create a simple token for immediate use
+    const loginToken = `${user.id}-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+    
+    // Store token in memory (simple solution)
+    global.activeTokens = global.activeTokens || {};
+    global.activeTokens[loginToken] = {
+      userId: user.id,
+      userRole: user.role,
+      createdAt: Date.now()
+    };
 
     res.json({ 
       success: true,
       message: 'Login successful',
+      token: loginToken,
       user: {
         id: user.id,
         email: user.email,

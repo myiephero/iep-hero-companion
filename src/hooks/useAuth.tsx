@@ -7,9 +7,12 @@ interface User {
   firstName?: string;
   lastName?: string;
   profileImageUrl?: string;
+  phoneNumber?: string;
   role?: string;
   subscriptionPlan?: string;
   subscriptionStatus?: string;
+  createdAt?: string;
+  updatedAt?: string;
 }
 
 interface AuthContextType {
@@ -17,6 +20,7 @@ interface AuthContextType {
   loading: boolean;
   profile: any | null;
   signOut: () => Promise<void>;
+  refreshUser: () => Promise<void>;
   isAuthenticated: boolean;
 }
 
@@ -25,6 +29,7 @@ const AuthContext = createContext<AuthContextType>({
   loading: true,
   profile: null,
   signOut: async () => {},
+  refreshUser: async () => {},
   isAuthenticated: false,
 });
 
@@ -127,11 +132,34 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     }
   };
 
+  const refreshUser = async () => {
+    try {
+      const token = localStorage.getItem('authToken');
+      if (!token) return;
+      
+      const response = await fetch('/api/auth/user', {
+        credentials: 'include',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+      
+      if (response.ok) {
+        const userData = await response.json();
+        setUser(userData);
+        setProfile(userData);
+      }
+    } catch (error) {
+      console.error('Failed to refresh user:', error);
+    }
+  };
+
   const value = {
     user,
     loading,
     profile,
     signOut,
+    refreshUser,
     isAuthenticated: !!user,
   };
 

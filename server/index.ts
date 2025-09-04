@@ -990,9 +990,12 @@ app.get('/api/profiles/:userId', async (req, res) => {
 });
 
 // Students routes
-app.get('/api/students', isAuthenticated, async (req: any, res) => {
+app.get('/api/students', async (req: any, res) => {
   try {
-    const userId = req.user.claims.sub;
+    const userId = getUserId(req);
+    if (userId === 'anonymous-user') {
+      return res.status(401).json({ message: 'Unauthorized' });
+    }
     const students = await db.select().from(schema.students).where(eq(schema.students.user_id, userId));
     
     // Add cache-busting headers to force fresh data
@@ -1009,9 +1012,12 @@ app.get('/api/students', isAuthenticated, async (req: any, res) => {
   }
 });
 
-app.post('/api/students', isAuthenticated, async (req: any, res) => {
+app.post('/api/students', async (req: any, res) => {
   try {
-    const userId = req.user.claims.sub;
+    const userId = getUserId(req);
+    if (userId === 'anonymous-user') {
+      return res.status(401).json({ message: 'Unauthorized' });
+    }
     const studentData = { ...req.body, user_id: userId };
     const [student] = await db.insert(schema.students).values(studentData).returning();
     res.json(student);

@@ -6,7 +6,7 @@ import { componentTagger } from "lovable-tagger";
 export default defineConfig(({ mode }) => ({
   server: {
     host: "::",
-    port: 8080,
+    port: 5000,
     allowedHosts: true,
     proxy: {
       '/api': {
@@ -15,7 +15,7 @@ export default defineConfig(({ mode }) => ({
         secure: false,
         ws: true,
         cookieDomainRewrite: {
-          'localhost:3001': 'localhost:8080'
+          'localhost:3001': 'localhost:5000'
         },
         configure: (proxy, _options) => {
           proxy.on('error', (err, _req, _res) => {

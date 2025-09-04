@@ -205,15 +205,32 @@ app.get('/api/auth/user', async (req: any, res) => {
   try {
     // First check for token-based auth
     const token = req.headers.authorization?.replace('Bearer ', '');
-    if (token && global.activeTokens?.[token]) {
-      const tokenData = global.activeTokens[token];
-      const [user] = await db.select()
-        .from(schema.users)
-        .where(eq(schema.users.id, tokenData.userId))
-        .limit(1);
-      
-      if (user) {
-        return res.json(user);
+    console.log('🔍 Token received:', token?.substring(0, 20) + '...');
+    
+    if (token) {
+      // Parse token to extract userId (token format: userId-timestamp-random)
+      const tokenParts = token.split('-');
+      if (tokenParts.length >= 3) {
+        const userId = tokenParts[0];
+        const timestamp = parseInt(tokenParts[1]);
+        
+        // Check if token is not too old (24 hours)
+        const isValidTimestamp = Date.now() - timestamp < 24 * 60 * 60 * 1000;
+        
+        if (isValidTimestamp) {
+          console.log('🔍 Extracted userId from token:', userId);
+          const [user] = await db.select()
+            .from(schema.users)
+            .where(eq(schema.users.id, userId))
+            .limit(1);
+          
+          if (user) {
+            console.log('✅ User found for token:', user.email);
+            return res.json(user);
+          }
+        } else {
+          console.log('❌ Token expired');
+        }
       }
     }
 

@@ -427,24 +427,16 @@ ${userInputs.parentName || '[Parent Name]'}`;
   return (
     <DashboardLayout>
       <div className="space-y-6">
-        {/* Header */}
-        <div>
-          <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">AI-Powered IEP Analysis</h1>
-          <p className="text-gray-600 dark:text-gray-400">
-            Upload and analyze IEP documents with comprehensive quality scoring, compliance verification, and actionable recommendations
-          </p>
-        </div>
-
         <div className="space-y-6">
-            {/* Analysis Configuration */}
+            {/* Document Upload */}
             <Card>
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
                   <Rocket className="h-5 w-5" />
-                  Analysis Configuration
+                  Upload & Analyze IEP Document
                 </CardTitle>
                 <CardDescription>
-                  Configure your analysis preferences and select the type of review you'd like to perform.
+                  Upload your IEP document for comprehensive AI-powered analysis with quality scoring and recommendations
                 </CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
@@ -457,22 +449,15 @@ ${userInputs.parentName || '[Parent Name]'}`;
                 />
               </CardContent>
             </Card>
-            {/* Results Header */}
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-3">
-                <div className="p-2 bg-blue-100 dark:bg-blue-900/50 rounded-lg">
-                  <Brain className="h-6 w-6 text-blue-600 dark:text-blue-400" />
+            {/* Results Header - Only show when there are reviews */}
+            {reviews.length > 0 && (
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <Badge variant="secondary" className="text-sm font-medium">
+                    {reviews.length} Analysis Result{reviews.length !== 1 ? 's' : ''}
+                  </Badge>
                 </div>
-                <div>
-                  <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100">Analysis Results</h2>
-                  <p className="text-gray-600 dark:text-gray-400">Comprehensive IEP review results with scoring and recommendations</p>
-                </div>
-              </div>
-              <div className="flex items-center gap-2">
-                <Badge variant="secondary" className="text-sm font-medium">
-                  {reviews.length} Review{reviews.length !== 1 ? 's' : ''}
-                </Badge>
-                {reviews.length > 0 && (
+                <div className="flex items-center gap-2">
                   <Button
                     variant="outline"
                     size="sm"
@@ -491,9 +476,9 @@ ${userInputs.parentName || '[Parent Name]'}`;
                       </>
                     )}
                   </Button>
-                )}
+                </div>
               </div>
-            </div>
+            )}
 
             {/* Bulk Actions Toolbar */}
             {isSelectMode && selectedReviews.size > 0 && (
@@ -531,9 +516,9 @@ ${userInputs.parentName || '[Parent Name]'}`;
                 <Card className="border-dashed">
                   <CardContent className="flex flex-col items-center justify-center py-12">
                     <Brain className="h-12 w-12 text-muted-foreground mb-4" />
-                    <h3 className="text-lg font-semibold mb-2">No Reviews Yet</h3>
+                    <h3 className="text-lg font-semibold mb-2">Ready to Analyze</h3>
                     <p className="text-muted-foreground text-center max-w-md">
-                      Upload and analyze documents in the "Analyze Documents" tab to see comprehensive results here.
+                      Upload an IEP document above to get started with AI-powered analysis and recommendations.
                     </p>
                   </CardContent>
                 </Card>

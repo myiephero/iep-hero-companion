@@ -1,188 +1,247 @@
-import { Link } from "react-router-dom";
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { CheckCircle, Users, FileText, MessageSquare, Shield, ArrowRight } from "lucide-react";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { useAuth } from "@/hooks/useAuth";
+import { ArrowRight, BookOpen, CheckCircle, FileText, Heart, Shield, Users, Zap, Eye, EyeOff } from "lucide-react";
 import heroImage from "@/assets/hero-image.jpg";
-import { useState } from "react";
+
+const features = [
+  {
+    icon: <FileText className="h-6 w-6" />,
+    title: "AI IEP Analysis",
+    description: "Upload IEPs and get instant, expert-level insights on compliance and recommendations."
+  },
+  {
+    icon: <Users className="h-6 w-6" />,
+    title: "Advocate Matching",
+    description: "Connect with certified special education advocates in your area for personalized support."
+  },
+  {
+    icon: <BookOpen className="h-6 w-6" />,
+    title: "Meeting Preparation",
+    description: "Comprehensive tools to prepare for IEP meetings with confidence and documentation."
+  },
+  {
+    icon: <Heart className="h-6 w-6" />,
+    title: "Special Needs Resources",
+    description: "Specialized tools for autism, ADHD, gifted/2e, and other special education needs."
+  }
+];
 
 const Index = () => {
-  const { user } = useAuth();
+  const { user, isLoading } = useAuth();
   const [authMode, setAuthMode] = useState<'signin' | 'create'>('signin');
-  const [selectedRole, setSelectedRole] = useState<'parent' | 'advocate'>('parent');
+  const [showLoginForm, setShowLoginForm] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
+  const [loginForm, setLoginForm] = useState({
+    email: '',
+    password: ''
+  });
+  const [loginLoading, setLoginLoading] = useState(false);
 
-  const features = [
-    {
-      icon: <FileText className="h-6 w-6" />,
-      title: "AI IEP Review",
-      description: "Upload your IEP and get instant insights on gaps, compliance, and opportunities"
-    },
-    {
-      icon: <Shield className="h-6 w-6" />,
-      title: "Secure Document Vault",
-      description: "Safely store and organize all your educational documents in one place"
-    },
-    {
-      icon: <Users className="h-6 w-6" />,
-      title: "Expert Advocates",
-      description: "Connect with certified advocates who understand your child's needs"
-    },
-    {
-      icon: <MessageSquare className="h-6 w-6" />,
-      title: "Meeting Prep Wizard",
-      description: "Get ready for IEP meetings with customized questions and strategies"
+  const handleLogin = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setLoginLoading(true);
+    
+    try {
+      const response = await fetch('/api/custom-login', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          email: loginForm.email,
+          password: loginForm.password
+        })
+      });
+
+      if (response.ok) {
+        const { token, user: userData } = await response.json();
+        localStorage.setItem('authToken', token);
+        
+        // Redirect based on user role and subscription
+        if (userData.role === 'parent') {
+          window.location.href = `/parent/dashboard-${userData.subscription_tier}`;
+        } else {
+          window.location.href = "/advocate/dashboard";
+        }
+      } else {
+        const errorData = await response.json();
+        alert(errorData.message || 'Login failed');
+      }
+    } catch (error) {
+      console.error('Login error:', error);
+      alert('An error occurred during login. Please try again.');
+    } finally {
+      setLoginLoading(false);
     }
-  ];
+  };
+
+  if (isLoading) {
+    return <div className="min-h-screen flex items-center justify-center">Loading...</div>;
+  }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-surface via-background to-surface">
+    <div className="min-h-screen">
       {/* Hero Section */}
-      <section className="relative overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-hero opacity-10"></div>
-        <div className="relative container mx-auto px-4 py-16 lg:py-24">
+      <section className="relative bg-gradient-to-br from-primary/5 to-secondary/5 py-16 lg:py-24">
+        <div className="container mx-auto px-4">
           <div className="grid lg:grid-cols-2 gap-12 items-center">
             <div className="space-y-8">
               <div className="space-y-4">
-                <Badge variant="secondary" className="text-sm font-medium">
-                  Empowering Parents • Elevating Advocacy
-                </Badge>
                 <h1 className="text-4xl lg:text-6xl font-bold leading-tight">
-                  Your Child's
-                  <span className="text-primary"> IEP Success</span> Starts Here
+                  Empower Your Child's{" "}
+                  <span className="text-primary">IEP Journey</span>
                 </h1>
-                <p className="text-xl text-muted-foreground leading-relaxed max-w-2xl">
-                  Upload IEPs, generate smart letters, collaborate with certified advocates, 
-                  and prepare with confidence — all in one secure platform.
+                <p className="text-xl text-muted-foreground leading-relaxed">
+                  AI-powered tools, certified advocates, and comprehensive resources to help your child succeed in special education.
                 </p>
               </div>
-              
-              {user ? (
-                // Logged in user - redirect based on their role
-                <div className="flex flex-col sm:flex-row gap-4">
-                  {user.role ? (
+
+              {/* Auth Section */}
+              <div className="space-y-6">
+                {user ? (
+                  // User is logged in
+                  <div className="text-center">
                     <Button 
-                      variant="hero" 
+                      variant="default"
                       size="lg"
                       onClick={() => window.location.href = `/${user.role}/dashboard`}
+                      data-testid="button-dashboard"
                     >
-                      Go to {user.role === 'parent' ? 'Parent' : 'Advocate'} Dashboard <ArrowRight className="ml-2 h-5 w-5" />
+                      Go to {user.role === 'parent' ? 'Parent' : 'Advocate'} Dashboard 
+                      <ArrowRight className="ml-2 h-5 w-5" />
                     </Button>
-                  ) : (
-                    <>
-                      <Button 
-                        variant="hero" 
-                        size="lg"
-                        onClick={() => window.location.href = "/parent/dashboard"}
-                      >
-                        Parent Dashboard <ArrowRight className="ml-2 h-5 w-5" />
-                      </Button>
-                      <Button 
-                        variant="outline" 
-                        size="lg"
-                        onClick={() => window.location.href = "/advocate/dashboard"}
-                      >
-                        Advocate Portal
-                      </Button>
-                    </>
-                  )}
-                </div>
-              ) : (
-                // Not logged in - show auth toggle
-                <div className="space-y-6">
-                  {/* Sign In / Create Account Toggle */}
-                  <div className="flex items-center justify-center space-x-1 bg-muted rounded-lg p-1 max-w-xs mx-auto">
-                    <button
-                      onClick={() => setAuthMode('signin')}
-                      className={`flex-1 px-6 py-3 rounded-md text-sm font-medium transition-all ${
-                        authMode === 'signin'
-                          ? 'bg-primary text-primary-foreground shadow-sm'
-                          : 'text-muted-foreground hover:text-foreground'
-                      }`}
-                      data-testid="toggle-signin"
-                    >
-                      Sign In
-                    </button>
-                    <button
-                      onClick={() => setAuthMode('create')}
-                      className={`flex-1 px-6 py-3 rounded-md text-sm font-medium transition-all ${
-                        authMode === 'create'
-                          ? 'bg-primary text-primary-foreground shadow-sm'
-                          : 'text-muted-foreground hover:text-foreground'
-                      }`}
-                      data-testid="toggle-create"
-                    >
-                      Create Account
-                    </button>
                   </div>
-
-                  {authMode === 'signin' ? (
-                    // Sign In Mode
-                    <div className="text-center">
-                      <Button 
-                        variant="hero" 
-                        size="lg"
-                        onClick={() => window.location.href = "/auth"}
-                        data-testid="button-signin"
-                      >
-                        Sign In to Your Account <ArrowRight className="ml-2 h-5 w-5" />
-                      </Button>
-                      <p className="text-sm text-muted-foreground mt-3">
-                        Access your dashboard, documents, and advocacy tools
-                      </p>
-                    </div>
-                  ) : (
-                    // Create Account Mode
-                    <div className="space-y-4">
-                      <div className="text-center">
-                        <h3 className="text-lg font-semibold mb-3">Choose Your Role</h3>
+                ) : (
+                  // User not logged in
+                  <div className="space-y-6">
+                    {!showLoginForm ? (
+                      <>
+                        {/* Toggle between Sign In / Create Account */}
                         <div className="flex items-center justify-center space-x-1 bg-muted rounded-lg p-1 max-w-xs mx-auto">
                           <button
-                            onClick={() => setSelectedRole('parent')}
-                            className={`flex-1 px-6 py-2 rounded-md text-sm font-medium transition-all ${
-                              selectedRole === 'parent'
-                                ? 'bg-background text-foreground shadow-sm'
+                            onClick={() => setAuthMode('signin')}
+                            className={`flex-1 px-6 py-3 rounded-md text-sm font-medium transition-all ${
+                              authMode === 'signin'
+                                ? 'bg-primary text-primary-foreground shadow-sm'
                                 : 'text-muted-foreground hover:text-foreground'
                             }`}
-                            data-testid="role-parent"
+                            data-testid="toggle-signin"
                           >
-                            Parent
+                            Sign In
                           </button>
                           <button
-                            onClick={() => setSelectedRole('advocate')}
-                            className={`flex-1 px-6 py-2 rounded-md text-sm font-medium transition-all ${
-                              selectedRole === 'advocate'
-                                ? 'bg-background text-foreground shadow-sm'
+                            onClick={() => setAuthMode('create')}
+                            className={`flex-1 px-6 py-3 rounded-md text-sm font-medium transition-all ${
+                              authMode === 'create'
+                                ? 'bg-primary text-primary-foreground shadow-sm'
                                 : 'text-muted-foreground hover:text-foreground'
                             }`}
-                            data-testid="role-advocate"
+                            data-testid="toggle-create"
                           >
-                            Advocate
+                            Create Account
                           </button>
                         </div>
-                      </div>
-                      
-                      <div className="text-center">
-                        <Button 
-                          variant="hero" 
-                          size="lg"
-                          onClick={() => window.location.href = `/${selectedRole}/subscribe`}
-                          data-testid={`button-create-${selectedRole}`}
-                        >
-                          View {selectedRole === 'parent' ? 'Parent' : 'Advocate'} Plans <ArrowRight className="ml-2 h-5 w-5" />
-                        </Button>
-                        <p className="text-sm text-muted-foreground mt-3">
-                          {selectedRole === 'parent' 
-                            ? 'Get AI-powered IEP tools and connect with advocates'
-                            : 'Join our network and help families succeed'
-                          }
-                        </p>
-                      </div>
-                    </div>
-                  )}
-                </div>
-              )}
 
+                        {/* Action Buttons */}
+                        <div className="flex flex-col sm:flex-row gap-4 justify-center">
+                          <Button 
+                            size="lg"
+                            className="bg-primary hover:bg-primary/90 text-primary-foreground font-semibold px-8 py-4"
+                            onClick={() => {
+                              if (authMode === 'signin') {
+                                setShowLoginForm(true);
+                              } else {
+                                window.location.href = "/auth";
+                              }
+                            }}
+                            data-testid={authMode === 'signin' ? "button-signin" : "button-create-account"}
+                          >
+                            {authMode === 'signin' ? 'Sign In Now' : 'Create Free Account'}
+                            <ArrowRight className="ml-2 h-5 w-5" />
+                          </Button>
+                          <Button 
+                            variant="outline" 
+                            size="lg"
+                            className="font-semibold px-8 py-4"
+                            onClick={() => window.location.href = "/parent/pricing"}
+                            data-testid="button-pricing"
+                          >
+                            View Pricing
+                          </Button>
+                        </div>
+                      </>
+                    ) : (
+                      // Inline Login Form
+                      <form onSubmit={handleLogin} className="space-y-4 max-w-sm mx-auto">
+                        <div className="space-y-2">
+                          <Label htmlFor="email">Email Address</Label>
+                          <Input
+                            id="email"
+                            type="email"
+                            placeholder="Enter your email"
+                            value={loginForm.email}
+                            onChange={(e) => setLoginForm({ ...loginForm, email: e.target.value })}
+                            required
+                            data-testid="input-email"
+                          />
+                        </div>
+                        <div className="space-y-2">
+                          <Label htmlFor="password">Password</Label>
+                          <div className="relative">
+                            <Input
+                              id="password"
+                              type={showPassword ? 'text' : 'password'}
+                              placeholder="Enter your password"
+                              value={loginForm.password}
+                              onChange={(e) => setLoginForm({ ...loginForm, password: e.target.value })}
+                              required
+                              data-testid="input-password"
+                            />
+                            <Button
+                              type="button"
+                              variant="ghost"
+                              size="sm"
+                              className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
+                              onClick={() => setShowPassword(!showPassword)}
+                            >
+                              {showPassword ? (
+                                <EyeOff className="h-4 w-4" />
+                              ) : (
+                                <Eye className="h-4 w-4" />
+                              )}
+                            </Button>
+                          </div>
+                        </div>
+                        <div className="space-y-2">
+                          <Button 
+                            type="submit" 
+                            className="w-full" 
+                            disabled={loginLoading}
+                            data-testid="button-login-submit"
+                          >
+                            {loginLoading ? 'Signing In...' : 'Sign In'}
+                          </Button>
+                          <Button 
+                            type="button" 
+                            variant="outline" 
+                            className="w-full"
+                            onClick={() => setShowLoginForm(false)}
+                            data-testid="button-back"
+                          >
+                            Back
+                          </Button>
+                        </div>
+                      </form>
+                    )}
+                  </div>
+                )}
+              </div>
+
+              {/* Trust Indicators */}
               <div className="flex flex-wrap items-center gap-6 text-sm text-muted-foreground">
                 <div className="flex items-center gap-2">
                   <CheckCircle className="h-4 w-4 text-success" />
@@ -203,8 +262,9 @@ const Index = () => {
               </div>
             </div>
 
+            {/* Hero Image */}
             <div className="relative">
-              <div className="absolute inset-0 bg-gradient-hero rounded-2xl opacity-20 blur-3xl"></div>
+              <div className="absolute inset-0 bg-gradient-to-r from-primary/20 to-secondary/20 rounded-2xl opacity-20 blur-3xl"></div>
               <img
                 src={heroImage}
                 alt="Children with disabilities thriving in supportive educational environments"
@@ -229,7 +289,7 @@ const Index = () => {
 
           <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
             {features.map((feature, index) => (
-              <Card key={index} className="text-center hover:shadow-lg transition-all duration-300 border-0 bg-gradient-card">
+              <Card key={index} className="text-center hover:shadow-lg transition-all duration-300 border-0 bg-gradient-to-br from-background to-muted/20">
                 <CardHeader className="pb-4">
                   <div className="mx-auto w-12 h-12 bg-primary/10 rounded-lg flex items-center justify-center text-primary mb-4">
                     {feature.icon}
@@ -248,7 +308,7 @@ const Index = () => {
       </section>
 
       {/* CTA Section */}
-      <section className="py-16 bg-gradient-hero">
+      <section className="py-16 bg-gradient-to-r from-primary to-primary/80">
         <div className="container mx-auto px-4 text-center">
           <div className="max-w-3xl mx-auto space-y-6 text-white">
             <h2 className="text-3xl lg:text-4xl font-bold">
@@ -265,19 +325,19 @@ const Index = () => {
                   if (user) {
                     window.location.href = user.role ? `/${user.role}/dashboard` : "/parent/dashboard";
                   } else {
-                    window.location.href = "/auth";
+                    setShowLoginForm(true);
                   }
                 }}
+                data-testid="button-cta-primary"
               >
                 {user ? "Go to Dashboard" : "Get Started Free"}
               </Button>
               <Button 
                 variant="outline" 
-                size="lg" 
-                className="border-white text-white hover:bg-white hover:text-primary"
-                onClick={() => {
-                  window.location.href = "/subscribe";
-                }}
+                size="lg"
+                className="bg-white/10 hover:bg-white/20 border-white/30 text-white hover:text-white"
+                onClick={() => window.location.href = "/parent/pricing"}
+                data-testid="button-cta-secondary"
               >
                 View Pricing
               </Button>

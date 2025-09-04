@@ -158,8 +158,11 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
       setUser(null);
       setProfile(null);
       
-      // Then call the server logout endpoint
-      window.location.href = '/api/logout';
+      // Call server logout endpoint in background without redirect
+      fetch('/api/logout', { credentials: 'include' }).catch(() => {
+        // Ignore errors - we've already cleared local state
+      });
+      
     } catch (error) {
       console.error('Sign out failed:', error);
     }

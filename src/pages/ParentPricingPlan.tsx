@@ -76,11 +76,11 @@ const ParentPricingPlan = () => {
       description: 'Adds live support and IEP review',
       features: [
         'Everything in Plus',
-        'Live Chat support',
-        'IEP Review tools',
-        'Member discounts',
+        'Priority email support',
+        'Advanced IEP review tools',
+        'Expert analysis requests',
         'Document storage (10GB)',
-        'Advanced analytics'
+        'Advanced analytics & insights'
       ],
       icon: <Crown className="h-6 w-6 text-white" />,
       gradient: 'from-purple-500 to-indigo-600',

@@ -643,6 +643,10 @@ app.post('/api/custom-login', async (req: any, res) => {
     if (req.session) {
       req.session.userId = user.id;
       req.session.userRole = user.role;
+      console.log('🚀 Custom login: Session created for user:', user.id);
+      console.log('🚀 Session ID:', req.session.id);
+    } else {
+      console.log('❌ Custom login: No session object found!');
     }
 
     res.json({ 

@@ -122,9 +122,18 @@ const AdvocatePricingPlan = () => {
                 </span>
               </h1>
               
-              <p className="text-xl text-muted-foreground mb-12 max-w-3xl mx-auto leading-relaxed">
+              <p className="text-xl text-muted-foreground mb-6 max-w-3xl mx-auto leading-relaxed">
                 Choose the perfect plan to grow your advocacy business with professional-grade tools and support
               </p>
+              
+              <div className="bg-secondary/10 border border-secondary/30 rounded-lg p-6 max-w-4xl mx-auto mb-8">
+                <p className="text-white font-medium text-lg">
+                  "We bring you <span className="text-secondary">qualified leads</span> and provide them with <span className="text-secondary">organized data/docs</span>. You focus on what you do best - <span className="text-secondary">advocacy</span>. We handle the tech and coordination."
+                </p>
+                <p className="text-secondary/80 text-sm mt-2">
+                  — Partner with the Operating System for IEP Advocacy
+                </p>
+              </div>
 
             </div>
           </div>

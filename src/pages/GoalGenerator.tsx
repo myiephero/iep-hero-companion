@@ -276,12 +276,13 @@ export default function GoalGenerator() {
                 <h4 className="text-base font-semibold text-foreground">Student Selection</h4>
                 <p className="text-sm text-muted-foreground mt-1">Choose how to provide student information</p>
               </div>
-              <div className="flex items-center gap-2">
-                <Button
-                  variant={!useExistingStudent ? "default" : "outline"}
-                  size="sm"
-                  onClick={() => {
-                    setUseExistingStudent(false);
+              <Button
+                variant={useExistingStudent ? "default" : "outline"}
+                size="sm"
+                onClick={() => {
+                  setUseExistingStudent(!useExistingStudent);
+                  if (!useExistingStudent) {
+                    // Clear fields when switching to existing student mode
                     setSelectedStudentId('');
                     setStudentInfo({
                       name: '',
@@ -292,26 +293,14 @@ export default function GoalGenerator() {
                       strengths: '',
                       needs: ''
                     });
-                  }}
-                  className="text-xs"
-                  data-testid="button-new-student-mode"
-                >
-                  <UserPlus className="h-3 w-3 mr-1" />
-                  New Student
-                </Button>
-                <Button
-                  variant={useExistingStudent ? "default" : "outline"}
-                  size="sm"
-                  onClick={() => {
-                    setUseExistingStudent(true);
-                  }}
-                  className="text-xs"
-                  data-testid="button-select-student-mode"
-                >
-                  <Search className="h-3 w-3 mr-1" />
-                  From Caseload
-                </Button>
-              </div>
+                  }
+                }}
+                className="text-xs"
+                data-testid="button-select-student-mode"
+              >
+                <Search className="h-3 w-3 mr-1" />
+                {useExistingStudent ? "Manual Entry" : "Select from Caseload"}
+              </Button>
             </div>
             
             {useExistingStudent && (

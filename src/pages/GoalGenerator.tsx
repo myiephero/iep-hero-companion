@@ -24,11 +24,60 @@ interface GeneratedGoal {
   standards: string[];
 }
 
+// Pre-populated IEP goals database
+const SAMPLE_IEP_GOALS = {
+  reading: [
+    "By the end of the IEP year, when given grade-level text passages, the student will read with 90% accuracy and demonstrate comprehension by answering literal and inferential questions with 80% accuracy across 4 consecutive weekly probes.",
+    "By the end of the IEP year, when given a list of grade-appropriate sight words, the student will read the words aloud with 95% accuracy in 3 out of 4 consecutive weekly assessments.",
+    "By the end of the IEP year, when presented with grade-level reading passages, the student will identify the main idea and 3 supporting details with 80% accuracy on 4 consecutive trials."
+  ],
+  writing: [
+    "By the end of the IEP year, when given a writing prompt, the student will compose a 5-sentence paragraph with proper capitalization, punctuation, and spelling with 80% accuracy in 4 out of 5 consecutive weekly samples.",
+    "By the end of the IEP year, when given graphic organizers, the student will write a 3-paragraph essay with introduction, body, and conclusion with 75% accuracy on 4 consecutive monthly assessments.",
+    "By the end of the IEP year, the student will copy sentences from the board with proper letter formation and spacing with 90% accuracy in daily handwriting samples."
+  ],
+  math: [
+    "By the end of the IEP year, when presented with addition problems with regrouping (2-digit numbers), the student will solve them with 80% accuracy on 4 consecutive weekly assessments.",
+    "By the end of the IEP year, when given real-world word problems involving money, the student will identify the operation needed and solve with 75% accuracy in 3 out of 4 trials.",
+    "By the end of the IEP year, when shown analog clocks, the student will tell time to the nearest 15 minutes with 85% accuracy on 4 consecutive weekly probes."
+  ],
+  communication: [
+    "By the end of the IEP year, when presented with social situations requiring verbal interaction, the student will initiate appropriate social communication using complete sentences in 80% of opportunities across 3 consecutive weeks.",
+    "By the end of the IEP year, when given structured conversation opportunities, the student will maintain eye contact and respond appropriately to questions in 4 out of 5 interactions across daily sessions.",
+    "By the end of the IEP year, the student will use appropriate voice volume and tone during classroom discussions in 85% of observed opportunities over 2 consecutive weeks."
+  ],
+  behavior: [
+    "By the end of the IEP year, when transitioning between activities, the student will follow the transition routine without verbal prompts in 80% of opportunities across 4 consecutive weeks.",
+    "By the end of the IEP year, when experiencing frustration, the student will use appropriate coping strategies (deep breathing, asking for help) instead of disruptive behavior in 75% of observed instances.",
+    "By the end of the IEP year, the student will remain in assigned seat and attend to task for 15-minute periods with no more than 2 verbal reminders in 80% of opportunities."
+  ]
+};
+
+interface ComplianceResult {
+  overallScore: number;
+  criteria: {
+    measurable: boolean;
+    timeframe: boolean;
+    conditions: boolean;
+    criteria: boolean;
+    observable: boolean;
+    studentSpecific: boolean;
+  };
+  suggestions: string[];
+}
+
 export default function GoalGenerator() {
   const [activeTab, setActiveTab] = useState<'generate' | 'check' | 'align'>('generate');
   const [isGenerating, setIsGenerating] = useState(false);
   const [generatedGoals, setGeneratedGoals] = useState<GeneratedGoal[]>([]);
   const [uploadedFile, setUploadedFile] = useState<File | null>(null);
+  
+  // Compliance checker states
+  const [complianceGoalText, setComplianceGoalText] = useState('');
+  const [selectedPresetGoal, setSelectedPresetGoal] = useState('');
+  const [selectedGoalCategory, setSelectedGoalCategory] = useState('');
+  const [isCheckingCompliance, setIsCheckingCompliance] = useState(false);
+  const [complianceResult, setComplianceResult] = useState<ComplianceResult | null>(null);
   
   // Form state for goal generation
   const [studentInfo, setStudentInfo] = useState({

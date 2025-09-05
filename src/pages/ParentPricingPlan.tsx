@@ -7,7 +7,8 @@ import {
   Crown, 
   Heart, 
   Star,
-  Shield
+  Shield,
+  ArrowLeft
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
@@ -142,6 +143,18 @@ const ParentPricingPlan = () => {
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900">
       <div className="container mx-auto px-4 py-16">
+        {/* Back Button */}
+        <div className="mb-8">
+          <Button
+            variant="ghost"
+            onClick={() => window.history.back()}
+            className="text-white hover:text-blue-400 hover:bg-white/10"
+          >
+            <ArrowLeft className="h-4 w-4 mr-2" />
+            Back
+          </Button>
+        </div>
+
         {/* Shortened Hero Section */}
         <div className="text-center space-y-4 mb-16">
           <h1 className="text-4xl lg:text-5xl font-bold text-white">

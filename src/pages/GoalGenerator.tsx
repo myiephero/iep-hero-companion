@@ -55,6 +55,52 @@ const SAMPLE_IEP_GOALS = {
   ]
 };
 
+// Template goals specifically for standards alignment
+const ALIGNMENT_TEMPLATE_GOALS = {
+  reading: [
+    "By the end of the IEP year, when given grade-level fiction and nonfiction texts, [Student] will identify the main idea and supporting details with 80% accuracy across 4 consecutive sessions as measured by curriculum-based assessments.",
+    "When presented with informational text at instructional level, [Student] will determine the author's purpose and identify text features (headings, captions, bold words) with 85% accuracy in 3 out of 4 opportunities.",
+    "Given fiction text at grade level, [Student] will compare and contrast characters, settings, and plot events using graphic organizers with 75% accuracy across 4 consecutive weekly assessments.",
+    "When reading grade-appropriate poetry and prose, [Student] will identify literary elements (rhyme, rhythm, alliteration) and explain their effect on meaning with 80% accuracy in 4 out of 5 opportunities.",
+    "By the end of the IEP year, [Student] will read grade-level text fluently with appropriate rate, accuracy, and expression, scoring at the 25th percentile on oral reading fluency measures for 3 consecutive assessments."
+  ],
+  math: [
+    "By the end of the IEP year, when given multi-step word problems involving addition and subtraction within 1000, [Student] will solve them using place value understanding and properties of operations with 85% accuracy across 4 consecutive assessments.",
+    "When presented with data in graphs, charts, and tables, [Student] will interpret and analyze the information to answer questions with 80% accuracy in 3 out of 4 opportunities.",
+    "Given geometric shapes and figures, [Student] will identify, classify, and describe their attributes (sides, angles, vertices) with 85% accuracy across 4 consecutive weekly sessions.",
+    "By the end of the IEP year, [Student] will solve multiplication and division problems within 100 using strategies based on place value and properties of operations with 80% accuracy in 4 out of 5 assessments.",
+    "When working with fractions, [Student] will compare, order, and perform basic operations (addition/subtraction with like denominators) with 75% accuracy across 3 consecutive sessions."
+  ],
+  writing: [
+    "By the end of the IEP year, when given a narrative writing prompt, [Student] will write a coherent story with clear sequence, character development, and descriptive details, scoring proficient on district rubric in 3 out of 4 samples.",
+    "When composing informational text, [Student] will organize ideas using appropriate text structures (compare/contrast, cause/effect, sequence) with supporting facts and details with 80% accuracy across 4 writing samples.",
+    "Given an argumentative writing task, [Student] will state a clear claim, provide relevant evidence, and address counterarguments with 85% accuracy as measured by district writing rubric in 3 consecutive samples.",
+    "By the end of the IEP year, [Student] will revise and edit writing for grammar, capitalization, punctuation, and spelling with 80% accuracy across 4 consecutive writing assignments.",
+    "When writing across content areas, [Student] will use domain-specific vocabulary and academic language appropriate to the subject with 85% accuracy in 4 out of 5 opportunities."
+  ],
+  science: [
+    "By the end of the IEP year, when conducting scientific investigations, [Student] will formulate hypotheses, collect data, and draw evidence-based conclusions with 80% accuracy across 4 consecutive lab activities.",
+    "When studying life science concepts, [Student] will explain relationships between organisms and their environment, including food webs and ecosystems, with 85% accuracy in 3 out of 4 assessments.",
+    "Given physical science phenomena, [Student] will identify and explain properties of matter (solid, liquid, gas) and changes in states with 80% accuracy across 4 consecutive experiments.",
+    "By the end of the IEP year, [Student] will analyze weather patterns and climate data to make predictions about future conditions with 75% accuracy in 4 out of 5 opportunities.",
+    "When exploring earth science topics, [Student] will explain the rock cycle, erosion processes, and landform formation using scientific vocabulary with 80% accuracy across 3 consecutive assessments."
+  ],
+  social: [
+    "By the end of the IEP year, when studying historical events, [Student] will identify cause and effect relationships and explain their significance with 80% accuracy across 4 consecutive assessments.",
+    "When analyzing primary and secondary sources, [Student] will compare different perspectives on historical events and draw supported conclusions with 85% accuracy in 3 out of 4 opportunities.",
+    "Given maps, graphs, and charts, [Student] will interpret geographic information and explain human-environment interactions with 80% accuracy across 4 consecutive sessions.",
+    "By the end of the IEP year, [Student] will explain the structure and function of local, state, and national government, including rights and responsibilities of citizens with 75% accuracy in 4 out of 5 assessments.",
+    "When studying economics concepts, [Student] will identify needs vs. wants, explain supply and demand, and describe how people make economic choices with 80% accuracy across 3 consecutive evaluations."
+  ],
+  behavior: [
+    "By the end of the IEP year, [Student] will demonstrate appropriate classroom behavior by following directions, staying on task, and completing assignments within allotted time with 85% accuracy across 4 consecutive weeks.",
+    "When working in group settings, [Student] will use appropriate social skills including turn-taking, active listening, and respectful communication with 80% accuracy in 4 out of 5 collaborative activities.",
+    "Given transition cues and advance notice, [Student] will move between activities and locations independently within 2 minutes with no more than 1 verbal prompt with 85% accuracy across 4 consecutive days.",
+    "By the end of the IEP year, [Student] will use appropriate conflict resolution strategies when disagreements arise, including compromise and seeking adult help when needed, with 80% accuracy in 3 out of 4 situations.",
+    "When experiencing academic frustration, [Student] will use self-regulation strategies (requesting breaks, using coping tools, asking for help) before exhibiting disruptive behavior with 85% accuracy across 4 consecutive sessions."
+  ]
+};
+
 interface ComplianceResult {
   overallScore: number;
   criteria: {
@@ -87,6 +133,8 @@ export default function GoalGenerator() {
   const [alignmentGoalText, setAlignmentGoalText] = useState('');
   const [isAligning, setIsAligning] = useState(false);
   const [alignmentResults, setAlignmentResults] = useState<any>(null);
+  const [selectedTemplateCategory, setSelectedTemplateCategory] = useState('');
+  const [selectedAlignmentTemplate, setSelectedAlignmentTemplate] = useState('');
   
   // Student selection states
   const [selectedStudentId, setSelectedStudentId] = useState('');
@@ -908,12 +956,74 @@ export default function GoalGenerator() {
             </div>
             
             <div className="space-y-2">
-              <Label htmlFor="goal-align">IEP Goal to Align</Label>
+              <div className="flex items-center justify-between">
+                <Label htmlFor="goal-align">IEP Goal to Align</Label>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => {
+                    setAlignmentGoalText('');
+                    setSelectedAlignmentTemplate('');
+                  }}
+                  data-testid="button-clear-alignment-goal"
+                >
+                  Clear Goal
+                </Button>
+              </div>
+              
+              {/* Template Goal Selection */}
+              <div className="space-y-3 p-4 bg-muted/30 rounded-lg">
+                <Label className="text-sm font-semibold">Choose from Template Goals</Label>
+                <div className="grid gap-3 md:grid-cols-2">
+                  <div className="space-y-2">
+                    <Label htmlFor="template-category">Template Category</Label>
+                    <Select value={selectedTemplateCategory} onValueChange={setSelectedTemplateCategory}>
+                      <SelectTrigger data-testid="select-template-category">
+                        <SelectValue placeholder="Select category" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="reading">Reading Comprehension</SelectItem>
+                        <SelectItem value="math">Mathematics</SelectItem>
+                        <SelectItem value="writing">Written Expression</SelectItem>
+                        <SelectItem value="science">Science</SelectItem>
+                        <SelectItem value="social">Social Studies</SelectItem>
+                        <SelectItem value="behavior">Behavior/Social Skills</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  
+                  {selectedTemplateCategory && (
+                    <div className="space-y-2">
+                      <Label htmlFor="template-goal">Template Goal</Label>
+                      <Select value={selectedAlignmentTemplate} onValueChange={(value) => {
+                        setSelectedAlignmentTemplate(value);
+                        const categoryTemplates = ALIGNMENT_TEMPLATE_GOALS[selectedTemplateCategory as keyof typeof ALIGNMENT_TEMPLATE_GOALS];
+                        const goalIndex = parseInt(value);
+                        if (categoryTemplates && !isNaN(goalIndex)) {
+                          setAlignmentGoalText(categoryTemplates[goalIndex]);
+                        }
+                      }}>
+                        <SelectTrigger data-testid="select-template-goal">
+                          <SelectValue placeholder="Select template" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {ALIGNMENT_TEMPLATE_GOALS[selectedTemplateCategory as keyof typeof ALIGNMENT_TEMPLATE_GOALS]?.map((goal, index) => (
+                            <SelectItem key={index} value={index.toString()}>
+                              {goal.substring(0, 60)}...
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+                  )}
+                </div>
+              </div>
+
               <Textarea
                 id="goal-align"
                 value={alignmentGoalText}
                 onChange={(e) => setAlignmentGoalText(e.target.value)}
-                placeholder="Enter the IEP goal you want to align with standards..."
+                placeholder="Enter the IEP goal you want to align with standards, or select a template above..."
                 rows={4}
                 data-testid="textarea-align-goal"
               />

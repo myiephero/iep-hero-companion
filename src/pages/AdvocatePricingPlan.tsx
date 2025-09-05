@@ -120,6 +120,17 @@ const AdvocatePricingPlan = () => {
     // All advocate plans are paid - redirect to Stripe checkout
     const checkoutUrl = getCheckoutUrl(planId, 'advocate');
     const planName = pricingTiers.find(p => p.id === planId)?.name || planId;
+    console.log('Advocate plan selected:', planId, 'Checkout URL:', checkoutUrl);
+    
+    if (!checkoutUrl || checkoutUrl === '/' || checkoutUrl.includes('undefined')) {
+      console.error('Invalid checkout URL for advocate plan:', planId);
+      toast({
+        title: "Setup Error",
+        description: "Unable to process this plan. Please contact support.",
+        variant: "destructive"
+      });
+      return;
+    }
     
     toast({
       title: `${planName} Plan Selected`,

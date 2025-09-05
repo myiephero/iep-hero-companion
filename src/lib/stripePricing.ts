@@ -99,17 +99,22 @@ export function requiresPayment(planId: string): boolean {
 // Helper function to get checkout URL with plan data
 export function getCheckoutUrl(planId: string, role: 'parent' | 'advocate'): string {
   const config = getStripePlanConfig(planId);
-  if (!config || !requiresPayment(planId)) {
-    return '/dashboard'; // Free plan goes straight to dashboard
+  
+  // Only free plan goes to dashboard
+  if (planId === 'free') {
+    return '/dashboard';
+  }
+  
+  // All other plans go to subscription setup, even without price IDs
+  if (!config) {
+    console.error(`No config found for plan: ${planId}`);
+    return '/parent/pricing'; // Fallback to pricing page
   }
 
-  // Use either the configured priceId or fall back to payment intent mode
-  const priceId = config.priceId && config.priceId.startsWith('price_') ? config.priceId : '';
-  
   const params = new URLSearchParams({
     plan: planId,
     role: role,
-    priceId: priceId,
+    priceId: config.priceId || '',
     amount: config.amount.toString(),
     planName: planId.charAt(0).toUpperCase() + planId.slice(1)
   });
@@ -122,7 +127,7 @@ export function validateStripePricing(): { valid: boolean; missing: string[] } {
   const missing: string[] = [];
   
   Object.entries(ALL_STRIPE_PLANS).forEach(([planId, config]) => {
-    if (requiresPayment(planId) && (!config.priceId || config.priceId.startsWith('price_'))) {
+    if (requiresPayment(planId) && (!config.priceId || !config.priceId.startsWith('price_'))) {
       missing.push(planId);
     }
   });

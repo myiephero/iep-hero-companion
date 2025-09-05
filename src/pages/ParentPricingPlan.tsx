@@ -150,6 +150,18 @@ const ParentPricingPlan = () => {
     
     // Paid plans - redirect to Stripe checkout
     const checkoutUrl = getCheckoutUrl(planId, 'parent');
+    console.log('Plan selected:', planId, 'Checkout URL:', checkoutUrl);
+    
+    if (!checkoutUrl || checkoutUrl === '/' || checkoutUrl.includes('undefined')) {
+      console.error('Invalid checkout URL for plan:', planId);
+      toast({
+        title: "Setup Error",
+        description: "Unable to process this plan. Please contact support.",
+        variant: "destructive"
+      });
+      return;
+    }
+    
     toast({
       title: `${planId.charAt(0).toUpperCase() + planId.slice(1)} plan selected`,
       description: "Redirecting to checkout...",

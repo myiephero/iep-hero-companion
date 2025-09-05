@@ -1040,15 +1040,10 @@ app.post('/api/create-subscription-intent', async (req: any, res) => {
   }
 });
 
-// Guest checkout session - no authentication required
+// Simple Stripe Checkout Session - Clean Implementation
 app.post('/api/create-checkout-session', async (req, res) => {
-  console.log('🎯 CHECKOUT SESSION ENDPOINT HIT!', req.body);
-  console.log('🎯 Request details:', {
-    method: req.method,
-    url: req.url,
-    headers: req.headers,
-    body: req.body
-  });
+  console.log('🎯 Creating checkout session for:', req.body);
+  
   try {
     const { priceId, planName, planId, role, amount, setupFee } = req.body;
     
@@ -1060,83 +1055,52 @@ app.post('/api/create-checkout-session', async (req, res) => {
     const protocol = currentDomain.includes('localhost') ? 'http' : 'https';
     const baseUrl = `${protocol}://${currentDomain}`;
     
-    // Check if this is Hero Family Pack (hybrid pricing: $495 setup + $199/month)
-    const isHeroPackage = planId === 'hero' || priceId === 'price_1S3nyI8iKZXV0srZy1awxPBd';
+    // Check if this is Hero Family Pack (hybrid pricing)
+    const isHeroPackage = planId === 'hero';
     
-    let sessionConfig;
+    let lineItems;
     
     if (isHeroPackage) {
-      // Hero Family Pack: $495 one-time + $199/month subscription
-      // CRITICAL: Stripe subscription mode cannot mix one-time and recurring items
-      // Solution: Use subscription mode with BOTH prices configured as subscription items
-      sessionConfig = {
-        mode: 'subscription' as const,
-        payment_method_types: ['card'] as const,
-        line_items: [
-          {
-            // Setup fee: Configured as subscription item but should be one-time in Stripe Dashboard
-            price: 'price_1RsEn58iKZXV0srZ0UH8e4tg', // $495 setup fee
-            quantity: 1,
-          },
-          {
-            // Monthly subscription: $199/month 
-            price: priceId, // price_1S3nyI8iKZXV0srZy1awxPBd
-            quantity: 1,
-          }
-        ],
-        subscription_data: {
-          metadata: {
-            planId,
-            planName,
-            role,
-            setupFee: '495',
-            isHeroPackage: 'true'
-          }
-        }
-      };
-    } else {
-      // Standard subscription checkout session
-      sessionConfig = {
-        mode: 'subscription' as const,
-        payment_method_types: ['card'] as const,
-        line_items: [{
-          price: priceId,
+      // Hero Family Pack: Two line items as you specified
+      lineItems = [
+        {
+          price: 'price_1RsEn58iKZXV0srZ0UH8e4tg', // $495 setup fee
           quantity: 1,
-        }],
-        subscription_data: {
-          metadata: {
-            planId,
-            planName,
-            role,
-            ...(setupFee && { setupFee: setupFee.toString() })
-          }
+        },
+        {
+          price: 'price_1S3nyI8iKZXV0srZy1awxPBd', // $199/month subscription
+          quantity: 1,
         }
-      };
+      ];
+    } else {
+      // Standard single price
+      lineItems = [{
+        price: priceId,
+        quantity: 1,
+      }];
     }
     
-    // Create Stripe Checkout Session
+    // Create Stripe Checkout Session - Simple & Clean
     const session = await stripe.checkout.sessions.create({
-      ...sessionConfig,
+      mode: 'subscription',
+      payment_method_types: ['card'],
+      line_items: lineItems,
       success_url: `${baseUrl}/subscription-success?session_id={CHECKOUT_SESSION_ID}&plan=${planId}&role=${role}`,
       cancel_url: `${baseUrl}/${role}/pricing`,
       metadata: {
         planId,
         planName,
         role,
-        priceId,
-        ...(setupFee && { setupFee: setupFee.toString() })
+        ...(isHeroPackage && { setupFee: '495', isHeroPackage: 'true' })
       },
       allow_promotion_codes: true,
       billing_address_collection: 'required'
-      // Removed customer_creation: 'always' - not compatible with subscription mode
     });
     
-    // Redirect to Stripe Checkout
-    console.log('Stripe session created:', {
+    console.log('✅ Stripe session created:', {
       sessionId: session.id,
-      url: session.url,
-      mode: session.mode,
-      status: session.status
+      url: session.url ? 'URL generated' : 'No URL',
+      mode: session.mode
     });
     
     if (!session.url) {
@@ -1146,17 +1110,10 @@ app.post('/api/create-checkout-session', async (req, res) => {
     res.json({ url: session.url });
     
   } catch (error) {
-    console.error('🚨 DETAILED STRIPE ERROR:', error);
-    console.error('🚨 Error message:', error.message);
-    console.error('🚨 Error type:', error.type);
-    console.error('🚨 Error code:', error.code);
-    console.error('🚨 Error param:', error.param);
-    console.error('🚨 Raw error:', JSON.stringify(error, null, 2));
+    console.error('❌ Stripe checkout error:', error.message);
     res.status(500).json({ 
       error: 'Failed to create checkout session',
-      message: error.message,
-      type: error.type,
-      code: error.code 
+      message: error.message
     });
   }
 });

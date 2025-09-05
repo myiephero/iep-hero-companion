@@ -3,6 +3,9 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Link } from "react-router-dom";
+import { ToolTeaser } from "@/components/ToolTeaser";
+import { useToolAccess } from "@/hooks/useToolAccess";
+import { useAuth } from "@/hooks/useAuth";
 import { 
   Brain, 
   FileText, 
@@ -211,6 +214,8 @@ const getBadgeVariant = (badge: string) => {
 
 export default function AdvocateToolsHub() {
   const userRole = getUserRole();
+  const { user } = useAuth();
+  const { hasAccess, getRequiredPlan } = useToolAccess();
   
   return (
     <DashboardLayout>
@@ -249,49 +254,68 @@ export default function AdvocateToolsHub() {
           <div>
             <h3 className="text-lg font-medium mb-4 text-center text-gray-700">Core Professional Tools</h3>
             <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 gap-4">
-              {advocateTools.map((tool) => (
-                <Card key={tool.title} className="card-elevated group cursor-pointer transform hover:scale-[1.05] transition-all duration-300 hover:shadow-xl hover:shadow-primary/10 flex flex-col">
-                  <CardHeader className="pb-3 pt-4 px-4 flex-shrink-0">
-                    <div className="flex flex-col items-center text-center space-y-3">
-                      <div className="w-14 h-14 rounded-xl bg-gradient-to-br from-primary/10 to-accent/10 flex items-center justify-center text-primary group-hover:from-primary group-hover:to-accent group-hover:text-primary-foreground transition-all duration-300 shadow-lg group-hover:shadow-xl">
-                        <tool.icon className="h-7 w-7" />
+              {advocateTools.map((tool) => {
+                const toolPath = tool.path.startsWith('/advocate/') || tool.path.startsWith('/parent/') ? tool.path : `/${userRole}${tool.path}`;
+                const hasToolAccess = hasAccess(toolPath);
+
+                if (!hasToolAccess) {
+                  return (
+                    <ToolTeaser
+                      key={tool.title}
+                      toolName={tool.title}
+                      description={tool.description}
+                      icon={<tool.icon className="h-5 w-5" />}
+                      benefits={tool.features || []}
+                      requiredPlan={getRequiredPlan(toolPath)}
+                      className="h-full"
+                    />
+                  );
+                }
+
+                return (
+                  <Card key={tool.title} className="card-elevated group cursor-pointer transform hover:scale-[1.05] transition-all duration-300 hover:shadow-xl hover:shadow-primary/10 flex flex-col">
+                    <CardHeader className="pb-3 pt-4 px-4 flex-shrink-0">
+                      <div className="flex flex-col items-center text-center space-y-3">
+                        <div className="w-14 h-14 rounded-xl bg-gradient-to-br from-primary/10 to-accent/10 flex items-center justify-center text-primary group-hover:from-primary group-hover:to-accent group-hover:text-primary-foreground transition-all duration-300 shadow-lg group-hover:shadow-xl">
+                          <tool.icon className="h-7 w-7" />
+                        </div>
+                        <div className="space-y-2">
+                          <Badge className={`text-xs px-3 py-1 font-medium shadow-sm ${
+                            tool.badge === 'Pro' ? 'bg-gradient-to-r from-accent to-accent-light text-accent-foreground' :
+                            tool.badge === 'Templates' ? 'bg-gradient-to-r from-secondary to-secondary-light text-secondary-foreground' :
+                            tool.badge === 'Legal' ? 'bg-gradient-to-r from-primary to-primary-light text-primary-foreground' :
+                            tool.badge === 'Prep' ? 'bg-gradient-to-r from-accent to-accent-light text-accent-foreground' :
+                            tool.badge === 'Analytics' ? 'bg-gradient-to-r from-success to-success-light text-success-foreground' :
+                            tool.badge === 'SMART' ? 'bg-gradient-to-r from-warning to-warning-light text-warning-foreground' :
+                            tool.badge === 'Secure' ? 'bg-gradient-to-r from-destructive to-destructive-light text-destructive-foreground' :
+                            tool.badge === 'AI' ? 'bg-gradient-to-r from-primary to-accent text-primary-foreground' :
+                            'bg-gradient-to-r from-success to-success-light text-success-foreground'
+                          }`}>
+                            {tool.badge}
+                          </Badge>
+                          <CardTitle className="text-sm font-semibold group-hover:text-primary transition-colors leading-tight dark:text-gray-100">
+                            {tool.title}
+                          </CardTitle>
+                        </div>
                       </div>
-                      <div className="space-y-2">
-                        <Badge className={`text-xs px-3 py-1 font-medium shadow-sm ${
-                          tool.badge === 'Pro' ? 'bg-gradient-to-r from-accent to-accent-light text-accent-foreground' :
-                          tool.badge === 'Templates' ? 'bg-gradient-to-r from-secondary to-secondary-light text-secondary-foreground' :
-                          tool.badge === 'Legal' ? 'bg-gradient-to-r from-primary to-primary-light text-primary-foreground' :
-                          tool.badge === 'Prep' ? 'bg-gradient-to-r from-accent to-accent-light text-accent-foreground' :
-                          tool.badge === 'Analytics' ? 'bg-gradient-to-r from-success to-success-light text-success-foreground' :
-                          tool.badge === 'SMART' ? 'bg-gradient-to-r from-warning to-warning-light text-warning-foreground' :
-                          tool.badge === 'Secure' ? 'bg-gradient-to-r from-destructive to-destructive-light text-destructive-foreground' :
-                          tool.badge === 'AI' ? 'bg-gradient-to-r from-primary to-accent text-primary-foreground' :
-                          'bg-gradient-to-r from-success to-success-light text-success-foreground'
-                        }`}>
-                          {tool.badge}
-                        </Badge>
-                        <CardTitle className="text-sm font-semibold group-hover:text-primary transition-colors leading-tight dark:text-gray-100">
-                          {tool.title}
-                        </CardTitle>
-                      </div>
-                    </div>
-                  </CardHeader>
-                  
-                  <CardContent className="pt-0 px-4 pb-4 flex-1 flex flex-col justify-between">
-                    <div className="space-y-3 flex-1 flex items-center">
-                      <p className="text-xs text-gray-600 dark:text-gray-300 text-center leading-relaxed">
-                        {tool.description}
-                      </p>
-                    </div>
+                    </CardHeader>
                     
-                    <Button asChild size="sm" className="w-full text-xs py-2 bg-gradient-to-r from-primary to-primary/90 hover:from-primary/90 hover:to-primary dark:from-primary dark:to-primary/90 shadow-sm">
-                      <Link to={tool.path.startsWith('/advocate/') || tool.path.startsWith('/parent/') ? tool.path : `/${userRole}${tool.path}`}>
-                        Open Tool
-                      </Link>
-                    </Button>
-                  </CardContent>
-                </Card>
-              ))}
+                    <CardContent className="pt-0 px-4 pb-4 flex-1 flex flex-col justify-between">
+                      <div className="space-y-3 flex-1 flex items-center">
+                        <p className="text-xs text-gray-600 dark:text-gray-300 text-center leading-relaxed">
+                          {tool.description}
+                        </p>
+                      </div>
+                      
+                      <Button asChild size="sm" className="w-full text-xs py-2 bg-gradient-to-r from-primary to-primary/90 hover:from-primary/90 hover:to-primary dark:from-primary dark:to-primary/90 shadow-sm">
+                        <Link to={toolPath}>
+                          Open Tool
+                        </Link>
+                      </Button>
+                    </CardContent>
+                  </Card>
+                );
+              })}
             </div>
           </div>
 
@@ -299,49 +323,68 @@ export default function AdvocateToolsHub() {
           <div>
             <h3 className="text-lg font-medium mb-4 text-center text-gray-700">Specialized Assessment Tools</h3>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-              {specializedTools.map((tool) => (
-                <Card key={tool.title} className="hover:shadow-xl transition-all duration-200 hover:scale-[1.02] group border border-gray-200 hover:border-primary/30 bg-gradient-to-br from-primary/5 to-white dark:from-primary/10 dark:to-gray-800 dark:border-gray-700 dark:hover:border-primary/50 flex flex-col">
-                  <CardHeader className="pb-3 pt-4 px-4 flex-shrink-0">
-                    <div className="flex flex-col items-center text-center space-y-3">
-                      <div className="p-3 rounded-lg bg-white/80 dark:bg-gray-900/80 group-hover:bg-white dark:group-hover:bg-gray-900 group-hover:shadow-md transition-all duration-200 backdrop-blur-sm">
-                        <tool.icon className="h-6 w-6 text-primary dark:text-primary" />
+              {specializedTools.map((tool) => {
+                const toolPath = tool.path.startsWith('/advocate/') || tool.path.startsWith('/parent/') ? tool.path : `/${userRole}${tool.path}`;
+                const hasToolAccess = hasAccess(toolPath);
+
+                if (!hasToolAccess) {
+                  return (
+                    <ToolTeaser
+                      key={tool.title}
+                      toolName={tool.title}
+                      description={tool.description}
+                      icon={<tool.icon className="h-5 w-5" />}
+                      benefits={tool.features || []}
+                      requiredPlan={getRequiredPlan(toolPath)}
+                      className="h-full"
+                    />
+                  );
+                }
+
+                return (
+                  <Card key={tool.title} className="hover:shadow-xl transition-all duration-200 hover:scale-[1.02] group border border-gray-200 hover:border-primary/30 bg-gradient-to-br from-primary/5 to-white dark:from-primary/10 dark:to-gray-800 dark:border-gray-700 dark:hover:border-primary/50 flex flex-col">
+                    <CardHeader className="pb-3 pt-4 px-4 flex-shrink-0">
+                      <div className="flex flex-col items-center text-center space-y-3">
+                        <div className="p-3 rounded-lg bg-white/80 dark:bg-gray-900/80 group-hover:bg-white dark:group-hover:bg-gray-900 group-hover:shadow-md transition-all duration-200 backdrop-blur-sm">
+                          <tool.icon className="h-6 w-6 text-primary dark:text-primary" />
+                        </div>
+                        <div className="space-y-2">
+                          <Badge className={`text-xs px-3 py-1 font-medium shadow-sm ${
+                            tool.badge === 'Pro' ? 'bg-gradient-to-r from-accent to-accent-light text-accent-foreground' :
+                            tool.badge === 'Templates' ? 'bg-gradient-to-r from-secondary to-secondary-light text-secondary-foreground' :
+                            tool.badge === 'Legal' ? 'bg-gradient-to-r from-primary to-primary-light text-primary-foreground' :
+                            tool.badge === 'Prep' ? 'bg-gradient-to-r from-accent to-accent-light text-accent-foreground' :
+                            tool.badge === 'Analytics' ? 'bg-gradient-to-r from-success to-success-light text-success-foreground' :
+                            tool.badge === 'SMART' ? 'bg-gradient-to-r from-warning to-warning-light text-warning-foreground' :
+                            tool.badge === 'Secure' ? 'bg-gradient-to-r from-destructive to-destructive-light text-destructive-foreground' :
+                            tool.badge === 'AI' ? 'bg-gradient-to-r from-primary to-accent text-primary-foreground' :
+                            'bg-gradient-to-r from-success to-success-light text-success-foreground'
+                          }`}>
+                            {tool.badge}
+                          </Badge>
+                          <CardTitle className="text-sm font-semibold group-hover:text-primary transition-colors leading-tight dark:text-gray-100">
+                            {tool.title}
+                          </CardTitle>
+                        </div>
                       </div>
-                      <div className="space-y-2">
-                        <Badge className={`text-xs px-3 py-1 font-medium shadow-sm ${
-                          tool.badge === 'Pro' ? 'bg-gradient-to-r from-accent to-accent-light text-accent-foreground' :
-                          tool.badge === 'Templates' ? 'bg-gradient-to-r from-secondary to-secondary-light text-secondary-foreground' :
-                          tool.badge === 'Legal' ? 'bg-gradient-to-r from-primary to-primary-light text-primary-foreground' :
-                          tool.badge === 'Prep' ? 'bg-gradient-to-r from-accent to-accent-light text-accent-foreground' :
-                          tool.badge === 'Analytics' ? 'bg-gradient-to-r from-success to-success-light text-success-foreground' :
-                          tool.badge === 'SMART' ? 'bg-gradient-to-r from-warning to-warning-light text-warning-foreground' :
-                          tool.badge === 'Secure' ? 'bg-gradient-to-r from-destructive to-destructive-light text-destructive-foreground' :
-                          tool.badge === 'AI' ? 'bg-gradient-to-r from-primary to-accent text-primary-foreground' :
-                          'bg-gradient-to-r from-success to-success-light text-success-foreground'
-                        }`}>
-                          {tool.badge}
-                        </Badge>
-                        <CardTitle className="text-sm font-semibold group-hover:text-primary transition-colors leading-tight dark:text-gray-100">
-                          {tool.title}
-                        </CardTitle>
-                      </div>
-                    </div>
-                  </CardHeader>
-                  
-                  <CardContent className="pt-0 px-4 pb-4 flex-1 flex flex-col justify-between">
-                    <div className="space-y-3 flex-1 flex items-center">
-                      <p className="text-xs text-gray-600 dark:text-gray-300 text-center leading-relaxed">
-                        {tool.description}
-                      </p>
-                    </div>
+                    </CardHeader>
                     
-                    <Button asChild size="sm" className="w-full text-xs py-2 bg-gradient-to-r from-primary to-primary/90 hover:from-primary/90 hover:to-primary dark:from-primary dark:to-primary/90 shadow-sm">
-                      <Link to={tool.path.startsWith('/advocate/') || tool.path.startsWith('/parent/') ? tool.path : `/${userRole}${tool.path}`}>
-                        Open Tool
-                      </Link>
-                    </Button>
-                  </CardContent>
-                </Card>
-              ))}
+                    <CardContent className="pt-0 px-4 pb-4 flex-1 flex flex-col justify-between">
+                      <div className="space-y-3 flex-1 flex items-center">
+                        <p className="text-xs text-gray-600 dark:text-gray-300 text-center leading-relaxed">
+                          {tool.description}
+                        </p>
+                      </div>
+                      
+                      <Button asChild size="sm" className="w-full text-xs py-2 bg-gradient-to-r from-primary to-primary/90 hover:from-primary/90 hover:to-primary dark:from-primary dark:to-primary/90 shadow-sm">
+                        <Link to={toolPath}>
+                          Open Tool
+                        </Link>
+                      </Button>
+                    </CardContent>
+                  </Card>
+                );
+              })}
             </div>
           </div>
         </div>

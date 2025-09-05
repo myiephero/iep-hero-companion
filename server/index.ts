@@ -1092,38 +1092,70 @@ app.post('/api/process-checkout-success', async (req, res) => {
       return res.status(400).json({ error: 'No customer ID found' });
     }
     
-    // Generate verification token
-    const verificationToken = generateVerificationToken();
-    
     // Extract name from session if available
     const customerName = session.customer_details?.name || '';
     const [firstName, ...lastNameParts] = customerName.split(' ');
     const lastName = lastNameParts.join(' ');
     
-    // Create user account 
-    const [newUser] = await db.insert(schema.users).values({
-      email,
-      firstName: firstName || 'User',
-      lastName: lastName || '',
-      role: role as 'parent' | 'advocate',
-      stripeCustomerId: customerId,
-      subscriptionPlan: planId,
-      subscriptionStatus: session.subscription ? 'active' : 'incomplete',
-      stripeSubscriptionId: typeof session.subscription === 'string' ? session.subscription : session.subscription?.id,
-      emailVerified: false,
-      verificationToken
-    }).returning();
+    // Check if user already exists
+    const [existingUser] = await db.select()
+      .from(schema.users)
+      .where(eq(schema.users.email, email))
+      .limit(1);
     
-    // Send verification email using Resend
-    const emailSent = await sendVerificationEmail({
-      email,
-      firstName: firstName || 'User',
-      lastName: lastName || '',
-      verificationToken
-    });
+    let user;
+    let emailSent = false;
     
-    if (!emailSent) {
-      console.error('Failed to send verification email');
+    if (existingUser) {
+      // Update existing user with Stripe information
+      [user] = await db.update(schema.users)
+        .set({
+          stripeCustomerId: customerId,
+          subscriptionPlan: planId,
+          subscriptionStatus: session.subscription ? 'active' : 'incomplete',
+          stripeSubscriptionId: typeof session.subscription === 'string' ? session.subscription : session.subscription?.id,
+          updatedAt: new Date()
+        })
+        .where(eq(schema.users.email, email))
+        .returning();
+      
+      console.log('🎯 Updated existing user with Stripe info:', {
+        userId: user.id,
+        email: user.email,
+        subscriptionPlan: user.subscriptionPlan,
+        skipEmail: 'User already has account, no duplicate email sent'
+      });
+      
+      // Don't send verification email again - user already has an account
+      emailSent = true; // Mark as sent to indicate success without actually sending
+    } else {
+      // Create new user account only if one doesn't exist
+      const verificationToken = generateVerificationToken();
+      
+      [user] = await db.insert(schema.users).values({
+        email,
+        firstName: firstName || 'User',
+        lastName: lastName || '',
+        role: role as 'parent' | 'advocate',
+        stripeCustomerId: customerId,
+        subscriptionPlan: planId,
+        subscriptionStatus: session.subscription ? 'active' : 'incomplete',
+        stripeSubscriptionId: typeof session.subscription === 'string' ? session.subscription : session.subscription?.id,
+        emailVerified: false,
+        verificationToken
+      }).returning();
+      
+      // Send verification email only for new users
+      emailSent = await sendVerificationEmail({
+        email,
+        firstName: firstName || 'User',
+        lastName: lastName || '',
+        verificationToken
+      });
+      
+      if (!emailSent) {
+        console.error('Failed to send verification email');
+      }
     }
     
     res.json({ 

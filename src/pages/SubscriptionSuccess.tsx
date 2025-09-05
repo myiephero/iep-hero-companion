@@ -54,7 +54,7 @@ export default function SubscriptionSuccess() {
       setCountDown(prev => {
         if (prev <= 1) {
           // Redirect to login page for email verification
-          navigate('/api/login');
+          window.location.href = '/api/login';
           return 0;
         }
         return prev - 1;

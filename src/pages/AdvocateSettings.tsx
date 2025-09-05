@@ -48,6 +48,13 @@ export default function AdvocateSettings() {
     rate_per_hour: 150,
     availability: 'weekdays'
   });
+
+  const [openDropdowns, setOpenDropdowns] = useState({
+    specializations: false,
+    case_types: false,
+    languages: false,
+    certifications: false
+  });
   
   // Load existing profile
   const { data: existingProfile } = useQuery({
@@ -246,23 +253,37 @@ export default function AdvocateSettings() {
                     </Badge>
                   ))}
                 </div>
-                <Select onValueChange={(value) => addItem('specializations', value)}>
+                <Select open={openDropdowns.specializations} onOpenChange={(open) => setOpenDropdowns(prev => ({ ...prev, specializations: open }))}>
                   <SelectTrigger data-testid="select-specializations">
-                    <SelectValue placeholder="Add specialization" />
+                    <SelectValue placeholder="Add specializations" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="Autism Spectrum Disorders">Autism Spectrum Disorders</SelectItem>
-                    <SelectItem value="ADHD">ADHD</SelectItem>
-                    <SelectItem value="Learning Disabilities">Learning Disabilities</SelectItem>
-                    <SelectItem value="Intellectual Disabilities">Intellectual Disabilities</SelectItem>
-                    <SelectItem value="Emotional/Behavioral Disorders">Emotional/Behavioral Disorders</SelectItem>
-                    <SelectItem value="Speech/Language Disorders">Speech/Language Disorders</SelectItem>
-                    <SelectItem value="Physical Disabilities">Physical Disabilities</SelectItem>
-                    <SelectItem value="Gifted & Talented">Gifted & Talented</SelectItem>
-                    <SelectItem value="Twice Exceptional (2e)">Twice Exceptional (2e)</SelectItem>
-                    <SelectItem value="Transition Planning">Transition Planning</SelectItem>
-                    <SelectItem value="Behavioral Interventions">Behavioral Interventions</SelectItem>
-                    <SelectItem value="Assistive Technology">Assistive Technology</SelectItem>
+                    {[
+                      "Autism Spectrum Disorders", "ADHD", "Learning Disabilities", "Intellectual Disabilities",
+                      "Emotional/Behavioral Disorders", "Speech/Language Disorders", "Physical Disabilities",
+                      "Gifted & Talented", "Twice Exceptional (2e)", "Transition Planning",
+                      "Behavioral Interventions", "Assistive Technology"
+                    ].map((spec) => (
+                      <SelectItem 
+                        key={spec} 
+                        value={spec}
+                        onSelect={(e) => {
+                          e.preventDefault();
+                          if (!profile.specializations?.includes(spec)) {
+                            addItem('specializations', spec);
+                          }
+                        }}
+                        className={`flex items-center gap-2 ${profile.specializations?.includes(spec) ? 'bg-primary/10' : ''}`}
+                      >
+                        <input 
+                          type="checkbox" 
+                          checked={profile.specializations?.includes(spec) || false}
+                          onChange={() => {}}
+                          className="rounded"
+                        />
+                        {spec}
+                      </SelectItem>
+                    ))}
                   </SelectContent>
                 </Select>
               </div>
@@ -281,20 +302,36 @@ export default function AdvocateSettings() {
                     </Badge>
                   ))}
                 </div>
-                <Select onValueChange={(value) => addItem('case_types', value)}>
+                <Select open={openDropdowns.case_types} onOpenChange={(open) => setOpenDropdowns(prev => ({ ...prev, case_types: open }))}>
                   <SelectTrigger data-testid="select-case-types">
-                    <SelectValue placeholder="Add case type" />
+                    <SelectValue placeholder="Add case types" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="Initial IEP Development">Initial IEP Development</SelectItem>
-                    <SelectItem value="IEP Review & Updates">IEP Review & Updates</SelectItem>
-                    <SelectItem value="Due Process Hearings">Due Process Hearings</SelectItem>
-                    <SelectItem value="Mediation">Mediation</SelectItem>
-                    <SelectItem value="Evaluation Disputes">Evaluation Disputes</SelectItem>
-                    <SelectItem value="Placement Disputes">Placement Disputes</SelectItem>
-                    <SelectItem value="Transition Planning">Transition Planning</SelectItem>
-                    <SelectItem value="Behavioral Support Plans">Behavioral Support Plans</SelectItem>
-                    <SelectItem value="School District Negotiations">School District Negotiations</SelectItem>
+                    {[
+                      "Initial IEP Development", "IEP Review & Updates", "Due Process Hearings", 
+                      "Mediation", "Evaluation Disputes", "Placement Disputes", "Transition Planning",
+                      "Behavioral Support Plans", "School District Negotiations"
+                    ].map((type) => (
+                      <SelectItem 
+                        key={type} 
+                        value={type}
+                        onSelect={(e) => {
+                          e.preventDefault();
+                          if (!profile.case_types?.includes(type)) {
+                            addItem('case_types', type);
+                          }
+                        }}
+                        className={`flex items-center gap-2 ${profile.case_types?.includes(type) ? 'bg-primary/10' : ''}`}
+                      >
+                        <input 
+                          type="checkbox" 
+                          checked={profile.case_types?.includes(type) || false}
+                          onChange={() => {}}
+                          className="rounded"
+                        />
+                        {type}
+                      </SelectItem>
+                    ))}
                   </SelectContent>
                 </Select>
               </div>
@@ -313,17 +350,34 @@ export default function AdvocateSettings() {
                     </Badge>
                   ))}
                 </div>
-                <Select onValueChange={(value) => addItem('languages', value)}>
+                <Select open={openDropdowns.languages} onOpenChange={(open) => setOpenDropdowns(prev => ({ ...prev, languages: open }))}>
                   <SelectTrigger data-testid="select-languages">
-                    <SelectValue placeholder="Add language" />
+                    <SelectValue placeholder="Add languages" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="English">English</SelectItem>
-                    <SelectItem value="Spanish">Spanish</SelectItem>
-                    <SelectItem value="French">French</SelectItem>
-                    <SelectItem value="German">German</SelectItem>
-                    <SelectItem value="Chinese (Mandarin)">Chinese (Mandarin)</SelectItem>
-                    <SelectItem value="ASL (American Sign Language)">ASL (American Sign Language)</SelectItem>
+                    {[
+                      "English", "Spanish", "French", "German", "Chinese (Mandarin)", "ASL (American Sign Language)"
+                    ].map((lang) => (
+                      <SelectItem 
+                        key={lang} 
+                        value={lang}
+                        onSelect={(e) => {
+                          e.preventDefault();
+                          if (!profile.languages?.includes(lang)) {
+                            addItem('languages', lang);
+                          }
+                        }}
+                        className={`flex items-center gap-2 ${profile.languages?.includes(lang) ? 'bg-primary/10' : ''}`}
+                      >
+                        <input 
+                          type="checkbox" 
+                          checked={profile.languages?.includes(lang) || false}
+                          onChange={() => {}}
+                          className="rounded"
+                        />
+                        {lang}
+                      </SelectItem>
+                    ))}
                   </SelectContent>
                 </Select>
               </div>
@@ -342,17 +396,35 @@ export default function AdvocateSettings() {
                     </Badge>
                   ))}
                 </div>
-                <Select onValueChange={(value) => addItem('certifications', value)}>
+                <Select open={openDropdowns.certifications} onOpenChange={(open) => setOpenDropdowns(prev => ({ ...prev, certifications: open }))}>
                   <SelectTrigger data-testid="select-certifications">
-                    <SelectValue placeholder="Add certification" />
+                    <SelectValue placeholder="Add certifications" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="Licensed Attorney">Licensed Attorney</SelectItem>
-                    <SelectItem value="Educational Advocate Certification">Educational Advocate Certification</SelectItem>
-                    <SelectItem value="Special Education Certification">Special Education Certification</SelectItem>
-                    <SelectItem value="M.Ed. Special Education">M.Ed. Special Education</SelectItem>
-                    <SelectItem value="Behavior Analyst (BCBA)">Behavior Analyst (BCBA)</SelectItem>
-                    <SelectItem value="Speech-Language Pathologist">Speech-Language Pathologist</SelectItem>
+                    {[
+                      "Licensed Attorney", "Educational Advocate Certification", "Special Education Certification",
+                      "M.Ed. Special Education", "Behavior Analyst (BCBA)", "Speech-Language Pathologist"
+                    ].map((cert) => (
+                      <SelectItem 
+                        key={cert} 
+                        value={cert}
+                        onSelect={(e) => {
+                          e.preventDefault();
+                          if (!profile.certifications?.includes(cert)) {
+                            addItem('certifications', cert);
+                          }
+                        }}
+                        className={`flex items-center gap-2 ${profile.certifications?.includes(cert) ? 'bg-primary/10' : ''}`}
+                      >
+                        <input 
+                          type="checkbox" 
+                          checked={profile.certifications?.includes(cert) || false}
+                          onChange={() => {}}
+                          className="rounded"
+                        />
+                        {cert}
+                      </SelectItem>
+                    ))}
                   </SelectContent>
                 </Select>
               </div>

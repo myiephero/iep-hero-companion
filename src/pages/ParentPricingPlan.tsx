@@ -173,14 +173,14 @@ const ParentPricingPlan = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900">
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50">
       <div className="container mx-auto px-4 py-16">
         {/* Back Button */}
         <div className="mb-8">
           <Button
             variant="ghost"
             onClick={() => window.history.back()}
-            className="text-white hover:text-blue-400 hover:bg-white/10"
+            className="text-gray-700 hover:text-blue-600 hover:bg-blue-50"
           >
             <ArrowLeft className="h-4 w-4 mr-2" />
             Back
@@ -189,17 +189,17 @@ const ParentPricingPlan = () => {
 
         {/* Shortened Hero Section */}
         <div className="text-center space-y-4 mb-16">
-          <h1 className="text-4xl lg:text-5xl font-bold text-white">
-            Empower Your Child's <span className="text-blue-400">IEP Journey</span>
+          <h1 className="text-4xl lg:text-5xl font-bold text-gray-900">
+            Empower Your Child's <span className="text-blue-600">IEP Journey</span>
           </h1>
-          <p className="text-lg text-gray-300 max-w-2xl mx-auto mb-6">
+          <p className="text-lg text-gray-600 max-w-2xl mx-auto mb-6">
             Choose the perfect plan to advocate effectively for your child's educational needs
           </p>
-          <div className="bg-blue-900/30 border border-blue-500/30 rounded-lg p-6 max-w-4xl mx-auto">
-            <p className="text-white font-medium text-lg">
-              "We provide the <span className="text-blue-400">platform, tools, and coordination</span>. Your matched advocate provides the <span className="text-blue-400">professional services</span>. Together, we make sure you're never alone in this journey."
+          <div className="bg-blue-100 border border-blue-200 rounded-lg p-6 max-w-4xl mx-auto">
+            <p className="text-gray-800 font-medium text-lg">
+              "We provide the <span className="text-blue-600">platform, tools, and coordination</span>. Your matched advocate provides the <span className="text-blue-600">professional services</span>. Together, we make sure you're never alone in this journey."
             </p>
-            <p className="text-blue-300 text-sm mt-2">
+            <p className="text-blue-600 text-sm mt-2">
               — The Operating System for IEP Advocacy
             </p>
           </div>
@@ -210,7 +210,7 @@ const ParentPricingPlan = () => {
           {pricingTiers.map((tier) => (
             <Card 
               key={tier.id}
-              className={`bg-slate-800/50 backdrop-blur border-slate-700 relative min-h-[420px] flex flex-col ${
+              className={`bg-white shadow-lg border-gray-200 relative min-h-[420px] flex flex-col hover:shadow-xl transition-shadow ${
                 tier.popular ? 'ring-2 ring-blue-500' : ''
               }`}
             >
@@ -226,18 +226,18 @@ const ParentPricingPlan = () => {
                 <div className={`inline-flex items-center justify-center w-12 h-12 bg-gradient-to-r ${tier.gradient} rounded-xl mb-4 mx-auto`}>
                   {tier.icon}
                 </div>
-                <CardTitle className="text-xl font-bold text-white">{tier.name}</CardTitle>
-                <CardDescription className="text-gray-400 text-sm mb-3">
+                <CardTitle className="text-xl font-bold text-gray-900">{tier.name}</CardTitle>
+                <CardDescription className="text-gray-600 text-sm mb-3">
                   {tier.description}
                 </CardDescription>
                 <div className="mb-3">
-                  <Badge variant="secondary" className="bg-blue-500/20 text-blue-300 border-blue-400">
+                  <Badge variant="secondary" className="bg-blue-100 text-blue-700 border-blue-300">
                     {tier.toolCount}
                   </Badge>
                 </div>
                 <div className="flex items-baseline justify-center gap-1">
-                  <span className="text-3xl font-bold text-white">{tier.price}</span>
-                  <span className="text-gray-400 text-sm">{tier.period}</span>
+                  <span className="text-3xl font-bold text-gray-900">{tier.price}</span>
+                  <span className="text-gray-500 text-sm">{tier.period}</span>
                 </div>
               </CardHeader>
               
@@ -246,14 +246,14 @@ const ParentPricingPlan = () => {
                   {tier.features.map((feature, index) => (
                     <li key={index} className="flex items-start gap-3">
                       <Check className="h-4 w-4 text-green-400 mt-0.5 flex-shrink-0" />
-                      <span className="text-sm text-gray-300">{feature}</span>
+                      <span className="text-sm text-gray-700">{feature}</span>
                     </li>
                   ))}
                 </ul>
                 
                 {tier.limitations && tier.limitations.length > 0 && (
-                  <div className="border-t border-gray-700 pt-4">
-                    <p className="text-xs text-gray-500 mb-2">Limitations:</p>
+                  <div className="border-t border-gray-200 pt-4">
+                    <p className="text-xs text-gray-600 mb-2">Limitations:</p>
                     <ul className="space-y-1">
                       {tier.limitations.map((limitation, index) => (
                         <li key={index} className="text-xs text-gray-500">

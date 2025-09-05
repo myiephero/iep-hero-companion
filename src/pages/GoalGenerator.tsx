@@ -571,6 +571,45 @@ export default function GoalGenerator() {
     </div>
   );
 
+  const handleComplianceCheck = async () => {
+    if (!complianceGoalText.trim()) return;
+    
+    setIsCheckingCompliance(true);
+    
+    // Simulate compliance analysis
+    setTimeout(() => {
+      const goalText = complianceGoalText.toLowerCase();
+      
+      const criteria = {
+        measurable: goalText.includes('%') || goalText.includes('accuracy') || goalText.includes('out of'),
+        timeframe: goalText.includes('by the end of') || goalText.includes('iep year') || goalText.includes('weeks') || goalText.includes('months'),
+        conditions: goalText.includes('when given') || goalText.includes('when presented') || goalText.includes('during'),
+        criteria: goalText.includes('with') && (goalText.includes('accuracy') || goalText.includes('success')),
+        observable: !goalText.includes('understand') && !goalText.includes('know') && !goalText.includes('appreciate'),
+        studentSpecific: goalText.includes('student') || goalText.includes('will')
+      };
+      
+      const passedCount = Object.values(criteria).filter(Boolean).length;
+      const overallScore = Math.round((passedCount / 6) * 100);
+      
+      const suggestions = [];
+      if (!criteria.measurable) suggestions.push('Add specific measurement criteria (percentages, number correct, etc.)');
+      if (!criteria.timeframe) suggestions.push('Include a clear timeframe (by the end of IEP year, within 4 weeks, etc.)');
+      if (!criteria.conditions) suggestions.push('Specify conditions or circumstances (when given, when presented with, etc.)');
+      if (!criteria.criteria) suggestions.push('Define success criteria (with 80% accuracy, 4 out of 5 trials, etc.)');
+      if (!criteria.observable) suggestions.push('Use observable, measurable verbs instead of internal states');
+      if (!criteria.studentSpecific) suggestions.push('Make the goal student-specific and clearly state what the student will do');
+      
+      setComplianceResult({
+        overallScore,
+        criteria,
+        suggestions
+      });
+      
+      setIsCheckingCompliance(false);
+    }, 2000);
+  };
+
   const renderComplianceTab = () => (
     <div className="space-y-6">
       <Card>
@@ -582,22 +621,206 @@ export default function GoalGenerator() {
         </CardHeader>
         <CardContent>
           <div className="space-y-4">
+            {/* Goal Selection Options */}
+            <div className="space-y-4 p-4 rounded-lg bg-muted/20">
+              <div className="flex items-center justify-between">
+                <Label className="text-base font-semibold">Choose Goal Source</Label>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => {
+                    if (selectedPresetGoal) {
+                      setSelectedPresetGoal('');
+                      setComplianceGoalText('');
+                    }
+                  }}
+                  data-testid="button-clear-goal"
+                >
+                  Clear Selection
+                </Button>
+              </div>
+              
+              <div className="grid gap-4 md:grid-cols-2">
+                <div className="space-y-2">
+                  <Label htmlFor="goal-category">Goal Category</Label>
+                  <Select value={selectedGoalCategory} onValueChange={setSelectedGoalCategory}>
+                    <SelectTrigger data-testid="select-goal-category">
+                      <SelectValue placeholder="Select goal category" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="reading">Reading</SelectItem>
+                      <SelectItem value="writing">Written Expression</SelectItem>
+                      <SelectItem value="math">Mathematics</SelectItem>
+                      <SelectItem value="communication">Communication</SelectItem>
+                      <SelectItem value="behavior">Behavior</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                
+                {selectedGoalCategory && (
+                  <div className="space-y-2">
+                    <Label htmlFor="preset-goal">Sample Goal</Label>
+                    <Select value={selectedPresetGoal} onValueChange={(value) => {
+                      setSelectedPresetGoal(value);
+                      const categoryGoals = SAMPLE_IEP_GOALS[selectedGoalCategory as keyof typeof SAMPLE_IEP_GOALS];
+                      const goalIndex = parseInt(value);
+                      if (categoryGoals && !isNaN(goalIndex)) {
+                        setComplianceGoalText(categoryGoals[goalIndex]);
+                      }
+                    }}>
+                      <SelectTrigger data-testid="select-preset-goal">
+                        <SelectValue placeholder="Choose sample goal" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {SAMPLE_IEP_GOALS[selectedGoalCategory as keyof typeof SAMPLE_IEP_GOALS]?.map((goal, index) => (
+                          <SelectItem key={index} value={index.toString()}>
+                            {goal.substring(0, 60)}...
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                )}
+              </div>
+            </div>
+
+            <Separator />
+
             <div className="space-y-2">
-              <Label htmlFor="goal-text">Paste IEP Goal Text</Label>
+              <Label htmlFor="goal-text">IEP Goal Text</Label>
               <Textarea
                 id="goal-text"
+                value={complianceGoalText}
+                onChange={(e) => setComplianceGoalText(e.target.value)}
                 placeholder="Enter the IEP goal you want to check for compliance..."
                 rows={6}
                 data-testid="textarea-compliance-goal"
               />
             </div>
-            <Button className="w-full" data-testid="button-check-compliance">
-              <CheckCircle className="h-4 w-4 mr-2" />
-              Check Compliance
+            
+            <Button 
+              className="w-full" 
+              onClick={handleComplianceCheck}
+              disabled={!complianceGoalText.trim() || isCheckingCompliance}
+              data-testid="button-check-compliance"
+            >
+              {isCheckingCompliance ? (
+                <>
+                  <CheckCircle className="h-4 w-4 mr-2 animate-spin" />
+                  Checking Compliance...
+                </>
+              ) : (
+                <>
+                  <CheckCircle className="h-4 w-4 mr-2" />
+                  Check Compliance
+                </>
+              )}
             </Button>
           </div>
         </CardContent>
       </Card>
+
+      {isCheckingCompliance && (
+        <Card>
+          <CardContent className="pt-6">
+            <div className="text-center space-y-4">
+              <div className="text-sm text-muted-foreground">
+                Analyzing goal for IDEA compliance and best practices...
+              </div>
+              <Progress value={60} className="w-full" />
+              <div className="text-xs text-muted-foreground">
+                Checking measurability, timeframes, and criteria
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
+      {complianceResult && (
+        <Card className="border-l-4 border-l-primary">
+          <CardHeader>
+            <div className="flex items-center justify-between">
+              <CardTitle>Compliance Analysis Results</CardTitle>
+              <Badge variant={complianceResult.overallScore >= 80 ? "default" : complianceResult.overallScore >= 60 ? "secondary" : "destructive"}>
+                {complianceResult.overallScore}% Compliant
+              </Badge>
+            </div>
+            <CardDescription>
+              Goal meets {Object.values(complianceResult.criteria).filter(Boolean).length} out of 6 key compliance criteria
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-6">
+            <div className="grid gap-4 md:grid-cols-2">
+              <div className="space-y-3">
+                <div className="flex items-center gap-2">
+                  {complianceResult.criteria.measurable ? (
+                    <CheckCircle className="h-4 w-4 text-green-600" />
+                  ) : (
+                    <AlertCircle className="h-4 w-4 text-red-600" />
+                  )}
+                  <span className="text-sm">Measurable and observable</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  {complianceResult.criteria.timeframe ? (
+                    <CheckCircle className="h-4 w-4 text-green-600" />
+                  ) : (
+                    <AlertCircle className="h-4 w-4 text-red-600" />
+                  )}
+                  <span className="text-sm">Specific timeframe included</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  {complianceResult.criteria.conditions ? (
+                    <CheckCircle className="h-4 w-4 text-green-600" />
+                  ) : (
+                    <AlertCircle className="h-4 w-4 text-red-600" />
+                  )}
+                  <span className="text-sm">Conditions specified</span>
+                </div>
+              </div>
+              <div className="space-y-3">
+                <div className="flex items-center gap-2">
+                  {complianceResult.criteria.criteria ? (
+                    <CheckCircle className="h-4 w-4 text-green-600" />
+                  ) : (
+                    <AlertCircle className="h-4 w-4 text-red-600" />
+                  )}
+                  <span className="text-sm">Criteria for success defined</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  {complianceResult.criteria.observable ? (
+                    <CheckCircle className="h-4 w-4 text-green-600" />
+                  ) : (
+                    <AlertCircle className="h-4 w-4 text-red-600" />
+                  )}
+                  <span className="text-sm">Uses observable behaviors</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  {complianceResult.criteria.studentSpecific ? (
+                    <CheckCircle className="h-4 w-4 text-green-600" />
+                  ) : (
+                    <AlertCircle className="h-4 w-4 text-red-600" />
+                  )}
+                  <span className="text-sm">Student-specific language</span>
+                </div>
+              </div>
+            </div>
+
+            {complianceResult.suggestions.length > 0 && (
+              <div className="space-y-3">
+                <Label className="text-sm font-semibold text-orange-600">Recommendations for Improvement</Label>
+                <ul className="space-y-2">
+                  {complianceResult.suggestions.map((suggestion, index) => (
+                    <li key={index} className="flex items-start gap-2 text-sm">
+                      <AlertCircle className="h-4 w-4 text-orange-600 mt-0.5 flex-shrink-0" />
+                      {suggestion}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
+          </CardContent>
+        </Card>
+      )}
 
       <Card>
         <CardHeader>

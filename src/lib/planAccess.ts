@@ -222,7 +222,7 @@ export const PLAN_FEATURES: Record<SubscriptionPlan, PlanFeatures> = {
     storageLimit: '2GB',
     supportLevel: 'Email support',
     prioritySupport: false,
-    maxChildren: 2,
+    maxChildren: 1,
     maxDocuments: 50,
     aiAnalysisLimit: 5,
     letterGenerationLimit: 10
@@ -296,7 +296,7 @@ export const PLAN_FEATURES: Record<SubscriptionPlan, PlanFeatures> = {
     storageLimit: '5GB',
     supportLevel: 'Priority email support',
     prioritySupport: true,
-    maxChildren: 3,
+    maxChildren: 1,
     maxDocuments: 200,
     aiAnalysisLimit: 15,
     letterGenerationLimit: 25
@@ -370,7 +370,7 @@ export const PLAN_FEATURES: Record<SubscriptionPlan, PlanFeatures> = {
     storageLimit: '10GB',
     supportLevel: 'Priority email support',
     prioritySupport: true,
-    maxChildren: 5,
+    maxChildren: 2,
     maxDocuments: 500,
     aiAnalysisLimit: 50,
     letterGenerationLimit: 100
@@ -444,7 +444,7 @@ export const PLAN_FEATURES: Record<SubscriptionPlan, PlanFeatures> = {
     storageLimit: 'Unlimited',
     supportLevel: 'Priority phone & email support + monthly strategy calls',
     prioritySupport: true,
-    maxChildren: 999,
+    maxChildren: 3,
     maxDocuments: 999999,
     aiAnalysisLimit: 999,
     letterGenerationLimit: 999

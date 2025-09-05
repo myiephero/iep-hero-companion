@@ -215,7 +215,7 @@ export default function GoalGenerator() {
         goalText: alignmentGoalText,
         selectedState: alignmentState,
         selectedSubject: alignmentSubject,
-        gradeLevel: selectedStudent?.grade_level || alignmentGrade
+        gradeLevel: 'Grade 3' // Default grade for now
       });
       
       const analysisResult = await response.json();

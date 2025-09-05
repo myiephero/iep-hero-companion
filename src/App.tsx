@@ -30,7 +30,7 @@ import EmergentToolsHub from "./pages/EmergentToolsHub";
 import AllPagesView from "./pages/AllPagesView";
 import SmartLetterGenerator from "./pages/SmartLetterGenerator";
 import MeetingPrepWizard from "./pages/MeetingPrepWizard";
-import Subscribe from "./pages/Subscribe";
+// Removed Subscribe - consolidated into role-specific pricing pages
 import SubscriptionSuccess from "./pages/SubscriptionSuccess";
 import SubscriptionSetup from "./pages/SubscriptionSetup";
 import AccountCreated from "./pages/AccountCreated";
@@ -361,7 +361,7 @@ function App() {
               } />
               <Route path="/parent/subscribe/upsell/hero-plan" element={<ParentHeroUpsell />} />
               <Route path="/upsell/hero-plan" element={<HeroPlan />} />
-              <Route path="/subscribe" element={<Subscribe />} />
+              <Route path="/subscribe" element={<PricingSelection />} />
               <Route path="/advocate/discovery" element={<AdvocateDiscovery />} />
               
               {/* Pricing Plans */}
@@ -373,8 +373,8 @@ function App() {
               {/* Role-specific subscription routes */}
               <Route path="/parent/pricing" element={<ParentPricingPlan />} />
               <Route path="/advocate/pricing" element={<AdvocatePricingPlan />} />
-              <Route path="/parent/subscribe" element={<Subscribe />} />
-              <Route path="/advocate/subscribe" element={<Subscribe />} />
+              <Route path="/parent/subscribe" element={<ParentPricingPlan />} />
+              <Route path="/advocate/subscribe" element={<AdvocatePricingPlan />} />
               <Route path="/subscription-success" element={<SubscriptionSuccess />} />
               <Route path="/subscription-setup" element={<SubscriptionSetup />} />
               <Route path="/account-created" element={<AccountCreated />} />

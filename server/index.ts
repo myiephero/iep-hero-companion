@@ -703,9 +703,18 @@ async function hashPassword(password: string): Promise<string> {
 }
 
 // Verify password
-async function verifyPassword(password: string, hashedPassword: string): Promise<boolean> {
+async function verifyPassword(password: string, hashedPassword: string | null): Promise<boolean> {
+  if (!hashedPassword) {
+    return false; // User has no password set (probably OAuth user)
+  }
+  
   const crypto = await import('crypto');
-  const [salt, hash] = hashedPassword.split(':');
+  const parts = hashedPassword.split(':');
+  if (parts.length !== 2) {
+    return false; // Invalid hash format
+  }
+  
+  const [salt, hash] = parts;
   const verifyHash = crypto.pbkdf2Sync(password, salt, 1000, 64, 'sha256').toString('hex');
   return hash === verifyHash;
 }
@@ -740,8 +749,15 @@ app.post('/api/custom-login', async (req: any, res) => {
       });
     }
 
+    // Check if user has a password set (OAuth users don't have passwords)
+    if (!user.password) {
+      return res.status(401).json({ 
+        message: 'This account was created through subscription checkout. Please use the "Sign in with Replit" option instead.' 
+      });
+    }
+
     // Verify password
-    const isValidPassword = await verifyPassword(password, user.password!);
+    const isValidPassword = await verifyPassword(password, user.password);
     if (!isValidPassword) {
       return res.status(401).json({ 
         message: 'Invalid email or password' 

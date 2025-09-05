@@ -80,11 +80,11 @@ const getParentNavigation = (dashboardUrl: string, userPlan: string, isAdvocate:
   ];
 };
 
-const advocateNavigation: SidebarSection[] = [
+const getAdvocateNavigation = (dashboardUrl: string): SidebarSection[] => [
   {
     title: "Advocate Portal", 
     items: [
-      { title: "My Cases", url: "/advocate/dashboard", icon: LayoutDashboard },
+      { title: "My Cases", url: dashboardUrl, icon: LayoutDashboard },
       { title: "Parent Clients", url: "/advocate/parents", icon: Users },
       { title: "Client Students", url: "/advocate/students", icon: GraduationCap },
       { title: "Tools Hub", url: "/advocate/tools", icon: FileSearch },
@@ -119,11 +119,19 @@ export function AppSidebar() {
   const { profile, user } = useAuth();
   const isAdvocate = currentPath.startsWith('/advocate');
   
-  // Generate plan-specific dashboard URL for parents
+  // Generate plan-specific dashboard URL for both roles
   const userPlan = normalizeSubscriptionPlan(user?.subscriptionPlan);
-  const dashboardUrl = isAdvocate ? '/advocate/dashboard' : `/parent/dashboard-${userPlan}`;
+  const advocatePlanMapping = {
+    'starter': 'starter',
+    'pro': 'pro', 
+    'agency': 'agency',
+    'agencyplus': 'agency-plus',
+    'agency plus': 'agency-plus'
+  };
+  const advocatePlanSlug = advocatePlanMapping[user?.subscriptionPlan?.toLowerCase()] || 'starter';
+  const dashboardUrl = isAdvocate ? `/advocate/dashboard-${advocatePlanSlug}` : `/parent/dashboard-${userPlan}`;
   
-  const navigation = isAdvocate ? advocateNavigation : getParentNavigation(dashboardUrl, userPlan, isAdvocate);
+  const navigation = isAdvocate ? getAdvocateNavigation(dashboardUrl) : getParentNavigation(dashboardUrl, userPlan, isAdvocate);
   const accountItems = getAccountItems(isAdvocate);
   
   const isActive = (path: string) => currentPath === path;

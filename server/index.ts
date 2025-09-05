@@ -707,7 +707,8 @@ app.get('/api/verify-email', async (req: any, res) => {
           'starter': 'starter',
           'pro': 'pro',
           'agency': 'agency', 
-          'agency plus': 'agency-plus'
+          'agency plus': 'agency-plus',
+          'agencyplus': 'agency-plus'
         };
         const planKey = user.subscriptionPlan.toLowerCase();
         const planSlug = advocatePlanMapping[planKey] || 'starter';
@@ -827,7 +828,19 @@ app.post('/api/custom-login', async (req: any, res) => {
         role: user.role,
         subscriptionPlan: user.subscriptionPlan
       },
-      redirectTo: user.role === 'parent' ? `/parent/dashboard-${user.subscriptionPlan?.toLowerCase().replace(/\s+/g, '') || 'free'}` : '/advocate/dashboard'
+      redirectTo: user.role === 'parent' 
+        ? `/parent/dashboard-${user.subscriptionPlan?.toLowerCase().replace(/\s+/g, '') || 'free'}` 
+        : (() => {
+            const advocatePlanMapping = {
+              'starter': 'starter',
+              'pro': 'pro',
+              'agency': 'agency', 
+              'agency plus': 'agency-plus',
+              'agencyplus': 'agency-plus'
+            };
+            const planSlug = advocatePlanMapping[user.subscriptionPlan?.toLowerCase()] || 'starter';
+            return `/advocate/dashboard-${planSlug}`;
+          })()
     });
   } catch (error) {
     console.error('Login error:', error);

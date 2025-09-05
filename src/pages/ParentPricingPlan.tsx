@@ -280,11 +280,27 @@ const ParentPricingPlan = () => {
           ))}
         </div>
 
-        {/* Hero Family Pack - Hybrid Model */}
+        {/* Hero Family Pack - Ultimate Promotion */}
         <div className="max-w-6xl mx-auto">
           <Card className="bg-gradient-to-r from-orange-600 to-pink-600 border-orange-500 relative overflow-hidden min-h-[400px]">
             <div className="absolute inset-0 bg-gradient-to-r from-orange-600/90 to-pink-600/90" />
-            <div className="relative z-10 p-8">
+            
+            {/* Limited Time Badge */}
+            <div className="absolute top-4 left-4 z-20">
+              <Badge className="bg-red-500 text-white border-red-600 font-bold px-3 py-2 animate-pulse">
+                🔥 FOUNDING FAMILIES ONLY
+              </Badge>
+            </div>
+            
+            {/* Countdown Timer */}
+            <div className="absolute top-4 right-4 z-20">
+              <div className="bg-white/20 backdrop-blur rounded-lg p-3 text-center">
+                <div className="text-xs text-white/80 mb-1">Spots Remaining</div>
+                <div className="text-xl font-bold text-white">47</div>
+              </div>
+            </div>
+            
+            <div className="relative z-10 p-8 pt-16">
               <div className="grid lg:grid-cols-2 gap-8 items-center">
                 <div>
                   <div className="flex items-center gap-3 mb-4">
@@ -298,7 +314,7 @@ const ParentPricingPlan = () => {
                   </div>
                   
                   <div className="mb-6">
-                    <h4 className="text-lg font-semibold text-white mb-3">$495 Per Student Setup Includes:</h4>
+                    <h4 className="text-lg font-semibold text-white mb-3">$495 Family Setup Includes:</h4>
                     <div className="grid md:grid-cols-1 gap-2 mb-4">
                       <div className="flex items-center gap-2 text-white">
                         <Check className="h-4 w-4 text-orange-200" />
@@ -315,6 +331,29 @@ const ParentPricingPlan = () => {
                       <div className="flex items-center gap-2 text-white">
                         <Check className="h-4 w-4 text-orange-200" />
                         <span className="text-sm">Complete platform setup & training</span>
+                      </div>
+                      <div className="flex items-center gap-2 text-white">
+                        <Check className="h-4 w-4 text-orange-200" />
+                        <span className="text-sm font-bold">🎁 FREE 2nd student setup ($495 value)</span>
+                      </div>
+                    </div>
+                    
+                    {/* Special Bonuses */}
+                    <div className="bg-yellow-400/20 border border-yellow-400/30 rounded-lg p-3 mb-4">
+                      <h5 className="text-sm font-bold text-white mb-2">🏆 FOUNDING FAMILY BONUSES:</h5>
+                      <div className="space-y-1">
+                        <div className="flex items-center gap-2 text-white text-xs">
+                          <Shield className="h-3 w-3 text-yellow-200" />
+                          <span>60-Day Money-Back Guarantee</span>
+                        </div>
+                        <div className="flex items-center gap-2 text-white text-xs">
+                          <Crown className="h-3 w-3 text-yellow-200" />
+                          <span>Lifetime rate lock at $199/month</span>
+                        </div>
+                        <div className="flex items-center gap-2 text-white text-xs">
+                          <Star className="h-3 w-3 text-yellow-200" />
+                          <span>IEP Success Bonus: 3 free months when goal achieved</span>
+                        </div>
                       </div>
                     </div>
                     
@@ -365,48 +404,75 @@ const ParentPricingPlan = () => {
                 
                 <div className="text-center lg:text-right">
                   <div className="mb-6">
-                    {/* Promotional Badge */}
-                    <div className="mb-4">
-                      <Badge className="bg-yellow-400 text-yellow-900 border-yellow-500 font-semibold px-3 py-1">
+                    {/* Ultimate Value Badges */}
+                    <div className="mb-4 space-y-2">
+                      <Badge className="bg-yellow-400 text-yellow-900 border-yellow-500 font-semibold px-3 py-1 block text-center">
                         🎉 FIRST MONTH FREE!
+                      </Badge>
+                      <Badge className="bg-green-500 text-white border-green-600 font-semibold px-3 py-1 block text-center">
+                        🛡️ 60-DAY GUARANTEE
                       </Badge>
                     </div>
                     
-                    <div className="text-sm text-orange-100 mb-2">Special Launch Pricing</div>
+                    <div className="text-sm text-orange-100 mb-2">Founding Family Exclusive</div>
+                    
+                    {/* Value Breakdown */}
+                    <div className="bg-white/10 rounded-lg p-4 mb-4">
+                      <div className="text-xs text-orange-100 mb-2">TOTAL VALUE BREAKDOWN:</div>
+                      <div className="space-y-1 text-xs text-white">
+                        <div className="flex justify-between">
+                          <span>Setup for 2 students</span>
+                          <span>$990</span>
+                        </div>
+                        <div className="flex justify-between">
+                          <span>First month subscription</span>
+                          <span>$199</span>
+                        </div>
+                        <div className="flex justify-between">
+                          <span>IEP Success Bonus (3 months)</span>
+                          <span>$597</span>
+                        </div>
+                        <div className="border-t border-white/20 pt-1 mt-1">
+                          <div className="flex justify-between font-bold">
+                            <span>Total Value</span>
+                            <span>$1,786</span>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                    
                     <div className="space-y-2">
                       <div className="flex items-baseline justify-center lg:justify-end gap-2">
+                        <span className="text-lg line-through text-orange-300">$1,786</span>
                         <span className="text-3xl font-bold text-white">$495</span>
-                        <span className="text-orange-100">one-time setup</span>
+                        <span className="text-orange-100">today only</span>
                       </div>
-                      <div className="text-orange-200">+</div>
-                      <div className="flex items-baseline justify-center lg:justify-end gap-2">
-                        <span className="text-lg line-through text-orange-300">$199</span>
-                        <span className="text-3xl font-bold text-white">$0</span>
-                        <span className="text-orange-100">first month</span>
-                      </div>
-                      <div className="text-sm text-orange-200">Then $199/month</div>
+                      <div className="text-sm text-orange-200">Then locked at $199/month forever</div>
                     </div>
                     <div className="text-sm text-orange-200 mt-2">Covers your entire family</div>
                     
-                    {/* Savings callout */}
-                    <div className="bg-white/10 rounded-lg p-3 mt-4">
-                      <p className="text-sm text-white font-medium">
-                        💰 Save $199 on your first month!
+                    {/* Ultimate Savings callout */}
+                    <div className="bg-red-500/20 border border-red-400/30 rounded-lg p-3 mt-4">
+                      <p className="text-sm text-white font-bold">
+                        🔥 SAVE $1,291 TODAY!
                       </p>
                       <p className="text-xs text-orange-100">
-                        Start today for just $495 instead of $694
+                        LIMITED: Only 47 founding families accepted
                       </p>
                     </div>
                   </div>
                   
                   <Button 
                     size="lg"
-                    className="bg-white text-orange-600 hover:bg-orange-50 font-semibold px-8 py-4"
+                    className="bg-white text-orange-600 hover:bg-orange-50 font-bold px-8 py-4 transform hover:scale-105 transition-all shadow-lg"
                     onClick={() => handlePlanSelection('hero')}
                     data-testid="button-select-hero"
                   >
-                    Start Hero Plan
+                    🚀 CLAIM YOUR FOUNDING FAMILY SPOT
                   </Button>
+                  <div className="text-xs text-orange-100 mt-2 text-center lg:text-right">
+                    ✓ Instant access • ✓ 60-day guarantee • ✓ Rate locked forever
+                  </div>
                 </div>
               </div>
             </div>

@@ -206,14 +206,14 @@ export default function SubscriptionSetup() {
     try {
       // Check if this is a free plan
       if (planId === 'free' || searchParams.get('amount') === '0') {
-        // Free plan - activate account immediately without payment
+        // Free plan - go to confirmation page (will trigger email verification)
         toast({
-          title: "Account Activated!",
-          description: "Welcome to My IEP Hero!",
+          title: "Account Created!",
+          description: "Check your email to complete setup...",
         });
         
         setTimeout(() => {
-          window.location.href = '/parent/dashboard-free';
+          window.location.href = '/subscription-success?plan=free&role=parent';
         }, 2000);
         return;
       }

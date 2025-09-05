@@ -382,7 +382,7 @@ export default function IEPMasterSuite() {
                       
                       <div className="space-y-2">
                         <Label>Student Context (Optional)</Label>
-                        <StudentSelector onStudentSelect={setSelectedStudentId} />
+                        <StudentSelector selectedStudent={selectedStudentId} onStudentChange={setSelectedStudentId} />
                       </div>
                     </div>
 

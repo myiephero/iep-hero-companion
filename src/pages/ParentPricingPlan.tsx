@@ -137,13 +137,13 @@ const ParentPricingPlan = () => {
     setSelectedPlan(planId);
     
     if (planId === 'free') {
-      // Free plan - redirect to registration/dashboard
+      // Free plan - redirect to account creation with free plan metadata
       toast({
         title: "Free Plan Selected",
-        description: "Redirecting you to get started...",
+        description: "Let's create your account...",
       });
       setTimeout(() => {
-        window.location.href = '/auth';
+        window.location.href = '/subscription-setup?plan=free&role=parent&priceId=&amount=0&planName=Free';
       }, 1000);
       return;
     }

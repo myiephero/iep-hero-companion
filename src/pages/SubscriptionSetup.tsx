@@ -199,11 +199,26 @@ export default function SubscriptionSetup() {
     }
   };
 
-  // Create checkout session after account creation
+  // Create checkout session after account creation OR activate free plan
   const createCheckoutSession = async () => {
     setIsLoading(true);
     
     try {
+      // Check if this is a free plan
+      if (planId === 'free' || searchParams.get('amount') === '0') {
+        // Free plan - activate account immediately without payment
+        toast({
+          title: "Account Activated!",
+          description: "Welcome to My IEP Hero!",
+        });
+        
+        setTimeout(() => {
+          window.location.href = '/parent/dashboard-free';
+        }, 2000);
+        return;
+      }
+
+      // Paid plans - redirect to Stripe checkout
       const endpoint = '/api/create-checkout-session';
       const amount = searchParams.get('amount');
       const setupFee = planId === 'hero' ? 495 : undefined;
@@ -239,7 +254,7 @@ export default function SubscriptionSetup() {
       
     } catch (error: any) {
       toast({
-        title: "Payment Setup Failed",
+        title: "Setup Failed",
         description: error.message,
         variant: "destructive",
       });

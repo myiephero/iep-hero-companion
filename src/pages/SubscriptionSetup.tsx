@@ -93,7 +93,7 @@ export default function SubscriptionSetup() {
 
   useEffect(() => {
     const createSubscription = async () => {
-      if (!priceId || !planName || !planId || !role) {
+      if (!planName || !planId || !role) {
         toast({
           title: "Invalid Subscription",
           description: "Missing subscription details. Please try again.",
@@ -104,15 +104,22 @@ export default function SubscriptionSetup() {
       }
 
       try {
-        const response = await fetch('/api/create-subscription', {
+        // Use subscription endpoint if we have a priceId, otherwise use payment intent
+        const endpoint = priceId ? '/api/create-subscription' : '/api/create-payment-intent';
+        const requestBody = priceId ? {
+          priceId,
+          planName,
+          planId,
+          role
+        } : {
+          amount: parseInt(getPlanPrice(planId)),
+          planName: planName || 'Subscription Plan'
+        };
+
+        const response = await fetch(endpoint, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            priceId,
-            planName,
-            planId,
-            role
-          })
+          body: JSON.stringify(requestBody)
         });
 
         if (!response.ok) {

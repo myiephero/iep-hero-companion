@@ -917,17 +917,39 @@ app.post('/api/process-checkout-success', async (req, res) => {
     
     console.log('🎯 Stripe session retrieved:', {
       status: session.payment_status,
-      customer: session.customer_email,
-      subscription: session.subscription
+      customer_email: session.customer_email,
+      customer_details: session.customer_details,
+      subscription: session.subscription ? 'Present' : 'None'
     });
     
-    if (!session.customer || !session.customer_email) {
-      console.error('🚨 No customer information in session');
-      return res.status(400).json({ error: 'No customer information found' });
+    // For subscription mode, customer email might be in different places
+    const email = session.customer_email || session.customer_details?.email;
+    const customerObject = session.customer;
+    let customerId = null;
+    
+    if (typeof customerObject === 'string') {
+      customerId = customerObject;
+    } else if (customerObject && customerObject.id) {
+      customerId = customerObject.id;
+    } else if (session.subscription && typeof session.subscription === 'object') {
+      customerId = session.subscription.customer;
     }
     
-    const email = session.customer_email;
-    const customerId = typeof session.customer === 'string' ? session.customer : session.customer.id;
+    console.log('🎯 Extracted customer info:', {
+      email,
+      customerId,
+      customerObject: typeof customerObject
+    });
+    
+    if (!email) {
+      console.error('🚨 No customer email found in session');
+      return res.status(400).json({ error: 'No customer email found' });
+    }
+    
+    if (!customerId) {
+      console.error('🚨 No customer ID found in session');
+      return res.status(400).json({ error: 'No customer ID found' });
+    }
     
     // Generate verification token
     const verificationToken = generateVerificationToken();

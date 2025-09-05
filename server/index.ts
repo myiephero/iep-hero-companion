@@ -888,6 +888,17 @@ app.post('/api/create-checkout-session', async (req, res) => {
     });
     
     // Redirect to Stripe Checkout
+    console.log('Stripe session created:', {
+      sessionId: session.id,
+      url: session.url,
+      mode: session.mode,
+      status: session.status
+    });
+    
+    if (!session.url) {
+      throw new Error('Stripe did not return a checkout URL');
+    }
+    
     res.json({ url: session.url });
     
   } catch (error) {

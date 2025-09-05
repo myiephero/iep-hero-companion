@@ -899,19 +899,30 @@ app.post('/api/create-checkout-session', async (req, res) => {
 
 // Process successful checkout and create account + send verification email
 app.post('/api/process-checkout-success', async (req, res) => {
+  console.log('🎯 PROCESS CHECKOUT SUCCESS CALLED!', req.body);
   try {
     const { sessionId, planId, role } = req.body;
     
     if (!sessionId) {
+      console.error('🚨 No session ID provided');
       return res.status(400).json({ error: 'Session ID required' });
     }
+    
+    console.log('🎯 Retrieving Stripe session:', sessionId);
     
     // Retrieve checkout session from Stripe
     const session = await stripe.checkout.sessions.retrieve(sessionId, {
       expand: ['customer', 'subscription']
     });
     
+    console.log('🎯 Stripe session retrieved:', {
+      status: session.payment_status,
+      customer: session.customer_email,
+      subscription: session.subscription
+    });
+    
     if (!session.customer || !session.customer_email) {
+      console.error('🚨 No customer information in session');
       return res.status(400).json({ error: 'No customer information found' });
     }
     
@@ -959,8 +970,13 @@ app.post('/api/process-checkout-success', async (req, res) => {
     });
     
   } catch (error) {
-    console.error('Error processing checkout success:', error);
-    res.status(500).json({ error: 'Failed to process checkout success' });
+    console.error('🚨 ERROR PROCESSING CHECKOUT SUCCESS:', error);
+    console.error('🚨 Error message:', error.message);
+    console.error('🚨 Error stack:', error.stack);
+    res.status(500).json({ 
+      error: 'Failed to process checkout success',
+      message: error.message 
+    });
   }
 });
 

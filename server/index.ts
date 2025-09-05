@@ -1073,8 +1073,8 @@ app.post('/api/create-checkout-session', async (req, res) => {
         payment_method_types: ['card'] as const,
         line_items: [
           {
-            // TEMPORARY: Replace with actual Stripe Price ID for $495 setup fee
-            price: 'price_HERO_SETUP_495', // ⚠️ CREATE THIS IN STRIPE DASHBOARD
+            // Hero Family Pack Setup Fee: $495 one-time
+            price: 'price_1RsEn58iKZXV0srZ0UH8e4tg', // $495 setup fee
             quantity: 1,
           },
           {

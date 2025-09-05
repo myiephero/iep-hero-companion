@@ -78,6 +78,13 @@ export default function GoalGenerator() {
   const [selectedGoalCategory, setSelectedGoalCategory] = useState('');
   const [isCheckingCompliance, setIsCheckingCompliance] = useState(false);
   const [complianceResult, setComplianceResult] = useState<ComplianceResult | null>(null);
+
+  // Standards alignment states
+  const [alignmentState, setAlignmentState] = useState('');
+  const [alignmentSubject, setAlignmentSubject] = useState('');
+  const [alignmentGoalText, setAlignmentGoalText] = useState('');
+  const [isAligning, setIsAligning] = useState(false);
+  const [alignmentResults, setAlignmentResults] = useState<any>(null);
   
   // Form state for goal generation
   const [studentInfo, setStudentInfo] = useState({
@@ -141,6 +148,59 @@ export default function GoalGenerator() {
       setGeneratedGoals(sampleGoals);
       setIsGenerating(false);
     }, 3000);
+  };
+
+  const handleAlignStandards = async () => {
+    if (!alignmentGoalText || !alignmentState || !alignmentSubject) return;
+    
+    setIsAligning(true);
+    
+    // Simulate standards alignment analysis
+    setTimeout(() => {
+      const mockResults = {
+        primaryStandards: [],
+        secondaryStandards: [],
+        recommendations: []
+      };
+
+      // Generate standards based on subject
+      if (alignmentSubject === 'ela') {
+        mockResults.primaryStandards = [
+          { code: 'CCSS.ELA-LITERACY.RF.3.4', description: 'Read with sufficient accuracy and fluency to support comprehension' },
+          { code: 'CCSS.ELA-LITERACY.RL.3.1', description: 'Ask and answer questions to demonstrate understanding of a text' }
+        ];
+        mockResults.secondaryStandards = [
+          { code: 'CCSS.ELA-LITERACY.SL.3.1', description: 'Engage effectively in collaborative discussions' }
+        ];
+      } else if (alignmentSubject === 'math') {
+        mockResults.primaryStandards = [
+          { code: 'CCSS.MATH.CONTENT.3.OA.A.1', description: 'Interpret products of whole numbers' },
+          { code: 'CCSS.MATH.CONTENT.3.NBT.A.2', description: 'Fluently add and subtract within 1000' }
+        ];
+        mockResults.secondaryStandards = [
+          { code: 'CCSS.MATH.CONTENT.3.MD.A.1', description: 'Tell and write time to the nearest minute' }
+        ];
+      } else if (alignmentSubject === 'science') {
+        mockResults.primaryStandards = [
+          { code: '3-LS4-3', description: 'Construct an argument that some animals and plants have internal and external structures' },
+          { code: '3-5-ETS1-1', description: 'Define a simple design problem reflecting a need or a want' }
+        ];
+      } else if (alignmentSubject === 'social') {
+        mockResults.primaryStandards = [
+          { code: 'NCSS.D2.Civ.1.3-5', description: 'Distinguish the responsibilities and powers of government officials' },
+          { code: 'NCSS.D2.His.1.3-5', description: 'Create and use a chronological sequence of related events' }
+        ];
+      }
+
+      mockResults.recommendations = [
+        'Goal aligns well with grade-level expectations',
+        'Consider adding measurement criteria for better assessment',
+        'Goal supports both academic and functional skill development'
+      ];
+
+      setAlignmentResults(mockResults);
+      setIsAligning(false);
+    }, 2500);
   };
 
   const checkCompliance = (goal: GeneratedGoal) => {
@@ -499,22 +559,68 @@ export default function GoalGenerator() {
             <div className="grid gap-4 md:grid-cols-2">
               <div className="space-y-2">
                 <Label htmlFor="state">State</Label>
-                <Select>
+                <Select value={alignmentState} onValueChange={setAlignmentState}>
                   <SelectTrigger data-testid="select-state">
                     <SelectValue placeholder="Select your state" />
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="al">Alabama</SelectItem>
+                    <SelectItem value="ak">Alaska</SelectItem>
+                    <SelectItem value="az">Arizona</SelectItem>
+                    <SelectItem value="ar">Arkansas</SelectItem>
                     <SelectItem value="ca">California</SelectItem>
+                    <SelectItem value="co">Colorado</SelectItem>
+                    <SelectItem value="ct">Connecticut</SelectItem>
+                    <SelectItem value="de">Delaware</SelectItem>
                     <SelectItem value="fl">Florida</SelectItem>
+                    <SelectItem value="ga">Georgia</SelectItem>
+                    <SelectItem value="hi">Hawaii</SelectItem>
+                    <SelectItem value="id">Idaho</SelectItem>
+                    <SelectItem value="il">Illinois</SelectItem>
+                    <SelectItem value="in">Indiana</SelectItem>
+                    <SelectItem value="ia">Iowa</SelectItem>
+                    <SelectItem value="ks">Kansas</SelectItem>
+                    <SelectItem value="ky">Kentucky</SelectItem>
+                    <SelectItem value="la">Louisiana</SelectItem>
+                    <SelectItem value="me">Maine</SelectItem>
+                    <SelectItem value="md">Maryland</SelectItem>
+                    <SelectItem value="ma">Massachusetts</SelectItem>
+                    <SelectItem value="mi">Michigan</SelectItem>
+                    <SelectItem value="mn">Minnesota</SelectItem>
+                    <SelectItem value="ms">Mississippi</SelectItem>
+                    <SelectItem value="mo">Missouri</SelectItem>
+                    <SelectItem value="mt">Montana</SelectItem>
+                    <SelectItem value="ne">Nebraska</SelectItem>
+                    <SelectItem value="nv">Nevada</SelectItem>
+                    <SelectItem value="nh">New Hampshire</SelectItem>
+                    <SelectItem value="nj">New Jersey</SelectItem>
+                    <SelectItem value="nm">New Mexico</SelectItem>
                     <SelectItem value="ny">New York</SelectItem>
+                    <SelectItem value="nc">North Carolina</SelectItem>
+                    <SelectItem value="nd">North Dakota</SelectItem>
+                    <SelectItem value="oh">Ohio</SelectItem>
+                    <SelectItem value="ok">Oklahoma</SelectItem>
+                    <SelectItem value="or">Oregon</SelectItem>
+                    <SelectItem value="pa">Pennsylvania</SelectItem>
+                    <SelectItem value="ri">Rhode Island</SelectItem>
+                    <SelectItem value="sc">South Carolina</SelectItem>
+                    <SelectItem value="sd">South Dakota</SelectItem>
+                    <SelectItem value="tn">Tennessee</SelectItem>
                     <SelectItem value="tx">Texas</SelectItem>
+                    <SelectItem value="ut">Utah</SelectItem>
+                    <SelectItem value="vt">Vermont</SelectItem>
+                    <SelectItem value="va">Virginia</SelectItem>
+                    <SelectItem value="wa">Washington</SelectItem>
+                    <SelectItem value="wv">West Virginia</SelectItem>
+                    <SelectItem value="wi">Wisconsin</SelectItem>
+                    <SelectItem value="wy">Wyoming</SelectItem>
+                    <SelectItem value="dc">District of Columbia</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
               <div className="space-y-2">
                 <Label htmlFor="subject">Subject Area</Label>
-                <Select>
+                <Select value={alignmentSubject} onValueChange={setAlignmentSubject}>
                   <SelectTrigger data-testid="select-subject">
                     <SelectValue placeholder="Select subject" />
                   </SelectTrigger>
@@ -532,19 +638,103 @@ export default function GoalGenerator() {
               <Label htmlFor="goal-align">IEP Goal to Align</Label>
               <Textarea
                 id="goal-align"
+                value={alignmentGoalText}
+                onChange={(e) => setAlignmentGoalText(e.target.value)}
                 placeholder="Enter the IEP goal you want to align with standards..."
                 rows={4}
                 data-testid="textarea-align-goal"
               />
             </div>
             
-            <Button className="w-full" data-testid="button-align-standards">
-              <BookOpen className="h-4 w-4 mr-2" />
-              Find Standards Alignment
+            <Button 
+              className="w-full" 
+              onClick={handleAlignStandards}
+              disabled={!alignmentGoalText || !alignmentState || !alignmentSubject || isAligning}
+              data-testid="button-align-standards"
+            >
+              {isAligning ? (
+                <>
+                  <BookOpen className="h-4 w-4 mr-2 animate-spin" />
+                  Finding Alignment...
+                </>
+              ) : (
+                <>
+                  <BookOpen className="h-4 w-4 mr-2" />
+                  Find Standards Alignment
+                </>
+              )}
             </Button>
           </div>
         </CardContent>
       </Card>
+
+      {isAligning && (
+        <Card>
+          <CardContent className="pt-6">
+            <div className="text-center space-y-4">
+              <div className="text-sm text-muted-foreground">
+                Analyzing goal alignment with {alignmentSubject.toUpperCase()} standards...
+              </div>
+              <Progress value={75} className="w-full" />
+              <div className="text-xs text-muted-foreground">
+                Searching standards database for matches
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
+      {alignmentResults && (
+        <Card className="border-l-4 border-l-primary">
+          <CardHeader>
+            <CardTitle>Standards Alignment Results</CardTitle>
+            <CardDescription>
+              Found {alignmentResults.primaryStandards.length} primary alignments and {alignmentResults.secondaryStandards.length} secondary alignments
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-6">
+            {alignmentResults.primaryStandards.length > 0 && (
+              <div className="space-y-3">
+                <Label className="text-sm font-semibold text-primary">Primary Standards Alignment</Label>
+                <div className="space-y-2">
+                  {alignmentResults.primaryStandards.map((standard: any, index: number) => (
+                    <div key={index} className="p-3 bg-primary/5 rounded-lg border border-primary/20">
+                      <div className="font-medium text-sm">{standard.code}</div>
+                      <div className="text-xs text-muted-foreground mt-1">{standard.description}</div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {alignmentResults.secondaryStandards.length > 0 && (
+              <div className="space-y-3">
+                <Label className="text-sm font-semibold">Secondary Standards Alignment</Label>
+                <div className="space-y-2">
+                  {alignmentResults.secondaryStandards.map((standard: any, index: number) => (
+                    <div key={index} className="p-3 bg-muted/50 rounded-lg border">
+                      <div className="font-medium text-sm">{standard.code}</div>
+                      <div className="text-xs text-muted-foreground mt-1">{standard.description}</div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            <div className="space-y-3">
+              <Label className="text-sm font-semibold">Recommendations</Label>
+              <ul className="space-y-2">
+                {alignmentResults.recommendations.map((rec: string, index: number) => (
+                  <li key={index} className="flex items-start gap-2 text-sm">
+                    <CheckCircle className="h-4 w-4 text-green-600 mt-0.5 flex-shrink-0" />
+                    {rec}
+                  </li>
+                ))}
+              </ul>
+            </div>
+          </CardContent>
+        </Card>
+      )}
 
       <Card>
         <CardHeader>

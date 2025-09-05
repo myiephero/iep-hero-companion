@@ -97,7 +97,7 @@ const advocateTools: Tool[] = [
     title: "Case Management",
     description: "Manage your client caseload and track progress",
     icon: <Users className="h-6 w-6" />,
-    url: "/advocate/dashboard",
+    url: "#", // Will redirect to plan-specific dashboard
     category: "Management"
   },
   {

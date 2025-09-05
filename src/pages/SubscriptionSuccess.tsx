@@ -211,7 +211,19 @@ export default function SubscriptionSuccess() {
               <Button 
                 size="lg" 
                 className="flex-1 bg-gradient-to-r from-primary to-primary-light hover:from-primary-dark hover:to-primary text-white"
-                onClick={() => navigate(isParent ? '/parent/dashboard' : '/advocate/dashboard')}
+                onClick={() => {
+                  if (isParent) {
+                    const planSlug = user?.subscriptionPlan?.toLowerCase().replace(/\s+/g, '') || 'free';
+                    navigate(`/parent/dashboard-${planSlug}`);
+                  } else {
+                    const advocatePlanMapping = {
+                      'starter': 'starter', 'pro': 'pro', 'agency': 'agency', 
+                      'agency plus': 'agency-plus', 'agencyplus': 'agency-plus'
+                    };
+                    const planSlug = advocatePlanMapping[user?.subscriptionPlan?.toLowerCase()] || 'starter';
+                    navigate(`/advocate/dashboard-${planSlug}`);
+                  }
+                }}
               >
                 <ArrowRight className="w-5 h-5 mr-2" />
                 Go to Dashboard

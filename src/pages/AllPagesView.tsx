@@ -120,7 +120,7 @@ export default function AllPagesView() {
   const advocatePages = [
     {
       title: "Advocate Dashboard",
-      path: "/advocate/dashboard",
+      path: "/advocate/dashboard-pro", // Plan-specific dashboard
       icon: <Briefcase className="h-5 w-5" />,
       description: "Main dashboard for advocates",
       status: "Active"

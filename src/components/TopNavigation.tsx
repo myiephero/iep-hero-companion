@@ -77,7 +77,7 @@ export function TopNavigation() {
             Parent Portal
           </Link>
           <Link 
-            to="/advocate/dashboard" 
+            to="#" // Will redirect to plan-specific dashboard 
             className={`text-sm font-medium transition-colors hover:text-primary ${
               location.pathname.startsWith('/advocate') ? 'text-primary' : 'text-muted-foreground'
             }`}

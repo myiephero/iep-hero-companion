@@ -843,7 +843,7 @@ app.post('/api/create-subscription-intent', async (req: any, res) => {
 app.post('/api/create-subscription', isAuthenticated, async (req: any, res) => {
   try {
     const userId = req.user.claims.sub;
-    const { priceId, billingPeriod, amount, planName } = req.body;
+    const { priceId, billingPeriod, amount, planName, planId } = req.body;
     
     // If no priceId provided, return error
     if (!priceId) {
@@ -861,7 +861,7 @@ app.post('/api/create-subscription', isAuthenticated, async (req: any, res) => {
       const customer = await stripe.customers.create({
         email: user.email || '',
         name: `${user.firstName || ''} ${user.lastName || ''}`.trim(),
-        metadata: { userId }
+        metadata: { userId, planId }
       });
       customerId = customer.id;
       
@@ -871,82 +871,144 @@ app.post('/api/create-subscription', isAuthenticated, async (req: any, res) => {
         .where(eq(schema.users.id, userId));
     }
 
-    // Create subscription with immediate payment
-    const subscription = await stripe.subscriptions.create({
-      customer: customerId,
-      items: [{
-        price: priceId,
-      }],
-      payment_behavior: 'default_incomplete',
-      payment_settings: {
-        save_default_payment_method: 'on_subscription',
-        payment_method_types: ['card']
-      },
-      expand: ['latest_invoice.payment_intent'],
-    });
-
-    // Update user with subscription ID
-    await db.update(schema.users)
-      .set({ stripeSubscriptionId: subscription.id })
-      .where(eq(schema.users.id, userId));
-
-    let clientSecret = (subscription.latest_invoice as any)?.payment_intent?.client_secret;
+    // Check if this is Hero Family Pack (hybrid pricing: $495 setup + $199/month)
+    const isHeroPackage = planId === 'hero' || priceId === 'price_1S3nyI8iKZXV0srZy1awxPBd';
     
-    console.log('Subscription created:', {
-      subscriptionId: subscription.id,
-      status: subscription.status,
-      clientSecret: clientSecret ? 'present' : 'missing',
-      latestInvoice: !!subscription.latest_invoice
-    });
+    if (isHeroPackage) {
+      // For Hero Family Pack: Create setup fee payment intent + subscription
+      
+      // 1. Create one-time setup fee payment intent ($495)
+      const setupPaymentIntent = await stripe.paymentIntents.create({
+        amount: 49500, // $495 in cents
+        currency: 'usd',
+        customer: customerId,
+        metadata: {
+          userId,
+          planId: 'hero',
+          planName: 'Hero Family Pack Setup Fee',
+          type: 'setup_fee'
+        },
+        automatic_payment_methods: {
+          enabled: true,
+        },
+      });
 
-    // If no client secret from subscription, create a payment intent for the first invoice
-    if (!clientSecret) {
-      console.log('No client secret from subscription, creating manual payment intent...');
-      const invoice = subscription.latest_invoice as any;
-      if (invoice && invoice.amount_due > 0) {
-        const paymentIntent = await stripe.paymentIntents.create({
-          amount: invoice.amount_due,
-          currency: invoice.currency,
-          customer: customerId,
-          metadata: {
-            subscription_id: subscription.id,
-            invoice_id: invoice.id
-          },
-          automatic_payment_methods: {
-            enabled: true,
-          },
-        });
-        clientSecret = paymentIntent.client_secret;
-      } else {
-        // Fallback to setup intent for future payments
-        const setupIntent = await stripe.setupIntents.create({
-          customer: customerId,
-          payment_method_types: ['card'],
-          usage: 'off_session',
-        });
-        clientSecret = setupIntent.client_secret;
-      }
-    }
-
-    if (!clientSecret) {
-      console.error('Failed to get client secret from subscription or setup intent');
-      return res.status(500).json({ 
-        error: 'Failed to generate payment client secret',
-        debug: {
-          subscriptionStatus: subscription.status,
-          hasLatestInvoice: !!subscription.latest_invoice,
-          paymentIntentStatus: (subscription.latest_invoice as any)?.payment_intent?.status
+      // 2. Create subscription for monthly payment ($199/month) with trial
+      const subscription = await stripe.subscriptions.create({
+        customer: customerId,
+        items: [{
+          price: priceId, // Your real price ID for $199/month
+        }],
+        trial_period_days: 30, // 30-day trial to allow setup fee payment first
+        payment_behavior: 'default_incomplete',
+        payment_settings: {
+          save_default_payment_method: 'on_subscription',
+          payment_method_types: ['card']
+        },
+        expand: ['latest_invoice.payment_intent'],
+        metadata: {
+          userId,
+          planId: 'hero',
+          setup_fee_payment_intent: setupPaymentIntent.id
         }
       });
-    }
 
-    res.json({
-      subscriptionId: subscription.id,
-      clientSecret: clientSecret,
-      debug: {
-        source: clientSecret === (subscription.latest_invoice as any)?.payment_intent?.client_secret ? 'subscription' : 'setup_intent'
+      // Update user with subscription details
+      await db.update(schema.users)
+        .set({ 
+          stripeSubscriptionId: subscription.id,
+          subscriptionPlan: 'hero',
+          subscriptionStatus: 'trialing'
+        })
+        .where(eq(schema.users.id, userId));
+
+      // Return setup fee payment intent for immediate payment
+      return res.json({
+        clientSecret: setupPaymentIntent.client_secret,
+        subscriptionId: subscription.id,
+        setupFee: 495,
+        monthlyAmount: 199,
+        type: 'hybrid_pricing'
+      });
+      
+    } else {
+      // Regular subscription flow for other plans
+      const subscription = await stripe.subscriptions.create({
+        customer: customerId,
+        items: [{
+          price: priceId,
+        }],
+        payment_behavior: 'default_incomplete',
+        payment_settings: {
+          save_default_payment_method: 'on_subscription',
+          payment_method_types: ['card']
+        },
+        expand: ['latest_invoice.payment_intent'],
+      });
+
+      // Update user with subscription ID
+      await db.update(schema.users)
+        .set({ stripeSubscriptionId: subscription.id })
+        .where(eq(schema.users.id, userId));
+
+      let clientSecret = (subscription.latest_invoice as any)?.payment_intent?.client_secret;
+      
+      console.log('Subscription created:', {
+        subscriptionId: subscription.id,
+        status: subscription.status,
+        clientSecret: clientSecret ? 'present' : 'missing',
+        latestInvoice: !!subscription.latest_invoice
+      });
+
+      // If no client secret from subscription, create a payment intent for the first invoice
+      if (!clientSecret) {
+        console.log('No client secret from subscription, creating manual payment intent...');
+        const invoice = subscription.latest_invoice as any;
+        if (invoice && invoice.amount_due > 0) {
+          const paymentIntent = await stripe.paymentIntents.create({
+            amount: invoice.amount_due,
+            currency: invoice.currency,
+            customer: customerId,
+            metadata: {
+              subscription_id: subscription.id,
+              invoice_id: invoice.id
+            },
+            automatic_payment_methods: {
+              enabled: true,
+            },
+          });
+          clientSecret = paymentIntent.client_secret;
+        } else {
+          // Fallback to setup intent for future payments
+          const setupIntent = await stripe.setupIntents.create({
+            customer: customerId,
+            payment_method_types: ['card'],
+            usage: 'off_session',
+          });
+          clientSecret = setupIntent.client_secret;
+        }
       }
-    });
+
+      if (!clientSecret) {
+        console.error('Failed to get client secret from subscription or setup intent');
+        return res.status(500).json({ 
+          error: 'Failed to generate payment client secret',
+          debug: {
+            subscriptionStatus: subscription.status,
+            hasLatestInvoice: !!subscription.latest_invoice,
+            paymentIntentStatus: (subscription.latest_invoice as any)?.payment_intent?.status
+          }
+        });
+      }
+
+      res.json({
+        subscriptionId: subscription.id,
+        clientSecret: clientSecret,
+        debug: {
+          source: clientSecret === (subscription.latest_invoice as any)?.payment_intent?.client_secret ? 'subscription' : 'setup_intent'
+        }
+      });
+    } // Close the else block for regular subscription flow
   } catch (error) {
     console.error('Error creating subscription:', error);
     res.status(500).json({ error: 'Failed to create subscription' });

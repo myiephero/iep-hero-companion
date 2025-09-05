@@ -1943,7 +1943,7 @@ app.post('/api/iep-action-draft', async (req, res) => {
 });
 
 // Invite parent endpoint (replaces invite-parent edge function)
-app.post('/api/invite-parent', async (req, res) => {
+app.post('/api/invite-parent', isAuthenticated, async (req, res) => {
   try {
     const { email, firstName, lastName } = req.body;
     
@@ -1951,6 +1951,9 @@ app.post('/api/invite-parent', async (req, res) => {
       return res.status(400).json({ error: 'Missing required fields: email, firstName, lastName' });
     }
 
+    // Get the authenticated advocate user ID  
+    const advocateUserId = getUserId(req);
+    
     // Create parent user record
     const userId = createId();
     await db.insert(schema.profiles).values({
@@ -1958,7 +1961,8 @@ app.post('/api/invite-parent', async (req, res) => {
       user_id: userId,
       email,
       full_name: `${firstName} ${lastName}`,
-      role: 'parent'
+      role: 'parent',
+      created_by: advocateUserId // Track which advocate created this parent
     });
     
     // Log the invitation for tracking

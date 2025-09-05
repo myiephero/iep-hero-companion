@@ -11,6 +11,7 @@ import {
   ArrowLeft
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { getCheckoutUrl, requiresPayment } from '@/lib/stripePricing';
 
 const ParentPricingPlan = () => {
   const [selectedPlan, setSelectedPlan] = useState<string | null>(null);
@@ -134,10 +135,29 @@ const ParentPricingPlan = () => {
 
   const handlePlanSelection = (planId: string) => {
     setSelectedPlan(planId);
+    
+    if (planId === 'free') {
+      // Free plan - redirect to registration/dashboard
+      toast({
+        title: "Free Plan Selected",
+        description: "Redirecting you to get started...",
+      });
+      setTimeout(() => {
+        window.location.href = '/auth';
+      }, 1000);
+      return;
+    }
+    
+    // Paid plans - redirect to Stripe checkout
+    const checkoutUrl = getCheckoutUrl(planId, 'parent');
     toast({
       title: `${planId.charAt(0).toUpperCase() + planId.slice(1)} plan selected`,
       description: "Redirecting to checkout...",
     });
+    
+    setTimeout(() => {
+      window.location.href = checkoutUrl;
+    }, 1000);
   };
 
   return (

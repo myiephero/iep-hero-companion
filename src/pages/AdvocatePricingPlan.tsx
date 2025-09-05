@@ -11,6 +11,7 @@ import {
   ArrowLeft
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { getCheckoutUrl, requiresPayment } from '@/lib/stripePricing';
 
 const AdvocatePricingPlan = () => {
   const [selectedPlan, setSelectedPlan] = useState<string | null>(null);
@@ -115,10 +116,19 @@ const AdvocatePricingPlan = () => {
 
   const handlePlanSelection = (planId: string) => {
     setSelectedPlan(planId);
+    
+    // All advocate plans are paid - redirect to Stripe checkout
+    const checkoutUrl = getCheckoutUrl(planId, 'advocate');
+    const planName = pricingTiers.find(p => p.id === planId)?.name || planId;
+    
     toast({
-      title: "Plan Selected",
-      description: `You've selected the ${pricingTiers.find(p => p.id === planId)?.name}. Contact our team to upgrade.`,
+      title: `${planName} Plan Selected`,
+      description: "Redirecting to checkout...",
     });
+    
+    setTimeout(() => {
+      window.location.href = checkoutUrl;
+    }, 1000);
   };
 
 

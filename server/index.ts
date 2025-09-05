@@ -5,6 +5,7 @@ import * as schema from '../shared/schema';
 import { eq, and } from 'drizzle-orm';
 import matchRoutes from './routes/match';
 import expertRoutes from './routes/expert';
+import feedbackRoutes from './routes/feedback';
 import { createRequire } from 'module';
 const require = createRequire(import.meta.url);
 const pdf = require('pdf-parse');
@@ -2195,6 +2196,7 @@ app.put('/api/advocates/profile', async (req, res) => {
 // Mount new route modules
 app.use('/api/match', matchRoutes);
 app.use('/api/expert-analysis', expertRoutes);
+app.use('/api/feedback', feedbackRoutes);
 
 // Health check
 app.get('/health', (req, res) => {

@@ -6,6 +6,7 @@ import { Link } from "react-router-dom";
 import { ToolTeaser } from "@/components/ToolTeaser";
 import { useToolAccess } from "@/hooks/useToolAccess";
 import { useAuth } from "@/hooks/useAuth";
+import { PlanFeatures, SubscriptionPlan } from "@/lib/planAccess";
 import { 
   Brain, 
   FileText, 
@@ -215,7 +216,32 @@ const getBadgeVariant = (badge: string) => {
 export default function AdvocateToolsHub() {
   const userRole = getUserRole();
   const { user } = useAuth();
-  const { hasAccess, getRequiredPlan } = useToolAccess();
+  const { hasAccess, currentPlan } = useToolAccess();
+
+  // Map tool paths to feature keys for access control
+  const mapToolPathToFeature = (path: string): keyof PlanFeatures => {
+    const pathMap: Record<string, keyof PlanFeatures> = {
+      '/advocate/unified-iep-review': 'unifiedIEPReview',
+      '/advocate/smart-letter-generator': 'letterGenerationLimit',  
+      '/advocate/idea-rights-guide': 'advocateMatchingTool',
+      '/advocate/meeting-prep-wizard': 'professionalPlanning',
+      '/advocate/progress-analyzer': 'caseAnalytics',
+      '/advocate/goal-generator': 'professionalAnalysis',
+      '/advocate/communication-tracker': 'advocateMessaging',
+      '/advocate/advocacy-reports': 'advocacyReports',
+      '/advocate/emotion-tracker': 'professionalAnalysis',
+      '/advocate/504-plan-builder': 'professionalPlanning',
+      '/advocate/ot-recommender': 'professionalAnalysis'
+    };
+    return pathMap[path] || 'professionalAnalysis'; // Default fallback
+  };
+
+  const getRequiredPlan = (path: string): SubscriptionPlan => {
+    // For now, most advocate tools require 'pro' plan minimum
+    const feature = mapToolPathToFeature(path);
+    // This is a simplified mapping - in a real app you'd have more sophisticated logic
+    return 'pro';
+  };
   
   return (
     <DashboardLayout>
@@ -256,7 +282,8 @@ export default function AdvocateToolsHub() {
             <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 gap-4">
               {advocateTools.map((tool) => {
                 const toolPath = tool.path.startsWith('/advocate/') || tool.path.startsWith('/parent/') ? tool.path : `/${userRole}${tool.path}`;
-                const hasToolAccess = hasAccess(toolPath);
+                const featureKey = mapToolPathToFeature(toolPath);
+                const hasToolAccess = hasAccess(featureKey);
 
                 if (!hasToolAccess) {
                   return (
@@ -325,7 +352,8 @@ export default function AdvocateToolsHub() {
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
               {specializedTools.map((tool) => {
                 const toolPath = tool.path.startsWith('/advocate/') || tool.path.startsWith('/parent/') ? tool.path : `/${userRole}${tool.path}`;
-                const hasToolAccess = hasAccess(toolPath);
+                const featureKey = mapToolPathToFeature(toolPath);
+                const hasToolAccess = hasAccess(featureKey);
 
                 if (!hasToolAccess) {
                   return (

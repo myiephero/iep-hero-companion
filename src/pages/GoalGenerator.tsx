@@ -267,7 +267,7 @@ export default function GoalGenerator() {
         </CardHeader>
         <CardContent className="space-y-4">
           {/* Student Selection */}
-          <div className="space-y-4 p-4 border rounded-lg bg-muted/20">
+          <div className="space-y-4 p-4 rounded-lg bg-muted/20">
             <div className="flex items-center justify-between">
               <Label className="text-base font-semibold">Select Student</Label>
               <Button

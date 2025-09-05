@@ -110,34 +110,6 @@ const AdvocatePricingPlan = () => {
       icon: <Crown className="h-6 w-6" />,
       gradient: 'from-green-500 to-green-600',
       popular: false
-    },
-    {
-      id: 'agency-plus',
-      name: 'Agency+',
-      price: '$249',
-      period: '/month',
-      seats: '3 Seats',
-      description: 'Enterprise features with unlimited AI',
-      toolCount: 'ALL 40+ Professional Tools',
-      features: [
-        'Everything in Agency',
-        '3 Advocate seats',
-        'Unlimited AI Credits',
-        'Professional training hub access',
-        'Specialized professional tools',
-        'Emotion tracker (professional)',
-        'Crisis intervention planning',
-        'Legal documentation suite',
-        'White-label branding options',
-        'Custom integrations',
-        'Dedicated account manager',
-        'Unlimited storage',
-        'Premium priority support'
-      ],
-      limitations: [],
-      icon: <Crown className="h-6 w-6" />,
-      gradient: 'from-amber-500 to-amber-600',
-      popular: false
     }
   ];
 
@@ -210,7 +182,7 @@ const AdvocatePricingPlan = () => {
               </div>
             </div>
             
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6"
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
                  style={{ gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))' }}>
               {pricingTiers.map((tier) => (
                 <Card 
@@ -284,6 +256,101 @@ const AdvocatePricingPlan = () => {
                 </Card>
               ))}
             </div>
+          </div>
+        </div>
+
+        {/* Agency+ - Enterprise Upsell */}
+        <div className="px-6 pb-16">
+          <div className="max-w-6xl mx-auto">
+            <Card className="bg-gradient-to-r from-amber-600 to-orange-600 border-amber-500 relative overflow-hidden min-h-[400px]">
+              <div className="absolute inset-0 bg-gradient-to-r from-amber-600/90 to-orange-600/90" />
+              <div className="relative z-10 p-8">
+                <div className="grid lg:grid-cols-2 gap-8 items-center">
+                  <div>
+                    <div className="flex items-center gap-3 mb-4">
+                      <div className="w-16 h-16 bg-white/20 rounded-2xl flex items-center justify-center">
+                        <Crown className="h-8 w-8 text-white" />
+                      </div>
+                      <div>
+                        <h3 className="text-2xl font-bold text-white">Agency+ Enterprise</h3>
+                        <p className="text-amber-100">Complete advocacy practice solution</p>
+                      </div>
+                    </div>
+                    
+                    <div className="mb-6">
+                      <div className="mb-4">
+                        <Badge variant="secondary" className="bg-white/20 text-white border-white/30 mb-3">
+                          ALL 40+ Professional Tools
+                        </Badge>
+                      </div>
+                      
+                      <h4 className="text-lg font-semibold text-white mb-3">Enterprise Features Include:</h4>
+                      <div className="grid md:grid-cols-1 gap-2 mb-4">
+                        <div className="flex items-center gap-2 text-white">
+                          <Check className="h-4 w-4 text-amber-200" />
+                          <span className="text-sm">3 Advocate seats (+ $39/month per additional seat)</span>
+                        </div>
+                        <div className="flex items-center gap-2 text-white">
+                          <Check className="h-4 w-4 text-amber-200" />
+                          <span className="text-sm">Unlimited AI Credits & Analysis</span>
+                        </div>
+                        <div className="flex items-center gap-2 text-white">
+                          <Check className="h-4 w-4 text-amber-200" />
+                          <span className="text-sm">White-label branding options</span>
+                        </div>
+                        <div className="flex items-center gap-2 text-white">
+                          <Check className="h-4 w-4 text-amber-200" />
+                          <span className="text-sm">Dedicated account manager</span>
+                        </div>
+                        <div className="flex items-center gap-2 text-white">
+                          <Check className="h-4 w-4 text-amber-200" />
+                          <span className="text-sm">Custom integrations & API access</span>
+                        </div>
+                        <div className="flex items-center gap-2 text-white">
+                          <Check className="h-4 w-4 text-amber-200" />
+                          <span className="text-sm">Professional training hub access</span>
+                        </div>
+                        <div className="flex items-center gap-2 text-white">
+                          <Check className="h-4 w-4 text-amber-200" />
+                          <span className="text-sm">Crisis intervention planning tools</span>
+                        </div>
+                        <div className="flex items-center gap-2 text-white">
+                          <Check className="h-4 w-4 text-amber-200" />
+                          <span className="text-sm">Unlimited storage & premium priority support</span>
+                        </div>
+                      </div>
+                      
+                      <div className="bg-white/10 rounded-lg p-4 mb-6">
+                        <p className="text-sm text-amber-100">
+                          <strong>Perfect for:</strong> Established advocacy practices ready to scale with enterprise-grade tools, white-label solutions, and dedicated support to grow their business.
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  <div className="text-center lg:text-right">
+                    <div className="mb-6">
+                      <div className="text-sm text-amber-100 mb-2">Enterprise Investment</div>
+                      <div className="flex items-baseline justify-center lg:justify-end gap-2">
+                        <span className="text-4xl font-bold text-white">$249</span>
+                        <span className="text-amber-100">/month</span>
+                      </div>
+                      <div className="text-sm text-amber-200 mt-2">3 advocates included</div>
+                      <div className="text-xs text-amber-300 mt-1">Extra seats: $39/month each</div>
+                    </div>
+                    
+                    <Button 
+                      size="lg"
+                      className="bg-white text-amber-600 hover:bg-amber-50 font-semibold px-8 py-4"
+                      onClick={() => handlePlanSelection('agency-plus')}
+                      data-testid="button-select-agency-plus"
+                    >
+                      Start Agency+ Plan
+                    </Button>
+                  </div>
+                </div>
+              </div>
+            </Card>
           </div>
         </div>
 

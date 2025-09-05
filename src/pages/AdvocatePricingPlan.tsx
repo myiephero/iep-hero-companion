@@ -177,7 +177,7 @@ const AdvocatePricingPlan = () => {
               <div className="inline-flex items-center px-6 py-3 bg-muted/50 rounded-lg">
                 <Users className="h-4 w-4 mr-2 text-muted-foreground" />
                 <span className="text-sm text-muted-foreground">
-                  <strong>Extra Seats:</strong> $39/month each - Flexible expansion for larger teams
+                  <strong>Agency+ Extra Seats:</strong> $39/month each - Flexible expansion for larger teams
                 </span>
               </div>
             </div>

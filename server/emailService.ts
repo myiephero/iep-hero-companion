@@ -2,6 +2,16 @@ import { Resend } from 'resend';
 
 const resend = new Resend(process.env.RESEND_API_KEY);
 
+// Helper function to get correct dashboard URL
+function getDashboardUrl(role: string = 'parent'): string {
+  const currentDomain = process.env.REPLIT_DOMAINS?.split(',')[0] || 'localhost:8080';
+  const protocol = currentDomain.includes('localhost') ? 'http' : 'https';
+  const baseUrl = `${protocol}://${currentDomain}`;
+  
+  // Route to proper role-based dashboard, but redirect to login first for authentication
+  return `${baseUrl}/api/login`;
+}
+
 export interface EmailVerificationData {
   email: string;
   firstName: string;
@@ -124,7 +134,7 @@ Need help? Contact us at support@myiephero.com
   }
 }
 
-export async function sendWelcomeEmail(email: string, firstName: string): Promise<boolean> {
+export async function sendWelcomeEmail(email: string, firstName: string, role: string = 'parent'): Promise<boolean> {
   try {
     const htmlContent = `
 <!DOCTYPE html>
@@ -164,7 +174,7 @@ export async function sendWelcomeEmail(email: string, firstName: string): Promis
       </ul>
       
       <div style="text-align: center; margin: 30px 0;">
-        <a href="${process.env.VITE_APP_URL || 'http://localhost:8080'}/dashboard" class="button">Access Your Dashboard</a>
+        <a href="${getDashboardUrl(role)}" class="button">Access Your Dashboard</a>
       </div>
       
       <p>If you have any questions or need assistance getting started, our support team is here to help!</p>

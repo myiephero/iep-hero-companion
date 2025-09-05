@@ -22,6 +22,8 @@ export const users = pgTable("users", {
   password: varchar("password"), // For email/password auth
   emailVerified: boolean("email_verified").default(false),
   verificationToken: varchar("verification_token"), // Email verification token
+  passwordResetToken: varchar("password_reset_token"), // Password reset token
+  passwordResetExpires: timestamp("password_reset_expires"), // Password reset expiry
   subscriptionStatus: varchar("subscription_status"),
   subscriptionPlan: varchar("subscription_plan"),
   stripeCustomerId: varchar("stripe_customer_id"),

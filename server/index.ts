@@ -797,6 +797,128 @@ app.post('/api/custom-login', async (req: any, res) => {
   }
 });
 
+// Create account endpoint (standalone account creation)
+app.post('/api/create-account', async (req, res) => {
+  try {
+    const { email, password, firstName, lastName, role } = req.body;
+
+    if (!email || !password || !firstName || !lastName || !role) {
+      return res.status(400).json({ 
+        message: 'All fields are required' 
+      });
+    }
+
+    // Check if user already exists
+    const [existingUser] = await db.select()
+      .from(schema.users)
+      .where(eq(schema.users.email, email))
+      .limit(1);
+
+    if (existingUser) {
+      return res.status(409).json({ 
+        message: 'An account with this email already exists' 
+      });
+    }
+
+    // Create user account
+    const userId = createId();
+    const hashedPassword = await hashPassword(password);
+    const verificationToken = generateVerificationToken();
+    
+    await db.insert(schema.users).values({
+      id: userId,
+      email,
+      firstName,
+      lastName,
+      role,
+      emailVerified: false,
+      verificationToken,
+      password: hashedPassword,
+      subscriptionPlan: 'Free Plan',
+      subscriptionStatus: 'active',
+      createdAt: new Date(),
+      updatedAt: new Date()
+    });
+
+    // Send verification email
+    await sendVerificationEmail({
+      email,
+      firstName,
+      verificationToken,
+      role
+    });
+
+    res.json({ 
+      success: true,
+      message: 'Account created successfully. Please check your email to verify your account.'
+    });
+  } catch (error) {
+    console.error('Error creating account:', error);
+    res.status(500).json({ 
+      message: 'Failed to create account. Please try again.' 
+    });
+  }
+});
+
+// Forgot password endpoint
+app.post('/api/forgot-password', async (req, res) => {
+  try {
+    const { email } = req.body;
+
+    if (!email) {
+      return res.status(400).json({ 
+        message: 'Email is required' 
+      });
+    }
+
+    // Check if user exists
+    const [user] = await db.select()
+      .from(schema.users)
+      .where(eq(schema.users.email, email))
+      .limit(1);
+
+    if (!user) {
+      // Don't reveal if email exists for security
+      return res.json({ 
+        success: true,
+        message: 'If an account with this email exists, you will receive a password reset email.'
+      });
+    }
+
+    if (!user.password) {
+      return res.status(400).json({ 
+        message: 'This account was created through subscription checkout and uses OAuth authentication. Please use the "Sign in with Replit" option instead.'
+      });
+    }
+
+    // Generate password reset token
+    const resetToken = generateVerificationToken();
+    const resetExpires = new Date(Date.now() + 60 * 60 * 1000); // 1 hour
+
+    // Update user with reset token
+    await db.update(schema.users)
+      .set({
+        passwordResetToken: resetToken,
+        passwordResetExpires: resetExpires,
+        updatedAt: new Date()
+      })
+      .where(eq(schema.users.id, user.id));
+
+    // Send password reset email
+    await sendPasswordResetEmail(user.email!, user.firstName || 'User', resetToken);
+
+    res.json({ 
+      success: true,
+      message: 'If an account with this email exists, you will receive a password reset email.'
+    });
+  } catch (error) {
+    console.error('Error sending password reset:', error);
+    res.status(500).json({ 
+      message: 'Failed to send password reset email. Please try again.' 
+    });
+  }
+});
+
 // Pre-signup subscription intent (for new users who need to sign up first)
 app.post('/api/create-subscription-intent', async (req: any, res) => {
   try {

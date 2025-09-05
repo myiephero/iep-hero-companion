@@ -207,3 +207,76 @@ export async function sendWelcomeEmail(email: string, firstName: string, role: s
     return false;
   }
 }
+
+export async function sendPasswordResetEmail(email: string, firstName: string, resetToken: string): Promise<boolean> {
+  try {
+    const resetUrl = `${getDashboardUrl()}/reset-password?token=${resetToken}`;
+    
+    const htmlContent = `
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Reset Your Password - My IEP Hero</title>
+  <style>
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; line-height: 1.6; color: #333; }
+    .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+    .header { background: linear-gradient(135deg, #1e40af 0%, #7c3aed 100%); color: white; padding: 30px; text-align: center; border-radius: 8px 8px 0 0; }
+    .content { background: white; padding: 30px; border: 1px solid #e5e7eb; border-top: none; }
+    .button { display: inline-block; background: #1e40af; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; font-weight: 600; margin: 20px 0; }
+    .footer { background: #f9fafb; padding: 20px; text-align: center; font-size: 14px; color: #6b7280; border: 1px solid #e5e7eb; border-top: none; border-radius: 0 0 8px 8px; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <h1 style="margin: 0; font-size: 24px;">Reset Your Password 🔐</h1>
+      <p style="margin: 10px 0 0 0; opacity: 0.9;">Secure password reset for My IEP Hero</p>
+    </div>
+    
+    <div class="content">
+      <p>Hi ${firstName},</p>
+      
+      <p>We received a request to reset your password for your My IEP Hero account.</p>
+      
+      <p>Click the button below to create a new password:</p>
+      
+      <div style="text-align: center; margin: 30px 0;">
+        <a href="${resetUrl}" class="button">Reset My Password</a>
+      </div>
+      
+      <p><strong>This link will expire in 1 hour</strong> for security reasons.</p>
+      
+      <p>If you didn't request this password reset, you can safely ignore this email. Your password won't be changed.</p>
+      
+      <p>For security, this reset link can only be used once.</p>
+    </div>
+    
+    <div class="footer">
+      <p>Need help? Contact us at support@myiephero.com</p>
+      <p>© 2025 My IEP Hero. All rights reserved.</p>
+    </div>
+  </div>
+</body>
+</html>`;
+
+    const { data: result, error } = await resend.emails.send({
+      from: 'My IEP Hero <noreply@myiephero.com>',
+      to: [email],
+      subject: 'Reset Your My IEP Hero Password',
+      html: htmlContent,
+    });
+
+    if (error) {
+      console.error('Resend error:', error);
+      return false;
+    }
+
+    console.log('Password reset email sent successfully:', result);
+    return true;
+  } catch (error) {
+    console.error('Error sending password reset email:', error);
+    return false;
+  }
+}

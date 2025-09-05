@@ -107,13 +107,22 @@ export default function SubscriptionSetup() {
   const planId = searchParams.get('plan'); // URL uses 'plan' not 'planId'
   const role = searchParams.get('role');
 
-  // Validate params on load
+  // Validate params on load - be more specific about what's missing
   useEffect(() => {
-    if (!planName || !planId || !role) {
-      console.error('Missing subscription parameters:', {
+    console.log('🔍 Subscription Setup Validation:', {
+      planName,
+      planId,
+      role,
+      priceId,
+      allParams: Object.fromEntries(searchParams.entries())
+    });
+    
+    if (!planId || !role) {
+      console.error('Missing REQUIRED subscription parameters:', {
         planName: !!planName,
         planId: !!planId, 
-        role: !!role
+        role: !!role,
+        actualValues: { planName, planId, role }
       });
       toast({
         title: "Invalid Subscription",
@@ -124,7 +133,7 @@ export default function SubscriptionSetup() {
         window.location.href = '/';
       }, 3000);
     }
-  }, [planName, planId, role, toast]);
+  }, [planName, planId, role, priceId, toast, searchParams]);
 
   // Handle account creation
   const handleAccountCreation = async (e: React.FormEvent) => {
@@ -280,25 +289,7 @@ export default function SubscriptionSetup() {
     );
   }
 
-  if (!clientSecret) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-primary/5 to-accent/5">
-        <Card className="w-full max-w-md">
-          <CardContent className="pt-6">
-            <div className="text-center">
-              <h3 className="font-semibold text-lg mb-2">Subscription Setup Failed</h3>
-              <p className="text-muted-foreground mb-4">
-                We couldn't set up your subscription. Redirecting you back...
-              </p>
-              <Button onClick={() => window.location.href = '/'}>
-                Return Home
-              </Button>
-            </div>
-          </CardContent>
-        </Card>
-      </div>
-    );
-  }
+  // Remove clientSecret check since we're using account-first flow
 
   // Show account creation form first
   if (step === 'account') {

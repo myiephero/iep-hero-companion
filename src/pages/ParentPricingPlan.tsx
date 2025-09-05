@@ -50,7 +50,7 @@ const ParentPricingPlan = () => {
       toolCount: '11 Core Tools (No AI)',
       features: [
         'Everything in Free',
-        '2 Student profiles',
+        '1 Student profile',
         'Goal Management system',
         'Meeting Scheduler',
         'Document Vault (2GB)',
@@ -78,7 +78,7 @@ const ParentPricingPlan = () => {
       toolCount: '25+ Tools + AI',
       features: [
         'Everything in Basic',
-        '3 Student profiles',
+        '1 Student profile',
         'AI Insights & Analytics',
         'Progress Analytics dashboard',
         'Unified IEP Review with AI',
@@ -109,7 +109,7 @@ const ParentPricingPlan = () => {
       toolCount: '35+ Professional Tools',
       features: [
         'Everything in Plus',
-        '5 Student profiles',
+        '2 Student profiles',
         'Expert Analysis requests',
         'Advanced AI IEP Review',
         'Autism Accommodation Builder',
@@ -253,7 +253,7 @@ const ParentPricingPlan = () => {
                   </div>
                   
                   <div className="mb-6">
-                    <h4 className="text-lg font-semibold text-white mb-3">$495 One-Time Setup Includes:</h4>
+                    <h4 className="text-lg font-semibold text-white mb-3">$495 Per Student Setup Includes:</h4>
                     <div className="grid md:grid-cols-1 gap-2 mb-4">
                       <div className="flex items-center gap-2 text-white">
                         <Check className="h-4 w-4 text-orange-200" />
@@ -290,7 +290,7 @@ const ParentPricingPlan = () => {
                       </div>
                       <div className="flex items-center gap-2 text-white">
                         <Check className="h-4 w-4 text-orange-200" />
-                        <span className="text-sm">Unlimited students, documents & AI analysis</span>
+                        <span className="text-sm">Up to 3 students, unlimited documents & AI analysis</span>
                       </div>
                       <div className="flex items-center gap-2 text-white">
                         <Check className="h-4 w-4 text-orange-200" />

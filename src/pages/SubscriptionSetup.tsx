@@ -9,18 +9,13 @@ import { Loader2 } from 'lucide-react';
 
 const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLIC_KEY);
 
-// Helper function to get plan price (simple price lookup)
+import { getStripePlanConfig } from '@/lib/stripePricing';
+
+// Helper function to get plan price (uses Stripe pricing configuration)
 function getPlanPrice(planId: string | null): string {
-  const prices: Record<string, string> = {
-    'basic': '19',
-    'plus': '29', 
-    'premium': '49',
-    'hero': '79',
-    'starter': '49',
-    'pro': '75',
-    'agency': '99'
-  };
-  return prices[planId || ''] || '0';
+  if (!planId) return '0';
+  const config = getStripePlanConfig(planId);
+  return config ? config.amount.toString() : '0';
 }
 
 // Payment form component

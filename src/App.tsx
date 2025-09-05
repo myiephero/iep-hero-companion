@@ -7,6 +7,7 @@ import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { AuthProvider } from "@/hooks/useAuth";
 import { ThemeProvider } from "@/contexts/ThemeContext";
 import { ProtectedRoute, RoleBasedRedirect } from "@/components/ProtectedRoute";
+import { FeedbackChat } from "@/components/FeedbackChat";
 import Index from "./pages/Index";
 import Auth from "./pages/Auth";
 import ParentDashboard from "./pages/ParentDashboard";
@@ -479,6 +480,7 @@ function App() {
               {/* 404 */}
               <Route path="*" element={<NotFound />} />
             </Routes>
+            <FeedbackChat />
           </BrowserRouter>
         </AuthProvider>
       </ThemeProvider>

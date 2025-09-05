@@ -208,6 +208,111 @@ export async function sendWelcomeEmail(email: string, firstName: string, role: s
   }
 }
 
+export interface FeedbackData {
+  type: 'bug' | 'suggestion' | 'error' | 'general';
+  message: string;
+  screenshot?: string;
+  userEmail: string;
+  userName: string;
+  currentPage: string;
+  timestamp: string;
+  userAgent: string;
+}
+
+export async function sendFeedbackEmail(data: FeedbackData): Promise<boolean> {
+  try {
+    const { type, message, screenshot, userEmail, userName, currentPage, timestamp, userAgent } = data;
+    
+    const typeLabels = {
+      bug: '🐛 Bug Report',
+      error: '⚠️ Error/Redirect',  
+      suggestion: '💡 Suggestion',
+      general: '💬 General Feedback'
+    };
+
+    const htmlContent = `
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>New Feedback - My IEP Hero</title>
+  <style>
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; line-height: 1.6; color: #333; }
+    .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+    .header { background: linear-gradient(135deg, #1e40af 0%, #7c3aed 100%); color: white; padding: 30px; text-align: center; border-radius: 8px 8px 0 0; }
+    .content { background: white; padding: 30px; border: 1px solid #e5e7eb; border-top: none; }
+    .info-grid { display: grid; grid-template-columns: 120px 1fr; gap: 10px; margin: 20px 0; background: #f8fafc; padding: 20px; border-radius: 6px; }
+    .label { font-weight: 600; color: #374151; }
+    .value { color: #6b7280; }
+    .message { background: #f9fafb; padding: 20px; border-left: 4px solid #1e40af; margin: 20px 0; }
+    .screenshot { margin: 20px 0; text-align: center; }
+    .screenshot img { max-width: 100%; border-radius: 8px; border: 1px solid #e5e7eb; }
+    .footer { background: #f9fafb; padding: 20px; text-align: center; font-size: 14px; color: #6b7280; border: 1px solid #e5e7eb; border-top: none; border-radius: 0 0 8px 8px; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <h1 style="margin: 0; font-size: 24px;">New Feedback Received</h1>
+      <p style="margin: 10px 0 0 0; opacity: 0.9;">${typeLabels[type]}</p>
+    </div>
+    
+    <div class="content">
+      <div class="info-grid">
+        <div class="label">User:</div>
+        <div class="value">${userName} (${userEmail})</div>
+        
+        <div class="label">Type:</div>
+        <div class="value">${typeLabels[type]}</div>
+        
+        <div class="label">Page:</div>
+        <div class="value">${currentPage}</div>
+        
+        <div class="label">Timestamp:</div>
+        <div class="value">${new Date(timestamp).toLocaleString()}</div>
+        
+        <div class="label">User Agent:</div>
+        <div class="value" style="word-break: break-all; font-size: 12px;">${userAgent}</div>
+      </div>
+      
+      <div class="message">
+        <h3 style="margin-top: 0; color: #1e40af;">Message:</h3>
+        <p style="margin-bottom: 0; white-space: pre-wrap;">${message}</p>
+      </div>
+      
+      ${screenshot ? `
+      <div class="screenshot">
+        <h3 style="color: #1e40af;">Screenshot:</h3>
+        <img src="${screenshot}" alt="User screenshot" />
+      </div>
+      ` : ''}
+    </div>
+    
+    <div class="footer">
+      <p style="margin: 0;">This feedback was submitted through the My IEP Hero platform.</p>
+    </div>
+  </div>
+</body>
+</html>
+    `;
+
+    // Send email to the admin (you!)
+    await resend.emails.send({
+      from: 'My IEP Hero <feedback@myiephero.com>',
+      to: process.env.ADMIN_EMAIL || 'admin@myiephero.com', // You'll need to set this
+      subject: `${typeLabels[type]} - ${currentPage}`,
+      html: htmlContent,
+      replyTo: userEmail
+    });
+
+    return true;
+  } catch (error) {
+    console.error('Error sending feedback email:', error);
+    return false;
+  }
+}
+
 export async function sendPasswordResetEmail(email: string, firstName: string, resetToken: string): Promise<boolean> {
   try {
     const resetUrl = `${getDashboardUrl()}/reset-password?token=${resetToken}`;

@@ -1,6 +1,5 @@
 import { useAuth } from "@/hooks/useAuth";
-import { checkToolAccess, hasFeatureAccess, type PlanFeatures } from "@/lib/planAccess";
-import { SubscriptionPlan } from "@shared/schema";
+import { checkToolAccess, hasFeatureAccess, type PlanFeatures, type SubscriptionPlan } from "@/lib/planAccess";
 
 export function useToolAccess() {
   const { user } = useAuth();

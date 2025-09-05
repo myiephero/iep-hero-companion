@@ -126,7 +126,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
             }
             
             // Redirect scenarios
-            if (currentPath === '/auth' || currentPath === '/onboarding') {
+            if (currentPath === '/auth' || currentPath === '/onboarding' || currentPath === '/') {
               // Post-authentication/onboarding redirect
               window.location.href = correctDashboardPath;
             } else if (userData.role === 'parent') {

@@ -21,13 +21,21 @@ const ParentPricingPlan = () => {
       name: 'Free',
       price: '$0',
       period: '/month',
-      description: 'Essential tools to get started',
+      description: 'Try the basics with 1 student',
+      toolCount: '3 Essential Tools',
       features: [
-        'Template Library access',
-        'Education Hub',
-        'Basic IEP tracking',
-        'Community support',
-        'Mobile app access'
+        '1 Student Profile',
+        'IDEA Rights Guide',
+        'FERPA Overview', 
+        'Timeline Calculator',
+        'Smart Letter Generator (2/month)',
+        'Community forum support',
+        '5 Documents max'
+      ],
+      limitations: [
+        'No AI analysis',
+        'No document vault', 
+        'Limited letter templates'
       ],
       icon: <Heart className="h-6 w-6 text-white" />,
       gradient: 'from-gray-500 to-gray-600',
@@ -38,13 +46,24 @@ const ParentPricingPlan = () => {
       name: 'Basic',
       price: '$19',
       period: '/month',
-      description: 'Adds document management and letters',
+      description: 'Core tools for active IEP management',
+      toolCount: '12 Essential Tools',
       features: [
         'Everything in Free',
-        'Intake Vault',
-        'Pre-built Letters',
-        'Document storage (2GB)',
-        'Email support'
+        '2 Student profiles',
+        'Goal Management system',
+        'Meeting Scheduler',
+        'IEP Review Tool',
+        'Document Vault (2GB)',
+        'Progress Notes',
+        'Meeting Prep Wizard',
+        'Plan 504 Guide',
+        'Email support',
+        '50 Documents, 10 letters/month'
+      ],
+      limitations: [
+        'No AI insights',
+        'Basic analysis only'
       ],
       icon: <Heart className="h-6 w-6 text-white" />,
       gradient: 'from-pink-500 to-rose-600',
@@ -55,14 +74,27 @@ const ParentPricingPlan = () => {
       name: 'Plus',
       price: '$29',
       period: '/month',
-      description: 'Adds progress tracking and self-service tools',
+      description: 'AI-powered analysis and comprehensive tools',
+      toolCount: '25+ Tools + AI',
       features: [
         'Everything in Basic',
-        'Progress Tracker',
-        'Self-IEP Tools',
-        'Goal tracking dashboard',
-        'Document storage (5GB)',
-        'Priority support'
+        '3 Student profiles',
+        'AI Insights & Analytics',
+        'Progress Analytics dashboard',
+        'Unified IEP Review with AI',
+        'Ask AI About Documents',
+        'Parent Messages system',
+        'Communication Tracker',
+        'Accommodation Builder',
+        '504 Plan Builder',
+        'Goal Generator (AI)',
+        'Emotion Trackers',
+        'Advocate Matching',
+        'Priority email support (5GB)'
+      ],
+      limitations: [
+        'No expert analysis',
+        'Basic specialization tools'
       ],
       icon: <Star className="h-6 w-6 text-white" />,
       gradient: 'from-blue-500 to-indigo-600',
@@ -73,14 +105,25 @@ const ParentPricingPlan = () => {
       name: 'Premium',
       price: '$49',
       period: '/month',
-      description: 'Adds live support and IEP review',
+      description: 'Professional-grade tools with expert features',
+      toolCount: '35+ Professional Tools',
       features: [
         'Everything in Plus',
+        '5 Student profiles',
+        'Expert Analysis requests',
+        'Advanced AI IEP Review',
+        'Autism Accommodation Builder',
+        'Gifted & 2e Learner tools',
+        'OT Activity Recommender',
+        'Advanced analytics & insights',
+        'Professional meeting prep',
         'Priority email support',
-        'Advanced IEP review tools',
-        'Expert analysis requests',
         'Document storage (10GB)',
-        'Advanced analytics & insights'
+        '500 documents, 100 letters/month'
+      ],
+      limitations: [
+        'No strategy calls',
+        'No advocate coordination'
       ],
       icon: <Crown className="h-6 w-6 text-white" />,
       gradient: 'from-purple-500 to-indigo-600',
@@ -142,6 +185,11 @@ const ParentPricingPlan = () => {
                 <CardDescription className="text-gray-400 text-sm mb-3">
                   {tier.description}
                 </CardDescription>
+                <div className="mb-3">
+                  <Badge variant="secondary" className="bg-blue-500/20 text-blue-300 border-blue-400">
+                    {tier.toolCount}
+                  </Badge>
+                </div>
                 <div className="flex items-baseline justify-center gap-1">
                   <span className="text-3xl font-bold text-white">{tier.price}</span>
                   <span className="text-gray-400 text-sm">{tier.period}</span>
@@ -157,6 +205,19 @@ const ParentPricingPlan = () => {
                     </li>
                   ))}
                 </ul>
+                
+                {tier.limitations && tier.limitations.length > 0 && (
+                  <div className="border-t border-gray-700 pt-4">
+                    <p className="text-xs text-gray-500 mb-2">Limitations:</p>
+                    <ul className="space-y-1">
+                      {tier.limitations.map((limitation, index) => (
+                        <li key={index} className="text-xs text-gray-500">
+                          • {limitation}
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
                 
                 <Button 
                   className={`w-full mt-auto ${
@@ -213,10 +274,15 @@ const ParentPricingPlan = () => {
                     </div>
                     
                     <h4 className="text-lg font-semibold text-white mb-3">$199/Month Ongoing Includes:</h4>
+                    <div className="mb-4">
+                      <Badge variant="secondary" className="bg-white/20 text-white border-white/30 mb-3">
+                        ALL 50+ Professional Tools
+                      </Badge>
+                    </div>
                     <div className="grid md:grid-cols-1 gap-2 mb-6">
                       <div className="flex items-center gap-2 text-white">
                         <Check className="h-4 w-4 text-orange-200" />
-                        <span className="text-sm">All Premium platform features</span>
+                        <span className="text-sm">All Premium platform features + unlimited access</span>
                       </div>
                       <div className="flex items-center gap-2 text-white">
                         <Check className="h-4 w-4 text-orange-200" />
@@ -224,7 +290,15 @@ const ParentPricingPlan = () => {
                       </div>
                       <div className="flex items-center gap-2 text-white">
                         <Check className="h-4 w-4 text-orange-200" />
-                        <span className="text-sm">Advanced AI insights & analytics</span>
+                        <span className="text-sm">Unlimited students, documents & AI analysis</span>
+                      </div>
+                      <div className="flex items-center gap-2 text-white">
+                        <Check className="h-4 w-4 text-orange-200" />
+                        <span className="text-sm">Monthly strategy calls & priority support</span>
+                      </div>
+                      <div className="flex items-center gap-2 text-white">
+                        <Check className="h-4 w-4 text-orange-200" />
+                        <span className="text-sm">Professional meeting coordination</span>
                       </div>
                       <div className="flex items-center gap-2 text-white">
                         <Check className="h-4 w-4 text-orange-200" />

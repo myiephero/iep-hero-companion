@@ -300,59 +300,6 @@ export default function GoalGenerator() {
                 Student Details
               </h4>
               
-              <div className="grid gap-6 md:grid-cols-2">
-                <div className="space-y-3">
-                  <div className="flex items-center gap-2">
-                    <User className="h-4 w-4 text-blue-600" />
-                    <Label htmlFor="student-name" className="text-sm font-medium">Student Name</Label>
-                    {(useExistingStudent && selectedStudentId && selectedStudentId !== 'no-student') && (
-                      <Badge variant="secondary" className="text-xs">Auto-filled</Badge>
-                    )}
-                  </div>
-                  <Input
-                    id="student-name"
-                    value={studentInfo.name}
-                    onChange={(e) => setStudentInfo({...studentInfo, name: e.target.value})}
-                    placeholder="Enter student's first name"
-                    data-testid="input-student-name"
-                    className="h-11"
-                  />
-                </div>
-                
-                <div className="space-y-3">
-                  <div className="flex items-center gap-2">
-                    <GraduationCap className="h-4 w-4 text-blue-600" />
-                    <Label htmlFor="grade" className="text-sm font-medium">Grade Level</Label>
-                    {(useExistingStudent && selectedStudentId && selectedStudentId !== 'no-student') && (
-                      <Badge variant="secondary" className="text-xs">Auto-filled</Badge>
-                    )}
-                  </div>
-                  <Select 
-                    value={studentInfo.grade} 
-                    onValueChange={(value) => setStudentInfo({...studentInfo, grade: value})}
-                  >
-                    <SelectTrigger className="h-11" data-testid="select-grade">
-                      <SelectValue placeholder="Select grade level" />
-                    </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="pre-k">Pre-K</SelectItem>
-                  <SelectItem value="k">Kindergarten</SelectItem>
-                  <SelectItem value="1">1st Grade</SelectItem>
-                  <SelectItem value="2">2nd Grade</SelectItem>
-                  <SelectItem value="3">3rd Grade</SelectItem>
-                  <SelectItem value="4">4th Grade</SelectItem>
-                  <SelectItem value="5">5th Grade</SelectItem>
-                  <SelectItem value="6">6th Grade</SelectItem>
-                  <SelectItem value="7">7th Grade</SelectItem>
-                  <SelectItem value="8">8th Grade</SelectItem>
-                  <SelectItem value="9">9th Grade</SelectItem>
-                  <SelectItem value="10">10th Grade</SelectItem>
-                  <SelectItem value="11">11th Grade</SelectItem>
-                  <SelectItem value="12">12th Grade</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-          </div>
           
           <div className="space-y-2">
             <Label htmlFor="disability">Primary Disability Category</Label>

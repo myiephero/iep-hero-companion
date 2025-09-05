@@ -25,9 +25,9 @@ export default function VerifyEmail() {
         if (data.success) {
           setStatus('success');
           setMessage(data.message);
-          // Redirect to dashboard after 3 seconds
+          // Redirect to homepage after 3 seconds, auth system will route to correct dashboard
           setTimeout(() => {
-            navigate('/dashboard');
+            navigate('/');
           }, 3000);
         } else {
           setStatus('error');
@@ -91,10 +91,10 @@ export default function VerifyEmail() {
               
               <Button 
                 size="lg"
-                onClick={() => navigate('/dashboard')}
+                onClick={() => navigate('/')}
                 data-testid="button-go-to-dashboard"
               >
-                Go to Dashboard
+                Access Your Dashboard
               </Button>
 
               <div className="border-t pt-6">

@@ -104,40 +104,10 @@ export default function Profile() {
 
             <Card className="p-6">
               <h3 className="text-lg font-semibold mb-4">Recent Activity</h3>
-              <div className="space-y-3">
-                <div 
-                  className="flex items-center gap-3 p-3 bg-muted/50 rounded-lg hover:bg-muted cursor-pointer transition-colors"
-                  onClick={() => navigate('/parent/tools/document-vault')}
-                  data-testid="activity-iep-review"
-                >
-                  <Clock className="h-4 w-4 text-muted-foreground" />
-                  <div>
-                    <p className="font-medium">IEP Review Completed</p>
-                    <p className="text-sm text-muted-foreground">2 hours ago</p>
-                  </div>
-                </div>
-                <div 
-                  className="flex items-center gap-3 p-3 bg-muted/50 rounded-lg hover:bg-muted cursor-pointer transition-colors"
-                  onClick={() => navigate('/parent/tools/document-vault')}
-                  data-testid="activity-meeting-scheduled"
-                >
-                  <Clock className="h-4 w-4 text-muted-foreground" />
-                  <div>
-                    <p className="font-medium">Meeting Scheduled</p>
-                    <p className="text-sm text-muted-foreground">1 day ago</p>
-                  </div>
-                </div>
-                <div 
-                  className="flex items-center gap-3 p-3 bg-muted/50 rounded-lg hover:bg-muted cursor-pointer transition-colors"
-                  onClick={() => navigate('/parent/tools/document-vault')}
-                  data-testid="activity-document-uploaded"
-                >
-                  <Clock className="h-4 w-4 text-muted-foreground" />
-                  <div>
-                    <p className="font-medium">Document Uploaded</p>
-                    <p className="text-sm text-muted-foreground">3 days ago</p>
-                  </div>
-                </div>
+              <div className="text-center py-8">
+                <Clock className="h-12 w-12 mx-auto mb-4 text-muted-foreground opacity-50" />
+                <p className="text-lg font-medium text-muted-foreground mb-2">No recent activity</p>
+                <p className="text-sm text-muted-foreground">Your activity history will appear here as you use the platform</p>
               </div>
             </Card>
           </div>

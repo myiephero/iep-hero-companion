@@ -80,6 +80,7 @@ function PaymentForm({ planName, price }: { planName: string; price: string }) {
 }
 
 export default function SubscriptionSetup() {
+  console.log('🔥 SubscriptionSetup component loaded!');
   const [searchParams] = useSearchParams();
   const { toast } = useToast();
   const [clientSecret, setClientSecret] = useState<string>('');

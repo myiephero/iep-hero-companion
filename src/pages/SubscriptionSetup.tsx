@@ -88,18 +88,34 @@ export default function SubscriptionSetup() {
   // Get subscription details from URL params
   const priceId = searchParams.get('priceId');
   const planName = searchParams.get('planName');
-  const planId = searchParams.get('planId');
+  const planId = searchParams.get('plan'); // URL uses 'plan' not 'planId'
   const role = searchParams.get('role');
 
   useEffect(() => {
     const createSubscription = async () => {
+      console.log('SubscriptionSetup params:', {
+        priceId,
+        planName, 
+        planId,
+        role,
+        allParams: Object.fromEntries(searchParams.entries())
+      });
+      
       if (!planName || !planId || !role) {
+        console.error('Missing subscription parameters:', {
+          planName: !!planName,
+          planId: !!planId, 
+          role: !!role
+        });
         toast({
           title: "Invalid Subscription",
           description: "Missing subscription details. Please try again.",
           variant: "destructive",
         });
-        window.location.href = '/';
+        // Give user 3 seconds to see what's wrong before redirecting
+        setTimeout(() => {
+          window.location.href = '/';
+        }, 3000);
         return;
       }
 

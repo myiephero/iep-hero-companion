@@ -678,8 +678,14 @@ app.get('/api/verify-email', async (req: any, res) => {
 
     console.log(`Email verified successfully for ${user.email}`);
 
-    // Redirect to appropriate dashboard based on role
-    const dashboardUrl = user.role === 'parent' ? '/parent/dashboard' : '/advocate/dashboard';
+    // Redirect to appropriate dashboard based on role and subscription plan
+    let dashboardUrl;
+    if (user.role === 'parent') {
+      const planSlug = user.subscriptionPlan?.toLowerCase().replace(/\s+/g, '') || 'free';
+      dashboardUrl = `/parent/dashboard-${planSlug}`;
+    } else {
+      dashboardUrl = '/advocate/dashboard';
+    }
     
     res.json({ 
       success: true, 

@@ -87,6 +87,9 @@ function App() {
               <Route path="/onboarding" element={<Onboarding />} />
               
               {/* Parent Routes - Protected */}
+              {/* Generic dashboard redirect */}
+              <Route path="/dashboard" element={<RoleBasedRedirect parentRoute="/parent/dashboard-free" advocateRoute="/advocate/dashboard" />} />
+              
               <Route path="/parent/dashboard" element={
                 <ProtectedRoute allowedRoles={['parent']}>
                   <ParentDashboard />

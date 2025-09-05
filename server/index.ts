@@ -1060,23 +1060,58 @@ app.post('/api/create-checkout-session', async (req, res) => {
     const protocol = currentDomain.includes('localhost') ? 'http' : 'https';
     const baseUrl = `${protocol}://${currentDomain}`;
     
-    // Create standard subscription checkout session
-    const sessionConfig = {
-      mode: 'subscription' as const,
-      payment_method_types: ['card'] as const,
-      line_items: [{
-        price: priceId,
-        quantity: 1,
-      }],
-      subscription_data: {
-        metadata: {
-          planId,
-          planName,
-          role,
-          ...(setupFee && { setupFee: setupFee.toString() })
+    // Check if this is Hero Family Pack (hybrid pricing: $495 setup + $199/month)
+    const isHeroPackage = planId === 'hero' || priceId === 'price_1S3nyI8iKZXV0srZy1awxPBd';
+    
+    let sessionConfig;
+    
+    if (isHeroPackage) {
+      // Hero Family Pack: $495 one-time + $199/month subscription
+      // We need separate Stripe Price IDs for setup fee and monthly subscription
+      sessionConfig = {
+        mode: 'subscription' as const,
+        payment_method_types: ['card'] as const,
+        line_items: [
+          {
+            // TEMPORARY: Replace with actual Stripe Price ID for $495 setup fee
+            price: 'price_HERO_SETUP_495', // ⚠️ CREATE THIS IN STRIPE DASHBOARD
+            quantity: 1,
+          },
+          {
+            // Monthly subscription Price ID: $199/month 
+            price: priceId, // This should be the $199/month price ID
+            quantity: 1,
+          }
+        ],
+        subscription_data: {
+          metadata: {
+            planId,
+            planName,
+            role,
+            setupFee: '495',
+            isHeroPackage: 'true'
+          }
         }
-      }
-    };
+      };
+    } else {
+      // Standard subscription checkout session
+      sessionConfig = {
+        mode: 'subscription' as const,
+        payment_method_types: ['card'] as const,
+        line_items: [{
+          price: priceId,
+          quantity: 1,
+        }],
+        subscription_data: {
+          metadata: {
+            planId,
+            planName,
+            role,
+            ...(setupFee && { setupFee: setupFee.toString() })
+          }
+        }
+      };
+    }
     
     // Create Stripe Checkout Session
     const session = await stripe.checkout.sessions.create({

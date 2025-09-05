@@ -211,7 +211,7 @@ const ACADEMIC_SUBJECTS = [
 ];
 
 export default function IEPMasterSuite() {
-  const [activeTab, setActiveTab] = useState<'analyze' | 'goals'>('analyze');
+  const [activeTab, setActiveTab] = useState<'review' | 'generate' | 'check' | 'align'>('review');
   const { toast } = useToast();
   
   // Document Review States
@@ -396,107 +396,431 @@ export default function IEPMasterSuite() {
           </div>
         </div>
 
-        {/* Streamlined Workflow */}
+        {/* Organized Workflow Tabs */}
         <Tabs value={activeTab} onValueChange={(value) => setActiveTab(value as any)} className="space-y-6">
           <div className="border rounded-lg bg-card">
             <div className="p-4 border-b">
-              <TabsList className="grid w-full grid-cols-2 h-auto">
-                <TabsTrigger value="analyze" className="flex flex-col items-center gap-1 py-4 px-6 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
-                  <FileText className="h-6 w-6" />
-                  <span className="text-sm font-medium">Document Analysis</span>
-                  <span className="text-xs text-muted-foreground">Upload & Review IEPs</span>
+              <TabsList className="grid w-full grid-cols-4 h-auto">
+                <TabsTrigger value="review" className="flex flex-col items-center gap-1 py-3 px-4 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
+                  <FileText className="h-5 w-5" />
+                  <span className="text-xs font-medium">Document Review</span>
                 </TabsTrigger>
-                <TabsTrigger value="goals" className="flex flex-col items-center gap-1 py-4 px-6 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
-                  <Target className="h-6 w-6" />
-                  <span className="text-sm font-medium">Goal Management</span>
-                  <span className="text-xs text-muted-foreground">Create, Check & Align Goals</span>
+                <TabsTrigger value="generate" className="flex flex-col items-center gap-1 py-3 px-4 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
+                  <Target className="h-5 w-5" />
+                  <span className="text-xs font-medium">Generate Goals</span>
+                </TabsTrigger>
+                <TabsTrigger value="check" className="flex flex-col items-center gap-1 py-3 px-4 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
+                  <CheckCircle className="h-5 w-5" />
+                  <span className="text-xs font-medium">Check Compliance</span>
+                </TabsTrigger>
+                <TabsTrigger value="align" className="flex flex-col items-center gap-1 py-3 px-4 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
+                  <Brain className="h-5 w-5" />
+                  <span className="text-xs font-medium">Standards Alignment</span>
                 </TabsTrigger>
               </TabsList>
             </div>
 
             <div className="p-6">
-              {/* Document Analysis Tab */}
-              <TabsContent value="analyze" className="space-y-6 mt-0">
+              {/* Document Review Tab */}
+              <TabsContent value="review" className="space-y-6 mt-0">
                 <div className="space-y-6">
                   <div>
-                    <h3 className="text-lg font-semibold mb-2">Comprehensive IEP Analysis</h3>
-                    <p className="text-sm text-muted-foreground mb-4">Upload IEP documents for quality review, compliance checking, and improvement recommendations</p>
+                    <h3 className="text-lg font-semibold mb-2">IEP Document Analysis</h3>
+                    <p className="text-sm text-muted-foreground mb-4">Upload and analyze complete IEP documents for quality, compliance, and recommendations</p>
                   </div>
                   
-                  <div className="grid gap-6">
+                  <div className="grid gap-6 md:grid-cols-2">
                     <Card>
                       <CardHeader className="pb-3">
-                        <CardTitle className="text-sm flex items-center gap-2">
-                          <Upload className="h-4 w-4" />
-                          Document Upload & Configuration
-                        </CardTitle>
+                        <CardTitle className="text-sm">Analysis Configuration</CardTitle>
                       </CardHeader>
                       <CardContent className="space-y-4">
-                        <div className="grid gap-4 md:grid-cols-3">
-                          <div className="space-y-2">
-                            <Label className="text-sm font-medium">Analysis Type</Label>
-                            <Select value={selectedReviewType} onValueChange={setSelectedReviewType}>
-                              <SelectTrigger data-testid="select-review-type">
-                                <SelectValue placeholder="Select analysis type" />
+                        <div className="space-y-2">
+                          <Label className="text-sm font-medium">Analysis Type</Label>
+                          <Select value={selectedReviewType} onValueChange={setSelectedReviewType}>
+                            <SelectTrigger data-testid="select-review-type">
+                              <SelectValue placeholder="Select analysis type" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              {reviewTypes.map((type) => (
+                                <SelectItem key={type.value} value={type.value}>
+                                  <div>
+                                    <div className="font-medium text-sm">{type.label}</div>
+                                    <div className="text-xs text-muted-foreground">{type.description}</div>
+                                  </div>
+                                </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                        </div>
+                        
+                        <div className="space-y-2">
+                          <Label className="text-sm font-medium">Student Context (Optional)</Label>
+                          <StudentSelector selectedStudent={selectedStudentId} onStudentChange={setSelectedStudentId} />
+                        </div>
+                      </CardContent>
+                    </Card>
+
+                    <Card>
+                      <CardHeader className="pb-3">
+                        <CardTitle className="text-sm">Document Upload</CardTitle>
+                      </CardHeader>
+                      <CardContent>
+                        <DocumentUpload 
+                          onAnalysisComplete={(analysis) => {
+                            toast({
+                              title: "Analysis Complete",
+                              description: "Your IEP document has been analyzed successfully."
+                            });
+                          }}
+                        />
+                      </CardContent>
+                    </Card>
+                  </div>
+                </div>
+              </TabsContent>
+
+              {/* Generate Goals Tab */}
+              <TabsContent value="generate" className="space-y-6 mt-0">
+                <div className="space-y-6">
+                  <div>
+                    <h3 className="text-lg font-semibold mb-2">AI-Powered Goal Generation</h3>
+                    <p className="text-sm text-muted-foreground mb-4">Generate SMART, compliant IEP goals using AI and professional templates</p>
+                  </div>
+                  
+                  <Alert>
+                    <Lightbulb className="h-4 w-4" />
+                    <AlertDescription>
+                      Advanced AI goal generation with student context integration is coming soon. Access our professional goal templates in the Standards Alignment tab.
+                    </AlertDescription>
+                  </Alert>
+                  
+                  <div className="text-center py-12">
+                    <div className="p-4 bg-muted/50 rounded-lg inline-block mb-4">
+                      <Target className="h-12 w-12 text-muted-foreground mx-auto" />
+                    </div>
+                    <h3 className="text-lg font-semibold mb-2">Goal Generation Coming Soon</h3>
+                    <p className="text-muted-foreground max-w-md mx-auto">
+                      Advanced AI goal generation with student context integration will be available in the next update.
+                    </p>
+                  </div>
+                </div>
+              </TabsContent>
+
+              {/* Check Compliance Tab */}
+              <TabsContent value="check" className="space-y-6 mt-0">
+                <div className="space-y-6">
+                  <div>
+                    <h3 className="text-lg font-semibold mb-2">SMART Goal Compliance Checker</h3>
+                    <p className="text-sm text-muted-foreground mb-4">Verify your IEP goals meet SMART criteria and IDEA compliance standards</p>
+                  </div>
+
+                  <div className="grid gap-6 lg:grid-cols-2">
+                    <Card>
+                      <CardHeader className="pb-3">
+                        <CardTitle className="text-sm">Goal Input</CardTitle>
+                      </CardHeader>
+                      <CardContent className="space-y-4">
+                        <div className="space-y-2">
+                          <Label className="text-sm font-medium">Select Template Goal</Label>
+                          <div className="grid gap-2">
+                            <Select value={selectedGoalCategory} onValueChange={setSelectedGoalCategory}>
+                              <SelectTrigger>
+                                <SelectValue placeholder="Select category" />
                               </SelectTrigger>
                               <SelectContent>
-                                {reviewTypes.map((type) => (
-                                  <SelectItem key={type.value} value={type.value}>
-                                    <div>
-                                      <div className="font-medium text-sm">{type.label}</div>
-                                      <div className="text-xs text-muted-foreground">{type.description}</div>
-                                    </div>
-                                  </SelectItem>
+                                <SelectItem value="reading">Reading</SelectItem>
+                                <SelectItem value="writing">Writing</SelectItem>
+                                <SelectItem value="math">Math</SelectItem>
+                                <SelectItem value="communication">Communication</SelectItem>
+                                <SelectItem value="behavior">Behavior</SelectItem>
+                              </SelectContent>
+                            </Select>
+                            
+                            {selectedGoalCategory && (
+                              <Select value={selectedPresetGoal} onValueChange={(value) => {
+                                setSelectedPresetGoal(value);
+                                setComplianceGoalText(value);
+                              }}>
+                                <SelectTrigger>
+                                  <SelectValue placeholder="Select a sample goal" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                  {SAMPLE_IEP_GOALS[selectedGoalCategory as keyof typeof SAMPLE_IEP_GOALS]?.map((goal, index) => (
+                                    <SelectItem key={index} value={goal}>
+                                      <div className="max-w-md truncate">{goal.substring(0, 80)}...</div>
+                                    </SelectItem>
+                                  ))}
+                                </SelectContent>
+                              </Select>
+                            )}
+                          </div>
+                        </div>
+
+                        <div className="space-y-2">
+                          <Label className="text-sm font-medium">Or Enter Custom Goal</Label>
+                          <Textarea
+                            placeholder="Enter your IEP goal here for compliance analysis..."
+                            value={complianceGoalText}
+                            onChange={(e) => setComplianceGoalText(e.target.value)}
+                            className="min-h-[100px]"
+                          />
+                        </div>
+
+                        <Button 
+                          onClick={handleComplianceCheck} 
+                          disabled={isCheckingCompliance || !complianceGoalText.trim()}
+                          className="w-full"
+                          data-testid="button-check-compliance"
+                        >
+                          {isCheckingCompliance ? (
+                            <>
+                              <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2" />
+                              Analyzing...
+                            </>
+                          ) : (
+                            <>
+                              <CheckCircle className="h-4 w-4 mr-2" />
+                              Check Compliance
+                            </>
+                          )}
+                        </Button>
+                      </CardContent>
+                    </Card>
+
+                    {complianceResult && (
+                      <Card>
+                        <CardHeader className="pb-3">
+                          <CardTitle className="text-sm flex items-center gap-2">
+                            <BarChart3 className="h-4 w-4" />
+                            Compliance Analysis Results
+                          </CardTitle>
+                        </CardHeader>
+                        <CardContent className="space-y-4">
+                          <div className="space-y-2">
+                            <div className="flex items-center justify-between">
+                              <span className="text-sm font-medium">Overall Score</span>
+                              <Badge variant={complianceResult.overallScore >= 80 ? "default" : "secondary"}>
+                                {complianceResult.overallScore}%
+                              </Badge>
+                            </div>
+                            <Progress value={complianceResult.overallScore} className="h-2" />
+                          </div>
+
+                          <div className="space-y-2">
+                            <Label className="text-sm font-medium">SMART Criteria</Label>
+                            <div className="grid gap-2">
+                              {Object.entries(complianceResult.criteria).map(([key, value]) => (
+                                <div key={key} className="flex items-center justify-between py-1">
+                                  <span className="text-xs capitalize">{key.replace(/([A-Z])/g, ' $1').trim()}</span>
+                                  {value ? (
+                                    <CheckCircle className="h-4 w-4 text-green-600" />
+                                  ) : (
+                                    <X className="h-4 w-4 text-red-500" />
+                                  )}
+                                </div>
+                              ))}
+                            </div>
+                          </div>
+
+                          {complianceResult.suggestions.length > 0 && (
+                            <div className="space-y-2">
+                              <Label className="text-sm font-medium">Recommendations</Label>
+                              <div className="space-y-2">
+                                {complianceResult.suggestions.map((suggestion, index) => (
+                                  <div key={index} className="flex items-start gap-2 p-2 bg-blue-50 dark:bg-blue-950/30 rounded">
+                                    <Lightbulb className="h-3 w-3 text-blue-600 mt-0.5 flex-shrink-0" />
+                                    <span className="text-xs text-blue-900 dark:text-blue-100">{suggestion}</span>
+                                  </div>
+                                ))}
+                              </div>
+                            </div>
+                          )}
+                        </CardContent>
+                      </Card>
+                    )}
+                  </div>
+                </div>
+              </TabsContent>
+
+              {/* Standards Alignment Tab */}
+              <TabsContent value="align" className="space-y-6 mt-0">
+                <div className="space-y-6">
+                  <div>
+                    <h3 className="text-lg font-semibold mb-2">Standards Alignment Analysis</h3>
+                    <p className="text-sm text-muted-foreground mb-4">Align IEP goals with state academic standards using our professional template library</p>
+                  </div>
+
+                  <div className="grid gap-6 lg:grid-cols-2">
+                    <Card>
+                      <CardHeader className="pb-3">
+                        <CardTitle className="text-sm">Goal & Standards Selection</CardTitle>
+                      </CardHeader>
+                      <CardContent className="space-y-4">
+                        <div className="grid gap-4 md:grid-cols-2">
+                          <div className="space-y-2">
+                            <Label className="text-sm font-medium">State</Label>
+                            <Select value={alignmentState} onValueChange={setAlignmentState}>
+                              <SelectTrigger>
+                                <SelectValue placeholder="Select state" />
+                              </SelectTrigger>
+                              <SelectContent>
+                                {US_STATES.map((state) => (
+                                  <SelectItem key={state} value={state}>{state}</SelectItem>
                                 ))}
                               </SelectContent>
                             </Select>
                           </div>
                           
                           <div className="space-y-2">
-                            <Label className="text-sm font-medium">State Standards</Label>
-                            <Select value={alignmentState} onValueChange={setAlignmentState}>
+                            <Label className="text-sm font-medium">Subject</Label>
+                            <Select value={alignmentSubject} onValueChange={setAlignmentSubject}>
                               <SelectTrigger>
-                                <SelectValue placeholder="Select state" />
+                                <SelectValue placeholder="Select subject" />
                               </SelectTrigger>
                               <SelectContent>
-                                {US_STATES.slice(0, 10).map((state) => (
-                                  <SelectItem key={state} value={state}>{state}</SelectItem>
+                                {ACADEMIC_SUBJECTS.map((subject) => (
+                                  <SelectItem key={subject} value={subject}>{subject}</SelectItem>
                                 ))}
                               </SelectContent>
                             </Select>
                           </div>
+                        </div>
 
-                          <div className="space-y-2">
-                            <Label className="text-sm font-medium">Student Context (Optional)</Label>
-                            <StudentSelector selectedStudent={selectedStudentId} onStudentChange={setSelectedStudentId} />
+                        <div className="space-y-2">
+                          <Label className="text-sm font-medium">Professional Template Goals</Label>
+                          <div className="grid gap-2">
+                            <Select value={selectedTemplateCategory} onValueChange={setSelectedTemplateCategory}>
+                              <SelectTrigger>
+                                <SelectValue placeholder="Select goal category" />
+                              </SelectTrigger>
+                              <SelectContent>
+                                <SelectItem value="reading">Reading Comprehension</SelectItem>
+                                <SelectItem value="math">Mathematics</SelectItem>
+                                <SelectItem value="writing">Written Expression</SelectItem>
+                                <SelectItem value="science">Science</SelectItem>
+                                <SelectItem value="social">Social Studies</SelectItem>
+                                <SelectItem value="behavior">Behavior & Social Skills</SelectItem>
+                              </SelectContent>
+                            </Select>
+                            
+                            {selectedTemplateCategory && (
+                              <Select value={selectedAlignmentTemplate} onValueChange={(value) => {
+                                setSelectedAlignmentTemplate(value);
+                                setAlignmentGoalText(value);
+                              }}>
+                                <SelectTrigger>
+                                  <SelectValue placeholder="Select a professional template" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                  {ALIGNMENT_TEMPLATE_GOALS[selectedTemplateCategory as keyof typeof ALIGNMENT_TEMPLATE_GOALS]?.map((goal, index) => (
+                                    <SelectItem key={index} value={goal}>
+                                      <div className="max-w-md">{goal.substring(0, 90)}...</div>
+                                    </SelectItem>
+                                  ))}
+                                </SelectContent>
+                              </Select>
+                            )}
                           </div>
                         </div>
 
-                        <Separator />
+                        <div className="space-y-2">
+                          <Label className="text-sm font-medium">Goal Text</Label>
+                          <Textarea
+                            placeholder="Enter or select an IEP goal for standards alignment analysis..."
+                            value={alignmentGoalText}
+                            onChange={(e) => setAlignmentGoalText(e.target.value)}
+                            className="min-h-[120px]"
+                          />
+                        </div>
 
-                        <DocumentUpload 
-                          onAnalysisComplete={(analysis) => {
-                            toast({
-                              title: "Analysis Complete",
-                              description: "Your IEP document has been analyzed for quality, compliance, and standards alignment."
-                            });
-                          }}
-                        />
+                        <Button 
+                          onClick={handleAlignStandards} 
+                          disabled={isAligning || !alignmentGoalText || !alignmentState || !alignmentSubject}
+                          className="w-full"
+                          data-testid="button-align-standards"
+                        >
+                          {isAligning ? (
+                            <>
+                              <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2" />
+                              Analyzing Alignment...
+                            </>
+                          ) : (
+                            <>
+                              <Brain className="h-4 w-4 mr-2" />
+                              Analyze Standards Alignment
+                            </>
+                          )}
+                        </Button>
                       </CardContent>
                     </Card>
 
-                    <Alert>
-                      <CheckCircle className="h-4 w-4" />
-                      <AlertDescription>
-                        <strong>Comprehensive Analysis Includes:</strong> IDEA compliance checking, goal quality assessment, standards alignment, accommodation review, and improvement recommendations.
-                      </AlertDescription>
-                    </Alert>
+                    {alignmentResults && (
+                      <Card>
+                        <CardHeader className="pb-3">
+                          <CardTitle className="text-sm flex items-center gap-2">
+                            <Target className="h-4 w-4" />
+                            Standards Alignment Results
+                          </CardTitle>
+                        </CardHeader>
+                        <CardContent className="space-y-4">
+                          <div className="flex items-center justify-between">
+                            <span className="text-sm font-medium">Alignment Score</span>
+                            <Badge variant="default">
+                              {Math.round(alignmentResults.overallScore * 100)}%
+                            </Badge>
+                          </div>
+
+                          {alignmentResults.primaryStandards && alignmentResults.primaryStandards.length > 0 && (
+                            <div className="space-y-2">
+                              <Label className="text-sm font-medium">Primary Standards Matches</Label>
+                              <div className="space-y-3">
+                                {alignmentResults.primaryStandards.map((match: any, index: number) => (
+                                  <div key={index} className="p-3 border rounded-lg space-y-2">
+                                    <div className="flex items-center justify-between">
+                                      <Badge variant="outline" className="text-xs">{match.code}</Badge>
+                                      <Badge variant={match.score > 0.8 ? "default" : "secondary"} className="text-xs">
+                                        {Math.round(match.score * 100)}%
+                                      </Badge>
+                                    </div>
+                                    <p className="text-xs text-muted-foreground">{match.description}</p>
+                                    {match.reasoning && (
+                                      <p className="text-xs text-blue-600 dark:text-blue-400">{match.reasoning}</p>
+                                    )}
+                                    {match.matchedKeywords && match.matchedKeywords.length > 0 && (
+                                      <div className="flex flex-wrap gap-1">
+                                        {match.matchedKeywords.map((keyword: string, idx: number) => (
+                                          <Badge key={idx} variant="outline" className="text-xs">
+                                            {keyword}
+                                          </Badge>
+                                        ))}
+                                      </div>
+                                    )}
+                                  </div>
+                                ))}
+                              </div>
+                            </div>
+                          )}
+
+                          {alignmentResults.recommendations && alignmentResults.recommendations.length > 0 && (
+                            <div className="space-y-2">
+                              <Label className="text-sm font-medium">AI Recommendations</Label>
+                              <div className="space-y-2">
+                                {alignmentResults.recommendations.map((rec: string, index: number) => (
+                                  <div key={index} className="flex items-start gap-2 p-3 bg-blue-50 dark:bg-blue-950/30 rounded-lg">
+                                    <Lightbulb className="h-4 w-4 text-blue-600 mt-0.5 flex-shrink-0" />
+                                    <p className="text-sm text-blue-900 dark:text-blue-100">{rec}</p>
+                                  </div>
+                                ))}
+                              </div>
+                            </div>
+                          )}
+                        </CardContent>
+                      </Card>
+                    )}
                   </div>
                 </div>
               </TabsContent>
-
-              {/* Unified Goal Management Tab */}
-              <TabsContent value="goals" className="space-y-6 mt-0">
                 <div className="space-y-6">
                   <div>
                     <h3 className="text-lg font-semibold mb-2">Unified Goal Management</h3>
@@ -712,13 +1036,6 @@ export default function IEPMasterSuite() {
                       </Card>
                     )}
                   </div>
-
-                  <Alert>
-                    <Target className="h-4 w-4" />
-                    <AlertDescription>
-                      <strong>Unified Workflow:</strong> Select a template or enter a custom goal, then run both compliance checking and standards alignment analysis with one click each.
-                    </AlertDescription>
-                  </Alert>
                 </div>
               </TabsContent>
             </div>

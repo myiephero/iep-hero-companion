@@ -235,6 +235,49 @@ function App() {
                 </ProtectedRoute>
               } />
               
+              {/* Root path variants for advocate tools from dashboard */}
+              <Route path="/advocate/smart-letter-generator" element={
+                <ProtectedRoute allowedRoles={['advocate']}>
+                  <SmartLetterGenerator />
+                </ProtectedRoute>
+              } />
+              
+              <Route path="/advocate/unified-iep-review" element={
+                <ProtectedRoute allowedRoles={['advocate']}>
+                  <UnifiedIEPReview />
+                </ProtectedRoute>
+              } />
+              
+              <Route path="/advocate/idea-rights-guide" element={
+                <ProtectedRoute allowedRoles={['advocate']}>
+                  <IDEARightsGuide />
+                </ProtectedRoute>
+              } />
+              
+              <Route path="/advocate/meeting-prep-wizard" element={
+                <ProtectedRoute allowedRoles={['advocate']}>
+                  <MeetingPrepWizard />
+                </ProtectedRoute>
+              } />
+              
+              <Route path="/messages" element={
+                <ProtectedRoute allowedRoles={['advocate']}>
+                  <AdvocateMessages />
+                </ProtectedRoute>
+              } />
+              
+              <Route path="/advocate/autism-accommodations" element={
+                <ProtectedRoute allowedRoles={['advocate']}>
+                  <AutismAccommodationBuilder />
+                </ProtectedRoute>
+              } />
+              
+              <Route path="/advocate/gifted-2e-learners" element={
+                <ProtectedRoute allowedRoles={['advocate']}>
+                  <GiftedTwoeLearners />
+                </ProtectedRoute>
+              } />
+              
               {/* Advocate Tools - Namespaced */}
               <Route path="/advocate/tools/iep-review" element={
                 <ProtectedRoute allowedRoles={['advocate']}>

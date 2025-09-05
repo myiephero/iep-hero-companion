@@ -271,62 +271,26 @@ export default function GoalGenerator() {
         <CardContent className="space-y-6">
           {/* Student Selection */}
           <div className="space-y-4 p-6 border rounded-xl bg-gradient-to-br from-blue-50/50 to-indigo-50/30 dark:from-blue-950/20 dark:to-indigo-950/10">
-            <div className="flex items-center justify-between">
-              <div>
-                <h4 className="text-base font-semibold text-foreground">Student Selection</h4>
-                <p className="text-sm text-muted-foreground mt-1">Choose how to provide student information</p>
+            <div className="space-y-3">
+              <div className="flex items-center gap-2">
+                <Users className="h-4 w-4 text-blue-600" />
+                <Label htmlFor="student-select" className="text-sm font-medium">
+                  Select Student from Caseload
+                </Label>
               </div>
-              <Button
-                variant={useExistingStudent ? "default" : "outline"}
-                size="sm"
-                onClick={() => {
-                  setUseExistingStudent(!useExistingStudent);
-                  if (!useExistingStudent) {
-                    // Clear fields when switching to existing student mode
-                    setSelectedStudentId('');
-                    setStudentInfo({
-                      name: '',
-                      grade: '',
-                      disability: '',
-                      currentLevel: '',
-                      area: '',
-                      strengths: '',
-                      needs: ''
-                    });
-                  }
-                }}
-                className="text-xs"
-                data-testid="button-select-student-mode"
-              >
-                <Search className="h-3 w-3 mr-1" />
-                {useExistingStudent ? "Manual Entry" : "Select from Caseload"}
-              </Button>
-            </div>
-            
-            {useExistingStudent && (
-              <div className="p-4 border rounded-lg bg-white/60 dark:bg-gray-800/60 backdrop-blur-sm">
-                <div className="space-y-3">
-                  <div className="flex items-center gap-2">
-                    <Users className="h-4 w-4 text-blue-600" />
-                    <Label htmlFor="student-select" className="text-sm font-medium">
-                      Select from your student caseload
-                    </Label>
-                  </div>
-                  <StudentSelector
-                    selectedStudent={selectedStudentId}
-                    onStudentChange={handleStudentSelection}
-                    placeholder="Choose a student to auto-fill information..."
-                    allowEmpty={true}
-                  />
-                  {selectedStudentId && selectedStudentId !== 'no-student' && (
-                    <div className="flex items-center gap-2 text-sm text-green-600 bg-green-50 dark:bg-green-950/20 px-3 py-2 rounded-md">
-                      <CheckCircle className="h-4 w-4" />
-                      Student selected - basic information will be auto-filled
-                    </div>
-                  )}
+              <StudentSelector
+                selectedStudent={selectedStudentId}
+                onStudentChange={handleStudentSelection}
+                placeholder="Choose a student to auto-fill information..."
+                allowEmpty={true}
+              />
+              {selectedStudentId && selectedStudentId !== 'no-student' && (
+                <div className="flex items-center gap-2 text-sm text-green-600 bg-green-50 dark:bg-green-950/20 px-3 py-2 rounded-md">
+                  <CheckCircle className="h-4 w-4" />
+                  Student selected - basic information will be auto-filled
                 </div>
-              </div>
-            )}
+              )}
+            </div>
           </div>
 
           <div className="space-y-6">
@@ -351,8 +315,7 @@ export default function GoalGenerator() {
                     onChange={(e) => setStudentInfo({...studentInfo, name: e.target.value})}
                     placeholder="Enter student's first name"
                     data-testid="input-student-name"
-                    disabled={useExistingStudent && selectedStudentId && selectedStudentId !== 'no-student'}
-                    className={`h-11 ${(useExistingStudent && selectedStudentId && selectedStudentId !== 'no-student') ? 'bg-muted/50' : ''}`}
+                    className="h-11"
                   />
                 </div>
                 
@@ -367,9 +330,8 @@ export default function GoalGenerator() {
                   <Select 
                     value={studentInfo.grade} 
                     onValueChange={(value) => setStudentInfo({...studentInfo, grade: value})}
-                    disabled={useExistingStudent && selectedStudentId && selectedStudentId !== 'no-student'}
                   >
-                    <SelectTrigger className={`h-11 ${(useExistingStudent && selectedStudentId && selectedStudentId !== 'no-student') ? 'bg-muted/50' : ''}`} data-testid="select-grade">
+                    <SelectTrigger className="h-11" data-testid="select-grade">
                       <SelectValue placeholder="Select grade level" />
                     </SelectTrigger>
                 <SelectContent>

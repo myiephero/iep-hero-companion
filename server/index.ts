@@ -2194,6 +2194,132 @@ app.put('/api/advocates/profile', async (req, res) => {
   }
 });
 
+// Standards alignment endpoints
+import { standardsAnalyzer } from './standards-analyzer';
+import { ALL_STANDARDS, STATE_SPECIFIC_STANDARDS } from './standards-database';
+
+// Get available states for standards
+app.get('/api/standards/states', (req, res) => {
+  const availableStates = ['national', ...Object.keys(STATE_SPECIFIC_STANDARDS)].sort();
+  res.json({ states: availableStates });
+});
+
+// Get standards by subject and grade
+app.get('/api/standards', (req, res) => {
+  try {
+    const { subject = 'all', grade, state = 'national' } = req.query;
+    
+    let standards = [...ALL_STANDARDS];
+    
+    // Add state-specific standards
+    if (state !== 'national' && STATE_SPECIFIC_STANDARDS[state as string]) {
+      standards = [...standards, ...STATE_SPECIFIC_STANDARDS[state as string]];
+    }
+    
+    // Filter by subject
+    if (subject !== 'all') {
+      standards = standards.filter(standard => standard.subject === subject);
+    }
+    
+    // Filter by grade (with flexibility)
+    if (grade) {
+      standards = standards.filter(standard => {
+        if (standard.grade.includes('-')) {
+          const [start, end] = standard.grade.split('-');
+          const gradeNum = grade === 'K' ? 0 : parseInt(grade as string);
+          const startNum = start === 'K' ? 0 : parseInt(start);
+          const endNum = end === 'K' ? 0 : parseInt(end);
+          return gradeNum >= startNum && gradeNum <= endNum;
+        }
+        return standard.grade === grade || 
+               (standard.grade === 'K' && grade === '0') ||
+               (standard.grade === '0' && grade === 'K');
+      });
+    }
+    
+    // Group by domain for better organization
+    const grouped = standards.reduce((acc, standard) => {
+      const domain = standard.domain || 'Other';
+      if (!acc[domain]) acc[domain] = [];
+      acc[domain].push(standard);
+      return acc;
+    }, {} as Record<string, typeof standards>);
+    
+    res.json({ 
+      total: standards.length,
+      grouped,
+      standards: standards.slice(0, 50) // Limit for performance
+    });
+  } catch (error) {
+    console.error('Error fetching standards:', error);
+    res.status(500).json({ error: 'Failed to fetch standards' });
+  }
+});
+
+// Analyze goal alignment with standards
+app.post('/api/standards/analyze', async (req, res) => {
+  try {
+    const { goalText, selectedState = 'national', selectedSubject = 'all', gradeLevel } = req.body;
+    
+    if (!goalText || goalText.trim().length === 0) {
+      return res.status(400).json({ error: 'Goal text is required' });
+    }
+    
+    console.log(`Analyzing goal alignment for: "${goalText.substring(0, 100)}..."`);
+    console.log(`Parameters - State: ${selectedState}, Subject: ${selectedSubject}, Grade: ${gradeLevel}`);
+    
+    const result = await standardsAnalyzer.analyzeGoalAlignment(
+      goalText,
+      selectedState,
+      selectedSubject,
+      gradeLevel
+    );
+    
+    console.log(`Analysis complete - Found ${result.primaryStandards.length} primary and ${result.secondaryStandards.length} secondary alignments`);
+    
+    res.json(result);
+  } catch (error) {
+    console.error('Error analyzing goal alignment:', error);
+    res.status(500).json({ 
+      error: 'Failed to analyze goal alignment',
+      message: error instanceof Error ? error.message : 'Unknown error'
+    });
+  }
+});
+
+// Get detailed information about a specific standard
+app.get('/api/standards/:code', (req, res) => {
+  try {
+    const { code } = req.params;
+    const { state = 'national' } = req.query;
+    
+    let allStandards = [...ALL_STANDARDS];
+    
+    if (state !== 'national' && STATE_SPECIFIC_STANDARDS[state as string]) {
+      allStandards = [...allStandards, ...STATE_SPECIFIC_STANDARDS[state as string]];
+    }
+    
+    const standard = allStandards.find(s => s.code === code);
+    
+    if (!standard) {
+      return res.status(404).json({ error: 'Standard not found' });
+    }
+    
+    // Find related standards in the same domain
+    const relatedStandards = allStandards
+      .filter(s => s.domain === standard.domain && s.code !== standard.code)
+      .slice(0, 5);
+    
+    res.json({
+      standard,
+      relatedStandards
+    });
+  } catch (error) {
+    console.error('Error fetching standard details:', error);
+    res.status(500).json({ error: 'Failed to fetch standard details' });
+  }
+});
+
 // Mount new route modules
 app.use('/api/match', matchRoutes);
 app.use('/api/expert-analysis', expertRoutes);

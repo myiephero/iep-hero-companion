@@ -95,7 +95,7 @@ export function TopNavigation() {
           </Button>
           
           {/* SECURITY: Only show Hero Plan to parents, never advocates */}
-          {!location.pathname.startsWith('/advocate') && (
+          {!location.pathname.startsWith('/advocate') && user?.role === 'parent' && (
             <Button asChild variant="hero" size="sm">
               <Link to="/upsell/hero-plan">
                 <Crown className="h-4 w-4 mr-1" />

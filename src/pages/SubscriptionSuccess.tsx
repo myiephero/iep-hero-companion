@@ -9,25 +9,52 @@ export default function SubscriptionSuccess() {
   const navigate = useNavigate();
   const [showConfetti, setShowConfetti] = useState(true);
   const [countDown, setCountDown] = useState(10);
+  const [accountCreated, setAccountCreated] = useState(false);
 
-  // Extract payment intent from URL params
+  // Extract session info from URL params
   const urlParams = new URLSearchParams(location.search);
-  const paymentIntent = urlParams.get('payment_intent');
-  const paymentIntentClientSecret = urlParams.get('payment_intent_client_secret');
+  const sessionId = urlParams.get('session_id');
+  const planId = urlParams.get('plan');
+  const role = urlParams.get('role');
+
+  // Handle account creation after successful payment
+  useEffect(() => {
+    const createAccount = async () => {
+      if (!sessionId || accountCreated) return;
+      
+      try {
+        // Call backend to process successful checkout and create account
+        const response = await fetch('/api/process-checkout-success', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ sessionId, planId, role })
+        });
+        
+        if (response.ok) {
+          setAccountCreated(true);
+        }
+      } catch (error) {
+        console.error('Error processing checkout success:', error);
+      }
+    };
+    
+    createAccount();
+  }, [sessionId, planId, role, accountCreated]);
 
   // Confetti effect
   useEffect(() => {
     setTimeout(() => setShowConfetti(false), 5000);
   }, []);
 
-  // Auto-redirect countdown
+  // Auto-redirect countdown (only if account verification not needed)
   useEffect(() => {
+    if (!accountCreated) return; // Don't start countdown until account is created
+    
     const timer = setInterval(() => {
       setCountDown(prev => {
         if (prev <= 1) {
-          // Determine redirect based on URL path
-          const isParent = location.pathname.includes('parent') || location.search.includes('parent');
-          navigate(isParent ? '/parent/dashboard' : '/advocate/dashboard');
+          // Redirect to login page for email verification
+          navigate('/api/login');
           return 0;
         }
         return prev - 1;
@@ -35,7 +62,7 @@ export default function SubscriptionSuccess() {
     }, 1000);
 
     return () => clearInterval(timer);
-  }, [navigate, location]);
+  }, [navigate, accountCreated]);
 
   // Confetti Component
   const ConfettiEffect = () => {
@@ -73,10 +100,10 @@ export default function SubscriptionSuccess() {
           
           <div className="space-y-2">
             <h1 className="text-4xl font-bold text-gray-900 gradient-text-primary">
-              🎉 Welcome to IEP Hero!
+              🎉 Payment Successful!
             </h1>
             <p className="text-xl text-gray-600">
-              Your subscription is now active and ready to go!
+              {accountCreated ? 'Check your email to verify your account' : 'Setting up your account...'}
             </p>
           </div>
         </div>

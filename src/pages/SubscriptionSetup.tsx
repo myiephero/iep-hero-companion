@@ -120,16 +120,14 @@ export default function SubscriptionSetup() {
       }
 
       try {
-        // Use subscription endpoint if we have a priceId, otherwise use payment intent
-        const endpoint = priceId ? '/api/create-subscription' : '/api/create-payment-intent';
-        const requestBody = priceId ? {
+        // Create guest checkout session - no authentication required
+        const endpoint = '/api/create-checkout-session';
+        const requestBody = {
           priceId,
           planName,
           planId,
-          role
-        } : {
-          amount: parseInt(getPlanPrice(planId)),
-          planName: planName || 'Subscription Plan'
+          role,
+          mode: priceId ? 'subscription' : 'payment'
         };
 
         const response = await fetch(endpoint, {
@@ -139,34 +137,15 @@ export default function SubscriptionSetup() {
         });
 
         if (!response.ok) {
-          if (response.status === 401) {
-            // Store subscription details in localStorage for after login
-            localStorage.setItem('pendingSubscription', JSON.stringify({
-              priceId,
-              planName,
-              planId,
-              role
-            }));
-            
-            toast({
-              title: "Sign In Required",
-              description: "Please sign in to complete your subscription.",
-            });
-            
-            // Redirect to login - they'll come back to complete subscription after auth
-            setTimeout(() => {
-              window.location.href = '/api/login';
-            }, 1500);
-            return;
-          }
-          throw new Error('Failed to create subscription');
+          throw new Error('Failed to create checkout session');
         }
 
         const data = await response.json();
-        if (data.clientSecret) {
-          setClientSecret(data.clientSecret);
+        if (data.url) {
+          // Redirect to Stripe Checkout
+          window.location.href = data.url;
         } else {
-          throw new Error('No payment details received');
+          throw new Error('No checkout URL received');
         }
       } catch (error: any) {
         toast({

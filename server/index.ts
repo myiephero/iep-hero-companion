@@ -842,7 +842,7 @@ app.post('/api/create-subscription-intent', async (req: any, res) => {
 // Guest checkout session - no authentication required
 app.post('/api/create-checkout-session', async (req, res) => {
   try {
-    const { priceId, planName, planId, role } = req.body;
+    const { priceId, planName, planId, role, amount, setupFee } = req.body;
     
     if (!priceId || !planName || !planId || !role) {
       return res.status(400).json({ error: 'Missing required parameters' });
@@ -852,21 +852,66 @@ app.post('/api/create-checkout-session', async (req, res) => {
     const protocol = currentDomain.includes('localhost') ? 'http' : 'https';
     const baseUrl = `${protocol}://${currentDomain}`;
     
+    // Determine the checkout mode and line items
+    let sessionConfig;
+    
+    if (planId === 'hero' && setupFee) {
+      // Hero Family Pack with setup fee + subscription
+      sessionConfig = {
+        mode: 'subscription' as const,
+        payment_method_types: ['card'] as const,
+        line_items: [{
+          price: priceId, // Monthly subscription price
+          quantity: 1,
+        }],
+        subscription_data: {
+          metadata: {
+            planId,
+            planName,
+            role,
+            setupFee: setupFee.toString()
+          }
+        },
+        // Add one-time setup fee as invoice item
+        invoice_creation: {
+          enabled: true,
+          invoice_data: {
+            metadata: {
+              setupFee: setupFee.toString()
+            }
+          }
+        }
+      };
+    } else {
+      // Regular subscription
+      sessionConfig = {
+        mode: 'subscription' as const,
+        payment_method_types: ['card'] as const,
+        line_items: [{
+          price: priceId,
+          quantity: 1,
+        }],
+        subscription_data: {
+          metadata: {
+            planId,
+            planName,
+            role
+          }
+        }
+      };
+    }
+    
     // Create Stripe Checkout Session
     const session = await stripe.checkout.sessions.create({
-      mode: priceId ? 'subscription' : 'payment',
-      payment_method_types: ['card'],
-      line_items: [{
-        price: priceId,
-        quantity: 1,
-      }],
+      ...sessionConfig,
       success_url: `${baseUrl}/subscription-success?session_id={CHECKOUT_SESSION_ID}&plan=${planId}&role=${role}`,
       cancel_url: `${baseUrl}/${role}/pricing`,
       metadata: {
         planId,
         planName,
         role,
-        priceId
+        priceId,
+        ...(setupFee && { setupFee: setupFee.toString() })
       },
       allow_promotion_codes: true,
       billing_address_collection: 'required',

@@ -122,11 +122,18 @@ export default function SubscriptionSetup() {
       try {
         // Create guest checkout session - no authentication required
         const endpoint = '/api/create-checkout-session';
+        
+        // Get plan config for setup fee
+        const amount = searchParams.get('amount');
+        const setupFee = planId === 'hero' ? 495 : undefined;
+        
         const requestBody = {
           priceId,
           planName,
           planId,
           role,
+          amount,
+          ...(setupFee && { setupFee }),
           mode: priceId ? 'subscription' : 'payment'
         };
 

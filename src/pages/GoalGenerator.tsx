@@ -10,8 +10,10 @@ import { Separator } from "@/components/ui/separator";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Progress } from "@/components/ui/progress";
 import { Target, Brain, CheckCircle, Lightbulb, BookOpen, Clock, Upload, FileText, AlertCircle, CheckCheck } from "lucide-react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useDropzone } from "react-dropzone";
+import { StudentSelector } from "@/components/StudentSelector";
+import { apiRequest } from "@/lib/queryClient";
 
 interface GeneratedGoal {
   id: string;
@@ -85,6 +87,10 @@ export default function GoalGenerator() {
   const [alignmentGoalText, setAlignmentGoalText] = useState('');
   const [isAligning, setIsAligning] = useState(false);
   const [alignmentResults, setAlignmentResults] = useState<any>(null);
+  
+  // Student selection states
+  const [selectedStudentId, setSelectedStudentId] = useState('');
+  const [useExistingStudent, setUseExistingStudent] = useState(false);
   
   // Form state for goal generation
   const [studentInfo, setStudentInfo] = useState({
@@ -203,6 +209,42 @@ export default function GoalGenerator() {
     }, 2500);
   };
 
+  // Handle student selection and auto-populate form
+  const handleStudentSelection = async (studentId: string) => {
+    setSelectedStudentId(studentId);
+    
+    if (studentId && studentId !== 'no-student') {
+      try {
+        const response = await apiRequest('GET', `/api/students/${studentId}`);
+        const student = await response.json();
+        
+        // Auto-populate form with student data
+        setStudentInfo({
+          name: student.full_name?.split(' ')[0] || '', // Use first name only
+          grade: student.grade_level || '',
+          disability: student.disability_category || '',
+          currentLevel: '',
+          area: '',
+          strengths: '',
+          needs: ''
+        });
+      } catch (error) {
+        console.error('Error fetching student details:', error);
+      }
+    } else {
+      // Reset form if no student selected
+      setStudentInfo({
+        name: '',
+        grade: '',
+        disability: '',
+        currentLevel: '',
+        area: '',
+        strengths: '',
+        needs: ''
+      });
+    }
+  };
+
   const checkCompliance = (goal: GeneratedGoal) => {
     // Simple compliance scoring based on goal structure
     let score = 0;
@@ -220,10 +262,53 @@ export default function GoalGenerator() {
         <CardHeader>
           <CardTitle>Student Information</CardTitle>
           <CardDescription>
-            Provide basic information about the student to generate personalized SMART goals
+            Select an existing student or enter new student information to generate personalized SMART goals
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
+          {/* Student Selection */}
+          <div className="space-y-4 p-4 border rounded-lg bg-muted/20">
+            <div className="flex items-center justify-between">
+              <Label className="text-base font-semibold">Select Student</Label>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => {
+                  setUseExistingStudent(!useExistingStudent);
+                  if (!useExistingStudent) {
+                    setSelectedStudentId('');
+                    setStudentInfo({
+                      name: '',
+                      grade: '',
+                      disability: '',
+                      currentLevel: '',
+                      area: '',
+                      strengths: '',
+                      needs: ''
+                    });
+                  }
+                }}
+                data-testid="button-toggle-student-mode"
+              >
+                {useExistingStudent ? 'Enter New Student' : 'Select Existing Student'}
+              </Button>
+            </div>
+            
+            {useExistingStudent && (
+              <div className="space-y-2">
+                <Label htmlFor="student-select">Choose from your students</Label>
+                <StudentSelector
+                  selectedStudent={selectedStudentId}
+                  onStudentChange={handleStudentSelection}
+                  placeholder="Select a student to auto-fill information..."
+                  allowEmpty={true}
+                />
+              </div>
+            )}
+          </div>
+
+          <Separator />
+
           <div className="grid gap-4 md:grid-cols-2">
             <div className="space-y-2">
               <Label htmlFor="student-name">Student Name</Label>
@@ -233,11 +318,16 @@ export default function GoalGenerator() {
                 onChange={(e) => setStudentInfo({...studentInfo, name: e.target.value})}
                 placeholder="Enter student's first name"
                 data-testid="input-student-name"
+                disabled={useExistingStudent && selectedStudentId && selectedStudentId !== 'no-student'}
               />
             </div>
             <div className="space-y-2">
               <Label htmlFor="grade">Grade Level</Label>
-              <Select value={studentInfo.grade} onValueChange={(value) => setStudentInfo({...studentInfo, grade: value})}>
+              <Select 
+                value={studentInfo.grade} 
+                onValueChange={(value) => setStudentInfo({...studentInfo, grade: value})}
+                disabled={useExistingStudent && selectedStudentId && selectedStudentId !== 'no-student'}
+              >
                 <SelectTrigger data-testid="select-grade">
                   <SelectValue placeholder="Select grade" />
                 </SelectTrigger>
@@ -263,7 +353,11 @@ export default function GoalGenerator() {
           
           <div className="space-y-2">
             <Label htmlFor="disability">Primary Disability Category</Label>
-            <Select value={studentInfo.disability} onValueChange={(value) => setStudentInfo({...studentInfo, disability: value})}>
+            <Select 
+              value={studentInfo.disability} 
+              onValueChange={(value) => setStudentInfo({...studentInfo, disability: value})}
+              disabled={useExistingStudent && selectedStudentId && selectedStudentId !== 'no-student'}
+            >
               <SelectTrigger data-testid="select-disability">
                 <SelectValue placeholder="Select primary disability" />
               </SelectTrigger>

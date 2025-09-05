@@ -53,8 +53,8 @@ export default function SubscriptionSuccess() {
     const timer = setInterval(() => {
       setCountDown(prev => {
         if (prev <= 1) {
-          // Redirect to login page for email verification
-          window.location.href = '/api/login';
+          // Redirect to homepage after successful payment and account setup
+          navigate('/');
           return 0;
         }
         return prev - 1;

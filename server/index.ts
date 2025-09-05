@@ -814,6 +814,7 @@ app.post('/api/create-subscription-intent', async (req: any, res) => {
 
 // Guest checkout session - no authentication required
 app.post('/api/create-checkout-session', async (req, res) => {
+  console.log('🎯 CHECKOUT SESSION ENDPOINT HIT!', req.body);
   try {
     const { priceId, planName, planId, role, amount, setupFee } = req.body;
     

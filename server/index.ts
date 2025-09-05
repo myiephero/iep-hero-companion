@@ -702,7 +702,16 @@ app.get('/api/verify-email', async (req: any, res) => {
     } else if (user.role === 'advocate') {
       // Advocate role - check if they have a subscription plan
       if (user.subscriptionPlan && user.subscriptionPlan !== 'Free Plan') {
-        dashboardUrl = '/advocate/dashboard';
+        // Map advocate subscription plans to dashboard routes
+        const advocatePlanMapping = {
+          'starter': 'starter',
+          'pro': 'pro',
+          'agency': 'agency', 
+          'agency plus': 'agency-plus'
+        };
+        const planKey = user.subscriptionPlan.toLowerCase();
+        const planSlug = advocatePlanMapping[planKey] || 'starter';
+        dashboardUrl = `/advocate/dashboard-${planSlug}`;
       } else {
         // No paid plan - redirect to homepage  
         dashboardUrl = '/';

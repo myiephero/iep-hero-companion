@@ -147,6 +147,26 @@ function App() {
                   <AdvocateDashboard />
                 </ProtectedRoute>
               } />
+              <Route path="/advocate/dashboard-starter" element={
+                <ProtectedRoute allowedRoles={['advocate']}>
+                  <AdvocateDashboard plan="starter" />
+                </ProtectedRoute>
+              } />
+              <Route path="/advocate/dashboard-pro" element={
+                <ProtectedRoute allowedRoles={['advocate']}>
+                  <AdvocateDashboard plan="pro" />
+                </ProtectedRoute>
+              } />
+              <Route path="/advocate/dashboard-agency" element={
+                <ProtectedRoute allowedRoles={['advocate']}>
+                  <AdvocateDashboard plan="agency" />
+                </ProtectedRoute>
+              } />
+              <Route path="/advocate/dashboard-agency-plus" element={
+                <ProtectedRoute allowedRoles={['advocate']}>
+                  <AdvocateDashboard plan="agency-plus" />
+                </ProtectedRoute>
+              } />
               <Route path="/advocate/messages" element={
                 <ProtectedRoute allowedRoles={['advocate']}>
                   <AdvocateMessages />

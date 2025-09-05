@@ -113,12 +113,24 @@ export function getCheckoutUrl(planId: string, role: 'parent' | 'advocate'): str
     return '/parent/pricing'; // Fallback to pricing page
   }
 
+  // Get proper plan names based on the plan ID
+  const planNameMap: Record<string, string> = {
+    'basic': 'Basic',
+    'plus': 'Plus', 
+    'premium': 'Premium',
+    'hero': 'Hero Family Pack',
+    'starter': 'Starter',
+    'pro': 'Pro',
+    'agency': 'Agency',
+    'agency-plus': 'Agency Plus'
+  };
+
   const params = new URLSearchParams({
     plan: planId,
     role: role,
     priceId: config.priceId || '',
     amount: config.amount.toString(),
-    planName: planId.charAt(0).toUpperCase() + planId.slice(1)
+    planName: planNameMap[planId] || planId.charAt(0).toUpperCase() + planId.slice(1)
   });
 
   return `/subscription-setup?${params.toString()}`;

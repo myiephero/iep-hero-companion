@@ -1,5 +1,5 @@
 // Comprehensive subscription plan access control for IEP Hero platform
-export type SubscriptionPlan = 'free' | 'basic' | 'plus' | 'premium' | 'hero';
+export type SubscriptionPlan = 'free' | 'basic' | 'plus' | 'premium' | 'hero' | 'starter' | 'pro' | 'agency' | 'agency-plus';
 
 // Define all tools and features available in the platform
 export interface PlanFeatures {
@@ -448,6 +448,303 @@ export const PLAN_FEATURES: Record<SubscriptionPlan, PlanFeatures> = {
     maxDocuments: 999999,
     aiAnalysisLimit: 999,
     letterGenerationLimit: 999
+  },
+
+  // === ADVOCATE PLANS ===
+  starter: {
+    // Dashboard Features - Basic
+    goalManagement: true,
+    meetingScheduler: true,
+    aiInsights: true,
+    progressAnalytics: true,
+    studentProfileManagement: true,
+    subscriptionManagement: true,
+    
+    // Analysis & Review Tools - Basic
+    iepReviewTool: true,
+    unifiedIEPReview: true,
+    askAIAboutDocs: true,
+    expertAnalysis: false,
+    aiIEPReview: true,
+    
+    // Communication & Documentation - Basic
+    smartLetterGenerator: true,
+    documentVault: true,
+    parentMessages: false,
+    communicationTracker: true,
+    progressNotes: true,
+    
+    // Meeting & Planning Tools - Basic
+    meetingPrepWizard: true,
+    meetingPrepAssistant: true,
+    parentMeetingPrep: true,
+    timelineCalculator: true,
+    
+    // Specialized Support Tools - Limited
+    accommodationBuilder: true,
+    autismAccommodationBuilder: true,
+    giftedTwoeSupport: false,
+    plan504Builder: true,
+    goalGenerator: true,
+    otActivityRecommender: false,
+    
+    // Educational Resources - Full
+    ideaRightsGuide: true,
+    ferpaOverview: true,
+    plan504Guide: true,
+    emotionTracker: true,
+    parentEmotionTracker: false,
+    
+    // Premium Services - Limited
+    heroPlan: false,
+    advocateMatchingTool: true,
+    expertSupport: false,
+    
+    // Advocate Tools - Basic
+    clientManagement: true,
+    caseAnalytics: false,
+    billingTools: false,
+    scheduleManagement: true,
+    teamCollaboration: false,
+    professionalAnalysis: true,
+    advocateMessaging: true,
+    advocacyReports: false,
+    caseManagement: true,
+    professionalPlanning: true,
+    professionalResources: true,
+    businessManagement: false,
+    specializedProfessionalTools: true,
+    
+    // Limits
+    storageLimit: '10GB',
+    supportLevel: 'Email support',
+    prioritySupport: false,
+    maxChildren: 10,
+    maxDocuments: 100,
+    aiAnalysisLimit: 25,
+    letterGenerationLimit: 50
+  },
+
+  pro: {
+    // Dashboard Features - Full
+    goalManagement: true,
+    meetingScheduler: true,
+    aiInsights: true,
+    progressAnalytics: true,
+    studentProfileManagement: true,
+    subscriptionManagement: true,
+    
+    // Analysis & Review Tools - Full
+    iepReviewTool: true,
+    unifiedIEPReview: true,
+    askAIAboutDocs: true,
+    expertAnalysis: true,
+    aiIEPReview: true,
+    
+    // Communication & Documentation - Full
+    smartLetterGenerator: true,
+    documentVault: true,
+    parentMessages: true,
+    communicationTracker: true,
+    progressNotes: true,
+    
+    // Meeting & Planning Tools - Full
+    meetingPrepWizard: true,
+    meetingPrepAssistant: true,
+    parentMeetingPrep: true,
+    timelineCalculator: true,
+    
+    // Specialized Support Tools - Full
+    accommodationBuilder: true,
+    autismAccommodationBuilder: true,
+    giftedTwoeSupport: true,
+    plan504Builder: true,
+    goalGenerator: true,
+    otActivityRecommender: true,
+    
+    // Educational Resources - Full
+    ideaRightsGuide: true,
+    ferpaOverview: true,
+    plan504Guide: true,
+    emotionTracker: true,
+    parentEmotionTracker: true,
+    
+    // Premium Services - Enhanced
+    heroPlan: false,
+    advocateMatchingTool: true,
+    expertSupport: true,
+    
+    // Advocate Tools - Enhanced
+    clientManagement: true,
+    caseAnalytics: true,
+    billingTools: true,
+    scheduleManagement: true,
+    teamCollaboration: true,
+    professionalAnalysis: true,
+    advocateMessaging: true,
+    advocacyReports: true,
+    caseManagement: true,
+    professionalPlanning: true,
+    professionalResources: true,
+    businessManagement: true,
+    specializedProfessionalTools: true,
+    
+    // Limits
+    storageLimit: '50GB',
+    supportLevel: 'Priority support',
+    prioritySupport: true,
+    maxChildren: 25,
+    maxDocuments: 500,
+    aiAnalysisLimit: 100,
+    letterGenerationLimit: 200
+  },
+
+  agency: {
+    // Dashboard Features - Full
+    goalManagement: true,
+    meetingScheduler: true,
+    aiInsights: true,
+    progressAnalytics: true,
+    studentProfileManagement: true,
+    subscriptionManagement: true,
+    
+    // Analysis & Review Tools - Full
+    iepReviewTool: true,
+    unifiedIEPReview: true,
+    askAIAboutDocs: true,
+    expertAnalysis: true,
+    aiIEPReview: true,
+    
+    // Communication & Documentation - Full
+    smartLetterGenerator: true,
+    documentVault: true,
+    parentMessages: true,
+    communicationTracker: true,
+    progressNotes: true,
+    
+    // Meeting & Planning Tools - Full
+    meetingPrepWizard: true,
+    meetingPrepAssistant: true,
+    parentMeetingPrep: true,
+    timelineCalculator: true,
+    
+    // Specialized Support Tools - Full
+    accommodationBuilder: true,
+    autismAccommodationBuilder: true,
+    giftedTwoeSupport: true,
+    plan504Builder: true,
+    goalGenerator: true,
+    otActivityRecommender: true,
+    
+    // Educational Resources - Full
+    ideaRightsGuide: true,
+    ferpaOverview: true,
+    plan504Guide: true,
+    emotionTracker: true,
+    parentEmotionTracker: true,
+    
+    // Premium Services - Full
+    heroPlan: true,
+    advocateMatchingTool: true,
+    expertSupport: true,
+    
+    // Advocate Tools - Full
+    clientManagement: true,
+    caseAnalytics: true,
+    billingTools: true,
+    scheduleManagement: true,
+    teamCollaboration: true,
+    professionalAnalysis: true,
+    advocateMessaging: true,
+    advocacyReports: true,
+    caseManagement: true,
+    professionalPlanning: true,
+    professionalResources: true,
+    businessManagement: true,
+    specializedProfessionalTools: true,
+    
+    // Limits
+    storageLimit: '200GB',
+    supportLevel: 'Premium support + training',
+    prioritySupport: true,
+    maxChildren: 100,
+    maxDocuments: 2000,
+    aiAnalysisLimit: 500,
+    letterGenerationLimit: 1000
+  },
+
+  'agency-plus': {
+    // Dashboard Features - Full
+    goalManagement: true,
+    meetingScheduler: true,
+    aiInsights: true,
+    progressAnalytics: true,
+    studentProfileManagement: true,
+    subscriptionManagement: true,
+    
+    // Analysis & Review Tools - Full
+    iepReviewTool: true,
+    unifiedIEPReview: true,
+    askAIAboutDocs: true,
+    expertAnalysis: true,
+    aiIEPReview: true,
+    
+    // Communication & Documentation - Full
+    smartLetterGenerator: true,
+    documentVault: true,
+    parentMessages: true,
+    communicationTracker: true,
+    progressNotes: true,
+    
+    // Meeting & Planning Tools - Full
+    meetingPrepWizard: true,
+    meetingPrepAssistant: true,
+    parentMeetingPrep: true,
+    timelineCalculator: true,
+    
+    // Specialized Support Tools - Full
+    accommodationBuilder: true,
+    autismAccommodationBuilder: true,
+    giftedTwoeSupport: true,
+    plan504Builder: true,
+    goalGenerator: true,
+    otActivityRecommender: true,
+    
+    // Educational Resources - Full
+    ideaRightsGuide: true,
+    ferpaOverview: true,
+    plan504Guide: true,
+    emotionTracker: true,
+    parentEmotionTracker: true,
+    
+    // Premium Services - Full
+    heroPlan: true,
+    advocateMatchingTool: true,
+    expertSupport: true,
+    
+    // Advocate Tools - Full
+    clientManagement: true,
+    caseAnalytics: true,
+    billingTools: true,
+    scheduleManagement: true,
+    teamCollaboration: true,
+    professionalAnalysis: true,
+    advocateMessaging: true,
+    advocacyReports: true,
+    caseManagement: true,
+    professionalPlanning: true,
+    professionalResources: true,
+    businessManagement: true,
+    specializedProfessionalTools: true,
+    
+    // Limits - Enterprise
+    storageLimit: 'Unlimited',
+    supportLevel: 'White-glove support + dedicated account manager',
+    prioritySupport: true,
+    maxChildren: 999999,
+    maxDocuments: 999999,
+    aiAnalysisLimit: 999999,
+    letterGenerationLimit: 999999
   }
 };
 

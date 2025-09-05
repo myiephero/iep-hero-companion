@@ -7,6 +7,7 @@ export interface StripePlanConfig {
   interval: 'month' | 'year';
   description: string;
   features: string[];
+  setupFee?: number; // Optional one-time setup fee
 }
 
 // Parent Plans (5 total)
@@ -40,11 +41,12 @@ export const PARENT_STRIPE_PLANS: Record<string, StripePlanConfig> = {
     features: ['2 students', '35+ tools', 'Advanced AI', 'Phone support']
   },
   hero: {
-    priceId: 'price_1QgOjBP0DfL0aO9c2TrEFpk7', // Real Stripe test price ID
+    priceId: 'price_1S3nyI8iKZXV0srZy1awxPBd', // Real Stripe price ID from your account
     amount: 199,
     interval: 'month',
     description: 'Complete advocacy platform with matching',
-    features: ['3 students', 'ALL 50+ tools', 'Advocate matching', 'White-glove setup']
+    features: ['3 students', 'ALL 50+ tools', 'Advocate matching', 'White-glove setup'],
+    setupFee: 495 // One-time setup fee for Hero Family Pack
   }
 };
 

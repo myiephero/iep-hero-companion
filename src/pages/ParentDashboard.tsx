@@ -89,7 +89,38 @@ export default function ParentDashboard({ plan }: ParentDashboardProps) {
 
   useEffect(() => {
     fetchData();
-  }, []);
+    
+    // Check for pending subscription after login
+    const pendingSubscription = localStorage.getItem('pendingSubscription');
+    if (pendingSubscription && user) {
+      try {
+        const subscriptionData = JSON.parse(pendingSubscription);
+        // Clear the pending subscription
+        localStorage.removeItem('pendingSubscription');
+        
+        // Build the subscription setup URL
+        const params = new URLSearchParams({
+          plan: subscriptionData.planId,
+          role: subscriptionData.role,
+          priceId: subscriptionData.priceId,
+          planName: subscriptionData.planName
+        });
+        
+        toast({
+          title: "Resuming Subscription",
+          description: `Continuing with ${subscriptionData.planName} plan setup...`,
+        });
+        
+        // Redirect back to subscription setup
+        setTimeout(() => {
+          window.location.href = `/subscription-setup?${params.toString()}`;
+        }, 1500);
+      } catch (error) {
+        console.error('Error parsing pending subscription:', error);
+        localStorage.removeItem('pendingSubscription');
+      }
+    }
+  }, [user]);
 
   const fetchData = async () => {
     try {

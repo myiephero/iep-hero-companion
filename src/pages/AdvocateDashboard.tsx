@@ -1,9 +1,12 @@
 import { Link } from "react-router-dom";
+import { useEffect } from "react";
 import { DashboardLayout } from "@/layouts/DashboardLayout";
 import { StatCard } from "@/components/StatCard";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { useAuth } from "@/hooks/useAuth";
+import { useToast } from "@/hooks/use-toast";
 import { 
   Users, 
   Calendar, 
@@ -24,6 +27,42 @@ import {
 } from "lucide-react";
 
 const AdvocateDashboard = () => {
+  const { user } = useAuth();
+  const { toast } = useToast();
+
+  useEffect(() => {
+    // Check for pending subscription after login
+    const pendingSubscription = localStorage.getItem('pendingSubscription');
+    if (pendingSubscription && user) {
+      try {
+        const subscriptionData = JSON.parse(pendingSubscription);
+        // Clear the pending subscription
+        localStorage.removeItem('pendingSubscription');
+        
+        // Build the subscription setup URL
+        const params = new URLSearchParams({
+          plan: subscriptionData.planId,
+          role: subscriptionData.role,
+          priceId: subscriptionData.priceId,
+          planName: subscriptionData.planName
+        });
+        
+        toast({
+          title: "Resuming Subscription",
+          description: `Continuing with ${subscriptionData.planName} plan setup...`,
+        });
+        
+        // Redirect back to subscription setup
+        setTimeout(() => {
+          window.location.href = `/subscription-setup?${params.toString()}`;
+        }, 1500);
+      } catch (error) {
+        console.error('Error parsing pending subscription:', error);
+        localStorage.removeItem('pendingSubscription');
+      }
+    }
+  }, [user, toast]);
+
   // Mock data for demonstration - in real app this would come from API
   const pendingStudents = [
     {

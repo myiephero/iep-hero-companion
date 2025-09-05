@@ -100,16 +100,30 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
             const currentPath = window.location.pathname;
             
             // Define all supported plans
-            const supportedPlans = ['free', 'basic', 'plus', 'explorer', 'premium', 'hero'];
-            const planSlug = userData.subscriptionPlan?.toLowerCase().replace(/\s+/g, '') || 'free';
-            const normalizedPlan = supportedPlans.includes(planSlug) ? planSlug : 'free';
+            const supportedParentPlans = ['free', 'basic', 'plus', 'explorer', 'premium', 'hero'];
+            const supportedAdvocatePlans = ['starter', 'pro', 'agency', 'agency-plus'];
             
             // Generate correct dashboard path based on role and plan
-            const correctDashboardPath = userData.role === 'parent' 
-              ? `/parent/dashboard-${normalizedPlan}` 
-              : userData.role === 'advocate'
-                ? '/advocate/dashboard'
-                : '/'; // Fallback for unknown roles
+            let correctDashboardPath;
+            if (userData.role === 'parent') {
+              const planSlug = userData.subscriptionPlan?.toLowerCase().replace(/\s+/g, '') || 'free';
+              const normalizedPlan = supportedParentPlans.includes(planSlug) ? planSlug : 'free';
+              correctDashboardPath = `/parent/dashboard-${normalizedPlan}`;
+            } else if (userData.role === 'advocate') {
+              // Map advocate subscription plans to dashboard routes
+              const advocatePlanMapping = {
+                'starter': 'starter',
+                'pro': 'pro',
+                'agency': 'agency', 
+                'agency plus': 'agency-plus',
+                'agencyplus': 'agency-plus'
+              };
+              const planKey = userData.subscriptionPlan?.toLowerCase() || 'starter';
+              const planSlug = advocatePlanMapping[planKey] || 'starter';
+              correctDashboardPath = `/advocate/dashboard-${planSlug}`;
+            } else {
+              correctDashboardPath = '/'; // Fallback for unknown roles
+            }
             
             // Redirect scenarios
             if (currentPath === '/auth' || currentPath === '/onboarding') {
@@ -126,9 +140,13 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
               }
             } else if (userData.role === 'advocate') {
               // Handle advocate dashboard redirections
-              if (currentPath === '/advocate/dashboard-generic' || 
-                  currentPath.startsWith('/parent/dashboard')) {
-                window.location.href = '/advocate/dashboard';
+              const isOnGenericDashboard = currentPath === '/advocate/dashboard';
+              const isOnWrongRoleDashboard = currentPath.startsWith('/parent/dashboard');
+              const isOnWrongPlanDashboard = currentPath.startsWith('/advocate/dashboard-') && 
+                                           currentPath !== correctDashboardPath;
+              
+              if (isOnGenericDashboard || isOnWrongRoleDashboard || isOnWrongPlanDashboard) {
+                window.location.href = correctDashboardPath;
               }
             }
           }

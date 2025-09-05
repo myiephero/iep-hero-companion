@@ -20,28 +20,28 @@ export const PARENT_STRIPE_PLANS: Record<string, StripePlanConfig> = {
     features: ['1 student', '3 core tools', 'Community support']
   },
   basic: {
-    priceId: 'price_1QgOhcP0DfL0aO9c4NBzPVHj', // Real Stripe test price ID
+    priceId: 'price_1Rr3bk8iKZXV0srZ0URHZo4O', // PRODUCTION: Parent Basic $19/month
     amount: 19,
     interval: 'month',
     description: 'Essential tools without AI',
     features: ['1 student', '12 tools', 'Email support', 'No AI features']
   },
   plus: {
-    priceId: 'price_1QgOiAP0DfL0aO9c4cREPfXo', // Real Stripe test price ID
+    priceId: 'price_1Rr3co8iKZXV0srZA1kEdBW1', // PRODUCTION: Parent Plus $29/month
     amount: 29,
     interval: 'month',
     description: 'AI-powered analysis and planning',
     features: ['1 student', '25+ tools', 'AI analysis', 'Priority support']
   },
   premium: {
-    priceId: 'price_1QgOibP0DfL0aO9cBEH4fzVQ', // Real Stripe test price ID
+    priceId: 'price_1Rr3e68iKZXV0srZnPPK5J3R', // PRODUCTION: Parent Premium $49/month
     amount: 49,
     interval: 'month',
     description: 'Advanced tools and analytics',
     features: ['2 students', '35+ tools', 'Advanced AI', 'Phone support']
   },
   hero: {
-    priceId: 'price_1S3nyI8iKZXV0srZy1awxPBd', // Real Stripe price ID from your account
+    priceId: 'price_1S3nyI8iKZXV0srZy1awxPBd', // PRODUCTION: Hero Family Pack $199/month
     amount: 199,
     interval: 'month',
     description: 'Complete advocacy platform with matching',
@@ -53,28 +53,28 @@ export const PARENT_STRIPE_PLANS: Record<string, StripePlanConfig> = {
 // Advocate Plans (4 total)
 export const ADVOCATE_STRIPE_PLANS: Record<string, StripePlanConfig> = {
   starter: {
-    priceId: 'price_1QgOjhP0DfL0aO9c8xKE9pYv', // Real Stripe test price ID
+    priceId: 'price_1Rr3gL8iKZXV0srZmfuD32yv', // PRODUCTION: Advocate Starter $49/month
     amount: 49,
     interval: 'month',
     description: 'Essential tools for solo advocates',
     features: ['1 advocate seat', '12 tools', 'Basic CRM', 'Email support']
   },
   pro: {
-    priceId: 'price_1QgOk6P0DfL0aO9cZz8tKFqN', // Real Stripe test price ID
+    priceId: 'price_1Rr3hR8iKZXV0srZ5lPscs0p', // PRODUCTION: Advocate Pro $75/month
     amount: 75,
     interval: 'month',
     description: 'AI analysis and professional planning',
     features: ['1 advocate seat', '20+ tools', 'AI analysis', 'Priority support']
   },
   agency: {
-    priceId: 'price_1QgOkYP0DfL0aO9cGHQR7nPx', // Real Stripe test price ID
+    priceId: 'price_1Rr3ik8iKZXV0srZPRPByMQx', // PRODUCTION: Advocate Agency $149/month
     amount: 149,
     interval: 'month',
     description: 'Team collaboration with billing tools',
     features: ['2 advocate seats', '30+ tools', 'Team features', 'Billing tools']
   },
   'agency-plus': {
-    priceId: 'price_1QgOl1P0DfL0aO9cYfVW8xMz', // Real Stripe test price ID
+    priceId: 'price_1S36QJ8iKZXV0srZsrhA6ess', // PRODUCTION: Agency+ $249/month
     amount: 249,
     interval: 'month',
     description: 'Enterprise features with unlimited AI',

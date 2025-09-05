@@ -47,23 +47,23 @@ const ParentPricingPlan = () => {
       price: '$19',
       period: '/month',
       description: 'Core tools for active IEP management',
-      toolCount: '12 Essential Tools',
+      toolCount: '11 Core Tools (No AI)',
       features: [
         'Everything in Free',
         '2 Student profiles',
         'Goal Management system',
         'Meeting Scheduler',
-        'IEP Review Tool',
         'Document Vault (2GB)',
-        'Progress Notes',
+        'Progress Notes tracking',
         'Meeting Prep Wizard',
         'Plan 504 Guide',
         'Email support',
         '50 Documents, 10 letters/month'
       ],
       limitations: [
-        'No AI insights',
-        'Basic analysis only'
+        'No AI analysis or insights',
+        'No document review tools',
+        'Basic templates only'
       ],
       icon: <Heart className="h-6 w-6 text-white" />,
       gradient: 'from-pink-500 to-rose-600',

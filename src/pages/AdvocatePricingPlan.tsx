@@ -23,12 +23,25 @@ const AdvocatePricingPlan = () => {
       period: '/month',
       seats: '1 Seat',
       description: 'Essential tools for solo advocates',
+      toolCount: '12 Core Professional Tools',
       features: [
-        'CRM for client management',
-        'Letter Generator',
-        'Basic document storage',
+        '1 Advocate seat',
+        'Client Management CRM',
+        'Smart Letter Generator',
+        'Document Management',
+        'Communication Tracker',
+        'Progress Notes & Service Log',
+        'Case Timeline Management',
+        'Rights Explainer tools',
+        'Professional Standards access',
+        'Basic document storage (5GB)',
         'Email support',
         'Standard compliance updates'
+      ],
+      limitations: [
+        'No AI analysis tools',
+        'No team collaboration',
+        'Basic reporting only'
       ],
       icon: <Zap className="h-6 w-6" />,
       gradient: 'from-blue-500 to-blue-600',
@@ -40,14 +53,27 @@ const AdvocatePricingPlan = () => {
       price: '$75',
       period: '/month',
       seats: '1 Seat',
-      description: 'Adds scheduling and intake capabilities',
+      description: 'Adds AI analysis and professional planning',
+      toolCount: '20+ Tools + AI Analysis',
       features: [
         'Everything in Starter',
-        'Scheduling system',
-        'Intake forms',
+        'AI IEP Review & Compliance',
+        'Progress Analyzer with AI',
+        'Professional Unified IEP Review',
+        'Ask AI About Client Docs',
+        'Client Scheduler system',
+        'Professional intake forms',
+        'IEP Goal Generator (AI-powered)',
+        'Accommodation Builder',
+        '504 Plan Builder',
         'Enhanced CRM features',
-        'Priority email support',
-        'Advanced reporting'
+        'Advanced reporting & analytics',
+        'Priority email support (10GB storage)'
+      ],
+      limitations: [
+        'Single advocate only',
+        'No billing tools',
+        'No team features'
       ],
       icon: <Star className="h-6 w-6" />,
       gradient: 'from-purple-500 to-purple-600',
@@ -60,14 +86,25 @@ const AdvocatePricingPlan = () => {
       period: '/month',
       seats: '2 Seats',
       description: 'Team collaboration with billing tools',
+      toolCount: '30+ Professional Tools + Team',
       features: [
         'Everything in Pro',
+        '2 Advocate seats',
         'Team CRM access',
-        'Billing tools',
+        'Billing & Invoicing tools',
+        'Time tracking system',
         'Shared client management',
         'Team collaboration features',
-        'Advanced analytics',
-        'Phone support'
+        'Multi-client management',
+        'Performance analytics',
+        'Advocacy Reports generation',
+        'Professional behavioral support',
+        'Legal compliance tools',
+        'Phone support (20GB storage)'
+      ],
+      limitations: [
+        'Limited to 2 advocates',
+        'No white-label options'
       ],
       icon: <Crown className="h-6 w-6" />,
       gradient: 'from-green-500 to-green-600',
@@ -79,16 +116,24 @@ const AdvocatePricingPlan = () => {
       price: '$249',
       period: '/month',
       seats: '5 Seats',
-      description: 'Premium features with AI and training',
+      description: 'Enterprise features with unlimited AI',
+      toolCount: 'ALL 40+ Professional Tools',
       features: [
         'Everything in Agency',
-        'AI Credits included',
-        'Training Hub access',
-        'Premium support',
-        'White-label options',
+        '5 Advocate seats',
+        'Unlimited AI Credits',
+        'Professional training hub access',
+        'Specialized professional tools',
+        'Emotion tracker (professional)',
+        'Crisis intervention planning',
+        'Legal documentation suite',
+        'White-label branding options',
         'Custom integrations',
-        'Dedicated account manager'
+        'Dedicated account manager',
+        'Unlimited storage',
+        'Premium priority support'
       ],
+      limitations: [],
       icon: <Crown className="h-6 w-6" />,
       gradient: 'from-amber-500 to-amber-600',
       popular: false
@@ -178,14 +223,19 @@ const AdvocatePricingPlan = () => {
                     <CardDescription className="text-muted-foreground text-sm">
                       {tier.description}
                     </CardDescription>
+                    <div className="mb-3">
+                      <Badge variant="secondary" className="bg-blue-500/20 text-blue-300 border-blue-400">
+                        {tier.toolCount}
+                      </Badge>
+                    </div>
                     <div className="flex items-baseline justify-center gap-1 mt-4">
                       <span className="text-3xl font-bold">{tier.price}</span>
                       <span className="text-muted-foreground text-sm">{tier.period}</span>
                     </div>
                   </CardHeader>
                   
-                  <CardContent className="space-y-6">
-                    <ul className="space-y-3">
+                  <CardContent className="space-y-6 flex-grow flex flex-col">
+                    <ul className="space-y-3 flex-grow">
                       {tier.features.map((feature, index) => (
                         <li key={index} className="flex items-start gap-3">
                           <Check className="h-4 w-4 text-success mt-0.5 flex-shrink-0" />
@@ -193,6 +243,19 @@ const AdvocatePricingPlan = () => {
                         </li>
                       ))}
                     </ul>
+                    
+                    {tier.limitations && tier.limitations.length > 0 && (
+                      <div className="border-t border-border pt-4">
+                        <p className="text-xs text-muted-foreground mb-2">Limitations:</p>
+                        <ul className="space-y-1">
+                          {tier.limitations.map((limitation, index) => (
+                            <li key={index} className="text-xs text-muted-foreground">
+                              • {limitation}
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                    )}
                     
                     <Button 
                       className={`w-full ${

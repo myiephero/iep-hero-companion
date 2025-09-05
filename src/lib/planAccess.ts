@@ -163,9 +163,9 @@ export const PLAN_FEATURES: Record<SubscriptionPlan, PlanFeatures> = {
     studentProfileManagement: true,
     subscriptionManagement: true,
     
-    // Analysis & Review Tools - Basic
-    iepReviewTool: true,
-    unifiedIEPReview: false,
+    // Analysis & Review Tools - Basic (NO AI)
+    iepReviewTool: false, // DISCONTINUED - replaced by Unified IEP Review
+    unifiedIEPReview: false, // AI-powered, only available from Plus
     askAIAboutDocs: false,
     expertAnalysis: false,
     aiIEPReview: false,

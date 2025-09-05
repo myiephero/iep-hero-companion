@@ -161,52 +161,56 @@ export default function GoalGenerator() {
     
     setIsAligning(true);
     
-    // Simulate standards alignment analysis
-    setTimeout(() => {
-      const mockResults = {
-        primaryStandards: [],
-        secondaryStandards: [],
-        recommendations: []
+    try {
+      // Real standards alignment analysis using our new API
+      const response = await apiRequest('POST', '/api/standards/analyze', {
+        goalText: alignmentGoalText,
+        selectedState: alignmentState,
+        selectedSubject: alignmentSubject,
+        gradeLevel: selectedStudent?.grade_level || alignmentGrade
+      });
+      
+      const analysisResult = await response.json();
+      
+      // Transform the result to match the expected format for display
+      const alignmentResult = {
+        primaryStandards: analysisResult.primaryStandards.map((match: any) => ({
+          code: match.standard.code,
+          description: match.standard.description,
+          score: match.score,
+          matchedKeywords: match.matchedKeywords,
+          reasoning: match.reasoning
+        })),
+        secondaryStandards: analysisResult.secondaryStandards.map((match: any) => ({
+          code: match.standard.code,
+          description: match.standard.description,
+          score: match.score,
+          matchedKeywords: match.matchedKeywords,
+          reasoning: match.reasoning
+        })),
+        recommendations: analysisResult.recommendations,
+        overallScore: analysisResult.overallScore,
+        confidence: analysisResult.confidence
       };
 
-      // Generate standards based on subject
-      if (alignmentSubject === 'ela') {
-        mockResults.primaryStandards = [
-          { code: 'CCSS.ELA-LITERACY.RF.3.4', description: 'Read with sufficient accuracy and fluency to support comprehension' },
-          { code: 'CCSS.ELA-LITERACY.RL.3.1', description: 'Ask and answer questions to demonstrate understanding of a text' }
-        ];
-        mockResults.secondaryStandards = [
-          { code: 'CCSS.ELA-LITERACY.SL.3.1', description: 'Engage effectively in collaborative discussions' }
-        ];
-      } else if (alignmentSubject === 'math') {
-        mockResults.primaryStandards = [
-          { code: 'CCSS.MATH.CONTENT.3.OA.A.1', description: 'Interpret products of whole numbers' },
-          { code: 'CCSS.MATH.CONTENT.3.NBT.A.2', description: 'Fluently add and subtract within 1000' }
-        ];
-        mockResults.secondaryStandards = [
-          { code: 'CCSS.MATH.CONTENT.3.MD.A.1', description: 'Tell and write time to the nearest minute' }
-        ];
-      } else if (alignmentSubject === 'science') {
-        mockResults.primaryStandards = [
-          { code: '3-LS4-3', description: 'Construct an argument that some animals and plants have internal and external structures' },
-          { code: '3-5-ETS1-1', description: 'Define a simple design problem reflecting a need or a want' }
-        ];
-      } else if (alignmentSubject === 'social') {
-        mockResults.primaryStandards = [
-          { code: 'NCSS.D2.Civ.1.3-5', description: 'Distinguish the responsibilities and powers of government officials' },
-          { code: 'NCSS.D2.His.1.3-5', description: 'Create and use a chronological sequence of related events' }
-        ];
-      }
-
-      mockResults.recommendations = [
-        'Goal aligns well with grade-level expectations',
-        'Consider adding measurement criteria for better assessment',
-        'Goal supports both academic and functional skill development'
-      ];
-
-      setAlignmentResults(mockResults);
+      setAlignmentResults(alignmentResult);
+    } catch (error) {
+      console.error('Error analyzing standards alignment:', error);
+      // Provide helpful error message to user
+      setAlignmentResults({
+        primaryStandards: [],
+        secondaryStandards: [],
+        recommendations: [
+          'Unable to analyze standards alignment at this time.',
+          'Please check your goal text and try again.',
+          'Contact support if the issue persists.'
+        ],
+        overallScore: 0,
+        confidence: 0
+      });
+    } finally {
       setIsAligning(false);
-    }, 2500);
+    }
   };
 
   // Handle student selection and auto-populate form
@@ -945,8 +949,11 @@ export default function GoalGenerator() {
                 Analyzing goal alignment with {alignmentSubject.toUpperCase()} standards...
               </div>
               <Progress value={75} className="w-full" />
-              <div className="text-xs text-muted-foreground">
-                Searching standards database for matches
+              <div className="text-xs text-muted-foreground animate-pulse">
+                🔍 Analyzing goal text • 📚 Searching standards database • 🎯 Calculating alignment scores
+              </div>
+              <div className="text-xs text-blue-600 mt-2">
+                Using real Common Core, NGSS, and state standards
               </div>
             </div>
           </CardContent>
@@ -954,55 +961,138 @@ export default function GoalGenerator() {
       )}
 
       {alignmentResults && (
-        <Card className="border-l-4 border-l-primary">
-          <CardHeader>
-            <CardTitle>Standards Alignment Results</CardTitle>
-            <CardDescription>
-              Found {alignmentResults.primaryStandards.length} primary alignments and {alignmentResults.secondaryStandards.length} secondary alignments
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-6">
-            {alignmentResults.primaryStandards.length > 0 && (
-              <div className="space-y-3">
-                <Label className="text-sm font-semibold text-primary">Primary Standards Alignment</Label>
-                <div className="space-y-2">
-                  {alignmentResults.primaryStandards.map((standard: any, index: number) => (
-                    <div key={index} className="p-3 bg-primary/5 rounded-lg border border-primary/20">
-                      <div className="font-medium text-sm">{standard.code}</div>
-                      <div className="text-xs text-muted-foreground mt-1">{standard.description}</div>
-                    </div>
-                  ))}
+        <div className="space-y-4">
+          {/* Overall Alignment Score */}
+          <Card className="border-l-4 border-l-primary">
+            <CardHeader>
+              <div className="flex items-center justify-between">
+                <div>
+                  <CardTitle>Standards Alignment Analysis</CardTitle>
+                  <CardDescription>
+                    Found {alignmentResults.primaryStandards.length} primary alignments and {alignmentResults.secondaryStandards.length} secondary alignments
+                  </CardDescription>
                 </div>
+                {alignmentResults.overallScore && (
+                  <div className="text-center">
+                    <div className="text-2xl font-bold text-primary">{Math.round(alignmentResults.overallScore)}</div>
+                    <div className="text-xs text-muted-foreground">Alignment Score</div>
+                  </div>
+                )}
               </div>
-            )}
-
-            {alignmentResults.secondaryStandards.length > 0 && (
-              <div className="space-y-3">
-                <Label className="text-sm font-semibold">Secondary Standards Alignment</Label>
-                <div className="space-y-2">
-                  {alignmentResults.secondaryStandards.map((standard: any, index: number) => (
-                    <div key={index} className="p-3 bg-muted/50 rounded-lg border">
-                      <div className="font-medium text-sm">{standard.code}</div>
-                      <div className="text-xs text-muted-foreground mt-1">{standard.description}</div>
-                    </div>
-                  ))}
+              {alignmentResults.confidence && (
+                <div className="mt-4">
+                  <div className="flex items-center justify-between text-sm">
+                    <span>Analysis Confidence</span>
+                    <span>{Math.round(alignmentResults.confidence * 100)}%</span>
+                  </div>
+                  <Progress value={alignmentResults.confidence * 100} className="h-2 mt-1" />
                 </div>
-              </div>
-            )}
+              )}
+            </CardHeader>
+          </Card>
 
-            <div className="space-y-3">
-              <Label className="text-sm font-semibold">Recommendations</Label>
-              <ul className="space-y-2">
+          {/* Primary Standards */}
+          {alignmentResults.primaryStandards.length > 0 && (
+            <Card>
+              <CardHeader>
+                <CardTitle className="text-lg">🎯 Primary Standards Alignment</CardTitle>
+                <CardDescription>Strong matches with high confidence</CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-3">
+                {alignmentResults.primaryStandards.map((standard: any, index: number) => (
+                  <div key={index} className="p-4 bg-primary/5 rounded-lg border border-primary/20">
+                    <div className="flex items-start justify-between gap-3">
+                      <div className="flex-1">
+                        <div className="font-medium text-sm mb-1">{standard.code}</div>
+                        <div className="text-xs text-muted-foreground mb-2">{standard.description}</div>
+                        {standard.reasoning && (
+                          <div className="text-xs text-blue-600 bg-blue-50 dark:bg-blue-900/20 p-2 rounded">
+                            <strong>Analysis:</strong> {standard.reasoning}
+                          </div>
+                        )}
+                        {standard.matchedKeywords && standard.matchedKeywords.length > 0 && (
+                          <div className="flex flex-wrap gap-1 mt-2">
+                            {standard.matchedKeywords.slice(0, 5).map((keyword: string, i: number) => (
+                              <Badge key={i} variant="secondary" className="text-xs">
+                                {keyword}
+                              </Badge>
+                            ))}
+                          </div>
+                        )}
+                      </div>
+                      {standard.score && (
+                        <div className="text-center min-w-[60px]">
+                          <div className="text-lg font-bold text-primary">{Math.round(standard.score * 100)}</div>
+                          <div className="text-xs text-muted-foreground">Match %</div>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                ))}
+              </CardContent>
+            </Card>
+          )}
+
+          {/* Secondary Standards */}
+          {alignmentResults.secondaryStandards.length > 0 && (
+            <Card>
+              <CardHeader>
+                <CardTitle className="text-lg">📚 Secondary Standards Alignment</CardTitle>
+                <CardDescription>Supporting standards with partial alignment</CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-3">
+                {alignmentResults.secondaryStandards.map((standard: any, index: number) => (
+                  <div key={index} className="p-3 bg-muted/30 rounded-lg border">
+                    <div className="flex items-start justify-between gap-3">
+                      <div className="flex-1">
+                        <div className="font-medium text-sm mb-1">{standard.code}</div>
+                        <div className="text-xs text-muted-foreground mb-2">{standard.description}</div>
+                        {standard.reasoning && (
+                          <div className="text-xs text-amber-600 bg-amber-50 dark:bg-amber-900/20 p-2 rounded">
+                            <strong>Analysis:</strong> {standard.reasoning}
+                          </div>
+                        )}
+                        {standard.matchedKeywords && standard.matchedKeywords.length > 0 && (
+                          <div className="flex flex-wrap gap-1 mt-2">
+                            {standard.matchedKeywords.slice(0, 3).map((keyword: string, i: number) => (
+                              <Badge key={i} variant="outline" className="text-xs">
+                                {keyword}
+                              </Badge>
+                            ))}
+                          </div>
+                        )}
+                      </div>
+                      {standard.score && (
+                        <div className="text-center min-w-[60px]">
+                          <div className="text-lg font-bold text-amber-600">{Math.round(standard.score * 100)}</div>
+                          <div className="text-xs text-muted-foreground">Match %</div>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                ))}
+              </CardContent>
+            </Card>
+          )}
+
+          {/* Recommendations */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-lg">💡 Professional Recommendations</CardTitle>
+              <CardDescription>AI-powered suggestions to improve your IEP goal</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <ul className="space-y-3">
                 {alignmentResults.recommendations.map((rec: string, index: number) => (
-                  <li key={index} className="flex items-start gap-2 text-sm">
-                    <CheckCircle className="h-4 w-4 text-green-600 mt-0.5 flex-shrink-0" />
-                    {rec}
+                  <li key={index} className="flex items-start gap-3 text-sm p-3 bg-green-50 dark:bg-green-900/20 rounded-lg">
+                    <CheckCircle className="h-5 w-5 text-green-600 mt-0.5 flex-shrink-0" />
+                    <span>{rec}</span>
                   </li>
                 ))}
               </ul>
-            </div>
-          </CardContent>
-        </Card>
+            </CardContent>
+          </Card>
+        </div>
       )}
 
       <Card>

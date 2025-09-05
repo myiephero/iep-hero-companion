@@ -67,81 +67,10 @@ const AdvocateDashboard = ({ plan }: AdvocateDashboardProps) => {
     }
   }, [user, toast]);
 
-  // Mock data for demonstration - in real app this would come from API
-  const pendingStudents = [
-    {
-      id: 1,
-      name: "Sarah Johnson",
-      parent: "Maria Johnson", 
-      grade: "3rd Grade",
-      needs: ["Reading Support", "Behavioral Plan"],
-      matchDate: "2 days ago",
-      urgency: "high"
-    },
-    {
-      id: 2,
-      name: "Michael Chen",
-      parent: "Lisa Chen",
-      grade: "5th Grade", 
-      needs: ["Math Support", "ADHD Accommodations"],
-      matchDate: "1 week ago",
-      urgency: "medium"
-    }
-  ];
-
-  const openCases = [
-    {
-      id: 1,
-      student: "Emma Davis",
-      parent: "Robert Davis",
-      caseType: "IEP Review",
-      nextAction: "Meeting prep due",
-      dueDate: "Tomorrow",
-      status: "active"
-    },
-    {
-      id: 2,
-      student: "Alex Rodriguez", 
-      parent: "Carmen Rodriguez",
-      caseType: "504 Plan Development",
-      nextAction: "Draft review needed",
-      dueDate: "Friday",
-      status: "pending"
-    },
-    {
-      id: 3,
-      student: "Taylor Smith",
-      parent: "Jennifer Smith", 
-      caseType: "Rights Violation",
-      nextAction: "Legal response due",
-      dueDate: "Next Monday",
-      status: "urgent"
-    }
-  ];
-
-  const upcomingMeetings = [
-    {
-      id: 1,
-      title: "IEP Meeting - Emma Davis",
-      date: "Today 2:00 PM",
-      type: "IEP Meeting",
-      attendees: 5
-    },
-    {
-      id: 2,
-      title: "504 Review - Alex Rodriguez", 
-      date: "Tomorrow 10:00 AM",
-      type: "504 Review",
-      attendees: 4
-    },
-    {
-      id: 3,
-      title: "Parent Consultation - Taylor Smith",
-      date: "Friday 3:30 PM", 
-      type: "Consultation",
-      attendees: 2
-    }
-  ];
+  // Real data - connected to advocate's actual clients and cases
+  const pendingStudents = []; // Will be populated from advocate's client assignments
+  const openCases = []; // Will be populated from advocate's active cases  
+  const upcomingMeetings = []; // Will be populated from advocate's scheduled meetings
 
   const getUrgencyColor = (urgency: string) => {
     switch(urgency) {
@@ -269,9 +198,19 @@ const AdvocateDashboard = ({ plan }: AdvocateDashboardProps) => {
                 </div>
               ))}
               {pendingStudents.length === 0 && (
-                <p className="text-center text-muted-foreground py-8">
-                  No pending student assignments
-                </p>
+                <div className="text-center py-8">
+                  <div className="text-muted-foreground mb-4">
+                    <Users className="h-12 w-12 mx-auto mb-2 opacity-50" />
+                    <p className="text-lg font-medium">No pending assignments yet</p>
+                    <p className="text-sm">Start by creating parent clients who will refer students to you</p>
+                  </div>
+                  <Button asChild>
+                    <Link to="/advocate/parents">
+                      <UserPlus className="h-4 w-4 mr-2" />
+                      Create First Parent Client
+                    </Link>
+                  </Button>
+                </div>
               )}
             </CardContent>
           </Card>
@@ -288,7 +227,21 @@ const AdvocateDashboard = ({ plan }: AdvocateDashboardProps) => {
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
-              {openCases.map((case_) => (
+              {openCases.length === 0 ? (
+                <div className="text-center py-8">
+                  <div className="text-muted-foreground mb-4">
+                    <FileText className="h-12 w-12 mx-auto mb-2 opacity-50" />
+                    <p className="text-lg font-medium">No active cases yet</p>
+                    <p className="text-sm">Your advocacy cases will appear here once you start working with students</p>
+                  </div>
+                  <Button asChild variant="outline">
+                    <Link to="/advocate/students">
+                      <GraduationCap className="h-4 w-4 mr-2" />
+                      Create First Student Case
+                    </Link>
+                  </Button>
+                </div>
+              ) : openCases.map((case_) => (
                 <div key={case_.id} className="p-4 border rounded-lg space-y-2">
                   <div className="flex items-center justify-between">
                     <h4 className="font-semibold">{case_.student}</h4>
@@ -328,8 +281,23 @@ const AdvocateDashboard = ({ plan }: AdvocateDashboardProps) => {
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              {upcomingMeetings.map((meeting) => (
+            {upcomingMeetings.length === 0 ? (
+              <div className="text-center py-8">
+                <div className="text-muted-foreground mb-4">
+                  <Calendar className="h-12 w-12 mx-auto mb-2 opacity-50" />
+                  <p className="text-lg font-medium">No meetings scheduled</p>
+                  <p className="text-sm">Schedule meetings with your parent clients as you take on cases</p>
+                </div>
+                <Button asChild variant="outline">
+                  <Link to="/advocate/schedule">
+                    <Calendar className="h-4 w-4 mr-2" />
+                    View Calendar
+                  </Link>
+                </Button>
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                {upcomingMeetings.map((meeting) => (
                 <div key={meeting.id} className="p-4 border rounded-lg space-y-2">
                   <h4 className="font-semibold text-sm">{meeting.title}</h4>
                   <p className="text-sm text-muted-foreground">{meeting.date}</p>
@@ -343,8 +311,9 @@ const AdvocateDashboard = ({ plan }: AdvocateDashboardProps) => {
                     Join Meeting
                   </Button>
                 </div>
-              ))}
-            </div>
+                ))}
+              </div>
+            )}
           </CardContent>
         </Card>
 

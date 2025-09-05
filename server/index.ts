@@ -1059,9 +1059,10 @@ app.post('/api/create-checkout-session', async (req, res) => {
     const isHeroPackage = planId === 'hero';
     
     let lineItems;
+    let discounts = undefined;
     
     if (isHeroPackage) {
-      // Hero Family Pack: Two line items as you specified
+      // Hero Family Pack: Two line items with promotional pricing
       lineItems = [
         {
           price: 'price_1RsEn58iKZXV0srZ0UH8e4tg', // $495 setup fee
@@ -1072,6 +1073,36 @@ app.post('/api/create-checkout-session', async (req, res) => {
           quantity: 1,
         }
       ];
+      
+      // Apply "First Month Free" promotion to the subscription
+      // This gives 100% off the first month, making checkout $495 instead of $694
+      try {
+        // Create or retrieve the "First Month Free" coupon
+        let coupon;
+        try {
+          coupon = await stripe.coupons.retrieve('FIRST_MONTH_FREE_HERO');
+        } catch (error) {
+          // Coupon doesn't exist, create it
+          coupon = await stripe.coupons.create({
+            id: 'FIRST_MONTH_FREE_HERO',
+            name: 'First Month Free - Hero Family Pack',
+            percent_off: 100,
+            duration: 'once',
+            max_redemptions: 10000, // High limit for widespread use
+            metadata: {
+              description: 'Promotional discount for Hero Family Pack - First month free',
+              applies_to: 'hero_subscription_only'
+            }
+          });
+        }
+        
+        discounts = [{
+          coupon: coupon.id
+        }];
+      } catch (couponError) {
+        console.error('Error creating/retrieving Hero promotion coupon:', couponError);
+        // Continue without discount if coupon creation fails
+      }
     } else {
       // Standard single price
       lineItems = [{
@@ -1081,7 +1112,7 @@ app.post('/api/create-checkout-session', async (req, res) => {
     }
     
     // Create Stripe Checkout Session - Simple & Clean
-    const session = await stripe.checkout.sessions.create({
+    const sessionConfig = {
       mode: 'subscription',
       payment_method_types: ['card'],
       line_items: lineItems,
@@ -1091,11 +1122,18 @@ app.post('/api/create-checkout-session', async (req, res) => {
         planId,
         planName,
         role,
-        ...(isHeroPackage && { setupFee: '495', isHeroPackage: 'true' })
+        ...(isHeroPackage && { setupFee: '495', isHeroPackage: 'true', promotion: 'first_month_free' })
       },
       allow_promotion_codes: true,
       billing_address_collection: 'required'
-    });
+    };
+    
+    // Add discounts only if they exist (Hero Family Pack promotion)
+    if (discounts) {
+      sessionConfig.discounts = discounts;
+    }
+    
+    const session = await stripe.checkout.sessions.create(sessionConfig);
     
     console.log('✅ Stripe session created:', {
       sessionId: session.id,

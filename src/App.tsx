@@ -57,6 +57,7 @@ import Plan504Guide from "./pages/Plan504Guide";
 import TimelineCalculator from "./pages/TimelineCalculator";
 import ProgressAnalyzer from "./pages/ProgressAnalyzer";
 import GoalGenerator from "./pages/GoalGenerator";
+import IEPMasterSuite from "./pages/IEPMasterSuite";
 import AskAIDocs from "./pages/AskAIDocs";
 import ProgressNotes from "./pages/ProgressNotes";
 import CommunicationTracker from "./pages/CommunicationTracker";
@@ -471,6 +472,16 @@ function App() {
               <Route path="/advocate/tools/goal-generator" element={
                 <ProtectedRoute allowedRoles={['advocate']}>
                   <GoalGenerator />
+                </ProtectedRoute>
+              } />
+              <Route path="/advocate/tools/iep-master-suite" element={
+                <ProtectedRoute allowedRoles={['advocate']} requiredPlan="starter">
+                  <IEPMasterSuite />
+                </ProtectedRoute>
+              } />
+              <Route path="/tools/iep-master-suite" element={
+                <ProtectedRoute allowedRoles={['parent', 'advocate']} requiredPlan="plus">
+                  <IEPMasterSuite />
                 </ProtectedRoute>
               } />
               <Route path="/advocate/tools/ask-ai-docs" element={

@@ -207,6 +207,34 @@ export const match_proposals = pgTable("match_proposals", {
   updated_at: timestamp("updated_at").defaultNow(),
 });
 
+// Conversations table - for messaging between advocates and parents
+export const conversations = pgTable("conversations", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  advocate_id: varchar("advocate_id").notNull(),
+  parent_id: varchar("parent_id").notNull(),
+  student_id: varchar("student_id"), // Which student this conversation is about
+  match_proposal_id: varchar("match_proposal_id"), // Link to the match proposal that created this
+  title: varchar("title"), // Optional conversation title
+  status: varchar("status").default('active'), // active, archived, closed
+  last_message_at: timestamp("last_message_at"),
+  created_at: timestamp("created_at").defaultNow(),
+  updated_at: timestamp("updated_at").defaultNow(),
+});
+
+// Messages table - individual messages within conversations
+export const messages = pgTable("messages", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  conversation_id: varchar("conversation_id").notNull(),
+  sender_id: varchar("sender_id").notNull(), // User ID of the sender
+  sender_type: varchar("sender_type").notNull(), // 'parent' or 'advocate'
+  content: text("content").notNull(),
+  message_type: varchar("message_type").default('text'), // text, file, system
+  file_url: varchar("file_url"), // For file attachments
+  read_at: timestamp("read_at"), // When the message was read by recipient
+  created_at: timestamp("created_at").defaultNow(),
+  updated_at: timestamp("updated_at").defaultNow(),
+});
+
 // Documents table
 export const documents = pgTable("documents", {
   id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
@@ -394,3 +422,9 @@ export type InsertMatchProposal = typeof match_proposals.$inferInsert;
 
 export type Advocate = typeof advocates.$inferSelect;
 export type InsertAdvocate = typeof advocates.$inferInsert;
+
+export type Conversation = typeof conversations.$inferSelect;
+export type InsertConversation = typeof conversations.$inferInsert;
+
+export type Message = typeof messages.$inferSelect;
+export type InsertMessage = typeof messages.$inferInsert;

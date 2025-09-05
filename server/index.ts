@@ -6,6 +6,7 @@ import { eq, and } from 'drizzle-orm';
 import matchRoutes from './routes/match';
 import expertRoutes from './routes/expert';
 import feedbackRoutes from './routes/feedback';
+import messagingRoutes from './routes/messaging';
 import { createRequire } from 'module';
 const require = createRequire(import.meta.url);
 const pdf = require('pdf-parse');
@@ -2197,6 +2198,7 @@ app.put('/api/advocates/profile', async (req, res) => {
 app.use('/api/match', matchRoutes);
 app.use('/api/expert-analysis', expertRoutes);
 app.use('/api/feedback', feedbackRoutes);
+app.use('/api/messaging', messagingRoutes);
 
 // Health check
 app.get('/health', (req, res) => {

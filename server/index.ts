@@ -674,7 +674,7 @@ app.get('/api/verify-email', async (req: any, res) => {
       .where(eq(schema.users.id, user.id));
 
     // Send welcome email
-    await sendWelcomeEmail(user.email!, user.firstName || 'User');
+    await sendWelcomeEmail(user.email!, user.firstName || 'User', user.role);
 
     console.log(`Email verified successfully for ${user.email}`);
 

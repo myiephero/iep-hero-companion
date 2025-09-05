@@ -38,7 +38,6 @@ import VerifyEmail from "./pages/VerifyEmail";
 import ParentMeetingPrep from "./pages/ParentMeetingPrep";
 import StudentProfiles from "./pages/StudentProfiles";
 import HeroPlan from "./pages/HeroPlan";
-import AdvocateDiscovery from "./pages/AdvocateDiscovery";
 import Profile from "./pages/Profile";
 import Settings from "./pages/Settings";
 import ParentSettings from "./pages/ParentSettings";
@@ -374,7 +373,11 @@ function App() {
               <Route path="/parent/subscribe/upsell/hero-plan" element={<ParentHeroUpsell />} />
               <Route path="/upsell/hero-plan" element={<HeroPlan />} />
               <Route path="/subscribe" element={<PricingSelection />} />
-              <Route path="/advocate/discovery" element={<AdvocateDiscovery />} />
+              <Route path="/advocate/discovery" element={
+                <ProtectedRoute allowedRoles={['advocate']}>
+                  <AdvocateMatchingTool />
+                </ProtectedRoute>
+              } />
               
               {/* Pricing Plans */}
               <Route path="/advocate/pricing-plan" element={<AdvocatePricingPlan />} />

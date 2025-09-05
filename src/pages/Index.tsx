@@ -149,30 +149,27 @@ const Index = () => {
 
                         {/* Action Buttons */}
                         <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                          <Button 
-                            size="lg"
-                            className="bg-primary hover:bg-primary/90 text-primary-foreground font-semibold px-8 py-4"
-                            onClick={() => {
-                              if (authMode === 'signin') {
-                                setShowLoginForm(true);
-                              } else {
-                                window.location.href = "/auth";
-                              }
-                            }}
-                            data-testid={authMode === 'signin' ? "button-signin" : "button-create-account"}
-                          >
-                            {authMode === 'signin' ? 'Sign In Now' : 'Create Free Account'}
-                            <ArrowRight className="ml-2 h-5 w-5" />
-                          </Button>
-                          <Button 
-                            variant="outline" 
-                            size="lg"
-                            className="font-semibold px-8 py-4"
-                            onClick={() => window.location.href = "/pricing"}
-                            data-testid="button-pricing"
-                          >
-                            View Pricing
-                          </Button>
+                          {authMode === 'signin' ? (
+                            <Button 
+                              size="lg"
+                              className="bg-primary hover:bg-primary/90 text-primary-foreground font-semibold px-8 py-4"
+                              onClick={() => setShowLoginForm(true)}
+                              data-testid="button-signin"
+                            >
+                              Sign In Now
+                              <ArrowRight className="ml-2 h-5 w-5" />
+                            </Button>
+                          ) : (
+                            <Button 
+                              size="lg"
+                              className="bg-primary hover:bg-primary/90 text-primary-foreground font-semibold px-8 py-4"
+                              onClick={() => window.location.href = "/pricing"}
+                              data-testid="button-view-pricing"
+                            >
+                              View Pricing
+                              <ArrowRight className="ml-2 h-5 w-5" />
+                            </Button>
+                          )}
                         </div>
                       </>
                     ) : (

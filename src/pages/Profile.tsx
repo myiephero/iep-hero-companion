@@ -67,7 +67,10 @@ export default function Profile() {
               </Badge>
               <Button 
                 className="w-full bg-blue-600 hover:bg-blue-700 text-white"
-                onClick={() => navigate('/parent/settings')}
+                onClick={() => {
+                  const route = user.role === 'advocate' ? '/advocate/settings' : '/parent/settings';
+                  navigate(route);
+                }}
                 data-testid="button-edit-profile"
               >
                 Edit Profile

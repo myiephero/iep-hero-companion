@@ -58,6 +58,47 @@ function getUserId(req: express.Request): string {
   return 'anonymous-user';
 }
 
+// Helper function to get or create advocate profile
+async function getOrCreateAdvocateProfile(userId: string) {
+  // First check if advocate profile exists
+  let advocate = await db.select().from(schema.advocates)
+    .where(eq(schema.advocates.user_id, userId))
+    .then(results => results[0]);
+  
+  if (!advocate) {
+    // Get user details to create advocate profile
+    const user = await storage.getUser(userId);
+    if (user) {
+      const [newAdvocate] = await db.insert(schema.advocates)
+        .values({
+          user_id: userId,
+          full_name: `${user.firstName || ''} ${user.lastName || ''}`.trim() || user.email?.split('@')[0] || 'Advocate',
+          email: user.email || '',
+          phone: null, // phoneNumber field doesn't exist in current schema
+          bio: '',
+          location: '',
+          specializations: [],
+          certifications: [],
+          education: '',
+          years_experience: 0,
+          languages: ['English'],
+          case_types: [],
+          rate_per_hour: 150,
+          availability: 'weekdays',
+          rating: 0,
+          total_reviews: 0,
+          verification_status: 'pending',
+          status: 'active',
+          profile_image_url: user.profileImageUrl
+        })
+        .returning();
+      advocate = newAdvocate;
+    }
+  }
+  
+  return advocate;
+}
+
 // OpenAI Analysis Function
 async function analyzeWithOpenAI(text: string, analysisType: string, retries = 3): Promise<string> {
   const apiKey = process.env.OPENAI_API_KEY;
@@ -2006,6 +2047,84 @@ Use professional educational terminology suitable for IEP team review and implem
   } catch (error) {
     console.error('Error generating draft:', error);
     res.status(500).json({ error: 'Failed to generate draft' });
+  }
+});
+
+// Advocate Profile API endpoints
+app.get('/api/advocates/profile/:userId?', async (req, res) => {
+  try {
+    const userId = req.params.userId || getUserId(req);
+    
+    if (!userId || userId === 'anonymous-user') {
+      return res.status(401).json({ error: 'Authentication required' });
+    }
+
+    const advocate = await getOrCreateAdvocateProfile(userId);
+    
+    if (!advocate) {
+      return res.status(404).json({ error: 'Advocate profile not found' });
+    }
+
+    res.json(advocate);
+  } catch (error) {
+    console.error('Error fetching advocate profile:', error);
+    res.status(500).json({ error: 'Failed to fetch advocate profile' });
+  }
+});
+
+app.put('/api/advocates/profile', async (req, res) => {
+  try {
+    const userId = getUserId(req);
+    
+    if (!userId || userId === 'anonymous-user') {
+      return res.status(401).json({ error: 'Authentication required' });
+    }
+
+    const {
+      bio,
+      location,
+      specializations,
+      certifications,
+      education,
+      years_experience,
+      languages,
+      case_types,
+      rate_per_hour,
+      availability
+    } = req.body;
+
+    // Ensure advocate profile exists first
+    const existingAdvocate = await getOrCreateAdvocateProfile(userId);
+    
+    if (!existingAdvocate) {
+      return res.status(404).json({ error: 'Advocate profile not found' });
+    }
+
+    // Update advocate profile
+    const [updatedAdvocate] = await db.update(schema.advocates)
+      .set({
+        bio: bio || existingAdvocate.bio,
+        location: location || existingAdvocate.location,
+        specializations: specializations || existingAdvocate.specializations,
+        certifications: certifications || existingAdvocate.certifications,
+        education: education || existingAdvocate.education,
+        years_experience: years_experience !== undefined ? years_experience : existingAdvocate.years_experience,
+        languages: languages || existingAdvocate.languages,
+        case_types: case_types || existingAdvocate.case_types,
+        rate_per_hour: rate_per_hour !== undefined ? rate_per_hour : existingAdvocate.rate_per_hour,
+        availability: availability || existingAdvocate.availability,
+        updated_at: new Date()
+      })
+      .where(eq(schema.advocates.user_id, userId))
+      .returning();
+
+    res.json({
+      message: 'Advocate profile updated successfully',
+      profile: updatedAdvocate
+    });
+  } catch (error) {
+    console.error('Error updating advocate profile:', error);
+    res.status(500).json({ error: 'Failed to update advocate profile' });
   }
 });
 

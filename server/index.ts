@@ -886,7 +886,7 @@ app.post('/api/custom-login', async (req: any, res) => {
 // Create account endpoint (standalone account creation)
 app.post('/api/create-account', async (req, res) => {
   try {
-    const { email, password, firstName, lastName, role } = req.body;
+    const { email, password, firstName, lastName, role, planName } = req.body;
 
     if (!email || !password || !firstName || !lastName || !role) {
       return res.status(400).json({ 
@@ -911,6 +911,10 @@ app.post('/api/create-account', async (req, res) => {
     const hashedPassword = await hashPassword(password);
     const verificationToken = generateVerificationToken();
     
+    // 🔒 SECURITY FIX: Only FREE PLAN gets immediate verification
+    // ALL paid plans must complete payment before verification
+    const isFreeplan = planName === 'Free Plan' || !planName;
+    
     await db.insert(schema.users).values({
       id: userId,
       email,
@@ -920,25 +924,35 @@ app.post('/api/create-account', async (req, res) => {
       emailVerified: false,
       verificationToken,
       password: hashedPassword,
-      subscriptionPlan: 'Free Plan',
-      subscriptionStatus: 'active',
+      subscriptionPlan: planName || 'free',
+      subscriptionStatus: isFreeplan ? 'active' : 'pending_payment',
       createdAt: new Date(),
       updatedAt: new Date()
     });
 
-    // ✅ SECURITY OK: Free plans get immediate email verification
-    // Paid plans must complete payment first before email verification
-    await sendVerificationEmail({
-      email,
-      firstName,
-      verificationToken,
-      role
-    });
-
-    res.json({ 
-      success: true,
-      message: 'Account created successfully. Please check your email to verify your account.'
-    });
+    // 🔒 CRITICAL SECURITY: Only send verification email for FREE plans
+    // Paid plans must complete payment first
+    if (isFreeplan) {
+      await sendVerificationEmail({
+        email,
+        firstName,
+        verificationToken,
+        role
+      });
+      
+      res.json({ 
+        success: true,
+        message: 'Account created successfully. Please check your email to verify your account.',
+        requiresPayment: false
+      });
+    } else {
+      res.json({ 
+        success: true,
+        message: 'Account created successfully. You will receive a verification email after completing your payment.',
+        requiresPayment: true,
+        userId // Return userId so checkout can reference it
+      });
+    }
   } catch (error) {
     console.error('Error creating account:', error);
     res.status(500).json({ 
@@ -1241,11 +1255,24 @@ app.post('/api/process-checkout-success', async (req, res) => {
         userId: user.id,
         email: user.email,
         subscriptionPlan: user.subscriptionPlan,
-        skipEmail: 'User already has account, no duplicate email sent'
+        previousStatus: existingUser.subscriptionStatus,
+        newStatus: user.subscriptionStatus
       });
       
-      // Don't send verification email again - user already has an account
-      emailSent = true; // Mark as sent to indicate success without actually sending
+      // 🔒 SECURITY FIX: Send verification email for users who were pending payment
+      if (existingUser.subscriptionStatus === 'pending_payment' && !existingUser.emailVerified) {
+        emailSent = await sendVerificationEmail({
+          email: user.email,
+          firstName: user.firstName,
+          lastName: user.lastName || '',
+          verificationToken: user.verificationToken,
+          role: user.role
+        });
+        console.log('🔒 Sent verification email to previously pending user:', user.email);
+      } else {
+        // User already verified or was free plan - no duplicate email
+        emailSent = true;
+      }
     } else {
       // Create new user account only if one doesn't exist
       const verificationToken = generateVerificationToken();

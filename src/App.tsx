@@ -64,6 +64,7 @@ import EmotionTracker from "./pages/EmotionTracker";
 import Plan504Builder from "./pages/Plan504Builder";
 import OTRecommender from "./pages/OTRecommender";
 import ParentEmotionTracker from "./pages/ParentEmotionTracker";
+import PremiumToolsDemo from "./pages/PremiumToolsDemo";
 import NotFound from "./pages/NotFound";
 import CardShowcase from "./pages/CardShowcase";
 import PricingSelection from "./pages/PricingSelection";
@@ -473,6 +474,7 @@ function App() {
               
               {/* Debug/Testing Tools */}
               <Route path="/all-pages" element={<AllPagesView />} />
+              <Route path="/premium-tools-demo" element={<PremiumToolsDemo />} />
               
               {/* 404 */}
               <Route path="*" element={<NotFound />} />

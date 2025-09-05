@@ -14,7 +14,7 @@ import { useState, useEffect } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
-import { Moon, Sun, User, Bell, Shield, Briefcase, Calendar, MapPin, Clock, DollarSign, GraduationCap, Star, X } from "lucide-react";
+import { Moon, Sun, User, Bell, Shield, Briefcase, Calendar, MapPin, Clock, DollarSign, GraduationCap, Star, X, CheckCircle } from "lucide-react";
 
 interface AdvocateProfile {
   bio?: string;
@@ -246,191 +246,281 @@ export default function AdvocateSettings() {
               {/* Specializations */}
               <div className="space-y-3">
                 <Label>Specializations</Label>
-                <div className="flex flex-wrap gap-2 mb-2">
-                  {profile.specializations?.map((spec, index) => (
-                    <Badge key={index} variant="secondary" className="flex items-center gap-1">
-                      {spec}
-                      <X 
-                        className="h-3 w-3 cursor-pointer" 
-                        onClick={() => removeItem('specializations', index)}
-                      />
-                    </Badge>
-                  ))}
+                <div className="text-sm text-muted-foreground mb-3">
+                  Select all areas where you have expertise (multiple selections allowed)
                 </div>
-                <Select open={openDropdowns.specializations} onOpenChange={(open) => setOpenDropdowns(prev => ({ ...prev, specializations: open }))}>
-                  <SelectTrigger data-testid="select-specializations">
-                    <SelectValue placeholder="Add specializations" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {[
-                      "Autism Spectrum Disorders", "ADHD", "Learning Disabilities", "Intellectual Disabilities",
-                      "Emotional/Behavioral Disorders", "Speech/Language Disorders", "Physical Disabilities",
-                      "Gifted & Talented", "Twice Exceptional (2e)", "Transition Planning",
-                      "Behavioral Interventions", "Assistive Technology"
-                    ].map((spec) => (
-                      <SelectItem 
-                        key={spec} 
-                        value={spec}
-                        onSelect={(e) => {
-                          e.preventDefault();
-                          if (!profile.specializations?.includes(spec)) {
-                            addItem('specializations', spec);
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+                  {[
+                    "Autism Spectrum Disorders", "ADHD", "Learning Disabilities", "Intellectual Disabilities",
+                    "Emotional/Behavioral Disorders", "Speech/Language Disorders", "Physical Disabilities",
+                    "Gifted & Talented", "Twice Exceptional (2e)", "Transition Planning",
+                    "Behavioral Interventions", "Assistive Technology"
+                  ].map((spec) => {
+                    const isSelected = profile.specializations?.includes(spec) || false;
+                    return (
+                      <label
+                        key={spec}
+                        className={`
+                          flex items-center gap-3 p-3 rounded-lg border-2 cursor-pointer transition-all
+                          ${isSelected 
+                            ? 'border-primary bg-primary/5 text-primary' 
+                            : 'border-gray-200 dark:border-gray-700 hover:border-primary/50 hover:bg-muted/50'
                           }
-                        }}
-                        className={`flex items-center gap-2 ${profile.specializations?.includes(spec) ? 'bg-primary/10' : ''}`}
+                        `}
+                        data-testid={`checkbox-specialization-${spec.toLowerCase().replace(/[^a-z0-9]/g, '-')}`}
                       >
-                        <input 
-                          type="checkbox" 
-                          checked={profile.specializations?.includes(spec) || false}
-                          onChange={() => {}}
-                          className="rounded"
+                        <input
+                          type="checkbox"
+                          checked={isSelected}
+                          onChange={(e) => {
+                            if (e.target.checked) {
+                              if (!profile.specializations?.includes(spec)) {
+                                addItem('specializations', spec);
+                              }
+                            } else {
+                              const index = profile.specializations?.indexOf(spec);
+                              if (index !== undefined && index > -1) {
+                                removeItem('specializations', index);
+                              }
+                            }
+                          }}
+                          className="w-4 h-4 text-primary rounded focus:ring-primary"
                         />
-                        {spec}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+                        <span className="text-sm font-medium">{spec}</span>
+                        {isSelected && (
+                          <CheckCircle className="h-4 w-4 text-primary ml-auto" />
+                        )}
+                      </label>
+                    );
+                  })}
+                </div>
+                {profile.specializations && profile.specializations.length > 0 && (
+                  <div className="mt-4 p-3 bg-primary/5 rounded-lg">
+                    <div className="text-sm font-medium text-primary mb-2">
+                      Selected Specializations ({profile.specializations.length})
+                    </div>
+                    <div className="flex flex-wrap gap-2">
+                      {profile.specializations.map((spec, index) => (
+                        <Badge key={index} variant="secondary" className="flex items-center gap-1">
+                          {spec}
+                          <X 
+                            className="h-3 w-3 cursor-pointer hover:text-destructive" 
+                            onClick={() => removeItem('specializations', index)}
+                          />
+                        </Badge>
+                      ))}
+                    </div>
+                  </div>
+                )}
               </div>
               
               {/* Case Types */}
               <div className="space-y-3">
                 <Label>Case Types</Label>
-                <div className="flex flex-wrap gap-2 mb-2">
-                  {profile.case_types?.map((type, index) => (
-                    <Badge key={index} variant="outline" className="flex items-center gap-1">
-                      {type}
-                      <X 
-                        className="h-3 w-3 cursor-pointer" 
-                        onClick={() => removeItem('case_types', index)}
-                      />
-                    </Badge>
-                  ))}
+                <div className="text-sm text-muted-foreground mb-3">
+                  What types of IEP cases do you handle? (select all that apply)
                 </div>
-                <Select open={openDropdowns.case_types} onOpenChange={(open) => setOpenDropdowns(prev => ({ ...prev, case_types: open }))}>
-                  <SelectTrigger data-testid="select-case-types">
-                    <SelectValue placeholder="Add case types" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {[
-                      "Initial IEP Development", "IEP Review & Updates", "Due Process Hearings", 
-                      "Mediation", "Evaluation Disputes", "Placement Disputes", "Transition Planning",
-                      "Behavioral Support Plans", "School District Negotiations"
-                    ].map((type) => (
-                      <SelectItem 
-                        key={type} 
-                        value={type}
-                        onSelect={(e) => {
-                          e.preventDefault();
-                          if (!profile.case_types?.includes(type)) {
-                            addItem('case_types', type);
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                  {[
+                    "Initial IEP Development", "IEP Review & Updates", "Due Process Hearings", 
+                    "Mediation", "Evaluation Disputes", "Placement Disputes", "Transition Planning",
+                    "Behavioral Support Plans", "School District Negotiations"
+                  ].map((type) => {
+                    const isSelected = profile.case_types?.includes(type) || false;
+                    return (
+                      <label
+                        key={type}
+                        className={`
+                          flex items-center gap-3 p-3 rounded-lg border-2 cursor-pointer transition-all
+                          ${isSelected 
+                            ? 'border-secondary bg-secondary/5 text-secondary' 
+                            : 'border-gray-200 dark:border-gray-700 hover:border-secondary/50 hover:bg-muted/50'
                           }
-                        }}
-                        className={`flex items-center gap-2 ${profile.case_types?.includes(type) ? 'bg-primary/10' : ''}`}
+                        `}
+                        data-testid={`checkbox-case-type-${type.toLowerCase().replace(/[^a-z0-9]/g, '-')}`}
                       >
-                        <input 
-                          type="checkbox" 
-                          checked={profile.case_types?.includes(type) || false}
-                          onChange={() => {}}
-                          className="rounded"
+                        <input
+                          type="checkbox"
+                          checked={isSelected}
+                          onChange={(e) => {
+                            if (e.target.checked) {
+                              if (!profile.case_types?.includes(type)) {
+                                addItem('case_types', type);
+                              }
+                            } else {
+                              const index = profile.case_types?.indexOf(type);
+                              if (index !== undefined && index > -1) {
+                                removeItem('case_types', index);
+                              }
+                            }
+                          }}
+                          className="w-4 h-4 text-secondary rounded focus:ring-secondary"
                         />
-                        {type}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+                        <span className="text-sm font-medium">{type}</span>
+                        {isSelected && (
+                          <CheckCircle className="h-4 w-4 text-secondary ml-auto" />
+                        )}
+                      </label>
+                    );
+                  })}
+                </div>
+                {profile.case_types && profile.case_types.length > 0 && (
+                  <div className="mt-4 p-3 bg-secondary/5 rounded-lg">
+                    <div className="text-sm font-medium text-secondary mb-2">
+                      Selected Case Types ({profile.case_types.length})
+                    </div>
+                    <div className="flex flex-wrap gap-2">
+                      {profile.case_types.map((type, index) => (
+                        <Badge key={index} variant="outline" className="flex items-center gap-1">
+                          {type}
+                          <X 
+                            className="h-3 w-3 cursor-pointer hover:text-destructive" 
+                            onClick={() => removeItem('case_types', index)}
+                          />
+                        </Badge>
+                      ))}
+                    </div>
+                  </div>
+                )}
               </div>
               
               {/* Languages */}
               <div className="space-y-3">
                 <Label>Languages Spoken</Label>
-                <div className="flex flex-wrap gap-2 mb-2">
-                  {profile.languages?.map((lang, index) => (
-                    <Badge key={index} variant="default" className="flex items-center gap-1">
-                      {lang}
-                      <X 
-                        className="h-3 w-3 cursor-pointer" 
-                        onClick={() => removeItem('languages', index)}
-                      />
-                    </Badge>
-                  ))}
+                <div className="text-sm text-muted-foreground mb-3">
+                  What languages can you communicate in with families?
                 </div>
-                <Select open={openDropdowns.languages} onOpenChange={(open) => setOpenDropdowns(prev => ({ ...prev, languages: open }))}>
-                  <SelectTrigger data-testid="select-languages">
-                    <SelectValue placeholder="Add languages" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {[
-                      "English", "Spanish", "French", "German", "Chinese (Mandarin)", "ASL (American Sign Language)"
-                    ].map((lang) => (
-                      <SelectItem 
-                        key={lang} 
-                        value={lang}
-                        onSelect={(e) => {
-                          e.preventDefault();
-                          if (!profile.languages?.includes(lang)) {
-                            addItem('languages', lang);
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+                  {[
+                    "English", "Spanish", "French", "German", "Chinese (Mandarin)", "ASL (American Sign Language)",
+                    "Italian", "Portuguese", "Russian", "Japanese", "Korean", "Arabic"
+                  ].map((lang) => {
+                    const isSelected = profile.languages?.includes(lang) || false;
+                    return (
+                      <label
+                        key={lang}
+                        className={`
+                          flex items-center gap-3 p-3 rounded-lg border-2 cursor-pointer transition-all
+                          ${isSelected 
+                            ? 'border-accent bg-accent/5 text-accent' 
+                            : 'border-gray-200 dark:border-gray-700 hover:border-accent/50 hover:bg-muted/50'
                           }
-                        }}
-                        className={`flex items-center gap-2 ${profile.languages?.includes(lang) ? 'bg-primary/10' : ''}`}
+                        `}
+                        data-testid={`checkbox-language-${lang.toLowerCase().replace(/[^a-z0-9]/g, '-')}`}
                       >
-                        <input 
-                          type="checkbox" 
-                          checked={profile.languages?.includes(lang) || false}
-                          onChange={() => {}}
-                          className="rounded"
+                        <input
+                          type="checkbox"
+                          checked={isSelected}
+                          onChange={(e) => {
+                            if (e.target.checked) {
+                              if (!profile.languages?.includes(lang)) {
+                                addItem('languages', lang);
+                              }
+                            } else {
+                              const index = profile.languages?.indexOf(lang);
+                              if (index !== undefined && index > -1) {
+                                removeItem('languages', index);
+                              }
+                            }
+                          }}
+                          className="w-4 h-4 text-accent rounded focus:ring-accent"
                         />
-                        {lang}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+                        <span className="text-sm font-medium">{lang}</span>
+                        {isSelected && (
+                          <CheckCircle className="h-4 w-4 text-accent ml-auto" />
+                        )}
+                      </label>
+                    );
+                  })}
+                </div>
+                {profile.languages && profile.languages.length > 0 && (
+                  <div className="mt-4 p-3 bg-accent/5 rounded-lg">
+                    <div className="text-sm font-medium text-accent mb-2">
+                      Languages Spoken ({profile.languages.length})
+                    </div>
+                    <div className="flex flex-wrap gap-2">
+                      {profile.languages.map((lang, index) => (
+                        <Badge key={index} variant="default" className="flex items-center gap-1">
+                          {lang}
+                          <X 
+                            className="h-3 w-3 cursor-pointer hover:text-destructive" 
+                            onClick={() => removeItem('languages', index)}
+                          />
+                        </Badge>
+                      ))}
+                    </div>
+                  </div>
+                )}
               </div>
 
               {/* Certifications */}
               <div className="space-y-3">
                 <Label>Certifications & Credentials</Label>
-                <div className="flex flex-wrap gap-2 mb-2">
-                  {profile.certifications?.map((cert, index) => (
-                    <Badge key={index} variant="secondary" className="flex items-center gap-1">
-                      {cert}
-                      <X 
-                        className="h-3 w-3 cursor-pointer" 
-                        onClick={() => removeItem('certifications', index)}
-                      />
-                    </Badge>
-                  ))}
+                <div className="text-sm text-muted-foreground mb-3">
+                  Select your professional certifications and qualifications
                 </div>
-                <Select open={openDropdowns.certifications} onOpenChange={(open) => setOpenDropdowns(prev => ({ ...prev, certifications: open }))}>
-                  <SelectTrigger data-testid="select-certifications">
-                    <SelectValue placeholder="Add certifications" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {[
-                      "Licensed Attorney", "Educational Advocate Certification", "Special Education Certification",
-                      "M.Ed. Special Education", "Behavior Analyst (BCBA)", "Speech-Language Pathologist"
-                    ].map((cert) => (
-                      <SelectItem 
-                        key={cert} 
-                        value={cert}
-                        onSelect={(e) => {
-                          e.preventDefault();
-                          if (!profile.certifications?.includes(cert)) {
-                            addItem('certifications', cert);
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                  {[
+                    "Licensed Attorney", "Educational Advocate Certification", "Special Education Certification",
+                    "M.Ed. Special Education", "Behavior Analyst (BCBA)", "Speech-Language Pathologist",
+                    "School Psychology", "Educational Leadership", "Disability Rights Law"
+                  ].map((cert) => {
+                    const isSelected = profile.certifications?.includes(cert) || false;
+                    return (
+                      <label
+                        key={cert}
+                        className={`
+                          flex items-center gap-3 p-3 rounded-lg border-2 cursor-pointer transition-all
+                          ${isSelected 
+                            ? 'border-primary bg-primary/5 text-primary' 
+                            : 'border-gray-200 dark:border-gray-700 hover:border-primary/50 hover:bg-muted/50'
                           }
-                        }}
-                        className={`flex items-center gap-2 ${profile.certifications?.includes(cert) ? 'bg-primary/10' : ''}`}
+                        `}
+                        data-testid={`checkbox-certification-${cert.toLowerCase().replace(/[^a-z0-9]/g, '-')}`}
                       >
-                        <input 
-                          type="checkbox" 
-                          checked={profile.certifications?.includes(cert) || false}
-                          onChange={() => {}}
-                          className="rounded"
+                        <input
+                          type="checkbox"
+                          checked={isSelected}
+                          onChange={(e) => {
+                            if (e.target.checked) {
+                              if (!profile.certifications?.includes(cert)) {
+                                addItem('certifications', cert);
+                              }
+                            } else {
+                              const index = profile.certifications?.indexOf(cert);
+                              if (index !== undefined && index > -1) {
+                                removeItem('certifications', index);
+                              }
+                            }
+                          }}
+                          className="w-4 h-4 text-primary rounded focus:ring-primary"
                         />
-                        {cert}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+                        <span className="text-sm font-medium">{cert}</span>
+                        {isSelected && (
+                          <CheckCircle className="h-4 w-4 text-primary ml-auto" />
+                        )}
+                      </label>
+                    );
+                  })}
+                </div>
+                {profile.certifications && profile.certifications.length > 0 && (
+                  <div className="mt-4 p-3 bg-primary/5 rounded-lg">
+                    <div className="text-sm font-medium text-primary mb-2">
+                      Selected Certifications ({profile.certifications.length})
+                    </div>
+                    <div className="flex flex-wrap gap-2">
+                      {profile.certifications.map((cert, index) => (
+                        <Badge key={index} variant="secondary" className="flex items-center gap-1">
+                          {cert}
+                          <X 
+                            className="h-3 w-3 cursor-pointer hover:text-destructive" 
+                            onClick={() => removeItem('certifications', index)}
+                          />
+                        </Badge>
+                      ))}
+                    </div>
+                  </div>
+                )}
               </div>
               
               <Button 

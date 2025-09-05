@@ -224,3 +224,65 @@ export const isAuthenticated: RequestHandler = async (req, res, next) => {
     return;
   }
 };
+
+// 🔒 Enhanced middleware that checks authentication, role, and verification status
+export const requireVerifiedAuth = (allowedRoles: string[] = []) => {
+  return async (req: any, res: any, next: any) => {
+    // First check for token-based auth
+    const token = req.headers.authorization?.replace('Bearer ', '');
+    
+    if (token) {
+      const tokenParts = token.split('-');
+      if (tokenParts.length >= 3) {
+        const userId = tokenParts[0];
+        const timestamp = parseInt(tokenParts[1]);
+        
+        if (Date.now() - timestamp < 24 * 60 * 60 * 1000) {
+          // We need to dynamically import to avoid circular dependencies
+          try {
+            const { db } = require('./db');
+            const schema = require('../../shared/schema');
+            const { eq } = require('drizzle-orm');
+            
+            const [user] = await db.select()
+              .from(schema.users)
+              .where(eq(schema.users.id, userId))
+              .limit(1);
+            
+            if (user && (!allowedRoles.length || allowedRoles.includes(user.role))) {
+              // 🔒 SECURITY: Check email verification for paid plans
+              if (user.subscriptionPlan !== 'Free Plan' && user.subscriptionPlan !== 'free' && !user.emailVerified) {
+                return res.status(403).json({ 
+                  message: "Email verification required. Please check your email and verify your account.",
+                  code: "EMAIL_VERIFICATION_REQUIRED",
+                  userEmail: user.email
+                });
+              }
+              
+              // 🔒 SECURITY: Check subscription status for paid plans  
+              if (user.subscriptionPlan !== 'Free Plan' && user.subscriptionPlan !== 'free' && user.subscriptionStatus === 'pending_payment') {
+                return res.status(402).json({ 
+                  message: "Payment required to access this feature. Please complete your subscription.",
+                  code: "PAYMENT_REQUIRED"
+                });
+              }
+              
+              req.user = { 
+                claims: { sub: userId }, 
+                role: user.role,
+                subscriptionPlan: user.subscriptionPlan,
+                subscriptionStatus: user.subscriptionStatus,
+                emailVerified: user.emailVerified
+              };
+              return next();
+            }
+          } catch (error) {
+            console.error('Error checking user verification status:', error);
+          }
+        }
+      }
+    }
+
+    return res.status(401).json({ message: "Authentication required" });
+  };
+};

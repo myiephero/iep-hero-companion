@@ -85,6 +85,15 @@ const advocateTools = [
     features: ["Data Analysis", "Progress Reports", "Goal Tracking", "Outcome Metrics"]
   },
   {
+    title: "IEP Master Suite",
+    description: "Comprehensive IEP document analysis, goal generation, compliance checking, and standards alignment in one powerful platform.",
+    icon: Target,
+    path: "/advocate/tools/iep-master-suite",
+    category: "IEP Planning",
+    badge: "AI",
+    features: ["Document Review", "Goal Generation", "Compliance Check", "Standards Alignment"]
+  },
+  {
     title: "IEP Goal Generator",
     description: "AI-powered SMART goal creation with professional standards and compliance verification.",
     icon: Target,

@@ -475,7 +475,7 @@ function App() {
                 </ProtectedRoute>
               } />
               <Route path="/advocate/tools/iep-master-suite" element={
-                <ProtectedRoute allowedRoles={['advocate']} requiredPlan="starter">
+                <ProtectedRoute allowedRoles={['advocate']}>
                   <IEPMasterSuite />
                 </ProtectedRoute>
               } />

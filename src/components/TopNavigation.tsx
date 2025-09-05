@@ -94,12 +94,15 @@ export function TopNavigation() {
             <Bell className="h-4 w-4" />
           </Button>
           
-          <Button asChild variant="hero" size="sm">
-            <Link to="/upsell/hero-plan">
-              <Crown className="h-4 w-4 mr-1" />
-              HERO Plan
-            </Link>
-          </Button>
+          {/* SECURITY: Only show Hero Plan to parents, never advocates */}
+          {!location.pathname.startsWith('/advocate') && (
+            <Button asChild variant="hero" size="sm">
+              <Link to="/upsell/hero-plan">
+                <Crown className="h-4 w-4 mr-1" />
+                HERO Plan
+              </Link>
+            </Button>
+          )}
 
           {profile?.full_name && (
             <span className="text-sm text-muted-foreground hidden md:block">

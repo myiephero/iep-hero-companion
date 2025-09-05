@@ -181,7 +181,7 @@ const Index = () => {
                                   <p className="text-muted-foreground text-sm">
                                     Empower your child's educational journey with AI tools, advocate connections, and comprehensive IEP support.
                                   </p>
-                                  <div className="text-primary font-medium text-sm">Plans starting at $19/month</div>
+                                  <div className="text-primary font-medium text-sm">Plans starting FREE</div>
                                 </div>
                               </div>
 

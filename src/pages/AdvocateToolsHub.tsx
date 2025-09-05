@@ -220,20 +220,63 @@ export default function AdvocateToolsHub() {
 
   // Map tool paths to feature keys for access control
   const mapToolPathToFeature = (path: string): keyof PlanFeatures => {
+    // Remove leading slash and extract the tool identifier
+    const cleanPath = path.replace(/^\/+/, '');
+    
     const pathMap: Record<string, keyof PlanFeatures> = {
-      '/advocate/unified-iep-review': 'unifiedIEPReview',
-      '/advocate/smart-letter-generator': 'letterGenerationLimit',  
-      '/advocate/idea-rights-guide': 'advocateMatchingTool',
-      '/advocate/meeting-prep-wizard': 'professionalPlanning',
-      '/advocate/progress-analyzer': 'caseAnalytics',
-      '/advocate/goal-generator': 'professionalAnalysis',
-      '/advocate/communication-tracker': 'advocateMessaging',
-      '/advocate/advocacy-reports': 'advocacyReports',
-      '/advocate/emotion-tracker': 'professionalAnalysis',
-      '/advocate/504-plan-builder': 'professionalPlanning',
-      '/advocate/ot-recommender': 'professionalAnalysis'
+      'advocate/unified-iep-review': 'unifiedIEPReview',
+      'advocate/tools/unified-iep-review': 'unifiedIEPReview',
+      'unified-iep-review': 'unifiedIEPReview',
+      
+      'advocate/smart-letter-generator': 'smartLetterGenerator',
+      'advocate/tools/smart-letter-generator': 'smartLetterGenerator', 
+      'smart-letter-generator': 'smartLetterGenerator',
+      
+      'advocate/idea-rights-guide': 'ideaRightsGuide',
+      'idea-rights-guide': 'ideaRightsGuide',
+      
+      'advocate/meeting-prep-wizard': 'meetingPrepWizard',
+      'advocate/tools/meeting-prep': 'meetingPrepWizard',
+      'meeting-prep-wizard': 'meetingPrepWizard',
+      
+      'advocate/tools/progress-analyzer': 'caseAnalytics',
+      'progress-analyzer': 'caseAnalytics',
+      
+      'advocate/tools/goal-generator': 'goalGenerator',
+      'goal-generator': 'goalGenerator',
+      
+      'advocate/tools/communication-tracker': 'communicationTracker',
+      'communication-tracker': 'communicationTracker',
+      
+      'advocate/tools/advocacy-reports': 'advocacyReports', 
+      'advocacy-reports': 'advocacyReports',
+      
+      'advocate/tools/emotion-tracker': 'emotionTracker',
+      'emotion-tracker': 'emotionTracker',
+      
+      'advocate/tools/504-plan-builder': 'plan504Builder',
+      '504-plan-builder': 'plan504Builder',
+      
+      'advocate/tools/ot-recommender': 'otActivityRecommender',
+      'ot-recommender': 'otActivityRecommender',
+      
+      'autism-accommodations': 'autismAccommodationBuilder',
+      'advocate/tools/autism-accommodations': 'autismAccommodationBuilder',
+      
+      'gifted-2e-learners': 'giftedTwoeSupport',
+      'advocate/tools/gifted-2e-learners': 'giftedTwoeSupport',
+      
+      'messages': 'advocateMessaging',
+      'advocate/messages': 'advocateMessaging',
+      
+      'advocate/tools/ask-ai-docs': 'askAIAboutDocs',
+      'ask-ai-docs': 'askAIAboutDocs',
+      
+      'advocate/tools/progress-notes': 'progressNotes',
+      'progress-notes': 'progressNotes'
     };
-    return pathMap[path] || 'professionalAnalysis'; // Default fallback
+    
+    return pathMap[cleanPath] || 'professionalAnalysis'; // Default fallback
   };
 
   const getRequiredPlan = (path: string): SubscriptionPlan => {

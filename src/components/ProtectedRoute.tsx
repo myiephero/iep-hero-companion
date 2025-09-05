@@ -8,9 +8,11 @@ interface ProtectedRouteProps {
   children: ReactElement;
   allowedRoles: ('parent' | 'advocate')[];
   redirectTo?: string;
+  requiredPlan?: string; // Enforce plan-specific access
+  allowedPlans?: string[]; // Alternative: allow multiple plans
 }
 
-export function ProtectedRoute({ children, allowedRoles, redirectTo = "/auth" }: ProtectedRouteProps) {
+export function ProtectedRoute({ children, allowedRoles, redirectTo = "/auth", requiredPlan, allowedPlans }: ProtectedRouteProps) {
   const { user, profile, loading } = useAuth();
   const location = useLocation();
   
@@ -52,8 +54,44 @@ export function ProtectedRoute({ children, allowedRoles, redirectTo = "/auth" }:
 
   // Role guard
   if (!allowedRoles.includes(userRole as 'parent' | 'advocate')) {
-    const dashboardRoute = userRole === 'advocate' ? '/advocate/dashboard' : '/parent/dashboard';
+    // FAIL-SAFE: Redirect to correct plan-specific dashboard
+    const userPlan = user.subscriptionPlan?.toLowerCase().replace(/\s+/g, '') || 'free';
+    const planMapping = {
+      'starter': 'starter', 'pro': 'pro', 'agency': 'agency', 'agencyplus': 'agency-plus'
+    };
+    const normalizedPlan = planMapping[userPlan] || userPlan;
+    
+    const dashboardRoute = userRole === 'advocate' 
+      ? `/advocate/dashboard-${normalizedPlan}` 
+      : `/parent/dashboard-${normalizedPlan}`;
     return <Navigate to={dashboardRoute} replace />;
+  }
+
+  // Plan-specific access control (tier-based security)
+  if (requiredPlan || allowedPlans) {
+    const userPlan = user.subscriptionPlan?.toLowerCase().replace(/\s+/g, '') || 'free';
+    const planMapping = {
+      'starter': 'starter', 'pro': 'pro', 'agency': 'agency', 'agencyplus': 'agency-plus'
+    };
+    const normalizedUserPlan = planMapping[userPlan] || userPlan;
+    
+    // Check if user has required plan
+    if (requiredPlan && normalizedUserPlan !== requiredPlan) {
+      // FAIL-SAFE: Redirect to correct plan dashboard
+      const correctDashboard = user.role === 'parent' 
+        ? `/parent/dashboard-${normalizedUserPlan}`
+        : `/advocate/dashboard-${normalizedUserPlan}`;
+      return <Navigate to={correctDashboard} replace />;
+    }
+    
+    // Check if user has one of allowed plans
+    if (allowedPlans && !allowedPlans.includes(normalizedUserPlan)) {
+      // FAIL-SAFE: Redirect to correct plan dashboard
+      const correctDashboard = user.role === 'parent' 
+        ? `/parent/dashboard-${normalizedUserPlan}`
+        : `/advocate/dashboard-${normalizedUserPlan}`;
+      return <Navigate to={correctDashboard} replace />;
+    }
   }
 
   return children;

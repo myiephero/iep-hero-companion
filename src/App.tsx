@@ -88,40 +88,34 @@ function App() {
               
               {/* Parent Routes - Protected */}
               {/* Generic dashboard redirect */}
-              <Route path="/dashboard" element={<RoleBasedRedirect parentRoute="/parent/dashboard-free" advocateRoute="/advocate/dashboard" />} />
-              
-              <Route path="/parent/dashboard" element={
-                <ProtectedRoute allowedRoles={['parent']}>
-                  <ParentDashboard />
-                </ProtectedRoute>
-              } />
+              <Route path="/dashboard" element={<RoleBasedRedirect parentRoute="/parent/dashboard-free" advocateRoute="/advocate/dashboard-starter" />} />
               <Route path="/parent/dashboard-free" element={
-                <ProtectedRoute allowedRoles={['parent']}>
+                <ProtectedRoute allowedRoles={['parent']} requiredPlan="free">
                   <ParentDashboard plan="free" />
                 </ProtectedRoute>
               } />
               <Route path="/parent/dashboard-basic" element={
-                <ProtectedRoute allowedRoles={['parent']}>
+                <ProtectedRoute allowedRoles={['parent']} requiredPlan="basic">
                   <ParentDashboard plan="basic" />
                 </ProtectedRoute>
               } />
               <Route path="/parent/dashboard-plus" element={
-                <ProtectedRoute allowedRoles={['parent']}>
+                <ProtectedRoute allowedRoles={['parent']} requiredPlan="plus">
                   <ParentDashboard plan="plus" />
                 </ProtectedRoute>
               } />
               <Route path="/parent/dashboard-explorer" element={
-                <ProtectedRoute allowedRoles={['parent']}>
+                <ProtectedRoute allowedRoles={['parent']} requiredPlan="explorer">
                   <ParentDashboard plan="explorer" />
                 </ProtectedRoute>
               } />
               <Route path="/parent/dashboard-premium" element={
-                <ProtectedRoute allowedRoles={['parent']}>
+                <ProtectedRoute allowedRoles={['parent']} requiredPlan="premium">
                   <ParentDashboard plan="premium" />
                 </ProtectedRoute>
               } />
               <Route path="/parent/dashboard-hero" element={
-                <ProtectedRoute allowedRoles={['parent']}>
+                <ProtectedRoute allowedRoles={['parent']} requiredPlan="hero">
                   <ParentDashboard plan="hero" />
                 </ProtectedRoute>
               } />
@@ -141,29 +135,24 @@ function App() {
                 </ProtectedRoute>
               } />
               
-              {/* Advocate Routes - Protected */}
-              <Route path="/advocate/dashboard" element={
-                <ProtectedRoute allowedRoles={['advocate']}>
-                  <AdvocateDashboard />
-                </ProtectedRoute>
-              } />
+              {/* Advocate Routes - Protected - NO GENERIC DASHBOARD */}
               <Route path="/advocate/dashboard-starter" element={
-                <ProtectedRoute allowedRoles={['advocate']}>
+                <ProtectedRoute allowedRoles={['advocate']} requiredPlan="starter">
                   <AdvocateDashboard plan="starter" />
                 </ProtectedRoute>
               } />
               <Route path="/advocate/dashboard-pro" element={
-                <ProtectedRoute allowedRoles={['advocate']}>
+                <ProtectedRoute allowedRoles={['advocate']} requiredPlan="pro">
                   <AdvocateDashboard plan="pro" />
                 </ProtectedRoute>
               } />
               <Route path="/advocate/dashboard-agency" element={
-                <ProtectedRoute allowedRoles={['advocate']}>
+                <ProtectedRoute allowedRoles={['advocate']} requiredPlan="agency">
                   <AdvocateDashboard plan="agency" />
                 </ProtectedRoute>
               } />
               <Route path="/advocate/dashboard-agency-plus" element={
-                <ProtectedRoute allowedRoles={['advocate']}>
+                <ProtectedRoute allowedRoles={['advocate']} requiredPlan="agency-plus">
                   <AdvocateDashboard plan="agency-plus" />
                 </ProtectedRoute>
               } />

@@ -139,13 +139,12 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
                 window.location.href = correctDashboardPath;
               }
             } else if (userData.role === 'advocate') {
-              // Handle advocate dashboard redirections
-              const isOnGenericDashboard = currentPath === '/advocate/dashboard';
+              // Handle advocate dashboard redirections - NO GENERIC DASHBOARDS ALLOWED
               const isOnWrongRoleDashboard = currentPath.startsWith('/parent/dashboard');
               const isOnWrongPlanDashboard = currentPath.startsWith('/advocate/dashboard-') && 
                                            currentPath !== correctDashboardPath;
               
-              if (isOnGenericDashboard || isOnWrongRoleDashboard || isOnWrongPlanDashboard) {
+              if (isOnWrongRoleDashboard || isOnWrongPlanDashboard) {
                 window.location.href = correctDashboardPath;
               }
             }

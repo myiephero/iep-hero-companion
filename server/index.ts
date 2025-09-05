@@ -678,10 +678,13 @@ app.get('/api/verify-email', async (req: any, res) => {
 
     console.log(`Email verified successfully for ${user.email}`);
 
+    // Redirect to appropriate dashboard based on role
+    const dashboardUrl = user.role === 'parent' ? '/parent/dashboard' : '/advocate/dashboard';
+    
     res.json({ 
       success: true, 
       message: 'Email verified successfully',
-      redirectTo: '/dashboard'
+      redirectTo: dashboardUrl
     });
   } catch (error) {
     console.error('Error verifying email:', error);

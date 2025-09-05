@@ -59,7 +59,11 @@ export default function AdvocateSettings() {
   // Load existing profile
   const { data: existingProfile } = useQuery({
     queryKey: ['/api/advocates/profile', user?.id],
-    enabled: !!user?.id
+    enabled: !!user?.id,
+    queryFn: async () => {
+      const response = await apiRequest('GET', '/api/advocates/profile');
+      return response.json();
+    }
   });
   
   useEffect(() => {

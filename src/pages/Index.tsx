@@ -147,9 +147,9 @@ const Index = () => {
                           </button>
                         </div>
 
-                        {/* Action Buttons */}
-                        <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                          {authMode === 'signin' ? (
+                        {/* Action Buttons or Role Selection */}
+                        {authMode === 'signin' ? (
+                          <div className="flex justify-center">
                             <Button 
                               size="lg"
                               className="bg-primary hover:bg-primary/90 text-primary-foreground font-semibold px-8 py-4"
@@ -159,18 +159,54 @@ const Index = () => {
                               Sign In Now
                               <ArrowRight className="ml-2 h-5 w-5" />
                             </Button>
-                          ) : (
-                            <Button 
-                              size="lg"
-                              className="bg-primary hover:bg-primary/90 text-primary-foreground font-semibold px-8 py-4"
-                              onClick={() => window.location.href = "/pricing"}
-                              data-testid="button-view-pricing"
-                            >
-                              View Pricing
-                              <ArrowRight className="ml-2 h-5 w-5" />
-                            </Button>
-                          )}
-                        </div>
+                          </div>
+                        ) : (
+                          /* Role Selection for Create Account */
+                          <div className="space-y-4">
+                            <p className="text-center text-lg font-medium">Choose your role to get started:</p>
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 max-w-2xl mx-auto">
+                              {/* Parent Option */}
+                              <div 
+                                className="bg-card border border-border rounded-lg p-6 cursor-pointer hover:border-primary transition-colors group"
+                                onClick={() => window.location.href = "/parent/pricing"}
+                                data-testid="card-parent"
+                              >
+                                <div className="text-center space-y-3">
+                                  <div className="w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center mx-auto group-hover:bg-primary/20 transition-colors">
+                                    <svg className="w-6 h-6 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+                                    </svg>
+                                  </div>
+                                  <h3 className="text-xl font-semibold">Parent</h3>
+                                  <p className="text-muted-foreground text-sm">
+                                    Empower your child's educational journey with AI tools, advocate connections, and comprehensive IEP support.
+                                  </p>
+                                  <div className="text-primary font-medium text-sm">Plans starting at $19/month</div>
+                                </div>
+                              </div>
+
+                              {/* Advocate Option */}
+                              <div 
+                                className="bg-card border border-border rounded-lg p-6 cursor-pointer hover:border-secondary transition-colors group"
+                                onClick={() => window.location.href = "/advocate/pricing"}
+                                data-testid="card-advocate"
+                              >
+                                <div className="text-center space-y-3">
+                                  <div className="w-12 h-12 bg-secondary/10 rounded-full flex items-center justify-center mx-auto group-hover:bg-secondary/20 transition-colors">
+                                    <svg className="w-6 h-6 text-secondary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                    </svg>
+                                  </div>
+                                  <h3 className="text-xl font-semibold">Advocate</h3>
+                                  <p className="text-muted-foreground text-sm">
+                                    Expand your practice with powerful tools to support more families and streamline your advocacy work.
+                                  </p>
+                                  <div className="text-secondary font-medium text-sm">Plans starting at $49/month</div>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        )}
                       </>
                     ) : (
                       // Inline Login Form

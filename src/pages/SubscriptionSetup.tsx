@@ -7,7 +7,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
-import { Loader2, Eye, EyeOff } from 'lucide-react';
+import { Loader2, Eye, EyeOff, ArrowLeft } from 'lucide-react';
 
 const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLIC_KEY);
 
@@ -290,6 +290,19 @@ export default function SubscriptionSetup() {
     return (
       <div className="min-h-screen bg-gradient-to-br from-primary/5 to-accent/5 py-12">
         <div className="container mx-auto px-4 max-w-md">
+          {/* Back Button */}
+          <div className="mb-6">
+            <Button
+              variant="ghost"
+              onClick={() => window.location.href = '/'}
+              className="p-2 hover:bg-muted"
+              data-testid="button-back"
+            >
+              <ArrowLeft className="h-4 w-4 mr-2" />
+              Back to Home
+            </Button>
+          </div>
+
           <div className="text-center mb-8">
             <h1 className="text-3xl font-bold text-gray-900 mb-4">
               Create Your Account

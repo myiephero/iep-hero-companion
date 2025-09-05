@@ -50,8 +50,8 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
                 <div className="font-semibold text-base md:text-lg">My IEP Hero</div>
               </div>
               <div className="flex items-center gap-1 md:gap-3">
-                {/* Only show HERO Plan buttons for free users */}
-                {!isPaidUser && (
+                {/* Only show HERO Plan buttons for parent users who don't have paid plan */}
+                {!isPaidUser && user?.role === 'parent' && (
                   <>
                     <Button asChild variant="hero" size="sm" className="hidden sm:flex">
                       <Link to="/upsell/hero-plan">

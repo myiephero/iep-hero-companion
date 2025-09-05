@@ -34,10 +34,10 @@ interface FeedbackData {
 }
 
 const FEEDBACK_TYPES = [
-  { id: 'bug', label: 'Bug Report', icon: Bug, color: 'bg-red-100 text-red-800 border-red-200' },
-  { id: 'error', label: 'Error/Redirect', icon: AlertTriangle, color: 'bg-orange-100 text-orange-800 border-orange-200' },
-  { id: 'suggestion', label: 'Suggestion', icon: Lightbulb, color: 'bg-blue-100 text-blue-800 border-blue-200' },
-  { id: 'general', label: 'General', icon: MessageCircle, color: 'bg-gray-100 text-gray-800 border-gray-200' }
+  { id: 'bug', label: 'Bug Report', icon: Bug, color: 'bg-red-50 dark:bg-red-900/20 text-red-900 dark:text-red-100 border-red-300 dark:border-red-700' },
+  { id: 'error', label: 'Error/Redirect', icon: AlertTriangle, color: 'bg-orange-50 dark:bg-orange-900/20 text-orange-900 dark:text-orange-100 border-orange-300 dark:border-orange-700' },
+  { id: 'suggestion', label: 'Suggestion', icon: Lightbulb, color: 'bg-blue-50 dark:bg-blue-900/20 text-blue-900 dark:text-blue-100 border-blue-300 dark:border-blue-700' },
+  { id: 'general', label: 'General', icon: MessageCircle, color: 'bg-gray-50 dark:bg-gray-800/50 text-gray-900 dark:text-gray-100 border-gray-300 dark:border-gray-600' }
 ] as const;
 
 export function FeedbackChat() {
@@ -188,7 +188,7 @@ export function FeedbackChat() {
 
   return (
     <div className="fixed bottom-4 right-4 z-50 w-96 max-w-[calc(100vw-2rem)]">
-      <Card className="shadow-2xl border-0 bg-white/95 backdrop-blur-sm">
+      <Card className="shadow-2xl border-2 border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 backdrop-blur-md">
         <CardHeader className="pb-2">
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-2">
@@ -229,8 +229,10 @@ export function FeedbackChat() {
                     key={type.id}
                     variant="outline"
                     className={cn(
-                      "cursor-pointer transition-all duration-200 justify-center p-2 hover:shadow-md",
-                      selectedType === type.id ? type.color : "hover:bg-gray-50"
+                      "cursor-pointer transition-all duration-200 justify-center p-3 hover:shadow-md border-2 font-medium text-sm",
+                      selectedType === type.id 
+                        ? type.color 
+                        : "bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-700"
                     )}
                     onClick={() => setSelectedType(type.id)}
                     data-testid={`badge-feedback-type-${type.id}`}
@@ -265,7 +267,7 @@ export function FeedbackChat() {
                   type="button"
                   variant="outline"
                   onClick={captureScreenshot}
-                  className="flex-1"
+                  className="flex-1 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-700"
                   data-testid="button-capture-screenshot"
                 >
                   <Camera className="h-4 w-4 mr-2" />
@@ -275,7 +277,7 @@ export function FeedbackChat() {
                   type="button"
                   variant="outline"
                   onClick={() => fileInputRef.current?.click()}
-                  className="flex-1"
+                  className="flex-1 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-700"
                   data-testid="button-upload-image"
                 >
                   <Upload className="h-4 w-4 mr-2" />
@@ -317,7 +319,7 @@ export function FeedbackChat() {
             <Button
               onClick={submitFeedback}
               disabled={isSubmitting || !message.trim()}
-              className="w-full"
+              className="w-full bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white font-medium shadow-lg"
               data-testid="button-submit-feedback"
             >
               {isSubmitting ? (

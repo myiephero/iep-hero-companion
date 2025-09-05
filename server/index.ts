@@ -678,13 +678,38 @@ app.get('/api/verify-email', async (req: any, res) => {
 
     console.log(`Email verified successfully for ${user.email}`);
 
-    // Redirect to appropriate dashboard based on role and subscription plan
+    // Redirect to appropriate dashboard based on role and subscription plan, or homepage if no plan
     let dashboardUrl;
+    
     if (user.role === 'parent') {
-      const planSlug = user.subscriptionPlan?.toLowerCase().replace(/\s+/g, '') || 'free';
-      dashboardUrl = `/parent/dashboard-${planSlug}`;
+      // Parent role - check if they have a subscription plan
+      if (user.subscriptionPlan && user.subscriptionPlan !== 'Free Plan') {
+        // Map subscription plans to dashboard routes
+        const planMapping = {
+          'basic': 'basic',
+          'plus': 'plus', 
+          'premium': 'premium',
+          'hero family pack': 'hero',
+          'explorer': 'explorer'
+        };
+        const planKey = user.subscriptionPlan.toLowerCase();
+        const planSlug = planMapping[planKey] || 'free';
+        dashboardUrl = `/parent/dashboard-${planSlug}`;
+      } else {
+        // No paid plan - redirect to homepage
+        dashboardUrl = '/';
+      }
+    } else if (user.role === 'advocate') {
+      // Advocate role - check if they have a subscription plan
+      if (user.subscriptionPlan && user.subscriptionPlan !== 'Free Plan') {
+        dashboardUrl = '/advocate/dashboard';
+      } else {
+        // No paid plan - redirect to homepage  
+        dashboardUrl = '/';
+      }
     } else {
-      dashboardUrl = '/advocate/dashboard';
+      // Unknown role - redirect to homepage
+      dashboardUrl = '/';
     }
     
     res.json({ 

@@ -839,6 +839,116 @@ app.post('/api/create-subscription-intent', async (req: any, res) => {
   }
 });
 
+// Guest checkout session - no authentication required
+app.post('/api/create-checkout-session', async (req, res) => {
+  try {
+    const { priceId, planName, planId, role } = req.body;
+    
+    if (!priceId || !planName || !planId || !role) {
+      return res.status(400).json({ error: 'Missing required parameters' });
+    }
+    
+    const currentDomain = process.env.REPLIT_DOMAINS?.split(',')[0] || 'localhost:8080';
+    const protocol = currentDomain.includes('localhost') ? 'http' : 'https';
+    const baseUrl = `${protocol}://${currentDomain}`;
+    
+    // Create Stripe Checkout Session
+    const session = await stripe.checkout.sessions.create({
+      mode: priceId ? 'subscription' : 'payment',
+      payment_method_types: ['card'],
+      line_items: [{
+        price: priceId,
+        quantity: 1,
+      }],
+      success_url: `${baseUrl}/subscription-success?session_id={CHECKOUT_SESSION_ID}&plan=${planId}&role=${role}`,
+      cancel_url: `${baseUrl}/${role}/pricing`,
+      metadata: {
+        planId,
+        planName,
+        role,
+        priceId
+      },
+      allow_promotion_codes: true,
+      billing_address_collection: 'required',
+      customer_creation: 'always'
+    });
+    
+    // Redirect to Stripe Checkout
+    res.json({ url: session.url });
+    
+  } catch (error) {
+    console.error('Error creating checkout session:', error);
+    res.status(500).json({ error: 'Failed to create checkout session' });
+  }
+});
+
+// Process successful checkout and create account + send verification email
+app.post('/api/process-checkout-success', async (req, res) => {
+  try {
+    const { sessionId, planId, role } = req.body;
+    
+    if (!sessionId) {
+      return res.status(400).json({ error: 'Session ID required' });
+    }
+    
+    // Retrieve checkout session from Stripe
+    const session = await stripe.checkout.sessions.retrieve(sessionId, {
+      expand: ['customer', 'subscription']
+    });
+    
+    if (!session.customer || !session.customer_email) {
+      return res.status(400).json({ error: 'No customer information found' });
+    }
+    
+    const email = session.customer_email;
+    const customerId = typeof session.customer === 'string' ? session.customer : session.customer.id;
+    
+    // Generate verification token
+    const verificationToken = generateVerificationToken();
+    
+    // Extract name from session if available
+    const customerName = session.customer_details?.name || '';
+    const [firstName, ...lastNameParts] = customerName.split(' ');
+    const lastName = lastNameParts.join(' ');
+    
+    // Create user account 
+    const [newUser] = await db.insert(schema.users).values({
+      email,
+      firstName: firstName || 'User',
+      lastName: lastName || '',
+      role: role as 'parent' | 'advocate',
+      stripeCustomerId: customerId,
+      subscriptionPlan: planId,
+      subscriptionStatus: session.subscription ? 'active' : 'incomplete',
+      stripeSubscriptionId: typeof session.subscription === 'string' ? session.subscription : session.subscription?.id,
+      emailVerified: false,
+      verificationToken
+    }).returning();
+    
+    // Send verification email using Resend
+    const emailSent = await sendVerificationEmail({
+      email,
+      firstName: firstName || 'User',
+      lastName: lastName || '',
+      verificationToken
+    });
+    
+    if (!emailSent) {
+      console.error('Failed to send verification email');
+    }
+    
+    res.json({ 
+      success: true,
+      message: 'Account created successfully. Please check your email to verify your account.',
+      emailSent
+    });
+    
+  } catch (error) {
+    console.error('Error processing checkout success:', error);
+    res.status(500).json({ error: 'Failed to process checkout success' });
+  }
+});
+
 // Stripe subscription routes (keeping for reference but using payment intent for testing)
 app.post('/api/create-subscription', isAuthenticated, async (req: any, res) => {
   try {

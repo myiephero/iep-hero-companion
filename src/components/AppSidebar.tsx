@@ -49,7 +49,7 @@ interface SidebarSection {
   items: SidebarItem[];
 }
 
-const getParentNavigation = (dashboardUrl: string, userPlan: string): SidebarSection[] => {
+const getParentNavigation = (dashboardUrl: string, userPlan: string, isAdvocate: boolean): SidebarSection[] => {
   const baseItems: SidebarItem[] = [
     { title: "Dashboard", url: dashboardUrl, icon: LayoutDashboard },
     { title: "My Students", url: "/parent/students", icon: GraduationCap },
@@ -57,8 +57,8 @@ const getParentNavigation = (dashboardUrl: string, userPlan: string): SidebarSec
     { title: "Document Vault", url: "/tools/document-vault", icon: FileText },
   ];
 
-  // Only show HERO Plan upgrade if user is not already on Hero plan
-  if (userPlan !== 'hero') {
+  // Only show HERO Plan upgrade if user is PARENT and not already on Hero plan
+  if (!isAdvocate && userPlan !== 'hero') {
     baseItems.push({ title: "HERO Plan", url: "/upsell/hero-plan", icon: Crown, badge: "Premium" });
   }
 
@@ -123,7 +123,7 @@ export function AppSidebar() {
   const userPlan = normalizeSubscriptionPlan(user?.subscriptionPlan);
   const dashboardUrl = isAdvocate ? '/advocate/dashboard' : `/parent/dashboard-${userPlan}`;
   
-  const navigation = isAdvocate ? advocateNavigation : getParentNavigation(dashboardUrl, userPlan);
+  const navigation = isAdvocate ? advocateNavigation : getParentNavigation(dashboardUrl, userPlan, isAdvocate);
   const accountItems = getAccountItems(isAdvocate);
   
   const isActive = (path: string) => currentPath === path;
@@ -144,24 +144,7 @@ export function AppSidebar() {
                   <p className="text-xs text-muted-foreground">
                     {isAdvocate ? 'Advocate Portal' : 'Parent Portal'}
                   </p>
-                  <Button 
-                    size="sm" 
-                    variant="ghost" 
-                    className="h-5 px-2 text-xs"
-                    onClick={() => {
-                      const newRole = isAdvocate ? 'parent' : 'advocate';
-                      setRole(newRole);
-                      if (newRole === 'advocate') {
-                        window.location.href = '/advocate/dashboard';
-                      } else {
-                        // Use the user's current plan for dashboard redirect
-                        const plan = normalizeSubscriptionPlan(user?.subscriptionPlan);
-                        window.location.href = `/parent/dashboard-${plan}`;
-                      }
-                    }}
-                  >
-                    Switch
-                  </Button>
+                  {/* SECURITY: NO ROLE SWITCHING ALLOWED - Users can only access their assigned role */}
                 </div>
               </div>
             )}

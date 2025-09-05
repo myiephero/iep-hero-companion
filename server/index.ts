@@ -863,8 +863,8 @@ app.post('/api/create-checkout-session', async (req, res) => {
         ...(setupFee && { setupFee: setupFee.toString() })
       },
       allow_promotion_codes: true,
-      billing_address_collection: 'required',
-      customer_creation: 'always'
+      billing_address_collection: 'required'
+      // Removed customer_creation: 'always' - not compatible with subscription mode
     });
     
     // Redirect to Stripe Checkout

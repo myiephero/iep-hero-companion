@@ -1067,19 +1067,20 @@ app.post('/api/create-checkout-session', async (req, res) => {
     
     if (isHeroPackage) {
       // Hero Family Pack: $495 one-time + $199/month subscription
-      // We need separate Stripe Price IDs for setup fee and monthly subscription
+      // CRITICAL: Stripe subscription mode cannot mix one-time and recurring items
+      // Solution: Use subscription mode with BOTH prices configured as subscription items
       sessionConfig = {
         mode: 'subscription' as const,
         payment_method_types: ['card'] as const,
         line_items: [
           {
-            // Hero Family Pack Setup Fee: $495 one-time
+            // Setup fee: Configured as subscription item but should be one-time in Stripe Dashboard
             price: 'price_1RsEn58iKZXV0srZ0UH8e4tg', // $495 setup fee
             quantity: 1,
           },
           {
-            // Monthly subscription Price ID: $199/month 
-            price: priceId, // This should be the $199/month price ID
+            // Monthly subscription: $199/month 
+            price: priceId, // price_1S3nyI8iKZXV0srZy1awxPBd
             quantity: 1,
           }
         ],

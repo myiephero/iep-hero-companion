@@ -4,42 +4,40 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
-import { Search, Send, Paperclip, MessageSquare } from "lucide-react";
+import { Search, Send, Paperclip, MessageSquare, Loader2 } from "lucide-react";
 import { useLocation } from "react-router-dom";
 import { useState, useEffect } from "react";
-
-const conversations = [];
+import { useConversations, useMessages, useSendMessage, useCreateConversation } from "@/hooks/useMessaging";
+import type { Conversation } from "@/lib/messaging";
 
 export default function AdvocateMessages() {
   const location = useLocation();
-  const [selectedConversation, setSelectedConversation] = useState(null);
+  const [selectedConversation, setSelectedConversation] = useState<Conversation | null>(null);
   const [newMessageText, setNewMessageText] = useState('');
-  const [dynamicConversations, setDynamicConversations] = useState([]);
   
-  // Check if we're coming from a match proposal
+  // API hooks
+  const { conversations, loading: conversationsLoading, error: conversationsError, refetch: refetchConversations } = useConversations();
+  const { messageHistory, loading: messagesLoading, refetch: refetchMessages } = useMessages(selectedConversation?.id || null);
+  const { send: sendMessage, sending } = useSendMessage();
+  const { create: createConversation, creating } = useCreateConversation();
+  
+  // Handle creating a new conversation from match proposal
   useEffect(() => {
-    if (location.state?.newMessage) {
-      const { parentId, studentName, proposalId } = location.state.newMessage;
-      
-      // Create a new conversation for this parent
-      const newConversation = {
-        id: `new-${proposalId}`,
-        name: `${studentName}'s Family`,
-        student: studentName,
-        lastMessage: "New conversation started",
-        time: "now",
-        unread: 0,
-        avatar: studentName?.split(' ').map(n => n[0]).join('') || 'NF',
-        isNew: true
-      };
-      
-      setDynamicConversations([newConversation]);
-      setSelectedConversation(newConversation);
+    if (location.state?.newMessage && !creating) {
+      const { advocateId, studentId, studentName, proposalId } = location.state.newMessage;
       
       // Pre-populate the message input with a starter message
       setNewMessageText(`Hello! Thank you for considering me as an advocate for ${studentName}. I'd love to learn more about ${studentName}'s specific needs and how I can best support your family. Would you be available for a brief introductory call this week to discuss your goals and next steps?`);
+      
+      // Create a new conversation
+      createConversation(advocateId, studentId).then((conversation) => {
+        if (conversation) {
+          setSelectedConversation(conversation);
+          refetchConversations(); // Refresh the conversations list
+        }
+      });
     }
-  }, [location.state]);
+  }, [location.state, createConversation, creating, refetchConversations]);
 
   return (
     <DashboardLayout>
@@ -55,70 +53,55 @@ export default function AdvocateMessages() {
               </div>
             </div>
             <div className="flex-1 overflow-y-auto">
-              {/* Show dynamic conversations first (new ones from match proposals) */}
-              {dynamicConversations.map((conversation) => (
-                <div
-                  key={conversation.id}
-                  className={`p-4 border-b hover:bg-muted/50 cursor-pointer transition-colors ${
-                    selectedConversation?.id === conversation.id ? 'bg-muted/50' : ''
-                  }`}
-                  onClick={() => setSelectedConversation(conversation)}
-                >
-                  <div className="flex items-start gap-3">
-                    <Avatar className="h-10 w-10">
-                      <AvatarImage src={`/placeholder-new.jpg`} />
-                      <AvatarFallback>{conversation.avatar}</AvatarFallback>
-                    </Avatar>
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-center justify-between">
-                        <p className="font-medium truncate">{conversation.name}</p>
-                        <span className="text-xs text-muted-foreground">{conversation.time}</span>
-                      </div>
-                      <p className="text-sm text-muted-foreground mb-1">{conversation.student}</p>
-                      <p className="text-sm truncate">{conversation.lastMessage}</p>
-                      {conversation.isNew && (
-                        <Badge variant="default" className="mt-2 text-xs">
-                          New Match Request
-                        </Badge>
-                      )}
-                    </div>
-                  </div>
+              {conversationsLoading ? (
+                <div className="flex items-center justify-center p-8">
+                  <Loader2 className="h-6 w-6 animate-spin" />
                 </div>
-              ))}
-              
-              {/* Show existing conversations */}
-              {conversations.map((conversation) => (
-                <div
-                  key={conversation.id}
-                  className={`p-4 border-b hover:bg-muted/50 cursor-pointer transition-colors ${
-                    selectedConversation?.id === conversation.id ? 'bg-muted/50' : ''
-                  }`}
-                  onClick={() => setSelectedConversation(conversation)}
-                >
-                  <div className="flex items-start gap-3">
-                    <Avatar className="h-10 w-10">
-                      <AvatarImage src={`/placeholder-${conversation.id}.jpg`} />
-                      <AvatarFallback>{conversation.avatar}</AvatarFallback>
-                    </Avatar>
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-center justify-between">
-                        <p className="font-medium truncate">{conversation.name}</p>
-                        <span className="text-xs text-muted-foreground">{conversation.time}</span>
-                      </div>
-                      <p className="text-sm text-muted-foreground mb-1">{conversation.student}</p>
-                      <p className="text-sm truncate">{conversation.lastMessage}</p>
-                      {conversation.unread > 0 && (
-                        <Badge variant="default" className="mt-2 text-xs">
-                          {conversation.unread} new
-                        </Badge>
-                      )}
-                    </div>
-                  </div>
+              ) : conversationsError ? (
+                <div className="p-4 text-center text-red-500">
+                  Error loading conversations: {conversationsError}
                 </div>
-              ))}
-              
-              {/* Show empty state when no conversations exist */}
-              {conversations.length === 0 && dynamicConversations.length === 0 && (
+              ) : conversations.length > 0 ? (
+                conversations.map((conversation) => {
+                  const studentName = `${conversation.student.first_name} ${conversation.student.last_name}`;
+                  const avatar = studentName.split(' ').map(n => n[0]).join('');
+                  const lastMessageTime = conversation.lastMessage?.created_at ? 
+                    new Date(conversation.lastMessage.created_at).toLocaleDateString() : 'New';
+                    
+                  return (
+                    <div
+                      key={conversation.id}
+                      className={`p-4 border-b hover:bg-muted/50 cursor-pointer transition-colors ${
+                        selectedConversation?.id === conversation.id ? 'bg-muted/50' : ''
+                      }`}
+                      onClick={() => setSelectedConversation(conversation)}
+                      data-testid={`conversation-${conversation.id}`}
+                    >
+                      <div className="flex items-start gap-3">
+                        <Avatar className="h-10 w-10">
+                          <AvatarImage src={`/placeholder-${conversation.id}.jpg`} />
+                          <AvatarFallback>{avatar}</AvatarFallback>
+                        </Avatar>
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center justify-between">
+                            <p className="font-medium truncate">{studentName}'s Family</p>
+                            <span className="text-xs text-muted-foreground">{lastMessageTime}</span>
+                          </div>
+                          <p className="text-sm text-muted-foreground mb-1">{conversation.advocate.name}</p>
+                          <p className="text-sm truncate">
+                            {conversation.lastMessage?.content || 'No messages yet'}
+                          </p>
+                          {conversation.unreadCount > 0 && (
+                            <Badge variant="default" className="mt-2 text-xs">
+                              {conversation.unreadCount} new
+                            </Badge>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                  );
+                })
+              ) : (
                 <div className="flex items-center justify-center h-full p-8">
                   <div className="text-center text-muted-foreground">
                     <MessageSquare className="h-12 w-12 mx-auto mb-4 opacity-50" />
@@ -157,20 +140,38 @@ export default function AdvocateMessages() {
             
             <div className="flex-1 p-4 overflow-y-auto space-y-4">
               {selectedConversation ? (
-                selectedConversation.isNew ? (
+                messagesLoading ? (
                   <div className="flex items-center justify-center h-full">
-                    <div className="text-center text-muted-foreground">
-                      <div className="text-6xl mb-4">💬</div>
-                      <p className="text-lg font-medium mb-2">New Conversation</p>
-                      <p className="text-sm">Send your first message to start the conversation with {selectedConversation.name}</p>
-                    </div>
+                    <Loader2 className="h-6 w-6 animate-spin" />
                   </div>
+                ) : messageHistory?.messages && messageHistory.messages.length > 0 ? (
+                  messageHistory.messages.map((message) => (
+                    <div
+                      key={message.id}
+                      className={`flex ${message.sender_id === selectedConversation.advocate_id ? 'justify-end' : 'justify-start'}`}
+                      data-testid={`message-${message.id}`}
+                    >
+                      <div className={`max-w-lg p-3 rounded-lg ${
+                        message.sender_id === selectedConversation.advocate_id 
+                          ? 'bg-primary text-primary-foreground ml-12' 
+                          : 'bg-muted mr-12'
+                      }`}>
+                        <p className="text-sm">{message.content}</p>
+                        <span className="text-xs opacity-75 block mt-1">
+                          {new Date(message.created_at).toLocaleTimeString([], { 
+                            hour: '2-digit', 
+                            minute: '2-digit' 
+                          })}
+                        </span>
+                      </div>
+                    </div>
+                  ))
                 ) : (
                   <div className="flex items-center justify-center h-full">
                     <div className="text-center text-muted-foreground">
                       <MessageSquare className="h-12 w-12 mx-auto mb-4 opacity-50" />
                       <p className="text-lg font-medium mb-2">No Messages Yet</p>
-                      <p className="text-sm">Start a conversation with {selectedConversation.name}</p>
+                      <p className="text-sm">Start a conversation with {selectedConversation.student.first_name}'s family</p>
                     </div>
                   </div>
                 )
@@ -197,20 +198,21 @@ export default function AdvocateMessages() {
                     value={newMessageText}
                     onChange={(e) => setNewMessageText(e.target.value)}
                   />
-                  <Button size="icon" onClick={() => {
-                    if (newMessageText.trim() && selectedConversation) {
-                      // For now, just clear the message to simulate sending
-                      // In a real app, this would call an API to send the message
-                      setNewMessageText('');
-                      
-                      // Update the conversation to show it's no longer new
-                      if (selectedConversation.isNew) {
-                        const updatedConversation = { ...selectedConversation, isNew: false, lastMessage: 'Message sent' };
-                        setSelectedConversation(updatedConversation);
-                        setDynamicConversations([updatedConversation]);
+                  <Button 
+                    size="icon" 
+                    disabled={sending || !newMessageText.trim()}
+                    onClick={async () => {
+                      if (newMessageText.trim() && selectedConversation) {
+                        const message = await sendMessage(selectedConversation.id, newMessageText);
+                        if (message) {
+                          setNewMessageText('');
+                          refetchMessages(); // Refresh messages
+                          refetchConversations(); // Refresh conversation list to update last message
+                        }
                       }
-                    }
-                  }}>
+                    }}
+                    data-testid="button-send-message"
+                  >
                     <Send className="h-4 w-4" />
                   </Button>
                 </div>

@@ -148,10 +148,14 @@ export default function SubscriptionSetup() {
         }
 
         const data = await response.json();
+        console.log('Checkout session response:', data);
+        
         if (data.url) {
+          console.log('Redirecting to:', data.url);
           // Redirect to Stripe Checkout
           window.location.href = data.url;
         } else {
+          console.error('Response missing URL:', data);
           throw new Error('No checkout URL received');
         }
       } catch (error: any) {

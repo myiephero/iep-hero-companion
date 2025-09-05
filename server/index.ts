@@ -538,35 +538,8 @@ app.post('/api/create-payment-intent', isAuthenticated, async (req: any, res) =>
 });
 
 // Create checkout session (no auth required - payment first!)
-app.post('/api/create-checkout-session', async (req: any, res) => {
-  try {
-    const { priceId, planName, planId, role, amount } = req.body;
-    
-    // Create payment intent for the plan amount
-    const paymentIntent = await stripe.paymentIntents.create({
-      amount: Math.round(amount * 100), // Convert to cents
-      currency: 'usd',
-      metadata: {
-        priceId,
-        planName,
-        planId,
-        role,
-        checkoutSession: 'true'
-      },
-      automatic_payment_methods: {
-        enabled: true,
-      },
-    });
-
-    res.json({
-      clientSecret: paymentIntent.client_secret,
-      paymentIntentId: paymentIntent.id
-    });
-  } catch (error) {
-    console.error('Error creating checkout session:', error);
-    res.status(500).json({ error: 'Failed to create checkout session' });
-  }
-});
+// REMOVED - Wrong implementation that was intercepting checkout requests
+// The correct implementation is below starting at line 759
 
 // Create account with completed payment
 app.post('/api/create-account-with-payment', async (req: any, res) => {

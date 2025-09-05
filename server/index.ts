@@ -886,7 +886,9 @@ app.post('/api/custom-login', async (req: any, res) => {
 // Create account endpoint (standalone account creation)
 app.post('/api/create-account', async (req, res) => {
   try {
-    const { email, password, firstName, lastName, role, planName } = req.body;
+    const { email, password, firstName, lastName, role, planName, subscriptionMetadata } = req.body;
+    // Extract planName from either direct property or subscriptionMetadata
+    const actualPlanName = planName || subscriptionMetadata?.planName;
 
     if (!email || !password || !firstName || !lastName || !role) {
       return res.status(400).json({ 
@@ -913,7 +915,13 @@ app.post('/api/create-account', async (req, res) => {
     
     // 🔒 SECURITY FIX: Only FREE PLAN gets immediate verification
     // ALL paid plans must complete payment before verification
-    const isFreeplan = planName === 'Free Plan' || !planName;
+    const isFreeplan = actualPlanName === 'Free Plan' || !actualPlanName;
+    
+    console.log('🔒 SECURITY CHECK:', {
+      actualPlanName,
+      isFreeplan,
+      willSendEmailNow: isFreeplan
+    });
     
     await db.insert(schema.users).values({
       id: userId,
@@ -924,7 +932,7 @@ app.post('/api/create-account', async (req, res) => {
       emailVerified: false,
       verificationToken,
       password: hashedPassword,
-      subscriptionPlan: planName || 'free',
+      subscriptionPlan: actualPlanName || 'free',
       subscriptionStatus: isFreeplan ? 'active' : 'pending_payment',
       createdAt: new Date(),
       updatedAt: new Date()

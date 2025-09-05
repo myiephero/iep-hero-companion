@@ -140,12 +140,23 @@ export default function SubscriptionSetup() {
 
         if (!response.ok) {
           if (response.status === 401) {
+            // Store subscription details in localStorage for after login
+            localStorage.setItem('pendingSubscription', JSON.stringify({
+              priceId,
+              planName,
+              planId,
+              role
+            }));
+            
             toast({
-              title: "Authentication Required",
-              description: "Please sign in again to complete your subscription.",
-              variant: "destructive",
+              title: "Sign In Required",
+              description: "Please sign in to complete your subscription.",
             });
-            window.location.href = '/api/login';
+            
+            // Redirect to login - they'll come back to complete subscription after auth
+            setTimeout(() => {
+              window.location.href = '/api/login';
+            }, 1500);
             return;
           }
           throw new Error('Failed to create subscription');

@@ -17,7 +17,7 @@ export function TopNavigation() {
   const navigate = useNavigate();
   const isAdvocateRoute = location.pathname.startsWith('/advocate');
   const isDashboardRoute = location.pathname.includes('/dashboard');
-  const { profile, signOut } = useAuth();
+  const { user, profile, signOut } = useAuth();
   const { toast } = useToast();
 
   const handleSignOut = async () => {

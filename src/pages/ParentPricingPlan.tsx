@@ -365,19 +365,38 @@ const ParentPricingPlan = () => {
                 
                 <div className="text-center lg:text-right">
                   <div className="mb-6">
-                    <div className="text-sm text-orange-100 mb-2">Hybrid Investment</div>
+                    {/* Promotional Badge */}
+                    <div className="mb-4">
+                      <Badge className="bg-yellow-400 text-yellow-900 border-yellow-500 font-semibold px-3 py-1">
+                        🎉 FIRST MONTH FREE!
+                      </Badge>
+                    </div>
+                    
+                    <div className="text-sm text-orange-100 mb-2">Special Launch Pricing</div>
                     <div className="space-y-2">
                       <div className="flex items-baseline justify-center lg:justify-end gap-2">
                         <span className="text-3xl font-bold text-white">$495</span>
-                        <span className="text-orange-100">one-time</span>
+                        <span className="text-orange-100">one-time setup</span>
                       </div>
                       <div className="text-orange-200">+</div>
                       <div className="flex items-baseline justify-center lg:justify-end gap-2">
-                        <span className="text-3xl font-bold text-white">$199</span>
-                        <span className="text-orange-100">/month</span>
+                        <span className="text-lg line-through text-orange-300">$199</span>
+                        <span className="text-3xl font-bold text-white">$0</span>
+                        <span className="text-orange-100">first month</span>
                       </div>
+                      <div className="text-sm text-orange-200">Then $199/month</div>
                     </div>
                     <div className="text-sm text-orange-200 mt-2">Covers your entire family</div>
+                    
+                    {/* Savings callout */}
+                    <div className="bg-white/10 rounded-lg p-3 mt-4">
+                      <p className="text-sm text-white font-medium">
+                        💰 Save $199 on your first month!
+                      </p>
+                      <p className="text-xs text-orange-100">
+                        Start today for just $495 instead of $694
+                      </p>
+                    </div>
                   </div>
                   
                   <Button 

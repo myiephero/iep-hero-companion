@@ -2051,9 +2051,10 @@ Use professional educational terminology suitable for IEP team review and implem
 });
 
 // Advocate Profile API endpoints
-app.get('/api/advocates/profile/:userId?', async (req, res) => {
+app.get('/api/advocates/profile', async (req, res) => {
   try {
-    const userId = req.params.userId || getUserId(req);
+    const userId = getUserId(req);
+    console.log('🔍 Profile GET - User ID:', userId);
     
     if (!userId || userId === 'anonymous-user') {
       return res.status(401).json({ error: 'Authentication required' });

@@ -7,7 +7,8 @@ import {
   Crown, 
   Zap, 
   Star, 
-  Users
+  Users,
+  ArrowLeft
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
@@ -151,6 +152,18 @@ const AdvocatePricingPlan = () => {
 
   return (
       <div className="min-h-screen">
+        {/* Back Button */}
+        <div className="px-6 pt-6">
+          <Button
+            variant="ghost"
+            onClick={() => window.history.back()}
+            className="text-muted-foreground hover:text-primary hover:bg-muted"
+          >
+            <ArrowLeft className="h-4 w-4 mr-2" />
+            Back
+          </Button>
+        </div>
+
         {/* Hero Section */}
         <div className="relative overflow-hidden">
           <div className="absolute inset-0 hero-gradient opacity-10" />

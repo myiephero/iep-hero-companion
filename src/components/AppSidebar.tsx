@@ -115,9 +115,9 @@ export function AppSidebar() {
   const currentPath = location.pathname;
   const collapsed = state === "collapsed";
 
-  // Determine which navigation to show based on current route (priority) or user role
+  // Determine which navigation to show based on user's actual role from database
   const { profile, user } = useAuth();
-  const isAdvocate = currentPath.startsWith('/advocate');
+  const isAdvocate = user?.role === 'advocate';
   
   // Generate plan-specific dashboard URL for both roles
   const userPlan = normalizeSubscriptionPlan(user?.subscriptionPlan);

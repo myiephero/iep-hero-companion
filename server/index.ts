@@ -648,25 +648,17 @@ app.post('/api/create-account-with-payment', async (req: any, res) => {
       email
     });
 
-    // Send verification email
-    const emailSent = await sendVerificationEmail({
-      email,
-      firstName,
-      lastName,
-      verificationToken
-    });
-
-    if (emailSent) {
-      console.log(`Verification email sent successfully to ${email}`);
-    } else {
-      console.error(`Failed to send verification email to ${email}`);
-    }
+    // ⚠️  SECURITY FIX: DO NOT send verification email here!
+    // Email verification will ONLY be sent AFTER successful payment
+    // via the /api/process-checkout-success endpoint
+    console.log(`Account created but email verification PENDING payment for ${email}`);
 
     res.json({ 
       success: true, 
-      message: 'Account created successfully',
+      message: 'Account created successfully. Complete payment to activate.',
       userId,
-      needsEmailVerification: true
+      needsEmailVerification: false, // Will be true AFTER payment
+      paymentRequired: true
     });
   } catch (error) {
     console.error('Error creating account:', error);
@@ -934,7 +926,8 @@ app.post('/api/create-account', async (req, res) => {
       updatedAt: new Date()
     });
 
-    // Send verification email
+    // ✅ SECURITY OK: Free plans get immediate email verification
+    // Paid plans must complete payment first before email verification
     await sendVerificationEmail({
       email,
       firstName,

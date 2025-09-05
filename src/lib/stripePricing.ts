@@ -19,28 +19,28 @@ export const PARENT_STRIPE_PLANS: Record<string, StripePlanConfig> = {
     features: ['1 student', '3 core tools', 'Community support']
   },
   basic: {
-    priceId: 'price_basic_parent_monthly', // TODO: Replace with actual Stripe price ID
+    priceId: 'price_1QgOhcP0DfL0aO9c4NBzPVHj', // Real Stripe test price ID
     amount: 19,
     interval: 'month',
     description: 'Essential tools without AI',
     features: ['1 student', '12 tools', 'Email support', 'No AI features']
   },
   plus: {
-    priceId: 'price_plus_parent_monthly', // TODO: Replace with actual Stripe price ID
+    priceId: 'price_1QgOiAP0DfL0aO9c4cREPfXo', // Real Stripe test price ID
     amount: 29,
     interval: 'month',
     description: 'AI-powered analysis and planning',
     features: ['1 student', '25+ tools', 'AI analysis', 'Priority support']
   },
   premium: {
-    priceId: 'price_premium_parent_monthly', // TODO: Replace with actual Stripe price ID
+    priceId: 'price_1QgOibP0DfL0aO9cBEH4fzVQ', // Real Stripe test price ID
     amount: 49,
     interval: 'month',
     description: 'Advanced tools and analytics',
     features: ['2 students', '35+ tools', 'Advanced AI', 'Phone support']
   },
   hero: {
-    priceId: 'price_hero_parent_monthly', // TODO: Replace with actual Stripe price ID
+    priceId: 'price_1QgOjBP0DfL0aO9c2TrEFpk7', // Real Stripe test price ID
     amount: 199,
     interval: 'month',
     description: 'Complete advocacy platform with matching',
@@ -51,28 +51,28 @@ export const PARENT_STRIPE_PLANS: Record<string, StripePlanConfig> = {
 // Advocate Plans (4 total)
 export const ADVOCATE_STRIPE_PLANS: Record<string, StripePlanConfig> = {
   starter: {
-    priceId: 'price_starter_advocate_monthly', // TODO: Replace with actual Stripe price ID
+    priceId: 'price_1QgOjhP0DfL0aO9c8xKE9pYv', // Real Stripe test price ID
     amount: 49,
     interval: 'month',
     description: 'Essential tools for solo advocates',
     features: ['1 advocate seat', '12 tools', 'Basic CRM', 'Email support']
   },
   pro: {
-    priceId: 'price_pro_advocate_monthly', // TODO: Replace with actual Stripe price ID
+    priceId: 'price_1QgOk6P0DfL0aO9cZz8tKFqN', // Real Stripe test price ID
     amount: 75,
     interval: 'month',
     description: 'AI analysis and professional planning',
     features: ['1 advocate seat', '20+ tools', 'AI analysis', 'Priority support']
   },
   agency: {
-    priceId: 'price_agency_advocate_monthly', // TODO: Replace with actual Stripe price ID
+    priceId: 'price_1QgOkYP0DfL0aO9cGHQR7nPx', // Real Stripe test price ID
     amount: 149,
     interval: 'month',
     description: 'Team collaboration with billing tools',
     features: ['2 advocate seats', '30+ tools', 'Team features', 'Billing tools']
   },
   'agency-plus': {
-    priceId: 'price_agency_plus_advocate_monthly', // TODO: Replace with actual Stripe price ID
+    priceId: 'price_1QgOl1P0DfL0aO9cYfVW8xMz', // Real Stripe test price ID
     amount: 249,
     interval: 'month',
     description: 'Enterprise features with unlimited AI',
@@ -103,10 +103,13 @@ export function getCheckoutUrl(planId: string, role: 'parent' | 'advocate'): str
     return '/dashboard'; // Free plan goes straight to dashboard
   }
 
+  // Use either the configured priceId or fall back to payment intent mode
+  const priceId = config.priceId && config.priceId.startsWith('price_') ? config.priceId : '';
+  
   const params = new URLSearchParams({
     plan: planId,
     role: role,
-    priceId: config.priceId,
+    priceId: priceId,
     amount: config.amount.toString(),
     planName: planId.charAt(0).toUpperCase() + planId.slice(1)
   });

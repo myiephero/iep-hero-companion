@@ -5,7 +5,8 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Badge } from '@/components/ui/badge';
 import { Check, Star, Zap, Crown, Heart } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
-import CheckoutFirst from './CheckoutFirst';
+import { getCheckoutUrl } from '@/lib/stripePricing';
+// REMOVED CheckoutFirst - using unified checkout flow via SubscriptionSetup
 
 // Parent pricing tiers
 const PARENT_PRICING = [
@@ -285,8 +286,6 @@ const ADVOCATE_PRICING = [
 export default function Subscribe() {
   const location = useLocation();
   const { toast } = useToast();
-  const [selectedPlan, setSelectedPlan] = useState<any>(null);
-  const [showCheckout, setShowCheckout] = useState(false);
   
   // Determine role from URL path
   const role = location.pathname.includes('/parent/') ? 'parent' : 'advocate';
@@ -300,13 +299,37 @@ export default function Subscribe() {
     window.location.href = '/api/login';
   };
 
-  const handleSubscribe = (plan: any) => {
+  const handleSubscribe = async (plan: any) => {
     if (plan.isFree) {
       handleFreePlan();
       return;
     }
-    setSelectedPlan(plan);
-    setShowCheckout(true);
+
+    // Use unified checkout flow
+    try {
+      const checkoutUrl = getCheckoutUrl({
+        planId: plan.id,
+        role: role,
+        amount: plan.price,
+        planName: plan.name
+      });
+
+      if (checkoutUrl) {
+        toast({
+          title: `${plan.name} Plan Selected`,
+          description: "Redirecting to secure checkout...",
+        });
+        window.location.href = checkoutUrl;
+      } else {
+        throw new Error('Invalid checkout URL');
+      }
+    } catch (error) {
+      toast({
+        title: "Checkout Error",
+        description: "Unable to start checkout process. Please try again.",
+        variant: "destructive"
+      });
+    }
   };
 
   return (
@@ -400,16 +423,7 @@ export default function Subscribe() {
           ))}
         </div>
 
-        {/* Checkout First Dialog */}
-        <CheckoutFirst
-          plan={selectedPlan}
-          role={role}
-          isOpen={showCheckout}
-          onClose={() => {
-            setShowCheckout(false);
-            setSelectedPlan(null);
-          }}
-        />
+        {/* Checkout handled by unified SubscriptionSetup flow */}
       </div>
     </div>
   );

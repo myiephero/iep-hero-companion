@@ -35,71 +35,81 @@ const ParentHeroPlan = () => {
   const heroFeatures = [
     {
       icon: <Rocket className="h-6 w-6" />,
-      title: "AI-Powered Advocacy Assistant",
-      description: "Get personalized recommendations and strategies powered by advanced AI",
-      highlight: "Exclusive"
+      title: "ALL 50+ Specialized Tools",
+      description: "Complete access to every single tool in our platform - no restrictions",
+      highlight: "Complete"
     },
     {
       icon: <Users className="h-6 w-6" />,
-      title: "Direct Advocate Access",
-      description: "Connect with certified special education advocates within 24 hours",
-      highlight: "Priority"
+      title: "Professional Advocate Services",
+      description: "Certified advocates work directly with your family - not just tools",
+      highlight: "Professional"
     },
     {
       icon: <Shield className="h-6 w-6" />,
-      title: "Unlimited Document Storage",
-      description: "Secure, FERPA-compliant storage for all your child's educational records",
+      title: "Unlimited AI Analysis",
+      description: "No limits on AI-powered insights, reviews, and document analysis",
       highlight: "Unlimited"
     },
     {
       icon: <Video className="h-6 w-6" />,
-      title: "Monthly Strategy Sessions",
-      description: "1-on-1 video consultations with advocacy experts",
-      highlight: "Personal"
+      title: "Monthly Expert Consultations", 
+      description: "1-on-1 sessions with specialized advocacy professionals",
+      highlight: "Expert"
     },
     {
       icon: <Phone className="h-6 w-6" />,
-      title: "Emergency Support Hotline",
-      description: "24/7 access to advocacy support for urgent situations",
+      title: "Crisis Support Hotline",
+      description: "24/7 emergency support for urgent IEP situations",
       highlight: "24/7"
     },
     {
       icon: <Target className="h-6 w-6" />,
-      title: "Custom IEP Goal Builder",
-      description: "AI-generated, legally compliant IEP goals tailored to your child",
-      highlight: "Smart"
+      title: "Specialized Tools Access",
+      description: "Autism, Gifted/2E, behavioral support, crisis intervention tools",
+      highlight: "Specialized"
     },
     {
       icon: <BookOpen className="h-6 w-6" />,
-      title: "Comprehensive Training Library",
-      description: "Access to 100+ hours of advocacy training and resources",
-      highlight: "Extensive"
+      title: "White-Glove Onboarding",
+      description: "Personal setup and training to maximize your family's success",
+      highlight: "Premium"
     },
     {
       icon: <FileText className="h-6 w-6" />,
-      title: "Advanced Analytics Dashboard",
-      description: "Track your child's progress with detailed reports and insights",
-      highlight: "Pro"
+      title: "Dedicated Family Success Manager",
+      description: "Your personal advocate coordinator and strategic partner",
+      highlight: "Dedicated"
     }
   ];
 
   const comparisonPlans = [
     {
       name: "Basic",
-      price: "$29/mo",
-      features: ["Document storage (2GB)", "Basic IEP tracking", "Email support", "Mobile app access"],
+      price: "$19/mo",
+      toolCount: "11 Core Tools",
+      features: ["No AI analysis", "2GB storage", "Email support", "Basic templates only"],
       highlight: false
     },
     {
-      name: "Premium", 
-      price: "$59/mo",
-      features: ["Document storage (10GB)", "AI-powered analysis", "Priority support", "Meeting prep wizard"],
+      name: "Plus", 
+      price: "$29/mo",
+      toolCount: "25+ Tools + AI",
+      features: ["AI-powered insights", "5GB storage", "Advocate matching", "Priority support"],
+      highlight: false
+    },
+    {
+      name: "Premium",
+      price: "$49/mo", 
+      toolCount: "35+ Professional Tools",
+      features: ["Expert analysis tools", "10GB storage", "Specialized autism/2E tools", "Phone support"],
       highlight: false
     },
     {
       name: "Hero Plan",
-      price: "$149/mo",
-      features: ["Everything in Premium", "Direct advocate access", "Emergency hotline", "Monthly strategy sessions", "Unlimited storage"],
+      price: "$199/mo",
+      toolCount: "ALL 50+ Tools + Services",
+      features: ["Professional advocate services", "Unlimited AI & storage", "Crisis hotline", "Dedicated success manager"],
       highlight: true
     }
   ];
@@ -244,6 +254,13 @@ const ParentHeroPlan = () => {
                   
                   <CardHeader className="text-center pb-8">
                     <CardTitle className="text-2xl font-bold">{plan.name}</CardTitle>
+                    {plan.toolCount && (
+                      <div className="mt-2">
+                        <Badge variant="secondary" className="bg-blue-500/20 text-blue-300 border-blue-400">
+                          {plan.toolCount}
+                        </Badge>
+                      </div>
+                    )}
                     <div className="text-3xl font-bold text-gradient mt-4">{plan.price}</div>
                   </CardHeader>
                   

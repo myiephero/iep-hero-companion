@@ -14,13 +14,21 @@ const PARENT_PRICING = [
     name: 'Free',
     price: 0,
     period: '/month',
-    description: 'Essential tools to get started',
+    description: 'Try the basics with 1 student',
+    toolCount: '3 Essential Tools',
     features: [
-      'Template Library access',
-      'Education Hub',
-      'Basic IEP tracking',
-      'Community support',
-      'Mobile app access'
+      '1 Student Profile',
+      'IDEA Rights Guide',
+      'FERPA Overview', 
+      'Timeline Calculator',
+      'Smart Letter Generator (2/month)',
+      'Community forum support',
+      '5 Documents max'
+    ],
+    limitations: [
+      'No AI analysis',
+      'No document vault', 
+      'Limited letter templates'
     ],
     icon: <Heart className="h-6 w-6" />,
     gradient: 'from-gray-500 to-gray-600',
@@ -32,13 +40,24 @@ const PARENT_PRICING = [
     name: 'Basic',
     price: 19,
     period: '/month',
-    description: 'Adds document management and letters',
+    description: 'Core tools for active IEP management',
+    toolCount: '11 Core Tools (No AI)',
     features: [
       'Everything in Free',
-      'Intake Vault', 
-      'Pre-built Letters',
-      'Document storage (2GB)',
-      'Email support'
+      '2 Student profiles',
+      'Goal Management system',
+      'Meeting Scheduler',
+      'Document Vault (2GB)',
+      'Progress Notes tracking',
+      'Meeting Prep Wizard',
+      'Plan 504 Guide',
+      'Email support',
+      '50 Documents, 10 letters/month'
+    ],
+    limitations: [
+      'No AI analysis or insights',
+      'No document review tools',
+      'Basic templates only'
     ],
     icon: <Heart className="h-6 w-6" />,
     gradient: 'from-pink-500 to-rose-600',
@@ -49,14 +68,27 @@ const PARENT_PRICING = [
     name: 'Plus',
     price: 29,
     period: '/month',
-    description: 'Adds progress tracking and self-service tools',
+    description: 'AI-powered analysis and comprehensive tools',
+    toolCount: '25+ Tools + AI',
     features: [
       'Everything in Basic',
-      'Progress Tracker',
-      'Self-IEP Tools',
-      'Goal tracking dashboard',
-      'Document storage (5GB)',
-      'Priority support'
+      '3 Student profiles',
+      'AI Insights & Analytics',
+      'Progress Analytics dashboard',
+      'Unified IEP Review with AI',
+      'Ask AI About Documents',
+      'Parent Messages system',
+      'Communication Tracker',
+      'Accommodation Builder',
+      '504 Plan Builder',
+      'Goal Generator (AI)',
+      'Emotion Trackers',
+      'Advocate Matching',
+      'Priority email support (5GB)'
+    ],
+    limitations: [
+      'No expert analysis',
+      'Basic specialization tools'
     ],
     icon: <Star className="h-6 w-6" />,
     gradient: 'from-blue-500 to-indigo-600',
@@ -68,15 +100,24 @@ const PARENT_PRICING = [
     name: 'Premium',
     price: 49,
     period: '/month',
-    description: 'Adds live support and full IEP review',
+    description: 'Expert analysis with specialized support',
+    toolCount: '35+ Professional Tools',
     features: [
       'Everything in Plus',
-      'Live Chat support',
-      'Full IEP Review tools',
-      'Advanced analytics',
-      'Document storage (10GB)',
-      'Advanced analytics',
-      'Custom integrations'
+      '5 Student profiles',
+      'Expert Analysis tools',
+      'Specialized Autism tools',
+      'Gifted/2E specialized support',
+      'Advanced behavioral tools',
+      'Crisis intervention planning',
+      'Professional behavioral support',
+      'Advanced data analytics',
+      'Custom letter builder',
+      'Priority phone support (10GB)',
+      'Advanced report generation'
+    ],
+    limitations: [
+      'Single family only'
     ],
     icon: <Crown className="h-6 w-6" />,
     gradient: 'from-purple-500 to-purple-600',
@@ -85,19 +126,25 @@ const PARENT_PRICING = [
   {
     id: 'hero',
     name: 'Hero Family Pack',
-    price: 79,
+    price: 199,
     period: '/month',
-    seats: '5 Children',
-    description: 'Perfect for large families with multiple children',
+    seats: 'Multiple Children',
+    description: 'Complete platform + professional services',
+    toolCount: 'ALL 50+ Tools + Services',
     features: [
       'Everything in Premium',
-      'Support for up to 5 children',
-      'Family dashboard',
-      'Shared document vault',
-      'Priority customer success manager',
-      'Monthly strategy calls',
-      'Unlimited document storage'
+      'ALL 50+ specialized tools',
+      'Unlimited student profiles',
+      'Professional advocate services',
+      'Monthly expert consultations',
+      'Crisis support hotline',
+      'Custom tool development',
+      'White-glove onboarding',
+      'Dedicated family success manager',
+      'Unlimited document storage',
+      'Priority everything'
     ],
+    limitations: [],
     icon: <Crown className="h-6 w-6" />,
     gradient: 'from-amber-500 to-orange-600',
     priceId: 'price_1Rr3ew8iKZXV0srZQBFTZx7C'
@@ -113,12 +160,25 @@ const ADVOCATE_PRICING = [
     period: '/month',
     seats: '1 Seat',
     description: 'Essential tools for solo advocates',
+    toolCount: '12 Core Professional Tools',
     features: [
-      'CRM for client management',
-      'Letter Generator',
-      'Basic document storage',
+      '1 Advocate seat',
+      'Client Management CRM',
+      'Smart Letter Generator',
+      'Document Management',
+      'Communication Tracker',
+      'Progress Notes & Service Log',
+      'Case Timeline Management',
+      'Rights Explainer tools',
+      'Professional Standards access',
+      'Basic document storage (5GB)',
       'Email support',
       'Standard compliance updates'
+    ],
+    limitations: [
+      'No AI analysis tools',
+      'No team collaboration',
+      'Basic reporting only'
     ],
     icon: <Zap className="h-6 w-6" />,
     gradient: 'from-blue-500 to-blue-600',
@@ -131,14 +191,27 @@ const ADVOCATE_PRICING = [
     price: 75,
     period: '/month',
     seats: '1 Seat',
-    description: 'Adds scheduling and intake capabilities',
+    description: 'Adds AI analysis and professional planning',
+    toolCount: '20+ Tools + AI Analysis',
     features: [
       'Everything in Starter',
-      'Scheduling system',
-      'Intake forms',
+      'AI IEP Review & Compliance',
+      'Progress Analyzer with AI',
+      'Professional Unified IEP Review',
+      'Ask AI About Client Docs',
+      'Client Scheduler system',
+      'Professional intake forms',
+      'IEP Goal Generator (AI-powered)',
+      'Accommodation Builder',
+      '504 Plan Builder',
       'Enhanced CRM features',
-      'Priority email support',
-      'Advanced reporting'
+      'Advanced reporting & analytics',
+      'Priority email support (10GB storage)'
+    ],
+    limitations: [
+      'Single advocate only',
+      'No billing tools',
+      'No team features'
     ],
     icon: <Star className="h-6 w-6" />,
     gradient: 'from-purple-500 to-purple-600',
@@ -149,22 +222,62 @@ const ADVOCATE_PRICING = [
   {
     id: 'agency',
     name: 'Agency',
-    price: 99,
+    price: 149,
     period: '/month',
     seats: '2 Seats',
     description: 'Team collaboration with billing tools',
+    toolCount: '30+ Professional Tools + Team',
     features: [
       'Everything in Pro',
+      '2 Advocate seats',
       'Team CRM access',
-      'Billing tools',
+      'Billing & Invoicing tools',
+      'Time tracking system',
       'Shared client management',
       'Team collaboration features',
-      'Advanced analytics',
-      'Phone support'
+      'Multi-client management',
+      'Performance analytics',
+      'Advocacy Reports generation',
+      'Professional behavioral support',
+      'Legal compliance tools',
+      'Phone support (20GB storage)'
+    ],
+    limitations: [
+      'Limited to 2 advocates',
+      'No white-label options'
     ],
     icon: <Crown className="h-6 w-6" />,
     gradient: 'from-green-500 to-green-600',
     priceId: 'price_1Rr3ik8iKZXV0srZPRPByMQx',
+    isFree: false
+  },
+  {
+    id: 'agency-plus',
+    name: 'Agency+',
+    price: 249,
+    period: '/month',
+    seats: '5 Seats',
+    description: 'Enterprise features with unlimited AI',
+    toolCount: 'ALL 40+ Professional Tools',
+    features: [
+      'Everything in Agency',
+      '5 Advocate seats',
+      'Unlimited AI Credits',
+      'Professional training hub access',
+      'Specialized professional tools',
+      'Emotion tracker (professional)',
+      'Crisis intervention planning',
+      'Legal documentation suite',
+      'White-label branding options',
+      'Custom integrations',
+      'Dedicated account manager',
+      'Unlimited storage',
+      'Premium priority support'
+    ],
+    limitations: [],
+    icon: <Crown className="h-6 w-6" />,
+    gradient: 'from-amber-500 to-amber-600',
+    priceId: 'price_1Rr3jz8iKZXV0srZNewPlan',
     isFree: false
   }
 ];
@@ -236,17 +349,24 @@ export default function Subscribe() {
                 {tier.seats && (
                   <div className="text-sm text-muted-foreground">{tier.seats}</div>
                 )}
-                <CardDescription className="text-muted-foreground mb-4">
+                <CardDescription className="text-muted-foreground mb-3">
                   {tier.description}
                 </CardDescription>
+                {tier.toolCount && (
+                  <div className="mb-3">
+                    <Badge variant="secondary" className="bg-blue-500/20 text-blue-300 border-blue-400">
+                      {tier.toolCount}
+                    </Badge>
+                  </div>
+                )}
                 <div className="flex items-baseline justify-center gap-1">
                   <span className="text-3xl font-bold">${tier.price}</span>
                   <span className="text-muted-foreground">{tier.period}</span>
                 </div>
               </CardHeader>
               
-              <CardContent className="pt-0">
-                <ul className="space-y-3 mb-6">
+              <CardContent className="pt-0 flex flex-col h-full">
+                <ul className="space-y-3 mb-4 flex-grow">
                   {tier.features.map((feature, index) => (
                     <li key={index} className="flex items-start gap-3">
                       <Check className="h-5 w-5 text-green-500 flex-shrink-0 mt-0.5" />
@@ -255,8 +375,21 @@ export default function Subscribe() {
                   ))}
                 </ul>
                 
+                {tier.limitations && tier.limitations.length > 0 && (
+                  <div className="border-t border-border pt-3 mb-4">
+                    <p className="text-xs text-muted-foreground mb-2">Limitations:</p>
+                    <ul className="space-y-1">
+                      {tier.limitations.map((limitation, index) => (
+                        <li key={index} className="text-xs text-muted-foreground">
+                          • {limitation}
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
+                
                 <Button 
-                  className="w-full"
+                  className="w-full mt-auto"
                   variant={tier.popular ? "default" : "outline"}
                   onClick={() => handleSubscribe(tier)}
                 >

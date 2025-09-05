@@ -31,23 +31,23 @@ const PricingSelection = () => {
               <div className="space-y-3 text-sm">
                 <div className="flex items-center gap-2">
                   <div className="w-2 h-2 bg-primary rounded-full" />
-                  AI-powered IEP analysis and insights
+                  <span className="font-medium">Free:</span> 3 Essential Tools
                 </div>
                 <div className="flex items-center gap-2">
                   <div className="w-2 h-2 bg-primary rounded-full" />
-                  Connect with certified advocates
+                  <span className="font-medium">Basic:</span> 11 Core Tools (No AI)
                 </div>
                 <div className="flex items-center gap-2">
                   <div className="w-2 h-2 bg-primary rounded-full" />
-                  Meeting preparation tools
+                  <span className="font-medium">Plus:</span> 25+ Tools + AI Analysis
                 </div>
                 <div className="flex items-center gap-2">
                   <div className="w-2 h-2 bg-primary rounded-full" />
-                  Document vault and organization
+                  <span className="font-medium">Premium:</span> 35+ Professional Tools
                 </div>
                 <div className="flex items-center gap-2">
                   <div className="w-2 h-2 bg-primary rounded-full" />
-                  Plans starting at Free
+                  <span className="font-medium">Hero:</span> ALL 50+ Tools + Services
                 </div>
               </div>
               <Button 
@@ -77,19 +77,19 @@ const PricingSelection = () => {
               <div className="space-y-3 text-sm">
                 <div className="flex items-center gap-2">
                   <div className="w-2 h-2 bg-secondary rounded-full" />
-                  Client management dashboard
+                  <span className="font-medium">Starter:</span> 12 Core Professional Tools
                 </div>
                 <div className="flex items-center gap-2">
                   <div className="w-2 h-2 bg-secondary rounded-full" />
-                  AI-assisted case analysis
+                  <span className="font-medium">Pro:</span> 20+ Tools + AI Analysis
                 </div>
                 <div className="flex items-center gap-2">
                   <div className="w-2 h-2 bg-secondary rounded-full" />
-                  Matching with parent clients
+                  <span className="font-medium">Agency:</span> 30+ Tools + Team Features
                 </div>
                 <div className="flex items-center gap-2">
                   <div className="w-2 h-2 bg-secondary rounded-full" />
-                  Professional tools and resources
+                  <span className="font-medium">Agency+:</span> ALL 40+ Professional Tools
                 </div>
                 <div className="flex items-center gap-2">
                   <div className="w-2 h-2 bg-secondary rounded-full" />

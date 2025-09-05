@@ -27,8 +27,8 @@ export function ProtectedRoute({ children, allowedRoles, redirectTo = "/auth", r
   // Derive role consistently before any early returns
   const sessionRole = getRole();
   const routeRoleHint = allowedRoles.length === 1 ? allowedRoles[0] : null;
-  // Prioritize route hint over stored role for navigation
-  const userRole = (routeRoleHint as 'parent' | 'advocate' | null) ?? (sessionRole as 'parent' | 'advocate' | null) ?? (profile?.role as 'parent' | 'advocate' | undefined) ?? 'parent';
+  // CRITICAL: Use actual user role from database, NOT route hint for role detection
+  const userRole = (user?.role as 'parent' | 'advocate') || (profile?.role as 'parent' | 'advocate') || (sessionRole as 'parent' | 'advocate') || 'parent';
 
   // Always call hooks in the same order
   useEffect(() => {
@@ -103,9 +103,9 @@ interface RoleBasedRedirectProps {
 }
 
 export function RoleBasedRedirect({ parentRoute, advocateRoute }: RoleBasedRedirectProps) {
-  const { profile, loading } = useAuth();
+  const { user, profile, loading } = useAuth();
 
-  const userRole = (getRole() as 'parent' | 'advocate' | null) ?? (profile?.role as 'parent' | 'advocate' | undefined) ?? 'parent';
+  const userRole = (user?.role as 'parent' | 'advocate') || (profile?.role as 'parent' | 'advocate') || (getRole() as 'parent' | 'advocate') || 'parent';
 
   // Ensure consistent hook order across renders
   useEffect(() => {

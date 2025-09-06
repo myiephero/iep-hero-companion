@@ -1136,6 +1136,9 @@ app.post('/api/create-checkout-session', async (req, res) => {
     }
     
     // Create Stripe Checkout Session - Simple & Clean
+    console.log('🔍 DEBUG: discounts value:', discounts);
+    console.log('🔍 DEBUG: !discounts value:', !discounts);
+    
     const sessionConfig: any = {
       mode: 'subscription',
       payment_method_types: ['card'],
@@ -1148,15 +1151,19 @@ app.post('/api/create-checkout-session', async (req, res) => {
         role,
         ...(isHeroPackage && { setupFee: '495', isHeroPackage: 'true', promotion: 'first_month_free' })
       },
-      // Only allow promotion codes if we're not applying automatic discounts
-      allow_promotion_codes: !discounts,
       billing_address_collection: 'required'
     };
     
-    // Add discounts only if they exist (Hero Family Pack promotion)
-    if (discounts) {
+    // Only set allow_promotion_codes OR discounts, never both
+    if (discounts && discounts.length > 0) {
+      console.log('🎯 Adding discounts, NOT setting allow_promotion_codes');
       sessionConfig.discounts = discounts;
+    } else {
+      console.log('🎯 No discounts, setting allow_promotion_codes to true');
+      sessionConfig.allow_promotion_codes = true;
     }
+    
+    console.log('🔍 Final sessionConfig keys:', Object.keys(sessionConfig));
     
     const session = await stripe.checkout.sessions.create(sessionConfig);
     

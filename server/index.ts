@@ -1136,7 +1136,7 @@ app.post('/api/create-checkout-session', async (req, res) => {
     }
     
     // Create Stripe Checkout Session - Simple & Clean
-    const sessionConfig = {
+    const sessionConfig: any = {
       mode: 'subscription',
       payment_method_types: ['card'],
       line_items: lineItems,

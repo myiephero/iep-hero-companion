@@ -363,7 +363,8 @@ router.get('/proposal-contacts', async (req: Request, res: Response) => {
           parent,
           hasConversation: !!existingConversation,
           conversationId: existingConversation?.id,
-          contactType: proposal.status === 'pending' ? 'inactive' : 'potential'
+          contactType: proposal.status === 'pending' ? 'can_message' : 'potential', // Allow messaging for pending
+          canStartConversation: true // Always allow starting conversations from proposals
         };
       })
     );

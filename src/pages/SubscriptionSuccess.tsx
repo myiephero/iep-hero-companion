@@ -103,7 +103,7 @@ export default function SubscriptionSuccess() {
               🎉 Payment Successful!
             </h1>
             <p className="text-xl text-gray-600">
-              {accountCreated ? 'Check your email to verify your account' : 'Setting up your account...'}
+              {accountCreated ? 'Check email to authenticate account.' : 'Setting up your account...'}
             </p>
           </div>
         </div>

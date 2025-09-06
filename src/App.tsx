@@ -23,6 +23,8 @@ import AIIEPReview from "./pages/AIIEPReview";
 import UnifiedIEPReview from "./pages/UnifiedIEPReview";
 import AutismAccommodations from "./pages/AutismAccommodations";
 import AutismAccommodationBuilder from "./pages/AutismAccommodationBuilder";
+import ParentAutismAccommodations from "./pages/ParentAutismAccommodations";
+import AdvocateAutismAccommodations from "./pages/AdvocateAutismAccommodations";
 import SmartMatching from "./pages/SmartMatching";
 import GiftedTwoeLearners from "./pages/GiftedTwoeLearners";
 import ExpertAnalysis from "./pages/ExpertAnalysis";
@@ -215,7 +217,7 @@ function App() {
               } />
               <Route path="/parent/tools/autism-accommodations" element={
                 <ProtectedRoute allowedRoles={['parent']}>
-                  <AutismAccommodationBuilder />
+                  <ParentAutismAccommodations />
                 </ProtectedRoute>
               } />
               <Route path="/parent/tools/meeting-prep" element={
@@ -269,7 +271,7 @@ function App() {
               
               <Route path="/advocate/autism-accommodations" element={
                 <ProtectedRoute allowedRoles={['advocate']}>
-                  <AutismAccommodationBuilder />
+                  <AdvocateAutismAccommodations />
                 </ProtectedRoute>
               } />
               
@@ -292,7 +294,7 @@ function App() {
               } />
               <Route path="/advocate/tools/autism-accommodations" element={
                 <ProtectedRoute allowedRoles={['advocate']}>
-                  <AutismAccommodationBuilder />
+                  <AdvocateAutismAccommodations />
                 </ProtectedRoute>
               } />
               

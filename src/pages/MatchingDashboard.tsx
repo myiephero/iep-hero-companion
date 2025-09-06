@@ -229,13 +229,17 @@ export default function MatchingDashboard() {
   };
 
   const handleSendMessage = (proposal: MatchProposal) => {
-    // Navigate to messages page with parent information pre-populated
-    const parentInfo = {
-      parentId: proposal.parent_id,
+    // Navigate to messages page with client information pre-populated
+    const clientInfo = {
+      advocateId: proposal.advocate_id,
+      studentId: proposal.student_id,
       studentName: proposal.student?.full_name,
-      proposalId: proposal.id
+      proposalId: proposal.id,
+      parentId: proposal.parent_id,
+      studentGrade: proposal.student?.grade_level,
+      studentSchool: proposal.student?.school_name
     };
-    navigate('/advocate/messages', { state: { newMessage: parentInfo } });
+    navigate('/advocate/messages', { state: { newMessage: clientInfo } });
   };
 
   // Render different layouts based on user role

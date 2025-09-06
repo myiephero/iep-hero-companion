@@ -24,10 +24,21 @@ export default function AdvocateMessages() {
   // Handle creating a new conversation from match proposal
   useEffect(() => {
     if (location.state?.newMessage && !creating) {
-      const { advocateId, studentId, studentName, proposalId } = location.state.newMessage;
+      const { advocateId, studentId, studentName, proposalId, studentGrade, studentSchool } = location.state.newMessage;
       
-      // Pre-populate the message input with a starter message
-      setNewMessageText(`Hello! Thank you for considering me as an advocate for ${studentName}. I'd love to learn more about ${studentName}'s specific needs and how I can best support your family. Would you be available for a brief introductory call this week to discuss your goals and next steps?`);
+      // Pre-populate the message input with a personalized starter message
+      const gradeText = studentGrade ? ` (currently in grade ${studentGrade}` : '';
+      const schoolText = studentSchool ? ` at ${studentSchool}` : '';
+      const contextText = gradeText || schoolText ? `${gradeText}${schoolText}${gradeText ? ')' : ''}` : '';
+      
+      setNewMessageText(`Hello! Thank you for considering me as an advocate for ${studentName}${contextText}. I received your match proposal and I'm excited about the opportunity to support your family.
+
+I'd love to learn more about ${studentName}'s specific needs, current IEP goals, and how I can best advocate for their educational success. Would you be available for a brief introductory call this week to discuss your priorities and next steps?
+
+I look forward to hearing from you and hopefully working together to ensure ${studentName} receives the support they deserve.
+
+Best regards,
+Pro-Advocate Advocate-Pro`);
       
       // Create a new conversation
       createConversation(advocateId, studentId).then((conversation) => {

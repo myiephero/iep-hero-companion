@@ -1028,10 +1028,10 @@ app.post('/api/create-checkout-session', async (req, res) => {
     let discounts = undefined;
     
     if (isHeroPackage) {
-      // Hero Family Pack: Two line items with promotional pricing
+      // Hero Family Pack: Setup fee charged immediately, subscription with trial period
       lineItems = [
         {
-          price: 'price_1RsEn58iKZXV0srZ0UH8e4tg', // $495 setup fee
+          price: 'price_1RsEn58iKZXV0srZ0UH8e4tg', // $495 setup fee (charged today)
           quantity: 1,
         },
         {
@@ -1040,35 +1040,9 @@ app.post('/api/create-checkout-session', async (req, res) => {
         }
       ];
       
-      // Apply "First Month Free" promotion to the subscription
-      // This gives 100% off the first month, making checkout $495 instead of $694
-      try {
-        // Create or retrieve the "First Month Free" coupon
-        let coupon;
-        try {
-          coupon = await stripe.coupons.retrieve('FIRST_MONTH_FREE_HERO');
-        } catch (error) {
-          // Coupon doesn't exist, create it
-          coupon = await stripe.coupons.create({
-            id: 'FIRST_MONTH_FREE_HERO',
-            name: 'First Month Free - Hero Family Pack',
-            percent_off: 100,
-            duration: 'once',
-            max_redemptions: 10000, // High limit for widespread use
-            metadata: {
-              description: 'Promotional discount for Hero Family Pack - First month free',
-              applies_to: 'hero_subscription_only'
-            }
-          });
-        }
-        
-        discounts = [{
-          coupon: coupon.id
-        }];
-      } catch (couponError) {
-        console.error('Error creating/retrieving Hero promotion coupon:', couponError);
-        // Continue without discount if coupon creation fails
-      }
+      // Add subscription_data to configure free trial for the Hero Plan
+      // This ensures only the setup fee ($495) is charged today,
+      // and the subscription billing starts after 1 month free trial
     } else {
       // Standard single price
       lineItems = [{
@@ -1095,6 +1069,16 @@ app.post('/api/create-checkout-session', async (req, res) => {
       },
       billing_address_collection: 'required'
     };
+
+    // Add free trial for Hero Plan - This ensures subscription billing starts after 1 month
+    if (isHeroPackage) {
+      sessionConfig.subscription_data = {
+        trial_period_days: 30, // First month free for Hero Plan
+        metadata: {
+          hero_plan_trial: 'true'
+        }
+      };
+    }
     
     // Only set allow_promotion_codes OR discounts, never both
     if (discounts && discounts.length > 0) {

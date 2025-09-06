@@ -99,7 +99,7 @@ export default function MatchingDashboard() {
     }
   });
 
-  const proposals = Array.isArray(proposalsData) ? proposalsData : [];
+  const proposals = Array.isArray(proposalsData?.proposals) ? proposalsData.proposals : [];
 
   const filteredAdvocates = advocates.filter(advocate => {
     const matchesSearch = advocate.full_name.toLowerCase().includes(searchTerm.toLowerCase()) ||

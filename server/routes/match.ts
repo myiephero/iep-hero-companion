@@ -72,6 +72,46 @@ router.get('/', async (req: Request, res: Response) => {
   }
 });
 
+// GET /api/match/advocate-proposals - Get proposals for advocate 
+router.get('/advocate-proposals', async (req: Request, res: Response) => {
+  try {
+    const userId = await getUserId(req);
+    
+    // Get advocate record for current user
+    const advocate = await db.select().from(schema.advocates)
+      .where(eq(schema.advocates.user_id, userId))
+      .then(results => results[0]);
+    
+    if (!advocate) {
+      return res.status(404).json({ error: 'Advocate profile not found' });
+    }
+    
+    // Get proposals where this advocate is the target
+    const proposals = await db.select({
+      proposal: schema.match_proposals,
+      student: schema.students,
+      advocate: schema.advocates
+    })
+    .from(schema.match_proposals)
+    .leftJoin(schema.students, eq(schema.match_proposals.student_id, schema.students.id))
+    .leftJoin(schema.advocates, eq(schema.match_proposals.advocate_id, schema.advocates.id))
+    .where(
+      eq(schema.match_proposals.advocate_id, advocate.id)
+    );
+
+    const formattedProposals = proposals.map(({ proposal, student, advocate }) => ({
+      ...proposal,
+      student,
+      advocate
+    }));
+
+    res.json({ proposals: formattedProposals });
+  } catch (error) {
+    console.error('Server error:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
 // POST /api/match/propose - Create match proposals
 router.post('/propose', async (req: Request, res: Response) => {
   try {

@@ -29,8 +29,23 @@ router.post('/conversations', async (req: Request, res: Response) => {
     const userId = await getUserId(req);
     const data = createConversationSchema.parse(req.body);
     
-    // Verify the user is either the parent or advocate in this conversation
-    if (userId !== data.parent_id && userId !== data.advocate_id) {
+    console.log('Creating conversation:', { userId, data });
+    
+    // For advocates, we need to check if they own the advocate profile being used
+    let authorizedAsAdvocate = false;
+    if (data.advocate_id) {
+      const advocate = await db.select().from(advocates)
+        .where(eq(advocates.id, data.advocate_id))
+        .then(results => results[0]);
+      
+      if (advocate && advocate.user_id === userId) {
+        authorizedAsAdvocate = true;
+      }
+    }
+    
+    // Verify the user is either the parent or owns the advocate profile
+    if (userId !== data.parent_id && !authorizedAsAdvocate) {
+      console.log('Authorization failed:', { userId, parent_id: data.parent_id, authorizedAsAdvocate });
       return res.status(403).json({ error: 'Not authorized to create this conversation' });
     }
 
@@ -297,11 +312,14 @@ router.post('/conversations/:id/mark-read', async (req: Request, res: Response) 
 router.get('/proposal-contacts', async (req: Request, res: Response) => {
   try {
     const userId = await getUserId(req);
+    console.log('Fetching proposal contacts for user:', userId);
     
     // Get advocate record for current user
     const advocate = await db.select().from(advocates)
       .where(eq(advocates.user_id, userId))
       .then(results => results[0]);
+    
+    console.log('Found advocate:', advocate ? { id: advocate.id, user_id: advocate.user_id } : 'none');
     
     if (!advocate) {
       return res.status(404).json({ error: 'Advocate profile not found' });

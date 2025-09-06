@@ -107,13 +107,14 @@ export function useCreateConversation() {
   const [creating, setCreating] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const create = async (advocateId: string, studentId: string): Promise<Conversation | null> => {
+  const create = async (advocateId: string, studentId: string, parentId: string): Promise<Conversation | null> => {
     try {
       setCreating(true);
       setError(null);
       const conversation = await createConversation({
         advocate_id: advocateId,
-        student_id: studentId
+        student_id: studentId,
+        parent_id: parentId
       });
       return conversation;
     } catch (err) {

@@ -26,7 +26,7 @@ const sendMessageSchema = z.object({
 // POST /api/messaging/conversations - Create a new conversation
 router.post('/conversations', async (req: Request, res: Response) => {
   try {
-    const userId = getUserId(req);
+    const userId = await getUserId(req);
     const data = createConversationSchema.parse(req.body);
     
     // Verify the user is either the parent or advocate in this conversation
@@ -69,7 +69,7 @@ router.post('/conversations', async (req: Request, res: Response) => {
 // GET /api/messaging/conversations - Get user's conversations
 router.get('/conversations', async (req: Request, res: Response) => {
   try {
-    const userId = getUserId(req);
+    const userId = await getUserId(req);
     
     // Get conversations where user is either parent or advocate
     const userConversations = await db.select({
@@ -127,7 +127,7 @@ router.get('/conversations', async (req: Request, res: Response) => {
 // GET /api/messaging/conversations/:id - Get a specific conversation with messages
 router.get('/conversations/:id', async (req: Request, res: Response) => {
   try {
-    const userId = getUserId(req);
+    const userId = await getUserId(req);
     const { id } = req.params;
 
     // Get conversation and verify user has access
@@ -184,7 +184,7 @@ router.get('/conversations/:id', async (req: Request, res: Response) => {
 // POST /api/messaging/messages - Send a message
 router.post('/messages', async (req: Request, res: Response) => {
   try {
-    const userId = getUserId(req);
+    const userId = await getUserId(req);
     const data = sendMessageSchema.parse(req.body);
 
     // Verify user has access to this conversation
@@ -241,7 +241,7 @@ router.post('/messages', async (req: Request, res: Response) => {
 // POST /api/messaging/conversations/:id/mark-read - Mark all messages in conversation as read
 router.post('/conversations/:id/mark-read', async (req: Request, res: Response) => {
   try {
-    const userId = getUserId(req);
+    const userId = await getUserId(req);
     const { id } = req.params;
 
     // Verify user has access to this conversation

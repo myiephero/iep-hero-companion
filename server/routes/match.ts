@@ -2,36 +2,8 @@ import express, { Request, Response } from 'express';
 import { db } from '../db';
 import * as schema from '../../shared/schema';
 import { eq, and } from 'drizzle-orm';
+import { getUserId } from '../utils'; // Import the unified database-based getUserId
 const router = express.Router();
-
-// Middleware to extract user ID from authenticated session (same as main server)
-function getUserId(req: express.Request): string {
-  // First check for token-based auth (custom login system)
-  const token = req.headers.authorization?.replace('Bearer ', '');
-  if (token && (global as any).activeTokens && (global as any).activeTokens[token]) {
-    const tokenData = (global as any).activeTokens[token];
-    // Check if token is not expired (24 hours)
-    if (Date.now() - tokenData.createdAt < 24 * 60 * 60 * 1000) {
-      return tokenData.userId;
-    }
-  }
-  
-  // Check for Replit Auth session
-  const user = (req as any).user;
-  if (user && user.claims && user.claims.sub) {
-    return user.claims.sub;
-  }
-  
-  // Fallback for development/testing
-  const authHeader = req.headers.authorization;
-  if (authHeader && authHeader.startsWith('Bearer mock-token-')) {
-    const userId = authHeader.replace('Bearer mock-token-', '');
-    return userId;
-  }
-  
-  // Default fallback
-  return 'anonymous-user';
-}
 
 // Matching algorithm weights
 const MATCHING_WEIGHTS = {
@@ -72,7 +44,7 @@ function calculateMatchScore(studentNeeds: string[], advocateSpecializations: an
 // GET /api/match - List proposals
 router.get('/', async (req: Request, res: Response) => {
   try {
-    const userId = getUserId(req);
+    const userId = await getUserId(req);
     
     // Get proposals for current user (either as parent or advocate)
     const proposals = await db.select({
@@ -103,7 +75,7 @@ router.get('/', async (req: Request, res: Response) => {
 // POST /api/match/propose - Create match proposals
 router.post('/propose', async (req: Request, res: Response) => {
   try {
-    const userId = getUserId(req);
+    const userId = await getUserId(req);
     const { student_id, advocate_ids, reason = {} } = req.body;
 
     if (!student_id || !advocate_ids || !Array.isArray(advocate_ids)) {
@@ -166,7 +138,7 @@ router.post('/propose', async (req: Request, res: Response) => {
 // POST /api/match/:id/intro - Request intro call
 router.post('/:id/intro', async (req: Request, res: Response) => {
   try {
-    const userId = getUserId(req);
+    const userId = await getUserId(req);
     const { id } = req.params;
     const { when_ts, channel = 'zoom', link, notes } = req.body;
 
@@ -207,7 +179,7 @@ router.post('/:id/intro', async (req: Request, res: Response) => {
 // POST /api/match/:id/accept - Accept a proposal (advocate side)
 router.post('/:id/accept', async (req: Request, res: Response) => {
   try {
-    const userId = getUserId(req);
+    const userId = await getUserId(req);
     const { id } = req.params;
 
     // Verify proposal exists and user is the advocate
@@ -249,7 +221,7 @@ router.post('/:id/accept', async (req: Request, res: Response) => {
 // POST /api/match/:id/decline - Decline a proposal (advocate side)
 router.post('/:id/decline', async (req: Request, res: Response) => {
   try {
-    const userId = getUserId(req);
+    const userId = await getUserId(req);
     const { id } = req.params;
     const { reason } = req.body;
 
@@ -293,7 +265,7 @@ router.post('/:id/decline', async (req: Request, res: Response) => {
 // GET /api/match/advocate - Get proposals for advocate
 router.get('/advocate', async (req: Request, res: Response) => {
   try {
-    const userId = getUserId(req);
+    const userId = await getUserId(req);
     
     // Get advocate record for current user
     let advocate = await db.select().from(schema.advocates)

@@ -324,7 +324,7 @@ function App() {
               } />
               <Route path="/parent/matching" element={
                 <ProtectedRoute allowedRoles={['parent']}>
-                  <MatchingDashboard />
+                  <SmartMatching />
                 </ProtectedRoute>
               } />
               
@@ -371,7 +371,7 @@ function App() {
               } />
               <Route path="/advocate/matching" element={
                 <ProtectedRoute allowedRoles={['advocate']}>
-                  <MatchingDashboard />
+                  <SmartMatching />
                 </ProtectedRoute>
               } />
               <Route path="/parent/smart-matching" element={

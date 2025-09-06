@@ -4,16 +4,65 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
-import { Search, Send, Paperclip, MessageSquare, Loader2 } from "lucide-react";
+import { Search, Send, Paperclip, MessageSquare, Loader2, FileText, Clock, Users } from "lucide-react";
 import { useLocation } from "react-router-dom";
 import { useState, useEffect } from "react";
 import { useConversations, useMessages, useSendMessage, useCreateConversation } from "@/hooks/useMessaging";
 import type { Conversation } from "@/lib/messaging";
 
+// Professional message templates for different scenarios
+const MESSAGE_TEMPLATES = {
+  introduction: {
+    title: 'Professional Introduction',
+    icon: Users,
+    template: (studentName: string, context: string) => 
+      `Hello! Thank you for considering me as an advocate for ${studentName}${context}. I received your match proposal and I'm excited about the opportunity to support your family.
+
+I'd love to learn more about ${studentName}'s specific needs, current IEP goals, and how I can best advocate for their educational success. Would you be available for a brief introductory call this week to discuss your priorities and next steps?
+
+I look forward to hearing from you and hopefully working together to ensure ${studentName} receives the support they deserve.
+
+Best regards,
+Professional Advocate`
+  },
+  urgent_response: {
+    title: 'Urgent Support Response',
+    icon: Clock,
+    template: (studentName: string, context: string) => 
+      `Hello! I received your match proposal for ${studentName}${context} and understand there may be urgent advocacy needs.
+
+I specialize in expedited IEP support and can typically begin advocacy services within 24-48 hours. I'm immediately available for an emergency consultation to discuss ${studentName}'s situation and develop an action plan.
+
+Please let me know your availability for a priority call today or tomorrow. Time is critical, and I'm committed to ensuring ${studentName} receives the support they need without delay.
+
+Urgent regards,
+Professional Advocate`
+  },
+  detailed_inquiry: {
+    title: 'Comprehensive Assessment',
+    icon: FileText,
+    template: (studentName: string, context: string) => 
+      `Hello! Thank you for your interest in advocacy services for ${studentName}${context}. I'm honored to be considered for this important role.
+
+To provide the most effective advocacy support, I'd like to understand:
+• ${studentName}'s current IEP goals and any areas of concern
+• Recent evaluation results or upcoming assessments
+• Specific challenges you've encountered with the school district
+• Your primary advocacy priorities and timeline
+
+I offer a complimentary 30-minute consultation to review ${studentName}'s educational profile and discuss how I can best support your family's advocacy goals. Would you prefer a phone or video call this week?
+
+Professionally yours,
+Professional Advocate`
+  }
+};
+
 export default function AdvocateMessages() {
   const location = useLocation();
   const [selectedConversation, setSelectedConversation] = useState<Conversation | null>(null);
   const [newMessageText, setNewMessageText] = useState('');
+  const [selectedTemplate, setSelectedTemplate] = useState<string | null>(null);
+  const [showTemplateSelector, setShowTemplateSelector] = useState(false);
   
   // API hooks
   const { conversations, loading: conversationsLoading, error: conversationsError, refetch: refetchConversations } = useConversations();
@@ -26,19 +75,18 @@ export default function AdvocateMessages() {
     if (location.state?.newMessage && !creating) {
       const { advocateId, studentId, studentName, proposalId, studentGrade, studentSchool } = location.state.newMessage;
       
-      // Pre-populate the message input with a personalized starter message
+      // Build context for template personalization
       const gradeText = studentGrade ? ` (currently in grade ${studentGrade}` : '';
       const schoolText = studentSchool ? ` at ${studentSchool}` : '';
       const contextText = gradeText || schoolText ? `${gradeText}${schoolText}${gradeText ? ')' : ''}` : '';
       
-      setNewMessageText(`Hello! Thank you for considering me as an advocate for ${studentName}${contextText}. I received your match proposal and I'm excited about the opportunity to support your family.
-
-I'd love to learn more about ${studentName}'s specific needs, current IEP goals, and how I can best advocate for their educational success. Would you be available for a brief introductory call this week to discuss your priorities and next steps?
-
-I look forward to hearing from you and hopefully working together to ensure ${studentName} receives the support they deserve.
-
-Best regards,
-Pro-Advocate Advocate-Pro`);
+      // Show template selector for new conversations
+      setShowTemplateSelector(true);
+      
+      // Pre-populate with introduction template by default
+      const introTemplate = MESSAGE_TEMPLATES.introduction.template(studentName, contextText);
+      setNewMessageText(introTemplate);
+      setSelectedTemplate('introduction');
       
       // Create a new conversation
       createConversation(advocateId, studentId, location.state.newMessage.parentId).then((conversation) => {
@@ -49,6 +97,22 @@ Pro-Advocate Advocate-Pro`);
       });
     }
   }, [location.state, createConversation, creating, refetchConversations]);
+  
+  // Function to apply a template
+  const applyTemplate = (templateKey: string) => {
+    if (location.state?.newMessage) {
+      const { studentName, studentGrade, studentSchool } = location.state.newMessage;
+      const gradeText = studentGrade ? ` (currently in grade ${studentGrade}` : '';
+      const schoolText = studentSchool ? ` at ${studentSchool}` : '';
+      const contextText = gradeText || schoolText ? `${gradeText}${schoolText}${gradeText ? ')' : ''}` : '';
+      
+      const template = MESSAGE_TEMPLATES[templateKey as keyof typeof MESSAGE_TEMPLATES];
+      if (template) {
+        setNewMessageText(template.template(studentName, contextText));
+        setSelectedTemplate(templateKey);
+      }
+    }
+  };
 
   return (
     <DashboardLayout>
@@ -198,34 +262,108 @@ Pro-Advocate Advocate-Pro`);
             </div>
             
             {selectedConversation && (
-              <div className="p-4 border-t">
-                <div className="flex items-center gap-2">
-                  <Button variant="ghost" size="icon">
-                    <Paperclip className="h-4 w-4" />
-                  </Button>
-                  <Input 
-                    placeholder="Type your message..." 
-                    className="flex-1" 
-                    value={newMessageText}
-                    onChange={(e) => setNewMessageText(e.target.value)}
-                  />
-                  <Button 
-                    size="icon" 
-                    disabled={sending || !newMessageText.trim()}
-                    onClick={async () => {
-                      if (newMessageText.trim() && selectedConversation) {
-                        const message = await sendMessage(selectedConversation.id, newMessageText);
-                        if (message) {
-                          setNewMessageText('');
-                          refetchMessages(); // Refresh messages
-                          refetchConversations(); // Refresh conversation list to update last message
+              <div className="border-t">
+                {/* Template Selector - Only show for new conversations from proposals */}
+                {showTemplateSelector && location.state?.newMessage && (
+                  <div className="p-4 bg-muted/30 border-b">
+                    <div className="mb-3">
+                      <h4 className="text-sm font-medium mb-2">Professional Templates</h4>
+                      <p className="text-xs text-muted-foreground">Choose a template to personalize your response</p>
+                    </div>
+                    <div className="flex flex-wrap gap-2">
+                      {Object.entries(MESSAGE_TEMPLATES).map(([key, template]) => {
+                        const Icon = template.icon;
+                        return (
+                          <Button
+                            key={key}
+                            variant={selectedTemplate === key ? "default" : "outline"}
+                            size="sm"
+                            onClick={() => applyTemplate(key)}
+                            className="flex items-center gap-2"
+                            data-testid={`template-${key}`}
+                          >
+                            <Icon className="h-3 w-3" />
+                            {template.title}
+                          </Button>
+                        );
+                      })}
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => setShowTemplateSelector(false)}
+                        className="ml-auto text-muted-foreground"
+                      >
+                        Hide Templates
+                      </Button>
+                    </div>
+                  </div>
+                )}
+                
+                {/* Message Input */}
+                <div className="p-4">
+                  <div className="flex items-end gap-2">
+                    <Button variant="ghost" size="icon" className="mb-1">
+                      <Paperclip className="h-4 w-4" />
+                    </Button>
+                    <div className="flex-1">
+                      <textarea 
+                        placeholder="Type your message..." 
+                        className="w-full min-h-[60px] max-h-[200px] p-3 border rounded-md resize-none focus:outline-none focus:ring-2 focus:ring-ring bg-background"
+                        value={newMessageText}
+                        onChange={(e) => setNewMessageText(e.target.value)}
+                        onKeyDown={(e) => {
+                          if (e.key === 'Enter' && !e.shiftKey) {
+                            e.preventDefault();
+                            if (newMessageText.trim() && selectedConversation) {
+                              sendMessage(selectedConversation.id, newMessageText).then((message) => {
+                                if (message) {
+                                  setNewMessageText('');
+                                  setShowTemplateSelector(false); // Hide templates after sending
+                                  refetchMessages();
+                                  refetchConversations();
+                                }
+                              });
+                            }
+                          }
+                        }}
+                        data-testid="input-message"
+                      />
+                    </div>
+                    <Button 
+                      size="icon" 
+                      disabled={sending || !newMessageText.trim()}
+                      onClick={async () => {
+                        if (newMessageText.trim() && selectedConversation) {
+                          const message = await sendMessage(selectedConversation.id, newMessageText);
+                          if (message) {
+                            setNewMessageText('');
+                            setShowTemplateSelector(false); // Hide templates after sending
+                            refetchMessages(); // Refresh messages
+                            refetchConversations(); // Refresh conversation list to update last message
+                          }
                         }
-                      }
-                    }}
-                    data-testid="button-send-message"
-                  >
-                    <Send className="h-4 w-4" />
-                  </Button>
+                      }}
+                      data-testid="button-send-message"
+                      className="mb-1"
+                    >
+                      {sending ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />}
+                    </Button>
+                  </div>
+                  
+                  {/* Template hint for new conversations */}
+                  {!showTemplateSelector && location.state?.newMessage && (
+                    <div className="mt-2">
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => setShowTemplateSelector(true)}
+                        className="text-xs text-muted-foreground"
+                      >
+                        <FileText className="h-3 w-3 mr-1" />
+                        Show Professional Templates
+                      </Button>
+                    </div>
+                  )}
                 </div>
               </div>
             )}

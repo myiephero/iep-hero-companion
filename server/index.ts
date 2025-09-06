@@ -1080,13 +1080,13 @@ app.post('/api/create-checkout-session', async (req, res) => {
       };
     }
     
-    // Only set allow_promotion_codes OR discounts, never both
-    if (discounts && discounts.length > 0) {
-      console.log('🎯 Adding discounts, NOT setting allow_promotion_codes');
-      sessionConfig.discounts = discounts;
-    } else {
-      console.log('🎯 No discounts, setting allow_promotion_codes to true');
+    // For Hero Plan, we use trial_period_days instead of discounts
+    // For other plans, allow promotion codes
+    if (!isHeroPackage) {
+      console.log('🎯 Non-hero plan, setting allow_promotion_codes to true');
       sessionConfig.allow_promotion_codes = true;
+    } else {
+      console.log('🎯 Hero plan uses trial period, no promotion codes needed');
     }
     
     console.log('🔍 Final sessionConfig keys:', Object.keys(sessionConfig));

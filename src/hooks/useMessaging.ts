@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import {
   getConversations,
   getMessages,
@@ -170,4 +170,50 @@ export function useUnreadCount() {
     loading,
     refetch: fetchUnreadCount
   };
+}
+
+// Hook for getting incoming proposals as potential messaging contacts  
+export function useProposalContacts() {
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [contacts, setContacts] = useState<any[]>([]);
+
+  const fetchContacts = useCallback(async () => {
+    try {
+      setLoading(true);
+      setError(null);
+      
+      // Use the same authentication pattern as other messaging functions
+      const token = localStorage.getItem('authToken');
+      const response = await fetch('/api/messaging/proposal-contacts', {
+        headers: {
+          'Content-Type': 'application/json',
+          ...(token && { Authorization: `Bearer ${token}` }),
+        },
+      });
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      const data = await response.json();
+      setContacts(data.contacts || []);
+    } catch (err) {
+      console.error('Error fetching proposal contacts:', err);
+      setError(err instanceof Error ? err.message : 'Failed to fetch proposal contacts');
+      setContacts([]);
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    fetchContacts();
+  }, [fetchContacts]);
+
+  const refetch = useCallback(() => {
+    fetchContacts();
+  }, [fetchContacts]);
+
+  return { contacts, loading, error, refetch };
 }

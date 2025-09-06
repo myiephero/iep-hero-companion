@@ -1,7 +1,7 @@
 import { Router, Request, Response } from 'express';
 import { z } from 'zod';
 import { db } from '../db';
-import { conversations, messages, advocates, students } from '../../shared/schema';
+import { conversations, messages, advocates, students, match_proposals, users } from '../../shared/schema';
 import { eq, and, or, desc, asc, ne, isNull } from 'drizzle-orm';
 import { getUserId } from '../utils';
 
@@ -290,6 +290,73 @@ router.post('/conversations/:id/mark-read', async (req: Request, res: Response) 
       return res.status(401).json({ error: 'Authentication required' });
     }
     res.status(500).json({ error: 'Failed to mark messages as read' });
+  }
+});
+
+// GET /api/messaging/proposal-contacts - Get incoming proposals as potential contacts for advocates
+router.get('/proposal-contacts', async (req: Request, res: Response) => {
+  try {
+    const userId = await getUserId(req);
+    
+    // Get advocate record for current user
+    const advocate = await db.select().from(advocates)
+      .where(eq(advocates.user_id, userId))
+      .then(results => results[0]);
+    
+    if (!advocate) {
+      return res.status(404).json({ error: 'Advocate profile not found' });
+    }
+    
+    // Get incoming proposals that could become messaging contacts
+    const proposalContacts = await db.select({
+      proposal: match_proposals,
+      student: students,
+      parent: users
+    })
+    .from(match_proposals)
+    .leftJoin(students, eq(match_proposals.student_id, students.id))
+    .leftJoin(users, eq(students.user_id, users.id))
+    .where(
+      and(
+        eq(match_proposals.advocate_id, advocate.id),
+        or(
+          eq(match_proposals.status, 'pending'),
+          eq(match_proposals.status, 'accepted')
+        )
+      )
+    )
+    .orderBy(desc(match_proposals.created_at));
+
+    // Check if conversations already exist for each proposal
+    const contactsWithConversationStatus = await Promise.all(
+      proposalContacts.map(async ({ proposal, student, parent }) => {
+        const existingConversation = await db.select()
+          .from(conversations)
+          .where(and(
+            eq(conversations.advocate_id, advocate.id),
+            eq(conversations.parent_id, proposal.parent_id),
+            eq(conversations.student_id, proposal.student_id)
+          ))
+          .then(results => results[0]);
+
+        return {
+          proposal,
+          student,
+          parent,
+          hasConversation: !!existingConversation,
+          conversationId: existingConversation?.id,
+          contactType: proposal.status === 'pending' ? 'inactive' : 'potential'
+        };
+      })
+    );
+
+    res.json({ contacts: contactsWithConversationStatus });
+  } catch (error) {
+    console.error('Error fetching proposal contacts:', error);
+    if (error instanceof Error && error.message.includes('Authentication required')) {
+      return res.status(401).json({ error: 'Authentication required' });
+    }
+    res.status(500).json({ error: 'Failed to fetch proposal contacts' });
   }
 });
 

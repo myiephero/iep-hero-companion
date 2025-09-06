@@ -7,7 +7,7 @@ import { Badge } from "@/components/ui/badge";
 import { Search, Send, Paperclip, MessageSquare, Loader2, FileText, Clock, Users } from "lucide-react";
 import { useLocation } from "react-router-dom";
 import { useState, useEffect } from "react";
-import { useConversations, useMessages, useSendMessage, useCreateConversation } from "@/hooks/useMessaging";
+import { useConversations, useMessages, useSendMessage, useCreateConversation, useProposalContacts } from "@/hooks/useMessaging";
 import type { Conversation } from "@/lib/messaging";
 
 // Professional message templates for different scenarios
@@ -66,6 +66,7 @@ export default function AdvocateMessages() {
   
   // API hooks
   const { conversations, loading: conversationsLoading, error: conversationsError, refetch: refetchConversations } = useConversations();
+  const { contacts: proposalContacts, loading: contactsLoading, error: contactsError, refetch: refetchContacts } = useProposalContacts();
   const { messageHistory, loading: messagesLoading, refetch: refetchMessages } = useMessages(selectedConversation?.id || null);
   const { send: sendMessage, sending } = useSendMessage();
   const { create: createConversation, creating } = useCreateConversation();
@@ -114,6 +115,34 @@ export default function AdvocateMessages() {
     }
   };
 
+  // Handle starting conversation from proposal contact
+  const handleStartConversationFromProposal = async (contact: any) => {
+    try {
+      // Create a new conversation for this proposal contact
+      const result = await createConversation(
+        contact.proposal.advocate_id,
+        contact.proposal.student_id,
+        contact.proposal.parent_id
+      );
+
+      if (result) {
+        // Refresh conversations list and select the new one
+        await refetchConversations();
+        setSelectedConversation(result);
+        
+        // Auto-fill with a professional introduction template
+        const studentName = contact.student?.full_name || 'your child';
+        const template = MESSAGE_TEMPLATES.introduction.template(studentName, '');
+        setNewMessageText(template);
+        setSelectedTemplate('introduction');
+        setShowTemplateSelector(true);
+      }
+    } catch (error) {
+      console.error('Error creating conversation:', error);
+      // Could add toast notification here for error handling
+    }
+  };
+
   return (
     <DashboardLayout>
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 h-[calc(100vh-8rem)]">
@@ -136,54 +165,109 @@ export default function AdvocateMessages() {
                 <div className="p-4 text-center text-red-500">
                   Error loading conversations: {conversationsError}
                 </div>
-              ) : conversations.length > 0 ? (
-                conversations.map((conversation) => {
-                  const studentName = `${conversation.student.first_name} ${conversation.student.last_name}`;
-                  const avatar = studentName.split(' ').map(n => n[0]).join('');
-                  const lastMessageTime = conversation.lastMessage?.created_at ? 
-                    new Date(conversation.lastMessage.created_at).toLocaleDateString() : 'New';
-                    
-                  return (
-                    <div
-                      key={conversation.id}
-                      className={`p-4 border-b hover:bg-muted/50 cursor-pointer transition-colors ${
-                        selectedConversation?.id === conversation.id ? 'bg-muted/50' : ''
-                      }`}
-                      onClick={() => setSelectedConversation(conversation)}
-                      data-testid={`conversation-${conversation.id}`}
-                    >
-                      <div className="flex items-start gap-3">
-                        <Avatar className="h-10 w-10">
-                          <AvatarImage src={`/placeholder-${conversation.id}.jpg`} />
-                          <AvatarFallback>{avatar}</AvatarFallback>
-                        </Avatar>
-                        <div className="flex-1 min-w-0">
-                          <div className="flex items-center justify-between">
-                            <p className="font-medium truncate">{studentName}'s Family</p>
-                            <span className="text-xs text-muted-foreground">{lastMessageTime}</span>
+              ) : (
+                <>
+                  {/* Existing Conversations */}
+                  {conversations.length > 0 && (
+                    <div>
+                      <div className="px-4 py-2 bg-muted/20 border-b">
+                        <h3 className="text-xs font-medium text-muted-foreground uppercase tracking-wider">Active Conversations</h3>
+                      </div>
+                      {conversations.map((conversation) => {
+                        const studentName = `${conversation.student.first_name} ${conversation.student.last_name}`;
+                        const avatar = studentName.split(' ').map(n => n[0]).join('');
+                        const lastMessageTime = conversation.lastMessage?.created_at ? 
+                          new Date(conversation.lastMessage.created_at).toLocaleDateString() : 'New';
+                          
+                        return (
+                          <div
+                            key={conversation.id}
+                            className={`p-4 border-b hover:bg-muted/50 cursor-pointer transition-colors ${
+                              selectedConversation?.id === conversation.id ? 'bg-muted/50' : ''
+                            }`}
+                            onClick={() => setSelectedConversation(conversation)}
+                            data-testid={`conversation-${conversation.id}`}
+                          >
+                            <div className="flex items-start gap-3">
+                              <Avatar className="h-10 w-10">
+                                <AvatarImage src={`/placeholder-${conversation.id}.jpg`} />
+                                <AvatarFallback>{avatar}</AvatarFallback>
+                              </Avatar>
+                              <div className="flex-1 min-w-0">
+                                <div className="flex items-center justify-between">
+                                  <p className="font-medium truncate">{studentName}'s Family</p>
+                                  <span className="text-xs text-muted-foreground">{lastMessageTime}</span>
+                                </div>
+                                <p className="text-sm text-muted-foreground mb-1">{conversation.advocate.name}</p>
+                                <p className="text-sm truncate">
+                                  {conversation.lastMessage?.content || 'No messages yet'}
+                                </p>
+                                {conversation.unreadCount > 0 && (
+                                  <Badge variant="default" className="mt-2 text-xs">
+                                    {conversation.unreadCount} new
+                                  </Badge>
+                                )}
+                              </div>
+                            </div>
                           </div>
-                          <p className="text-sm text-muted-foreground mb-1">{conversation.advocate.name}</p>
-                          <p className="text-sm truncate">
-                            {conversation.lastMessage?.content || 'No messages yet'}
-                          </p>
-                          {conversation.unreadCount > 0 && (
-                            <Badge variant="default" className="mt-2 text-xs">
-                              {conversation.unreadCount} new
-                            </Badge>
-                          )}
-                        </div>
+                        );
+                      })}
+                    </div>
+                  )}
+
+                  {/* Proposal Contacts (New Contacts) */}
+                  {proposalContacts && proposalContacts.filter(contact => !contact.hasConversation).length > 0 && (
+                    <div>
+                      <div className="px-4 py-2 bg-muted/20 border-b">
+                        <h3 className="text-xs font-medium text-muted-foreground uppercase tracking-wider">New Contacts (Incoming Proposals)</h3>
+                      </div>
+                      {proposalContacts.filter(contact => !contact.hasConversation).map((contact) => {
+                        const studentName = contact.student?.full_name || 'Unknown Student';
+                        const avatar = studentName.split(' ').map(n => n[0]).join('');
+                        const statusText = contact.contactType === 'inactive' ? 'Pending proposal' : 'Accepted proposal';
+                        
+                        return (
+                          <div
+                            key={contact.proposal.id}
+                            className="p-4 border-b hover:bg-muted/50 cursor-pointer transition-colors"
+                            onClick={() => handleStartConversationFromProposal(contact)}
+                            data-testid={`proposal-contact-${contact.proposal.id}`}
+                          >
+                            <div className="flex items-start gap-3">
+                              <Avatar className="h-10 w-10">
+                                <AvatarImage src="/placeholder-new.jpg" />
+                                <AvatarFallback>{avatar}</AvatarFallback>
+                              </Avatar>
+                              <div className="flex-1 min-w-0">
+                                <div className="flex items-center justify-between">
+                                  <p className="font-medium truncate">{studentName}'s Family</p>
+                                  <Badge variant={contact.contactType === 'inactive' ? 'secondary' : 'outline'} className="text-xs">
+                                    {contact.contactType === 'inactive' ? 'New' : 'Ready'}
+                                  </Badge>
+                                </div>
+                                <p className="text-sm text-muted-foreground mb-1">{statusText}</p>
+                                <p className="text-sm text-green-600">
+                                  Click to start messaging
+                                </p>
+                              </div>
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  )}
+
+                  {/* Empty State */}
+                  {conversations.length === 0 && (!proposalContacts || proposalContacts.length === 0) && (
+                    <div className="flex items-center justify-center h-full p-8">
+                      <div className="text-center text-muted-foreground">
+                        <MessageSquare className="h-12 w-12 mx-auto mb-4 opacity-50" />
+                        <p className="text-lg font-medium mb-2">No Conversations Yet</p>
+                        <p className="text-sm">Your client messages will appear here once you start receiving communications.</p>
                       </div>
                     </div>
-                  );
-                })
-              ) : (
-                <div className="flex items-center justify-center h-full p-8">
-                  <div className="text-center text-muted-foreground">
-                    <MessageSquare className="h-12 w-12 mx-auto mb-4 opacity-50" />
-                    <p className="text-lg font-medium mb-2">No Conversations Yet</p>
-                    <p className="text-sm">Your client messages will appear here once you start receiving communications.</p>
-                  </div>
-                </div>
+                  )}
+                </>
               )}
             </div>
           </Card>

@@ -6,13 +6,10 @@ import { eq, gt, and } from 'drizzle-orm';
 // Middleware to extract user ID from authenticated session
 export async function getUserId(req: express.Request): Promise<string> {
   // First check for token-based auth (custom login system) - DATABASE VERSION
-  const authHeader = req.headers.authorization;
-  const token = authHeader?.replace('Bearer ', '');
-  console.log('getUserId: Auth header:', authHeader ? 'Present: ' + authHeader.substring(0, 15) + '...' : 'Missing');
-  console.log('getUserId: Extracted token:', token ? 'Present: ' + token.substring(0, 15) + '...' : 'Missing or empty');
+  const token = req.headers.authorization?.replace('Bearer ', '');
+  
   if (token && token.trim()) {
     try {
-      console.log('getUserId: Checking token in database:', token.substring(0, 20) + '...');
       const [tokenRecord] = await db.select()
         .from(schema.auth_tokens)
         .where(and(
@@ -21,14 +18,11 @@ export async function getUserId(req: express.Request): Promise<string> {
         ))
         .limit(1);
       
-      console.log('getUserId: Database lookup result:', tokenRecord ? 'Found user: ' + tokenRecord.user_id : 'No matching token found');
       if (tokenRecord) {
         return tokenRecord.user_id;
       }
     } catch (error) {
       console.warn('Error checking auth token in database:', error);
-      // If the table doesn't exist, we'll fall through to other auth methods
-      // The table will be created when the first user logs in via custom-login
     }
   }
   

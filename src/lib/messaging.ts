@@ -3,9 +3,11 @@ const API_BASE = '/api';
 // Simple API request function for messaging
 async function request(endpoint: string, options: RequestInit = {}): Promise<Response> {
   try {
+    const token = localStorage.getItem('authToken');
     const response = await fetch(`${API_BASE}${endpoint}`, {
       headers: {
         'Content-Type': 'application/json',
+        ...(token && { Authorization: `Bearer ${token}` }),
         ...options.headers,
       },
       ...options,

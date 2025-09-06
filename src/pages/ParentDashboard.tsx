@@ -294,55 +294,62 @@ export default function ParentDashboard({ plan }: ParentDashboardProps) {
   return (
     <DashboardLayout>
       <div className="min-h-screen">
-        {/* Hero Section */}
+        {/* Enhanced Hero Section with Unified Design */}
         <div className="relative overflow-hidden">
-          <div className="absolute inset-0 hero-gradient opacity-10" />
-          <div className="absolute inset-0 bg-gradient-to-r from-background/80 via-transparent to-background/80" />
-          <div className="relative px-6 py-16 text-center">
-            <div className="animate-fade-in">
-              <div className="inline-flex items-center px-6 py-3 glass-card text-sm font-medium text-primary-glow mb-8 animate-float">
-                <Sparkles className="h-4 w-4 mr-2" />
-                Welcome to your IEP Hero Dashboard
+          <div className="absolute inset-0 bg-gradient-to-r from-primary/5 via-secondary/5 to-accent/5 rounded-2xl" />
+          <div className="relative p-8 text-center">
+            <div className="flex items-center justify-center gap-3 mb-4">
+              <div className="p-3 bg-gradient-to-br from-primary to-secondary rounded-xl shadow-lg">
+                <Trophy className="h-8 w-8 text-white" />
               </div>
-              
-              <h1 className="text-5xl md:text-7xl font-bold mb-6 leading-tight">
-                <span className="text-gradient text-glow">
-                  {user?.firstName ? `Welcome back, ${user.firstName}!` : 'Welcome, Hero!'}
-                </span>
+              <h1 className="text-4xl font-bold bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
+                {user?.firstName ? `Welcome back, ${user.firstName}!` : 'Premium Dashboard'}
               </h1>
+            </div>
+            <p className="text-lg text-muted-foreground max-w-2xl mx-auto mb-8">
+              Your premium command center for advocacy excellence, real-time progress tracking, and comprehensive IEP management.
+            </p>
+            
+            {/* Plan Status Badge */}
+            <div className="flex justify-center mb-6">
+              <Badge 
+                variant={userPlan === 'hero' ? "default" : "secondary"}
+                className={userPlan === 'hero' 
+                  ? "bg-gradient-to-r from-yellow-400 to-orange-500 text-white px-6 py-2 text-lg font-bold"
+                  : "px-6 py-2 text-lg"
+                }
+              >
+                {planName} Plan
+              </Badge>
+            </div>
               
-              <p className="text-xl text-muted-foreground mb-12 max-w-3xl mx-auto leading-relaxed">
-                Your premium command center for advocacy excellence, real-time progress tracking, and comprehensive IEP management
-              </p>
-              
-              <div className="flex flex-col sm:flex-row gap-6 justify-center">
-                <Button 
-                  size="lg" 
-                  className="button-premium text-lg px-8 py-4 h-auto font-semibold"
-                  onClick={() => navigate('/parent/tools/emergent')}
-                >
-                  <Rocket className="h-5 w-5 mr-3" />
-                  Explore Premium Tools
-                </Button>
-                <Button 
-                  variant="outline" 
-                  size="lg"
-                  className="border-2 border-primary/30 hover:border-primary text-lg px-8 py-4 h-auto font-semibold glass-card"
-                  onClick={() => navigate('/parent/students')}
-                >
-                  <Users className="h-5 w-5 mr-3" />
-                  Manage Students
-                </Button>
-                <Button 
-                  variant="outline" 
-                  size="lg"
-                  className="border-2 border-success/30 hover:border-success text-lg px-8 py-4 h-auto font-semibold glass-card hover:bg-success/5"
-                  onClick={() => navigate('/parent/students')}
-                >
-                  <GraduationCap className="h-5 w-5 mr-3" />
-                  Create New Student
-                </Button>
-              </div>
+            <div className="flex flex-col sm:flex-row gap-4 justify-center max-w-4xl mx-auto">
+              <Button 
+                size="lg" 
+                className="bg-gradient-to-r from-primary to-secondary hover:from-primary/90 hover:to-secondary/90 text-white shadow-lg hover:shadow-xl transition-all duration-300 px-6 py-3"
+                onClick={() => navigate('/parent/tools/emergent')}
+              >
+                <Rocket className="h-5 w-5 mr-2" />
+                Explore Premium Tools
+              </Button>
+              <Button 
+                variant="outline" 
+                size="lg"
+                className="border-2 border-primary/30 hover:border-primary text-primary hover:bg-primary/5 px-6 py-3"
+                onClick={() => navigate('/parent/students')}
+              >
+                <Users className="h-5 w-5 mr-2" />
+                Manage Students
+              </Button>
+              <Button 
+                variant="outline" 
+                size="lg"
+                className="border-2 border-green-500/30 hover:border-green-500 text-green-600 hover:bg-green-50 px-6 py-3"
+                onClick={() => navigate('/parent/students')}
+              >
+                <GraduationCap className="h-5 w-5 mr-2" />
+                Create New Student
+              </Button>
             </div>
           </div>
         </div>
@@ -422,91 +429,98 @@ export default function ParentDashboard({ plan }: ParentDashboardProps) {
         {/* Main Content Grid */}
         <div className="px-6 pb-16">
           <div className="max-w-7xl mx-auto">
-            {/* Quick Stats */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 mb-12 animate-slide-up">
-              <div className="premium-card card-hover p-8 text-center group">
-                <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-primary rounded-2xl mb-6 group-hover:scale-110 transition-transform duration-300 glow-effect">
-                  <Target className="h-8 w-8 text-primary-foreground" />
-                </div>
-                <h3 className="text-3xl font-bold mb-2">{totalGoals}</h3>
-                <p className="text-muted-foreground mb-3">Active Goals</p>
-                <div className="inline-flex items-center px-3 py-1 bg-success-soft text-success text-sm rounded-full">
-                  <TrendingUp className="h-3 w-3 mr-1" />
-                  {completedGoals} completed
-                </div>
-              </div>
-              
-              <div className="premium-card card-hover p-8 text-center group">
-                <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-secondary rounded-2xl mb-6 group-hover:scale-110 transition-transform duration-300">
-                  <FileText className="h-8 w-8 text-secondary-foreground" />
-                </div>
-                <h3 className="text-3xl font-bold mb-2">{upcomingMeetings}</h3>
-                <p className="text-muted-foreground mb-3">Upcoming Meetings</p>
-                <div className="inline-flex items-center px-3 py-1 bg-warning-soft text-warning text-sm rounded-full">
-                  <AlertCircle className="h-3 w-3 mr-1" />
-                  Auto reminders on
-                </div>
-              </div>
-              
-              <div className="premium-card card-hover p-8 text-center group">
-                <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-accent rounded-2xl mb-6 group-hover:scale-110 transition-transform duration-300">
-                  <Calendar className="h-8 w-8 text-accent-foreground" />
-                </div>
-                <h3 className="text-3xl font-bold mb-2">{completionRate}%</h3>
-                <p className="text-muted-foreground mb-3">Completion Rate</p>
-                <div className="inline-flex items-center px-3 py-1 bg-success-soft text-success text-sm rounded-full">
-                  <TrendingUp className="h-3 w-3 mr-1" />
-                  {completionRate > 75 ? 'Excellent!' : completionRate > 50 ? 'Great!' : 'Keep going!'}
-                </div>
-              </div>
-              
-              <div className="premium-card card-hover p-8 text-center group">
-                <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-br from-success to-success-light rounded-2xl mb-6 group-hover:scale-110 transition-transform duration-300">
-                  <Sparkles className="h-8 w-8 text-success-foreground" />
-                </div>
-                <h3 className="text-3xl font-bold mb-2">{insights.length}</h3>
-                <p className="text-muted-foreground mb-3">AI Insights</p>
-                <div className="inline-flex items-center px-3 py-1 bg-success-soft text-success text-sm rounded-full">
-                  <Trophy className="h-3 w-3 mr-1" />
-                  Data analyzed
-                </div>
-              </div>
+            {/* Enhanced Quick Stats with Unified Design */}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
+              {[
+                {
+                  icon: Target,
+                  title: totalGoals,
+                  subtitle: "Active Goals",
+                  badge: `${completedGoals} completed`,
+                  color: "from-primary to-secondary",
+                  index: 0
+                },
+                {
+                  icon: Calendar,
+                  title: upcomingMeetings,
+                  subtitle: "Upcoming Meetings", 
+                  badge: "Auto reminders on",
+                  color: "from-green-500 to-teal-600",
+                  index: 1
+                },
+                {
+                  icon: TrendingUp,
+                  title: `${completionRate}%`,
+                  subtitle: "Completion Rate",
+                  badge: completionRate > 75 ? 'Excellent!' : completionRate > 50 ? 'Great!' : 'Keep going!',
+                  color: "from-purple-500 to-indigo-600",
+                  index: 2
+                },
+                {
+                  icon: Sparkles,
+                  title: insights.length,
+                  subtitle: "AI Insights",
+                  badge: "Data analyzed",
+                  color: "from-orange-500 to-red-600",
+                  index: 3
+                }
+              ].map(({ icon: Icon, title, subtitle, badge, color, index }) => (
+                <Card 
+                  key={index}
+                  className="group hover:shadow-xl transition-all duration-300 hover:-translate-y-1 border-0 shadow-md overflow-hidden"
+                  style={{ 
+                    animationDelay: `${index * 100}ms`,
+                    animation: 'fadeInUp 0.6s ease-out forwards'
+                  }}
+                >
+                  <CardContent className="p-6 text-center">
+                    <div className={`inline-flex items-center justify-center w-16 h-16 bg-gradient-to-br ${color} rounded-2xl mb-4 group-hover:scale-110 transition-transform duration-300 shadow-lg`}>
+                      <Icon className="h-8 w-8 text-white" />
+                    </div>
+                    <h3 className="text-3xl font-bold mb-2 text-gray-900 dark:text-white">{title}</h3>
+                    <p className="text-muted-foreground mb-3 font-medium">{subtitle}</p>
+                    <Badge variant="secondary" className="bg-blue-50 text-blue-700 border-blue-200">
+                      {badge}
+                    </Badge>
+                  </CardContent>
+                </Card>
+              ))}
             </div>
             
-            {/* Enhanced Tabs with Better Design */}
-            <Card className="premium-card">
-            <Tabs defaultValue="goals" className="w-full">
-              <div className="border-b border-gray-200 bg-white/50 backdrop-blur-sm rounded-t-xl">
-                <TabsList className="grid w-full grid-cols-1 sm:grid-cols-3 bg-transparent p-1 h-auto">
-                  <TabsTrigger 
-                    value="goals" 
-                    className="data-[state=active]:bg-blue-100 data-[state=active]:text-blue-700 data-[state=active]:shadow-sm rounded-lg p-4 font-medium transition-all duration-200 hover:bg-gray-50"
-                  >
-                    <div className="flex items-center gap-2">
-                      <Target className="h-4 w-4" />
-                      <span>Goal Tracking</span>
-                    </div>
-                  </TabsTrigger>
-                  <TabsTrigger 
-                    value="meetings"
-                    className="data-[state=active]:bg-purple-100 data-[state=active]:text-purple-700 data-[state=active]:shadow-sm rounded-lg p-4 font-medium transition-all duration-200 hover:bg-gray-50"
-                  >
-                    <div className="flex items-center gap-2">
-                      <Calendar className="h-4 w-4" />
-                      <span>Meetings</span>
-                    </div>
-                  </TabsTrigger>
-                  <TabsTrigger 
-                    value="insights"
-                    className="data-[state=active]:bg-amber-100 data-[state=active]:text-amber-700 data-[state=active]:shadow-sm rounded-lg p-4 font-medium transition-all duration-200 hover:bg-gray-50"
-                  >
-                    <div className="flex items-center gap-2">
-                      <Sparkles className="h-4 w-4" />
-                      <span>AI Insights</span>
-                    </div>
-                  </TabsTrigger>
-                </TabsList>
-              </div>
+            {/* Enhanced Tabs with Unified Design System */}
+            <Card className="border-0 shadow-lg overflow-hidden">
+              <Tabs defaultValue="goals" className="w-full">
+                <div className="bg-gradient-to-r from-slate-50 to-gray-50 border-b border-gray-200">
+                  <TabsList className="grid w-full grid-cols-1 sm:grid-cols-3 bg-transparent p-1 h-auto">
+                    <TabsTrigger 
+                      value="goals" 
+                      className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-primary data-[state=active]:to-secondary data-[state=active]:text-white data-[state=active]:shadow-lg rounded-lg p-4 font-medium transition-all duration-300 hover:bg-white/50"
+                    >
+                      <div className="flex items-center gap-2">
+                        <Target className="h-5 w-5" />
+                        <span>Goal Tracking</span>
+                      </div>
+                    </TabsTrigger>
+                    <TabsTrigger 
+                      value="meetings"
+                      className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-green-500 data-[state=active]:to-teal-600 data-[state=active]:text-white data-[state=active]:shadow-lg rounded-lg p-4 font-medium transition-all duration-300 hover:bg-white/50"
+                    >
+                      <div className="flex items-center gap-2">
+                        <Calendar className="h-5 w-5" />
+                        <span>Meetings</span>
+                      </div>
+                    </TabsTrigger>
+                    <TabsTrigger 
+                      value="insights"
+                      className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-orange-500 data-[state=active]:to-red-600 data-[state=active]:text-white data-[state=active]:shadow-lg rounded-lg p-4 font-medium transition-all duration-300 hover:bg-white/50"
+                    >
+                      <div className="flex items-center gap-2">
+                        <Sparkles className="h-5 w-5" />
+                        <span>AI Insights</span>
+                      </div>
+                    </TabsTrigger>
+                  </TabsList>
+                </div>
 
               {/* Enhanced Goals Tab */}
               <TabsContent value="goals" className="p-6 space-y-6">

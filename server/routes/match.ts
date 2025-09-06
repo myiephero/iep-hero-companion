@@ -112,7 +112,159 @@ router.get('/advocate-proposals', async (req: Request, res: Response) => {
   }
 });
 
-// POST /api/match/propose - Create match proposals
+// POST /api/match/auto-match - AI-powered automatic matching based on student needs
+router.post('/auto-match', async (req: Request, res: Response) => {
+  try {
+    const userId = await getUserId(req);
+    const { student_id, max_matches = 3, urgency_level = 'medium' } = req.body;
+
+    if (!student_id) {
+      return res.status(400).json({ error: 'student_id is required' });
+    }
+
+    // Verify student exists and belongs to user
+    const student = await db.select().from(schema.students)
+      .where(and(
+        eq(schema.students.id, student_id),
+        eq(schema.students.user_id, userId)
+      ))
+      .then(results => results[0]);
+
+    if (!student) {
+      return res.status(404).json({ error: 'Student not found' });
+    }
+
+    // Get all available advocates
+    const advocates = await db.select().from(schema.advocates)
+      .where(eq(schema.advocates.status, 'active'));
+
+    // Define student needs array for reuse
+    const studentNeeds = [
+      student.disability_category,
+      student.grade_level,
+      ...(student.notes?.split(',') || [])
+    ].filter(Boolean).map(s => s?.toLowerCase().trim()).filter(Boolean);
+
+    // AI-powered matching algorithm
+    const scoredMatches = advocates.map(advocate => {
+      let totalScore = 0;
+      const reasons: string[] = [];
+
+      // 1. Specializations match (45% weight)
+      const advocateSpecs = ((advocate.specializations as string[]) || [])
+        .filter(s => s)
+        .map(s => s.toLowerCase().trim());
+
+      const specOverlap = calculateJaccardSimilarity(studentNeeds, advocateSpecs);
+      const specScore = specOverlap * 45;
+      totalScore += specScore;
+      
+      if (specScore > 15) {
+        reasons.push(`Strong specialization match (${Math.round(specOverlap * 100)}%)`);
+      }
+
+      // 2. Grade level fit (15% weight)
+      const gradeScore = student.grade_level && advocateSpecs.some(spec => 
+        spec.includes(student.grade_level?.toLowerCase() || '') || 
+        spec.includes('k-12') || spec.includes('all grades')
+      ) ? 15 : 0;
+      totalScore += gradeScore;
+      
+      if (gradeScore > 0) {
+        reasons.push(`Grade level expertise (${student.grade_level || 'current grade'})`);
+      }
+
+      // 3. Availability score (15% weight)
+      const availabilityScore = advocate.availability === 'immediate' ? 15 : 
+                               advocate.availability === 'within_week' ? 10 : 5;
+      totalScore += availabilityScore;
+
+      // 4. Experience and rating (10% weight)
+      const experienceScore = Math.min((advocate.years_experience || 0) / 10, 1) * 5 +
+                             Math.min((advocate.rating || 0) / 5, 1) * 5;
+      totalScore += experienceScore;
+
+      // 5. Urgency compatibility (10% weight)
+      const urgencyScore = (urgency_level === 'high' && advocate.availability === 'immediate') ? 10 :
+                          (urgency_level === 'medium' && advocate.availability !== 'not_available') ? 7 : 5;
+      totalScore += urgencyScore;
+
+      // 6. Case load capacity (5% weight)
+      // TODO: Calculate actual case load, for now assume all have capacity
+      const capacityScore = 5;
+      totalScore += capacityScore;
+
+      return {
+        advocate,
+        score: Math.round(totalScore),
+        match_reason: {
+          total_score: Math.round(totalScore),
+          specialization_overlap: Math.round(specOverlap * 100),
+          reasons: reasons.length > 0 ? reasons : ['General IEP expertise match'],
+          algorithm_version: '1.0'
+        }
+      };
+    });
+
+    // Sort by score and take top matches
+    const topMatches = scoredMatches
+      .sort((a, b) => b.score - a.score)
+      .slice(0, max_matches)
+      .filter(match => match.score > 20); // Minimum threshold
+
+    if (topMatches.length === 0) {
+      return res.json({
+        message: 'No suitable matches found. Try expanding search criteria.',
+        matches: [],
+        student_info: {
+          name: student.full_name,
+          grade: student.grade_level,
+          needs: studentNeeds
+        }
+      });
+    }
+
+    // Create match proposals for top advocates
+    const createdProposals: any[] = [];
+    for (const match of topMatches) {
+      const [proposal] = await db.insert(schema.match_proposals)
+        .values({
+          student_id,
+          advocate_id: match.advocate.id,
+          parent_id: userId,
+          score: match.score,
+          status: 'pending',
+          match_reason: match.match_reason
+        })
+        .returning();
+
+      if (proposal) {
+        createdProposals.push({
+          proposal,
+          advocate: match.advocate,
+          match_details: match.match_reason
+        });
+      }
+    }
+
+    res.json({
+      message: `Found ${topMatches.length} high-quality matches for ${student.full_name}`,
+      matches_created: createdProposals.length,
+      proposals: createdProposals,
+      student_info: {
+        name: student.full_name,
+        grade: student.grade_level,
+        school: student.school_name,
+        needs: studentNeeds
+      }
+    });
+  } catch (error) {
+    console.error('Auto-matching error:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+// POST /api/match/propose - Create match proposals (legacy manual selection)
 router.post('/propose', async (req: Request, res: Response) => {
   try {
     const userId = await getUserId(req);

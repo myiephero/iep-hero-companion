@@ -1148,7 +1148,8 @@ app.post('/api/create-checkout-session', async (req, res) => {
         role,
         ...(isHeroPackage && { setupFee: '495', isHeroPackage: 'true', promotion: 'first_month_free' })
       },
-      allow_promotion_codes: true,
+      // Only allow promotion codes if we're not applying automatic discounts
+      allow_promotion_codes: !discounts,
       billing_address_collection: 'required'
     };
     

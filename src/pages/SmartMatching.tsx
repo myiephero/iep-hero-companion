@@ -10,8 +10,10 @@ import { Progress } from "@/components/ui/progress";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Input } from "@/components/ui/input";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Textarea } from "@/components/ui/textarea";
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { StudentSelector } from "@/components/StudentSelector";
-import { Brain, Target, Zap, MessageSquare, Star, MapPin, Users, Search, DollarSign, Clock } from "lucide-react";
+import { Brain, Target, Zap, MessageSquare, Star, MapPin, Users, Search, DollarSign, Clock, ChevronDown, ChevronUp, Info, HelpCircle } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
@@ -65,6 +67,10 @@ export default function SmartMatching() {
   const [searchTerm, setSearchTerm] = useState('');
   const [filterSpecialty, setFilterSpecialty] = useState('all');
   const [selectedStudentObj, setSelectedStudentObj] = useState<Student | null>(null);
+  const [showContactDialog, setShowContactDialog] = useState(false);
+  const [contactNote, setContactNote] = useState('');
+  const [selectedAdvocateForContact, setSelectedAdvocateForContact] = useState<string | null>(null);
+  const [expandedAdvocateCards, setExpandedAdvocateCards] = useState<Set<string>>(new Set());
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
@@ -169,7 +175,7 @@ export default function SmartMatching() {
     }
   });
 
-  const handleCreateProposal = async (advocateId: string) => {
+  const handleCreateProposal = async (advocateId: string, note?: string) => {
     if (!selectedStudentObj) {
       toast({
         title: "Error",
@@ -183,6 +189,46 @@ export default function SmartMatching() {
       studentId: selectedStudentObj.id,
       advocateIds: [advocateId]
     });
+  };
+
+  const handleContactClick = (advocateId: string) => {
+    setSelectedAdvocateForContact(advocateId);
+    setContactNote('');
+    setShowContactDialog(true);
+  };
+
+  const handleSubmitContact = () => {
+    if (!selectedAdvocateForContact) return;
+    
+    handleCreateProposal(selectedAdvocateForContact, contactNote);
+    setShowContactDialog(false);
+    setSelectedAdvocateForContact(null);
+    setContactNote('');
+  };
+
+  const toggleAdvocateCard = (advocateId: string) => {
+    const newExpanded = new Set(expandedAdvocateCards);
+    if (newExpanded.has(advocateId)) {
+      newExpanded.delete(advocateId);
+    } else {
+      newExpanded.add(advocateId);
+    }
+    setExpandedAdvocateCards(newExpanded);
+  };
+
+  const getMatchScoreBreakdown = (score: number, reasons?: string[]) => {
+    const breakdown = {
+      specialization_match: Math.min(40, score * 0.4),
+      experience_level: Math.min(30, score * 0.3), 
+      availability_fit: Math.min(20, score * 0.2),
+      location_proximity: Math.min(10, score * 0.1)
+    };
+    
+    return {
+      total: score,
+      breakdown,
+      explanation: `Match score is calculated using: Specialization overlap (${breakdown.specialization_match.toFixed(0)}%), Professional experience (${breakdown.experience_level.toFixed(0)}%), Schedule availability (${breakdown.availability_fit.toFixed(0)}%), and Location proximity (${breakdown.location_proximity.toFixed(0)}%)`
+    };
   };
 
   // Accept/decline mutations for advocates
@@ -473,8 +519,60 @@ export default function SmartMatching() {
                               </div>
                             </div>
                             <div className="text-right">
-                              <div className="text-lg font-bold text-purple-600 dark:text-purple-400">
+                              <div className="text-lg font-bold text-purple-600 dark:text-purple-400 flex items-center gap-1">
                                 {matchDetails.total_score}% Match
+                                <Dialog>
+                                  <DialogTrigger asChild>
+                                    <Button variant="ghost" size="sm" className="h-4 w-4 p-0">
+                                      <HelpCircle className="h-3 w-3" />
+                                    </Button>
+                                  </DialogTrigger>
+                                  <DialogContent>
+                                    <DialogHeader>
+                                      <DialogTitle>Match Score Breakdown</DialogTitle>
+                                      <DialogDescription>
+                                        Understanding how we calculate advocate compatibility
+                                      </DialogDescription>
+                                    </DialogHeader>
+                                    <div className="space-y-4">
+                                      <div className="space-y-2">
+                                        <div className="flex justify-between">
+                                          <span className="text-sm">Specialization Match</span>
+                                          <span className="font-medium">{getMatchScoreBreakdown(matchDetails.total_score).breakdown.specialization_match.toFixed(0)}%</span>
+                                        </div>
+                                        <Progress value={getMatchScoreBreakdown(matchDetails.total_score).breakdown.specialization_match} className="h-2" />
+                                        
+                                        <div className="flex justify-between">
+                                          <span className="text-sm">Professional Experience</span>
+                                          <span className="font-medium">{getMatchScoreBreakdown(matchDetails.total_score).breakdown.experience_level.toFixed(0)}%</span>
+                                        </div>
+                                        <Progress value={getMatchScoreBreakdown(matchDetails.total_score).breakdown.experience_level} className="h-2" />
+                                        
+                                        <div className="flex justify-between">
+                                          <span className="text-sm">Schedule Availability</span>
+                                          <span className="font-medium">{getMatchScoreBreakdown(matchDetails.total_score).breakdown.availability_fit.toFixed(0)}%</span>
+                                        </div>
+                                        <Progress value={getMatchScoreBreakdown(matchDetails.total_score).breakdown.availability_fit} className="h-2" />
+                                        
+                                        <div className="flex justify-between">
+                                          <span className="text-sm">Location Proximity</span>
+                                          <span className="font-medium">{getMatchScoreBreakdown(matchDetails.total_score).breakdown.location_proximity.toFixed(0)}%</span>
+                                        </div>
+                                        <Progress value={getMatchScoreBreakdown(matchDetails.total_score).breakdown.location_proximity} className="h-2" />
+                                      </div>
+                                      
+                                      <div className="border-t pt-4">
+                                        <div className="flex justify-between font-semibold">
+                                          <span>Total Match Score</span>
+                                          <span className="text-purple-600">{matchDetails.total_score}%</span>
+                                        </div>
+                                        <p className="text-sm text-muted-foreground mt-2">
+                                          {getMatchScoreBreakdown(matchDetails.total_score).explanation}
+                                        </p>
+                                      </div>
+                                    </div>
+                                  </DialogContent>
+                                </Dialog>
                               </div>
                               <div className="text-xs text-muted-foreground">Compatibility</div>
                             </div>
@@ -509,9 +607,10 @@ export default function SmartMatching() {
                               size="sm" 
                               className="bg-purple-600 hover:bg-purple-700"
                               data-testid={`contact-advocate-${index}`}
+                              onClick={() => handleContactClick(advocate.id)}
                             >
                               <MessageSquare className="h-4 w-4 mr-1" />
-                              Start Conversation
+                              Contact Advocate
                             </Button>
                           </div>
                         </CardContent>
@@ -633,6 +732,47 @@ export default function SmartMatching() {
                         ))}
                       </div>
 
+                      <Collapsible
+                        open={expandedAdvocateCards.has(advocate.id)}
+                        onOpenChange={() => toggleAdvocateCard(advocate.id)}
+                      >
+                        <CollapsibleTrigger asChild>
+                          <Button variant="ghost" className="w-full mb-3 text-sm">
+                            {expandedAdvocateCards.has(advocate.id) ? (
+                              <>
+                                <ChevronUp className="h-3 w-3 mr-1" />
+                                Hide Details
+                              </>
+                            ) : (
+                              <>
+                                <ChevronDown className="h-3 w-3 mr-1" />
+                                Learn More
+                              </>
+                            )}
+                          </Button>
+                        </CollapsibleTrigger>
+                        <CollapsibleContent className="space-y-3 mb-4">
+                          {advocate.bio && (
+                            <div>
+                              <h6 className="font-medium text-sm mb-1">About</h6>
+                              <p className="text-sm text-muted-foreground">{advocate.bio}</p>
+                            </div>
+                          )}
+                          <div>
+                            <h6 className="font-medium text-sm mb-1">Experience</h6>
+                            <p className="text-sm text-muted-foreground">{advocate.years_experience || '5+'} years in special education advocacy</p>
+                          </div>
+                          <div>
+                            <h6 className="font-medium text-sm mb-1">All Specializations</h6>
+                            <div className="flex flex-wrap gap-1">
+                              {advocate.specializations?.map(spec => (
+                                <Badge key={spec} variant="outline" className="text-xs">{spec}</Badge>
+                              ))}
+                            </div>
+                          </div>
+                        </CollapsibleContent>
+                      </Collapsible>
+
                       <div className="flex items-center justify-between">
                         <div className="flex items-center gap-4 text-sm text-muted-foreground">
                           <div className="flex items-center gap-1">
@@ -643,7 +783,7 @@ export default function SmartMatching() {
                         </div>
                         <Button 
                           size="sm" 
-                          onClick={() => handleCreateProposal(advocate.id)}
+                          onClick={() => handleContactClick(advocate.id)}
                           disabled={!selectedStudentObj || createProposalMutation.isPending}
                         >
                           Contact
@@ -730,6 +870,47 @@ export default function SmartMatching() {
           </TabsContent>
         </Tabs>
       </div>
+
+      {/* Contact Advocate Dialog */}
+      <Dialog open={showContactDialog} onOpenChange={setShowContactDialog}>
+        <DialogContent className="sm:max-w-[500px]">
+          <DialogHeader>
+            <DialogTitle>Connect with Advocate</DialogTitle>
+            <DialogDescription>
+              Share details about your needs to help the advocate understand how they can best support your student.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4">
+            <div>
+              <Label htmlFor="contact-note">Why are you interested in this advocate?</Label>
+              <Textarea
+                id="contact-note"
+                placeholder="Tell the advocate about your student's specific needs, any challenges you're facing, or what type of support you're looking for..."
+                className="min-h-[100px] mt-2"
+                value={contactNote}
+                onChange={(e) => setContactNote(e.target.value)}
+              />
+            </div>
+            <div className="text-sm text-muted-foreground">
+              This note will be shared with the advocate along with your match request.
+            </div>
+          </div>
+          <div className="flex justify-end gap-3 mt-6">
+            <Button 
+              variant="outline" 
+              onClick={() => setShowContactDialog(false)}
+            >
+              Cancel
+            </Button>
+            <Button 
+              onClick={handleSubmitContact}
+              disabled={createProposalMutation.isPending}
+            >
+              {createProposalMutation.isPending ? 'Sending...' : 'Send Request'}
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
     </DashboardLayout>
   );
 }

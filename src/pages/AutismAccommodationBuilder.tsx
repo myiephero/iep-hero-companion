@@ -1,474 +1,745 @@
 import { useState, useEffect } from "react";
-import { DashboardLayout } from "@/layouts/DashboardLayout";
+import { useQuery } from "@tanstack/react-query";
+import { TopNavigation } from "@/components/TopNavigation";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { Label } from "@/components/ui/label";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Checkbox } from "@/components/ui/checkbox";
-import { StudentSelector } from "@/components/StudentSelector";
-import { Brain, Plus, Settings, Star, BookOpen, Users2, Volume2, Eye, Lightbulb } from "lucide-react";
-import { api, type AutismAccommodation as ApiAutismAccommodation } from "@/lib/api";
-// import { supabase } from "@/integrations/supabase/client"; // Removed during migration
+import { 
+  Building2, 
+  Brain, 
+  CheckCircle, 
+  Users,
+  BookOpen,
+  Clock,
+  Volume2,
+  Eye,
+  ArrowRight,
+  Download,
+  Sparkles,
+  Plus,
+  Check,
+  Save
+} from "lucide-react";
+import { Link } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
+import { apiRequest } from "@/lib/queryClient";
+import { useAuth } from "@/hooks/useAuth";
 
-interface AutismAccommodation {
-  id: string;
-  student_id?: string;
-  accommodation_type: string;
-  category: string;
-  title: string;
-  description: string;
-  implementation_notes?: string;
-  effectiveness_rating?: number;
-  sensory_profile?: any;
-  behavioral_triggers?: any;
-  communication_needs?: any;
-  academic_supports?: any;
-  social_supports?: any;
-  environmental_modifications?: any;
-  technology_supports?: any;
-  status: string;
-  created_at: string;
-}
-
-const accommodationCategories = [
-  { id: 'sensory', name: 'Sensory Support', icon: Volume2, color: 'bg-blue-100 text-blue-700' },
-  { id: 'communication', name: 'Communication', icon: Users2, color: 'bg-green-100 text-green-700' },
-  { id: 'academic', name: 'Academic Support', icon: BookOpen, color: 'bg-purple-100 text-purple-700' },
-  { id: 'social', name: 'Social Skills', icon: Users2, color: 'bg-orange-100 text-orange-700' },
-  { id: 'behavioral', name: 'Behavioral Support', icon: Brain, color: 'bg-red-100 text-red-700' },
-  { id: 'environmental', name: 'Environment', icon: Eye, color: 'bg-yellow-100 text-yellow-700' },
-  { id: 'technology', name: 'Technology', icon: Settings, color: 'bg-indigo-100 text-indigo-700' }
-];
-
-const predefinedAccommodations = {
-  sensory: [
-    { title: 'Noise-Canceling Headphones', description: 'Provide noise-canceling headphones for noisy environments' },
-    { title: 'Fidget Tools', description: 'Allow use of fidget toys or stress balls during instruction' },
-    { title: 'Sensory Breaks', description: 'Regular breaks to sensory room or quiet space' },
-    { title: 'Weighted Lap Pad', description: 'Use of weighted lap pad for calming and focus' }
-  ],
-  communication: [
-    { title: 'Visual Schedule', description: 'Daily visual schedule with pictures and symbols' },
-    { title: 'Communication Device', description: 'Access to AAC device or communication app' },
-    { title: 'Written Instructions', description: 'Provide written instructions alongside verbal directions' },
-    { title: 'Processing Time', description: 'Extended wait time for verbal responses' }
-  ],
-  academic: [
-    { title: 'Extended Time', description: 'Additional time for assignments and tests' },
-    { title: 'Chunked Assignments', description: 'Break long assignments into smaller parts' },
-    { title: 'Alternative Assessment', description: 'Alternative ways to demonstrate knowledge' },
-    { title: 'Visual Supports', description: 'Use of graphic organizers and visual aids' }
-  ],
-  social: [
-    { title: 'Social Stories', description: 'Individualized social stories for specific situations' },
-    { title: 'Peer Buddy System', description: 'Structured peer support and friendship opportunities' },
-    { title: 'Lunch Bunch', description: 'Small group lunch sessions with facilitated interaction' },
-    { title: 'Social Skills Group', description: 'Weekly social skills instruction in small group' }
-  ],
-  behavioral: [
-    { title: 'Behavior Chart', description: 'Visual behavior tracking and reward system' },
-    { title: 'Calm Down Space', description: 'Designated area for self-regulation' },
-    { title: 'Advance Warning', description: 'Verbal or visual warning before transitions' },
-    { title: 'Choice Boards', description: 'Visual choice options to increase compliance' }
-  ],
-  environmental: [
-    { title: 'Preferred Seating', description: 'Seating away from distractions or near teacher' },
-    { title: 'Lighting Modification', description: 'Reduced fluorescent lighting or natural light' },
-    { title: 'Minimal Distractions', description: 'Reduced visual and auditory distractions in workspace' },
-    { title: 'Movement Opportunities', description: 'Opportunities for movement throughout the day' }
-  ],
-  technology: [
-    { title: 'Text-to-Speech', description: 'Text-to-speech software for reading support' },
-    { title: 'Typing Instead of Writing', description: 'Use of computer for written assignments' },
-    { title: 'Educational Apps', description: 'Specialized apps for learning and communication' },
-    { title: 'Timer Apps', description: 'Visual timers for transitions and task completion' }
-  ]
-};
-
-export default function AutismAccommodationBuilder() {
-  const [accommodations, setAccommodations] = useState<AutismAccommodation[]>([]);
+const AutismAccommodationBuilder = () => {
   const [selectedStudent, setSelectedStudent] = useState<string>("");
-  const [selectedCategory, setSelectedCategory] = useState<string>("sensory");
-  const [showCreateDialog, setShowCreateDialog] = useState(false);
-  const [loading, setLoading] = useState(true);
-  const [formData, setFormData] = useState({
-    title: "",
-    description: "",
-    implementation_notes: "",
-    accommodation_type: "individualized",
-    effectiveness_rating: 0
-  });
+  const [activeCategory, setActiveCategory] = useState<string>("all");
+  const [addedAccommodations, setAddedAccommodations] = useState<string[]>([]);
   const { toast } = useToast();
+  const { user, profile } = useAuth();
 
-  useEffect(() => {
-    fetchAccommodations();
-  }, [selectedStudent]);
+  // Determine user role for role-specific features
+  const userRole = user?.role || profile?.role || 'parent';
+  const isAdvocate = userRole === 'advocate';
 
-  const fetchAccommodations = async () => {
-    try {
-      setLoading(true);
-      const data = await api.getAutismAccommodations();
+  // Fetch students from API
+  const { data: students } = useQuery({
+    queryKey: ['/api/students'],
+    queryFn: async () => {
+      const response = await apiRequest('GET', '/api/students');
+      return response.json();
+    },
+  });
+
+  const accommodationCategories = [
+    {
+      id: "sensory",
+      title: "Sensory Support",
+      icon: <Volume2 className="h-5 w-5" />,
+      description: "Accommodations for sensory processing and regulation",
+      items: [
+        { 
+          id: "noise-canceling", 
+          title: "Noise-Canceling Headphones",
+          description: "Provide noise-canceling headphones for noisy environments",
+          recommended: true 
+        },
+        { 
+          id: "sensory-breaks", 
+          title: "Sensory Breaks",
+          description: "Regular breaks to sensory room or quiet space every 30 minutes",
+          recommended: true 
+        },
+        { 
+          id: "fidget-tools", 
+          title: "Fidget Tools",
+          description: "Allow use of fidget toys or stress balls during instruction",
+          recommended: false 
+        },
+        { 
+          id: "weighted-blanket", 
+          title: "Weighted Lap Pad",
+          description: "Use of weighted lap pad for self-regulation during work time",
+          recommended: false 
+        },
+        { 
+          id: "lighting", 
+          title: "Lighting Adjustments",
+          description: "Adjusted lighting or seating away from fluorescent lights",
+          recommended: false 
+        }
+      ]
+    },
+    {
+      id: "communication",
+      title: "Communication",
+      icon: <Users className="h-5 w-5" />,
+      description: "Communication and language support strategies",
+      items: [
+        { 
+          id: "visual-schedules", 
+          title: "Visual Schedules",
+          description: "Visual schedules and social stories for transitions",
+          recommended: true 
+        },
+        { 
+          id: "communication-device", 
+          title: "AAC Device",
+          description: "Access to AAC device or picture cards for communication",
+          recommended: false 
+        },
+        { 
+          id: "peer-support", 
+          title: "Peer Support",
+          description: "Structured peer interaction opportunities",
+          recommended: true 
+        },
+        { 
+          id: "social-scripts", 
+          title: "Social Scripts",
+          description: "Pre-written social scripts for common situations",
+          recommended: false 
+        }
+      ]
+    },
+    {
+      id: "academic",
+      title: "Academic Support",
+      icon: <Brain className="h-5 w-5" />,
+      description: "Learning and academic processing accommodations",
+      items: [
+        { 
+          id: "extended-time", 
+          title: "Extended Time",
+          description: "Extended time for assignments and tests (1.5x)",
+          recommended: true 
+        },
+        { 
+          id: "chunking", 
+          title: "Task Chunking",
+          description: "Breaking assignments into smaller, manageable chunks",
+          recommended: true 
+        },
+        { 
+          id: "visual-supports", 
+          title: "Visual Supports",
+          description: "Visual supports and graphic organizers for learning",
+          recommended: true 
+        },
+        { 
+          id: "repetition", 
+          title: "Repeated Instructions",
+          description: "Repeated instructions and clarification as needed",
+          recommended: false 
+        }
+      ]
+    },
+    {
+      id: "social",
+      title: "Social Support",
+      icon: <Users className="h-5 w-5" />,
+      description: "Social skills and peer interaction supports",
+      items: [
+        { 
+          id: "social-skills-group", 
+          title: "Social Skills Group",
+          description: "Participation in structured social skills group sessions",
+          recommended: true 
+        },
+        { 
+          id: "peer-buddy", 
+          title: "Peer Buddy System",
+          description: "Assignment of peer buddy for social support",
+          recommended: true 
+        },
+        { 
+          id: "lunch-club", 
+          title: "Lunch Club",
+          description: "Structured lunch club for social interaction practice",
+          recommended: false 
+        }
+      ]
+    },
+    {
+      id: "behavioral",
+      title: "Behavioral Support",
+      icon: <CheckCircle className="h-5 w-5" />,
+      description: "Behavior management and self-regulation strategies",
+      items: [
+        { 
+          id: "behavior-plan", 
+          title: "Positive Behavior Support Plan",
+          description: "Individualized positive behavior support plan",
+          recommended: true 
+        },
+        { 
+          id: "break-cards", 
+          title: "Break Request Cards",
+          description: "Visual cards to request breaks when overwhelmed",
+          recommended: true 
+        },
+        { 
+          id: "calm-down-space", 
+          title: "Calm Down Space",
+          description: "Access to designated calm down space when needed",
+          recommended: false 
+        }
+      ]
+    },
+    {
+      id: "environmental",
+      title: "Environmental",
+      icon: <Building2 className="h-5 w-5" />,
+      description: "Physical environment and classroom modifications",
+      items: [
+        { 
+          id: "preferential-seating", 
+          title: "Preferential Seating",
+          description: "Seating near teacher, away from distractions",
+          recommended: true 
+        },
+        { 
+          id: "quiet-space", 
+          title: "Access to Quiet Space",
+          description: "Access to quiet space for work completion",
+          recommended: true 
+        },
+        { 
+          id: "reduced-stimuli", 
+          title: "Reduced Environmental Stimuli",
+          description: "Minimize visual and auditory distractions in workspace",
+          recommended: false 
+        }
+      ]
+    }
+  ];
+
+  const handleAddAccommodation = (accommodationId: string) => {
+    if (!addedAccommodations.includes(accommodationId)) {
+      setAddedAccommodations(prev => [...prev, accommodationId]);
+      const accommodation = accommodationCategories
+        .flatMap(cat => cat.items)
+        .find(item => item.id === accommodationId);
       
-      // Filter by student if selected
-      const filteredData = selectedStudent 
-        ? data.filter(acc => acc.student_id === selectedStudent)
-        : data;
-        
-      setAccommodations((filteredData || []) as AutismAccommodation[]);
-    } catch (error) {
-      console.error('Error fetching accommodations:', error);
       toast({
-        title: "Error",
-        description: "Failed to load accommodations. Please try again.",
-        variant: "destructive",
+        title: "Accommodation Added",
+        description: `${accommodation?.title} has been added to your list`,
       });
-    } finally {
-      setLoading(false);
     }
   };
 
-  const handleCreateAccommodation = async (predefined?: { title: string; description: string }) => {
+  const handleRemoveAccommodation = (accommodationId: string) => {
+    setAddedAccommodations(prev => prev.filter(id => id !== accommodationId));
+  };
+
+  const filteredCategories = activeCategory === "all" 
+    ? accommodationCategories 
+    : accommodationCategories.filter(cat => cat.id === activeCategory);
+
+  const getAllAccommodations = () => {
+    accommodationCategories.forEach(category => {
+      category.items.forEach(item => {
+        if (!addedAccommodations.includes(item.id)) {
+          setAddedAccommodations(prev => [...prev, item.id]);
+        }
+      });
+    });
+    toast({
+      title: "All Accommodations Added",
+      description: "All available accommodations have been added to your list",
+    });
+  };
+
+  const generateIEPLanguage = async () => {
+    if (addedAccommodations.length === 0) {
+      toast({
+        title: "No accommodations selected",
+        description: "Please add some accommodations first",
+        variant: "destructive",
+      });
+      return;
+    }
+
     try {
-      const accommodationData = {
-        student_id: selectedStudent || 'placeholder',
-        category: selectedCategory,
-        accommodation_type: formData.accommodation_type,
-        title: predefined?.title || formData.title,
-        description: predefined?.description || formData.description,
-        implementation_notes: formData.implementation_notes || null,
-        effectiveness_rating: formData.effectiveness_rating || null,
-        status: 'active'
+      const selectedAccommodationsList = addedAccommodations.map((id) => {
+        const accommodation = accommodationCategories
+          .flatMap(cat => cat.items)
+          .find(item => item.id === id);
+        return accommodation ? {
+          id: accommodation.id,
+          title: accommodation.title,
+          description: accommodation.description,
+          category: accommodationCategories.find(cat => cat.items.some(item => item.id === id))?.title || 'Unknown'
+        } : null;
+      }).filter(Boolean);
+
+      const response = await apiRequest('POST', '/api/autism_accommodations/generate-iep', {
+        accommodation_ids: addedAccommodations,
+        student_id: selectedStudent || null,
+        format: 'formal'
+      });
+
+      const result = await response.json();
+
+      // Create a downloadable text file
+      const blob = new Blob([result.iep_language], { type: 'text/plain' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `autism-accommodations-iep-language-${new Date().toISOString().split('T')[0]}.txt`;
+      a.click();
+      URL.revokeObjectURL(url);
+
+      toast({
+        title: "IEP Language Generated",
+        description: "IEP language document has been downloaded",
+      });
+
+    } catch (error) {
+      console.error('Error generating IEP language:', error);
+      toast({
+        title: "Error",
+        description: "Failed to generate IEP language. Please try again.",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const previewDocument = async () => {
+    if (addedAccommodations.length === 0) {
+      toast({
+        title: "No accommodations selected",
+        description: "Please add some accommodations first",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    try {
+      const response = await apiRequest('POST', '/api/autism_accommodations/preview', {
+        accommodation_ids: addedAccommodations,
+        student_id: selectedStudent || null,
+        template_type: 'iep'
+      });
+
+      const result = await response.json();
+
+      // Open preview in a new window
+      const newWindow = window.open('', '_blank');
+      if (newWindow) {
+        newWindow.document.write(`
+          <html>
+            <head>
+              <title>Autism Accommodation Plan Preview</title>
+              <style>
+                body { font-family: Arial, sans-serif; margin: 20px; }
+                pre { white-space: pre-wrap; }
+              </style>
+            </head>
+            <body>
+              <h1>Accommodation Plan Preview</h1>
+              <pre>${result.preview}</pre>
+            </body>
+          </html>
+        `);
+        newWindow.document.close();
+      }
+
+      toast({
+        title: "Preview Generated",
+        description: "Accommodation plan preview opened in new window",
+      });
+
+    } catch (error) {
+      console.error('Error generating preview:', error);
+      toast({
+        title: "Error",
+        description: "Failed to generate preview. Please try again.",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const saveToVault = async () => {
+    if (addedAccommodations.length === 0) {
+      toast({
+        title: "No accommodations selected",
+        description: "Please add some accommodations first",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    try {
+      const selectedAccommodationsList = addedAccommodations.map((id) => {
+        const accommodation = accommodationCategories
+          .flatMap(cat => cat.items)
+          .find(item => item.id === id);
+        return accommodation ? {
+          id: accommodation.id,
+          title: accommodation.title,
+          description: accommodation.description,
+          category: accommodationCategories.find(cat => cat.items.some(item => item.id === id))?.title || 'Unknown'
+        } : null;
+      }).filter(Boolean);
+
+      const studentName = selectedStudent && students?.find((s: any) => s.id === selectedStudent)?.full_name || "General";
+      const documentTitle = `Autism Accommodations - ${studentName}`;
+      const documentContent = {
+        studentId: selectedStudent || null,
+        studentName: studentName,
+        accommodations: selectedAccommodationsList,
+        createdDate: new Date().toISOString(),
+        categories: accommodationCategories.map(cat => ({
+          id: cat.id,
+          title: cat.title,
+          description: cat.description
+        }))
       };
 
-      await api.createAutismAccommodation(accommodationData);
+      const response = await apiRequest('POST', '/api/documents', {
+        title: documentTitle,
+        description: `Autism accommodation plan created on ${new Date().toLocaleDateString()}`,
+        file_name: `${documentTitle}.json`,
+        file_path: `vault/accommodations/${Date.now()}-autism-accommodations`,
+        file_type: 'application/json',
+        file_size: new Blob([JSON.stringify(documentContent, null, 2)]).size,
+        category: 'Accommodation Plan',
+        tags: ['autism', 'accommodations', 'plan'],
+        content: JSON.stringify(documentContent, null, 2),
+        student_id: selectedStudent || null
+      });
 
       toast({
-        title: "Success",
-        description: "Accommodation created successfully!",
+        title: "Saved to Vault",
+        description: "Accommodation plan has been saved to your document vault",
       });
 
-      fetchAccommodations();
-      setShowCreateDialog(false);
-      setFormData({
-        title: "",
-        description: "",
-        implementation_notes: "",
-        accommodation_type: "individualized",
-        effectiveness_rating: 0
-      });
     } catch (error) {
-      console.error('Error creating accommodation:', error);
+      console.error('Error saving to vault:', error);
       toast({
         title: "Error",
-        description: "Failed to create accommodation. Please try again.",
+        description: "Failed to save to vault. Please try again.",
         variant: "destructive",
       });
     }
   };
-
-  const updateEffectivenessRating = async (id: string, rating: number) => {
-    try {
-      // TODO: Add updateAutismAccommodation API method - for now just skip
-      console.log('Update effectiveness rating:', id, rating);
-
-      setAccommodations(prev =>
-        prev.map(acc => acc.id === id ? { ...acc, effectiveness_rating: rating } : acc)
-      );
-
-      toast({
-        title: "Success",
-        description: "Effectiveness rating updated!",
-      });
-    } catch (error) {
-      console.error('Error updating rating:', error);
-      toast({
-        title: "Error",
-        description: "Failed to update rating. Please try again.",
-        variant: "destructive",
-      });
-    }
-  };
-
-  const filteredAccommodations = accommodations.filter(acc =>
-    selectedCategory === 'all' || acc.category === selectedCategory
-  );
 
   return (
-    <DashboardLayout>
-      <div className="space-y-8">
-        <div>
-          <h1 className="text-3xl font-bold mb-2">Autism Accommodation Builder</h1>
-          <p className="text-muted-foreground">
-            Create and manage autism-specific accommodations tailored to individual sensory, communication, and learning needs.
-          </p>
-        </div>
-
-        {/* Student Selection */}
-        <Card>
-          <CardHeader>
-            <CardTitle>Select Student</CardTitle>
-            <CardDescription>
-              Choose a student to create accommodations for, or leave blank for general accommodations.
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <StudentSelector
-              selectedStudent={selectedStudent || ""}
-              onStudentChange={(id) => setSelectedStudent(id || "")}
-            />
-          </CardContent>
-        </Card>
-
-        {/* Category Tabs */}
-        <Tabs value={selectedCategory} onValueChange={setSelectedCategory}>
-          <TabsList className="grid w-full grid-cols-2 sm:grid-cols-4 lg:grid-cols-7">
-            <TabsTrigger value="all">All</TabsTrigger>
-            {accommodationCategories.map((category) => (
-              <TabsTrigger key={category.id} value={category.id} className="text-xs">
-                {category.name}
-              </TabsTrigger>
-            ))}
-          </TabsList>
-
-          <TabsContent value="all" className="space-y-6">
-            <div className="flex justify-between items-center">
-              <h2 className="text-xl font-semibold">All Accommodations</h2>
-              <Dialog open={showCreateDialog} onOpenChange={setShowCreateDialog}>
-                <DialogTrigger asChild>
-                  <Button>
-                    <Plus className="h-4 w-4 mr-2" />
-                    Create Custom
-                  </Button>
-                </DialogTrigger>
-                <DialogContent className="sm:max-w-[500px]">
-                  <DialogHeader>
-                    <DialogTitle>Create Custom Accommodation</DialogTitle>
-                    <DialogDescription>
-                      Create a personalized accommodation for specific needs.
-                    </DialogDescription>
-                  </DialogHeader>
-                  
-                  <div className="space-y-4">
-                    <div>
-                      <Label htmlFor="category">Category</Label>
-                      <Select value={selectedCategory} onValueChange={setSelectedCategory}>
-                        <SelectTrigger>
-                          <SelectValue />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {accommodationCategories.map((category) => (
-                            <SelectItem key={category.id} value={category.id}>
-                              {category.name}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                    </div>
-                    
-                    <div>
-                      <Label htmlFor="title">Title</Label>
-                      <Input
-                        id="title"
-                        placeholder="Accommodation title..."
-                        value={formData.title}
-                        onChange={(e) => setFormData(prev => ({ ...prev, title: e.target.value }))}
-                      />
-                    </div>
-                    
-                    <div>
-                      <Label htmlFor="description">Description</Label>
-                      <Textarea
-                        id="description"
-                        placeholder="Describe the accommodation and how it helps..."
-                        value={formData.description}
-                        onChange={(e) => setFormData(prev => ({ ...prev, description: e.target.value }))}
-                        rows={3}
-                      />
-                    </div>
-                    
-                    <div>
-                      <Label htmlFor="implementation">Implementation Notes</Label>
-                      <Textarea
-                        id="implementation"
-                        placeholder="How to implement this accommodation..."
-                        value={formData.implementation_notes}
-                        onChange={(e) => setFormData(prev => ({ ...prev, implementation_notes: e.target.value }))}
-                        rows={2}
-                      />
-                    </div>
-                  </div>
-                  
-                  <DialogFooter>
-                    <Button 
-                      onClick={() => handleCreateAccommodation()}
-                      disabled={!formData.title || !formData.description}
-                    >
-                      Create Accommodation
-                    </Button>
-                  </DialogFooter>
-                </DialogContent>
-              </Dialog>
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {filteredAccommodations.map((accommodation) => (
-                <Card key={accommodation.id}>
-                  <CardHeader>
-                    <div className="flex items-center justify-between">
-                      <CardTitle className="text-lg">{accommodation.title}</CardTitle>
-                      <Badge variant="secondary">{accommodation.category}</Badge>
-                    </div>
-                  </CardHeader>
-                  <CardContent className="space-y-4">
-                    <p className="text-sm text-muted-foreground">
-                      {accommodation.description}
-                    </p>
-                    
-                    {accommodation.implementation_notes && (
-                      <div>
-                        <h4 className="text-sm font-medium mb-1">Implementation Notes:</h4>
-                        <p className="text-sm text-muted-foreground">
-                          {accommodation.implementation_notes}
-                        </p>
-                      </div>
-                    )}
-                    
-                    <div>
-                      <h4 className="text-sm font-medium mb-2">Effectiveness Rating</h4>
-                      <div className="flex items-center gap-1">
-                        {[1, 2, 3, 4, 5].map((rating) => (
-                          <Button
-                            key={rating}
-                            variant="ghost"
-                            size="sm"
-                            onClick={() => updateEffectivenessRating(accommodation.id, rating)}
-                            className="p-1"
-                          >
-                            <Star 
-                              className={`h-4 w-4 ${
-                                rating <= (accommodation.effectiveness_rating || 0)
-                                  ? 'fill-yellow-400 text-yellow-400'
-                                  : 'text-gray-300'
-                              }`}
-                            />
-                          </Button>
-                        ))}
-                        <span className="ml-2 text-sm text-muted-foreground">
-                          ({accommodation.effectiveness_rating || 0}/5)
-                        </span>
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-              ))}
-            </div>
-          </TabsContent>
-
-          {accommodationCategories.map((category) => (
-            <TabsContent key={category.id} value={category.id} className="space-y-6">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-3">
-                  <div className={`p-2 rounded-lg ${category.color}`}>
-                    <category.icon className="h-5 w-5" />
-                  </div>
-                  <div>
-                    <h2 className="text-xl font-semibold">{category.name}</h2>
-                    <p className="text-sm text-muted-foreground">
-                      Accommodations for {category.name.toLowerCase()} support
-                    </p>
-                  </div>
-                </div>
+    <div className="min-h-screen bg-background">
+      <TopNavigation />
+      
+      <div className="container mx-auto p-6 max-w-7xl">
+        <div className="space-y-6">
+          {/* Header */}
+          <div className="space-y-4">
+            <div className="flex items-center gap-3">
+              <div className="w-12 h-12 bg-primary/10 rounded-lg flex items-center justify-center">
+                <Building2 className="h-6 w-6 text-primary" />
               </div>
-
-              {/* Pre-defined accommodations */}
               <div>
-                <h3 className="text-lg font-medium mb-4">Suggested Accommodations</h3>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  {predefinedAccommodations[category.id as keyof typeof predefinedAccommodations]?.map((item, index) => (
-                    <Card key={index} className="hover:shadow-md transition-shadow">
-                      <CardHeader className="pb-3">
-                        <CardTitle className="text-base">{item.title}</CardTitle>
-                      </CardHeader>
-                      <CardContent className="pt-0">
-                        <p className="text-sm text-muted-foreground mb-3">
-                          {item.description}
-                        </p>
-                        <Button 
-                          size="sm" 
-                          onClick={() => handleCreateAccommodation(item)}
-                          className="w-full"
-                        >
-                          <Plus className="h-3 w-3 mr-1" />
-                          Add This Accommodation
-                        </Button>
-                      </CardContent>
-                    </Card>
-                  ))}
-                </div>
+                <h1 className="text-3xl font-bold">Autism Accommodation Builder</h1>
+                <p className="text-muted-foreground">
+                  Create personalized accommodations and supports for students with autism
+                </p>
               </div>
+            </div>
+          </div>
 
-              {/* Existing accommodations for this category */}
-              {filteredAccommodations.length > 0 && (
-                <div>
-                  <h3 className="text-lg font-medium mb-4">Your {category.name} Accommodations</h3>
-                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                    {filteredAccommodations.map((accommodation) => (
-                      <Card key={accommodation.id}>
-                        <CardHeader>
-                          <CardTitle className="text-lg">{accommodation.title}</CardTitle>
-                        </CardHeader>
-                        <CardContent className="space-y-4">
-                          <p className="text-sm text-muted-foreground">
-                            {accommodation.description}
-                          </p>
-                          
-                          {accommodation.implementation_notes && (
-                            <div>
-                              <h4 className="text-sm font-medium mb-1">Implementation:</h4>
-                              <p className="text-sm text-muted-foreground">
-                                {accommodation.implementation_notes}
-                              </p>
-                            </div>
-                          )}
-                          
-                          <div>
-                            <h4 className="text-sm font-medium mb-2">Effectiveness</h4>
-                            <div className="flex items-center gap-1">
-                              {[1, 2, 3, 4, 5].map((rating) => (
-                                <Button
-                                  key={rating}
-                                  variant="ghost"
-                                  size="sm"
-                                  onClick={() => updateEffectivenessRating(accommodation.id, rating)}
-                                  className="p-1"
-                                >
-                                  <Star 
-                                    className={`h-4 w-4 ${
-                                      rating <= (accommodation.effectiveness_rating || 0)
-                                        ? 'fill-yellow-400 text-yellow-400'
-                                        : 'text-gray-300'
-                                    }`}
-                                  />
-                                </Button>
-                              ))}
-                            </div>
-                          </div>
-                        </CardContent>
-                      </Card>
-                    ))}
-                  </div>
+          {/* Student Selection */}
+          <Card className="bg-gradient-card border-0">
+            <CardContent className="p-6">
+              <div className="space-y-4">
+                <div className="flex items-center justify-between">
+                  <h3 className="text-lg font-semibold">Student Selection</h3>
+                  {isAdvocate && (
+                    <Badge variant="secondary" className="px-3 py-1">
+                      Advocate Mode
+                    </Badge>
+                  )}
                 </div>
-              )}
-            </TabsContent>
-          ))}
-        </Tabs>
+                <p className="text-sm text-muted-foreground">
+                  {isAdvocate 
+                    ? "Choose a client's student to create accommodations for, or create general templates."
+                    : "Choose a student to create accommodations for, or leave blank for general accommodations."
+                  }
+                </p>
+                <Select value={selectedStudent} onValueChange={setSelectedStudent}>
+                  <SelectTrigger className="max-w-md">
+                    <SelectValue placeholder={isAdvocate ? "Select a client's student..." : "Select a student..."} />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="">{isAdvocate ? "General Template" : "General Accommodations"}</SelectItem>
+                    {students?.map((student: any) => (
+                      <SelectItem key={student.id} value={student.id}>
+                        {student.full_name} - {student.grade_level ? `Grade ${student.grade_level}` : 'No Grade'}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                {isAdvocate && selectedStudent && (
+                  <div className="mt-2 p-3 bg-primary/10 rounded-lg">
+                    <p className="text-xs text-primary font-medium">
+                      💡 Advocate Tip: Creating accommodations for a specific client will be shared with the parent for review.
+                    </p>
+                  </div>
+                )}
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Category Tabs */}
+          <div className="flex flex-wrap gap-2">
+            <Button
+              variant={activeCategory === "all" ? "default" : "outline"}
+              onClick={() => setActiveCategory("all")}
+              className="rounded-full"
+            >
+              All
+            </Button>
+            {accommodationCategories.map((category) => (
+              <Button
+                key={category.id}
+                variant={activeCategory === category.id ? "default" : "outline"}
+                onClick={() => setActiveCategory(category.id)}
+                className="rounded-full"
+              >
+                <span className="mr-2">{category.icon}</span>
+                {category.title}
+              </Button>
+            ))}
+          </div>
+
+          {/* Quick Actions */}
+          <div className="flex gap-4">
+            <Button onClick={getAllAccommodations} variant="secondary" size="sm">
+              <Plus className="h-4 w-4 mr-2" />
+              Add All Accommodations
+            </Button>
+            <Badge variant="secondary" className="px-3 py-1">
+              {addedAccommodations.length} accommodations added
+            </Badge>
+          </div>
+
+          {/* Accommodations Grid */}
+          <div className="grid gap-6">
+            {filteredCategories.map((category) => (
+              <Card key={category.id} className="bg-gradient-card border-0">
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    {category.icon}
+                    {category.title}
+                  </CardTitle>
+                  <CardDescription>
+                    {category.description}
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-4">
+                    <h4 className="font-semibold text-sm">Suggested Accommodations</h4>
+                    <div className="grid gap-4 md:grid-cols-2">
+                      {category.items.map((item) => (
+                        <div 
+                          key={item.id} 
+                          className="flex flex-col gap-3 p-4 rounded-lg bg-surface border border-border hover:border-primary/20 transition-colors"
+                        >
+                          <div className="space-y-2">
+                            <div className="flex items-center gap-2">
+                              <h5 className="font-medium text-sm">{item.title}</h5>
+                              {item.recommended && (
+                                <Badge variant="secondary" className="text-xs">
+                                  Recommended
+                                </Badge>
+                              )}
+                            </div>
+                            <p className="text-xs text-muted-foreground">
+                              {item.description}
+                            </p>
+                          </div>
+                          <Button
+                            onClick={() => handleAddAccommodation(item.id)}
+                            disabled={addedAccommodations.includes(item.id)}
+                            size="sm"
+                            variant={addedAccommodations.includes(item.id) ? "secondary" : "default"}
+                            className="w-full"
+                            data-testid={`button-add-accommodation-${item.id}`}
+                          >
+                            {addedAccommodations.includes(item.id) ? (
+                              <>
+                                <Check className="h-4 w-4 mr-2" />
+                                Added
+                              </>
+                            ) : (
+                              <>
+                                <Plus className="h-4 w-4 mr-2" />
+                                Add This Accommodation
+                              </>
+                            )}
+                          </Button>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+
+          {/* Selected Accommodations Summary */}
+          {addedAccommodations.length > 0 && (
+            <Card className="bg-gradient-hero text-white border-0">
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <CheckCircle className="h-5 w-5" />
+                  Added Accommodations ({addedAccommodations.length})
+                </CardTitle>
+                <CardDescription className="text-white/80">
+                  Review and manage your selected accommodations
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="grid gap-2 md:grid-cols-2">
+                  {addedAccommodations.map((id) => {
+                    const accommodation = accommodationCategories
+                      .flatMap(cat => cat.items)
+                      .find(item => item.id === id);
+                    return accommodation ? (
+                      <div key={id} className="flex items-center justify-between p-2 bg-white/10 rounded">
+                        <div className="flex items-center gap-2">
+                          <CheckCircle className="h-4 w-4" />
+                          <span className="text-sm">{accommodation.title}</span>
+                        </div>
+                        <Button 
+                          variant="ghost" 
+                          size="sm"
+                          onClick={() => handleRemoveAccommodation(id)}
+                          className="text-white/60 hover:text-white hover:bg-white/10"
+                        >
+                          Remove
+                        </Button>
+                      </div>
+                    ) : null;
+                  })}
+                </div>
+              </CardContent>
+            </Card>
+          )}
+
+          {/* Action Buttons */}
+          <div className="space-y-4">
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+              <Button 
+                variant="default" 
+                size="lg" 
+                className="w-full"
+                disabled={addedAccommodations.length === 0}
+                onClick={saveToVault}
+              >
+                <Save className="h-4 w-4 mr-2" />
+                Save to Vault
+              </Button>
+              <Button 
+                variant="hero" 
+                size="lg" 
+                className="w-full"
+                disabled={addedAccommodations.length === 0}
+                onClick={generateIEPLanguage}
+                data-testid="button-generate-iep"
+              >
+                <Download className="h-4 w-4 mr-2" />
+                Generate IEP Language
+              </Button>
+              <Button 
+                variant="outline" 
+                size="lg"
+                className="w-full"
+                disabled={addedAccommodations.length === 0}
+                onClick={previewDocument}
+                data-testid="button-preview-document"
+              >
+                <Eye className="h-4 w-4 mr-2" />
+                Preview Document
+              </Button>
+            </div>
+            
+            {!isAdvocate && (
+              <div className="flex justify-center">
+                <Button asChild variant="secondary" size="lg" className="min-w-48">
+                  <Link to="/upsell/hero-plan">
+                    Get Expert Review
+                    <ArrowRight className="h-4 w-4 ml-2" />
+                  </Link>
+                </Button>
+              </div>
+            )}
+            {isAdvocate && (
+              <div className="flex justify-center">
+                <Button asChild variant="outline" size="lg" className="min-w-48">
+                  <Link to="/advocate/dashboard-pro">
+                    Back to Client Dashboard
+                    <ArrowRight className="h-4 w-4 ml-2" />
+                  </Link>
+                </Button>
+              </div>
+            )}
+          </div>
+
+          {/* Tips */}
+          <Card className="bg-surface border-0">
+            <CardHeader>
+              <CardTitle className="text-lg flex items-center gap-2">
+                <Sparkles className="h-5 w-5 text-primary" />
+                Tips for Success
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-3 text-sm text-muted-foreground">
+              <div className="flex items-start gap-2">
+                <span className="text-primary">•</span>
+                <p>Start with recommended accommodations - they're based on research and best practices</p>
+              </div>
+              <div className="flex items-start gap-2">
+                <span className="text-primary">•</span>
+                <p>Consider your child's specific sensory needs and learning style</p>
+              </div>
+              <div className="flex items-start gap-2">
+                <span className="text-primary">•</span>
+                <p>Accommodations should be individualized to your child's unique profile</p>
+              </div>
+              <div className="flex items-start gap-2">
+                <span className="text-primary">•</span>
+                <p>Include specific details about implementation (frequency, duration, settings)</p>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Back Navigation */}
+          <div className="flex justify-center pt-6 pb-4">
+            <Button asChild variant="ghost" size="sm">
+              <Link to="/tools/hub" className="flex items-center gap-2">
+                <ArrowRight className="h-4 w-4 rotate-180" />
+                Back to Tools Hub
+              </Link>
+            </Button>
+          </div>
+        </div>
       </div>
-    </DashboardLayout>
+    </div>
   );
-}
+};
+
+export default AutismAccommodationBuilder;

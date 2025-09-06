@@ -222,22 +222,26 @@ router.post('/:id/accept', async (req: Request, res: Response) => {
     const userId = await getUserId(req);
     const { id } = req.params;
 
-    // Verify proposal exists and user is the advocate
-    const proposal = await db.select({
+    // Get full proposal details including student information
+    const proposalData = await db.select({
       proposal: schema.match_proposals,
-      advocate: schema.advocates
+      advocate: schema.advocates,
+      student: schema.students
     })
     .from(schema.match_proposals)
     .leftJoin(schema.advocates, eq(schema.match_proposals.advocate_id, schema.advocates.id))
+    .leftJoin(schema.students, eq(schema.match_proposals.student_id, schema.students.id))
     .where(and(
       eq(schema.match_proposals.id, id),
       eq(schema.advocates.user_id, userId)
     ))
     .then(results => results[0]);
 
-    if (!proposal) {
-      return res.status(404).json({ error: 'Proposal not found' });
+    if (!proposalData || !proposalData.advocate) {
+      return res.status(404).json({ error: 'Proposal not found or advocate not found' });
     }
+
+    const { proposal, advocate, student } = proposalData;
 
     // Update proposal status
     const [updatedProposal] = await db.update(schema.match_proposals)
@@ -248,12 +252,99 @@ router.post('/:id/accept', async (req: Request, res: Response) => {
       .where(eq(schema.match_proposals.id, id))
       .returning();
 
+    // Create advocate-client relationship
+    const clientRelationship = await db.insert(schema.advocate_clients)
+      .values({
+        advocate_id: advocate.id,
+        client_id: proposal.parent_id,
+        relationship_type: 'active_client',
+        status: 'active',
+        start_date: new Date().toISOString(),
+        notes: `Started from accepted match proposal for student: ${student?.full_name || 'Unknown'}`
+      })
+      .returning()
+      .then(results => results[0])
+      .catch(err => {
+        // If relationship already exists, that's fine
+        console.log('Client relationship may already exist:', err.message);
+        return null;
+      });
+
+    // Create case record for the accepted proposal
+    const caseRecord = await db.insert(schema.cases)
+      .values({
+        advocate_id: advocate.id,
+        client_id: proposal.parent_id,
+        student_id: proposal.student_id,
+        case_title: `IEP Support for ${student?.full_name || 'Student'}`,
+        description: `Case created from accepted match proposal. Student: ${student?.full_name}, Grade: ${student?.grade_level}, School: ${student?.school_name}`,
+        case_type: 'iep_support',
+        status: 'active',
+        priority: 'medium',
+        billing_rate: advocate.rate_per_hour || 0,
+        total_hours: 0,
+        next_action: 'Initial consultation',
+        next_action_date: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString() // 7 days from now
+      })
+      .returning()
+      .then(results => results[0])
+      .catch(err => {
+        console.error('Error creating case record:', err);
+        return null;
+      });
+
+    // Create or find existing conversation
+    let conversation = await db.select()
+      .from(schema.conversations)
+      .where(and(
+        eq(schema.conversations.advocate_id, advocate.id),
+        eq(schema.conversations.parent_id, proposal.parent_id),
+        eq(schema.conversations.student_id, proposal.student_id)
+      ))
+      .then(results => results[0]);
+
+    if (!conversation) {
+      const newConversation = await db.insert(schema.conversations)
+        .values({
+          advocate_id: advocate.id,
+          parent_id: proposal.parent_id,
+          student_id: proposal.student_id,
+          match_proposal_id: proposal.id,
+          title: `IEP Support Discussion - ${student?.full_name || 'Student'}`,
+          status: 'active',
+          last_message_at: new Date()
+        })
+        .returning()
+        .then(results => results[0])
+        .catch(err => {
+          console.error('Error creating conversation:', err);
+          return null;
+        });
+      
+      if (newConversation) {
+        conversation = newConversation;
+      }
+    }
+
+    console.log('Proposal acceptance completed:', {
+      proposalId: updatedProposal.id,
+      advocateId: advocate.id,
+      clientId: proposal.parent_id,
+      studentId: proposal.student_id,
+      clientRelationshipCreated: !!clientRelationship,
+      caseCreated: !!caseRecord,
+      conversationReady: !!conversation
+    });
+
     res.json({ 
-      message: 'Proposal accepted',
-      proposal: updatedProposal
+      message: 'Proposal accepted successfully',
+      proposal: updatedProposal,
+      clientRelationship,
+      caseRecord,
+      conversation
     });
   } catch (error) {
-    console.error('Server error:', error);
+    console.error('Server error accepting proposal:', error);
     res.status(500).json({ error: 'Internal server error' });
   }
 });

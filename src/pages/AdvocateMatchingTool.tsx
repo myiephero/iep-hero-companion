@@ -8,11 +8,14 @@ import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Label } from "@/components/ui/label";
+import { Progress } from "@/components/ui/progress";
 import { StudentSelector } from "@/components/StudentSelector";
-import { Search, MapPin, Star, Clock, DollarSign, MessageSquare, Users, GraduationCap, Filter, Sparkles } from "lucide-react";
+import { Search, MapPin, Star, Clock, DollarSign, MessageSquare, Users, GraduationCap, Filter, Sparkles, Zap, Brain, Target } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
+import { useMutation } from "@tanstack/react-query";
 
 interface Advocate {
   id: string;
@@ -50,7 +53,39 @@ export default function AdvocateMatchingTool() {
     preferred_contact_method: "email",
     budget_range: ""
   });
+  const [activeTab, setActiveTab] = useState("smart-match");
+  const [aiMatches, setAiMatches] = useState<any[]>([]);
+  const [matchingStatus, setMatchingStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle');
   const { toast } = useToast();
+
+  // AI Auto-matching mutation
+  const autoMatchMutation = useMutation({
+    mutationFn: async ({ student_id, urgency_level }: { student_id: string; urgency_level: string }) => {
+      const response = await apiRequest('POST', '/api/match/auto-match', {
+        student_id,
+        max_matches: 3,
+        urgency_level
+      });
+      return response.json();
+    },
+    onSuccess: (data) => {
+      setAiMatches(data.proposals || []);
+      setMatchingStatus('success');
+      toast({
+        title: "Smart Matches Found!",
+        description: `Found ${data.matches_created || 0} excellent advocates for your student.`,
+      });
+    },
+    onError: (error) => {
+      console.error('Auto-matching error:', error);
+      setMatchingStatus('error');
+      toast({
+        title: "Matching Error",
+        description: "Unable to find matches right now. Please try browsing advocates manually.",
+        variant: "destructive",
+      });
+    }
+  });
 
   useEffect(() => {
     fetchAdvocates();
@@ -197,6 +232,23 @@ export default function AdvocateMatchingTool() {
     }
   };
 
+  const handleSmartMatch = () => {
+    if (!selectedStudent) {
+      toast({
+        title: "Select a Student",
+        description: "Please choose a student before finding advocate matches.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setMatchingStatus('loading');
+    autoMatchMutation.mutate({
+      student_id: selectedStudent,
+      urgency_level: contactForm.urgency_level
+    });
+  };
+
   if (loading) {
     return (
       <DashboardLayout>
@@ -261,21 +313,177 @@ export default function AdvocateMatchingTool() {
           </CardContent>
         </Card>
 
-        {/* Search and Filter Section */}
+        {/* AI Matching and Browse Tabs */}
         <Card className="border-0 shadow-lg">
-          <CardHeader className="pb-4">
+          <CardHeader className="pb-2">
             <CardTitle className="flex items-center gap-3">
-              <div className="p-2 bg-gradient-to-br from-green-500 to-teal-600 rounded-lg shadow-md">
-                <Search className="h-5 w-5 text-white" />
+              <div className="p-2 bg-gradient-to-br from-purple-500 to-indigo-600 rounded-lg shadow-md">
+                <Brain className="h-5 w-5 text-white" />
               </div>
-              Find Your Advocate
+              Find Your Perfect Advocate
             </CardTitle>
             <CardDescription>
-              Search by name, specialization, or location to find the right advocate for your needs.
+              Use AI-powered matching or browse advocates manually to find the best fit for your student's needs.
             </CardDescription>
           </CardHeader>
-          <CardContent className="space-y-6">
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <CardContent>
+            <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+              <TabsList className="grid w-full grid-cols-2">
+                <TabsTrigger value="smart-match" className="flex items-center gap-2">
+                  <Zap className="h-4 w-4" />
+                  Smart Match
+                </TabsTrigger>
+                <TabsTrigger value="browse" className="flex items-center gap-2">
+                  <Search className="h-4 w-4" />
+                  Browse All
+                </TabsTrigger>
+              </TabsList>
+
+              <TabsContent value="smart-match" className="space-y-6 mt-6">
+                {/* AI Matching Interface */}
+                <div className="bg-gradient-to-br from-purple-50 to-indigo-50 dark:from-purple-900/20 dark:to-indigo-900/20 rounded-xl p-6">
+                  <div className="text-center mb-6">
+                    <div className="p-4 bg-gradient-to-br from-purple-500 to-indigo-600 rounded-full w-16 h-16 mx-auto mb-4 flex items-center justify-center">
+                      <Brain className="h-8 w-8 text-white" />
+                    </div>
+                    <h3 className="text-xl font-semibold mb-2">AI-Powered Matching</h3>
+                    <p className="text-muted-foreground">
+                      Our intelligent system analyzes your student's specific needs and finds the most compatible advocates.
+                    </p>
+                  </div>
+
+                  <div className="max-w-md mx-auto space-y-4">
+                    <div className="space-y-2">
+                      <Label>Urgency Level</Label>
+                      <Select 
+                        value={contactForm.urgency_level} 
+                        onValueChange={(value) => setContactForm({...contactForm, urgency_level: value})}
+                      >
+                        <SelectTrigger>
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="low">Low - Within a month</SelectItem>
+                          <SelectItem value="medium">Medium - Within 2 weeks</SelectItem>
+                          <SelectItem value="high">High - Urgent, ASAP</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    
+                    <Button 
+                      onClick={handleSmartMatch}
+                      disabled={!selectedStudent || autoMatchMutation.isPending}
+                      className="w-full bg-gradient-to-r from-purple-500 to-indigo-600 hover:from-purple-600 hover:to-indigo-700"
+                      size="lg"
+                    >
+                      {autoMatchMutation.isPending ? (
+                        <>
+                          <div className="animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent mr-2" />
+                          Finding Perfect Matches...
+                        </>
+                      ) : (
+                        <>
+                          <Target className="h-4 w-4 mr-2" />
+                          Find My Matches
+                        </>
+                      )}
+                    </Button>
+                  </div>
+
+                  {/* AI Match Results */}
+                  {matchingStatus === 'success' && aiMatches.length > 0 && (
+                    <div className="mt-8 space-y-4">
+                      <div className="text-center">
+                        <h4 className="font-semibold text-lg mb-2">🎯 Your Top Matches</h4>
+                        <p className="text-sm text-muted-foreground">Ranked by compatibility with your student's needs</p>
+                      </div>
+                      
+                      <div className="grid gap-4">
+                        {aiMatches.map((match, index) => {
+                          const advocate = match.advocate;
+                          const matchDetails = match.match_details;
+                          return (
+                            <Card key={match.proposal.id} className="border-2 border-purple-200 dark:border-purple-800">
+                              <CardContent className="p-4">
+                                <div className="flex items-start justify-between mb-3">
+                                  <div className="flex items-center gap-3">
+                                    <Avatar className="h-10 w-10">
+                                      <AvatarFallback className="bg-gradient-to-br from-purple-500 to-indigo-600 text-white">
+                                        {advocate.full_name.split(' ').map((n: string) => n[0]).join('')}
+                                      </AvatarFallback>
+                                    </Avatar>
+                                    <div>
+                                      <h5 className="font-semibold">{advocate.full_name}</h5>
+                                      <p className="text-sm text-muted-foreground">{advocate.location}</p>
+                                    </div>
+                                  </div>
+                                  <div className="text-right">
+                                    <div className="text-lg font-bold text-purple-600 dark:text-purple-400">
+                                      {matchDetails.total_score}% Match
+                                    </div>
+                                    <div className="text-xs text-muted-foreground">Compatibility</div>
+                                  </div>
+                                </div>
+
+                                <Progress value={matchDetails.total_score} className="mb-3" />
+                                
+                                <div className="space-y-2 mb-4">
+                                  {matchDetails.reasons.map((reason: string, i: number) => (
+                                    <div key={i} className="flex items-center gap-2 text-sm">
+                                      <div className="w-2 h-2 bg-green-500 rounded-full" />
+                                      <span>{reason}</span>
+                                    </div>
+                                  ))}
+                                </div>
+
+                                <div className="flex flex-wrap gap-2 mb-4">
+                                  {advocate.specializations?.slice(0, 3).map((spec: string) => (
+                                    <Badge key={spec} variant="secondary">{spec}</Badge>
+                                  ))}
+                                </div>
+
+                                <div className="flex gap-2">
+                                  <Button 
+                                    size="sm" 
+                                    className="flex-1"
+                                    onClick={() => {
+                                      setSelectedAdvocate(advocate);
+                                      setShowContactDialog(true);
+                                    }}
+                                  >
+                                    <MessageSquare className="h-4 w-4 mr-1" />
+                                    Contact
+                                  </Button>
+                                  <Button size="sm" variant="outline">
+                                    View Profile
+                                  </Button>
+                                </div>
+                              </CardContent>
+                            </Card>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  )}
+
+                  {matchingStatus === 'success' && aiMatches.length === 0 && (
+                    <div className="mt-8 text-center py-8">
+                      <div className="text-muted-foreground mb-4">
+                        <Target className="h-12 w-12 mx-auto mb-2" />
+                        <p>No matches found for your current criteria.</p>
+                        <p className="text-sm">Try browsing all advocates or contact us for help.</p>
+                      </div>
+                      <Button variant="outline" onClick={() => setActiveTab("browse")}>
+                        Browse All Advocates
+                      </Button>
+                    </div>
+                  )}
+                </div>
+              </TabsContent>
+
+              <TabsContent value="browse" className="space-y-6 mt-6">
+                {/* Manual Browse Interface */}
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
               <div className="space-y-2">
                 <Label htmlFor="search" className="text-sm font-medium">Search</Label>
                 <div className="relative">
@@ -353,28 +561,26 @@ export default function AdvocateMatchingTool() {
                 </Button>
               </div>
             )}
-          </CardContent>
-        </Card>
+            
+            {/* Results Summary */}
+            {!loading && (
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <span className="text-sm font-medium">
+                    {filteredAdvocates.length} advocate{filteredAdvocates.length !== 1 ? 's' : ''} found
+                  </span>
+                  {selectedStudent && (
+                    <Badge variant="outline" className="gap-1">
+                      <GraduationCap className="h-3 w-3" />
+                      For selected student
+                    </Badge>
+                  )}
+                </div>
+              </div>
+            )}
 
-        {/* Results Summary */}
-        {!loading && (
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <span className="text-sm font-medium">
-                {filteredAdvocates.length} advocate{filteredAdvocates.length !== 1 ? 's' : ''} found
-              </span>
-              {selectedStudent && (
-                <Badge variant="outline" className="gap-1">
-                  <GraduationCap className="h-3 w-3" />
-                  For selected student
-                </Badge>
-              )}
-            </div>
-          </div>
-        )}
-
-        {/* Advocates Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {/* Advocates Grid */}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {filteredAdvocates.map((advocate, index) => (
             <Card 
               key={advocate.id} 

@@ -24,6 +24,7 @@ import UnifiedIEPReview from "./pages/UnifiedIEPReview";
 import AutismAccommodations from "./pages/AutismAccommodations";
 import AutismAccommodationBuilder from "./pages/AutismAccommodationBuilder";
 import AdvocateMatchingTool from "./pages/AdvocateMatchingTool";
+import SmartMatching from "./pages/SmartMatching";
 import GiftedTwoeLearners from "./pages/GiftedTwoeLearners";
 import ExpertAnalysis from "./pages/ExpertAnalysis";
 import MatchingDashboard from "./pages/MatchingDashboard";
@@ -372,6 +373,11 @@ function App() {
               <Route path="/advocate/matching" element={
                 <ProtectedRoute allowedRoles={['advocate']}>
                   <MatchingDashboard />
+                </ProtectedRoute>
+              } />
+              <Route path="/parent/smart-matching" element={
+                <ProtectedRoute allowedRoles={['parent']}>
+                  <SmartMatching />
                 </ProtectedRoute>
               } />
               

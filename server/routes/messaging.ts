@@ -62,6 +62,9 @@ router.post('/conversations', async (req: Request, res: Response) => {
     if (error instanceof z.ZodError) {
       return res.status(400).json({ error: 'Invalid data', details: error.errors });
     }
+    if (error instanceof Error && error.message.includes('Authentication required')) {
+      return res.status(401).json({ error: 'Authentication required' });
+    }
     res.status(500).json({ error: 'Failed to create conversation' });
   }
 });
@@ -120,6 +123,9 @@ router.get('/conversations', async (req: Request, res: Response) => {
     res.json({ conversations: conversationsWithMessages });
   } catch (error) {
     console.error('Error fetching conversations:', error);
+    if (error instanceof Error && error.message.includes('Authentication required')) {
+      return res.status(401).json({ error: 'Authentication required' });
+    }
     res.status(500).json({ error: 'Failed to fetch conversations' });
   }
 });
@@ -177,6 +183,9 @@ router.get('/conversations/:id', async (req: Request, res: Response) => {
     });
   } catch (error) {
     console.error('Error fetching conversation:', error);
+    if (error instanceof Error && error.message.includes('Authentication required')) {
+      return res.status(401).json({ error: 'Authentication required' });
+    }
     res.status(500).json({ error: 'Failed to fetch conversation' });
   }
 });
@@ -234,6 +243,9 @@ router.post('/messages', async (req: Request, res: Response) => {
     if (error instanceof z.ZodError) {
       return res.status(400).json({ error: 'Invalid data', details: error.errors });
     }
+    if (error instanceof Error && error.message.includes('Authentication required')) {
+      return res.status(401).json({ error: 'Authentication required' });
+    }
     res.status(500).json({ error: 'Failed to send message' });
   }
 });
@@ -274,6 +286,9 @@ router.post('/conversations/:id/mark-read', async (req: Request, res: Response) 
     res.json({ success: true });
   } catch (error) {
     console.error('Error marking messages as read:', error);
+    if (error instanceof Error && error.message.includes('Authentication required')) {
+      return res.status(401).json({ error: 'Authentication required' });
+    }
     res.status(500).json({ error: 'Failed to mark messages as read' });
   }
 });

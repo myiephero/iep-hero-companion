@@ -15,6 +15,7 @@ import { useToast } from '@/hooks/use-toast';
 import { DashboardLayout } from '@/layouts/DashboardLayout';
 import { useAuth } from '@/hooks/useAuth';
 import { apiRequest } from '@/lib/queryClient';
+import { apiClient } from '@/lib/api';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useNavigate } from 'react-router-dom';
 
@@ -68,7 +69,7 @@ export default function MatchingDashboard() {
 
   // Determine if user is an advocate or parent based on URL
   const isAdvocate = window.location.pathname.includes('/advocate/');
-  const userRole = user?.user_metadata?.role || 'parent';
+  const userRole = user?.role || 'parent';
 
   // Fetch real data from API using proper authentication
   const { data: students = [], isLoading: studentsLoading } = useQuery({
@@ -235,9 +236,9 @@ export default function MatchingDashboard() {
       studentId: proposal.student_id,
       studentName: proposal.student?.full_name,
       proposalId: proposal.id,
-      parentId: proposal.parent_id,
+      parentId: proposal.student?.user_id || user?.id,
       studentGrade: proposal.student?.grade_level,
-      studentSchool: proposal.student?.school_name
+      studentSchool: proposal.student?.school || 'N/A'
     };
     navigate('/advocate/messages', { state: { newMessage: clientInfo } });
   };

@@ -4,18 +4,33 @@ import * as schema from '../../shared/schema';
 import { eq, and } from 'drizzle-orm';
 const router = express.Router();
 
-// Mock auth function for development
+// Middleware to extract user ID from authenticated session (same as main server)
 function getUserId(req: express.Request): string {
+  // First check for token-based auth (custom login system)
+  const token = req.headers.authorization?.replace('Bearer ', '');
+  if (token && (global as any).activeTokens && (global as any).activeTokens[token]) {
+    const tokenData = (global as any).activeTokens[token];
+    // Check if token is not expired (24 hours)
+    if (Date.now() - tokenData.createdAt < 24 * 60 * 60 * 1000) {
+      return tokenData.userId;
+    }
+  }
+  
+  // Check for Replit Auth session
+  const user = (req as any).user;
+  if (user && user.claims && user.claims.sub) {
+    return user.claims.sub;
+  }
+  
+  // Fallback for development/testing
   const authHeader = req.headers.authorization;
   if (authHeader && authHeader.startsWith('Bearer mock-token-')) {
     const userId = authHeader.replace('Bearer mock-token-', '');
     return userId;
   }
-  const path = req.path || '';
-  if (path.includes('advocate')) {
-    return 'test-advocate-001';
-  }
-  return 'test-parent-001';
+  
+  // Default fallback
+  return 'anonymous-user';
 }
 
 // Matching algorithm weights

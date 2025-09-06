@@ -34,6 +34,132 @@ function generateVerificationToken(): string {
   return Date.now().toString(36) + Math.random().toString(36).substr(2) + Math.random().toString(36).substr(2);
 }
 
+// Helper function to get accommodation templates
+function getAccommodationTemplates() {
+  return {
+    sensory: [
+      { id: "noise-canceling", title: "Noise-Canceling Headphones", description: "Provide noise-canceling headphones for noisy environments", category: "sensory", accommodation_type: "environmental" },
+      { id: "sensory-breaks", title: "Sensory Breaks", description: "Regular breaks to sensory room or quiet space every 30 minutes", category: "sensory", accommodation_type: "schedule" },
+      { id: "fidget-tools", title: "Fidget Tools", description: "Allow use of fidget toys or stress balls during instruction", category: "sensory", accommodation_type: "material" },
+      { id: "weighted-blanket", title: "Weighted Lap Pad", description: "Use of weighted lap pad for self-regulation during work time", category: "sensory", accommodation_type: "material" },
+      { id: "lighting", title: "Lighting Adjustments", description: "Adjusted lighting or seating away from fluorescent lights", category: "sensory", accommodation_type: "environmental" }
+    ],
+    communication: [
+      { id: "visual-schedules", title: "Visual Schedules", description: "Visual schedules and social stories for transitions", category: "communication", accommodation_type: "visual_support" },
+      { id: "communication-device", title: "AAC Device", description: "Access to AAC device or picture cards for communication", category: "communication", accommodation_type: "technology" },
+      { id: "peer-support", title: "Peer Support", description: "Structured peer interaction opportunities", category: "communication", accommodation_type: "social" },
+      { id: "social-scripts", title: "Social Scripts", description: "Pre-written social scripts for common situations", category: "communication", accommodation_type: "instructional" }
+    ],
+    academic: [
+      { id: "extended-time", title: "Extended Time", description: "Extended time for assignments and tests (1.5x)", category: "academic", accommodation_type: "timing" },
+      { id: "chunking", title: "Task Chunking", description: "Breaking assignments into smaller, manageable chunks", category: "academic", accommodation_type: "instructional" },
+      { id: "visual-supports", title: "Visual Supports", description: "Visual supports and graphic organizers for learning", category: "academic", accommodation_type: "visual_support" },
+      { id: "repetition", title: "Repeated Instructions", description: "Repeated instructions and clarification as needed", category: "academic", accommodation_type: "instructional" }
+    ],
+    social: [
+      { id: "social-skills-group", title: "Social Skills Group", description: "Participation in structured social skills group sessions", category: "social", accommodation_type: "social" },
+      { id: "peer-buddy", title: "Peer Buddy System", description: "Assignment of peer buddy for social support", category: "social", accommodation_type: "social" },
+      { id: "lunch-club", title: "Lunch Club", description: "Structured lunch club for social interaction practice", category: "social", accommodation_type: "social" }
+    ],
+    behavioral: [
+      { id: "behavior-plan", title: "Positive Behavior Support Plan", description: "Individualized positive behavior support plan", category: "behavioral", accommodation_type: "behavioral" },
+      { id: "break-cards", title: "Break Request Cards", description: "Visual cards to request breaks when overwhelmed", category: "behavioral", accommodation_type: "self_regulation" },
+      { id: "calm-down-space", title: "Calm Down Space", description: "Access to designated calm down space when needed", category: "behavioral", accommodation_type: "environmental" }
+    ],
+    environmental: [
+      { id: "preferential-seating", title: "Preferential Seating", description: "Seating near teacher, away from distractions", category: "environmental", accommodation_type: "environmental" },
+      { id: "quiet-space", title: "Access to Quiet Space", description: "Access to quiet space for work completion", category: "environmental", accommodation_type: "environmental" },
+      { id: "reduced-stimuli", title: "Reduced Environmental Stimuli", description: "Minimize visual and auditory distractions in workspace", category: "environmental", accommodation_type: "environmental" }
+    ]
+  };
+}
+
+// Helper function to generate IEP language from accommodations
+function generateIEPLanguage(accommodations: any[], format: string = 'formal') {
+  const categorizedAccommodations = accommodations.reduce((acc, item) => {
+    if (!acc[item.category]) acc[item.category] = [];
+    acc[item.category].push(item);
+    return acc;
+  }, {});
+
+  let iepLanguage = '';
+
+  if (format === 'formal') {
+    iepLanguage += "ACCOMMODATIONS AND MODIFICATIONS\n\n";
+    
+    Object.entries(categorizedAccommodations).forEach(([category, items]: [string, any]) => {
+      iepLanguage += `${category.toUpperCase()} SUPPORTS:\n`;
+      items.forEach((item: any) => {
+        iepLanguage += `• ${item.title}: ${item.description}\n`;
+        if (item.implementation_notes) {
+          iepLanguage += `  Implementation: ${item.implementation_notes}\n`;
+        }
+      });
+      iepLanguage += '\n';
+    });
+  } else {
+    // Bullet point format
+    accommodations.forEach((item) => {
+      iepLanguage += `• ${item.title} - ${item.description}\n`;
+    });
+  }
+
+  return iepLanguage;
+}
+
+// Helper function to generate accommodation preview
+function generateAccommodationPreview(accommodations: any[], student: any, templateType: string = 'iep') {
+  const studentName = student?.full_name || 'Student';
+  const grade = student?.grade_level || 'N/A';
+  
+  let preview = '';
+  
+  if (templateType === 'iep') {
+    preview = `INDIVIDUALIZED EDUCATION PROGRAM (IEP)
+ACCOMMODATION PLAN
+
+Student: ${studentName}
+Grade: ${grade}
+Date: ${new Date().toLocaleDateString()}
+
+AUTISM-SPECIFIC ACCOMMODATIONS:
+
+`;
+    
+    const categorized = accommodations.reduce((acc, item) => {
+      if (!acc[item.category]) acc[item.category] = [];
+      acc[item.category].push(item);
+      return acc;
+    }, {});
+
+    Object.entries(categorized).forEach(([category, items]: [string, any]) => {
+      preview += `${category.toUpperCase()} SUPPORTS:\n`;
+      items.forEach((item: any) => {
+        preview += `• ${item.title}\n  ${item.description}\n`;
+        if (item.implementation_notes) {
+          preview += `  Implementation Notes: ${item.implementation_notes}\n`;
+        }
+      });
+      preview += '\n';
+    });
+  } else if (templateType === '504') {
+    preview = `SECTION 504 ACCOMMODATION PLAN
+
+Student: ${studentName}
+Grade: ${grade}
+Date: ${new Date().toLocaleDateString()}
+
+The following accommodations will be provided to ensure equal access to education:
+
+`;
+    accommodations.forEach((item) => {
+      preview += `${item.title}: ${item.description}\n`;
+    });
+  }
+
+  return preview;
+}
+
 // getUserId is imported from './utils' - using the database-based version
 
 // Helper function to get or create advocate profile
@@ -1671,12 +1797,33 @@ app.post('/api/students', async (req: any, res) => {
   }
 });
 
-// Autism accommodations routes
+// Autism accommodations routes - Enhanced with comprehensive CRUD operations
 app.get('/api/autism_accommodations', async (req, res) => {
   try {
     const userId = await getUserId(req);
-    const accommodations = await db.select().from(schema.autism_accommodations).where(eq(schema.autism_accommodations.user_id, userId));
-    res.json(accommodations);
+    const { student_id, category, template } = req.query;
+    
+    let query = db.select().from(schema.autism_accommodations).where(eq(schema.autism_accommodations.user_id, userId));
+    
+    // Filter by student if specified
+    if (student_id) {
+      query = query.where(eq(schema.autism_accommodations.student_id, student_id as string));
+    }
+    
+    // Filter by category if specified
+    if (category) {
+      query = query.where(eq(schema.autism_accommodations.category, category as string));
+    }
+    
+    const accommodations = await query;
+    
+    // If requesting templates, return predefined accommodation templates
+    if (template === 'true') {
+      const templates = getAccommodationTemplates();
+      res.json({ accommodations, templates });
+    } else {
+      res.json(accommodations);
+    }
   } catch (error) {
     console.error('Error fetching autism accommodations:', error);
     res.status(500).json({ error: 'Failed to fetch autism accommodations' });
@@ -1686,12 +1833,136 @@ app.get('/api/autism_accommodations', async (req, res) => {
 app.post('/api/autism_accommodations', async (req, res) => {
   try {
     const userId = await getUserId(req);
-    const accommodationData = { ...req.body, user_id: userId };
+    const accommodationData = { 
+      ...req.body, 
+      user_id: userId,
+      status: req.body.status || 'active',
+      created_at: new Date(),
+      updated_at: new Date()
+    };
+    
     const [accommodation] = await db.insert(schema.autism_accommodations).values(accommodationData).returning();
     res.json(accommodation);
   } catch (error) {
     console.error('Error creating autism accommodation:', error);
     res.status(500).json({ error: 'Failed to create autism accommodation' });
+  }
+});
+
+app.put('/api/autism_accommodations/:id', async (req, res) => {
+  try {
+    const userId = await getUserId(req);
+    const { id } = req.params;
+    
+    const [accommodation] = await db.update(schema.autism_accommodations)
+      .set({ ...req.body, updated_at: new Date() })
+      .where(and(
+        eq(schema.autism_accommodations.id, id),
+        eq(schema.autism_accommodations.user_id, userId)
+      ))
+      .returning();
+    
+    if (!accommodation) {
+      return res.status(404).json({ error: 'Accommodation not found' });
+    }
+    
+    res.json(accommodation);
+  } catch (error) {
+    console.error('Error updating autism accommodation:', error);
+    res.status(500).json({ error: 'Failed to update autism accommodation' });
+  }
+});
+
+app.delete('/api/autism_accommodations/:id', async (req, res) => {
+  try {
+    const userId = await getUserId(req);
+    const { id } = req.params;
+    
+    await db.delete(schema.autism_accommodations)
+      .where(and(
+        eq(schema.autism_accommodations.id, id),
+        eq(schema.autism_accommodations.user_id, userId)
+      ));
+    
+    res.json({ success: true });
+  } catch (error) {
+    console.error('Error deleting autism accommodation:', error);
+    res.status(500).json({ error: 'Failed to delete autism accommodation' });
+  }
+});
+
+// Bulk operations for accommodations
+app.post('/api/autism_accommodations/bulk', async (req, res) => {
+  try {
+    const userId = await getUserId(req);
+    const { accommodations, student_id } = req.body;
+    
+    const accommodationData = accommodations.map((acc: any) => ({
+      ...acc,
+      user_id: userId,
+      student_id: student_id || null,
+      status: 'active',
+      created_at: new Date(),
+      updated_at: new Date()
+    }));
+    
+    const createdAccommodations = await db.insert(schema.autism_accommodations)
+      .values(accommodationData)
+      .returning();
+    
+    res.json(createdAccommodations);
+  } catch (error) {
+    console.error('Error creating bulk accommodations:', error);
+    res.status(500).json({ error: 'Failed to create accommodations' });
+  }
+});
+
+// Generate IEP language from accommodations
+app.post('/api/autism_accommodations/generate-iep', async (req, res) => {
+  try {
+    const userId = await getUserId(req);
+    const { accommodation_ids, student_id, format } = req.body;
+    
+    // Fetch the accommodations
+    const accommodations = await db.select()
+      .from(schema.autism_accommodations)
+      .where(eq(schema.autism_accommodations.user_id, userId));
+    
+    // Generate formal IEP language
+    const iepLanguage = generateIEPLanguage(accommodations, format);
+    
+    res.json({ iep_language: iepLanguage, format });
+  } catch (error) {
+    console.error('Error generating IEP language:', error);
+    res.status(500).json({ error: 'Failed to generate IEP language' });
+  }
+});
+
+// Preview accommodation document
+app.post('/api/autism_accommodations/preview', async (req, res) => {
+  try {
+    const userId = await getUserId(req);
+    const { accommodation_ids, student_id, template_type } = req.body;
+    
+    // Fetch student info if provided
+    let student = null;
+    if (student_id) {
+      [student] = await db.select()
+        .from(schema.students)
+        .where(eq(schema.students.id, student_id));
+    }
+    
+    // Fetch accommodations
+    const accommodations = await db.select()
+      .from(schema.autism_accommodations)
+      .where(eq(schema.autism_accommodations.user_id, userId));
+    
+    const preview = generateAccommodationPreview(accommodations, student, template_type);
+    
+    res.json({ preview, student, accommodations });
+  } catch (error) {
+    console.error('Error generating preview:', error);
+    res.status(500).json({ error: 'Failed to generate preview' });
   }
 });
 

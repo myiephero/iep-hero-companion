@@ -79,6 +79,7 @@ export async function getConversations(): Promise<Conversation[]> {
 export async function createConversation(data: {
   advocate_id: string;
   student_id: string;
+  parent_id: string;
 }): Promise<Conversation> {
   const response = await request('/messaging/conversations', {
     method: 'POST',

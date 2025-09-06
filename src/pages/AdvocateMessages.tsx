@@ -41,7 +41,7 @@ Best regards,
 Pro-Advocate Advocate-Pro`);
       
       // Create a new conversation
-      createConversation(advocateId, studentId).then((conversation) => {
+      createConversation(advocateId, studentId, location.state.newMessage.parentId).then((conversation) => {
         if (conversation) {
           setSelectedConversation(conversation);
           refetchConversations(); // Refresh the conversations list

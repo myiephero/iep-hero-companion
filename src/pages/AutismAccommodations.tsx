@@ -24,12 +24,18 @@ import {
 import { Link } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
+import { useAuth } from "@/hooks/useAuth";
 
 const AutismAccommodations = () => {
   const [selectedStudent, setSelectedStudent] = useState<string>("");
   const [activeCategory, setActiveCategory] = useState<string>("all");
   const [addedAccommodations, setAddedAccommodations] = useState<string[]>([]);
   const { toast } = useToast();
+  const { user, profile } = useAuth();
+
+  // Determine user role for role-specific features
+  const userRole = user?.role || profile?.role || 'parent';
+  const isAdvocate = userRole === 'advocate';
 
   // Fetch students from API
   const { data: students } = useQuery({
@@ -459,16 +465,26 @@ const AutismAccommodations = () => {
           <Card className="bg-gradient-card border-0">
             <CardContent className="p-6">
               <div className="space-y-4">
-                <h3 className="text-lg font-semibold">Student Selection</h3>
+                <div className="flex items-center justify-between">
+                  <h3 className="text-lg font-semibold">Student Selection</h3>
+                  {isAdvocate && (
+                    <Badge variant="secondary" className="px-3 py-1">
+                      Advocate Mode
+                    </Badge>
+                  )}
+                </div>
                 <p className="text-sm text-muted-foreground">
-                  Choose a student to create accommodations for, or leave blank for general accommodations.
+                  {isAdvocate 
+                    ? "Choose a client's student to create accommodations for, or create general templates."
+                    : "Choose a student to create accommodations for, or leave blank for general accommodations."
+                  }
                 </p>
                 <Select value={selectedStudent} onValueChange={setSelectedStudent}>
                   <SelectTrigger className="max-w-md">
-                    <SelectValue placeholder="Select a student..." />
+                    <SelectValue placeholder={isAdvocate ? "Select a client's student..." : "Select a student..."} />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="">General Accommodations</SelectItem>
+                    <SelectItem value="">{isAdvocate ? "General Template" : "General Accommodations"}</SelectItem>
                     {students?.map((student: any) => (
                       <SelectItem key={student.id} value={student.id}>
                         {student.full_name} - {student.grade_level ? `Grade ${student.grade_level}` : 'No Grade'}
@@ -476,6 +492,13 @@ const AutismAccommodations = () => {
                     ))}
                   </SelectContent>
                 </Select>
+                {isAdvocate && selectedStudent && (
+                  <div className="mt-2 p-3 bg-primary/10 rounded-lg">
+                    <p className="text-xs text-primary font-medium">
+                      💡 Advocate Tip: Creating accommodations for a specific client will be shared with the parent for review.
+                    </p>
+                  </div>
+                )}
               </div>
             </CardContent>
           </Card>
@@ -654,14 +677,26 @@ const AutismAccommodations = () => {
               </Button>
             </div>
             
-            <div className="flex justify-center">
-              <Button asChild variant="secondary" size="lg" className="min-w-48">
-                <Link to="/upsell/hero-plan">
-                  Get Expert Review
-                  <ArrowRight className="h-4 w-4 ml-2" />
-                </Link>
-              </Button>
-            </div>
+            {!isAdvocate && (
+              <div className="flex justify-center">
+                <Button asChild variant="secondary" size="lg" className="min-w-48">
+                  <Link to="/upsell/hero-plan">
+                    Get Expert Review
+                    <ArrowRight className="h-4 w-4 ml-2" />
+                  </Link>
+                </Button>
+              </div>
+            )}
+            {isAdvocate && (
+              <div className="flex justify-center">
+                <Button asChild variant="outline" size="lg" className="min-w-48">
+                  <Link to="/advocate/dashboard-pro">
+                    Back to Client Dashboard
+                    <ArrowRight className="h-4 w-4 ml-2" />
+                  </Link>
+                </Button>
+              </div>
+            )}
           </div>
 
           {/* Tips */}

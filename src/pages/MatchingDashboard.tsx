@@ -114,7 +114,7 @@ export default function MatchingDashboard() {
   // Mutations for match proposals
   const createProposalMutation = useMutation({
     mutationFn: async ({ studentId, advocateIds }: { studentId: string; advocateIds: string[] }) => {
-      const response = await apiRequest('POST', '/api/match', {
+      const response = await apiRequest('POST', '/api/match/propose', {
         student_id: studentId,
         advocate_ids: advocateIds,
         manual_match: true

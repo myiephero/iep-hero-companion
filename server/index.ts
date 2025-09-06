@@ -1485,14 +1485,162 @@ app.get('/api/profiles/:userId', async (req, res) => {
   }
 });
 
-// Students routes
+// Students routes (moved below for proper advocate support)
+
+// Parents/Clients routes - for advocates to see their clients
+app.get('/api/parents', async (req: any, res) => {
+  try {
+    const userId = await getUserId(req);
+    if (userId === 'anonymous-user') {
+      return res.status(401).json({ message: 'Unauthorized' });
+    }
+    
+    // Get advocate profile
+    const advocate = await db.select().from(schema.advocates)
+      .where(eq(schema.advocates.user_id, userId))
+      .then(results => results[0]);
+    
+    if (!advocate) {
+      return res.status(404).json({ error: 'Advocate profile not found' });
+    }
+    
+    // Get all clients (parents) for this advocate
+    const clientRelations = await db.select({
+      relationship: schema.advocate_clients,
+      client: schema.users
+    })
+    .from(schema.advocate_clients)
+    .leftJoin(schema.users, eq(schema.advocate_clients.client_id, schema.users.id))
+    .where(and(
+      eq(schema.advocate_clients.advocate_id, advocate.id),
+      eq(schema.advocate_clients.status, 'active')
+    ));
+
+    const clients = clientRelations.map(({ relationship, client }) => ({
+      id: client?.id,
+      email: client?.email,
+      firstName: client?.firstName,
+      lastName: client?.lastName,
+      relationship_type: relationship.relationship_type,
+      start_date: relationship.start_date,
+      notes: relationship.notes
+    }));
+    
+    // Add cache-busting headers
+    res.set({
+      'Cache-Control': 'no-cache, no-store, must-revalidate',
+      'Pragma': 'no-cache',
+      'Expires': '0'
+    });
+    
+    res.json(clients);
+  } catch (error) {
+    console.error('Error fetching parents/clients:', error);
+    res.status(500).json({ error: 'Failed to fetch parents/clients' });
+  }
+});
+
+// Cases routes - for advocates to see their active cases
+app.get('/api/cases', async (req: any, res) => {
+  try {
+    const userId = await getUserId(req);
+    if (userId === 'anonymous-user') {
+      return res.status(401).json({ message: 'Unauthorized' });
+    }
+    
+    // Get advocate profile
+    const advocate = await db.select().from(schema.advocates)
+      .where(eq(schema.advocates.user_id, userId))
+      .then(results => results[0]);
+    
+    if (!advocate) {
+      return res.status(404).json({ error: 'Advocate profile not found' });
+    }
+    
+    // Get all cases for this advocate with related data
+    const cases = await db.select({
+      case: schema.cases,
+      client: schema.users,
+      student: schema.students
+    })
+    .from(schema.cases)
+    .leftJoin(schema.users, eq(schema.cases.client_id, schema.users.id))
+    .leftJoin(schema.students, eq(schema.cases.student_id, schema.students.id))
+    .where(eq(schema.cases.advocate_id, advocate.id));
+    
+    const formattedCases = cases.map(({ case: caseData, client, student }) => ({
+      ...caseData,
+      client: client ? {
+        id: client.id,
+        email: client.email,
+        firstName: client.firstName,
+        lastName: client.lastName
+      } : null,
+      student: student ? {
+        id: student.id,
+        full_name: student.full_name,
+        grade_level: student.grade_level,
+        school_name: student.school_name,
+        disability_category: student.disability_category
+      } : null
+    }));
+    
+    // Add cache-busting headers
+    res.set({
+      'Cache-Control': 'no-cache, no-store, must-revalidate',
+      'Pragma': 'no-cache',
+      'Expires': '0'
+    });
+    
+    res.json(formattedCases);
+  } catch (error) {
+    console.error('Error fetching cases:', error);
+    res.status(500).json({ error: 'Failed to fetch cases' });
+  }
+});
+
+// Update students endpoint to work for advocates viewing their clients' students
 app.get('/api/students', async (req: any, res) => {
   try {
     const userId = await getUserId(req);
     if (userId === 'anonymous-user') {
       return res.status(401).json({ message: 'Unauthorized' });
     }
-    const students = await db.select().from(schema.students).where(eq(schema.students.user_id, userId));
+    
+    // Check if user is a parent or advocate
+    const user = await storage.getUser(userId);
+    let students = [];
+    
+    if (user?.role === 'advocate') {
+      // For advocates, get all students from their cases
+      const advocate = await db.select().from(schema.advocates)
+        .where(eq(schema.advocates.user_id, userId))
+        .then(results => results[0]);
+      
+      if (advocate) {
+        const caseStudents = await db.select({
+          student: schema.students,
+          case: schema.cases,
+          client: schema.users
+        })
+        .from(schema.cases)
+        .leftJoin(schema.students, eq(schema.cases.student_id, schema.students.id))
+        .leftJoin(schema.users, eq(schema.cases.client_id, schema.users.id))
+        .where(eq(schema.cases.advocate_id, advocate.id));
+        
+        students = caseStudents.map(({ student, case: caseData, client }) => ({
+          ...student,
+          case_id: caseData.id,
+          case_title: caseData.case_title,
+          case_status: caseData.status,
+          parent_name: client ? `${client.firstName || ''} ${client.lastName || ''}`.trim() : null,
+          parent_email: client?.email
+        })).filter(s => s.id); // Remove null students
+      }
+    } else {
+      // For parents, get their own students
+      students = await db.select().from(schema.students).where(eq(schema.students.user_id, userId));
+    }
     
     // Add cache-busting headers to force fresh data
     res.set({

@@ -45,7 +45,7 @@ const AutismAccommodations = () => {
       id: "sensory",
       title: "Sensory Support",
       icon: <Volume2 className="h-5 w-5" />,
-      description: "Accommodations for sensory support support",
+      description: "Accommodations for sensory processing and regulation",
       items: [
         { 
           id: "noise-canceling", 
@@ -56,25 +56,25 @@ const AutismAccommodations = () => {
         { 
           id: "sensory-breaks", 
           title: "Sensory Breaks",
-          description: "Scheduled sensory breaks every 30 minutes",
+          description: "Regular breaks to sensory room or quiet space every 30 minutes",
           recommended: true 
         },
         { 
           id: "fidget-tools", 
           title: "Fidget Tools",
-          description: "Allow use of fidget tools and stress balls during instruction",
+          description: "Allow use of fidget toys or stress balls during instruction",
+          recommended: false 
+        },
+        { 
+          id: "weighted-blanket", 
+          title: "Weighted Lap Pad",
+          description: "Use of weighted lap pad for self-regulation during work time",
           recommended: false 
         },
         { 
           id: "lighting", 
           title: "Lighting Adjustments",
           description: "Adjusted lighting or seating away from fluorescent lights",
-          recommended: false 
-        },
-        { 
-          id: "weighted-blanket", 
-          title: "Weighted Lap Pad",
-          description: "Weighted lap pad for self-regulation during work time",
           recommended: false 
         }
       ]
@@ -83,7 +83,7 @@ const AutismAccommodations = () => {
       id: "communication",
       title: "Communication",
       icon: <Users className="h-5 w-5" />,
-      description: "Communication and social interaction supports",
+      description: "Communication and language support strategies",
       items: [
         { 
           id: "visual-schedules", 
@@ -115,7 +115,7 @@ const AutismAccommodations = () => {
       id: "academic",
       title: "Academic Support",
       icon: <Brain className="h-5 w-5" />,
-      description: "Learning and processing accommodations",
+      description: "Learning and academic processing accommodations",
       items: [
         { 
           id: "extended-time", 
@@ -139,6 +139,84 @@ const AutismAccommodations = () => {
           id: "repetition", 
           title: "Repeated Instructions",
           description: "Repeated instructions and clarification as needed",
+          recommended: false 
+        }
+      ]
+    },
+    {
+      id: "social",
+      title: "Social Support",
+      icon: <Users className="h-5 w-5" />,
+      description: "Social skills and peer interaction supports",
+      items: [
+        { 
+          id: "social-skills-group", 
+          title: "Social Skills Group",
+          description: "Participation in structured social skills group sessions",
+          recommended: true 
+        },
+        { 
+          id: "peer-buddy", 
+          title: "Peer Buddy System",
+          description: "Assignment of peer buddy for social support",
+          recommended: true 
+        },
+        { 
+          id: "lunch-club", 
+          title: "Lunch Club",
+          description: "Structured lunch club for social interaction practice",
+          recommended: false 
+        }
+      ]
+    },
+    {
+      id: "behavioral",
+      title: "Behavioral Support",
+      icon: <CheckCircle className="h-5 w-5" />,
+      description: "Behavior management and self-regulation strategies",
+      items: [
+        { 
+          id: "behavior-plan", 
+          title: "Positive Behavior Support Plan",
+          description: "Individualized positive behavior support plan",
+          recommended: true 
+        },
+        { 
+          id: "break-cards", 
+          title: "Break Request Cards",
+          description: "Visual cards to request breaks when overwhelmed",
+          recommended: true 
+        },
+        { 
+          id: "calm-down-space", 
+          title: "Calm Down Space",
+          description: "Access to designated calm down space when needed",
+          recommended: false 
+        }
+      ]
+    },
+    {
+      id: "environmental",
+      title: "Environmental",
+      icon: <Building2 className="h-5 w-5" />,
+      description: "Physical environment and classroom modifications",
+      items: [
+        { 
+          id: "preferential-seating", 
+          title: "Preferential Seating",
+          description: "Seating near teacher, away from distractions",
+          recommended: true 
+        },
+        { 
+          id: "quiet-space", 
+          title: "Access to Quiet Space",
+          description: "Access to quiet space for work completion",
+          recommended: true 
+        },
+        { 
+          id: "reduced-stimuli", 
+          title: "Reduced Environmental Stimuli",
+          description: "Minimize visual and auditory distractions in workspace",
           recommended: false 
         }
       ]
@@ -179,6 +257,116 @@ const AutismAccommodations = () => {
       title: "All Accommodations Added",
       description: "All available accommodations have been added to your list",
     });
+  };
+
+  const generateIEPLanguage = async () => {
+    if (addedAccommodations.length === 0) {
+      toast({
+        title: "No accommodations selected",
+        description: "Please add some accommodations first",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    try {
+      const selectedAccommodationsList = addedAccommodations.map((id) => {
+        const accommodation = accommodationCategories
+          .flatMap(cat => cat.items)
+          .find(item => item.id === id);
+        return accommodation ? {
+          id: accommodation.id,
+          title: accommodation.title,
+          description: accommodation.description,
+          category: accommodationCategories.find(cat => cat.items.some(item => item.id === id))?.title || 'Unknown'
+        } : null;
+      }).filter(Boolean);
+
+      const response = await apiRequest('POST', '/api/autism_accommodations/generate-iep', {
+        accommodation_ids: addedAccommodations,
+        student_id: selectedStudent || null,
+        format: 'formal'
+      });
+
+      const result = await response.json();
+
+      // Create a downloadable text file
+      const blob = new Blob([result.iep_language], { type: 'text/plain' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `autism-accommodations-iep-language-${new Date().toISOString().split('T')[0]}.txt`;
+      a.click();
+      URL.revokeObjectURL(url);
+
+      toast({
+        title: "IEP Language Generated",
+        description: "IEP language document has been downloaded",
+      });
+
+    } catch (error) {
+      console.error('Error generating IEP language:', error);
+      toast({
+        title: "Error",
+        description: "Failed to generate IEP language. Please try again.",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const previewDocument = async () => {
+    if (addedAccommodations.length === 0) {
+      toast({
+        title: "No accommodations selected",
+        description: "Please add some accommodations first",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    try {
+      const response = await apiRequest('POST', '/api/autism_accommodations/preview', {
+        accommodation_ids: addedAccommodations,
+        student_id: selectedStudent || null,
+        template_type: 'iep'
+      });
+
+      const result = await response.json();
+
+      // Open preview in a new window
+      const newWindow = window.open('', '_blank');
+      if (newWindow) {
+        newWindow.document.write(`
+          <html>
+            <head>
+              <title>Autism Accommodation Plan Preview</title>
+              <style>
+                body { font-family: Arial, sans-serif; margin: 20px; }
+                pre { white-space: pre-wrap; }
+              </style>
+            </head>
+            <body>
+              <h1>Accommodation Plan Preview</h1>
+              <pre>${result.preview}</pre>
+            </body>
+          </html>
+        `);
+        newWindow.document.close();
+      }
+
+      toast({
+        title: "Preview Generated",
+        description: "Accommodation plan preview opened in new window",
+      });
+
+    } catch (error) {
+      console.error('Error generating preview:', error);
+      toast({
+        title: "Error",
+        description: "Failed to generate preview. Please try again.",
+        variant: "destructive",
+      });
+    }
   };
 
   const saveToVault = async () => {
@@ -447,6 +635,8 @@ const AutismAccommodations = () => {
                 size="lg" 
                 className="w-full"
                 disabled={addedAccommodations.length === 0}
+                onClick={generateIEPLanguage}
+                data-testid="button-generate-iep"
               >
                 <Download className="h-4 w-4 mr-2" />
                 Generate IEP Language
@@ -456,6 +646,8 @@ const AutismAccommodations = () => {
                 size="lg"
                 className="w-full"
                 disabled={addedAccommodations.length === 0}
+                onClick={previewDocument}
+                data-testid="button-preview-document"
               >
                 <Eye className="h-4 w-4 mr-2" />
                 Preview Document

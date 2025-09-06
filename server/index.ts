@@ -14,6 +14,7 @@ import { setupAuth, isAuthenticated } from './replitAuth';
 import { storage } from './storage';
 import Stripe from 'stripe';
 import { sendVerificationEmail, sendWelcomeEmail } from './emailService';
+import { getUserId } from './utils';
 
 // Initialize Stripe
 if (!process.env.STRIPE_SECRET_KEY) {
@@ -247,50 +248,10 @@ app.use(express.urlencoded({ limit: '50mb', extended: true }));
 // Unified auth endpoint that checks both Replit Auth and custom login
 app.get('/api/auth/user', async (req: any, res) => {
   try {
-    // First check for token-based auth
-    const token = req.headers.authorization?.replace('Bearer ', '');
+    // Use the unified getUserId function to check both token-based and Replit auth
+    const userId = await getUserId(req);
     
-    if (token) {
-      // Parse token to extract userId (token format: userId-timestamp-random)
-      const tokenParts = token.split('-');
-      if (tokenParts.length >= 3) {
-        const userId = tokenParts[0];
-        const timestamp = parseInt(tokenParts[1]);
-        
-        // Check if token is not too old (24 hours)
-        const isValidTimestamp = Date.now() - timestamp < 24 * 60 * 60 * 1000;
-        
-        if (isValidTimestamp) {
-          const [userResult] = await db.select({
-            id: schema.users.id,
-            email: schema.users.email,
-            firstName: schema.users.firstName,
-            lastName: schema.users.lastName,
-            profileImageUrl: schema.users.profileImageUrl,
-            role: schema.users.role,
-            subscriptionPlan: schema.users.subscriptionPlan,
-            subscriptionStatus: schema.users.subscriptionStatus,
-            stripeCustomerId: schema.users.stripeCustomerId,
-            stripeSubscriptionId: schema.users.stripeSubscriptionId,
-            createdAt: schema.users.createdAt,
-            updatedAt: schema.users.updatedAt,
-            phoneNumber: schema.profiles.phone
-          })
-            .from(schema.users)
-            .leftJoin(schema.profiles, eq(schema.users.id, schema.profiles.user_id))
-            .where(eq(schema.users.id, userId))
-            .limit(1);
-          
-          if (userResult) {
-            return res.json(userResult);
-          }
-        }
-      }
-    }
-
-    // Then check for Replit Auth (for legacy users)
-    if (req.isAuthenticated && req.isAuthenticated()) {
-      const userId = req.user.claims.sub;
+    if (userId !== 'anonymous-user') {
       const [userResult] = await db.select({
         id: schema.users.id,
         email: schema.users.email,
@@ -315,9 +276,9 @@ app.get('/api/auth/user', async (req: any, res) => {
         return res.json(userResult);
       }
     }
-
-    // No authentication found
-    res.status(401).json({ message: "Not authenticated" });
+    
+    // If getUserId returned 'anonymous-user', then authentication failed
+    return res.status(401).json({ error: 'Unauthorized' });
   } catch (error) {
     console.error("Error fetching user:", error);
     res.status(500).json({ message: "Failed to fetch user" });
@@ -843,13 +804,19 @@ app.post('/api/custom-login', async (req: any, res) => {
     // Create a simple token for immediate use
     const loginToken = `${user.id}-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
     
-    // Store token in memory (simple solution)
-    global.activeTokens = global.activeTokens || {};
-    global.activeTokens[loginToken] = {
-      userId: user.id,
-      userRole: user.role,
-      createdAt: Date.now()
-    };
+    // Store token in database for persistent storage (instead of memory)
+    const expiresAt = new Date(Date.now() + 24 * 60 * 60 * 1000); // 24 hours from now
+    try {
+      await db.insert(schema.auth_tokens).values({
+        token: loginToken,
+        user_id: user.id,
+        user_role: user.role,
+        expires_at: expiresAt
+      });
+    } catch (error) {
+      console.error('Error storing auth token:', error);
+      return res.status(500).json({ message: 'Login failed. Please try again.' });
+    }
 
     res.json({ 
       success: true,
@@ -1553,7 +1520,7 @@ app.get('/api/profiles/:userId', async (req, res) => {
 // Students routes
 app.get('/api/students', async (req: any, res) => {
   try {
-    const userId = getUserId(req);
+    const userId = await getUserId(req);
     if (userId === 'anonymous-user') {
       return res.status(401).json({ message: 'Unauthorized' });
     }
@@ -1575,7 +1542,7 @@ app.get('/api/students', async (req: any, res) => {
 
 app.post('/api/students', async (req: any, res) => {
   try {
-    const userId = getUserId(req);
+    const userId = await getUserId(req);
     if (userId === 'anonymous-user') {
       return res.status(401).json({ message: 'Unauthorized' });
     }

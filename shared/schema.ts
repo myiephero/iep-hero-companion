@@ -35,6 +35,19 @@ export const users = pgTable("users", {
 export type UpsertUser = typeof users.$inferInsert;
 export type User = typeof users.$inferSelect;
 
+// Auth tokens table - for persistent token storage instead of memory
+export const auth_tokens = pgTable("auth_tokens", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  token: varchar("token").notNull().unique(),
+  user_id: varchar("user_id").notNull(),
+  user_role: varchar("user_role"),
+  created_at: timestamp("created_at").defaultNow(),
+  expires_at: timestamp("expires_at").notNull(),
+});
+
+export type AuthToken = typeof auth_tokens.$inferSelect;
+export type InsertAuthToken = typeof auth_tokens.$inferInsert;
+
 // Profiles table - extended user information
 export const profiles = pgTable("profiles", {
   id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),

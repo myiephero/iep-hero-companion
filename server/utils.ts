@@ -1,14 +1,29 @@
 import express from 'express';
+import { db } from './db';
+import * as schema from '../shared/schema';
+import { eq, gt, and } from 'drizzle-orm';
 
 // Middleware to extract user ID from authenticated session
-export function getUserId(req: express.Request): string {
-  // First check for token-based auth (custom login system)
+export async function getUserId(req: express.Request): Promise<string> {
+  // First check for token-based auth (custom login system) - DATABASE VERSION
   const token = req.headers.authorization?.replace('Bearer ', '');
-  if (token && global.activeTokens && global.activeTokens[token]) {
-    const tokenData = global.activeTokens[token];
-    // Check if token is not expired (24 hours)
-    if (Date.now() - tokenData.createdAt < 24 * 60 * 60 * 1000) {
-      return tokenData.userId;
+  if (token) {
+    try {
+      const [tokenRecord] = await db.select()
+        .from(schema.auth_tokens)
+        .where(and(
+          eq(schema.auth_tokens.token, token),
+          gt(schema.auth_tokens.expires_at, new Date())
+        ))
+        .limit(1);
+      
+      if (tokenRecord) {
+        return tokenRecord.user_id;
+      }
+    } catch (error) {
+      console.warn('Error checking auth token in database (table may not exist yet):', error);
+      // If the table doesn't exist, we'll fall through to other auth methods
+      // The table will be created when the first user logs in via custom-login
     }
   }
   
@@ -24,5 +39,17 @@ export function getUserId(req: express.Request): string {
   console.warn('getUserId: User object:', user ? 'User object exists' : 'No user object');
   
   // Default fallback - but this should rarely be used in production
+  return 'anonymous-user';
+}
+
+// Synchronous version for backward compatibility (tries token check without database)
+export function getUserIdSync(req: express.Request): string {
+  // Check for Replit Auth session first (most reliable)
+  const user = (req as any).user;
+  if (user && user.claims && user.claims.sub) {
+    return user.claims.sub;
+  }
+  
+  // Return anonymous for token-based auth since we can't do async DB check
   return 'anonymous-user';
 }

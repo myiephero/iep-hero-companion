@@ -1674,7 +1674,7 @@ app.post('/api/students', async (req: any, res) => {
 // Autism accommodations routes
 app.get('/api/autism_accommodations', async (req, res) => {
   try {
-    const userId = getUserId(req);
+    const userId = await getUserId(req);
     const accommodations = await db.select().from(schema.autism_accommodations).where(eq(schema.autism_accommodations.user_id, userId));
     res.json(accommodations);
   } catch (error) {
@@ -1685,7 +1685,7 @@ app.get('/api/autism_accommodations', async (req, res) => {
 
 app.post('/api/autism_accommodations', async (req, res) => {
   try {
-    const userId = getUserId(req);
+    const userId = await getUserId(req);
     const accommodationData = { ...req.body, user_id: userId };
     const [accommodation] = await db.insert(schema.autism_accommodations).values(accommodationData).returning();
     res.json(accommodation);
@@ -1698,7 +1698,7 @@ app.post('/api/autism_accommodations', async (req, res) => {
 // Documents routes
 app.get('/api/documents', async (req, res) => {
   try {
-    const userId = getUserId(req);
+    const userId = await getUserId(req);
     const documents = await db.select().from(schema.documents).where(eq(schema.documents.user_id, userId));
     res.json(documents);
   } catch (error) {
@@ -1709,7 +1709,7 @@ app.get('/api/documents', async (req, res) => {
 
 app.post('/api/documents', async (req, res) => {
   try {
-    const userId = getUserId(req);
+    const userId = await getUserId(req);
     const documentData = { ...req.body, user_id: userId };
     const [document] = await db.insert(schema.documents).values(documentData).returning();
     res.json(document);
@@ -1723,7 +1723,7 @@ app.patch('/api/documents/:id', async (req, res) => {
   try {
     const { id } = req.params;
     const updateData = { ...req.body, updated_at: new Date() };
-    const userId = getUserId(req);
+    const userId = await getUserId(req);
     const [document] = await db.update(schema.documents)
       .set(updateData)
       .where(and(eq(schema.documents.id, id), eq(schema.documents.user_id, userId)))
@@ -1743,7 +1743,7 @@ app.patch('/api/documents/:id', async (req, res) => {
 app.delete('/api/documents/:id', async (req, res) => {
   try {
     const { id } = req.params;
-    const userId = getUserId(req);
+    const userId = await getUserId(req);
     await db.delete(schema.documents)
       .where(and(
         eq(schema.documents.id, id),
@@ -1759,7 +1759,7 @@ app.delete('/api/documents/:id', async (req, res) => {
 // AI reviews routes
 app.post('/api/ai_reviews', async (req, res) => {
   try {
-    const userId = getUserId(req);
+    const userId = await getUserId(req);
     const reviewData = { ...req.body, user_id: userId };
     const [review] = await db.insert(schema.ai_reviews).values(reviewData).returning();
     res.json(review);
@@ -1773,7 +1773,7 @@ app.get('/api/ai_reviews', async (req, res) => {
   try {
     const { document_id } = req.query;
     
-    const userId = getUserId(req);
+    const userId = await getUserId(req);
     if (document_id) {
       const reviews = await db.select().from(schema.ai_reviews)
         .where(and(
@@ -1796,7 +1796,7 @@ app.delete('/api/ai_reviews/:id', async (req, res) => {
   try {
     const { id } = req.params;
     
-    const userId = getUserId(req);
+    const userId = await getUserId(req);
     await db.delete(schema.ai_reviews)
       .where(and(
         eq(schema.ai_reviews.id, id),
@@ -1813,7 +1813,7 @@ app.delete('/api/ai_reviews/:id', async (req, res) => {
 // Goals routes
 app.get('/api/goals', async (req, res) => {
   try {
-    const userId = getUserId(req);
+    const userId = await getUserId(req);
     const goals = await db.select().from(schema.goals).where(eq(schema.goals.user_id, userId));
     res.json(goals);
   } catch (error) {
@@ -1824,7 +1824,7 @@ app.get('/api/goals', async (req, res) => {
 
 app.post('/api/goals', async (req, res) => {
   try {
-    const userId = getUserId(req);
+    const userId = await getUserId(req);
     const goalData = { ...req.body, user_id: userId };
     const [goal] = await db.insert(schema.goals).values(goalData).returning();
     res.json(goal);
@@ -1837,7 +1837,7 @@ app.post('/api/goals', async (req, res) => {
 // Meetings routes
 app.get('/api/meetings', async (req, res) => {
   try {
-    const userId = getUserId(req);
+    const userId = await getUserId(req);
     const meetings = await db.select().from(schema.meetings).where(eq(schema.meetings.user_id, userId));
     res.json(meetings);
   } catch (error) {
@@ -1848,7 +1848,7 @@ app.get('/api/meetings', async (req, res) => {
 
 app.post('/api/meetings', async (req, res) => {
   try {
-    const userId = getUserId(req);
+    const userId = await getUserId(req);
     const meetingData = { ...req.body, user_id: userId };
     const [meeting] = await db.insert(schema.meetings).values(meetingData).returning();
     res.json(meeting);
@@ -1871,7 +1871,7 @@ app.get('/api/advocates', async (req, res) => {
 
 app.post('/api/advocates', async (req, res) => {
   try {
-    const userId = getUserId(req);
+    const userId = await getUserId(req);
     const advocateData = { ...req.body, user_id: userId };
     const [advocate] = await db.insert(schema.advocates).values(advocateData).returning();
     res.json(advocate);
@@ -1922,9 +1922,10 @@ app.post('/api/process-document', express.json({ limit: '50mb' }), async (req, r
 
     // Create document record
     const documentId = createId();
+    const userId = await getUserId(req);
     await db.insert(schema.documents).values({
       id: documentId,
-      user_id: getUserId(req),
+      user_id: userId,
       title: fileName.split('.')[0],
       file_name: fileName,
       file_path: `uploads/${documentId}-${fileName}`,
@@ -2042,9 +2043,10 @@ app.post('/api/iep-analyze', async (req, res) => {
     
     // Create AI review record
     const analysisId = createId();
+    const userId = await getUserId(req);
     await db.insert(schema.ai_reviews).values({
       id: analysisId,
-      user_id: getUserId(req),
+      user_id: userId,
       document_id: docId,
       review_type: kind || 'iep',
       ai_analysis: { content: analysis, studentContext }
@@ -2209,7 +2211,7 @@ Use professional educational terminology suitable for IEP team review and implem
 // Advocate Profile API endpoints
 app.get('/api/advocates/profile', async (req, res) => {
   try {
-    const userId = getUserId(req);
+    const userId = await getUserId(req);
     console.log('🔍 Profile GET - User ID:', userId);
     
     if (!userId || userId === 'anonymous-user') {
@@ -2231,7 +2233,7 @@ app.get('/api/advocates/profile', async (req, res) => {
 
 app.put('/api/advocates/profile', async (req, res) => {
   try {
-    const userId = getUserId(req);
+    const userId = await getUserId(req);
     
     if (!userId || userId === 'anonymous-user') {
       return res.status(401).json({ error: 'Authentication required' });

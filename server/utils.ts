@@ -37,8 +37,8 @@ export async function getUserId(req: express.Request): Promise<string> {
   console.warn('getUserId: Headers:', req.headers.authorization ? 'Bearer token present' : 'No auth header');
   console.warn('getUserId: User object:', user ? 'User object exists' : 'No user object');
   
-  // Default fallback - but this should rarely be used in production
-  return 'anonymous-user';
+  // CRITICAL: Don't return a default fallback - throw error to force proper authentication
+  throw new Error('Authentication required - no valid user ID found');
 }
 
 // Synchronous version for backward compatibility (tries token check without database)

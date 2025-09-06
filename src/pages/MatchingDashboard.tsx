@@ -15,7 +15,6 @@ import { useToast } from '@/hooks/use-toast';
 import { DashboardLayout } from '@/layouts/DashboardLayout';
 import { useAuth } from '@/hooks/useAuth';
 import { apiRequest } from '@/lib/queryClient';
-import { apiClient } from '@/lib/api';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useNavigate } from 'react-router-dom';
 
@@ -178,7 +177,10 @@ export default function MatchingDashboard() {
 
   // Mutations for advocate actions
   const acceptProposalMutation = useMutation({
-    mutationFn: (proposalId: string) => apiClient.acceptProposal(proposalId),
+    mutationFn: async (proposalId: string) => {
+      const response = await apiRequest('POST', `/api/match/${proposalId}/accept`);
+      return await response.json();
+    },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['match-proposals', userRole] });
       toast({
@@ -196,8 +198,10 @@ export default function MatchingDashboard() {
   });
 
   const declineProposalMutation = useMutation({
-    mutationFn: ({ proposalId, reason }: { proposalId: string; reason?: string }) => 
-      apiClient.declineProposal(proposalId, reason),
+    mutationFn: async ({ proposalId, reason }: { proposalId: string; reason?: string }) => {
+      const response = await apiRequest('POST', `/api/match/${proposalId}/decline`, { reason });
+      return await response.json();
+    },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['match-proposals', userRole] });
       toast({
@@ -238,7 +242,7 @@ export default function MatchingDashboard() {
       proposalId: proposal.id,
       parentId: proposal.student?.user_id || user?.id,
       studentGrade: proposal.student?.grade_level,
-      studentSchool: proposal.student?.school || 'N/A'
+      studentSchool: 'N/A' // School info not available in current schema
     };
     navigate('/advocate/messages', { state: { newMessage: clientInfo } });
   };

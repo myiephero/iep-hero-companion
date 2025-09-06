@@ -1028,21 +1028,24 @@ app.post('/api/create-checkout-session', async (req, res) => {
     let discounts = undefined;
     
     if (isHeroPackage) {
-      // Hero Family Pack: Setup fee charged immediately, subscription with trial period
+      // Hero Family Pack: $495 setup fee charged immediately + $199/month subscription with trial
+      console.log('🏆 Creating Hero Family Pack session with setup fee and subscription');
+      
       lineItems = [
         {
-          price: 'price_1RsEn58iKZXV0srZ0UH8e4tg', // $495 setup fee (charged today)
+          price: 'price_1RsEn58iKZXV0srZ0UH8e4tg', // $495 one-time setup fee (charged today)
           quantity: 1,
         },
         {
-          price: 'price_1S3nyI8iKZXV0srZy1awxPBd', // $199/month subscription
+          price: 'price_1S3nyI8iKZXV0srZy1awxPBd', // $199/month recurring subscription  
           quantity: 1,
         }
       ];
       
-      // Add subscription_data to configure free trial for the Hero Plan
-      // This ensures only the setup fee ($495) is charged today,
-      // and the subscription billing starts after 1 month free trial
+      console.log('🔍 Hero lineItems created:', JSON.stringify(lineItems, null, 2));
+      
+      // No discounts for Hero plan - pricing is already built in
+      // Setup fee charged today, subscription starts after trial period
     } else {
       // Standard single price
       lineItems = [{
@@ -1054,6 +1057,8 @@ app.post('/api/create-checkout-session', async (req, res) => {
     // Create Stripe Checkout Session - Simple & Clean
     console.log('🔍 DEBUG: discounts value:', discounts);
     console.log('🔍 DEBUG: !discounts value:', !discounts);
+    console.log('🔍 DEBUG: lineItems:', JSON.stringify(lineItems, null, 2));
+    console.log('🔍 DEBUG: isHeroPackage:', isHeroPackage);
     
     const sessionConfig: any = {
       mode: 'subscription',
@@ -1073,11 +1078,14 @@ app.post('/api/create-checkout-session', async (req, res) => {
     // Add free trial for Hero Plan - This ensures subscription billing starts after 1 month
     if (isHeroPackage) {
       sessionConfig.subscription_data = {
-        trial_period_days: 30, // First month free for Hero Plan
+        trial_period_days: 30, // First month free for Hero Plan subscription
         metadata: {
-          hero_plan_trial: 'true'
+          hero_plan_trial: 'true',
+          setup_fee_charged: 'true'
         }
       };
+      
+      console.log('🏆 Added subscription_data with 30-day trial for Hero plan');
     }
     
     // For Hero Plan, we use trial_period_days instead of discounts
@@ -1090,6 +1098,7 @@ app.post('/api/create-checkout-session', async (req, res) => {
     }
     
     console.log('🔍 Final sessionConfig keys:', Object.keys(sessionConfig));
+    console.log('🔍 Final sessionConfig content:', JSON.stringify(sessionConfig, null, 2));
     
     const session = await stripe.checkout.sessions.create(sessionConfig);
     

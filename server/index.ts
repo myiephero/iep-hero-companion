@@ -2070,8 +2070,14 @@ app.post('/api/parents', async (req, res) => {
       role: 'parent'
     }).returning();
 
-    // TODO: Send invitation email here
-    console.log(`✅ PRODUCTION: Created parent account for ${email}`);
+    // Send invitation email to new parent
+    try {
+      await sendWelcomeEmail(email, full_name);
+      console.log(`✅ PRODUCTION: Created parent account for ${email} and sent invitation email`);
+    } catch (emailError) {
+      console.error('❌ Failed to send invitation email:', emailError);
+      // Don't fail the parent creation if email fails - just log it
+    }
 
     res.json({
       id: newUser.id,

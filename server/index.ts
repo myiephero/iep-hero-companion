@@ -2571,12 +2571,15 @@ app.get('/health', (req, res) => {
 // 🔥 SIMPLE TEST: Add routes BEFORE async function
 app.get('/api/parents', async (req: any, res) => {
   console.log('🚨 SIMPLE TEST: /api/parents hit!');
+  console.log('🔍 STEP 1: Starting auth check');
   
   // Same auth pattern as working /api/auth/user endpoint
   let userId = null;
   
   // Try token-based auth first
+  console.log('🔍 STEP 2: Checking for token auth');
   const token = req.headers.authorization?.replace('Bearer ', '');
+  console.log('🔍 STEP 2a: Token found:', !!token);
   if (token && token.trim()) {
     try {
       const [tokenRecord] = await db.select()
@@ -2596,18 +2599,26 @@ app.get('/api/parents', async (req: any, res) => {
   }
   
   // Try Replit Auth session
+  console.log('🔍 STEP 3: Checking Replit Auth session');
   if (!userId) {
     const user = req.user;
-    console.log('🔍 SESSION DEBUG - req.user:', JSON.stringify(user, null, 2));
-    console.log('🔍 SESSION DEBUG - req.session:', JSON.stringify(req.session, null, 2));
-    console.log('🔍 SESSION DEBUG - req.isAuthenticated():', typeof req.isAuthenticated === 'function' ? req.isAuthenticated() : 'NO FUNCTION');
+    console.log('🔍 STEP 3a: req.user:', JSON.stringify(user, null, 2));
+    console.log('🔍 STEP 3b: req.session:', JSON.stringify(req.session, null, 2));
+    console.log('🔍 STEP 3c: req.isAuthenticated():', typeof req.isAuthenticated === 'function' ? req.isAuthenticated() : 'NO FUNCTION');
     
     if (user && user.claims && user.claims.sub) {
+      console.log('🔍 STEP 3d: Found user ID in claims:', user.claims.sub);
       userId = user.claims.sub;
+    } else {
+      console.log('🔍 STEP 3d: No user ID in claims');
     }
+  } else {
+    console.log('🔍 STEP 3: Skipping session check - token auth succeeded');
   }
   
+  console.log('🔍 STEP 4: Final userId check:', userId);
   if (!userId) {
+    console.log('🔍 STEP 4: FAILED - No user ID found, returning 401');
     return res.status(401).json({ message: 'Unauthorized - no user ID found' });
   }
   

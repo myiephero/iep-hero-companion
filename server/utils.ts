@@ -34,11 +34,20 @@ export async function getUserId(req: express.Request): Promise<string> {
   }
   
   // Enhanced session debugging for main endpoints
-  if (!user) {
-    const session = (req as any).session;
-    if (session && session.passport && session.passport.user) {
-      console.log('getUserId: Found session user:', session.passport.user.claims?.sub);
-      return session.passport.user.claims?.sub;
+  const session = (req as any).session;
+  console.log('getUserId: Full session object:', JSON.stringify(session, null, 2));
+  console.log('getUserId: Request headers:', JSON.stringify(req.headers, null, 2));
+  
+  if (!user && session && session.passport && session.passport.user) {
+    console.log('getUserId: Found session user:', session.passport.user.claims?.sub);
+    return session.passport.user.claims?.sub;
+  }
+  
+  // Try direct session access
+  if (!user && session) {
+    console.log('getUserId: Checking all session keys:', Object.keys(session));
+    for (const key of Object.keys(session)) {
+      console.log(`getUserId: Session[${key}]:`, session[key]);
     }
   }
   

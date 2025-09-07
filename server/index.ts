@@ -1612,8 +1612,10 @@ app.get('/api/profiles/:userId', async (req, res) => {
 
 // Parents/Clients routes - for advocates to see their clients
 app.get('/api/parents', async (req: any, res) => {
+  console.log('🔥 PARENTS ENDPOINT HIT!');
   try {
     const userId = await getUserId(req);
+    console.log('🔥 USER ID EXTRACTED:', userId);
     if (userId === 'anonymous-user') {
       return res.status(401).json({ message: 'Unauthorized' });
     }
@@ -1724,8 +1726,10 @@ app.get('/api/cases', isAuthenticated, async (req: any, res) => {
 
 // Update students endpoint to work for advocates viewing their clients' students
 app.get('/api/students', async (req: any, res) => {
+  console.log('🔥 STUDENTS ENDPOINT HIT!');
   try {
     const userId = await getUserId(req);
+    console.log('🔥 USER ID EXTRACTED:', userId);
     if (userId === 'anonymous-user') {
       return res.status(401).json({ message: 'Unauthorized' });
     }

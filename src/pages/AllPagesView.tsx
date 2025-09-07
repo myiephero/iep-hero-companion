@@ -454,6 +454,17 @@ export default function AllPagesView() {
                 <PageCard key={`specialized-${index}-${page.path}`} page={page} index={index} />
               ))}
             </div>
+            
+            <h3 className="text-lg font-semibold mt-8 mb-4">Testing & Development</h3>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              <PageCard page={{
+                title: "Messages Test",
+                path: "/messages-test",
+                icon: <MessageSquare className="h-5 w-5" />,
+                description: "Test messaging system with real advocate-parent communications",
+                status: "Development"
+              }} index={0} />
+            </div>
           </TabsContent>
         </Tabs>
 

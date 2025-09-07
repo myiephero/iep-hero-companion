@@ -1738,12 +1738,18 @@ app.get('/api/students', async (req: any, res) => {
     let students = [];
     
     if (user?.role === 'advocate') {
-      // For advocates, get all students from their cases
+      console.log('Fetching students for advocate:', userId);
+      
+      // For advocates, get their profile first
       const advocate = await db.select().from(schema.advocates)
         .where(eq(schema.advocates.user_id, userId))
         .then(results => results[0]);
       
       if (advocate) {
+        console.log('Found advocate profile:', advocate.id);
+        
+        // Get students from multiple sources:
+        // 1. From active cases
         const caseStudents = await db.select({
           student: schema.students,
           case: schema.cases,
@@ -1754,14 +1760,93 @@ app.get('/api/students', async (req: any, res) => {
         .leftJoin(schema.users, eq(schema.cases.client_id, schema.users.id))
         .where(eq(schema.cases.advocate_id, advocate.id));
         
-        students = caseStudents.map(({ student, case: caseData, client }) => ({
-          ...student,
-          case_id: caseData.id,
-          case_title: caseData.case_title,
-          case_status: caseData.status,
-          parent_name: client ? `${client.firstName || ''} ${client.lastName || ''}`.trim() : null,
-          parent_email: client?.email
-        })).filter(s => s.id); // Remove null students
+        console.log('Found case students:', caseStudents.length);
+        
+        // 2. Get students from accepted match proposals via conversations
+        const conversationStudents = await db.select({
+          student: schema.students,
+          conversation: schema.conversations,
+          client: schema.users
+        })
+        .from(schema.conversations)
+        .leftJoin(schema.students, eq(schema.conversations.student_id, schema.students.id))
+        .leftJoin(schema.users, eq(schema.conversations.parent_id, schema.users.id))
+        .where(and(
+          eq(schema.conversations.advocate_id, advocate.id),
+          eq(schema.conversations.status, 'active')
+        ));
+        
+        console.log('Found conversation students:', conversationStudents.length);
+        
+        // 3. Get students via advocate_clients relationship
+        const clientStudents = await db.select({
+          student: schema.students,
+          client: schema.users,
+          relationship: schema.advocate_clients
+        })
+        .from(schema.advocate_clients)
+        .leftJoin(schema.users, eq(schema.advocate_clients.client_id, schema.users.id))
+        .leftJoin(schema.students, eq(schema.students.parent_id, schema.users.id))
+        .where(and(
+          eq(schema.advocate_clients.advocate_id, advocate.id),
+          eq(schema.advocate_clients.status, 'active')
+        ));
+        
+        console.log('Found client students:', clientStudents.length);
+        
+        // Combine all students and deduplicate
+        const allStudents = new Map();
+        
+        // Add case students
+        caseStudents.forEach(({ student, case: caseData, client }) => {
+          if (student?.id) {
+            allStudents.set(student.id, {
+              ...student,
+              case_id: caseData?.id,
+              case_title: caseData?.case_title,
+              case_status: caseData?.status,
+              parent_name: client ? `${client.firstName || ''} ${client.lastName || ''}`.trim() : null,
+              parent_email: client?.email,
+              source: 'case'
+            });
+          }
+        });
+        
+        // Add conversation students
+        conversationStudents.forEach(({ student, conversation, client }) => {
+          if (student?.id) {
+            // Don't overwrite if already exists from cases
+            if (!allStudents.has(student.id)) {
+              allStudents.set(student.id, {
+                ...student,
+                conversation_id: conversation?.id,
+                parent_name: client ? `${client.firstName || ''} ${client.lastName || ''}`.trim() : null,
+                parent_email: client?.email,
+                source: 'conversation'
+              });
+            } else {
+              // Add conversation info to existing record
+              const existing = allStudents.get(student.id);
+              existing.conversation_id = conversation?.id;
+            }
+          }
+        });
+        
+        // Add client students
+        clientStudents.forEach(({ student, client, relationship }) => {
+          if (student?.id && !allStudents.has(student.id)) {
+            allStudents.set(student.id, {
+              ...student,
+              parent_name: client ? `${client.firstName || ''} ${client.lastName || ''}`.trim() : null,
+              parent_email: client?.email,
+              relationship_type: relationship?.relationship_type,
+              source: 'client_relationship'
+            });
+          }
+        });
+        
+        students = Array.from(allStudents.values());
+        console.log('Final student count for advocate:', students.length);
       }
     } else {
       // For parents, get their own students

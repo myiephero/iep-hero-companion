@@ -7,6 +7,7 @@ import matchRoutes from './routes/match';
 import expertRoutes from './routes/expert';
 import feedbackRoutes from './routes/feedback';
 import messagingRoutes from './routes/messaging';
+import { mainRoutes } from './routes/main';
 import { createRequire } from 'module';
 const require = createRequire(import.meta.url);
 const pdf = require('pdf-parse');
@@ -1608,62 +1609,7 @@ app.get('/api/profiles/:userId', async (req, res) => {
   }
 });
 
-// Students routes (moved below for proper advocate support)
-
-// Parents/Clients routes - for advocates to see their clients
-app.get('/api/parents', async (req: any, res) => {
-  console.log('🔥 PARENTS ENDPOINT HIT!');
-  try {
-    const userId = await getUserId(req);
-    console.log('🔥 USER ID EXTRACTED:', userId);
-    if (userId === 'anonymous-user') {
-      return res.status(401).json({ message: 'Unauthorized' });
-    }
-    
-    // Get advocate profile
-    const advocate = await db.select().from(schema.advocates)
-      .where(eq(schema.advocates.user_id, userId))
-      .then(results => results[0]);
-    
-    if (!advocate) {
-      return res.status(404).json({ error: 'Advocate profile not found' });
-    }
-    
-    // Get all clients (parents) for this advocate
-    const clientRelations = await db.select({
-      relationship: schema.advocate_clients,
-      client: schema.users
-    })
-    .from(schema.advocate_clients)
-    .leftJoin(schema.users, eq(schema.advocate_clients.client_id, schema.users.id))
-    .where(and(
-      eq(schema.advocate_clients.advocate_id, advocate.id),
-      eq(schema.advocate_clients.status, 'active')
-    ));
-
-    const clients = clientRelations.map(({ relationship, client }) => ({
-      id: client?.id,
-      email: client?.email,
-      firstName: client?.firstName,
-      lastName: client?.lastName,
-      relationship_type: relationship.relationship_type,
-      start_date: relationship.start_date,
-      notes: relationship.notes
-    }));
-    
-    // Add cache-busting headers
-    res.set({
-      'Cache-Control': 'no-cache, no-store, must-revalidate',
-      'Pragma': 'no-cache',
-      'Expires': '0'
-    });
-    
-    res.json(clients);
-  } catch (error) {
-    console.error('Error fetching parents/clients:', error);
-    res.status(500).json({ error: 'Failed to fetch parents/clients' });
-  }
-});
+// Main endpoints have been moved to server/routes/main.ts for better organization
 
 // Cases routes - for advocates to see their active cases
 app.get('/api/cases', isAuthenticated, async (req: any, res) => {
@@ -1724,164 +1670,7 @@ app.get('/api/cases', isAuthenticated, async (req: any, res) => {
   }
 });
 
-// Update students endpoint to work for advocates viewing their clients' students
-app.get('/api/students', async (req: any, res) => {
-  console.log('🔥 STUDENTS ENDPOINT HIT!');
-  try {
-    const userId = await getUserId(req);
-    console.log('🔥 USER ID EXTRACTED:', userId);
-    if (userId === 'anonymous-user') {
-      return res.status(401).json({ message: 'Unauthorized' });
-    }
-    
-    // Check if user is a parent or advocate
-    const user = await storage.getUser(userId);
-    let students = [];
-    
-    if (user?.role === 'advocate') {
-      console.log('Fetching students for advocate:', userId);
-      
-      // For advocates, get their profile first
-      const advocate = await db.select().from(schema.advocates)
-        .where(eq(schema.advocates.user_id, userId))
-        .then(results => results[0]);
-      
-      if (advocate) {
-        console.log('Found advocate profile:', advocate.id);
-        
-        // Get students from multiple sources:
-        // 1. From active cases
-        const caseStudents = await db.select({
-          student: schema.students,
-          case: schema.cases,
-          client: schema.users
-        })
-        .from(schema.cases)
-        .leftJoin(schema.students, eq(schema.cases.student_id, schema.students.id))
-        .leftJoin(schema.users, eq(schema.cases.client_id, schema.users.id))
-        .where(eq(schema.cases.advocate_id, advocate.id));
-        
-        console.log('Found case students:', caseStudents.length);
-        
-        // 2. Get students from accepted match proposals via conversations
-        const conversationStudents = await db.select({
-          student: schema.students,
-          conversation: schema.conversations,
-          client: schema.users
-        })
-        .from(schema.conversations)
-        .leftJoin(schema.students, eq(schema.conversations.student_id, schema.students.id))
-        .leftJoin(schema.users, eq(schema.conversations.parent_id, schema.users.id))
-        .where(and(
-          eq(schema.conversations.advocate_id, advocate.id),
-          eq(schema.conversations.status, 'active')
-        ));
-        
-        console.log('Found conversation students:', conversationStudents.length);
-        
-        // 3. Get students via advocate_clients relationship
-        const clientStudents = await db.select({
-          student: schema.students,
-          client: schema.users,
-          relationship: schema.advocate_clients
-        })
-        .from(schema.advocate_clients)
-        .leftJoin(schema.users, eq(schema.advocate_clients.client_id, schema.users.id))
-        .leftJoin(schema.students, eq(schema.students.parent_id, schema.users.id))
-        .where(and(
-          eq(schema.advocate_clients.advocate_id, advocate.id),
-          eq(schema.advocate_clients.status, 'active')
-        ));
-        
-        console.log('Found client students:', clientStudents.length);
-        
-        // Combine all students and deduplicate
-        const allStudents = new Map();
-        
-        // Add case students
-        caseStudents.forEach(({ student, case: caseData, client }) => {
-          if (student?.id) {
-            allStudents.set(student.id, {
-              ...student,
-              case_id: caseData?.id,
-              case_title: caseData?.case_title,
-              case_status: caseData?.status,
-              parent_name: client ? `${client.firstName || ''} ${client.lastName || ''}`.trim() : null,
-              parent_email: client?.email,
-              source: 'case'
-            });
-          }
-        });
-        
-        // Add conversation students
-        conversationStudents.forEach(({ student, conversation, client }) => {
-          if (student?.id) {
-            // Don't overwrite if already exists from cases
-            if (!allStudents.has(student.id)) {
-              allStudents.set(student.id, {
-                ...student,
-                conversation_id: conversation?.id,
-                parent_name: client ? `${client.firstName || ''} ${client.lastName || ''}`.trim() : null,
-                parent_email: client?.email,
-                source: 'conversation'
-              });
-            } else {
-              // Add conversation info to existing record
-              const existing = allStudents.get(student.id);
-              existing.conversation_id = conversation?.id;
-            }
-          }
-        });
-        
-        // Add client students
-        clientStudents.forEach(({ student, client, relationship }) => {
-          if (student?.id && !allStudents.has(student.id)) {
-            allStudents.set(student.id, {
-              ...student,
-              parent_name: client ? `${client.firstName || ''} ${client.lastName || ''}`.trim() : null,
-              parent_email: client?.email,
-              relationship_type: relationship?.relationship_type,
-              source: 'client_relationship'
-            });
-          }
-        });
-        
-        students = Array.from(allStudents.values());
-        console.log('Final student count for advocate:', students.length);
-      }
-    } else {
-      // For parents, get their own students
-      students = await db.select().from(schema.students).where(eq(schema.students.user_id, userId));
-    }
-    
-    // Add cache-busting headers to force fresh data
-    res.set({
-      'Cache-Control': 'no-cache, no-store, must-revalidate',
-      'Pragma': 'no-cache',
-      'Expires': '0'
-    });
-    
-    res.json(students);
-  } catch (error) {
-    console.error('Error fetching students:', error);
-    res.status(500).json({ error: 'Failed to fetch students' });
-  }
-});
-
-app.post('/api/students', async (req: any, res) => {
-  try {
-    const userId = await getUserId(req);
-    if (userId === 'anonymous-user') {
-      return res.status(401).json({ message: 'Unauthorized' });
-    }
-    const studentData = { ...req.body, user_id: userId };
-    const [student] = await db.insert(schema.students).values(studentData).returning();
-    res.json(student);
-  } catch (error) {
-    console.error('Error creating student:', error);
-    res.status(500).json({ error: 'Failed to create student' });
-  }
-});
+// Students endpoints moved to server/routes/main.ts
 
 // Autism accommodations routes - Enhanced with comprehensive CRUD operations
 app.get('/api/autism_accommodations', async (req, res) => {
@@ -2772,6 +2561,7 @@ app.use('/api/match', matchRoutes);
 app.use('/api/expert-analysis', expertRoutes);
 app.use('/api/feedback', feedbackRoutes);
 app.use('/api/messaging', messagingRoutes);
+app.use('/api', mainRoutes);
 
 // Health check
 app.get('/health', (req, res) => {

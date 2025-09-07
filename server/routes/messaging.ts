@@ -88,8 +88,33 @@ router.post('/conversations', async (req: Request, res: Response) => {
 router.get('/conversations', async (req: Request, res: Response) => {
   try {
     const userId = await getUserId(req);
+    console.log('Fetching conversations for user:', userId);
+    
+    // First, check if user is an advocate and get their advocate profile
+    let advocateProfile;
+    try {
+      const advocateResults = await db.select().from(advocates)
+        .where(eq(advocates.user_id, userId));
+      advocateProfile = advocateResults[0] || null;
+      console.log('Found advocate profile:', advocateProfile?.id);
+    } catch (error) {
+      console.log('User is not an advocate or error finding advocate profile');
+      advocateProfile = null;
+    }
     
     // Get conversations where user is either parent or advocate
+    let whereClause;
+    if (advocateProfile) {
+      // For advocates, use their advocate profile ID
+      whereClause = or(
+        eq(conversations.parent_id, userId),
+        eq(conversations.advocate_id, advocateProfile.id)
+      );
+    } else {
+      // For parents, only check parent_id
+      whereClause = eq(conversations.parent_id, userId);
+    }
+    
     const userConversations = await db.select({
       conversation: conversations,
       advocate: advocates,
@@ -98,13 +123,10 @@ router.get('/conversations', async (req: Request, res: Response) => {
     .from(conversations)
     .leftJoin(advocates, eq(conversations.advocate_id, advocates.id))
     .leftJoin(students, eq(conversations.student_id, students.id))
-    .where(
-      or(
-        eq(conversations.parent_id, userId),
-        eq(conversations.advocate_id, userId)
-      )
-    )
+    .where(whereClause)
     .orderBy(desc(conversations.last_message_at));
+    
+    console.log('Found conversations:', userConversations.length);
 
     // Get the latest message for each conversation
     const conversationsWithMessages = await Promise.all(

@@ -419,13 +419,30 @@ export default function AdvocateParents() {
                   <TabsContent value="communication" className="space-y-6">
                     <Card className="premium-card">
                       <CardHeader>
-                        <CardTitle>Communication History</CardTitle>
+                        <CardTitle>Communication</CardTitle>
                         <CardDescription>
-                          Track all communications with this parent client
+                          Send messages and view communication history with this parent
                         </CardDescription>
                       </CardHeader>
                       <CardContent>
-                        <p className="text-muted-foreground">Communication tracking will be implemented in a future update.</p>
+                        <div className="space-y-4">
+                          <div className="flex gap-2">
+                            <Button asChild className="flex-1">
+                              <Link to={`/advocate/messages?parent=${selectedParent.id}`}>
+                                <Mail className="h-4 w-4 mr-2" />
+                                Open Messages
+                              </Link>
+                            </Button>
+                            <Button variant="outline" asChild>
+                              <Link to={`/advocate/messages?parent=${selectedParent.id}&new=true`}>
+                                Send Message
+                              </Link>
+                            </Button>
+                          </div>
+                          <div className="text-sm text-muted-foreground">
+                            View all conversations and send secure messages to this parent about their child's IEP needs.
+                          </div>
+                        </div>
                       </CardContent>
                     </Card>
                   </TabsContent>

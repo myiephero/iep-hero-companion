@@ -2570,15 +2570,30 @@ app.get('/health', (req, res) => {
   res.json({ status: 'ok', timestamp: new Date().toISOString() });
 });
 
-// 🔥 DEMO: Return real data directly (bypass auth for dashboard demo)
 app.get('/api/parents', async (req: any, res) => {
-  console.log('🚨 DEMO: /api/parents - returning wxwinn real clients!');
-  
   try {
-    // Always return wxwinn's real clients for demo
-    const advocateUserId = 'mf49nblfi0fe55cwtf'; // wxwinn
+    const userId = await getUserId(req);
+    console.log('✅ PRODUCTION: Getting clients for authenticated user:', userId);
     
-    // Get real client data from database  
+    // Get user's profile to determine role
+    const [userProfile] = await db
+      .select()
+      .from(schema.profiles)
+      .where(eq(schema.profiles.user_id, userId))
+      .limit(1);
+    
+    if (!userProfile) {
+      console.log('❌ User profile not found for:', userId);
+      return res.status(404).json({ error: 'User profile not found' });
+    }
+    
+    // Only advocates should have clients/parents
+    if (userProfile.role !== 'advocate') {
+      console.log('❌ Non-advocate user requesting clients:', userProfile.role);
+      return res.status(403).json({ error: 'Only advocates can access client data' });
+    }
+    
+    // Get real client data for the authenticated advocate
     const clients = await db
       .select({
         id: schema.profiles.user_id,
@@ -2590,91 +2605,16 @@ app.get('/api/parents', async (req: any, res) => {
       })
       .from(schema.advocate_clients)
       .leftJoin(schema.profiles, eq(schema.advocate_clients.client_id, schema.profiles.user_id))
-      .where(eq(schema.advocate_clients.advocate_id, advocateUserId));
+      .where(eq(schema.advocate_clients.advocate_id, userId));
     
-    console.log('✅ DEMO: Found real clients:', clients.length, clients.map(c => c.full_name));
-    res.json(clients);
-    return;
-  } catch (error) {
-    console.error('🔥 Database error getting clients:', error);
-    res.status(500).json({ error: 'Database error' });
-    return;
-  }
-  
-  // Old auth code below (kept for reference)
-  let userId = null;
-  
-  // Try token-based auth first
-  console.log('🔍 STEP 2: Checking for token auth');
-  const token = req.headers.authorization?.replace('Bearer ', '');
-  console.log('🔍 STEP 2a: Token found:', !!token);
-  if (token && token.trim()) {
-    try {
-      const [tokenRecord] = await db.select()
-        .from(schema.auth_tokens)
-        .where(and(
-          eq(schema.auth_tokens.token, token),
-          gt(schema.auth_tokens.expires_at, new Date())
-        ))
-        .limit(1);
-      
-      if (tokenRecord) {
-        userId = tokenRecord.user_id;
-      }
-    } catch (error) {
-      console.warn('Token auth failed:', error);
-    }
-  }
-  
-  // Try Replit Auth session
-  console.log('🔍 STEP 3: Checking Replit Auth session');
-  if (!userId) {
-    const user = req.user;
-    console.log('🔍 STEP 3a: req.user:', JSON.stringify(user, null, 2));
-    console.log('🔍 STEP 3b: req.session:', JSON.stringify(req.session, null, 2));
-    console.log('🔍 STEP 3c: req.isAuthenticated():', typeof req.isAuthenticated === 'function' ? req.isAuthenticated() : 'NO FUNCTION');
-    
-    if (user && user.claims && user.claims.sub) {
-      console.log('🔍 STEP 3d: Found user ID in claims:', user.claims.sub);
-      userId = user.claims.sub;
-    } else {
-      console.log('🔍 STEP 3d: No user ID in claims');
-    }
-  } else {
-    console.log('🔍 STEP 3: Skipping session check - token auth succeeded');
-  }
-  
-  console.log('🔍 STEP 4: Final userId check:', userId);
-  if (!userId) {
-    console.log('🔍 STEP 4: FAILED - No user ID found, returning 401');
-    return res.status(401).json({ message: 'Unauthorized - no user ID found' });
-  }
-  
-  console.log('✅ REAL DATA: Got user ID:', userId);
-  
-  try {
-    // Always return wxwinn's real clients for demo
-    const advocateUserId = 'mf49nblfi0fe55cwtf'; // wxwinn
-    
-    // Get real client data from database  
-    const clients = await db
-      .select({
-        id: schema.profiles.user_id,
-        full_name: schema.profiles.full_name,
-        email: schema.profiles.email,
-        role: schema.profiles.role,
-        created_at: schema.profiles.created_at,
-        updated_at: schema.profiles.updated_at
-      })
-      .from(schema.advocate_clients)
-      .leftJoin(schema.profiles, eq(schema.advocate_clients.client_id, schema.profiles.user_id))
-      .where(eq(schema.advocate_clients.advocate_id, advocateUserId));
-    
-    console.log('✅ REAL DATA: Found clients:', clients.length);
+    console.log(`✅ PRODUCTION: Found ${clients.length} clients for advocate:`, clients.map(c => c.full_name));
     res.json(clients);
   } catch (error) {
-    console.error('🔥 Database error getting clients:', error);
-    res.status(500).json({ error: 'Database error' });
+    console.error('❌ Error getting clients:', error);
+    if (error.message.includes('Authentication required')) {
+      return res.status(401).json({ error: 'Authentication required' });
+    }
+    res.status(500).json({ error: 'Failed to fetch clients' });
   }
 });
 

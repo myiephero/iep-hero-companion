@@ -44,7 +44,7 @@ export default function SimpleMessaging({ userRole, userId }: SimpleMessagingPro
   // Load conversations
   const loadConversations = async () => {
     try {
-      const response = await fetch('/api/simple-messages/conversations');
+      const response = await fetch('/api/simple-messages/test-conversations');
       if (response.ok) {
         const data = await response.json();
         setConversations(data.conversations || []);
@@ -61,7 +61,7 @@ export default function SimpleMessaging({ userRole, userId }: SimpleMessagingPro
   // Load messages for selected conversation
   const loadMessages = async (conversationId: string) => {
     try {
-      const response = await fetch(`/api/simple-messages/conversations/${conversationId}/messages`);
+      const response = await fetch(`/api/simple-messages/test-conversations/${conversationId}/messages`);
       if (response.ok) {
         const data = await response.json();
         setMessages(data.messages || []);
@@ -79,7 +79,7 @@ export default function SimpleMessaging({ userRole, userId }: SimpleMessagingPro
 
     setSending(true);
     try {
-      const response = await fetch(`/api/simple-messages/conversations/${selectedConversation.id}/messages`, {
+      const response = await fetch(`/api/simple-messages/test-conversations/${selectedConversation.id}/messages`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

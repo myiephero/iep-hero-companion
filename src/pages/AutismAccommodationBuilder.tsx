@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { TopNavigation } from "@/components/TopNavigation";
+import { DashboardLayout } from "@/layouts/DashboardLayout";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -441,9 +441,7 @@ const AutismAccommodationBuilder = () => {
   };
 
   return (
-    <div className="min-h-screen bg-background">
-      <TopNavigation />
-      
+    <DashboardLayout>
       <div className="container mx-auto p-6 max-w-7xl">
         <div className="space-y-6">
           {/* Header */}
@@ -738,7 +736,7 @@ const AutismAccommodationBuilder = () => {
           </div>
         </div>
       </div>
-    </div>
+    </DashboardLayout>
   );
 };
 

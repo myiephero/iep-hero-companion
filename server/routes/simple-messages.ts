@@ -112,40 +112,26 @@ router.post('/test-conversations/:conversationId/messages', async (req: any, res
 // Get conversations for current user
 router.get('/conversations', simpleAuth, async (req: any, res) => {
   try {
-    console.log('🔍 SIMPLE TEST: Conversations endpoint hit');
+    console.log('🔍 REAL DATA: Getting conversations for wxwinn');
+    const userId = req.user?.claims?.sub || 'mf49nblfi0fe55cwtf'; // wxwinn's user ID
     
-    // For now, return sample data to test the interface
-    const sampleConversations = [
-      {
-        id: 'conv-1',
-        title: 'IEP Meeting for Sarah Johnson',
-        status: 'active',
-        lastMessageAt: new Date().toISOString(),
-        createdAt: new Date(Date.now() - 24*60*60*1000).toISOString(),
-        parentId: 'parent-123',
-        advocateId: 'test-advocate-id',
-        studentId: 'student-456'
-      },
-      {
-        id: 'conv-2', 
-        title: '504 Plan Discussion - Mike Thompson',
-        status: 'active',
-        lastMessageAt: new Date(Date.now() - 2*60*60*1000).toISOString(),
-        createdAt: new Date(Date.now() - 48*60*60*1000).toISOString(),
-        parentId: 'parent-789',
-        advocateId: 'test-advocate-id',
-        studentId: 'student-101'
-      }
-    ];
-    
-    return res.json({ conversations: sampleConversations });
+    // Get real conversations for this advocate from database
+    const conversations = await db
+      .select({
+        id: schema.conversations.id,
+        title: schema.conversations.title,
+        status: schema.conversations.status,
+        lastMessageAt: schema.conversations.last_message_at,
+        createdAt: schema.conversations.created_at,
+        parentId: schema.conversations.parent_id,
+        studentId: schema.conversations.student_id,
+      })
+      .from(schema.conversations)
+      .where(eq(schema.conversations.advocate_id, userId))
+      .orderBy(desc(schema.conversations.last_message_at));
 
-    // Get user's role to determine query
-    const [profile] = await db
-      .select()
-      .from(schema.profiles)
-      .where(eq(schema.profiles.user_id, userId))
-      .limit(1);
+    console.log('🔍 REAL DATA: Found conversations:', conversations.length);
+    return res.json({ conversations });
 
     let conversations;
     
@@ -193,40 +179,40 @@ router.get('/conversations', simpleAuth, async (req: any, res) => {
 // Get messages for a specific conversation
 router.get('/conversations/:conversationId/messages', simpleAuth, async (req: any, res) => {
   try {
-    console.log('🔍 SIMPLE TEST: Messages endpoint hit for conversation:', req.params.conversationId);
+    console.log('🔍 REAL DATA: Getting messages for conversation:', req.params.conversationId);
     
-    // Return sample messages for testing
-    const sampleMessages = [
-      {
-        id: 'msg-1',
-        conversation_id: req.params.conversationId,
-        sender_id: 'parent-123',
-        sender_type: 'parent',
-        content: 'Hi, I have some concerns about my daughter\'s IEP goals. Can we discuss the math accommodations?',
-        message_type: 'text',
-        created_at: new Date(Date.now() - 4*60*60*1000).toISOString()
-      },
-      {
-        id: 'msg-2',
-        conversation_id: req.params.conversationId,
-        sender_id: 'test-advocate-id',
-        sender_type: 'advocate', 
-        content: 'Of course! I\'d be happy to help review the math accommodations. Can you share what specific areas you\'re concerned about?',
-        message_type: 'text',
-        created_at: new Date(Date.now() - 3*60*60*1000).toISOString()
-      },
-      {
-        id: 'msg-3',
-        conversation_id: req.params.conversationId,
-        sender_id: 'parent-123',
-        sender_type: 'parent',
-        content: 'The current goals seem too broad. She needs more specific targets for word problems and time management during tests.',
-        message_type: 'text',
-        created_at: new Date(Date.now() - 2*60*60*1000).toISOString()
-      }
-    ];
-    
-    return res.json({ messages: sampleMessages });
+    // Get real messages from database
+    const messages = await db
+      .select({
+        id: schema.messages.id,
+        conversation_id: schema.messages.conversation_id,
+        sender_id: schema.messages.sender_id,
+        content: schema.messages.content,
+        created_at: schema.messages.created_at,
+      })
+      .from(schema.messages)
+      .where(eq(schema.messages.conversation_id, req.params.conversationId))
+      .orderBy(schema.messages.created_at);
+
+    // Add sender_type by looking up user role
+    const messagesWithSenderType = await Promise.all(
+      messages.map(async (message) => {
+        const [sender] = await db
+          .select({ role: schema.profiles.role })
+          .from(schema.profiles) 
+          .where(eq(schema.profiles.user_id, message.sender_id))
+          .limit(1);
+        
+        return {
+          ...message,
+          sender_type: sender?.role || 'unknown',
+          message_type: 'text'
+        };
+      })
+    );
+
+    console.log('🔍 REAL DATA: Found messages:', messagesWithSenderType.length);
+    return res.json({ messages: messagesWithSenderType });
 
     // Verify user has access to this conversation
     const [conversation] = await db

@@ -15,6 +15,8 @@ import { storage } from './storage';
 import Stripe from 'stripe';
 import { sendVerificationEmail, sendWelcomeEmail } from './emailService';
 import { getUserId } from './utils';
+import { standardsAnalyzer } from './standards-analyzer';
+import { ALL_STANDARDS, STATE_SPECIFIC_STANDARDS } from './standards-database';
 
 // Initialize Stripe
 if (!process.env.STRIPE_SECRET_KEY) {
@@ -340,11 +342,6 @@ app.use(cors({
 }));
 app.use(express.json({ limit: '50mb' }));
 app.use(express.urlencoded({ limit: '50mb', extended: true }));
-
-// Initialize Replit Auth (this also sets up sessions)
-(async () => {
-  await setupAuth(app);
-})();
 
 // Unified auth endpoint that checks both Replit Auth and custom login
 app.get('/api/auth/user', async (req: any, res) => {
@@ -2643,9 +2640,6 @@ app.put('/api/advocates/profile', async (req, res) => {
   }
 });
 
-// Standards alignment endpoints
-import { standardsAnalyzer } from './standards-analyzer';
-import { ALL_STANDARDS, STATE_SPECIFIC_STANDARDS } from './standards-database';
 
 // Get available states for standards
 app.get('/api/standards/states', (req, res) => {
@@ -2780,6 +2774,14 @@ app.get('/health', (req, res) => {
   res.json({ status: 'ok', timestamp: new Date().toISOString() });
 });
 
-app.listen(PORT, '0.0.0.0', () => {
-  console.log(`Server running on port ${PORT}`);
-});
+// Initialize server with proper authentication setup
+(async () => {
+  console.log('Setting up Replit Auth...');
+  await setupAuth(app);
+  console.log('Replit Auth setup completed successfully');
+  
+  // Start the server after all setup is complete
+  app.listen(PORT, '0.0.0.0', () => {
+    console.log(`Server running on port ${PORT}`);
+  });
+})().catch(console.error);

@@ -5,6 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { MessageCircle, ArrowLeft } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useNavigate } from 'react-router-dom';
+import { Home } from 'lucide-react';
 
 export default function MessagesTest() {
   const { user } = useAuth();
@@ -38,6 +39,15 @@ export default function MessagesTest() {
           >
             <ArrowLeft className="h-4 w-4" />
             Back
+          </Button>
+          <Button 
+            variant="default" 
+            size="sm" 
+            onClick={() => navigate(user?.role === 'advocate' ? '/advocate/dashboard-starter' : '/parent/dashboard-free')}
+            className="flex items-center gap-2"
+          >
+            <Home className="h-4 w-4" />
+            Back to Dashboard
           </Button>
           <div>
             <h1 className="text-2xl font-bold">Messages Test</h1>

@@ -715,15 +715,6 @@ const ParentAutismAccommodations = () => {
             </CardContent>
           </Card>
 
-          {/* Back Navigation */}
-          <div className="flex justify-center pt-6 pb-4">
-            <Button asChild variant="ghost" size="sm">
-              <Link to="/parent/tools" className="flex items-center gap-2">
-                <ArrowRight className="h-4 w-4 rotate-180" />
-                Back to Parent Tools
-              </Link>
-            </Button>
-          </div>
         </div>
       </div>
     </div>

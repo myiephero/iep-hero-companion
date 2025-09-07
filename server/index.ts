@@ -2679,96 +2679,61 @@ app.get('/api/parents', async (req: any, res) => {
 });
 
 app.get('/api/students', async (req: any, res) => {
-  console.log('🚨 DEMO: /api/students - returning wxwinn real students!');
-  
   try {
-    // Get real student data for wxwinn's clients
-    const advocateUserId = 'mf49nblfi0fe55cwtf'; // wxwinn
+    const userId = await getUserId(req);
+    console.log('✅ PRODUCTION: Getting students for authenticated user:', userId);
     
-    // Get students belonging to wxwinn's clients
-    const students = await db
-      .select({
-        id: schema.students.id,
-        full_name: schema.students.full_name,
-        grade_level: schema.students.grade_level,
-        parent_id: schema.students.parent_id,
-        created_at: schema.students.created_at,
-        updated_at: schema.students.updated_at
-      })
-      .from(schema.students)
-      .leftJoin(schema.advocate_clients, eq(schema.students.parent_id, schema.advocate_clients.client_id))
-      .where(eq(schema.advocate_clients.advocate_id, advocateUserId));
+    // Get user's profile to determine role
+    const [userProfile] = await db
+      .select()
+      .from(schema.profiles)
+      .where(eq(schema.profiles.user_id, userId))
+      .limit(1);
     
-    console.log('✅ DEMO: Found real students:', students.length, students.map(s => s.full_name));
-    res.json(students);
-    return;
-  } catch (error) {
-    console.error('🔥 Database error getting students:', error);
-    res.status(500).json({ error: 'Database error' });
-    return;
-  }
-  
-  // Old auth code below (kept for reference)
-  let userId = null;
-  
-  const token = req.headers.authorization?.replace('Bearer ', '');
-  if (token && token.trim()) {
-    try {
-      const [tokenRecord] = await db.select()
-        .from(schema.auth_tokens)
-        .where(and(
-          eq(schema.auth_tokens.token, token),
-          gt(schema.auth_tokens.expires_at, new Date())
-        ))
-        .limit(1);
-      
-      if (tokenRecord) {
-        userId = tokenRecord.user_id;
-      }
-    } catch (error) {
-      console.warn('Token auth failed:', error);
+    if (!userProfile) {
+      console.log('❌ User profile not found for:', userId);
+      return res.status(404).json({ error: 'User profile not found' });
     }
-  }
-  
-  if (!userId) {
-    const user = req.user;
-    console.log('🔍 STUDENTS SESSION DEBUG - req.user:', JSON.stringify(user, null, 2));
-    console.log('🔍 STUDENTS SESSION DEBUG - req.session:', JSON.stringify(req.session, null, 2));
     
-    if (user && user.claims && user.claims.sub) {
-      userId = user.claims.sub;
+    let students = [];
+    
+    if (userProfile.role === 'advocate') {
+      // Advocate: Get students from all their clients
+      students = await db
+        .select({
+          id: schema.students.id,
+          full_name: schema.students.full_name,
+          grade_level: schema.students.grade_level,
+          parent_id: schema.students.parent_id,
+          created_at: schema.students.created_at,
+          updated_at: schema.students.updated_at
+        })
+        .from(schema.students)
+        .leftJoin(schema.advocate_clients, eq(schema.students.parent_id, schema.advocate_clients.client_id))
+        .where(eq(schema.advocate_clients.advocate_id, userId));
+    } else {
+      // Parent: Get their own students
+      students = await db
+        .select({
+          id: schema.students.id,
+          full_name: schema.students.full_name,
+          grade_level: schema.students.grade_level,
+          parent_id: schema.students.parent_id,
+          created_at: schema.students.created_at,
+          updated_at: schema.students.updated_at
+        })
+        .from(schema.students)
+        .where(eq(schema.students.parent_id, userId));
     }
-  }
-  
-  if (!userId) {
-    return res.status(401).json({ message: 'Unauthorized - no user ID found' });
-  }
-  
-  console.log('✅ REAL DATA: Got user ID:', userId);
-  
-  try {
-    // Get real student data for wxwinn's clients
-    const advocateUserId = 'mf49nblfi0fe55cwtf'; // wxwinn
     
-    // Get students belonging to wxwinn's clients
-    const students = await db
-      .select({
-        id: schema.students.id,
-        full_name: schema.students.full_name,
-        grade_level: schema.students.grade_level,
-        parent_id: schema.students.parent_id,
-        created_at: schema.students.created_at,
-        updated_at: schema.students.updated_at
-      })
-      .from(schema.students)
-      .leftJoin(schema.advocate_clients, eq(schema.students.parent_id, schema.advocate_clients.client_id))
-      .where(eq(schema.advocate_clients.advocate_id, advocateUserId));
-    
-    console.log('✅ REAL DATA: Found students:', students.length);
+    console.log(`✅ PRODUCTION: Found ${students.length} students for ${userProfile.role}:`, students.map(s => s.full_name));
     res.json(students);
   } catch (error) {
-    console.error('🔥 Database error getting students:', error);
-    res.status(500).json({ error: 'Database error' });
+    console.error('❌ Error getting students:', error);
+    if (error.message.includes('Authentication required')) {
+      return res.status(401).json({ error: 'Authentication required' });
+    }
+    res.status(500).json({ error: 'Failed to fetch students' });
   }
 });
 

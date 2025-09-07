@@ -2598,6 +2598,10 @@ app.get('/api/parents', async (req: any, res) => {
   // Try Replit Auth session
   if (!userId) {
     const user = req.user;
+    console.log('🔍 SESSION DEBUG - req.user:', JSON.stringify(user, null, 2));
+    console.log('🔍 SESSION DEBUG - req.session:', JSON.stringify(req.session, null, 2));
+    console.log('🔍 SESSION DEBUG - req.isAuthenticated():', typeof req.isAuthenticated === 'function' ? req.isAuthenticated() : 'NO FUNCTION');
+    
     if (user && user.claims && user.claims.sub) {
       userId = user.claims.sub;
     }
@@ -2644,6 +2648,9 @@ app.get('/api/students', async (req: any, res) => {
   
   if (!userId) {
     const user = req.user;
+    console.log('🔍 STUDENTS SESSION DEBUG - req.user:', JSON.stringify(user, null, 2));
+    console.log('🔍 STUDENTS SESSION DEBUG - req.session:', JSON.stringify(req.session, null, 2));
+    
     if (user && user.claims && user.claims.sub) {
       userId = user.claims.sub;
     }

@@ -1611,7 +1611,7 @@ app.get('/api/profiles/:userId', async (req, res) => {
 // Students routes (moved below for proper advocate support)
 
 // Parents/Clients routes - for advocates to see their clients
-app.get('/api/parents', isAuthenticated, async (req: any, res) => {
+app.get('/api/parents', async (req: any, res) => {
   try {
     const userId = await getUserId(req);
     if (userId === 'anonymous-user') {
@@ -1723,7 +1723,7 @@ app.get('/api/cases', isAuthenticated, async (req: any, res) => {
 });
 
 // Update students endpoint to work for advocates viewing their clients' students
-app.get('/api/students', isAuthenticated, async (req: any, res) => {
+app.get('/api/students', async (req: any, res) => {
   try {
     const userId = await getUserId(req);
     if (userId === 'anonymous-user') {

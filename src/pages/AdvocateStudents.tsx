@@ -278,9 +278,42 @@ const AdvocateStudents = () => {
       const studentGoals = goalsData.filter((goal: any) => goal.student_id === studentId);
       setGoals(studentGoals as Goal[] || []);
       
-      // Mock services and cases data for now
-      setServices([]);
-      setCases([]);
+      // Fetch real services and cases data for this student
+      try {
+        const authToken = localStorage.getItem('authToken');
+        const headers = { 
+          'Authorization': authToken ? `Bearer ${authToken}` : '',
+          'Content-Type': 'application/json'
+        };
+        
+        // Fetch services for this student
+        const servicesRes = await fetch(`/api/students/${studentId}/services`, { 
+          credentials: 'include', 
+          headers 
+        });
+        if (servicesRes.ok) {
+          const servicesData = await servicesRes.json();
+          setServices(servicesData || []);
+        } else {
+          setServices([]);
+        }
+        
+        // Fetch cases for this student
+        const casesRes = await fetch(`/api/students/${studentId}/cases`, { 
+          credentials: 'include', 
+          headers 
+        });
+        if (casesRes.ok) {
+          const casesData = await casesRes.json();
+          setCases(casesData || []);
+        } else {
+          setCases([]);
+        }
+      } catch (error) {
+        console.error('Error fetching student services and cases:', error);
+        setServices([]);
+        setCases([]);
+      }
     } catch (error) {
       console.error('Error fetching student data:', error);
     }

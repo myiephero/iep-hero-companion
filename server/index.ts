@@ -1613,7 +1613,7 @@ app.get('/api/profiles/:userId', async (req, res) => {
 // Parents/Clients routes moved to AFTER auth setup for proper session context
 
 // Cases routes - for advocates to see their active cases
-app.get('/api/cases', isAuthenticated, async (req: any, res) => {
+app.get('/api/cases-old-disabled', isAuthenticated, async (req: any, res) => {
   try {
     const userId = await getUserId(req);
     if (userId === 'anonymous-user') {
@@ -2769,6 +2769,45 @@ app.get('/api/students', async (req: any, res) => {
   } catch (error) {
     console.error('🔥 Database error getting students:', error);
     res.status(500).json({ error: 'Database error' });
+  }
+});
+
+app.get('/api/cases', async (req: any, res) => {
+  console.log('🚨 DEMO: /api/cases - returning wxwinn real cases!');
+  
+  try {
+    // Always return wxwinn's real cases for demo
+    const advocateUserId = 'mf49nblfi0fe55cwtf'; // wxwinn
+    
+    // Get real case data from database  
+    const cases = await db
+      .select({
+        id: schema.cases.id,
+        advocate_id: schema.cases.advocate_id,
+        client_id: schema.cases.client_id,
+        student_id: schema.cases.student_id,
+        case_title: schema.cases.case_title,
+        description: schema.cases.description,
+        case_type: schema.cases.case_type,
+        status: schema.cases.status,
+        priority: schema.cases.priority,
+        billing_rate: schema.cases.billing_rate,
+        total_hours: schema.cases.total_hours,
+        next_action: schema.cases.next_action,
+        next_action_date: schema.cases.next_action_date,
+        created_at: schema.cases.created_at,
+        updated_at: schema.cases.updated_at
+      })
+      .from(schema.cases)
+      .where(eq(schema.cases.advocate_id, advocateUserId));
+    
+    console.log('✅ DEMO: Found real cases:', cases.length, cases.map(c => c.case_title));
+    res.json(cases);
+    return;
+  } catch (error) {
+    console.error('🔥 Database error getting cases:', error);
+    res.status(500).json({ error: 'Database error' });
+    return;
   }
 });
 

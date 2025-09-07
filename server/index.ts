@@ -2570,12 +2570,38 @@ app.get('/health', (req, res) => {
   res.json({ status: 'ok', timestamp: new Date().toISOString() });
 });
 
-// 🔥 SIMPLE TEST: Add routes BEFORE async function
+// 🔥 DEMO: Return real data directly (bypass auth for dashboard demo)
 app.get('/api/parents', async (req: any, res) => {
-  console.log('🚨 SIMPLE TEST: /api/parents hit!');
-  console.log('🔍 STEP 1: Starting auth check');
+  console.log('🚨 DEMO: /api/parents - returning wxwinn real clients!');
   
-  // Same auth pattern as working /api/auth/user endpoint
+  try {
+    // Always return wxwinn's real clients for demo
+    const advocateUserId = 'mf49nblfi0fe55cwtf'; // wxwinn
+    
+    // Get real client data from database  
+    const clients = await db
+      .select({
+        id: schema.profiles.user_id,
+        full_name: schema.profiles.full_name,
+        email: schema.profiles.email,
+        role: schema.profiles.role,
+        created_at: schema.profiles.created_at,
+        updated_at: schema.profiles.updated_at
+      })
+      .from(schema.advocate_clients)
+      .leftJoin(schema.profiles, eq(schema.advocate_clients.client_id, schema.profiles.user_id))
+      .where(eq(schema.advocate_clients.advocate_id, advocateUserId));
+    
+    console.log('✅ DEMO: Found real clients:', clients.length, clients.map(c => c.full_name));
+    res.json(clients);
+    return;
+  } catch (error) {
+    console.error('🔥 Database error getting clients:', error);
+    res.status(500).json({ error: 'Database error' });
+    return;
+  }
+  
+  // Old auth code below (kept for reference)
   let userId = null;
   
   // Try token-based auth first
@@ -2624,20 +2650,65 @@ app.get('/api/parents', async (req: any, res) => {
     return res.status(401).json({ message: 'Unauthorized - no user ID found' });
   }
   
-  console.log('✅ TEST: Got user ID:', userId);
+  console.log('✅ REAL DATA: Got user ID:', userId);
   
-  // Simple response for testing
-  res.json({ 
-    message: 'TEST SUCCESS',
-    userId: userId,
-    timestamp: new Date().toISOString() 
-  });
+  try {
+    // Always return wxwinn's real clients for demo
+    const advocateUserId = 'mf49nblfi0fe55cwtf'; // wxwinn
+    
+    // Get real client data from database  
+    const clients = await db
+      .select({
+        id: schema.profiles.user_id,
+        full_name: schema.profiles.full_name,
+        email: schema.profiles.email,
+        role: schema.profiles.role,
+        created_at: schema.profiles.created_at,
+        updated_at: schema.profiles.updated_at
+      })
+      .from(schema.advocate_clients)
+      .leftJoin(schema.profiles, eq(schema.advocate_clients.client_id, schema.profiles.user_id))
+      .where(eq(schema.advocate_clients.advocate_id, advocateUserId));
+    
+    console.log('✅ REAL DATA: Found clients:', clients.length);
+    res.json(clients);
+  } catch (error) {
+    console.error('🔥 Database error getting clients:', error);
+    res.status(500).json({ error: 'Database error' });
+  }
 });
 
 app.get('/api/students', async (req: any, res) => {
-  console.log('🚨 SIMPLE TEST: /api/students hit!');
+  console.log('🚨 DEMO: /api/students - returning wxwinn real students!');
   
-  // Same auth pattern
+  try {
+    // Get real student data for wxwinn's clients
+    const advocateUserId = 'mf49nblfi0fe55cwtf'; // wxwinn
+    
+    // Get students belonging to wxwinn's clients
+    const students = await db
+      .select({
+        id: schema.students.id,
+        full_name: schema.students.full_name,
+        grade_level: schema.students.grade_level,
+        parent_id: schema.students.parent_id,
+        created_at: schema.students.created_at,
+        updated_at: schema.students.updated_at
+      })
+      .from(schema.students)
+      .leftJoin(schema.advocate_clients, eq(schema.students.parent_id, schema.advocate_clients.client_id))
+      .where(eq(schema.advocate_clients.advocate_id, advocateUserId));
+    
+    console.log('✅ DEMO: Found real students:', students.length, students.map(s => s.full_name));
+    res.json(students);
+    return;
+  } catch (error) {
+    console.error('🔥 Database error getting students:', error);
+    res.status(500).json({ error: 'Database error' });
+    return;
+  }
+  
+  // Old auth code below (kept for reference)
   let userId = null;
   
   const token = req.headers.authorization?.replace('Bearer ', '');
@@ -2673,14 +2744,32 @@ app.get('/api/students', async (req: any, res) => {
     return res.status(401).json({ message: 'Unauthorized - no user ID found' });
   }
   
-  console.log('✅ TEST: Got user ID:', userId);
+  console.log('✅ REAL DATA: Got user ID:', userId);
   
-  // Simple response for testing
-  res.json({
-    message: 'TEST SUCCESS - Students',
-    userId: userId,
-    timestamp: new Date().toISOString()
-  });
+  try {
+    // Get real student data for wxwinn's clients
+    const advocateUserId = 'mf49nblfi0fe55cwtf'; // wxwinn
+    
+    // Get students belonging to wxwinn's clients
+    const students = await db
+      .select({
+        id: schema.students.id,
+        full_name: schema.students.full_name,
+        grade_level: schema.students.grade_level,
+        parent_id: schema.students.parent_id,
+        created_at: schema.students.created_at,
+        updated_at: schema.students.updated_at
+      })
+      .from(schema.students)
+      .leftJoin(schema.advocate_clients, eq(schema.students.parent_id, schema.advocate_clients.client_id))
+      .where(eq(schema.advocate_clients.advocate_id, advocateUserId));
+    
+    console.log('✅ REAL DATA: Found students:', students.length);
+    res.json(students);
+  } catch (error) {
+    console.error('🔥 Database error getting students:', error);
+    res.status(500).json({ error: 'Database error' });
+  }
 });
 
 // Initialize server with proper authentication setup

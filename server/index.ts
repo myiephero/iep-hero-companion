@@ -2568,6 +2568,101 @@ app.get('/health', (req, res) => {
   res.json({ status: 'ok', timestamp: new Date().toISOString() });
 });
 
+// 🔥 SIMPLE TEST: Add routes BEFORE async function
+app.get('/api/parents', async (req: any, res) => {
+  console.log('🚨 SIMPLE TEST: /api/parents hit!');
+  
+  // Same auth pattern as working /api/auth/user endpoint
+  let userId = null;
+  
+  // Try token-based auth first
+  const token = req.headers.authorization?.replace('Bearer ', '');
+  if (token && token.trim()) {
+    try {
+      const [tokenRecord] = await db.select()
+        .from(schema.auth_tokens)
+        .where(and(
+          eq(schema.auth_tokens.token, token),
+          gt(schema.auth_tokens.expires_at, new Date())
+        ))
+        .limit(1);
+      
+      if (tokenRecord) {
+        userId = tokenRecord.user_id;
+      }
+    } catch (error) {
+      console.warn('Token auth failed:', error);
+    }
+  }
+  
+  // Try Replit Auth session
+  if (!userId) {
+    const user = req.user;
+    if (user && user.claims && user.claims.sub) {
+      userId = user.claims.sub;
+    }
+  }
+  
+  if (!userId) {
+    return res.status(401).json({ message: 'Unauthorized - no user ID found' });
+  }
+  
+  console.log('✅ TEST: Got user ID:', userId);
+  
+  // Simple response for testing
+  res.json({ 
+    message: 'TEST SUCCESS',
+    userId: userId,
+    timestamp: new Date().toISOString() 
+  });
+});
+
+app.get('/api/students', async (req: any, res) => {
+  console.log('🚨 SIMPLE TEST: /api/students hit!');
+  
+  // Same auth pattern
+  let userId = null;
+  
+  const token = req.headers.authorization?.replace('Bearer ', '');
+  if (token && token.trim()) {
+    try {
+      const [tokenRecord] = await db.select()
+        .from(schema.auth_tokens)
+        .where(and(
+          eq(schema.auth_tokens.token, token),
+          gt(schema.auth_tokens.expires_at, new Date())
+        ))
+        .limit(1);
+      
+      if (tokenRecord) {
+        userId = tokenRecord.user_id;
+      }
+    } catch (error) {
+      console.warn('Token auth failed:', error);
+    }
+  }
+  
+  if (!userId) {
+    const user = req.user;
+    if (user && user.claims && user.claims.sub) {
+      userId = user.claims.sub;
+    }
+  }
+  
+  if (!userId) {
+    return res.status(401).json({ message: 'Unauthorized - no user ID found' });
+  }
+  
+  console.log('✅ TEST: Got user ID:', userId);
+  
+  // Simple response for testing
+  res.json({
+    message: 'TEST SUCCESS - Students',
+    userId: userId,
+    timestamp: new Date().toISOString()
+  });
+});
+
 // Initialize server with proper authentication setup
 (async () => {
   console.log('Setting up Replit Auth...');

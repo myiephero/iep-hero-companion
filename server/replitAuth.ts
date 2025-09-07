@@ -199,7 +199,8 @@ export const isAuthenticated: RequestHandler = async (req, res, next) => {
   // Fallback to Replit Auth
   const user = req.user as any;
 
-  if (!req.isAuthenticated() || !user.expires_at) {
+  // Check if user exists (indicates authenticated session)
+  if (!user || !user.expires_at) {
     return res.status(401).json({ message: "Unauthorized" });
   }
 

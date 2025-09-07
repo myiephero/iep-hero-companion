@@ -294,7 +294,7 @@ const ParentAutismAccommodations = () => {
     try {
       const response = await apiRequest('POST', '/api/autism_accommodations/generate-iep', {
         accommodation_ids: addedAccommodations,
-        student_id: selectedStudent || null,
+        student_id: selectedStudent === "general" ? null : selectedStudent,
         format: 'formal'
       });
 
@@ -337,7 +337,7 @@ const ParentAutismAccommodations = () => {
     try {
       const response = await apiRequest('POST', '/api/autism_accommodations/preview', {
         accommodation_ids: addedAccommodations,
-        student_id: selectedStudent || null,
+        student_id: selectedStudent === "general" ? null : selectedStudent,
         template_type: 'iep'
       });
 
@@ -404,7 +404,7 @@ const ParentAutismAccommodations = () => {
         } : null;
       }).filter(Boolean);
 
-      const studentName = selectedStudent && students?.find((s: any) => s.id === selectedStudent)?.full_name || "General";
+      const studentName = (selectedStudent && selectedStudent !== "general") && students?.find((s: any) => s.id === selectedStudent)?.full_name || "General";
       const documentTitle = `${studentName} - Autism Accommodations Plan`;
       const documentContent = {
         studentId: selectedStudent || null,
@@ -429,7 +429,7 @@ const ParentAutismAccommodations = () => {
         category: 'Accommodation Plan',
         tags: ['autism', 'accommodations', 'plan', 'parent'],
         content: JSON.stringify(documentContent, null, 2),
-        student_id: selectedStudent || null
+        student_id: selectedStudent === "general" ? null : selectedStudent
       });
 
       toast({
@@ -486,7 +486,7 @@ const ParentAutismAccommodations = () => {
                     <SelectValue placeholder="Select your child..." />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="">General Accommodations</SelectItem>
+                    <SelectItem value="general">General Accommodations</SelectItem>
                     {students?.map((student: any) => (
                       <SelectItem key={student.id} value={student.id}>
                         {student.full_name} - {student.grade_level ? `Grade ${student.grade_level}` : 'No Grade'}

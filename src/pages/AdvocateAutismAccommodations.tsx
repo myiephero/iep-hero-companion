@@ -320,7 +320,7 @@ const AdvocateAutismAccommodations = () => {
     try {
       const response = await apiRequest('POST', '/api/autism_accommodations/generate-iep', {
         accommodation_ids: addedAccommodations,
-        student_id: selectedStudent || null,
+        student_id: selectedStudent === "template" ? null : selectedStudent,
         format: 'formal'
       });
 
@@ -363,7 +363,7 @@ const AdvocateAutismAccommodations = () => {
     try {
       const response = await apiRequest('POST', '/api/autism_accommodations/preview', {
         accommodation_ids: addedAccommodations,
-        student_id: selectedStudent || null,
+        student_id: selectedStudent === "template" ? null : selectedStudent,
         template_type: 'iep'
       });
 
@@ -436,7 +436,7 @@ const AdvocateAutismAccommodations = () => {
         } : null;
       }).filter(Boolean);
 
-      const studentName = selectedStudent && students?.find((s: any) => s.id === selectedStudent)?.full_name || "Template";
+      const studentName = (selectedStudent && selectedStudent !== "template") && students?.find((s: any) => s.id === selectedStudent)?.full_name || "Template";
       const documentTitle = `${studentName} - Professional Autism Accommodation Plan`;
       const documentContent = {
         studentId: selectedStudent || null,
@@ -462,7 +462,7 @@ const AdvocateAutismAccommodations = () => {
         category: 'Professional Accommodation Plan',
         tags: ['autism', 'accommodations', 'advocate', 'professional'],
         content: JSON.stringify(documentContent, null, 2),
-        student_id: selectedStudent || null
+        student_id: selectedStudent === "template" ? null : selectedStudent
       });
 
       toast({
@@ -543,7 +543,7 @@ const AdvocateAutismAccommodations = () => {
                     <SelectValue placeholder="Select client's child..." />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="">Create General Template</SelectItem>
+                    <SelectItem value="template">Create General Template</SelectItem>
                     {students?.map((student: any) => (
                       <SelectItem key={student.id} value={student.id}>
                         {student.full_name} - {student.grade_level ? `Grade ${student.grade_level}` : 'No Grade'}

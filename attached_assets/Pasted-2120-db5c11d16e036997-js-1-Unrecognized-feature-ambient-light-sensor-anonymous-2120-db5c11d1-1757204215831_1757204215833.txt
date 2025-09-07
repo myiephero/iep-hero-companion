@@ -1,0 +1,907 @@
+2120-db5c11d16e036997.js:1 Unrecognized feature: 'ambient-light-sensor'.
+(anonymous) @ 2120-db5c11d16e036997.js:1
+(anonymous) @ main-4686bff553176585.js:1
+n @ main-4686bff553176585.js:1
+u @ main-4686bff553176585.js:1
+(anonymous) @ main-4686bff553176585.js:1
+(anonymous) @ main-4686bff553176585.js:1
+(anonymous) @ 2120-db5c11d16e036997.js:1
+(anonymous) @ 2120-db5c11d16e036997.js:1
+(anonymous) @ main-4686bff553176585.js:1
+n @ main-4686bff553176585.js:1
+u @ main-4686bff553176585.js:1
+(anonymous) @ main-4686bff553176585.js:1
+(anonymous) @ main-4686bff553176585.js:1
+(anonymous) @ 2120-db5c11d16e036997.js:1
+navigateTo @ 2120-db5c11d16e036997.js:1
+navigate @ 2120-db5c11d16e036997.js:1
+back @ 2120-db5c11d16e036997.js:1
+(anonymous) @ 2120-db5c11d16e036997.js:1
+(anonymous) @ _app-45655c07cae07a86.js:9
+(anonymous) @ _app-45655c07cae07a86.js:9
+onClick @ _app-45655c07cae07a86.js:9
+(anonymous) @ _app-45655c07cae07a86.js:14
+eB @ framework-725983bbab3dd6b5.js:1
+eH @ framework-725983bbab3dd6b5.js:1
+(anonymous) @ framework-725983bbab3dd6b5.js:1
+re @ framework-725983bbab3dd6b5.js:1
+rt @ framework-725983bbab3dd6b5.js:1
+(anonymous) @ framework-725983bbab3dd6b5.js:1
+uT @ framework-725983bbab3dd6b5.js:1
+eM @ framework-725983bbab3dd6b5.js:1
+ru @ framework-725983bbab3dd6b5.js:1
+tB @ framework-725983bbab3dd6b5.js:1
+tD @ framework-725983bbab3dd6b5.js:1
+n @ _app-45655c07cae07a86.js:38Understand this warning
+2120-db5c11d16e036997.js:1 Unrecognized feature: 'battery'.
+(anonymous) @ 2120-db5c11d16e036997.js:1
+(anonymous) @ main-4686bff553176585.js:1
+n @ main-4686bff553176585.js:1
+u @ main-4686bff553176585.js:1
+(anonymous) @ main-4686bff553176585.js:1
+(anonymous) @ main-4686bff553176585.js:1
+(anonymous) @ 2120-db5c11d16e036997.js:1
+(anonymous) @ 2120-db5c11d16e036997.js:1
+(anonymous) @ main-4686bff553176585.js:1
+n @ main-4686bff553176585.js:1
+u @ main-4686bff553176585.js:1
+(anonymous) @ main-4686bff553176585.js:1
+(anonymous) @ main-4686bff553176585.js:1
+(anonymous) @ 2120-db5c11d16e036997.js:1
+navigateTo @ 2120-db5c11d16e036997.js:1
+navigate @ 2120-db5c11d16e036997.js:1
+back @ 2120-db5c11d16e036997.js:1
+(anonymous) @ 2120-db5c11d16e036997.js:1
+(anonymous) @ _app-45655c07cae07a86.js:9
+(anonymous) @ _app-45655c07cae07a86.js:9
+onClick @ _app-45655c07cae07a86.js:9
+(anonymous) @ _app-45655c07cae07a86.js:14
+eB @ framework-725983bbab3dd6b5.js:1
+eH @ framework-725983bbab3dd6b5.js:1
+(anonymous) @ framework-725983bbab3dd6b5.js:1
+re @ framework-725983bbab3dd6b5.js:1
+rt @ framework-725983bbab3dd6b5.js:1
+(anonymous) @ framework-725983bbab3dd6b5.js:1
+uT @ framework-725983bbab3dd6b5.js:1
+eM @ framework-725983bbab3dd6b5.js:1
+ru @ framework-725983bbab3dd6b5.js:1
+tB @ framework-725983bbab3dd6b5.js:1
+tD @ framework-725983bbab3dd6b5.js:1
+n @ _app-45655c07cae07a86.js:38Understand this warning
+2120-db5c11d16e036997.js:1 Unrecognized feature: 'execution-while-not-rendered'.
+(anonymous) @ 2120-db5c11d16e036997.js:1
+(anonymous) @ main-4686bff553176585.js:1
+n @ main-4686bff553176585.js:1
+u @ main-4686bff553176585.js:1
+(anonymous) @ main-4686bff553176585.js:1
+(anonymous) @ main-4686bff553176585.js:1
+(anonymous) @ 2120-db5c11d16e036997.js:1
+(anonymous) @ 2120-db5c11d16e036997.js:1
+(anonymous) @ main-4686bff553176585.js:1
+n @ main-4686bff553176585.js:1
+u @ main-4686bff553176585.js:1
+(anonymous) @ main-4686bff553176585.js:1
+(anonymous) @ main-4686bff553176585.js:1
+(anonymous) @ 2120-db5c11d16e036997.js:1
+navigateTo @ 2120-db5c11d16e036997.js:1
+navigate @ 2120-db5c11d16e036997.js:1
+back @ 2120-db5c11d16e036997.js:1
+(anonymous) @ 2120-db5c11d16e036997.js:1
+(anonymous) @ _app-45655c07cae07a86.js:9
+(anonymous) @ _app-45655c07cae07a86.js:9
+onClick @ _app-45655c07cae07a86.js:9
+(anonymous) @ _app-45655c07cae07a86.js:14
+eB @ framework-725983bbab3dd6b5.js:1
+eH @ framework-725983bbab3dd6b5.js:1
+(anonymous) @ framework-725983bbab3dd6b5.js:1
+re @ framework-725983bbab3dd6b5.js:1
+rt @ framework-725983bbab3dd6b5.js:1
+(anonymous) @ framework-725983bbab3dd6b5.js:1
+uT @ framework-725983bbab3dd6b5.js:1
+eM @ framework-725983bbab3dd6b5.js:1
+ru @ framework-725983bbab3dd6b5.js:1
+tB @ framework-725983bbab3dd6b5.js:1
+tD @ framework-725983bbab3dd6b5.js:1
+n @ _app-45655c07cae07a86.js:38Understand this warning
+2120-db5c11d16e036997.js:1 Unrecognized feature: 'execution-while-out-of-viewport'.
+(anonymous) @ 2120-db5c11d16e036997.js:1
+(anonymous) @ main-4686bff553176585.js:1
+n @ main-4686bff553176585.js:1
+u @ main-4686bff553176585.js:1
+(anonymous) @ main-4686bff553176585.js:1
+(anonymous) @ main-4686bff553176585.js:1
+(anonymous) @ 2120-db5c11d16e036997.js:1
+(anonymous) @ 2120-db5c11d16e036997.js:1
+(anonymous) @ main-4686bff553176585.js:1
+n @ main-4686bff553176585.js:1
+u @ main-4686bff553176585.js:1
+(anonymous) @ main-4686bff553176585.js:1
+(anonymous) @ main-4686bff553176585.js:1
+(anonymous) @ 2120-db5c11d16e036997.js:1
+navigateTo @ 2120-db5c11d16e036997.js:1
+navigate @ 2120-db5c11d16e036997.js:1
+back @ 2120-db5c11d16e036997.js:1
+(anonymous) @ 2120-db5c11d16e036997.js:1
+(anonymous) @ _app-45655c07cae07a86.js:9
+(anonymous) @ _app-45655c07cae07a86.js:9
+onClick @ _app-45655c07cae07a86.js:9
+(anonymous) @ _app-45655c07cae07a86.js:14
+eB @ framework-725983bbab3dd6b5.js:1
+eH @ framework-725983bbab3dd6b5.js:1
+(anonymous) @ framework-725983bbab3dd6b5.js:1
+re @ framework-725983bbab3dd6b5.js:1
+rt @ framework-725983bbab3dd6b5.js:1
+(anonymous) @ framework-725983bbab3dd6b5.js:1
+uT @ framework-725983bbab3dd6b5.js:1
+eM @ framework-725983bbab3dd6b5.js:1
+ru @ framework-725983bbab3dd6b5.js:1
+tB @ framework-725983bbab3dd6b5.js:1
+tD @ framework-725983bbab3dd6b5.js:1
+n @ _app-45655c07cae07a86.js:38Understand this warning
+2120-db5c11d16e036997.js:1 Unrecognized feature: 'layout-animations'.
+(anonymous) @ 2120-db5c11d16e036997.js:1
+(anonymous) @ main-4686bff553176585.js:1
+n @ main-4686bff553176585.js:1
+u @ main-4686bff553176585.js:1
+(anonymous) @ main-4686bff553176585.js:1
+(anonymous) @ main-4686bff553176585.js:1
+(anonymous) @ 2120-db5c11d16e036997.js:1
+(anonymous) @ 2120-db5c11d16e036997.js:1
+(anonymous) @ main-4686bff553176585.js:1
+n @ main-4686bff553176585.js:1
+u @ main-4686bff553176585.js:1
+(anonymous) @ main-4686bff553176585.js:1
+(anonymous) @ main-4686bff553176585.js:1
+(anonymous) @ 2120-db5c11d16e036997.js:1
+navigateTo @ 2120-db5c11d16e036997.js:1
+navigate @ 2120-db5c11d16e036997.js:1
+back @ 2120-db5c11d16e036997.js:1
+(anonymous) @ 2120-db5c11d16e036997.js:1
+(anonymous) @ _app-45655c07cae07a86.js:9
+(anonymous) @ _app-45655c07cae07a86.js:9
+onClick @ _app-45655c07cae07a86.js:9
+(anonymous) @ _app-45655c07cae07a86.js:14
+eB @ framework-725983bbab3dd6b5.js:1
+eH @ framework-725983bbab3dd6b5.js:1
+(anonymous) @ framework-725983bbab3dd6b5.js:1
+re @ framework-725983bbab3dd6b5.js:1
+rt @ framework-725983bbab3dd6b5.js:1
+(anonymous) @ framework-725983bbab3dd6b5.js:1
+uT @ framework-725983bbab3dd6b5.js:1
+eM @ framework-725983bbab3dd6b5.js:1
+ru @ framework-725983bbab3dd6b5.js:1
+tB @ framework-725983bbab3dd6b5.js:1
+tD @ framework-725983bbab3dd6b5.js:1
+n @ _app-45655c07cae07a86.js:38Understand this warning
+2120-db5c11d16e036997.js:1 Unrecognized feature: 'legacy-image-formats'.
+(anonymous) @ 2120-db5c11d16e036997.js:1
+(anonymous) @ main-4686bff553176585.js:1
+n @ main-4686bff553176585.js:1
+u @ main-4686bff553176585.js:1
+(anonymous) @ main-4686bff553176585.js:1
+(anonymous) @ main-4686bff553176585.js:1
+(anonymous) @ 2120-db5c11d16e036997.js:1
+(anonymous) @ 2120-db5c11d16e036997.js:1
+(anonymous) @ main-4686bff553176585.js:1
+n @ main-4686bff553176585.js:1
+u @ main-4686bff553176585.js:1
+(anonymous) @ main-4686bff553176585.js:1
+(anonymous) @ main-4686bff553176585.js:1
+(anonymous) @ 2120-db5c11d16e036997.js:1
+navigateTo @ 2120-db5c11d16e036997.js:1
+navigate @ 2120-db5c11d16e036997.js:1
+back @ 2120-db5c11d16e036997.js:1
+(anonymous) @ 2120-db5c11d16e036997.js:1
+(anonymous) @ _app-45655c07cae07a86.js:9
+(anonymous) @ _app-45655c07cae07a86.js:9
+onClick @ _app-45655c07cae07a86.js:9
+(anonymous) @ _app-45655c07cae07a86.js:14
+eB @ framework-725983bbab3dd6b5.js:1
+eH @ framework-725983bbab3dd6b5.js:1
+(anonymous) @ framework-725983bbab3dd6b5.js:1
+re @ framework-725983bbab3dd6b5.js:1
+rt @ framework-725983bbab3dd6b5.js:1
+(anonymous) @ framework-725983bbab3dd6b5.js:1
+uT @ framework-725983bbab3dd6b5.js:1
+eM @ framework-725983bbab3dd6b5.js:1
+ru @ framework-725983bbab3dd6b5.js:1
+tB @ framework-725983bbab3dd6b5.js:1
+tD @ framework-725983bbab3dd6b5.js:1
+n @ _app-45655c07cae07a86.js:38Understand this warning
+2120-db5c11d16e036997.js:1 Unrecognized feature: 'navigation-override'.
+(anonymous) @ 2120-db5c11d16e036997.js:1
+(anonymous) @ main-4686bff553176585.js:1
+n @ main-4686bff553176585.js:1
+u @ main-4686bff553176585.js:1
+(anonymous) @ main-4686bff553176585.js:1
+(anonymous) @ main-4686bff553176585.js:1
+(anonymous) @ 2120-db5c11d16e036997.js:1
+(anonymous) @ 2120-db5c11d16e036997.js:1
+(anonymous) @ main-4686bff553176585.js:1
+n @ main-4686bff553176585.js:1
+u @ main-4686bff553176585.js:1
+(anonymous) @ main-4686bff553176585.js:1
+(anonymous) @ main-4686bff553176585.js:1
+(anonymous) @ 2120-db5c11d16e036997.js:1
+navigateTo @ 2120-db5c11d16e036997.js:1
+navigate @ 2120-db5c11d16e036997.js:1
+back @ 2120-db5c11d16e036997.js:1
+(anonymous) @ 2120-db5c11d16e036997.js:1
+(anonymous) @ _app-45655c07cae07a86.js:9
+(anonymous) @ _app-45655c07cae07a86.js:9
+onClick @ _app-45655c07cae07a86.js:9
+(anonymous) @ _app-45655c07cae07a86.js:14
+eB @ framework-725983bbab3dd6b5.js:1
+eH @ framework-725983bbab3dd6b5.js:1
+(anonymous) @ framework-725983bbab3dd6b5.js:1
+re @ framework-725983bbab3dd6b5.js:1
+rt @ framework-725983bbab3dd6b5.js:1
+(anonymous) @ framework-725983bbab3dd6b5.js:1
+uT @ framework-725983bbab3dd6b5.js:1
+eM @ framework-725983bbab3dd6b5.js:1
+ru @ framework-725983bbab3dd6b5.js:1
+tB @ framework-725983bbab3dd6b5.js:1
+tD @ framework-725983bbab3dd6b5.js:1
+n @ _app-45655c07cae07a86.js:38Understand this warning
+2120-db5c11d16e036997.js:1 Unrecognized feature: 'oversized-images'.
+(anonymous) @ 2120-db5c11d16e036997.js:1
+(anonymous) @ main-4686bff553176585.js:1
+n @ main-4686bff553176585.js:1
+u @ main-4686bff553176585.js:1
+(anonymous) @ main-4686bff553176585.js:1
+(anonymous) @ main-4686bff553176585.js:1
+(anonymous) @ 2120-db5c11d16e036997.js:1
+(anonymous) @ 2120-db5c11d16e036997.js:1
+(anonymous) @ main-4686bff553176585.js:1
+n @ main-4686bff553176585.js:1
+u @ main-4686bff553176585.js:1
+(anonymous) @ main-4686bff553176585.js:1
+(anonymous) @ main-4686bff553176585.js:1
+(anonymous) @ 2120-db5c11d16e036997.js:1
+navigateTo @ 2120-db5c11d16e036997.js:1
+navigate @ 2120-db5c11d16e036997.js:1
+back @ 2120-db5c11d16e036997.js:1
+(anonymous) @ 2120-db5c11d16e036997.js:1
+(anonymous) @ _app-45655c07cae07a86.js:9
+(anonymous) @ _app-45655c07cae07a86.js:9
+onClick @ _app-45655c07cae07a86.js:9
+(anonymous) @ _app-45655c07cae07a86.js:14
+eB @ framework-725983bbab3dd6b5.js:1
+eH @ framework-725983bbab3dd6b5.js:1
+(anonymous) @ framework-725983bbab3dd6b5.js:1
+re @ framework-725983bbab3dd6b5.js:1
+rt @ framework-725983bbab3dd6b5.js:1
+(anonymous) @ framework-725983bbab3dd6b5.js:1
+uT @ framework-725983bbab3dd6b5.js:1
+eM @ framework-725983bbab3dd6b5.js:1
+ru @ framework-725983bbab3dd6b5.js:1
+tB @ framework-725983bbab3dd6b5.js:1
+tD @ framework-725983bbab3dd6b5.js:1
+n @ _app-45655c07cae07a86.js:38Understand this warning
+2120-db5c11d16e036997.js:1 Unrecognized feature: 'publickey-credentials'.
+(anonymous) @ 2120-db5c11d16e036997.js:1
+(anonymous) @ main-4686bff553176585.js:1
+n @ main-4686bff553176585.js:1
+u @ main-4686bff553176585.js:1
+(anonymous) @ main-4686bff553176585.js:1
+(anonymous) @ main-4686bff553176585.js:1
+(anonymous) @ 2120-db5c11d16e036997.js:1
+(anonymous) @ 2120-db5c11d16e036997.js:1
+(anonymous) @ main-4686bff553176585.js:1
+n @ main-4686bff553176585.js:1
+u @ main-4686bff553176585.js:1
+(anonymous) @ main-4686bff553176585.js:1
+(anonymous) @ main-4686bff553176585.js:1
+(anonymous) @ 2120-db5c11d16e036997.js:1
+navigateTo @ 2120-db5c11d16e036997.js:1
+navigate @ 2120-db5c11d16e036997.js:1
+back @ 2120-db5c11d16e036997.js:1
+(anonymous) @ 2120-db5c11d16e036997.js:1
+(anonymous) @ _app-45655c07cae07a86.js:9
+(anonymous) @ _app-45655c07cae07a86.js:9
+onClick @ _app-45655c07cae07a86.js:9
+(anonymous) @ _app-45655c07cae07a86.js:14
+eB @ framework-725983bbab3dd6b5.js:1
+eH @ framework-725983bbab3dd6b5.js:1
+(anonymous) @ framework-725983bbab3dd6b5.js:1
+re @ framework-725983bbab3dd6b5.js:1
+rt @ framework-725983bbab3dd6b5.js:1
+(anonymous) @ framework-725983bbab3dd6b5.js:1
+uT @ framework-725983bbab3dd6b5.js:1
+eM @ framework-725983bbab3dd6b5.js:1
+ru @ framework-725983bbab3dd6b5.js:1
+tB @ framework-725983bbab3dd6b5.js:1
+tD @ framework-725983bbab3dd6b5.js:1
+n @ _app-45655c07cae07a86.js:38Understand this warning
+2120-db5c11d16e036997.js:1 Unrecognized feature: 'speaker-selection'.
+(anonymous) @ 2120-db5c11d16e036997.js:1
+(anonymous) @ main-4686bff553176585.js:1
+n @ main-4686bff553176585.js:1
+u @ main-4686bff553176585.js:1
+(anonymous) @ main-4686bff553176585.js:1
+(anonymous) @ main-4686bff553176585.js:1
+(anonymous) @ 2120-db5c11d16e036997.js:1
+(anonymous) @ 2120-db5c11d16e036997.js:1
+(anonymous) @ main-4686bff553176585.js:1
+n @ main-4686bff553176585.js:1
+u @ main-4686bff553176585.js:1
+(anonymous) @ main-4686bff553176585.js:1
+(anonymous) @ main-4686bff553176585.js:1
+(anonymous) @ 2120-db5c11d16e036997.js:1
+navigateTo @ 2120-db5c11d16e036997.js:1
+navigate @ 2120-db5c11d16e036997.js:1
+back @ 2120-db5c11d16e036997.js:1
+(anonymous) @ 2120-db5c11d16e036997.js:1
+(anonymous) @ _app-45655c07cae07a86.js:9
+(anonymous) @ _app-45655c07cae07a86.js:9
+onClick @ _app-45655c07cae07a86.js:9
+(anonymous) @ _app-45655c07cae07a86.js:14
+eB @ framework-725983bbab3dd6b5.js:1
+eH @ framework-725983bbab3dd6b5.js:1
+(anonymous) @ framework-725983bbab3dd6b5.js:1
+re @ framework-725983bbab3dd6b5.js:1
+rt @ framework-725983bbab3dd6b5.js:1
+(anonymous) @ framework-725983bbab3dd6b5.js:1
+uT @ framework-725983bbab3dd6b5.js:1
+eM @ framework-725983bbab3dd6b5.js:1
+ru @ framework-725983bbab3dd6b5.js:1
+tB @ framework-725983bbab3dd6b5.js:1
+tD @ framework-725983bbab3dd6b5.js:1
+n @ _app-45655c07cae07a86.js:38Understand this warning
+2120-db5c11d16e036997.js:1 Unrecognized feature: 'unoptimized-images'.
+(anonymous) @ 2120-db5c11d16e036997.js:1
+(anonymous) @ main-4686bff553176585.js:1
+n @ main-4686bff553176585.js:1
+u @ main-4686bff553176585.js:1
+(anonymous) @ main-4686bff553176585.js:1
+(anonymous) @ main-4686bff553176585.js:1
+(anonymous) @ 2120-db5c11d16e036997.js:1
+(anonymous) @ 2120-db5c11d16e036997.js:1
+(anonymous) @ main-4686bff553176585.js:1
+n @ main-4686bff553176585.js:1
+u @ main-4686bff553176585.js:1
+(anonymous) @ main-4686bff553176585.js:1
+(anonymous) @ main-4686bff553176585.js:1
+(anonymous) @ 2120-db5c11d16e036997.js:1
+navigateTo @ 2120-db5c11d16e036997.js:1
+navigate @ 2120-db5c11d16e036997.js:1
+back @ 2120-db5c11d16e036997.js:1
+(anonymous) @ 2120-db5c11d16e036997.js:1
+(anonymous) @ _app-45655c07cae07a86.js:9
+(anonymous) @ _app-45655c07cae07a86.js:9
+onClick @ _app-45655c07cae07a86.js:9
+(anonymous) @ _app-45655c07cae07a86.js:14
+eB @ framework-725983bbab3dd6b5.js:1
+eH @ framework-725983bbab3dd6b5.js:1
+(anonymous) @ framework-725983bbab3dd6b5.js:1
+re @ framework-725983bbab3dd6b5.js:1
+rt @ framework-725983bbab3dd6b5.js:1
+(anonymous) @ framework-725983bbab3dd6b5.js:1
+uT @ framework-725983bbab3dd6b5.js:1
+eM @ framework-725983bbab3dd6b5.js:1
+ru @ framework-725983bbab3dd6b5.js:1
+tB @ framework-725983bbab3dd6b5.js:1
+tD @ framework-725983bbab3dd6b5.js:1
+n @ _app-45655c07cae07a86.js:38Understand this warning
+2120-db5c11d16e036997.js:1 Unrecognized feature: 'unsized-media'.
+(anonymous) @ 2120-db5c11d16e036997.js:1
+(anonymous) @ main-4686bff553176585.js:1
+n @ main-4686bff553176585.js:1
+u @ main-4686bff553176585.js:1
+(anonymous) @ main-4686bff553176585.js:1
+(anonymous) @ main-4686bff553176585.js:1
+(anonymous) @ 2120-db5c11d16e036997.js:1
+(anonymous) @ 2120-db5c11d16e036997.js:1
+(anonymous) @ main-4686bff553176585.js:1
+n @ main-4686bff553176585.js:1
+u @ main-4686bff553176585.js:1
+(anonymous) @ main-4686bff553176585.js:1
+(anonymous) @ main-4686bff553176585.js:1
+(anonymous) @ 2120-db5c11d16e036997.js:1
+navigateTo @ 2120-db5c11d16e036997.js:1
+navigate @ 2120-db5c11d16e036997.js:1
+back @ 2120-db5c11d16e036997.js:1
+(anonymous) @ 2120-db5c11d16e036997.js:1
+(anonymous) @ _app-45655c07cae07a86.js:9
+(anonymous) @ _app-45655c07cae07a86.js:9
+onClick @ _app-45655c07cae07a86.js:9
+(anonymous) @ _app-45655c07cae07a86.js:14
+eB @ framework-725983bbab3dd6b5.js:1
+eH @ framework-725983bbab3dd6b5.js:1
+(anonymous) @ framework-725983bbab3dd6b5.js:1
+re @ framework-725983bbab3dd6b5.js:1
+rt @ framework-725983bbab3dd6b5.js:1
+(anonymous) @ framework-725983bbab3dd6b5.js:1
+uT @ framework-725983bbab3dd6b5.js:1
+eM @ framework-725983bbab3dd6b5.js:1
+ru @ framework-725983bbab3dd6b5.js:1
+tB @ framework-725983bbab3dd6b5.js:1
+tD @ framework-725983bbab3dd6b5.js:1
+n @ _app-45655c07cae07a86.js:38Understand this warning
+2120-db5c11d16e036997.js:1 Unrecognized feature: 'pointer-lock'.
+(anonymous) @ 2120-db5c11d16e036997.js:1
+(anonymous) @ main-4686bff553176585.js:1
+n @ main-4686bff553176585.js:1
+u @ main-4686bff553176585.js:1
+(anonymous) @ main-4686bff553176585.js:1
+(anonymous) @ main-4686bff553176585.js:1
+(anonymous) @ 2120-db5c11d16e036997.js:1
+(anonymous) @ 2120-db5c11d16e036997.js:1
+(anonymous) @ main-4686bff553176585.js:1
+n @ main-4686bff553176585.js:1
+u @ main-4686bff553176585.js:1
+(anonymous) @ main-4686bff553176585.js:1
+(anonymous) @ main-4686bff553176585.js:1
+(anonymous) @ 2120-db5c11d16e036997.js:1
+navigateTo @ 2120-db5c11d16e036997.js:1
+navigate @ 2120-db5c11d16e036997.js:1
+back @ 2120-db5c11d16e036997.js:1
+(anonymous) @ 2120-db5c11d16e036997.js:1
+(anonymous) @ _app-45655c07cae07a86.js:9
+(anonymous) @ _app-45655c07cae07a86.js:9
+onClick @ _app-45655c07cae07a86.js:9
+(anonymous) @ _app-45655c07cae07a86.js:14
+eB @ framework-725983bbab3dd6b5.js:1
+eH @ framework-725983bbab3dd6b5.js:1
+(anonymous) @ framework-725983bbab3dd6b5.js:1
+re @ framework-725983bbab3dd6b5.js:1
+rt @ framework-725983bbab3dd6b5.js:1
+(anonymous) @ framework-725983bbab3dd6b5.js:1
+uT @ framework-725983bbab3dd6b5.js:1
+eM @ framework-725983bbab3dd6b5.js:1
+ru @ framework-725983bbab3dd6b5.js:1
+tB @ framework-725983bbab3dd6b5.js:1
+tD @ framework-725983bbab3dd6b5.js:1
+n @ _app-45655c07cae07a86.js:38Understand this warning
+2120-db5c11d16e036997.js:1 Allow attribute will take precedence over 'allowfullscreen'.
+(anonymous) @ 2120-db5c11d16e036997.js:1
+(anonymous) @ main-4686bff553176585.js:1
+n @ main-4686bff553176585.js:1
+u @ main-4686bff553176585.js:1
+(anonymous) @ main-4686bff553176585.js:1
+(anonymous) @ main-4686bff553176585.js:1
+(anonymous) @ 2120-db5c11d16e036997.js:1
+(anonymous) @ 2120-db5c11d16e036997.js:1
+(anonymous) @ main-4686bff553176585.js:1
+n @ main-4686bff553176585.js:1
+u @ main-4686bff553176585.js:1
+(anonymous) @ main-4686bff553176585.js:1
+(anonymous) @ main-4686bff553176585.js:1
+(anonymous) @ 2120-db5c11d16e036997.js:1
+navigateTo @ 2120-db5c11d16e036997.js:1
+navigate @ 2120-db5c11d16e036997.js:1
+back @ 2120-db5c11d16e036997.js:1
+(anonymous) @ 2120-db5c11d16e036997.js:1
+(anonymous) @ _app-45655c07cae07a86.js:9
+(anonymous) @ _app-45655c07cae07a86.js:9
+onClick @ _app-45655c07cae07a86.js:9
+(anonymous) @ _app-45655c07cae07a86.js:14
+eB @ framework-725983bbab3dd6b5.js:1
+eH @ framework-725983bbab3dd6b5.js:1
+(anonymous) @ framework-725983bbab3dd6b5.js:1
+re @ framework-725983bbab3dd6b5.js:1
+rt @ framework-725983bbab3dd6b5.js:1
+(anonymous) @ framework-725983bbab3dd6b5.js:1
+uT @ framework-725983bbab3dd6b5.js:1
+eM @ framework-725983bbab3dd6b5.js:1
+ru @ framework-725983bbab3dd6b5.js:1
+tB @ framework-725983bbab3dd6b5.js:1
+tD @ framework-725983bbab3dd6b5.js:1
+n @ _app-45655c07cae07a86.js:38Understand this warning
+2120-db5c11d16e036997.js:1 Allow attribute will take precedence over 'allowpaymentrequest'.
+(anonymous) @ 2120-db5c11d16e036997.js:1
+(anonymous) @ main-4686bff553176585.js:1
+n @ main-4686bff553176585.js:1
+u @ main-4686bff553176585.js:1
+(anonymous) @ main-4686bff553176585.js:1
+(anonymous) @ main-4686bff553176585.js:1
+(anonymous) @ 2120-db5c11d16e036997.js:1
+(anonymous) @ 2120-db5c11d16e036997.js:1
+(anonymous) @ main-4686bff553176585.js:1
+n @ main-4686bff553176585.js:1
+u @ main-4686bff553176585.js:1
+(anonymous) @ main-4686bff553176585.js:1
+(anonymous) @ main-4686bff553176585.js:1
+(anonymous) @ 2120-db5c11d16e036997.js:1
+navigateTo @ 2120-db5c11d16e036997.js:1
+navigate @ 2120-db5c11d16e036997.js:1
+back @ 2120-db5c11d16e036997.js:1
+(anonymous) @ 2120-db5c11d16e036997.js:1
+(anonymous) @ _app-45655c07cae07a86.js:9
+(anonymous) @ _app-45655c07cae07a86.js:9
+onClick @ _app-45655c07cae07a86.js:9
+(anonymous) @ _app-45655c07cae07a86.js:14
+eB @ framework-725983bbab3dd6b5.js:1
+eH @ framework-725983bbab3dd6b5.js:1
+(anonymous) @ framework-725983bbab3dd6b5.js:1
+re @ framework-725983bbab3dd6b5.js:1
+rt @ framework-725983bbab3dd6b5.js:1
+(anonymous) @ framework-725983bbab3dd6b5.js:1
+uT @ framework-725983bbab3dd6b5.js:1
+eM @ framework-725983bbab3dd6b5.js:1
+ru @ framework-725983bbab3dd6b5.js:1
+tB @ framework-725983bbab3dd6b5.js:1
+tD @ framework-725983bbab3dd6b5.js:1
+n @ _app-45655c07cae07a86.js:38Understand this warning
+afd4ab41-fa60-4e78-9742-69bb4e3004d6-00-6i79wn87wfhu.janeway.replit.dev/__replco/workspace_iframe.html?initialPath=%2Fparent%2Fdashboard-premium&id=%3Ar1cd%3A:32 Error while parsing the 'sandbox' attribute: 'allow-downloads-without-user-activation' is an invalid sandbox flag.Understand this error
+afd4ab41-fa60-4e78-9742-69bb4e3004d6-00-6i79wn87wfhu.janeway.replit.dev/__replco/workspace_iframe.html?initialPath=%2Fparent%2Fdashboard-premium&id=%3Ar1cd%3A:32 Error while parsing the 'sandbox' attribute: 'allow-downloads-without-user-activation' is an invalid sandbox flag.Understand this error
+afd4ab41-fa60-4e78-9742-69bb4e3004d6-00-6i79wn87wfhu.janeway.replit.dev/__replco/workspace_iframe.html?initialPath=%2Fparent%2Fdashboard-premium&id=%3Ar1cd%3A:32 Unrecognized feature: 'ambient-light-sensor'.Understand this warning
+afd4ab41-fa60-4e78-9742-69bb4e3004d6-00-6i79wn87wfhu.janeway.replit.dev/__replco/workspace_iframe.html?initialPath=%2Fparent%2Fdashboard-premium&id=%3Ar1cd%3A:32 Unrecognized feature: 'ambient-light-sensor'.Understand this warning
+afd4ab41-fa60-4e78-9742-69bb4e3004d6-00-6i79wn87wfhu.janeway.replit.dev/__replco/workspace_iframe.html?initialPath=%2Fparent%2Fdashboard-premium&id=%3Ar1cd%3A:32 Unrecognized feature: 'battery'.Understand this warning
+afd4ab41-fa60-4e78-9742-69bb4e3004d6-00-6i79wn87wfhu.janeway.replit.dev/__replco/workspace_iframe.html?initialPath=%2Fparent%2Fdashboard-premium&id=%3Ar1cd%3A:32 Unrecognized feature: 'battery'.Understand this warning
+afd4ab41-fa60-4e78-9742-69bb4e3004d6-00-6i79wn87wfhu.janeway.replit.dev/__replco/workspace_iframe.html?initialPath=%2Fparent%2Fdashboard-premium&id=%3Ar1cd%3A:32 Unrecognized feature: 'execution-while-not-rendered'.Understand this warning
+afd4ab41-fa60-4e78-9742-69bb4e3004d6-00-6i79wn87wfhu.janeway.replit.dev/__replco/workspace_iframe.html?initialPath=%2Fparent%2Fdashboard-premium&id=%3Ar1cd%3A:32 Unrecognized feature: 'execution-while-not-rendered'.Understand this warning
+afd4ab41-fa60-4e78-9742-69bb4e3004d6-00-6i79wn87wfhu.janeway.replit.dev/__replco/workspace_iframe.html?initialPath=%2Fparent%2Fdashboard-premium&id=%3Ar1cd%3A:32 Unrecognized feature: 'execution-while-out-of-viewport'.Understand this warning
+afd4ab41-fa60-4e78-9742-69bb4e3004d6-00-6i79wn87wfhu.janeway.replit.dev/__replco/workspace_iframe.html?initialPath=%2Fparent%2Fdashboard-premium&id=%3Ar1cd%3A:32 Unrecognized feature: 'execution-while-out-of-viewport'.Understand this warning
+afd4ab41-fa60-4e78-9742-69bb4e3004d6-00-6i79wn87wfhu.janeway.replit.dev/__replco/workspace_iframe.html?initialPath=%2Fparent%2Fdashboard-premium&id=%3Ar1cd%3A:32 Unrecognized feature: 'layout-animations'.Understand this warning
+afd4ab41-fa60-4e78-9742-69bb4e3004d6-00-6i79wn87wfhu.janeway.replit.dev/__replco/workspace_iframe.html?initialPath=%2Fparent%2Fdashboard-premium&id=%3Ar1cd%3A:32 Unrecognized feature: 'layout-animations'.Understand this warning
+afd4ab41-fa60-4e78-9742-69bb4e3004d6-00-6i79wn87wfhu.janeway.replit.dev/__replco/workspace_iframe.html?initialPath=%2Fparent%2Fdashboard-premium&id=%3Ar1cd%3A:32 Unrecognized feature: 'legacy-image-formats'.Understand this warning
+afd4ab41-fa60-4e78-9742-69bb4e3004d6-00-6i79wn87wfhu.janeway.replit.dev/__replco/workspace_iframe.html?initialPath=%2Fparent%2Fdashboard-premium&id=%3Ar1cd%3A:32 Unrecognized feature: 'legacy-image-formats'.Understand this warning
+afd4ab41-fa60-4e78-9742-69bb4e3004d6-00-6i79wn87wfhu.janeway.replit.dev/__replco/workspace_iframe.html?initialPath=%2Fparent%2Fdashboard-premium&id=%3Ar1cd%3A:32 Unrecognized feature: 'navigation-override'.Understand this warning
+afd4ab41-fa60-4e78-9742-69bb4e3004d6-00-6i79wn87wfhu.janeway.replit.dev/__replco/workspace_iframe.html?initialPath=%2Fparent%2Fdashboard-premium&id=%3Ar1cd%3A:32 Unrecognized feature: 'navigation-override'.Understand this warning
+afd4ab41-fa60-4e78-9742-69bb4e3004d6-00-6i79wn87wfhu.janeway.replit.dev/__replco/workspace_iframe.html?initialPath=%2Fparent%2Fdashboard-premium&id=%3Ar1cd%3A:32 Unrecognized feature: 'oversized-images'.Understand this warning
+afd4ab41-fa60-4e78-9742-69bb4e3004d6-00-6i79wn87wfhu.janeway.replit.dev/__replco/workspace_iframe.html?initialPath=%2Fparent%2Fdashboard-premium&id=%3Ar1cd%3A:32 Unrecognized feature: 'oversized-images'.Understand this warning
+afd4ab41-fa60-4e78-9742-69bb4e3004d6-00-6i79wn87wfhu.janeway.replit.dev/__replco/workspace_iframe.html?initialPath=%2Fparent%2Fdashboard-premium&id=%3Ar1cd%3A:32 Unrecognized feature: 'publickey-credentials'.Understand this warning
+afd4ab41-fa60-4e78-9742-69bb4e3004d6-00-6i79wn87wfhu.janeway.replit.dev/__replco/workspace_iframe.html?initialPath=%2Fparent%2Fdashboard-premium&id=%3Ar1cd%3A:32 Unrecognized feature: 'publickey-credentials'.Understand this warning
+afd4ab41-fa60-4e78-9742-69bb4e3004d6-00-6i79wn87wfhu.janeway.replit.dev/__replco/workspace_iframe.html?initialPath=%2Fparent%2Fdashboard-premium&id=%3Ar1cd%3A:32 Unrecognized feature: 'speaker-selection'.Understand this warning
+afd4ab41-fa60-4e78-9742-69bb4e3004d6-00-6i79wn87wfhu.janeway.replit.dev/__replco/workspace_iframe.html?initialPath=%2Fparent%2Fdashboard-premium&id=%3Ar1cd%3A:32 Unrecognized feature: 'speaker-selection'.Understand this warning
+afd4ab41-fa60-4e78-9742-69bb4e3004d6-00-6i79wn87wfhu.janeway.replit.dev/__replco/workspace_iframe.html?initialPath=%2Fparent%2Fdashboard-premium&id=%3Ar1cd%3A:32 Unrecognized feature: 'unoptimized-images'.Understand this warning
+afd4ab41-fa60-4e78-9742-69bb4e3004d6-00-6i79wn87wfhu.janeway.replit.dev/__replco/workspace_iframe.html?initialPath=%2Fparent%2Fdashboard-premium&id=%3Ar1cd%3A:32 Unrecognized feature: 'unoptimized-images'.Understand this warning
+afd4ab41-fa60-4e78-9742-69bb4e3004d6-00-6i79wn87wfhu.janeway.replit.dev/__replco/workspace_iframe.html?initialPath=%2Fparent%2Fdashboard-premium&id=%3Ar1cd%3A:32 Unrecognized feature: 'unsized-media'.Understand this warning
+afd4ab41-fa60-4e78-9742-69bb4e3004d6-00-6i79wn87wfhu.janeway.replit.dev/__replco/workspace_iframe.html?initialPath=%2Fparent%2Fdashboard-premium&id=%3Ar1cd%3A:32 Unrecognized feature: 'unsized-media'.Understand this warning
+afd4ab41-fa60-4e78-9742-69bb4e3004d6-00-6i79wn87wfhu.janeway.replit.dev/__replco/workspace_iframe.html?initialPath=%2Fparent%2Fdashboard-premium&id=%3Ar1cd%3A:32 Allow attribute will take precedence over 'allowfullscreen'.Understand this warning
+afd4ab41-fa60-4e78-9742-69bb4e3004d6-00-6i79wn87wfhu.janeway.replit.dev/__replco/workspace_iframe.html?initialPath=%2Fparent%2Fdashboard-premium&id=%3Ar1cd%3A:32 Allow attribute will take precedence over 'allowfullscreen'.Understand this warning
+afd4ab41-fa60-4e78-9742-69bb4e3004d6-00-6i79wn87wfhu.janeway.replit.dev/__replco/workspace_iframe.html?initialPath=%2Fparent%2Fdashboard-premium&id=%3Ar1cd%3A:32 Allow attribute will take precedence over 'allowpaymentrequest'.Understand this warning
+afd4ab41-fa60-4e78-9742-69bb4e3004d6-00-6i79wn87wfhu.janeway.replit.dev/__replco/workspace_iframe.html?initialPath=%2Fparent%2Fdashboard-premium&id=%3Ar1cd%3A:32 Allow attribute will take precedence over 'allowpaymentrequest'.Understand this warning
+Console.js:61 🛡️ ProtectedRoute check: {path: '/parent/dashboard-premium', loading: true, hasUser: false, userEmail: undefined, userRole: undefined}
+Console.js:61 ⚠️ React Router Future Flag Warning: React Router will begin wrapping state updates in `React.startTransition` in v7. You can use the `v7_startTransition` future flag to opt-in early. For more information, see https://reactrouter.com/v6/upgrading/future#v7_starttransition.
+Mt.forEach.n.<computed> @ Console.js:61
+warnOnce @ react-router-dom.js?v=ff429f54:4393
+logDeprecation @ react-router-dom.js?v=ff429f54:4396
+logV6DeprecationWarnings @ react-router-dom.js?v=ff429f54:4399
+(anonymous) @ react-router-dom.js?v=ff429f54:5271
+commitHookEffectListMount @ chunk-T2SWDQEL.js?v=ff429f54:16915
+commitPassiveMountOnFiber @ chunk-T2SWDQEL.js?v=ff429f54:18156
+commitPassiveMountEffects_complete @ chunk-T2SWDQEL.js?v=ff429f54:18129
+commitPassiveMountEffects_begin @ chunk-T2SWDQEL.js?v=ff429f54:18119
+commitPassiveMountEffects @ chunk-T2SWDQEL.js?v=ff429f54:18109
+flushPassiveEffectsImpl @ chunk-T2SWDQEL.js?v=ff429f54:19490
+flushPassiveEffects @ chunk-T2SWDQEL.js?v=ff429f54:19447
+performSyncWorkOnRoot @ chunk-T2SWDQEL.js?v=ff429f54:18868
+flushSyncCallbacks @ chunk-T2SWDQEL.js?v=ff429f54:9119
+commitRootImpl @ chunk-T2SWDQEL.js?v=ff429f54:19432
+commitRoot @ chunk-T2SWDQEL.js?v=ff429f54:19277
+finishConcurrentRender @ chunk-T2SWDQEL.js?v=ff429f54:18805
+performConcurrentWorkOnRoot @ chunk-T2SWDQEL.js?v=ff429f54:18718
+workLoop @ chunk-T2SWDQEL.js?v=ff429f54:197
+flushWork @ chunk-T2SWDQEL.js?v=ff429f54:176
+performWorkUntilDeadline @ chunk-T2SWDQEL.js?v=ff429f54:384Understand this warning
+Console.js:61 ⚠️ React Router Future Flag Warning: Relative route resolution within Splat routes is changing in v7. You can use the `v7_relativeSplatPath` future flag to opt-in early. For more information, see https://reactrouter.com/v6/upgrading/future#v7_relativesplatpath.
+Mt.forEach.n.<computed> @ Console.js:61
+warnOnce @ react-router-dom.js?v=ff429f54:4393
+logDeprecation @ react-router-dom.js?v=ff429f54:4396
+logV6DeprecationWarnings @ react-router-dom.js?v=ff429f54:4402
+(anonymous) @ react-router-dom.js?v=ff429f54:5271
+commitHookEffectListMount @ chunk-T2SWDQEL.js?v=ff429f54:16915
+commitPassiveMountOnFiber @ chunk-T2SWDQEL.js?v=ff429f54:18156
+commitPassiveMountEffects_complete @ chunk-T2SWDQEL.js?v=ff429f54:18129
+commitPassiveMountEffects_begin @ chunk-T2SWDQEL.js?v=ff429f54:18119
+commitPassiveMountEffects @ chunk-T2SWDQEL.js?v=ff429f54:18109
+flushPassiveEffectsImpl @ chunk-T2SWDQEL.js?v=ff429f54:19490
+flushPassiveEffects @ chunk-T2SWDQEL.js?v=ff429f54:19447
+performSyncWorkOnRoot @ chunk-T2SWDQEL.js?v=ff429f54:18868
+flushSyncCallbacks @ chunk-T2SWDQEL.js?v=ff429f54:9119
+commitRootImpl @ chunk-T2SWDQEL.js?v=ff429f54:19432
+commitRoot @ chunk-T2SWDQEL.js?v=ff429f54:19277
+finishConcurrentRender @ chunk-T2SWDQEL.js?v=ff429f54:18805
+performConcurrentWorkOnRoot @ chunk-T2SWDQEL.js?v=ff429f54:18718
+workLoop @ chunk-T2SWDQEL.js?v=ff429f54:197
+flushWork @ chunk-T2SWDQEL.js?v=ff429f54:176
+performWorkUntilDeadline @ chunk-T2SWDQEL.js?v=ff429f54:384Understand this warning
+Console.js:61 🛡️ ProtectedRoute check: {path: '/parent/dashboard-premium', loading: false, hasUser: true, userEmail: 'payupventures@gmail.com', userRole: 'parent'}
+injected.js:253  GET https://afd4ab41-fa60-4e78-9742-69bb4e3004d6-00-6i79wn87wfhu.janeway.replit.dev/api/goals 500 (Internal Server Error)
+window.fetch @ Network.js:219
+apply @ injected.js:253
+request @ api.ts:168
+getGoals @ api.ts:304
+fetchData @ ParentDashboard.tsx:128
+(anonymous) @ ParentDashboard.tsx:91
+commitHookEffectListMount @ chunk-T2SWDQEL.js?v=ff429f54:16915
+commitPassiveMountOnFiber @ chunk-T2SWDQEL.js?v=ff429f54:18156
+commitPassiveMountEffects_complete @ chunk-T2SWDQEL.js?v=ff429f54:18129
+commitPassiveMountEffects_begin @ chunk-T2SWDQEL.js?v=ff429f54:18119
+commitPassiveMountEffects @ chunk-T2SWDQEL.js?v=ff429f54:18109
+flushPassiveEffectsImpl @ chunk-T2SWDQEL.js?v=ff429f54:19490
+flushPassiveEffects @ chunk-T2SWDQEL.js?v=ff429f54:19447
+(anonymous) @ chunk-T2SWDQEL.js?v=ff429f54:19328
+workLoop @ chunk-T2SWDQEL.js?v=ff429f54:197
+flushWork @ chunk-T2SWDQEL.js?v=ff429f54:176
+performWorkUntilDeadline @ chunk-T2SWDQEL.js?v=ff429f54:384Understand this error
+  GET https://afd4ab41-fa60-4e78-9742-69bb4e3004d6-00-6i79wn87wfhu.janeway.replit.dev/api/goals 500 (Internal Server Error)
+window.fetch @ afd4ab41-fa60-4e78-9…da/3.2.3/eruda.js:2
+apply @ afd4ab41-fa60-4e78-9…ols/injected.js:253
+request @ afd4ab41-fa60-4e78-9…v/src/lib/api.ts:20
+getGoals @ afd4ab41-fa60-4e78-9…/src/lib/api.ts:137
+fetchData @ afd4ab41-fa60-4e78-9…ntDashboard.tsx:106
+(anonymous) @ afd4ab41-fa60-4e78-9…entDashboard.tsx:72
+commitHookEffectListMount @ afd4ab41-fa60-4e78-9…js?v=ff429f54:16915
+commitPassiveMountOnFiber @ afd4ab41-fa60-4e78-9…js?v=ff429f54:18156
+commitPassiveMountEffects_complete @ afd4ab41-fa60-4e78-9…js?v=ff429f54:18129
+commitPassiveMountEffects_begin @ afd4ab41-fa60-4e78-9…js?v=ff429f54:18119
+commitPassiveMountEffects @ afd4ab41-fa60-4e78-9…js?v=ff429f54:18109
+flushPassiveEffectsImpl @ afd4ab41-fa60-4e78-9…js?v=ff429f54:19490
+flushPassiveEffects @ afd4ab41-fa60-4e78-9…js?v=ff429f54:19447
+(anonymous) @ afd4ab41-fa60-4e78-9…js?v=ff429f54:19328
+workLoop @ afd4ab41-fa60-4e78-9…L.js?v=ff429f54:197
+flushWork @ afd4ab41-fa60-4e78-9…L.js?v=ff429f54:176
+performWorkUntilDeadline @ afd4ab41-fa60-4e78-9…L.js?v=ff429f54:384Understand this error
+Console.js:61 API call failed for /goals: Error: API error: Internal Server Error
+    at ApiClient.request (api.ts:178:15)
+    at async fetchData (ParentDashboard.tsx:128:25)
+Mt.forEach.n.<computed> @ Console.js:61
+request @ api.ts:183
+await in request
+getGoals @ api.ts:304
+fetchData @ ParentDashboard.tsx:128
+(anonymous) @ ParentDashboard.tsx:91
+commitHookEffectListMount @ chunk-T2SWDQEL.js?v=ff429f54:16915
+commitPassiveMountOnFiber @ chunk-T2SWDQEL.js?v=ff429f54:18156
+commitPassiveMountEffects_complete @ chunk-T2SWDQEL.js?v=ff429f54:18129
+commitPassiveMountEffects_begin @ chunk-T2SWDQEL.js?v=ff429f54:18119
+commitPassiveMountEffects @ chunk-T2SWDQEL.js?v=ff429f54:18109
+flushPassiveEffectsImpl @ chunk-T2SWDQEL.js?v=ff429f54:19490
+flushPassiveEffects @ chunk-T2SWDQEL.js?v=ff429f54:19447
+(anonymous) @ chunk-T2SWDQEL.js?v=ff429f54:19328
+workLoop @ chunk-T2SWDQEL.js?v=ff429f54:197
+flushWork @ chunk-T2SWDQEL.js?v=ff429f54:176
+performWorkUntilDeadline @ chunk-T2SWDQEL.js?v=ff429f54:384Understand this error
+Console.js:61 Error fetching data: Error: API error: Internal Server Error
+    at ApiClient.request (api.ts:178:15)
+    at async fetchData (ParentDashboard.tsx:128:25)
+Mt.forEach.n.<computed> @ Console.js:61
+fetchData @ ParentDashboard.tsx:165
+await in fetchData
+(anonymous) @ ParentDashboard.tsx:91
+commitHookEffectListMount @ chunk-T2SWDQEL.js?v=ff429f54:16915
+commitPassiveMountOnFiber @ chunk-T2SWDQEL.js?v=ff429f54:18156
+commitPassiveMountEffects_complete @ chunk-T2SWDQEL.js?v=ff429f54:18129
+commitPassiveMountEffects_begin @ chunk-T2SWDQEL.js?v=ff429f54:18119
+commitPassiveMountEffects @ chunk-T2SWDQEL.js?v=ff429f54:18109
+flushPassiveEffectsImpl @ chunk-T2SWDQEL.js?v=ff429f54:19490
+flushPassiveEffects @ chunk-T2SWDQEL.js?v=ff429f54:19447
+(anonymous) @ chunk-T2SWDQEL.js?v=ff429f54:19328
+workLoop @ chunk-T2SWDQEL.js?v=ff429f54:197
+flushWork @ chunk-T2SWDQEL.js?v=ff429f54:176
+performWorkUntilDeadline @ chunk-T2SWDQEL.js?v=ff429f54:384Understand this error
+workspace_iframe.html?initialPath=%2Fparent%2Fdashboard-premium&id=%3Ar1cd%3A:32 Error while parsing the 'sandbox' attribute: 'allow-downloads-without-user-activation' is an invalid sandbox flag.Understand this error
+Console.js:61 🛡️ ProtectedRoute check: {path: '/parent/dashboard-premium', loading: true, hasUser: false, userEmail: undefined, userRole: undefined}
+Console.js:61 ⚠️ React Router Future Flag Warning: React Router will begin wrapping state updates in `React.startTransition` in v7. You can use the `v7_startTransition` future flag to opt-in early. For more information, see https://reactrouter.com/v6/upgrading/future#v7_starttransition.
+Mt.forEach.n.<computed> @ Console.js:61
+warnOnce @ react-router-dom.js?v=ff429f54:4393
+logDeprecation @ react-router-dom.js?v=ff429f54:4396
+logV6DeprecationWarnings @ react-router-dom.js?v=ff429f54:4399
+(anonymous) @ react-router-dom.js?v=ff429f54:5271
+commitHookEffectListMount @ chunk-T2SWDQEL.js?v=ff429f54:16915
+commitPassiveMountOnFiber @ chunk-T2SWDQEL.js?v=ff429f54:18156
+commitPassiveMountEffects_complete @ chunk-T2SWDQEL.js?v=ff429f54:18129
+commitPassiveMountEffects_begin @ chunk-T2SWDQEL.js?v=ff429f54:18119
+commitPassiveMountEffects @ chunk-T2SWDQEL.js?v=ff429f54:18109
+flushPassiveEffectsImpl @ chunk-T2SWDQEL.js?v=ff429f54:19490
+flushPassiveEffects @ chunk-T2SWDQEL.js?v=ff429f54:19447
+performSyncWorkOnRoot @ chunk-T2SWDQEL.js?v=ff429f54:18868
+flushSyncCallbacks @ chunk-T2SWDQEL.js?v=ff429f54:9119
+commitRootImpl @ chunk-T2SWDQEL.js?v=ff429f54:19432
+commitRoot @ chunk-T2SWDQEL.js?v=ff429f54:19277
+finishConcurrentRender @ chunk-T2SWDQEL.js?v=ff429f54:18805
+performConcurrentWorkOnRoot @ chunk-T2SWDQEL.js?v=ff429f54:18718
+workLoop @ chunk-T2SWDQEL.js?v=ff429f54:197
+flushWork @ chunk-T2SWDQEL.js?v=ff429f54:176
+performWorkUntilDeadline @ chunk-T2SWDQEL.js?v=ff429f54:384Understand this warning
+Console.js:61 ⚠️ React Router Future Flag Warning: Relative route resolution within Splat routes is changing in v7. You can use the `v7_relativeSplatPath` future flag to opt-in early. For more information, see https://reactrouter.com/v6/upgrading/future#v7_relativesplatpath.
+Mt.forEach.n.<computed> @ Console.js:61
+warnOnce @ react-router-dom.js?v=ff429f54:4393
+logDeprecation @ react-router-dom.js?v=ff429f54:4396
+logV6DeprecationWarnings @ react-router-dom.js?v=ff429f54:4402
+(anonymous) @ react-router-dom.js?v=ff429f54:5271
+commitHookEffectListMount @ chunk-T2SWDQEL.js?v=ff429f54:16915
+commitPassiveMountOnFiber @ chunk-T2SWDQEL.js?v=ff429f54:18156
+commitPassiveMountEffects_complete @ chunk-T2SWDQEL.js?v=ff429f54:18129
+commitPassiveMountEffects_begin @ chunk-T2SWDQEL.js?v=ff429f54:18119
+commitPassiveMountEffects @ chunk-T2SWDQEL.js?v=ff429f54:18109
+flushPassiveEffectsImpl @ chunk-T2SWDQEL.js?v=ff429f54:19490
+flushPassiveEffects @ chunk-T2SWDQEL.js?v=ff429f54:19447
+performSyncWorkOnRoot @ chunk-T2SWDQEL.js?v=ff429f54:18868
+flushSyncCallbacks @ chunk-T2SWDQEL.js?v=ff429f54:9119
+commitRootImpl @ chunk-T2SWDQEL.js?v=ff429f54:19432
+commitRoot @ chunk-T2SWDQEL.js?v=ff429f54:19277
+finishConcurrentRender @ chunk-T2SWDQEL.js?v=ff429f54:18805
+performConcurrentWorkOnRoot @ chunk-T2SWDQEL.js?v=ff429f54:18718
+workLoop @ chunk-T2SWDQEL.js?v=ff429f54:197
+flushWork @ chunk-T2SWDQEL.js?v=ff429f54:176
+performWorkUntilDeadline @ chunk-T2SWDQEL.js?v=ff429f54:384Understand this warning
+Console.js:61 🛡️ ProtectedRoute check: {path: '/parent/dashboard-premium', loading: false, hasUser: true, userEmail: 'payupventures@gmail.com', userRole: 'parent'}
+injected.js:253  GET https://afd4ab41-fa60-4e78-9742-69bb4e3004d6-00-6i79wn87wfhu.janeway.replit.dev/api/goals 500 (Internal Server Error)
+window.fetch @ Network.js:219
+apply @ injected.js:253
+request @ api.ts:168
+getGoals @ api.ts:304
+fetchData @ ParentDashboard.tsx:128
+(anonymous) @ ParentDashboard.tsx:91
+commitHookEffectListMount @ chunk-T2SWDQEL.js?v=ff429f54:16915
+commitPassiveMountOnFiber @ chunk-T2SWDQEL.js?v=ff429f54:18156
+commitPassiveMountEffects_complete @ chunk-T2SWDQEL.js?v=ff429f54:18129
+commitPassiveMountEffects_begin @ chunk-T2SWDQEL.js?v=ff429f54:18119
+commitPassiveMountEffects @ chunk-T2SWDQEL.js?v=ff429f54:18109
+flushPassiveEffectsImpl @ chunk-T2SWDQEL.js?v=ff429f54:19490
+flushPassiveEffects @ chunk-T2SWDQEL.js?v=ff429f54:19447
+(anonymous) @ chunk-T2SWDQEL.js?v=ff429f54:19328
+workLoop @ chunk-T2SWDQEL.js?v=ff429f54:197
+flushWork @ chunk-T2SWDQEL.js?v=ff429f54:176
+performWorkUntilDeadline @ chunk-T2SWDQEL.js?v=ff429f54:384Understand this error
+Console.js:61 API call failed for /goals: Error: API error: Internal Server Error
+    at ApiClient.request (api.ts:178:15)
+    at async fetchData (ParentDashboard.tsx:128:25)
+Mt.forEach.n.<computed> @ Console.js:61
+request @ api.ts:183
+await in request
+getGoals @ api.ts:304
+fetchData @ ParentDashboard.tsx:128
+(anonymous) @ ParentDashboard.tsx:91
+commitHookEffectListMount @ chunk-T2SWDQEL.js?v=ff429f54:16915
+commitPassiveMountOnFiber @ chunk-T2SWDQEL.js?v=ff429f54:18156
+commitPassiveMountEffects_complete @ chunk-T2SWDQEL.js?v=ff429f54:18129
+commitPassiveMountEffects_begin @ chunk-T2SWDQEL.js?v=ff429f54:18119
+commitPassiveMountEffects @ chunk-T2SWDQEL.js?v=ff429f54:18109
+flushPassiveEffectsImpl @ chunk-T2SWDQEL.js?v=ff429f54:19490
+flushPassiveEffects @ chunk-T2SWDQEL.js?v=ff429f54:19447
+(anonymous) @ chunk-T2SWDQEL.js?v=ff429f54:19328
+workLoop @ chunk-T2SWDQEL.js?v=ff429f54:197
+flushWork @ chunk-T2SWDQEL.js?v=ff429f54:176
+performWorkUntilDeadline @ chunk-T2SWDQEL.js?v=ff429f54:384Understand this error
+Console.js:61 Error fetching data: Error: API error: Internal Server Error
+    at ApiClient.request (api.ts:178:15)
+    at async fetchData (ParentDashboard.tsx:128:25)
+Mt.forEach.n.<computed> @ Console.js:61
+fetchData @ ParentDashboard.tsx:165
+await in fetchData
+(anonymous) @ ParentDashboard.tsx:91
+commitHookEffectListMount @ chunk-T2SWDQEL.js?v=ff429f54:16915
+commitPassiveMountOnFiber @ chunk-T2SWDQEL.js?v=ff429f54:18156
+commitPassiveMountEffects_complete @ chunk-T2SWDQEL.js?v=ff429f54:18129
+commitPassiveMountEffects_begin @ chunk-T2SWDQEL.js?v=ff429f54:18119
+commitPassiveMountEffects @ chunk-T2SWDQEL.js?v=ff429f54:18109
+flushPassiveEffectsImpl @ chunk-T2SWDQEL.js?v=ff429f54:19490
+flushPassiveEffects @ chunk-T2SWDQEL.js?v=ff429f54:19447
+(anonymous) @ chunk-T2SWDQEL.js?v=ff429f54:19328
+workLoop @ chunk-T2SWDQEL.js?v=ff429f54:197
+flushWork @ chunk-T2SWDQEL.js?v=ff429f54:176
+performWorkUntilDeadline @ chunk-T2SWDQEL.js?v=ff429f54:384Understand this error
+Console.js:61 🛡️ ProtectedRoute check: {path: '/parent/tools/autism-accommodations', loading: false, hasUser: true, userEmail: 'payupventures@gmail.com', userRole: 'parent'}
+@radix-ui_react-select.js?v=ff429f54:880 Uncaught Error: A <Select.Item /> must have a value prop that is not an empty string. This is because the Select value can be set to an empty string to clear the selection and show the placeholder.
+    at @radix-ui_react-select.js?v=ff429f54:880:13
+    at renderWithHooks (chunk-T2SWDQEL.js?v=ff429f54:11548:26)
+    at updateForwardRef (chunk-T2SWDQEL.js?v=ff429f54:14325:28)
+    at beginWork (chunk-T2SWDQEL.js?v=ff429f54:15946:22)
+    at HTMLUnknownElement.callCallback2 (chunk-T2SWDQEL.js?v=ff429f54:3674:22)
+    at Object.invokeGuardedCallbackDev (chunk-T2SWDQEL.js?v=ff429f54:3699:24)
+    at invokeGuardedCallback (chunk-T2SWDQEL.js?v=ff429f54:3733:39)
+    at beginWork$1 (chunk-T2SWDQEL.js?v=ff429f54:19765:15)
+    at performUnitOfWork (chunk-T2SWDQEL.js?v=ff429f54:19198:20)
+    at workLoopSync (chunk-T2SWDQEL.js?v=ff429f54:19137:13)
+(anonymous) @ @radix-ui_react-select.js?v=ff429f54:880
+renderWithHooks @ chunk-T2SWDQEL.js?v=ff429f54:11548
+updateForwardRef @ chunk-T2SWDQEL.js?v=ff429f54:14325
+beginWork @ chunk-T2SWDQEL.js?v=ff429f54:15946
+callCallback2 @ chunk-T2SWDQEL.js?v=ff429f54:3674
+invokeGuardedCallbackDev @ chunk-T2SWDQEL.js?v=ff429f54:3699
+invokeGuardedCallback @ chunk-T2SWDQEL.js?v=ff429f54:3733
+beginWork$1 @ chunk-T2SWDQEL.js?v=ff429f54:19765
+performUnitOfWork @ chunk-T2SWDQEL.js?v=ff429f54:19198
+workLoopSync @ chunk-T2SWDQEL.js?v=ff429f54:19137
+renderRootSync @ chunk-T2SWDQEL.js?v=ff429f54:19116
+performSyncWorkOnRoot @ chunk-T2SWDQEL.js?v=ff429f54:18874
+flushSyncCallbacks @ chunk-T2SWDQEL.js?v=ff429f54:9119
+(anonymous) @ chunk-T2SWDQEL.js?v=ff429f54:18627Understand this error
+@radix-ui_react-select.js?v=ff429f54:880 Uncaught Error: A <Select.Item /> must have a value prop that is not an empty string. This is because the Select value can be set to an empty string to clear the selection and show the placeholder.
+    at @radix-ui_react-select.js?v=ff429f54:880:13
+    at renderWithHooks (chunk-T2SWDQEL.js?v=ff429f54:11548:26)
+    at updateForwardRef (chunk-T2SWDQEL.js?v=ff429f54:14325:28)
+    at beginWork (chunk-T2SWDQEL.js?v=ff429f54:15946:22)
+    at HTMLUnknownElement.callCallback2 (chunk-T2SWDQEL.js?v=ff429f54:3674:22)
+    at Object.invokeGuardedCallbackDev (chunk-T2SWDQEL.js?v=ff429f54:3699:24)
+    at invokeGuardedCallback (chunk-T2SWDQEL.js?v=ff429f54:3733:39)
+    at beginWork$1 (chunk-T2SWDQEL.js?v=ff429f54:19765:15)
+    at performUnitOfWork (chunk-T2SWDQEL.js?v=ff429f54:19198:20)
+    at workLoopSync (chunk-T2SWDQEL.js?v=ff429f54:19137:13)
+(anonymous) @ @radix-ui_react-select.js?v=ff429f54:880
+renderWithHooks @ chunk-T2SWDQEL.js?v=ff429f54:11548
+updateForwardRef @ chunk-T2SWDQEL.js?v=ff429f54:14325
+beginWork @ chunk-T2SWDQEL.js?v=ff429f54:15946
+callCallback2 @ chunk-T2SWDQEL.js?v=ff429f54:3674
+invokeGuardedCallbackDev @ chunk-T2SWDQEL.js?v=ff429f54:3699
+invokeGuardedCallback @ chunk-T2SWDQEL.js?v=ff429f54:3733
+beginWork$1 @ chunk-T2SWDQEL.js?v=ff429f54:19765
+performUnitOfWork @ chunk-T2SWDQEL.js?v=ff429f54:19198
+workLoopSync @ chunk-T2SWDQEL.js?v=ff429f54:19137
+renderRootSync @ chunk-T2SWDQEL.js?v=ff429f54:19116
+recoverFromConcurrentError @ chunk-T2SWDQEL.js?v=ff429f54:18736
+performSyncWorkOnRoot @ chunk-T2SWDQEL.js?v=ff429f54:18879
+flushSyncCallbacks @ chunk-T2SWDQEL.js?v=ff429f54:9119
+(anonymous) @ chunk-T2SWDQEL.js?v=ff429f54:18627Understand this error
+Console.js:61 The above error occurred in the <SelectItem> component:
+
+    at https://afd4ab41-fa60-4e78-9742-69bb4e3004d6-00-6i79wn87wfhu.janeway.replit.dev/node_modules/.vite/deps/@radix-ui_react-select.js?v=ff429f54:853:7
+    at _c8 (https://afd4ab41-fa60-4e78-9742-69bb4e3004d6-00-6i79wn87wfhu.janeway.replit.dev/src/components/ui/select.tsx:234:60)
+    at div
+    at https://afd4ab41-fa60-4e78-9742-69bb4e3004d6-00-6i79wn87wfhu.janeway.replit.dev/node_modules/.vite/deps/chunk-LKOAR5GC.js?v=ff429f54:43:13
+    at https://afd4ab41-fa60-4e78-9742-69bb4e3004d6-00-6i79wn87wfhu.janeway.replit.dev/node_modules/.vite/deps/chunk-E7TSFT4J.js?v=ff429f54:79:13
+    at https://afd4ab41-fa60-4e78-9742-69bb4e3004d6-00-6i79wn87wfhu.janeway.replit.dev/node_modules/.vite/deps/chunk-E7TSFT4J.js?v=ff429f54:56:13
+    at https://afd4ab41-fa60-4e78-9742-69bb4e3004d6-00-6i79wn87wfhu.janeway.replit.dev/node_modules/.vite/deps/chunk-W2OT6ZD3.js?v=ff429f54:41:15
+    at https://afd4ab41-fa60-4e78-9742-69bb4e3004d6-00-6i79wn87wfhu.janeway.replit.dev/node_modules/.vite/deps/@radix-ui_react-select.js?v=ff429f54:764:13
+    at div
+    at https://afd4ab41-fa60-4e78-9742-69bb4e3004d6-00-6i79wn87wfhu.janeway.replit.dev/node_modules/.vite/deps/chunk-E7TSFT4J.js?v=ff429f54:79:13
+    at https://afd4ab41-fa60-4e78-9742-69bb4e3004d6-00-6i79wn87wfhu.janeway.replit.dev/node_modules/.vite/deps/chunk-E7TSFT4J.js?v=ff429f54:56:13
+    at https://afd4ab41-fa60-4e78-9742-69bb4e3004d6-00-6i79wn87wfhu.janeway.replit.dev/node_modules/.vite/deps/chunk-W2OT6ZD3.js?v=ff429f54:41:15
+    at Provider (https://afd4ab41-fa60-4e78-9742-69bb4e3004d6-00-6i79wn87wfhu.janeway.replit.dev/node_modules/.vite/deps/chunk-OXZDJRWN.js?v=ff429f54:38:15)
+    at https://afd4ab41-fa60-4e78-9742-69bb4e3004d6-00-6i79wn87wfhu.janeway.replit.dev/node_modules/.vite/deps/@radix-ui_react-select.js?v=ff429f54:307:58
+    at https://afd4ab41-fa60-4e78-9742-69bb4e3004d6-00-6i79wn87wfhu.janeway.replit.dev/node_modules/.vite/deps/chunk-E7TSFT4J.js?v=ff429f54:79:13
+    at https://afd4ab41-fa60-4e78-9742-69bb4e3004d6-00-6i79wn87wfhu.janeway.replit.dev/node_modules/.vite/deps/chunk-E7TSFT4J.js?v=ff429f54:56:13
+    at https://afd4ab41-fa60-4e78-9742-69bb4e3004d6-00-6i79wn87wfhu.janeway.replit.dev/node_modules/.vite/deps/chunk-LKOAR5GC.js?v=ff429f54:43:13
+    at https://afd4ab41-fa60-4e78-9742-69bb4e3004d6-00-6i79wn87wfhu.janeway.replit.dev/node_modules/.vite/deps/chunk-6TP5LDH4.js?v=ff429f54:262:22
+    at SelectPortal
+    at _c4 (https://afd4ab41-fa60-4e78-9742-69bb4e3004d6-00-6i79wn87wfhu.janeway.replit.dev/src/components/ui/select.tsx:141:63)
+    at Provider (https://afd4ab41-fa60-4e78-9742-69bb4e3004d6-00-6i79wn87wfhu.janeway.replit.dev/node_modules/.vite/deps/chunk-OXZDJRWN.js?v=ff429f54:38:15)
+    at Provider (https://afd4ab41-fa60-4e78-9742-69bb4e3004d6-00-6i79wn87wfhu.janeway.replit.dev/node_modules/.vite/deps/chunk-OXZDJRWN.js?v=ff429f54:38:15)
+    at CollectionProvider (https://afd4ab41-fa60-4e78-9742-69bb4e3004d6-00-6i79wn87wfhu.janeway.replit.dev/node_modules/.vite/deps/chunk-W2OT6ZD3.js?v=ff429f54:31:13)
+    at Provider (https://afd4ab41-fa60-4e78-9742-69bb4e3004d6-00-6i79wn87wfhu.janeway.replit.dev/node_modules/.vite/deps/chunk-OXZDJRWN.js?v=ff429f54:38:15)
+    at Provider (https://afd4ab41-fa60-4e78-9742-69bb4e3004d6-00-6i79wn87wfhu.janeway.replit.dev/node_modules/.vite/deps/chunk-OXZDJRWN.js?v=ff429f54:38:15)
+    at Popper (https://afd4ab41-fa60-4e78-9742-69bb4e3004d6-00-6i79wn87wfhu.janeway.replit.dev/node_modules/.vite/deps/chunk-V5VCP7LQ.js?v=ff429f54:1947:11)
+    at Select (https://afd4ab41-fa60-4e78-9742-69bb4e3004d6-00-6i79wn87wfhu.janeway.replit.dev/node_modules/.vite/deps/@radix-ui_react-select.js?v=ff429f54:93:5)
+    at div
+    at div
+    at _c8 (https://afd4ab41-fa60-4e78-9742-69bb4e3004d6-00-6i79wn87wfhu.janeway.replit.dev/src/components/ui/card.tsx:95:61)
+    at div
+    at _c (https://afd4ab41-fa60-4e78-9742-69bb4e3004d6-00-6i79wn87wfhu.janeway.replit.dev/src/components/ui/card.tsx:23:53)
+    at div
+    at div
+    at div
+    at ParentAutismAccommodations (https://afd4ab41-fa60-4e78-9742-69bb4e3004d6-00-6i79wn87wfhu.janeway.replit.dev/src/pages/ParentAutismAccommodations.tsx:35:51)
+    at ProtectedRoute (https://afd4ab41-fa60-4e78-9742-69bb4e3004d6-00-6i79wn87wfhu.janeway.replit.dev/src/components/ProtectedRoute.tsx:26:34)
+    at RenderedRoute (https://afd4ab41-fa60-4e78-9742-69bb4e3004d6-00-6i79wn87wfhu.janeway.replit.dev/node_modules/.vite/deps/react-router-dom.js?v=ff429f54:4088:5)
+    at Routes (https://afd4ab41-fa60-4e78-9742-69bb4e3004d6-00-6i79wn87wfhu.janeway.replit.dev/node_modules/.vite/deps/react-router-dom.js?v=ff429f54:4558:5)
+    at Router (https://afd4ab41-fa60-4e78-9742-69bb4e3004d6-00-6i79wn87wfhu.janeway.replit.dev/node_modules/.vite/deps/react-router-dom.js?v=ff429f54:4501:15)
+    at BrowserRouter (https://afd4ab41-fa60-4e78-9742-69bb4e3004d6-00-6i79wn87wfhu.janeway.replit.dev/node_modules/.vite/deps/react-router-dom.js?v=ff429f54:5247:5)
+    at AuthProvider (https://afd4ab41-fa60-4e78-9742-69bb4e3004d6-00-6i79wn87wfhu.janeway.replit.dev/src/hooks/useAuth.tsx:40:32)
+    at ThemeProvider (https://afd4ab41-fa60-4e78-9742-69bb4e3004d6-00-6i79wn87wfhu.janeway.replit.dev/src/contexts/ThemeContext.tsx:24:33)
+    at Provider (https://afd4ab41-fa60-4e78-9742-69bb4e3004d6-00-6i79wn87wfhu.janeway.replit.dev/node_modules/.vite/deps/chunk-OXZDJRWN.js?v=ff429f54:38:15)
+    at TooltipProvider (https://afd4ab41-fa60-4e78-9742-69bb4e3004d6-00-6i79wn87wfhu.janeway.replit.dev/node_modules/.vite/deps/@radix-ui_react-tooltip.js?v=ff429f54:63:5)
+    at QueryClientProvider (https://afd4ab41-fa60-4e78-9742-69bb4e3004d6-00-6i79wn87wfhu.janeway.replit.dev/node_modules/.vite/deps/@tanstack_react-query.js?v=ff429f54:2934:3)
+    at App
+
+Consider adding an error boundary to your tree to customize error handling behavior.
+Visit https://reactjs.org/link/error-boundaries to learn more about error boundaries.
+Mt.forEach.n.<computed> @ Console.js:61
+logCapturedError @ chunk-T2SWDQEL.js?v=ff429f54:14032
+update.callback @ chunk-T2SWDQEL.js?v=ff429f54:14052
+callCallback @ chunk-T2SWDQEL.js?v=ff429f54:11248
+commitUpdateQueue @ chunk-T2SWDQEL.js?v=ff429f54:11265
+commitLayoutEffectOnFiber @ chunk-T2SWDQEL.js?v=ff429f54:17093
+commitLayoutMountEffects_complete @ chunk-T2SWDQEL.js?v=ff429f54:17980
+commitLayoutEffects_begin @ chunk-T2SWDQEL.js?v=ff429f54:17969
+commitLayoutEffects @ chunk-T2SWDQEL.js?v=ff429f54:17920
+commitRootImpl @ chunk-T2SWDQEL.js?v=ff429f54:19353
+commitRoot @ chunk-T2SWDQEL.js?v=ff429f54:19277
+performSyncWorkOnRoot @ chunk-T2SWDQEL.js?v=ff429f54:18895
+flushSyncCallbacks @ chunk-T2SWDQEL.js?v=ff429f54:9119
+(anonymous) @ chunk-T2SWDQEL.js?v=ff429f54:18627Understand this error
+chunk-T2SWDQEL.js?v=ff429f54:9129 Uncaught Error: A <Select.Item /> must have a value prop that is not an empty string. This is because the Select value can be set to an empty string to clear the selection and show the placeholder.
+    at @radix-ui_react-select.js?v=ff429f54:880:13
+    at renderWithHooks (chunk-T2SWDQEL.js?v=ff429f54:11548:26)
+    at updateForwardRef (chunk-T2SWDQEL.js?v=ff429f54:14325:28)
+    at beginWork (chunk-T2SWDQEL.js?v=ff429f54:15946:22)
+    at beginWork$1 (chunk-T2SWDQEL.js?v=ff429f54:19753:22)
+    at performUnitOfWork (chunk-T2SWDQEL.js?v=ff429f54:19198:20)
+    at workLoopSync (chunk-T2SWDQEL.js?v=ff429f54:19137:13)
+    at renderRootSync (chunk-T2SWDQEL.js?v=ff429f54:19116:15)
+    at recoverFromConcurrentError (chunk-T2SWDQEL.js?v=ff429f54:18736:28)
+    at performSyncWorkOnRoot (chunk-T2SWDQEL.js?v=ff429

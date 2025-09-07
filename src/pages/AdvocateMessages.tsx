@@ -174,7 +174,9 @@ export default function AdvocateMessages() {
                         <h3 className="text-xs font-medium text-muted-foreground uppercase tracking-wider">Active Conversations</h3>
                       </div>
                       {conversations.map((conversation) => {
-                        const studentName = `${conversation.student.first_name} ${conversation.student.last_name}`;
+                        const studentName = conversation.student?.first_name 
+                          ? `${conversation.student.first_name} ${conversation.student.last_name}` 
+                          : 'Student';
                         const avatar = studentName.split(' ').map(n => n[0]).join('');
                         const lastMessageTime = conversation.lastMessage?.created_at ? 
                           new Date(conversation.lastMessage.created_at).toLocaleDateString() : 'New';
@@ -330,7 +332,7 @@ export default function AdvocateMessages() {
                     <div className="text-center text-muted-foreground">
                       <MessageSquare className="h-12 w-12 mx-auto mb-4 opacity-50" />
                       <p className="text-lg font-medium mb-2">No Messages Yet</p>
-                      <p className="text-sm">Start a conversation with {selectedConversation.student.first_name}'s family</p>
+                      <p className="text-sm">Start a conversation with {selectedConversation.student?.first_name || 'the student'}'s family</p>
                     </div>
                   </div>
                 )

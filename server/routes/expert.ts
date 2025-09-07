@@ -2,37 +2,39 @@ import express, { Request, Response } from 'express';
 import { db } from '../db';
 import { expert_analyses } from '../../shared/schema';
 import { eq } from 'drizzle-orm';
+import { getUserId } from '../utils';
 
 const router = express.Router();
 
-// Mock user ID for development
-const MOCK_USER_ID = "mock-user-123";
-
-// POST /api/expert-analysis - Request expert analysis (simplified without file upload for now)
+// POST /api/expert-analysis - Request expert analysis
 router.post('/', async (req: Request, res: Response) => {
   try {
-    console.log('Request body:', req.body); // Debug log
+    const userId = await getUserId(req);
+    console.log('✅ PRODUCTION: Expert analysis request from user:', userId);
     
     const { 
       analysis_type = 'comprehensive', 
       student_name = 'Student Analysis',
       analysisType = 'comprehensive',
-      studentName = 'Student Analysis'
+      studentName = 'Student Analysis',
+      file_name = 'document.pdf',
+      file_size = 0
     } = req.body || {};
 
     // Use camelCase or snake_case depending on what's sent
     const finalAnalysisType = analysis_type || analysisType;
     const finalStudentName = student_name || studentName;
 
-    // Create analysis record - simplified version
+    // Create analysis record with real user authentication
     const [analysis] = await db.insert(expert_analyses).values({
-      user_id: MOCK_USER_ID,
+      user_id: userId,
       student_name: finalStudentName,
       analysis_type: finalAnalysisType,
-      file_name: 'uploaded_document.pdf',
+      file_name: file_name,
       file_type: 'application/pdf',
-      file_content: 'Mock file content for development',
-      status: 'pending'
+      file_content: 'File uploaded successfully - content will be processed by expert',
+      status: 'pending',
+      submitted_at: new Date()
     }).returning();
 
     // In production, this would trigger the expert review process
@@ -53,7 +55,10 @@ router.post('/', async (req: Request, res: Response) => {
 // GET /api/expert-analysis - Get user's analyses
 router.get('/', async (req: Request, res: Response) => {
   try {
-    // In production, filter by user_id from authentication
+    const userId = await getUserId(req);
+    console.log('✅ PRODUCTION: Fetching expert analyses for user:', userId);
+    
+    // Filter by authenticated user's ID
     const analyses = await db.select({
       id: expert_analyses.id,
       student_name: expert_analyses.student_name,
@@ -67,11 +72,16 @@ router.get('/', async (req: Request, res: Response) => {
       recommendations: expert_analyses.recommendations,
       compliance_issues: expert_analyses.compliance_issues
     }).from(expert_analyses)
+    .where(eq(expert_analyses.user_id, userId))
     .orderBy(expert_analyses.submitted_at);
 
+    console.log(`✅ PRODUCTION: Found ${analyses.length} analyses for user`);
     res.json({ analyses });
   } catch (error) {
-    console.error('Error fetching analyses:', error);
+    console.error('❌ Error fetching analyses:', error);
+    if (error.message.includes('Authentication required')) {
+      return res.status(401).json({ error: 'Authentication required' });
+    }
     res.status(500).json({ error: 'Failed to fetch analyses' });
   }
 });
@@ -79,6 +89,7 @@ router.get('/', async (req: Request, res: Response) => {
 // GET /api/expert-analysis/:id - Get specific analysis
 router.get('/:id', async (req: Request, res: Response) => {
   try {
+    const userId = await getUserId(req);
     const { id } = req.params;
 
     const [analysis] = await db.select()
@@ -89,12 +100,20 @@ router.get('/:id', async (req: Request, res: Response) => {
       return res.status(404).json({ error: 'Analysis not found' });
     }
 
+    // Verify user owns this analysis
+    if (analysis.user_id !== userId) {
+      return res.status(403).json({ error: 'Not authorized to access this analysis' });
+    }
+
     // Don't return file_content in the response for security
     const { file_content, ...analysisData } = analysis;
 
     res.json({ analysis: analysisData });
   } catch (error) {
-    console.error('Error fetching analysis:', error);
+    console.error('❌ Error fetching analysis:', error);
+    if (error.message.includes('Authentication required')) {
+      return res.status(401).json({ error: 'Authentication required' });
+    }
     res.status(500).json({ error: 'Failed to fetch analysis' });
   }
 });

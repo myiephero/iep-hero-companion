@@ -30,7 +30,39 @@ export default function ExpertAnalysis() {
   const [loading, setLoading] = useState(false);
   const [analyses, setAnalyses] = useState<ExpertAnalysisResult[]>([]);
   const [activeTab, setActiveTab] = useState('request');
+  const [fetchingAnalyses, setFetchingAnalyses] = useState(false);
   const { toast } = useToast();
+
+  // Fetch real analyses from the backend
+  const fetchAnalyses = async () => {
+    setFetchingAnalyses(true);
+    try {
+      const authToken = localStorage.getItem('authToken');
+      
+      const response = await fetch('/api/expert-analysis', {
+        credentials: 'include',
+        headers: {
+          'Authorization': authToken ? `Bearer ${authToken}` : '',
+        },
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        setAnalyses(data.analyses || []);
+      } else {
+        console.error('Failed to fetch analyses');
+      }
+    } catch (error) {
+      console.error('Error fetching analyses:', error);
+    } finally {
+      setFetchingAnalyses(false);
+    }
+  };
+
+  // Load analyses when component mounts
+  React.useEffect(() => {
+    fetchAnalyses();
+  }, []);
 
   const handleFileSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
@@ -52,11 +84,15 @@ export default function ExpertAnalysis() {
     setLoading(true);
 
     try {
-      // For now, send JSON data instead of FormData
+      // Get real auth token for the request
+      const authToken = localStorage.getItem('authToken');
+      
       const response = await fetch('/api/expert-analysis', {
         method: 'POST',
+        credentials: 'include',
         headers: {
           'Content-Type': 'application/json',
+          'Authorization': authToken ? `Bearer ${authToken}` : '',
         },
         body: JSON.stringify({
           analysis_type: analysisType,
@@ -77,21 +113,8 @@ export default function ExpertAnalysis() {
         description: "Your expert analysis has been submitted and will be completed within 24-48 hours.",
       });
 
-      // Mock result for now
-      const mockAnalysis: ExpertAnalysisResult = {
-        id: Date.now().toString(),
-        student_name: 'Student Analysis',
-        analysis_type: analysisType as any,
-        overall_score: 0,
-        strengths: [],
-        areas_for_improvement: [],
-        recommendations: [],
-        compliance_issues: [],
-        created_at: new Date().toISOString(),
-        status: 'pending'
-      };
-
-      setAnalyses(prev => [mockAnalysis, ...prev]);
+      // Refresh the analyses list to show the new request
+      await fetchAnalyses();
       setActiveTab('results');
       setSelectedFile(null);
 

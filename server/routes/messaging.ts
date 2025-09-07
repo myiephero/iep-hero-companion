@@ -131,7 +131,14 @@ router.get('/conversations', async (req: Request, res: Response) => {
     // Get the latest message for each conversation
     const conversationsWithMessages = await Promise.all(
       userConversations.map(async ({ conversation, advocate, student }) => {
-        const latestMessage = await db.select()
+        const latestMessage = await db.select({
+            id: messages.id,
+            conversation_id: messages.conversation_id,
+            sender_id: messages.sender_id,
+            content: messages.content,
+            created_at: messages.created_at,
+            read_at: messages.read_at
+          })
           .from(messages)
           .where(eq(messages.conversation_id, conversation.id))
           .orderBy(desc(messages.created_at))

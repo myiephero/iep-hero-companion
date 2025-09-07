@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { DashboardLayout } from "@/layouts/DashboardLayout";
 import { StatCard } from "@/components/StatCard";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -67,10 +67,48 @@ const AdvocateDashboard = ({ plan }: AdvocateDashboardProps) => {
     }
   }, [user, toast]);
 
-  // Real data - connected to advocate's actual clients and cases
-  const pendingStudents = []; // Will be populated from advocate's client assignments
-  const openCases = []; // Will be populated from advocate's active cases  
-  const upcomingMeetings = []; // Will be populated from advocate's scheduled meetings
+  // State for real data
+  const [students, setStudents] = useState([]);
+  const [cases, setCases] = useState([]);
+  const [parents, setParents] = useState([]);
+  const [conversations, setConversations] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  // Fetch data on component mount
+  useEffect(() => {
+    const fetchDashboardData = async () => {
+      if (!user) return;
+      
+      try {
+        setLoading(true);
+        
+        // Fetch students, cases, parents, and conversations in parallel
+        const [studentsRes, casesRes, parentsRes, conversationsRes] = await Promise.all([
+          fetch('/api/students').then(r => r.ok ? r.json() : []),
+          fetch('/api/cases').then(r => r.ok ? r.json() : []),
+          fetch('/api/parents').then(r => r.ok ? r.json() : []),
+          fetch('/api/messaging/conversations').then(r => r.ok ? r.json() : [])
+        ]);
+        
+        setStudents(studentsRes || []);
+        setCases(casesRes || []);
+        setParents(parentsRes || []);
+        setConversations(conversationsRes || []);
+        
+      } catch (error) {
+        console.error('Error fetching dashboard data:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchDashboardData();
+  }, [user]);
+
+  // Calculate dashboard metrics
+  const openCases = cases.filter(c => c.status === 'active' || c.status === 'open');
+  const pendingStudents = students.filter(s => s.source === 'conversation' || s.source === 'client_relationship');
+  const upcomingMeetings = []; // Will be populated from advocate's scheduled meetings when meetings system is built
 
   const getUrgencyColor = (urgency: string) => {
     switch(urgency) {

@@ -28,14 +28,18 @@ export async function getUserId(req: express.Request): Promise<string> {
   
   // Check for Replit Auth session
   const user = (req as any).user;
+  console.log('getUserId: Replit Auth session data:', JSON.stringify(user, null, 2));
   if (user && user.claims && user.claims.sub) {
+    console.log('getUserId: Found valid Replit user ID:', user.claims.sub);
     return user.claims.sub;
   }
   
   // Log when we can't find user ID to debug authentication issues
-  console.warn('getUserId: Could not extract user ID from request. Session authenticated:', !!(req as any).isAuthenticated?.());
+  console.warn('getUserId: Could not extract user ID from request. Session authenticated:', !!(req as any).session);
   console.warn('getUserId: Headers:', req.headers.authorization ? 'Bearer token present' : 'No auth header');
   console.warn('getUserId: User object:', user ? 'User object exists' : 'No user object');
+  console.warn('getUserId: Session exists:', !!(req as any).session);
+  console.warn('getUserId: Full user object:', JSON.stringify(user, null, 2));
   
   // CRITICAL: Don't return a default fallback - throw error to force proper authentication
   throw new Error('Authentication required - no valid user ID found');

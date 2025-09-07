@@ -431,6 +431,17 @@ const AdvocateStudents = () => {
                               IEP {currentStudent.iep_status || 'Not Set'}
                             </Badge>
                           </div>
+                          {currentStudent.parent_name && (
+                            <div className="flex items-center space-x-2 mt-2">
+                              <span className="text-sm">Parent: {currentStudent.parent_name}</span>
+                              <Button asChild variant="outline" size="sm">
+                                <Link to={`/advocate/messages?parent=${currentStudent.parent_id || currentStudent.user_id}&student=${currentStudent.id}`}>
+                                  <Mail className="h-3 w-3 mr-1" />
+                                  Message Parent
+                                </Link>
+                              </Button>
+                            </div>
+                          )}
                         </CardDescription>
                       </div>
                     </div>

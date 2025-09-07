@@ -2,7 +2,7 @@ import express from 'express';
 import cors from 'cors';
 import { db } from './db';
 import * as schema from '../shared/schema';
-import { eq, and } from 'drizzle-orm';
+import { eq, and, gt } from 'drizzle-orm';
 import matchRoutes from './routes/match';
 import expertRoutes from './routes/expert';
 import feedbackRoutes from './routes/feedback';

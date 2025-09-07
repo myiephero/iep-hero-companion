@@ -7,6 +7,7 @@ import matchRoutes from './routes/match';
 import expertRoutes from './routes/expert';
 import feedbackRoutes from './routes/feedback';
 import messagingRoutes from './routes/messaging';
+import simpleMessagingRoutes from './routes/simple-messages';
 import { mainRoutes } from './routes/main';
 import { createRequire } from 'module';
 const require = createRequire(import.meta.url);
@@ -2561,6 +2562,7 @@ app.use('/api/match', matchRoutes);
 app.use('/api/expert-analysis', expertRoutes);
 app.use('/api/feedback', feedbackRoutes);
 app.use('/api/messaging', messagingRoutes);
+app.use('/api/simple-messages', simpleMessagingRoutes);
 // app.use('/api', mainRoutes); // Temporarily disabled - session context issue
 
 // Health check

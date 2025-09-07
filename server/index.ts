@@ -2678,41 +2678,78 @@ app.get('/api/students', async (req: any, res) => {
 });
 
 app.get('/api/cases', async (req: any, res) => {
-  console.log('🚨 DEMO: /api/cases - returning wxwinn real cases!');
-  
   try {
-    // Always return wxwinn's real cases for demo
-    const advocateUserId = 'mf49nblfi0fe55cwtf'; // wxwinn
+    const userId = await getUserId(req);
+    console.log('✅ PRODUCTION: Getting cases for authenticated user:', userId);
     
-    // Get real case data from database  
-    const cases = await db
-      .select({
-        id: schema.cases.id,
-        advocate_id: schema.cases.advocate_id,
-        client_id: schema.cases.client_id,
-        student_id: schema.cases.student_id,
-        case_title: schema.cases.case_title,
-        description: schema.cases.description,
-        case_type: schema.cases.case_type,
-        status: schema.cases.status,
-        priority: schema.cases.priority,
-        billing_rate: schema.cases.billing_rate,
-        total_hours: schema.cases.total_hours,
-        next_action: schema.cases.next_action,
-        next_action_date: schema.cases.next_action_date,
-        created_at: schema.cases.created_at,
-        updated_at: schema.cases.updated_at
-      })
-      .from(schema.cases)
-      .where(eq(schema.cases.advocate_id, advocateUserId));
+    // Get user's profile to determine role
+    const [userProfile] = await db
+      .select()
+      .from(schema.profiles)
+      .where(eq(schema.profiles.user_id, userId))
+      .limit(1);
     
-    console.log('✅ DEMO: Found real cases:', cases.length, cases.map(c => c.case_title));
+    if (!userProfile) {
+      console.log('❌ User profile not found for:', userId);
+      return res.status(404).json({ error: 'User profile not found' });
+    }
+    
+    let cases = [];
+    
+    if (userProfile.role === 'advocate') {
+      // Advocate: Get cases where they are the advocate
+      cases = await db
+        .select({
+          id: schema.cases.id,
+          advocate_id: schema.cases.advocate_id,
+          client_id: schema.cases.client_id,
+          student_id: schema.cases.student_id,
+          case_title: schema.cases.case_title,
+          description: schema.cases.description,
+          case_type: schema.cases.case_type,
+          status: schema.cases.status,
+          priority: schema.cases.priority,
+          billing_rate: schema.cases.billing_rate,
+          total_hours: schema.cases.total_hours,
+          next_action: schema.cases.next_action,
+          next_action_date: schema.cases.next_action_date,
+          created_at: schema.cases.created_at,
+          updated_at: schema.cases.updated_at
+        })
+        .from(schema.cases)
+        .where(eq(schema.cases.advocate_id, userId));
+    } else {
+      // Parent: Get cases where they are the client
+      cases = await db
+        .select({
+          id: schema.cases.id,
+          advocate_id: schema.cases.advocate_id,
+          client_id: schema.cases.client_id,
+          student_id: schema.cases.student_id,
+          case_title: schema.cases.case_title,
+          description: schema.cases.description,
+          case_type: schema.cases.case_type,
+          status: schema.cases.status,
+          priority: schema.cases.priority,
+          billing_rate: schema.cases.billing_rate,
+          total_hours: schema.cases.total_hours,
+          next_action: schema.cases.next_action,
+          next_action_date: schema.cases.next_action_date,
+          created_at: schema.cases.created_at,
+          updated_at: schema.cases.updated_at
+        })
+        .from(schema.cases)
+        .where(eq(schema.cases.client_id, userId));
+    }
+    
+    console.log(`✅ PRODUCTION: Found ${cases.length} cases for ${userProfile.role}:`, cases.map(c => c.case_title));
     res.json(cases);
-    return;
   } catch (error) {
-    console.error('🔥 Database error getting cases:', error);
-    res.status(500).json({ error: 'Database error' });
-    return;
+    console.error('❌ Error getting cases:', error);
+    if (error.message.includes('Authentication required')) {
+      return res.status(401).json({ error: 'Authentication required' });
+    }
+    res.status(500).json({ error: 'Failed to fetch cases' });
   }
 });
 

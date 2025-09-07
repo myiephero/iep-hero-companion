@@ -108,7 +108,39 @@ const AdvocateDashboard = ({ plan }: AdvocateDashboardProps) => {
   // Calculate dashboard metrics
   const openCases = cases.filter(c => c.status === 'active' || c.status === 'open');
   const pendingStudents = students.filter(s => s.source === 'conversation' || s.source === 'client_relationship');
-  const upcomingMeetings = []; // Will be populated from advocate's scheduled meetings when meetings system is built
+  const [upcomingMeetings, setUpcomingMeetings] = useState([]);
+
+  // Fetch upcoming meetings
+  useEffect(() => {
+    const fetchMeetings = async () => {
+      if (!user) return;
+      
+      try {
+        const authToken = localStorage.getItem('authToken');
+        const response = await fetch('/api/meetings', {
+          credentials: 'include',
+          headers: {
+            'Authorization': authToken ? `Bearer ${authToken}` : '',
+          },
+        });
+        
+        if (response.ok) {
+          const meetings = await response.json();
+          // Filter for upcoming meetings (today and future)
+          const today = new Date().toISOString().split('T')[0];
+          const upcoming = meetings.filter(meeting => 
+            meeting.scheduled_date >= today && 
+            (meeting.status === 'scheduled' || meeting.status === 'confirmed')
+          );
+          setUpcomingMeetings(upcoming);
+        }
+      } catch (error) {
+        console.error('Error fetching meetings:', error);
+      }
+    };
+
+    fetchMeetings();
+  }, [user]);
 
   const getUrgencyColor = (urgency: string) => {
     switch(urgency) {

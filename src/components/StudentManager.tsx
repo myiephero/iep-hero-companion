@@ -87,11 +87,25 @@ export function StudentManager({ onStudentSelect, selectedStudentId }: StudentMa
     if (!user) return;
     
     try {
-      // This would need to be implemented with proper API endpoints
-      // For now, set empty array
-      setParents([]);
+      const authToken = localStorage.getItem('authToken');
+      
+      const response = await fetch('/api/parents', {
+        credentials: 'include',
+        headers: {
+          'Authorization': authToken ? `Bearer ${authToken}` : '',
+        },
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        setParents(data || []);
+      } else {
+        console.error('Failed to fetch parents');
+        setParents([]);
+      }
     } catch (error) {
       console.error('Error fetching parents:', error);
+      setParents([]);
     }
   };
 
@@ -154,13 +168,53 @@ export function StudentManager({ onStudentSelect, selectedStudentId }: StudentMa
   const handleCreateParent = async (formData: FormData) => {
     if (!user || !isAdvocate) return;
 
-    // This functionality would require proper user management system
-    // For now, show a message that it's not available
-    toast({
-      title: "Feature Not Available",
-      description: "Parent account creation requires additional setup",
-      variant: "destructive"
-    });
+    const full_name = formData.get('full_name') as string;
+    const email = formData.get('email') as string;
+    const phone = formData.get('phone') as string;
+
+    try {
+      const authToken = localStorage.getItem('authToken');
+      
+      const response = await fetch('/api/parents', {
+        method: 'POST',
+        credentials: 'include',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': authToken ? `Bearer ${authToken}` : '',
+        },
+        body: JSON.stringify({
+          full_name,
+          email,
+          phone,
+          role: 'parent'
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to create parent');
+      }
+
+      const newParent = await response.json();
+
+      setParents(prev => [...prev, newParent]);
+      setIsCreateParentOpen(false);
+      
+      toast({
+        title: "Success",
+        description: `Parent account created for ${full_name}. They will receive an invitation email.`,
+      });
+
+      // Refresh the parents list
+      await fetchParents();
+
+    } catch (error) {
+      console.error('Error creating parent:', error);
+      toast({
+        title: "Error",
+        description: "Failed to create parent account. Please try again.",
+        variant: "destructive"
+      });
+    }
   };
 
   if (loading) {

@@ -2005,6 +2005,91 @@ app.post('/api/meetings', async (req, res) => {
   }
 });
 
+// Parents routes
+app.get('/api/parents', async (req, res) => {
+  try {
+    const userId = await getUserId(req);
+    console.log('✅ PRODUCTION: Fetching parents for user:', userId);
+    
+    // Get parent users (role = 'parent') that this advocate can access
+    const parents = await db.select({
+      id: schema.users.id,
+      full_name: schema.profiles.full_name,
+      email: schema.users.email,
+      phone: schema.profiles.phone,
+      role: schema.users.role,
+      created_at: schema.users.createdAt
+    })
+    .from(schema.users)
+    .leftJoin(schema.profiles, eq(schema.users.id, schema.profiles.user_id))
+    .where(eq(schema.users.role, 'parent'));
+    
+    res.json(parents);
+  } catch (error) {
+    console.error('❌ Error fetching parents:', error);
+    if (error.message.includes('Authentication required')) {
+      return res.status(401).json({ error: 'Authentication required' });
+    }
+    res.status(500).json({ error: 'Failed to fetch parents' });
+  }
+});
+
+app.post('/api/parents', async (req, res) => {
+  try {
+    const userId = await getUserId(req);
+    console.log('✅ PRODUCTION: Creating parent account by user:', userId);
+    
+    const { full_name, email, phone, role = 'parent' } = req.body;
+    
+    if (!full_name || !email) {
+      return res.status(400).json({ error: 'Full name and email are required' });
+    }
+
+    // Check if user already exists
+    const [existingUser] = await db.select()
+      .from(schema.users)
+      .where(eq(schema.users.email, email));
+
+    if (existingUser) {
+      return res.status(400).json({ error: 'User with this email already exists' });
+    }
+
+    // Create user account
+    const [newUser] = await db.insert(schema.users).values({
+      email,
+      role: 'parent',
+      emailVerified: false, // They'll need to verify via email
+    }).returning();
+
+    // Create profile
+    const [newProfile] = await db.insert(schema.profiles).values({
+      user_id: newUser.id,
+      full_name,
+      email,
+      phone,
+      role: 'parent'
+    }).returning();
+
+    // TODO: Send invitation email here
+    console.log(`✅ PRODUCTION: Created parent account for ${email}`);
+
+    res.json({
+      id: newUser.id,
+      full_name,
+      email,
+      phone,
+      role: newUser.role,
+      created_at: newUser.createdAt
+    });
+  } catch (error) {
+    console.error('❌ Error creating parent:', error);
+    if (error.message.includes('Authentication required')) {
+      return res.status(401).json({ error: 'Authentication required' });
+    }
+    res.status(500).json({ error: 'Failed to create parent' });
+  }
+});
+
 // Advocates routes
 app.get('/api/advocates', async (req, res) => {
   try {

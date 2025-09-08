@@ -121,6 +121,52 @@ export default function GiftedTwoeLearners() {
     }
   };
 
+  const saveToStudentProfile = async (assessment: GiftedAssessment) => {
+    try {
+      const student = students.find(s => s.id === selectedStudent);
+      if (!student) {
+        toast({
+          title: "Error",
+          description: "Student not found",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      // Create assessment summary
+      const assessmentSummary = `
+Gifted Assessment - ${new Date(assessment.created_at).toLocaleDateString()}
+Type: ${assessmentTypes.find(t => t.value === assessment.assessment_type)?.label}
+Areas of Giftedness: ${assessment.giftedness_areas.join(', ')}
+${assessment.learning_differences?.length ? `Learning Differences: ${assessment.learning_differences.join(', ')}` : ''}
+${assessment.evaluator_notes ? `Notes: ${assessment.evaluator_notes}` : ''}
+      `.trim();
+
+      // Update student notes by appending the assessment summary
+      const response = await apiRequest('PUT', `/api/students/${selectedStudent}`, {
+        notes: student.notes ? `${student.notes}\n\n${assessmentSummary}` : assessmentSummary
+      });
+
+      if (response.ok) {
+        toast({
+          title: "Assessment Saved",
+          description: "Assessment profile has been saved to the student's profile",
+        });
+        // Refresh students data
+        fetchStudents();
+      } else {
+        throw new Error('Failed to save assessment');
+      }
+    } catch (error) {
+      console.error('Error saving assessment to profile:', error);
+      toast({
+        title: "Save Failed",
+        description: "Failed to save assessment to student profile. Please try again.",
+        variant: "destructive",
+      });
+    }
+  };
+
   const generateAIInsights = async (assessmentId: string) => {
     try {
       setAiLoading(prev => ({ ...prev, [assessmentId]: true }));
@@ -532,7 +578,7 @@ export default function GiftedTwoeLearners() {
                             )}
                           </div>
                           <Button
-                            onClick={() => {/* TODO: Save to student profile */}}
+                            onClick={() => saveToStudentProfile(assessment)}
                             variant="outline"
                             size="sm"
                             className="flex items-center gap-2"

@@ -31,7 +31,11 @@ import {
   Brain,
   Star,
   BookOpen,
-  Lightbulb
+  Lightbulb,
+  Building2,
+  Eye,
+  Sparkles,
+  Clock
 } from "lucide-react";
 // import { supabase } from "@/integrations/supabase/client"; // Removed during migration
 import { useAuth } from "@/hooks/useAuth";
@@ -41,7 +45,10 @@ import { apiRequest } from "@/lib/queryClient";
 
 // Real AI Analysis Component
 const AutismAIAnalysis = ({ selectedStudentId }: { selectedStudentId?: string }) => {
-  const { data: aiAnalysis, isLoading } = useQuery({
+  const [expandedSections, setExpandedSections] = useState<{[key: string]: boolean}>({});
+  
+  // Fetch existing autism AI analysis
+  const { data: aiAnalysisData, isLoading } = useQuery({
     queryKey: ['/api/autism-ai-analysis', selectedStudentId],
     queryFn: async () => {
       if (!selectedStudentId) return null;
@@ -50,6 +57,16 @@ const AutismAIAnalysis = ({ selectedStudentId }: { selectedStudentId?: string })
     },
     enabled: !!selectedStudentId
   });
+
+  // Extract the latest analysis from the response
+  const aiAnalysis = aiAnalysisData?.analyses?.[0]?.ai_analysis || null;
+
+  const toggleSection = (section: string) => {
+    setExpandedSections(prev => ({
+      ...prev,
+      [section]: !prev[section]
+    }));
+  };
 
   if (!selectedStudentId) {
     return (
@@ -63,7 +80,7 @@ const AutismAIAnalysis = ({ selectedStudentId }: { selectedStudentId?: string })
   if (isLoading) {
     return (
       <div className="space-y-4">
-        {[...Array(3)].map((_, i) => (
+        {[...Array(4)].map((_, i) => (
           <div key={i} className="bg-muted/50 p-4 rounded-lg animate-pulse">
             <div className="h-4 bg-muted rounded w-1/4 mb-2"></div>
             <div className="h-3 bg-muted rounded w-full mb-1"></div>
@@ -86,62 +103,276 @@ const AutismAIAnalysis = ({ selectedStudentId }: { selectedStudentId?: string })
     );
   }
 
+  const getAnalysisIcon = (type: string) => {
+    switch (type) {
+      case 'sensory': return '🔍';
+      case 'communication': return '💬';
+      case 'behavioral': return '🎯';
+      case 'social': return '👥';
+      case 'custom': return '🤖';
+      default: return '🧩';
+    }
+  };
+
+  const getAnalysisTitle = (type: string) => {
+    switch (type) {
+      case 'sensory': return 'Sensory Processing Analysis';
+      case 'communication': return 'Communication Assessment';
+      case 'behavioral': return 'Behavioral Analysis';
+      case 'social': return 'Social Skills Analysis';
+      case 'custom': return 'Custom Analysis';
+      default: return 'AI Analysis';
+    }
+  };
+
   return (
-    <div className="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-950 dark:to-indigo-950 p-6 rounded-lg">
-      <h3 className="text-lg font-semibold mb-4 flex items-center">
-        <span className="text-2xl mr-2">🧩</span>
-        AI Autism Analysis Results
-      </h3>
-      
-      <div className="space-y-4">
-        {aiAnalysis.sensory_analysis && (
-          <div className="bg-white dark:bg-gray-800 p-4 rounded-lg">
-            <h4 className="font-medium text-blue-700 dark:text-blue-300 mb-2">📊 Sensory Profile Analysis</h4>
-            <p className="text-sm text-muted-foreground">{aiAnalysis.sensory_analysis}</p>
-          </div>
-        )}
-        
-        {aiAnalysis.communication_insights && (
-          <div className="bg-white dark:bg-gray-800 p-4 rounded-lg">
-            <h4 className="font-medium text-green-700 dark:text-green-300 mb-2">🗣️ Communication Insights</h4>
-            <div className="text-sm text-muted-foreground">
-              {Array.isArray(aiAnalysis.communication_insights) ? (
-                <ul className="space-y-1">
-                  {aiAnalysis.communication_insights.map((insight: string, i: number) => (
-                    <li key={i}>• {insight}</li>
-                  ))}
-                </ul>
-              ) : (
-                <p>{aiAnalysis.communication_insights}</p>
-              )}
-            </div>
-          </div>
-        )}
-        
-        {aiAnalysis.behavioral_analysis && (
-          <div className="bg-white dark:bg-gray-800 p-4 rounded-lg">
-            <h4 className="font-medium text-purple-700 dark:text-purple-300 mb-2">📋 Behavioral Strategy Analysis</h4>
-            <p className="text-sm text-muted-foreground">{aiAnalysis.behavioral_analysis}</p>
-          </div>
+    <div className="space-y-6">
+      {/* Analysis Header */}
+      <div className="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-950 dark:to-indigo-950 p-6 rounded-lg">
+        <h3 className="text-lg font-semibold mb-2 flex items-center">
+          <span className="text-2xl mr-2">{getAnalysisIcon(aiAnalysis.analysis_type)}</span>
+          AI Autism Analysis Results
+        </h3>
+        <p className="text-sm text-muted-foreground">
+          {getAnalysisTitle(aiAnalysis.analysis_type)} • Generated: {new Date().toLocaleDateString()}
+        </p>
+      </div>
+
+      {/* Student Summary */}
+      {aiAnalysis.student_summary && (
+        <Card className="premium-card">
+          <CardHeader>
+            <CardTitle className="flex items-center text-lg">
+              <Users className="h-5 w-5 mr-2" />
+              Student Profile Summary
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <p className="text-muted-foreground">{aiAnalysis.student_summary}</p>
+          </CardContent>
+        </Card>
+      )}
+
+      {/* Detailed Analysis */}
+      {aiAnalysis.detailed_analysis && (
+        <Card className="premium-card">
+          <CardHeader>
+            <CardTitle className="flex items-center text-lg">
+              <Brain className="h-5 w-5 mr-2" />
+              Comprehensive Analysis
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <p className="text-muted-foreground whitespace-pre-wrap">{aiAnalysis.detailed_analysis}</p>
+          </CardContent>
+        </Card>
+      )}
+
+      {/* Key Findings */}
+      {aiAnalysis.key_findings && Array.isArray(aiAnalysis.key_findings) && (
+        <Card className="premium-card">
+          <CardHeader>
+            <CardTitle className="flex items-center text-lg">
+              <CheckCircle className="h-5 w-5 mr-2" />
+              Key Findings
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <ul className="space-y-2">
+              {aiAnalysis.key_findings.map((finding: string, i: number) => (
+                <li key={i} className="flex items-start">
+                  <span className="text-primary mr-2 mt-1">•</span>
+                  <span className="text-muted-foreground">{finding}</span>
+                </li>
+              ))}
+            </ul>
+          </CardContent>
+        </Card>
+      )}
+
+      {/* Evidence Base */}
+      {aiAnalysis.evidence_base && (
+        <Card className="premium-card">
+          <CardHeader>
+            <CardTitle className="flex items-center text-lg">
+              <BookOpen className="h-5 w-5 mr-2" />
+              Evidence-Based Foundation
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <p className="text-muted-foreground">{aiAnalysis.evidence_base}</p>
+          </CardContent>
+        </Card>
+      )}
+
+      {/* Dynamic Sections Based on Analysis Type */}
+      <div className="grid gap-4 md:grid-cols-2">
+        {/* Environmental Modifications (Sensory) */}
+        {aiAnalysis.environmental_modifications && Array.isArray(aiAnalysis.environmental_modifications) && (
+          <Card className="premium-card">
+            <CardHeader>
+              <CardTitle className="flex items-center text-base">
+                <Building2 className="h-4 w-4 mr-2" />
+                Environmental Modifications
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <ul className="space-y-1 text-sm">
+                {aiAnalysis.environmental_modifications.map((mod: string, i: number) => (
+                  <li key={i} className="flex items-start">
+                    <span className="text-primary mr-2">→</span>
+                    <span className="text-muted-foreground">{mod}</span>
+                  </li>
+                ))}
+              </ul>
+            </CardContent>
+          </Card>
         )}
 
-        {aiAnalysis.recommendations && (
-          <div className="bg-white dark:bg-gray-800 p-4 rounded-lg">
-            <h4 className="font-medium text-orange-700 dark:text-orange-300 mb-2">🎯 Personalized Recommendations</h4>
-            <div className="text-sm text-muted-foreground">
-              {Array.isArray(aiAnalysis.recommendations) ? (
-                <ul className="space-y-1">
-                  {aiAnalysis.recommendations.map((rec: string, i: number) => (
-                    <li key={i}>• {rec}</li>
-                  ))}
-                </ul>
-              ) : (
-                <p>{aiAnalysis.recommendations}</p>
-              )}
-            </div>
-          </div>
+        {/* Visual Supports (Communication) */}
+        {aiAnalysis.visual_supports && Array.isArray(aiAnalysis.visual_supports) && (
+          <Card className="premium-card">
+            <CardHeader>
+              <CardTitle className="flex items-center text-base">
+                <Eye className="h-4 w-4 mr-2" />
+                Visual Supports
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <ul className="space-y-1 text-sm">
+                {aiAnalysis.visual_supports.map((support: string, i: number) => (
+                  <li key={i} className="flex items-start">
+                    <span className="text-primary mr-2">→</span>
+                    <span className="text-muted-foreground">{support}</span>
+                  </li>
+                ))}
+              </ul>
+            </CardContent>
+          </Card>
+        )}
+
+        {/* Self-Regulation Strategies */}
+        {aiAnalysis.self_regulation && Array.isArray(aiAnalysis.self_regulation) && (
+          <Card className="premium-card">
+            <CardHeader>
+              <CardTitle className="flex items-center text-base">
+                <Target className="h-4 w-4 mr-2" />
+                Self-Regulation Strategies
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <ul className="space-y-1 text-sm">
+                {aiAnalysis.self_regulation.map((strategy: string, i: number) => (
+                  <li key={i} className="flex items-start">
+                    <span className="text-primary mr-2">→</span>
+                    <span className="text-muted-foreground">{strategy}</span>
+                  </li>
+                ))}
+              </ul>
+            </CardContent>
+          </Card>
+        )}
+
+        {/* Social Strengths */}
+        {aiAnalysis.social_strengths && Array.isArray(aiAnalysis.social_strengths) && (
+          <Card className="premium-card">
+            <CardHeader>
+              <CardTitle className="flex items-center text-base">
+                <Sparkles className="h-4 w-4 mr-2" />
+                Social Strengths
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <ul className="space-y-1 text-sm">
+                {aiAnalysis.social_strengths.map((strength: string, i: number) => (
+                  <li key={i} className="flex items-start">
+                    <span className="text-green-500 mr-2">✓</span>
+                    <span className="text-muted-foreground">{strength}</span>
+                  </li>
+                ))}
+              </ul>
+            </CardContent>
+          </Card>
         )}
       </div>
+
+      {/* IEP Goals */}
+      {aiAnalysis.iep_goals && Array.isArray(aiAnalysis.iep_goals) && (
+        <Card className="premium-card">
+          <CardHeader>
+            <CardTitle className="flex items-center text-lg">
+              <GraduationCap className="h-5 w-5 mr-2" />
+              Recommended IEP Goals
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-3">
+              {aiAnalysis.iep_goals.map((goal: string, i: number) => (
+                <div key={i} className="p-3 bg-blue-50 dark:bg-blue-950 rounded-lg border border-blue-200 dark:border-blue-800">
+                  <p className="text-sm font-medium text-blue-900 dark:text-blue-100">Goal {i + 1}:</p>
+                  <p className="text-sm text-blue-700 dark:text-blue-300 mt-1">{goal}</p>
+                </div>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
+      {/* Immediate Actions */}
+      {aiAnalysis.immediate_actions && Array.isArray(aiAnalysis.immediate_actions) && (
+        <Card className="premium-card bg-gradient-to-r from-orange-50 to-red-50 dark:from-orange-950 dark:to-red-950">
+          <CardHeader>
+            <CardTitle className="flex items-center text-lg text-orange-800 dark:text-orange-200">
+              <Clock className="h-5 w-5 mr-2" />
+              Immediate Action Steps
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-2">
+              {aiAnalysis.immediate_actions.map((action: string, i: number) => (
+                <div key={i} className="flex items-start">
+                  <span className="bg-orange-200 dark:bg-orange-800 text-orange-800 dark:text-orange-200 rounded-full w-6 h-6 flex items-center justify-center text-xs font-bold mr-3 mt-0.5">
+                    {i + 1}
+                  </span>
+                  <span className="text-orange-900 dark:text-orange-100 text-sm">{action}</span>
+                </div>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
+      {/* Legacy Format Support */}
+      {(aiAnalysis.recommendations || aiAnalysis.sensory_analysis || aiAnalysis.communication_insights || aiAnalysis.behavioral_analysis) && (
+        <div className="space-y-4">
+          {aiAnalysis.recommendations && (
+            <Card className="premium-card">
+              <CardHeader>
+                <CardTitle className="flex items-center text-lg">
+                  <Target className="h-5 w-5 mr-2" />
+                  Personalized Recommendations
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="text-sm text-muted-foreground">
+                  {Array.isArray(aiAnalysis.recommendations) ? (
+                    <ul className="space-y-1">
+                      {aiAnalysis.recommendations.map((rec: string, i: number) => (
+                        <li key={i} className="flex items-start">
+                          <span className="text-primary mr-2">•</span>
+                          {rec}
+                        </li>
+                      ))}
+                    </ul>
+                  ) : (
+                    <p>{aiAnalysis.recommendations}</p>
+                  )}
+                </div>
+              </CardContent>
+            </Card>
+          )}
+        </div>
+      )}
     </div>
   );
 };

@@ -3469,80 +3469,262 @@ app.get('/api/cases', async (req: any, res) => {
           eq(schema.autism_accommodations.user_id, userId)
         ));
 
-      // Create AI analysis prompt based on analysis type
-      let systemPrompt = `You are an expert autism support specialist and educational consultant. Your role is to provide evidence-based, practical analysis and recommendations for students with autism spectrum disorders. Use current research and best practices in autism education.`;
-      
+      // Enhanced AI analysis prompt with evidence-based frameworks
+      let systemPrompt = `You are a Board Certified Behavior Analyst (BCBA) and autism education specialist with expertise in evidence-based practices for supporting students with autism spectrum disorders. You have extensive experience with IEP development, sensory processing disorders, and positive behavior interventions.
+
+Your responses must be:
+- Evidence-based and cite current research when possible
+- Practical and immediately actionable for school teams
+- Individualized to the specific student's needs and characteristics
+- Aligned with special education law and best practices
+- Structured in clear, professional language suitable for IEP documentation
+
+Always consider these autism-specific frameworks:
+- SCERTS Model (Social Communication, Emotional Regulation, Transactional Support)
+- TEACCH Structured Teaching principles
+- Visual supports and environmental modifications
+- Sensory processing considerations
+- Executive functioning supports
+- Positive behavior intervention strategies`;
+
       let userPrompt = '';
-      const studentContext = `
-Student: ${student.full_name}
+      const enhancedStudentContext = `
+STUDENT PROFILE:
+Name: ${student.full_name}
 Grade Level: ${student.grade_level || 'Not specified'}
-School: ${student.school_name || 'Not specified'}
-Disability Category: ${student.disability_category || 'Not specified'}
-Current Accommodations: ${accommodations.length} autism-specific accommodations on file
-Notes: ${student.notes || 'No additional notes'}
+Educational Setting: ${student.school_name || 'General education classroom'}
+District: ${student.district || 'Not specified'}
+Primary Disability: ${student.disability_category || 'Not specified'}
+Case Manager: ${student.case_manager || 'Not assigned'}
+IEP Status: ${student.iep_status || 'Unknown'}
+
+CURRENT SUPPORT CONTEXT:
+- Active Accommodations: ${accommodations.length} autism-specific supports documented
+- Existing Accommodations: ${accommodations.map(acc => acc.title).join(', ') || 'None documented'}
+- Additional Notes: ${student.notes || 'No additional documentation available'}
+
+ANALYSIS REQUEST: Provide comprehensive ${analysis_type} analysis and recommendations for this student.
       `;
 
       switch (analysis_type) {
         case 'sensory':
-          userPrompt = `Analyze this student's sensory needs and provide specific recommendations for sensory supports and accommodations. Include:
-1. Sensory processing patterns likely present
-2. Environmental modifications needed
-3. Sensory tools and strategies
-4. Signs to watch for sensory overload
-5. Specific sensory breaks and timing
+          userPrompt = `${enhancedStudentContext}
 
-${studentContext}
+SENSORY PROCESSING ANALYSIS REQUIRED:
 
-Respond with a detailed JSON object containing your sensory analysis.`;
+Using the Sensory Processing Measure and evidence-based sensory strategies, provide comprehensive analysis including:
+
+1. SENSORY PROFILE ASSESSMENT:
+   - Likely sensory seeking vs. avoiding patterns across all 7 senses
+   - Specific sensory triggers commonly seen in similar students
+   - Signs of sensory overload and dysregulation to monitor
+
+2. ENVIRONMENTAL ACCOMMODATIONS:
+   - Classroom modifications for optimal sensory environment
+   - Seating, lighting, and acoustic recommendations
+   - Visual and physical organization strategies
+
+3. SENSORY TOOLS & STRATEGIES:
+   - Specific sensory tools with evidence-based rationale
+   - Self-regulation techniques the student can learn
+   - Sensory break protocols with timing and location
+
+4. EDUCATIONAL IMPACT ANALYSIS:
+   - How sensory needs likely affect learning and participation
+   - Specific academic tasks that may require sensory supports
+   - Social interaction implications
+
+5. IEP LANGUAGE RECOMMENDATIONS:
+   - Measurable goals targeting sensory self-regulation
+   - Specific accommodations and modifications
+   - Data collection strategies for progress monitoring
+
+Respond with a structured JSON object using this exact format:
+{
+  "analysis_type": "sensory",
+  "student_summary": "Brief summary of student's likely sensory profile",
+  "detailed_analysis": "Comprehensive sensory analysis covering all sensory systems",
+  "key_findings": ["Finding 1", "Finding 2", "Finding 3"],
+  "evidence_base": "Research-based rationale for recommendations",
+  "environmental_modifications": ["Modification 1", "Modification 2", "Modification 3"],
+  "sensory_tools": ["Tool 1 with rationale", "Tool 2 with rationale", "Tool 3 with rationale"],
+  "self_regulation_strategies": ["Strategy 1", "Strategy 2", "Strategy 3"],
+  "iep_goals": ["Measurable goal 1", "Measurable goal 2"],
+  "accommodations": ["Accommodation 1", "Accommodation 2", "Accommodation 3"],
+  "data_collection": "Specific methods for tracking sensory regulation",
+  "immediate_actions": ["Action 1", "Action 2", "Action 3"],
+  "long_term_recommendations": ["Recommendation 1", "Recommendation 2"]
+}`;
           break;
 
         case 'communication':
-          userPrompt = `Analyze this student's communication needs and provide comprehensive communication support recommendations. Include:
-1. Communication strengths and challenges
-2. Visual support recommendations
-3. Social communication strategies
-4. AAC considerations if applicable
-5. Peer interaction supports
+          userPrompt = `${enhancedStudentContext}
 
-${studentContext}
+COMMUNICATION ASSESSMENT REQUIRED:
 
-Respond with a detailed JSON object containing your communication analysis.`;
+Using SCERTS and evidence-based communication strategies, provide comprehensive analysis including:
+
+1. COMMUNICATION PROFILE:
+   - Receptive vs. expressive language strengths and needs
+   - Social communication patterns typical for grade level
+   - Pragmatic language and social interaction skills
+
+2. VISUAL SUPPORT SYSTEMS:
+   - Visual schedules and transition supports needed
+   - Social stories and visual cues for classroom routines
+   - Communication boards or AAC considerations
+
+3. PEER INTERACTION SUPPORTS:
+   - Structured social opportunities and facilitation
+   - Friendship and social skills development
+   - Inclusive classroom participation strategies
+
+4. ACADEMIC COMMUNICATION:
+   - Language supports for curriculum access
+   - Modified instructions and comprehension checks
+   - Alternative ways to demonstrate learning
+
+Respond with this exact JSON format:
+{
+  "analysis_type": "communication",
+  "student_summary": "Communication profile summary",
+  "detailed_analysis": "Comprehensive communication analysis",
+  "key_findings": ["Finding 1", "Finding 2", "Finding 3"],
+  "evidence_base": "Research supporting recommendations",
+  "visual_supports": ["Support 1", "Support 2", "Support 3"],
+  "social_communication": ["Strategy 1", "Strategy 2", "Strategy 3"],
+  "academic_supports": ["Support 1", "Support 2", "Support 3"],
+  "peer_interaction": ["Strategy 1", "Strategy 2", "Strategy 3"],
+  "aac_considerations": "AAC assessment and recommendations",
+  "iep_goals": ["Measurable goal 1", "Measurable goal 2"],
+  "immediate_actions": ["Action 1", "Action 2", "Action 3"],
+  "progress_monitoring": "Specific data collection methods"
+}`;
           break;
 
         case 'behavioral':
-          userPrompt = `Analyze behavioral patterns and provide positive behavior support recommendations. Include:
-1. Likely behavioral triggers and patterns
-2. Self-regulation strategies
-3. Environmental modifications
-4. Replacement behaviors and coping skills
-5. Crisis prevention strategies
+          userPrompt = `${enhancedStudentContext}
 
-${studentContext}
+BEHAVIORAL ANALYSIS REQUIRED:
 
-Respond with a detailed JSON object containing your behavioral analysis.`;
+Using Positive Behavior Interventions and Supports (PBIS) and Applied Behavior Analysis (ABA) principles:
+
+1. FUNCTION-BASED ASSESSMENT:
+   - Likely functions of challenging behaviors (escape, attention, sensory, tangible)
+   - Environmental and internal triggers
+   - Replacement behaviors and coping strategies
+
+2. ANTECEDENT STRATEGIES:
+   - Environmental modifications to prevent challenging behaviors
+   - Visual supports and predictability structures
+   - Teaching and practice opportunities
+
+3. SELF-REGULATION DEVELOPMENT:
+   - Emotional regulation strategies appropriate for grade level
+   - Self-monitoring and self-management systems
+   - Coping skills and calming strategies
+
+4. CRISIS PREVENTION:
+   - Early warning signs and intervention protocols
+   - De-escalation techniques and safe spaces
+   - Communication with family and team coordination
+
+Respond with this exact JSON format:
+{
+  "analysis_type": "behavioral",
+  "student_summary": "Behavioral profile summary",
+  "detailed_analysis": "Comprehensive behavioral analysis",
+  "key_findings": ["Finding 1", "Finding 2", "Finding 3"],
+  "evidence_base": "ABA and PBIS research foundation",
+  "likely_functions": ["Function 1", "Function 2"],
+  "triggers": ["Trigger 1", "Trigger 2", "Trigger 3"],
+  "antecedent_strategies": ["Strategy 1", "Strategy 2", "Strategy 3"],
+  "replacement_behaviors": ["Behavior 1", "Behavior 2"],
+  "self_regulation": ["Strategy 1", "Strategy 2", "Strategy 3"],
+  "environmental_mods": ["Modification 1", "Modification 2"],
+  "crisis_prevention": ["Strategy 1", "Strategy 2", "Strategy 3"],
+  "iep_goals": ["Measurable goal 1", "Measurable goal 2"],
+  "data_collection": "Specific behavior tracking methods",
+  "immediate_actions": ["Action 1", "Action 2", "Action 3"]
+}`;
           break;
 
         case 'social':
-          userPrompt = `Analyze social skills needs and provide comprehensive social support recommendations. Include:
-1. Social strengths and areas for growth
-2. Peer interaction strategies
-3. Social skills teaching opportunities
-4. Structured social activities
-5. Generalization strategies
+          userPrompt = `${enhancedStudentContext}
 
-${studentContext}
+SOCIAL SKILLS ANALYSIS REQUIRED:
 
-Respond with a detailed JSON object containing your social skills analysis.`;
+Using evidence-based social skills interventions and peer-mediated strategies:
+
+1. SOCIAL COMPETENCE ASSESSMENT:
+   - Current social strengths to build upon
+   - Areas for growth in peer relationships
+   - Social cognition and perspective-taking skills
+
+2. STRUCTURED SOCIAL OPPORTUNITIES:
+   - Peer buddy systems and social facilitation
+   - Lunch bunch, social clubs, and activity groups
+   - Inclusive participation in school activities
+
+3. SOCIAL SKILLS INSTRUCTION:
+   - Direct teaching of social rules and expectations
+   - Practice opportunities in natural settings
+   - Generalization across different contexts
+
+4. PEER RELATIONSHIP FACILITATION:
+   - Friendship development and maintenance
+   - Conflict resolution and problem-solving
+   - Building social connections and belonging
+
+Respond with this exact JSON format:
+{
+  "analysis_type": "social",
+  "student_summary": "Social skills profile summary",
+  "detailed_analysis": "Comprehensive social analysis",
+  "key_findings": ["Finding 1", "Finding 2", "Finding 3"],
+  "evidence_base": "Social skills intervention research",
+  "social_strengths": ["Strength 1", "Strength 2", "Strength 3"],
+  "growth_areas": ["Area 1", "Area 2", "Area 3"],
+  "structured_opportunities": ["Opportunity 1", "Opportunity 2"],
+  "direct_instruction": ["Skill 1", "Skill 2", "Skill 3"],
+  "peer_supports": ["Support 1", "Support 2", "Support 3"],
+  "generalization": ["Strategy 1", "Strategy 2"],
+  "friendship_building": ["Strategy 1", "Strategy 2", "Strategy 3"],
+  "iep_goals": ["Measurable goal 1", "Measurable goal 2"],
+  "progress_monitoring": "Social skills data collection",
+  "immediate_actions": ["Action 1", "Action 2", "Action 3"]
+}`;
           break;
 
         case 'custom':
-          userPrompt = `Based on this specific request: "${custom_request}"
+          userPrompt = `${enhancedStudentContext}
 
-Please provide comprehensive autism-specific analysis and recommendations for this student. Consider all aspects of autism support including sensory, communication, behavioral, social, and academic needs as relevant.
+CUSTOM ANALYSIS REQUEST: "${custom_request}"
 
-${studentContext}
+Provide comprehensive autism-specific analysis addressing the specific request while considering all relevant domains:
 
-Respond with a detailed JSON object containing your analysis.`;
+1. TARGETED ANALYSIS based on the specific request
+2. EVIDENCE-BASED RECOMMENDATIONS using current research
+3. PRACTICAL IMPLEMENTATION strategies for school team
+4. IEP INTEGRATION considerations
+5. FAMILY COLLABORATION suggestions
+
+Respond with this exact JSON format:
+{
+  "analysis_type": "custom",
+  "request_addressed": "${custom_request}",
+  "student_summary": "Student profile relevant to request",
+  "detailed_analysis": "Comprehensive analysis addressing the specific request",
+  "key_findings": ["Finding 1", "Finding 2", "Finding 3"],
+  "evidence_base": "Research supporting recommendations",
+  "targeted_strategies": ["Strategy 1", "Strategy 2", "Strategy 3"],
+  "implementation_plan": ["Step 1", "Step 2", "Step 3"],
+  "iep_considerations": ["Consideration 1", "Consideration 2"],
+  "family_collaboration": ["Strategy 1", "Strategy 2"],
+  "cross_domain_impact": "How this affects other areas of development",
+  "immediate_actions": ["Action 1", "Action 2", "Action 3"],
+  "long_term_goals": ["Goal 1", "Goal 2"]
+}`;
           break;
 
         default:
@@ -3556,13 +3738,14 @@ Respond with a detailed JSON object containing your analysis.`;
         console.log(`🤖 Generating ${analysis_type} analysis for student ${student.full_name}...`);
         
         const completion = await openai.chat.completions.create({
-          model: "gpt-4o", // Using GPT-4o which is the most capable current model for complex analysis tasks
+          model: "gpt-5", // the newest OpenAI model is "gpt-5" which was released August 7, 2025. do not change this unless explicitly requested by the user
           messages: [
             { role: "system", content: systemPrompt },
             { role: "user", content: userPrompt }
           ],
-          max_completion_tokens: 1500,
-          response_format: { type: "json_object" }
+          max_completion_tokens: 2500, // Increased for more comprehensive analysis
+          response_format: { type: "json_object" },
+          temperature: 0.3 // Lower temperature for more consistent, professional responses
         });
 
         const aiResponse = completion.choices[0].message.content;
@@ -3583,17 +3766,98 @@ Respond with a detailed JSON object containing your analysis.`;
       } catch (openAIError) {
         console.error('❌ OpenAI analysis failed:', openAIError);
         
-        // Create fallback analysis with helpful content
-        analysisData = {
-          [`${analysis_type}_analysis`]: `AI analysis for ${analysis_type} patterns is temporarily unavailable. Please try again in a few minutes.`,
-          recommendations: [
-            `Consider consulting with school autism specialist for ${analysis_type} support strategies`,
-            "Document current patterns and share with IEP team",
-            "Review existing accommodations for effectiveness"
-          ],
-          summary: `${analysis_type.charAt(0).toUpperCase() + analysis_type.slice(1)} analysis requested for ${student.full_name}. AI service temporarily unavailable.`,
-          status: "fallback_content"
+        // Create comprehensive fallback analysis with practical guidance
+        const fallbackAnalysis = {
+          sensory: {
+            analysis_type: "sensory",
+            student_summary: `Sensory analysis for ${student.full_name} - Grade ${student.grade_level || 'Unknown'}`,
+            detailed_analysis: "AI analysis temporarily unavailable. Please consider common sensory needs for students with autism including environmental modifications, sensory tools, and self-regulation strategies.",
+            key_findings: [
+              "Consider sensory processing assessment by occupational therapist",
+              "Observe for sensory seeking or avoiding behaviors",
+              "Monitor environmental triggers in classroom"
+            ],
+            evidence_base: "Sensory processing research supports individualized assessment and intervention",
+            environmental_modifications: [
+              "Preferential seating away from distractions",
+              "Noise-reducing accommodations",
+              "Lighting adjustments as needed"
+            ],
+            immediate_actions: [
+              "Request sensory evaluation",
+              "Trial sensory tools",
+              "Document sensory responses"
+            ],
+            status: "fallback_content"
+          },
+          communication: {
+            analysis_type: "communication",
+            student_summary: `Communication analysis for ${student.full_name} - Grade ${student.grade_level || 'Unknown'}`,
+            detailed_analysis: "AI analysis temporarily unavailable. Consider comprehensive communication assessment and visual supports for students with autism.",
+            key_findings: [
+              "Visual supports often beneficial for students with autism",
+              "Social communication skills may need explicit teaching",
+              "Consider AAC evaluation if needed"
+            ],
+            immediate_actions: [
+              "Implement visual schedule",
+              "Trial social stories",
+              "Consider speech therapy evaluation"
+            ],
+            status: "fallback_content"
+          },
+          behavioral: {
+            analysis_type: "behavioral",
+            student_summary: `Behavioral analysis for ${student.full_name} - Grade ${student.grade_level || 'Unknown'}`,
+            detailed_analysis: "AI analysis temporarily unavailable. Positive behavior supports and function-based interventions are recommended for students with autism.",
+            key_findings: [
+              "Behaviors often serve specific functions",
+              "Antecedent strategies more effective than consequences",
+              "Self-regulation skills can be taught explicitly"
+            ],
+            immediate_actions: [
+              "Conduct functional behavior assessment",
+              "Implement positive behavior supports",
+              "Teach replacement behaviors"
+            ],
+            status: "fallback_content"
+          },
+          social: {
+            analysis_type: "social",
+            student_summary: `Social skills analysis for ${student.full_name} - Grade ${student.grade_level || 'Unknown'}`,
+            detailed_analysis: "AI analysis temporarily unavailable. Social skills instruction and peer support strategies benefit students with autism.",
+            key_findings: [
+              "Direct social skills instruction often needed",
+              "Structured peer interactions increase success",
+              "Social skills require practice across settings"
+            ],
+            immediate_actions: [
+              "Implement social skills groups",
+              "Create structured peer opportunities",
+              "Use social stories for social situations"
+            ],
+            status: "fallback_content"
+          },
+          custom: {
+            analysis_type: "custom",
+            request_addressed: custom_request || "Custom analysis request",
+            student_summary: `Custom analysis for ${student.full_name} - Grade ${student.grade_level || 'Unknown'}`,
+            detailed_analysis: "AI analysis temporarily unavailable. Consider evidence-based practices for autism support across all domains.",
+            key_findings: [
+              "Individual assessment needed for specific concerns",
+              "Evidence-based practices should guide interventions",
+              "Team collaboration enhances outcomes"
+            ],
+            immediate_actions: [
+              "Consult with autism specialist",
+              "Review current evidence",
+              "Coordinate with IEP team"
+            ],
+            status: "fallback_content"
+          }
         };
+        
+        analysisData = fallbackAnalysis[analysis_type] || fallbackAnalysis.custom;
       }
 
       // Save analysis to database

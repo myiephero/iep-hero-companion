@@ -799,31 +799,6 @@ const SmartLetterGenerator = () => {
 
           {/* Sidebar */}
           <div className="space-y-6">
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <History className="h-5 w-5" />
-                  Recent Letters
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-3">
-                {recentLetters.map((letter) => (
-                  <div key={letter.id} className="p-3 border rounded-lg">
-                    <h4 className="font-medium text-sm">{letter.title}</h4>
-                    <p className="text-xs text-muted-foreground">{letter.type}</p>
-                    <div className="flex items-center justify-between mt-2">
-                      <span className="text-xs text-muted-foreground">{letter.date}</span>
-                      <Badge variant={
-                        letter.status === 'Sent' ? 'default' :
-                        letter.status === 'Draft' ? 'secondary' : 'outline'
-                      } className="text-xs">
-                        {letter.status}
-                      </Badge>
-                    </div>
-                  </div>
-                ))}
-              </CardContent>
-            </Card>
 
             <Card>
               <CardHeader>

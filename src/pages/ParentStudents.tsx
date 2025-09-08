@@ -279,7 +279,7 @@ const AutismAccommodationsTab = ({ selectedStudentId }: { selectedStudentId?: st
 
 // Gifted Assessments Tab Component  
 const GiftedAssessmentsTab = ({ selectedStudentId }: { selectedStudentId?: string }) => {
-  const [activeView, setActiveView] = useState<'overview' | 'cognitive' | 'enrichment' | '2e_support' | 'ai_insights'>('overview');
+  const [activeView, setActiveView] = useState<'overview' | 'cognitive' | 'enrichment' | '2e_support' | 'ai_insights' | 'create'>('overview');
   const [newAssessment, setNewAssessment] = useState({
     assessment_type: '',
     giftedness_areas: [] as string[],

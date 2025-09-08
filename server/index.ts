@@ -2729,7 +2729,7 @@ app.get('/api/students', async (req: any, res) => {
     // Use user role, default to 'parent' if not set
     const userRole = user.role || 'parent';
     
-    let students = [];
+    let students: any[] = [];
     
     if (userRole === 'advocate') {
       // Advocate: Get students from all their clients
@@ -2760,7 +2760,7 @@ app.get('/api/students', async (req: any, res) => {
         .where(eq(schema.students.parent_id, userId));
     }
     
-    console.log(`✅ PRODUCTION: Found ${students.length} students for ${userRole}:`, students.map(s => s.full_name));
+    console.log(`✅ PRODUCTION: Found ${students.length} students for ${userRole}:`, students.map((s: any) => s.full_name));
     res.json(students);
   } catch (error) {
     console.error('❌ Error getting students:', error);
@@ -2835,7 +2835,7 @@ app.get('/api/cases', async (req: any, res) => {
     // Use user role, default to 'advocate' for cases endpoint
     const userRole = user.role || 'advocate';
     
-    let cases = [];
+    let cases: any[] = [];
     
     if (userRole === 'advocate') {
       // Advocate: Get cases where they are the advocate
@@ -2883,7 +2883,7 @@ app.get('/api/cases', async (req: any, res) => {
         .where(eq(schema.cases.client_id, userId));
     }
     
-    console.log(`✅ PRODUCTION: Found ${cases.length} cases for ${userRole}:`, cases.map(c => c.case_title));
+    console.log(`✅ PRODUCTION: Found ${cases.length} cases for ${userRole}:`, cases.map((c: any) => c.case_title));
     res.json(cases);
   } catch (error) {
     console.error('❌ Error getting cases:', error);

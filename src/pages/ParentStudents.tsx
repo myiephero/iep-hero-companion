@@ -1558,11 +1558,11 @@ const ParentStudents = () => {
               </TabsContent>
 
               <TabsContent value="autism" className="space-y-6">
-                <AutismAccommodationsTab selectedStudentId={selectedStudent?.id} />
+                <AutismAccommodationsTab selectedStudentId={selectedStudentId} />
               </TabsContent>
 
               <TabsContent value="gifted" className="space-y-6">
-                <GiftedAssessmentsTab selectedStudentId={selectedStudent?.id} />
+                <GiftedAssessmentsTab selectedStudentId={selectedStudentId} />
               </TabsContent>
             </Tabs>
           </div>

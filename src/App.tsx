@@ -62,6 +62,7 @@ import Plan504Guide from "./pages/Plan504Guide";
 import TimelineCalculator from "./pages/TimelineCalculator";
 import ProgressAnalyzer from "./pages/ProgressAnalyzer";
 import GoalGenerator from "./pages/GoalGenerator";
+import ParentGoalGenerator from "./pages/ParentGoalGenerator";
 import IEPMasterSuite from "./pages/IEPMasterSuite";
 import AskAIDocs from "./pages/AskAIDocs";
 import ProgressNotes from "./pages/ProgressNotes";
@@ -341,6 +342,11 @@ function App() {
               <Route path="/parent/tools/expert-analysis" element={
                 <ProtectedRoute allowedRoles={['parent']}>
                   <ExpertAnalysis />
+                </ProtectedRoute>
+              } />
+              <Route path="/parent/tools/goal-generator" element={
+                <ProtectedRoute allowedRoles={['parent']}>
+                  <ParentGoalGenerator />
                 </ProtectedRoute>
               } />
               <Route path="/parent/matching" element={

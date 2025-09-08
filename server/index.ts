@@ -1769,17 +1769,20 @@ app.get('/api/autism_accommodations', async (req, res) => {
     const userId = await getUserId(req);
     const { student_id, category, template } = req.query;
     
-    let query = db.select().from(schema.autism_accommodations).where(eq(schema.autism_accommodations.user_id, userId));
+    // Build where conditions array
+    const whereConditions = [eq(schema.autism_accommodations.user_id, userId)];
     
-    // Filter by student if specified
+    // Add student filter if specified
     if (student_id) {
-      query = query.where(eq(schema.autism_accommodations.student_id, student_id as string));
+      whereConditions.push(eq(schema.autism_accommodations.student_id, student_id as string));
     }
     
-    // Filter by category if specified
+    // Add category filter if specified  
     if (category) {
-      query = query.where(eq(schema.autism_accommodations.category, category as string));
+      whereConditions.push(eq(schema.autism_accommodations.category, category as string));
     }
+    
+    const query = db.select().from(schema.autism_accommodations).where(and(...whereConditions));
     
     const accommodations = await query;
     
@@ -2913,16 +2916,17 @@ app.get('/api/gifted-assessments', async (req: any, res) => {
     
     const { student_id } = req.query;
     
-    let baseQuery = db
-      .select()
-      .from(schema.gifted_assessments)
-      .where(eq(schema.gifted_assessments.user_id, userId));
+    // Build where conditions array
+    const whereConditions = [eq(schema.gifted_assessments.user_id, userId)];
     
     if (student_id) {
-      baseQuery = baseQuery.where(eq(schema.gifted_assessments.student_id, student_id));
+      whereConditions.push(eq(schema.gifted_assessments.student_id, student_id));
     }
     
-    const assessments = await baseQuery;
+    const assessments = await db
+      .select()
+      .from(schema.gifted_assessments)
+      .where(and(...whereConditions));
     
     console.log(`✅ PRODUCTION: Found ${assessments.length} gifted assessments for user ${userId}`);
     res.json(assessments);

@@ -2909,11 +2909,6 @@ app.post('/api/students', async (req: any, res) => {
 
 // PUT endpoint for updating students
 app.put('/api/students/:id', async (req: any, res) => {
-  console.log('🔧 DEBUG: Student update request received for ID:', req.params.id);
-  console.log('🔧 DEBUG: Request data:', JSON.stringify(req.body, null, 2));
-  console.log('🔧 DEBUG: Request user:', req.user ? 'Present' : 'Missing');
-  console.log('🔧 DEBUG: Request session:', req.session ? 'Present' : 'Missing');
-  
   try {
     const userId = await getUserId(req);
     const studentId = req.params.id;

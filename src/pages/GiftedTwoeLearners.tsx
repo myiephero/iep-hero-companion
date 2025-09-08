@@ -11,7 +11,7 @@ import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Checkbox } from "@/components/ui/checkbox";
 import { StudentSelector } from "@/components/StudentSelector";
-import { Brain, Plus, Star, BookOpen, Lightbulb, Zap, Users, Target, TrendingUp } from "lucide-react";
+import { Brain, Plus, Star, BookOpen, Lightbulb, Zap, Users, Target, TrendingUp, Save } from "lucide-react";
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 
@@ -71,9 +71,19 @@ const assessmentTypes = [
   { value: 'twice_exceptional', label: 'Twice-Exceptional Profile', description: 'Comprehensive 2e evaluation' }
 ];
 
+interface Student {
+  id: string;
+  full_name: string;
+  grade_level: string;
+  school_name: string;
+  disability_category: string;
+  iep_status: string;
+}
+
 export default function GiftedTwoeLearners() {
   const [assessments, setAssessments] = useState<GiftedAssessment[]>([]);
   const [selectedStudent, setSelectedStudent] = useState<string>("");
+  const [students, setStudents] = useState<Student[]>([]);
   const [showCreateDialog, setShowCreateDialog] = useState(false);
   const [loading, setLoading] = useState(true);
   const [aiLoading, setAiLoading] = useState<Record<string, boolean>>({});
@@ -94,11 +104,22 @@ export default function GiftedTwoeLearners() {
   const { toast } = useToast();
 
   useEffect(() => {
+    fetchStudents();
     fetchAssessments();
     // Detect user role from URL or context - for now defaulting to parent
     // In production, this should come from auth context
     setUserRole(window.location.pathname.includes('advocate') ? 'advocate' : 'parent');
   }, [selectedStudent]);
+
+  const fetchStudents = async () => {
+    try {
+      const response = await apiRequest('GET', '/api/students');
+      const data = await response.json();
+      setStudents(data || []);
+    } catch (error) {
+      console.error('Error fetching students:', error);
+    }
+  };
 
   const generateAIInsights = async (assessmentId: string) => {
     try {
@@ -504,25 +525,20 @@ export default function GiftedTwoeLearners() {
                             <Badge variant="outline" className="capitalize">
                               {userRole} View
                             </Badge>
+                            {selectedStudent && students.find(s => s.id === selectedStudent) && (
+                              <Badge variant="secondary" className="bg-blue-50 text-blue-700">
+                                Student: {students.find(s => s.id === selectedStudent)?.full_name}
+                              </Badge>
+                            )}
                           </div>
                           <Button
-                            onClick={() => generateAIInsights(assessment.id)}
-                            disabled={aiLoading[assessment.id]}
-                            variant="secondary"
+                            onClick={() => {/* TODO: Save to student profile */}}
+                            variant="outline"
                             size="sm"
                             className="flex items-center gap-2"
                           >
-                            {aiLoading[assessment.id] ? (
-                              <>
-                                <div className="h-4 w-4 animate-spin border-2 border-primary border-t-transparent rounded-full" />
-                                Generating...
-                              </>
-                            ) : (
-                              <>
-                                <Brain className="h-4 w-4" />
-                                Generate AI Insights
-                              </>
-                            )}
+                            <Save className="h-4 w-4" />
+                            Save to Profile
                           </Button>
                         </div>
                         

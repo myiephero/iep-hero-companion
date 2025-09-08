@@ -520,7 +520,7 @@ const StudentProfiles = () => {
             </Card>
 
             <Tabs defaultValue="overview" className="space-y-6">
-              <TabsList className="grid w-full grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-1">
+              <TabsList className="grid w-full grid-cols-3 sm:grid-cols-4 lg:grid-cols-6 gap-1">
                 <TabsTrigger value="overview" className="text-xs sm:text-sm">Overview</TabsTrigger>
                 <TabsTrigger value="goals" className="text-xs sm:text-sm">Goals ({goals.length})</TabsTrigger>
                 <TabsTrigger value="services" className="text-xs sm:text-sm">Services ({services.length})</TabsTrigger>

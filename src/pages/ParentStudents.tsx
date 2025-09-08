@@ -39,9 +39,6 @@ import { useToast } from "@/hooks/use-toast";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
 
-// Import missing icons
-import { Brain, Target } from "lucide-react";
-
 // Real AI Analysis Component
 const AutismAIAnalysis = ({ selectedStudentId }: { selectedStudentId?: string }) => {
   const { data: aiAnalysis, isLoading } = useQuery({

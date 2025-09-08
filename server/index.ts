@@ -3530,7 +3530,7 @@ Respond with a detailed JSON object containing your analysis.`;
         console.log(`🤖 Generating ${analysis_type} analysis for student ${student.full_name}...`);
         
         const completion = await openai.chat.completions.create({
-          model: "gpt-5", // the newest OpenAI model is "gpt-5" which was released August 7, 2025. do not change this unless explicitly requested by the user
+          model: "gpt-4o", // Using GPT-4o which is the most capable current model for complex analysis tasks
           messages: [
             { role: "system", content: systemPrompt },
             { role: "user", content: userPrompt }

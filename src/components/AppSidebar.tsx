@@ -73,8 +73,9 @@ const getParentNavigation = (dashboardUrl: string, userPlan: string, isAdvocate:
       { title: "Unified IEP Review", url: "/parent/tools/unified-iep-review", icon: FileSearch, badge: "Enhanced" },
       { title: "Find Advocates", url: "/parent/matching", icon: UserCheck },
       { title: "Messages", url: "/parent/messages", icon: MessageSquare },
+      { title: "Schedule", url: "/parent/schedule", icon: Calendar },
       { title: "Accommodations", url: "/parent/tools/autism-accommodations", icon: Building2 },
-      { title: "Meeting Prep", url: "/parent/tools/meeting-prep", icon: Calendar },
+      { title: "Meeting Prep", url: "/parent/tools/meeting-prep", icon: FileText },
     ]
   }
   ];

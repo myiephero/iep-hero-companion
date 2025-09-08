@@ -16,6 +16,8 @@ import AdvocateMessages from "./pages/AdvocateMessages";
 import ParentMessages from "./pages/ParentMessages";
 import AdvocateSchedule from "./pages/AdvocateSchedule";
 import ScheduleMeeting from "./pages/ScheduleMeeting";
+import ParentSchedule from "./pages/ParentSchedule";
+import RequestMeeting from "./pages/RequestMeeting";
 import AdvocateParents from "./pages/AdvocateParents";
 import ParentStudents from "./pages/ParentStudents";
 import AdvocateStudents from "./pages/AdvocateStudents";
@@ -138,6 +140,16 @@ function App() {
               <Route path="/parent/messages" element={
                 <ProtectedRoute allowedRoles={['parent']}>
                   <ParentMessages />
+                </ProtectedRoute>
+              } />
+              <Route path="/parent/schedule" element={
+                <ProtectedRoute allowedRoles={['parent']}>
+                  <ParentSchedule />
+                </ProtectedRoute>
+              } />
+              <Route path="/parent/schedule/request" element={
+                <ProtectedRoute allowedRoles={['parent']}>
+                  <RequestMeeting />
                 </ProtectedRoute>
               } />
               

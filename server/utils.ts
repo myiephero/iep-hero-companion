@@ -8,6 +8,9 @@ export async function getUserId(req: express.Request): Promise<string> {
   // First check for token-based auth (custom login system) - DATABASE VERSION
   const token = req.headers.authorization?.replace('Bearer ', '');
   
+  console.log('🔧 DEBUG getUserId: Auth header:', req.headers.authorization ? 'Present' : 'Missing');
+  console.log('🔧 DEBUG getUserId: Extracted token:', token ? `${token.substring(0, 10)}...` : 'None');
+  
   if (token && token.trim()) {
     try {
       const [tokenRecord] = await db.select()
@@ -18,11 +21,13 @@ export async function getUserId(req: express.Request): Promise<string> {
         ))
         .limit(1);
       
+      console.log('🔧 DEBUG getUserId: Token record found:', tokenRecord ? 'Yes' : 'No');
       if (tokenRecord) {
+        console.log('🔧 DEBUG getUserId: User ID:', tokenRecord.user_id);
         return tokenRecord.user_id;
       }
     } catch (error) {
-      console.warn('Error checking auth token in database:', error);
+      console.warn('❌ Error checking auth token in database:', error);
     }
   }
   

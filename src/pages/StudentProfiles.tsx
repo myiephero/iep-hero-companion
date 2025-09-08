@@ -24,7 +24,16 @@ import {
   Save,
   Trash2,
   AlertCircle,
-  CheckCircle
+  CheckCircle,
+  Brain,
+  Volume2,
+  Lightbulb,
+  Zap,
+  Star,
+  BookOpen,
+  TrendingUp,
+  Eye,
+  Sparkles
 } from "lucide-react";
 // import { supabase } from "@/integrations/supabase/client"; // Removed during migration
 import { useAuth } from "@/hooks/useAuth";
@@ -79,6 +88,39 @@ interface Accommodation {
   status: string;
 }
 
+interface AutismAccommodation {
+  id: string;
+  student_id: string;
+  title: string;
+  description: string;
+  category: string;
+  accommodation_type: string;
+  implementation_notes?: string;
+  effectiveness_rating?: number;
+  status: string;
+  created_at: string;
+}
+
+interface GiftedAssessment {
+  id: string;
+  student_id: string;
+  assessment_type: string;
+  giftedness_areas: string[];
+  learning_differences?: string[];
+  strengths: any;
+  challenges?: any;
+  recommendations?: any;
+  acceleration_needs?: any;
+  enrichment_activities?: any;
+  social_emotional_needs?: any;
+  twice_exceptional_profile?: any;
+  assessment_scores?: any;
+  evaluator_notes?: string;
+  next_steps?: any;
+  status: string;
+  created_at: string;
+}
+
 const StudentProfiles = () => {
   const [selectedStudentId, setSelectedStudentId] = useState<string | null>(null);
   const [students, setStudents] = useState<Student[]>([]);
@@ -86,7 +128,10 @@ const StudentProfiles = () => {
   const [goals, setGoals] = useState<Goal[]>([]);
   const [services, setServices] = useState<Service[]>([]);
   const [accommodations, setAccommodations] = useState<Accommodation[]>([]);
+  const [autismAccommodations, setAutismAccommodations] = useState<AutismAccommodation[]>([]);
+  const [giftedAssessments, setGiftedAssessments] = useState<GiftedAssessment[]>([]);
   const [isAddStudentOpen, setIsAddStudentOpen] = useState(false);
+  const [activeTab, setActiveTab] = useState("overview");
   const [newStudent, setNewStudent] = useState({
     full_name: "",
     date_of_birth: "",
@@ -171,6 +216,16 @@ const StudentProfiles = () => {
       const accommodationsResponse = await apiRequest('GET', `/api/accommodations?student_id=${studentId}`);
       const accommodationsData = await accommodationsResponse.json();
       setAccommodations(accommodationsData || []);
+
+      // Fetch autism accommodations using API
+      const autismAccommodationsResponse = await apiRequest('GET', `/api/autism-accommodations?student_id=${studentId}`);
+      const autismAccommodationsData = await autismAccommodationsResponse.json();
+      setAutismAccommodations(autismAccommodationsData || []);
+
+      // Fetch gifted assessments using API
+      const giftedAssessmentsResponse = await apiRequest('GET', `/api/gifted-assessments?student_id=${studentId}`);
+      const giftedAssessmentsData = await giftedAssessmentsResponse.json();
+      setGiftedAssessments(giftedAssessmentsData || []);
 
     } catch (error: any) {
       console.error("Error fetching student data:", error);
@@ -475,11 +530,13 @@ const StudentProfiles = () => {
             </Card>
 
             <Tabs defaultValue="overview" className="space-y-6">
-              <TabsList className="grid w-full grid-cols-2 sm:grid-cols-4 gap-1">
+              <TabsList className="grid w-full grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-1">
                 <TabsTrigger value="overview" className="text-xs sm:text-sm">Overview</TabsTrigger>
                 <TabsTrigger value="goals" className="text-xs sm:text-sm">Goals ({goals.length})</TabsTrigger>
                 <TabsTrigger value="services" className="text-xs sm:text-sm">Services ({services.length})</TabsTrigger>
                 <TabsTrigger value="accommodations" className="text-xs sm:text-sm px-1 sm:px-3">Accommodations ({accommodations.length})</TabsTrigger>
+                <TabsTrigger value="autism" className="text-xs sm:text-sm px-1 sm:px-3">Autism Support ({autismAccommodations.length})</TabsTrigger>
+                <TabsTrigger value="gifted" className="text-xs sm:text-sm px-1 sm:px-3">Gifted/2E ({giftedAssessments.length})</TabsTrigger>
               </TabsList>
 
               <TabsContent value="overview" className="space-y-6">
@@ -752,6 +809,187 @@ const StudentProfiles = () => {
                       <p className="text-sm text-muted-foreground text-center mb-4">
                         Accommodations will appear here once they are added to the student's IEP.
                       </p>
+                    </CardContent>
+                  </Card>
+                )}
+              </TabsContent>
+
+              <TabsContent value="autism" className="space-y-6">
+                {autismAccommodations.length > 0 ? (
+                  <div className="grid gap-4">
+                    {autismAccommodations.map((accommodation) => (
+                      <Card key={accommodation.id}>
+                        <CardHeader>
+                          <div className="flex items-start justify-between">
+                            <div>
+                              <CardTitle className="text-lg flex items-center gap-2">
+                                <Volume2 className="h-5 w-5" />
+                                {accommodation.title}
+                              </CardTitle>
+                              <CardDescription className="flex items-center gap-2 mt-1">
+                                <Badge variant="outline">
+                                  {accommodation.category}
+                                </Badge>
+                                <Badge variant="secondary">
+                                  {accommodation.accommodation_type}
+                                </Badge>
+                              </CardDescription>
+                            </div>
+                            <Badge variant={accommodation.status === 'active' ? 'default' : 'secondary'}>
+                              {accommodation.status}
+                            </Badge>
+                          </div>
+                        </CardHeader>
+                        <CardContent className="space-y-3">
+                          <p className="text-sm text-muted-foreground">
+                            {accommodation.description}
+                          </p>
+                          {accommodation.implementation_notes && (
+                            <div className="bg-muted/50 rounded-lg p-3">
+                              <p className="text-xs font-medium text-muted-foreground mb-1">Implementation Notes:</p>
+                              <p className="text-sm">{accommodation.implementation_notes}</p>
+                            </div>
+                          )}
+                          {accommodation.effectiveness_rating && (
+                            <div className="flex items-center gap-2">
+                              <span className="text-sm font-medium">Effectiveness:</span>
+                              <div className="flex items-center gap-1">
+                                {[1,2,3,4,5].map(star => (
+                                  <Star 
+                                    key={star} 
+                                    className={`h-4 w-4 ${star <= accommodation.effectiveness_rating! ? 'fill-yellow-400 text-yellow-400' : 'text-gray-300'}`}
+                                  />
+                                ))}
+                              </div>
+                            </div>
+                          )}
+                        </CardContent>
+                      </Card>
+                    ))}
+                  </div>
+                ) : (
+                  <Card>
+                    <CardContent className="flex flex-col items-center justify-center py-12">
+                      <Brain className="h-12 w-12 text-muted-foreground mb-4" />
+                      <h3 className="text-lg font-medium mb-2">No Autism Accommodations Yet</h3>
+                      <p className="text-sm text-muted-foreground text-center mb-4">
+                        Autism-specific accommodations will appear here once they are created for this student.
+                      </p>
+                      <Button variant="outline" size="sm">
+                        <Plus className="h-4 w-4 mr-2" />
+                        Create Autism Support Plan
+                      </Button>
+                    </CardContent>
+                  </Card>
+                )}
+              </TabsContent>
+
+              <TabsContent value="gifted" className="space-y-6">
+                {giftedAssessments.length > 0 ? (
+                  <div className="grid gap-6">
+                    {giftedAssessments.map((assessment) => (
+                      <Card key={assessment.id}>
+                        <CardHeader>
+                          <div className="flex items-start justify-between">
+                            <div>
+                              <CardTitle className="text-lg flex items-center gap-2">
+                                <Sparkles className="h-5 w-5" />
+                                {assessment.assessment_type === 'twice_exceptional' ? 'Twice-Exceptional Profile' : 'Gifted Assessment'}
+                              </CardTitle>
+                              <CardDescription className="flex items-center gap-2 mt-2">
+                                <span className="text-sm text-muted-foreground">
+                                  Created {new Date(assessment.created_at).toLocaleDateString()}
+                                </span>
+                                {assessment.learning_differences && assessment.learning_differences.length > 0 && (
+                                  <Badge variant="outline" className="bg-blue-50 text-blue-700 border-blue-200">
+                                    2e Profile
+                                  </Badge>
+                                )}
+                              </CardDescription>
+                            </div>
+                            <Badge variant={assessment.status === 'completed' ? 'default' : 'secondary'}>
+                              {assessment.status}
+                            </Badge>
+                          </div>
+                        </CardHeader>
+                        <CardContent className="space-y-4">
+                          {/* Areas of Giftedness */}
+                          <div>
+                            <h4 className="font-medium mb-2 flex items-center gap-2">
+                              <Star className="h-4 w-4" />
+                              Areas of Giftedness
+                            </h4>
+                            <div className="flex flex-wrap gap-2">
+                              {assessment.giftedness_areas.map((area, index) => (
+                                <Badge key={index} variant="secondary" className="bg-green-100 text-green-700">
+                                  {area}
+                                </Badge>
+                              ))}
+                            </div>
+                          </div>
+
+                          {/* Learning Differences */}
+                          {assessment.learning_differences && assessment.learning_differences.length > 0 && (
+                            <div>
+                              <h4 className="font-medium mb-2 flex items-center gap-2">
+                                <Brain className="h-4 w-4" />
+                                Learning Differences
+                              </h4>
+                              <div className="flex flex-wrap gap-2">
+                                {assessment.learning_differences.map((difference, index) => (
+                                  <Badge key={index} variant="outline" className="bg-blue-50 text-blue-700 border-blue-200">
+                                    {difference}
+                                  </Badge>
+                                ))}
+                              </div>
+                            </div>
+                          )}
+
+                          {/* Strengths */}
+                          {assessment.strengths && (
+                            <div>
+                              <h4 className="font-medium mb-2 flex items-center gap-2">
+                                <TrendingUp className="h-4 w-4" />
+                                Strengths
+                              </h4>
+                              <div className="bg-muted/50 rounded-lg p-3">
+                                <p className="text-sm">
+                                  {typeof assessment.strengths === 'object' ? 
+                                    assessment.strengths?.notes || JSON.stringify(assessment.strengths) : 
+                                    assessment.strengths}
+                                </p>
+                              </div>
+                            </div>
+                          )}
+
+                          {/* Evaluator Notes */}
+                          {assessment.evaluator_notes && (
+                            <div>
+                              <h4 className="font-medium mb-2 flex items-center gap-2">
+                                <FileText className="h-4 w-4" />
+                                Evaluator Notes
+                              </h4>
+                              <div className="bg-muted/50 rounded-lg p-3">
+                                <p className="text-sm">{assessment.evaluator_notes}</p>
+                              </div>
+                            </div>
+                          )}
+                        </CardContent>
+                      </Card>
+                    ))}
+                  </div>
+                ) : (
+                  <Card>
+                    <CardContent className="flex flex-col items-center justify-center py-12">
+                      <Lightbulb className="h-12 w-12 text-muted-foreground mb-4" />
+                      <h3 className="text-lg font-medium mb-2">No Gifted Assessments Yet</h3>
+                      <p className="text-sm text-muted-foreground text-center mb-4">
+                        Gifted and twice-exceptional assessments will appear here once they are created for this student.
+                      </p>
+                      <Button variant="outline" size="sm">
+                        <Plus className="h-4 w-4 mr-2" />
+                        Create Gifted Assessment
+                      </Button>
                     </CardContent>
                   </Card>
                 )}

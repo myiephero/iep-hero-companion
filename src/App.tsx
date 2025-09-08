@@ -57,6 +57,7 @@ import ParentHeroUpsell from "./pages/ParentHeroUpsell";
 import AdvocateToolsHub from "./pages/AdvocateToolsHub";
 import Onboarding from "./pages/Onboarding";
 import IDEARightsGuide from "./pages/IDEARightsGuide";
+import ParentIDEARightsGuide from "./pages/ParentIDEARightsGuide";
 import FERPAOverview from "./pages/FERPAOverview";
 import Plan504Guide from "./pages/Plan504Guide";
 import TimelineCalculator from "./pages/TimelineCalculator";
@@ -353,6 +354,11 @@ function App() {
               <Route path="/parent/tools/iep-master-suite" element={
                 <ProtectedRoute allowedRoles={['parent']}>
                   <ParentIEPMasterSuite />
+                </ProtectedRoute>
+              } />
+              <Route path="/parent/tools/idea-rights-guide" element={
+                <ProtectedRoute allowedRoles={['parent']}>
+                  <ParentIDEARightsGuide />
                 </ProtectedRoute>
               } />
               <Route path="/parent/matching" element={

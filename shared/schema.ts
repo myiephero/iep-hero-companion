@@ -363,6 +363,11 @@ export const gifted_assessments = pgTable("gifted_assessments", {
   twice_exceptional_profile: json("twice_exceptional_profile"),
   evaluator_notes: text("evaluator_notes"),
   next_steps: json("next_steps"),
+  // AI Analysis fields
+  ai_analysis_parent: json("ai_analysis_parent"), // AI insights for parents
+  ai_analysis_advocate: json("ai_analysis_advocate"), // AI insights for advocates
+  ai_recommendations: json("ai_recommendations"), // Smart recommendations
+  ai_generated_at: timestamp("ai_generated_at"), // When AI analysis was generated
   status: varchar("status"),
   created_at: timestamp("created_at").defaultNow(),
   updated_at: timestamp("updated_at").defaultNow(),

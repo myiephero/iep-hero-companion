@@ -218,7 +218,7 @@ const StudentProfiles = () => {
       setAccommodations(accommodationsData || []);
 
       // Fetch autism accommodations using API
-      const autismAccommodationsResponse = await apiRequest('GET', `/api/autism-accommodations?student_id=${studentId}`);
+      const autismAccommodationsResponse = await apiRequest('GET', `/api/autism_accommodations?student_id=${studentId}`);
       const autismAccommodationsData = await autismAccommodationsResponse.json();
       setAutismAccommodations(autismAccommodationsData || []);
 

@@ -74,7 +74,6 @@ const getParentNavigation = (dashboardUrl: string, userPlan: string, isAdvocate:
       { title: "Find Advocates", url: "/parent/matching", icon: UserCheck },
       { title: "Messages", url: "/parent/messages", icon: MessageSquare },
       { title: "Schedule", url: "/parent/schedule", icon: Calendar },
-      { title: "Accommodations", url: "/parent/tools/autism-accommodations", icon: Building2 },
       { title: "Meeting Prep", url: "/parent/tools/meeting-prep", icon: FileText },
     ]
   }
@@ -99,7 +98,6 @@ const getAdvocateNavigation = (dashboardUrl: string): SidebarSection[] => [
     items: [
       { title: "Unified IEP Review", url: "/advocate/tools/unified-iep-review", icon: FileSearch, badge: "Enhanced" },
       { title: "Client Matching", url: "/advocate/matching", icon: UserCheck },
-      { title: "Accommodations", url: "/advocate/tools/autism-accommodations", icon: Building2 },
     ]
   }
 ];

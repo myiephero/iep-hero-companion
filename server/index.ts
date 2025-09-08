@@ -3748,11 +3748,12 @@ Respond with this exact JSON format:
           // Using default temperature (1) for GPT-5 compatibility
         });
 
-        const aiResponse = completion.choices[0].message.content;
+        const aiResponse = completion.choices[0]?.message?.content;
         console.log('✅ OpenAI response received, length:', aiResponse?.length);
         
-        if (!aiResponse) {
-          throw new Error('Empty response from OpenAI');
+        if (!aiResponse || aiResponse.trim().length === 0) {
+          console.error('❌ OpenAI returned empty response');
+          throw new Error('Empty or invalid response from OpenAI');
         }
         
         analysisData = JSON.parse(aiResponse);

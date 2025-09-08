@@ -46,6 +46,7 @@ import { apiRequest } from "@/lib/queryClient";
 // Real AI Analysis Component
 const AutismAIAnalysis = ({ selectedStudentId }: { selectedStudentId?: string }) => {
   const [expandedSections, setExpandedSections] = useState<{[key: string]: boolean}>({});
+  const { toast } = useToast();
   
   // Fetch existing autism AI analysis
   const { data: aiAnalysisData, isLoading } = useQuery({
@@ -342,6 +343,39 @@ const AutismAIAnalysis = ({ selectedStudentId }: { selectedStudentId?: string })
         </Card>
       )}
 
+      {/* Analysis Status & Save Button */}
+      {aiAnalysis && (
+        <Card className="bg-green-50 dark:bg-green-950 border-green-200 dark:border-green-800">
+          <CardContent className="p-4">
+            <div className="flex items-center justify-between">
+              <div>
+                <h4 className="font-medium text-green-800 dark:text-green-200 flex items-center">
+                  <CheckCircle className="h-4 w-4 mr-2" />
+                  Analysis Saved to Profile
+                </h4>
+                <p className="text-sm text-green-600 dark:text-green-300 mt-1">
+                  This autism analysis is automatically saved in the student's profile and can be accessed anytime.
+                </p>
+              </div>
+              <Button 
+                variant="outline" 
+                size="sm"
+                className="border-green-300 text-green-700 hover:bg-green-100 dark:border-green-700 dark:text-green-300 dark:hover:bg-green-900"
+                onClick={() => {
+                  toast({
+                    title: "Profile Updated",
+                    description: "Analysis is already saved in the student's profile under 'AI Insights'."
+                  });
+                }}
+              >
+                <Save className="h-4 w-4 mr-1" />
+                View Save Status
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
       {/* Legacy Format Support */}
       {(aiAnalysis.recommendations || aiAnalysis.sensory_analysis || aiAnalysis.communication_insights || aiAnalysis.behavioral_analysis) && (
         <div className="space-y-4">
@@ -397,19 +431,35 @@ const AutismAccommodationsTab = ({ selectedStudentId }: { selectedStudentId?: st
         analysis_type: analysisType,
         custom_request: customRequest
       });
+      
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Analysis failed');
+      }
+      
       return response.json();
     },
     onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: ['/api/autism-ai-analysis'] });
-      toast({
-        title: "AI Analysis Complete",
-        description: "New autism insights have been generated and saved to the student's profile."
-      });
+      
+      // Only show success if we actually got analysis data
+      if (data.success && data.analysis) {
+        toast({
+          title: "AI Analysis Complete",
+          description: "Autism insights generated successfully and saved to student profile!"
+        });
+      } else {
+        toast({
+          title: "Analysis Generated",
+          description: "Fallback analysis provided. Try again for AI-powered insights.",
+          variant: "destructive"
+        });
+      }
     },
     onError: (error: any) => {
       toast({
-        title: "Analysis Error",
-        description: "Failed to generate AI insights. Please try again.",
+        title: "Analysis Failed", 
+        description: error.message || "Failed to generate AI insights. Please try again.",
         variant: "destructive"
       });
     }

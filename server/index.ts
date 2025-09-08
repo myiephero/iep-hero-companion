@@ -108,9 +108,9 @@ Please provide this analysis using professional educational terminology and evid
 Assessment Data:
 ${assessmentContext}`;
 
-    // the newest OpenAI model is "gpt-5" which was released August 7, 2025. do not change this unless explicitly requested by the user
+    // Using GPT-4 Omni, the latest production OpenAI model
     const completion = await openai.chat.completions.create({
-      model: "gpt-5",
+      model: "gpt-4o",
       messages: [
         { role: "system", content: systemPrompt },
         { role: "user", content: userPrompt }
@@ -3737,19 +3737,39 @@ Respond with this exact JSON format:
       try {
         console.log(`🤖 Generating ${analysis_type} analysis for student ${student.full_name}...`);
         
-        const completion = await openai.chat.completions.create({
-          model: "gpt-5", // the newest OpenAI model is "gpt-5" which was released August 7, 2025. do not change this unless explicitly requested by the user
-          messages: [
-            { role: "system", content: systemPrompt },
-            { role: "user", content: userPrompt }
-          ],
-          max_completion_tokens: 2500, // Increased for more comprehensive analysis
-          response_format: { type: "json_object" },
-          // Using default temperature (1) for GPT-5 compatibility
-        });
+        // TEMPORARY: Use minimal prompt for debugging
+        const simpleSystemPrompt = "You are an educational expert providing autism analysis.";
+        const simpleUserPrompt = `Provide a brief sensory analysis for a student with autism. Return JSON with fields: analysis_type, summary, recommendations.`;
+        
+        console.log(`📝 Using simplified prompts for debugging`);
+        
+        // Add timeout wrapper for OpenAI call
+        const openaiCall = async () => {
+          return await openai.chat.completions.create({
+            model: "gpt-4o", // Using GPT-4 Omni, the latest production OpenAI model
+            messages: [
+              { role: "system", content: simpleSystemPrompt },
+              { role: "user", content: simpleUserPrompt }
+            ],
+            max_tokens: 500,
+            response_format: { type: "json_object" }
+          });
+        };
 
+        // Race against timeout
+        const completion = await Promise.race([
+          openaiCall(),
+          new Promise((_, reject) => setTimeout(() => reject(new Error('OpenAI timeout after 30s')), 30000))
+        ]) as any;
+
+        // Debug the full OpenAI response
+        console.log('🔍 Full completion object:', JSON.stringify(completion, null, 2));
+        console.log('🔍 Choices array length:', completion.choices?.length);
+        console.log('🔍 First choice:', JSON.stringify(completion.choices[0], null, 2));
+        
         const aiResponse = completion.choices[0]?.message?.content;
         console.log('✅ OpenAI response received, length:', aiResponse?.length);
+        console.log('✅ Actual response content:', aiResponse);
         
         if (!aiResponse || aiResponse.trim().length === 0) {
           console.error('❌ OpenAI returned empty response');

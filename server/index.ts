@@ -2714,21 +2714,24 @@ app.get('/api/students', async (req: any, res) => {
     const userId = await getUserId(req);
     console.log('✅ PRODUCTION: Getting students for authenticated user:', userId);
     
-    // Get user's profile to determine role
-    const [userProfile] = await db
+    // Get user's data from users table (created by Replit Auth)
+    const [user] = await db
       .select()
-      .from(schema.profiles)
-      .where(eq(schema.profiles.user_id, userId))
+      .from(schema.users)
+      .where(eq(schema.users.id, userId))
       .limit(1);
     
-    if (!userProfile) {
-      console.log('❌ User profile not found for:', userId);
-      return res.status(404).json({ error: 'User profile not found' });
+    if (!user) {
+      console.log('❌ User not found for:', userId);
+      return res.status(404).json({ error: 'User not found' });
     }
+    
+    // Use user role, default to 'parent' if not set
+    const userRole = user.role || 'parent';
     
     let students = [];
     
-    if (userProfile.role === 'advocate') {
+    if (userRole === 'advocate') {
       // Advocate: Get students from all their clients
       students = await db
         .select({
@@ -2757,7 +2760,7 @@ app.get('/api/students', async (req: any, res) => {
         .where(eq(schema.students.parent_id, userId));
     }
     
-    console.log(`✅ PRODUCTION: Found ${students.length} students for ${userProfile.role}:`, students.map(s => s.full_name));
+    console.log(`✅ PRODUCTION: Found ${students.length} students for ${userRole}:`, students.map(s => s.full_name));
     res.json(students);
   } catch (error) {
     console.error('❌ Error getting students:', error);
@@ -2773,21 +2776,24 @@ app.get('/api/cases', async (req: any, res) => {
     const userId = await getUserId(req);
     console.log('✅ PRODUCTION: Getting cases for authenticated user:', userId);
     
-    // Get user's profile to determine role
-    const [userProfile] = await db
+    // Get user's data from users table (created by Replit Auth)
+    const [user] = await db
       .select()
-      .from(schema.profiles)
-      .where(eq(schema.profiles.user_id, userId))
+      .from(schema.users)
+      .where(eq(schema.users.id, userId))
       .limit(1);
     
-    if (!userProfile) {
-      console.log('❌ User profile not found for:', userId);
-      return res.status(404).json({ error: 'User profile not found' });
+    if (!user) {
+      console.log('❌ User not found for:', userId);
+      return res.status(404).json({ error: 'User not found' });
     }
+    
+    // Use user role, default to 'advocate' for cases endpoint
+    const userRole = user.role || 'advocate';
     
     let cases = [];
     
-    if (userProfile.role === 'advocate') {
+    if (userRole === 'advocate') {
       // Advocate: Get cases where they are the advocate
       cases = await db
         .select({
@@ -2833,7 +2839,7 @@ app.get('/api/cases', async (req: any, res) => {
         .where(eq(schema.cases.client_id, userId));
     }
     
-    console.log(`✅ PRODUCTION: Found ${cases.length} cases for ${userProfile.role}:`, cases.map(c => c.case_title));
+    console.log(`✅ PRODUCTION: Found ${cases.length} cases for ${userRole}:`, cases.map(c => c.case_title));
     res.json(cases);
   } catch (error) {
     console.error('❌ Error getting cases:', error);

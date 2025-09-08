@@ -520,13 +520,13 @@ const StudentProfiles = () => {
             </Card>
 
             <Tabs defaultValue="overview" className="space-y-6">
-              <TabsList className="flex w-full gap-1 overflow-x-auto">
-                <TabsTrigger value="overview" className="text-xs sm:text-sm">Overview</TabsTrigger>
-                <TabsTrigger value="goals" className="text-xs sm:text-sm">Goals ({goals.length})</TabsTrigger>
-                <TabsTrigger value="services" className="text-xs sm:text-sm">Services ({services.length})</TabsTrigger>
-                <TabsTrigger value="accommodations" className="text-xs sm:text-sm px-1 sm:px-3">Accommodations ({accommodations.length})</TabsTrigger>
-                <TabsTrigger value="autism" className="text-xs sm:text-sm px-1 sm:px-3 bg-blue-500 text-white">🧩 Autism Support (0)</TabsTrigger>
-                <TabsTrigger value="gifted" className="text-xs sm:text-sm px-1 sm:px-3 bg-purple-500 text-white">🎓 Gifted/2E (0)</TabsTrigger>
+              <TabsList className="grid w-full grid-cols-6 gap-1">
+                <TabsTrigger value="overview">Overview</TabsTrigger>
+                <TabsTrigger value="goals">Goals</TabsTrigger>
+                <TabsTrigger value="services">Services</TabsTrigger>
+                <TabsTrigger value="accommodations">Accommodations</TabsTrigger>
+                <TabsTrigger value="autism" className="bg-blue-600 text-white">🧩 Autism</TabsTrigger>
+                <TabsTrigger value="gifted" className="bg-purple-600 text-white">🎓 Gifted</TabsTrigger>
               </TabsList>
 
               <TabsContent value="overview" className="space-y-6">

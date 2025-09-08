@@ -5,23 +5,19 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { ProgressSteps } from "@/components/ProgressSteps";
-import { CheckCircle2, Circle, Download, FileText, Calendar } from "lucide-react";
+import { CheckCircle2, Circle, Download, FileText, Calendar, Plus } from "lucide-react";
 
+// These would be fetched from the API based on the selected meeting/student
 const checklistItems = [
-  { id: 1, task: "Review current IEP goals and progress", completed: true },
-  { id: 2, task: "Gather recent evaluation reports", completed: true },
+  { id: 1, task: "Review current IEP goals and progress", completed: false },
+  { id: 2, task: "Gather recent evaluation reports", completed: false },
   { id: 3, task: "List questions and concerns", completed: false },
   { id: 4, task: "Prepare examples of challenges at home", completed: false },
   { id: 5, task: "Review proposed accommodations", completed: false },
   { id: 6, task: "Confirm meeting attendance", completed: false }
 ];
 
-const documents = [
-  { name: "Current IEP Document", status: "uploaded", date: "Dec 15, 2023" },
-  { name: "Recent Progress Report", status: "uploaded", date: "Jan 8, 2024" },
-  { name: "Evaluation Report", status: "missing", date: "Needed" },
-  { name: "Meeting Agenda", status: "generated", date: "Jan 10, 2024" }
-];
+const documents = [];
 
 export default function ParentMeetingPrep() {
   const completedTasks = checklistItems.filter(item => item.completed).length;
@@ -42,26 +38,26 @@ export default function ParentMeetingPrep() {
                 <h2 className="text-xl font-semibold">Meeting Overview</h2>
                 <Badge variant="outline">
                   <Calendar className="h-4 w-4 mr-1" />
-                  Jan 15, 2024
+                  No date set
                 </Badge>
               </div>
               
               <div className="grid grid-cols-2 gap-4 mb-6">
                 <div>
                   <p className="text-sm text-muted-foreground">Student</p>
-                  <p className="font-semibold">Ava Peterson</p>
+                  <p className="font-semibold">Select a student</p>
                 </div>
                 <div>
                   <p className="text-sm text-muted-foreground">Meeting Type</p>
-                  <p className="font-semibold">Annual IEP Review</p>
+                  <p className="font-semibold">Select meeting type</p>
                 </div>
                 <div>
                   <p className="text-sm text-muted-foreground">School</p>
-                  <p className="font-semibold">Lincoln Elementary</p>
+                  <p className="font-semibold">TBD</p>
                 </div>
                 <div>
                   <p className="text-sm text-muted-foreground">Time</p>
-                  <p className="font-semibold">10:00 AM - 11:30 AM</p>
+                  <p className="font-semibold">Not scheduled</p>
                 </div>
               </div>
 
@@ -96,25 +92,15 @@ export default function ParentMeetingPrep() {
 
             <Card className="p-6">
               <h3 className="text-lg font-semibold mb-4">Key Discussion Points</h3>
-              <div className="space-y-3">
-                <div className="p-3 bg-muted/50 rounded-lg">
-                  <h4 className="font-medium">Current Challenges</h4>
-                  <p className="text-sm text-muted-foreground mt-1">
-                    Difficulty with reading comprehension, needs more time for assignments
-                  </p>
+              <div className="text-center py-8">
+                <div className="text-muted-foreground">
+                  <p className="text-sm">No discussion points prepared yet</p>
+                  <p className="text-xs mt-1">Add your concerns and goals for the meeting</p>
                 </div>
-                <div className="p-3 bg-muted/50 rounded-lg">
-                  <h4 className="font-medium">Goals for Next Year</h4>
-                  <p className="text-sm text-muted-foreground mt-1">
-                    Improve reading level by one grade, increase independence in math
-                  </p>
-                </div>
-                <div className="p-3 bg-muted/50 rounded-lg">
-                  <h4 className="font-medium">Accommodation Requests</h4>
-                  <p className="text-sm text-muted-foreground mt-1">
-                    Extended time on tests, preferential seating, break cards
-                  </p>
-                </div>
+                <Button variant="outline" className="mt-4">
+                  <Plus className="h-4 w-4 mr-2" />
+                  Add Discussion Point
+                </Button>
               </div>
             </Card>
           </div>

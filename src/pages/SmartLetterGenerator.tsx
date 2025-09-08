@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { DashboardLayout } from "@/layouts/DashboardLayout";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -35,9 +35,11 @@ import {
   Settings
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
-import { useEffect } from "react";
 import { useAuth } from "@/hooks/useAuth";
 import { Link } from "react-router-dom";
+import { useQuery } from "@tanstack/react-query";
+import { ApiClient } from "@/lib/api";
+import type { Student } from "@/lib/api";
 
 const SmartLetterGenerator = () => {
   const { toast } = useToast();
@@ -47,6 +49,18 @@ const SmartLetterGenerator = () => {
   const [selectedTemplate, setSelectedTemplate] = useState("");
   const [letterContent, setLetterContent] = useState("");
   const [isGenerating, setIsGenerating] = useState(false);
+  const [selectedStudent, setSelectedStudent] = useState<Student | null>(null);
+  const [selectedState, setSelectedState] = useState("");
+  const [formData, setFormData] = useState({
+    studentName: "",
+    studentGrade: "",
+    schoolName: "",
+    schoolDistrict: "",
+    principalName: "",
+    parentName: "",
+    parentPhone: "",
+    parentEmail: ""
+  });
   const [analysisContext, setAnalysisContext] = useState<{
     analysisType: string;
     fileName: string;
@@ -252,137 +266,106 @@ const SmartLetterGenerator = () => {
   // Use role-appropriate templates
   const letterTemplates = isAdvocateUser ? advocateTemplates : parentTemplates;
 
-  const recentLetters = [
-    {
-      id: 1,
-      title: "FERPA Records Request - Emma",
-      type: "FERPA Request",
-      date: "Oct 8, 2024",
-      status: "Sent",
-      recipient: "Lincoln Elementary"
-    },
-    {
-      id: 2,
-      title: "IEP Meeting Request - Alex",
-      type: "Meeting Request", 
-      date: "Oct 5, 2024",
-      status: "Draft",
-      recipient: "Washington Middle"
-    },
-    {
-      id: 3,
-      title: "Accommodation Request - Emma",
-      type: "504 Request",
-      date: "Sep 28, 2024",
-      status: "Response Received",
-      recipient: "Lincoln Elementary"
-    }
+  // Fetch students from API
+  const apiClient = new ApiClient();
+  const { data: students = [], isLoading: studentsLoading } = useQuery({
+    queryKey: ['/api/students'],
+    queryFn: () => apiClient.getStudents()
+  });
+
+  // State options for letter generation
+  const stateOptions = [
+    { value: "CA", name: "California" },
+    { value: "TX", name: "Texas" },
+    { value: "FL", name: "Florida" },
+    { value: "NY", name: "New York" },
+    { value: "PA", name: "Pennsylvania" },
+    { value: "IL", name: "Illinois" },
+    { value: "OH", name: "Ohio" },
+    { value: "GA", name: "Georgia" },
+    { value: "NC", name: "North Carolina" },
+    { value: "MI", name: "Michigan" }
   ];
 
+  // Update form data when student is selected
+  useEffect(() => {
+    if (selectedStudent) {
+      setFormData({
+        studentName: selectedStudent.full_name || "",
+        studentGrade: selectedStudent.grade_level || "",
+        schoolName: selectedStudent.school_name || "",
+        schoolDistrict: selectedStudent.district || "",
+        principalName: "",
+        parentName: "",
+        parentPhone: "",
+        parentEmail: ""
+      });
+    }
+  }, [selectedStudent]);
+
   const formFields = [
-    { id: "studentName", label: "Student Name", type: "text", required: true, value: "Emma Thompson" },
-    { id: "studentGrade", label: "Grade", type: "text", required: true, value: "4th Grade" },
-    { id: "schoolName", label: "School Name", type: "text", required: true, value: "Lincoln Elementary" },
-    { id: "schoolDistrict", label: "School District", type: "text", required: true, value: "Springfield District" },
-    { id: "principalName", label: "Principal Name", type: "text", required: false, value: "Dr. Jennifer Martinez" },
-    { id: "parentName", label: "Parent/Guardian Name", type: "text", required: true, value: "Sarah Thompson" },
-    { id: "parentPhone", label: "Phone Number", type: "tel", required: true, value: "(555) 123-4567" },
-    { id: "parentEmail", label: "Email Address", type: "email", required: true, value: "sarah.thompson@email.com" }
+    { id: "studentName", label: "Student Name", type: "text", required: true },
+    { id: "studentGrade", label: "Grade", type: "text", required: true },
+    { id: "schoolName", label: "School Name", type: "text", required: true },
+    { id: "schoolDistrict", label: "School District", type: "text", required: true },
+    { id: "principalName", label: "Principal Name", type: "text", required: false },
+    { id: "parentName", label: "Parent/Guardian Name", type: "text", required: true },
+    { id: "parentPhone", label: "Phone Number", type: "tel", required: true },
+    { id: "parentEmail", label: "Email Address", type: "email", required: true }
   ];
 
   const generateLetter = async () => {
     setIsGenerating(true);
     
-    // Simulate AI generation
-    setTimeout(() => {
-      const template = letterTemplates.find(t => t.id === selectedTemplate);
-      
-      // Generate role-specific analysis-aware content
-      let analysisContextText = '';
-      if (analysisContext) {
-        const rolePrefix = isAdvocateUser ? "My professional analysis" : "Based on my recent analysis";
-        const roleAction = isAdvocateUser ? "requires immediate attention and formal review" : "I would like to discuss";
-        
-        switch (analysisContext.analysisType.toLowerCase()) {
-          case 'iep_quality':
-            analysisContextText = `\n\n${rolePrefix} of the current IEP document (${analysisContext.fileName}) has identified several compliance and quality issues that ${roleAction}. This comprehensive analysis was completed on ${new Date(analysisContext.timestamp).toLocaleDateString()}.`;
-            break;
-          case 'compliance':
-            analysisContextText = `\n\n${rolePrefix} of the current IEP document (${analysisContext.fileName}) has revealed significant compliance concerns that ${roleAction} ${isAdvocateUser ? "in accordance with IDEA regulations" : "to ensure my child receives appropriate services"}. This analysis was completed on ${new Date(analysisContext.timestamp).toLocaleDateString()}.`;
-            break;
-          case 'accommodation':
-            analysisContextText = `\n\nFollowing ${rolePrefix.toLowerCase()} of current accommodations (${analysisContext.fileName}), ${isAdvocateUser ? "I recommend immediate modifications to ensure FAPE compliance" : "I would like to discuss modifications and improvements to better support my child's needs"}. This analysis was completed on ${new Date(analysisContext.timestamp).toLocaleDateString()}.`;
-            break;
-          case 'meeting_prep':
-            analysisContextText = `\n\n${rolePrefix} and preparation review (${analysisContext.fileName}) ${isAdvocateUser ? "indicates the need for formal meeting to address compliance issues" : "has been completed for our upcoming meeting and I would like to schedule time to discuss the findings"}. This analysis was completed on ${new Date(analysisContext.timestamp).toLocaleDateString()}.`;
-            break;
-          default:
-            analysisContextText = `\n\n${rolePrefix} of relevant documentation (${analysisContext.fileName}) ${isAdvocateUser ? "indicates the need for formal review and potential corrective action" : "suggests it would be beneficial to meet and discuss the findings"}. This analysis was completed on ${new Date(analysisContext.timestamp).toLocaleDateString()}.`;
-        }
+    try {
+      if (!selectedStudent || !selectedTemplate || !selectedState) {
+        toast({
+          title: "Missing Information",
+          description: "Please select a student, template, and state before generating.",
+          variant: "destructive"
+        });
+        setIsGenerating(false);
+        return;
       }
-      
-      // Generate role-specific letter content
-      const parentContent = `Dear Dr. Martinez,
 
-I am writing to formally request ${template?.title.toLowerCase()} for my child, Emma Thompson, who is currently enrolled in 4th Grade at Lincoln Elementary School.${analysisContextText}
+      // Prepare data for AI generation
+      const userInputs = {
+        student: selectedStudent,
+        state: selectedState,
+        formData: formData,
+        template: selectedTemplate,
+        role: profile?.role || 'parent',
+        analysisContext: analysisContext
+      };
 
-${analysisContextText ? 'The analysis has provided valuable insights that I believe warrant discussion and potential action. ' : ''}As Emma's parent/guardian, I am requesting this under the provisions of the Individuals with Disabilities Education Act (IDEA) and Section 504 of the Rehabilitation Act.
+      // Call the real AI endpoint
+      const result = await apiClient.createActionDraft(
+        analysisContext?.timestamp || `letter-${Date.now()}`,
+        selectedTemplate,
+        userInputs
+      );
 
-I look forward to working collaboratively with the IEP team to ensure Emma receives the appropriate educational support she needs to succeed.
-
-Please provide written confirmation of receipt of this request and the anticipated timeline for response.
-
-Thank you for your attention to this matter.
-
-Sincerely,
-Sarah Thompson
-Parent/Guardian of Emma Thompson
-Phone: (555) 123-4567
-Email: sarah.thompson@email.com
-
-Date: ${new Date().toLocaleDateString()}`;
-
-      const advocateContent = `FORMAL NOTICE AND REQUEST
-Re: ${template?.title.toUpperCase()} - Emma Thompson, DOB: [DATE]
-
-Dear Dr. Martinez:
-
-I am writing in my professional capacity as a special education advocate to formally request ${template?.title.toLowerCase()} for Emma Thompson, currently enrolled in 4th Grade at Lincoln Elementary School, Springfield District.${analysisContextText}
-
-${analysisContextText ? 'This professional assessment indicates immediate action is required to ensure compliance with federal mandates. ' : ''}This request is made pursuant to the Individuals with Disabilities Education Act (IDEA), 20 U.S.C. § 1400 et seq., Section 504 of the Rehabilitation Act of 1973, 29 U.S.C. § 794, and applicable state regulations.
-
-LEGAL REQUIREMENTS AND TIMELINE:
-Please be advised that this request triggers specific legal obligations and timelines as outlined in 34 CFR § 300.301 and related provisions. Your district is required to provide written notice of action within 10 business days of receipt of this request.
-
-I expect full compliance with all procedural safeguards and look forward to your prompt response confirming receipt and outlining the district's proposed timeline for completion.
-
-Should you have questions regarding this request or require additional documentation, please contact me directly.
-
-Professional regards,
-
-[Professional Advocate Name]
-Special Education Advocate
-Professional License #: [LICENSE]
-Phone: (555) 987-6543
-Email: advocate@iephero.com
-
-cc: Parent/Guardian - Sarah Thompson
-    Special Education Director
-    File
-
-Date: ${new Date().toLocaleDateString()}`;
-
-      const generatedContent = isAdvocateUser ? advocateContent : parentContent;
-
-      setLetterContent(generatedContent);
-      setIsGenerating(false);
-      setCurrentStep(3);
-      
+      if (result && result.content) {
+        setLetterContent(result.content);
+        setCurrentStep(3);
+        
+        toast({
+          title: "Letter Generated Successfully",
+          description: "Your AI-generated letter is ready for review."
+        });
+      } else {
+        throw new Error('No content received from AI service');
+      }
+    } catch (error) {
+      console.error('Error generating letter:', error);
       toast({
-        title: "Letter Generated Successfully",
-        description: "Your analysis-informed letter has been generated and is ready for review."
+        title: "Generation Failed",
+        description: "Failed to generate letter. Please try again.",
+        variant: "destructive"
       });
-    }, 2000);
+    } finally {
+      setIsGenerating(false);
+    }
   };
 
   const copyToClipboard = () => {
@@ -558,6 +541,45 @@ Date: ${new Date().toLocaleDateString()}`;
                   </CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-6">
+                  {/* Student Selection */}
+                  <div className="space-y-4">
+                    <div>
+                      <Label htmlFor="student-select">Select Student <span className="text-destructive">*</span></Label>
+                      <Select value={selectedStudent?.id || ""} onValueChange={(value) => {
+                        const student = students.find(s => s.id === value);
+                        setSelectedStudent(student || null);
+                      }}>
+                        <SelectTrigger>
+                          <SelectValue placeholder={studentsLoading ? "Loading students..." : "Choose a student"} />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {students.map((student) => (
+                            <SelectItem key={student.id} value={student.id || ""}>
+                              {student.full_name} - {student.grade_level} ({student.school_name})
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+
+                    {/* State Selection */}
+                    <div>
+                      <Label htmlFor="state-select">State <span className="text-destructive">*</span></Label>
+                      <Select value={selectedState} onValueChange={setSelectedState}>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select state for specific regulations" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {stateOptions.map((state) => (
+                            <SelectItem key={state.value} value={state.value}>
+                              {state.name}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+                  </div>
+
                   <div className="grid gap-4 md:grid-cols-2">
                     {formFields.map((field) => (
                       <div key={field.id}>
@@ -567,7 +589,8 @@ Date: ${new Date().toLocaleDateString()}`;
                         <Input
                           id={field.id}
                           type={field.type}
-                          defaultValue={field.value}
+                          value={formData[field.id as keyof typeof formData] || ""}
+                          onChange={(e) => setFormData(prev => ({...prev, [field.id]: e.target.value}))}
                           required={field.required}
                         />
                       </div>

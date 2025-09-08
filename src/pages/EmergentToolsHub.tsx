@@ -3,7 +3,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Link } from "react-router-dom";
-import { Brain, FileText, Users, Star, Zap, Building, BookOpen, MessageSquare, Target, TrendingUp, Smile } from "lucide-react";
+import { Brain, FileText, Users, Star, Zap, Building, BookOpen, MessageSquare, Target, TrendingUp, Smile, Heart } from "lucide-react";
 
 // Get user role from current location
 const getUserRole = () => {
@@ -121,6 +121,15 @@ const emergentTools = [
     category: "IEP Analysis",
     badge: "Pro",
     features: ["IEP Education", "Document Analysis", "Goal Checker", "Parent Examples"]
+  },
+  {
+    title: "Your Child's Rights Guide",
+    description: "Simple explanations of your child's rights under IDEA with state-specific information and practical tips for parents.",
+    icon: Heart,
+    path: "/parent/tools/idea-rights-guide",
+    category: "Legal & Rights",
+    badge: "Parent-Friendly",
+    features: ["IDEA Rights", "State Laws", "Parent Tips", "Contact Info"]
   }
 ];
 

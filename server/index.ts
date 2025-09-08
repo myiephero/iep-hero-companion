@@ -2823,20 +2823,16 @@ app.get('/api/gifted-assessments', async (req: any, res) => {
     
     const { student_id } = req.query;
     
-    let query = db
+    let baseQuery = db
       .select()
       .from(schema.gifted_assessments)
-      .where(eq(schema.gifted_assessments.user_id, userId))
-      .orderBy(schema.gifted_assessments.created_at);
+      .where(eq(schema.gifted_assessments.user_id, userId));
     
     if (student_id) {
-      query = query.where(and(
-        eq(schema.gifted_assessments.user_id, userId),
-        eq(schema.gifted_assessments.student_id, student_id)
-      ));
+      baseQuery = baseQuery.where(eq(schema.gifted_assessments.student_id, student_id));
     }
     
-    const assessments = await query;
+    const assessments = await baseQuery;
     
     console.log(`✅ PRODUCTION: Found ${assessments.length} gifted assessments for user ${userId}`);
     res.json(assessments);

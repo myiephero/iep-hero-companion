@@ -96,6 +96,7 @@ const ParentStudents = () => {
     grade_level: "",
     school_name: "",
     district: "",
+    disability_category: "",
     iep_status: "Active",
     case_manager: "",
     case_manager_email: "",
@@ -178,7 +179,11 @@ const ParentStudents = () => {
         setIsEditStudentOpen(false);
         setEditingStudent(null);
         resetForm();
-        fetchStudents();
+        await fetchStudents();
+        // Force re-fetch the current student data to show updated information
+        if (selectedStudentId) {
+          await fetchCurrentStudent(selectedStudentId);
+        }
         toast({
           title: "Success",
           description: "Student updated successfully",
@@ -205,6 +210,7 @@ const ParentStudents = () => {
       grade_level: student.grade_level || '',
       school_name: student.school_name || '',
       district: student.district || '',
+      disability_category: student.disability_category || '',
       iep_status: student.iep_status || 'Active',
       disabilities: student.disabilities || [],
       current_services: student.current_services || [],
@@ -225,6 +231,7 @@ const ParentStudents = () => {
       grade_level: '',
       school_name: '',
       district: '',
+      disability_category: '',
       iep_status: 'Active',
       disabilities: [],
       current_services: [],
@@ -232,8 +239,23 @@ const ParentStudents = () => {
       case_manager_email: '',
       emergency_contact: '',
       emergency_phone: '',
+      medical_info: '',
       notes: '',
     });
+  };
+
+  const fetchCurrentStudent = async (studentId: string) => {
+    try {
+      const { apiRequest } = await import('@/lib/queryClient');
+      const response = await apiRequest('GET', '/api/students');
+      const data = await response.json();
+      const student = data.find((s: Student) => s.id === studentId);
+      if (student) {
+        setCurrentStudent(student);
+      }
+    } catch (error) {
+      console.error('Error fetching current student:', error);
+    }
   };
 
   useEffect(() => {
@@ -800,6 +822,38 @@ const ParentStudents = () => {
                         onChange={(e) => setNewStudent(prev => ({ ...prev, case_manager: e.target.value }))}
                         className="h-10"
                       />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="edit_date_of_birth" className="text-sm font-medium">Date of Birth</Label>
+                      <Input
+                        id="edit_date_of_birth"
+                        type="date"
+                        value={newStudent.date_of_birth}
+                        onChange={(e) => setNewStudent(prev => ({ ...prev, date_of_birth: e.target.value }))}
+                        className="h-10"
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="edit_disability_category" className="text-sm font-medium">Primary Disability Category</Label>
+                      <Select value={newStudent.disability_category} onValueChange={(value) => setNewStudent(prev => ({ ...prev, disability_category: value }))}>
+                        <SelectTrigger className="h-10">
+                          <SelectValue placeholder="Select primary disability" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="Autism Spectrum Disorder">Autism Spectrum Disorder</SelectItem>
+                          <SelectItem value="ADHD">ADHD</SelectItem>
+                          <SelectItem value="Learning Disability">Learning Disability</SelectItem>
+                          <SelectItem value="Intellectual Disability">Intellectual Disability</SelectItem>
+                          <SelectItem value="Speech/Language Impairment">Speech/Language Impairment</SelectItem>
+                          <SelectItem value="Emotional Behavioral Disorder">Emotional Behavioral Disorder</SelectItem>
+                          <SelectItem value="Other Health Impairment">Other Health Impairment</SelectItem>
+                          <SelectItem value="Multiple Disabilities">Multiple Disabilities</SelectItem>
+                          <SelectItem value="Hearing Impairment">Hearing Impairment</SelectItem>
+                          <SelectItem value="Visual Impairment">Visual Impairment</SelectItem>
+                          <SelectItem value="Orthopedic Impairment">Orthopedic Impairment</SelectItem>
+                          <SelectItem value="Traumatic Brain Injury">Traumatic Brain Injury</SelectItem>
+                        </SelectContent>
+                      </Select>
                     </div>
                   </div>
                 </div>

@@ -313,7 +313,7 @@ const GiftedAssessmentsTab = ({ selectedStudentId }: { selectedStudentId?: strin
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['/api/gifted-assessments'] });
       toast({ title: "Success", description: "Assessment created successfully" });
-      setIsCreateDialogOpen(false);
+      setActiveView('overview');
       setNewAssessment({ assessment_type: '', giftedness_areas: [], learning_differences: [] });
     },
     onError: (error: any) => {

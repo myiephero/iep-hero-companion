@@ -122,13 +122,10 @@ const StudentProfiles = () => {
     if (!user) return;
 
     try {
-      const { data, error } = await supabase
-        .from("students")
-        .select("*")
-        .eq("user_id", user.id)
-        .order("full_name");
-
-      if (error) throw error;
+      const { apiRequest } = await import('@/lib/queryClient');
+      const response = await apiRequest('GET', '/api/students');
+      const data = await response.json();
+      
       setStudents(data || []);
       
       if (data && data.length > 0 && !selectedStudentId) {
@@ -148,45 +145,31 @@ const StudentProfiles = () => {
     if (!user) return;
 
     try {
-      // Fetch student details
-      const { data: studentData, error: studentError } = await supabase
-        .from("students")
-        .select("*")
-        .eq("id", studentId)
-        .eq("user_id", user.id)
-        .single();
+      // Fetch student details using API
+      const { apiRequest } = await import('@/lib/queryClient');
+      const studentResponse = await apiRequest('GET', `/api/students`);
+      const studentsData = await studentResponse.json();
+      
+      const studentData = studentsData.find((s: Student) => s.id === studentId);
+      if (studentData) {
+        setCurrentStudent(studentData);
+      } else {
+        throw new Error('Student not found');
+      }
 
-      if (studentError) throw studentError;
-      setCurrentStudent(studentData);
-
-      // Fetch goals
-      const { data: goalsData, error: goalsError } = await supabase
-        .from("goals")
-        .select("*")
-        .eq("student_id", studentId)
-        .eq("user_id", user.id);
-
-      if (goalsError) throw goalsError;
+      // Fetch goals using API
+      const goalsResponse = await apiRequest('GET', `/api/goals?student_id=${studentId}`);
+      const goalsData = await goalsResponse.json();
       setGoals(goalsData || []);
 
-      // Fetch services
-      const { data: servicesData, error: servicesError } = await supabase
-        .from("services")
-        .select("*")
-        .eq("student_id", studentId)
-        .eq("user_id", user.id);
-
-      if (servicesError) throw servicesError;
+      // Fetch services using API 
+      const servicesResponse = await apiRequest('GET', `/api/services?student_id=${studentId}`);
+      const servicesData = await servicesResponse.json();
       setServices(servicesData || []);
 
-      // Fetch accommodations
-      const { data: accommodationsData, error: accommodationsError } = await supabase
-        .from("accommodations")
-        .select("*")
-        .eq("student_id", studentId)
-        .eq("user_id", user.id);
-
-      if (accommodationsError) throw accommodationsError;
+      // Fetch accommodations using API
+      const accommodationsResponse = await apiRequest('GET', `/api/accommodations?student_id=${studentId}`);
+      const accommodationsData = await accommodationsResponse.json();
       setAccommodations(accommodationsData || []);
 
     } catch (error: any) {

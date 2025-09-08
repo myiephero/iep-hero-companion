@@ -39,12 +39,167 @@ import { useToast } from "@/hooks/use-toast";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
 
+// Real AI Analysis Component
+const AutismAIAnalysis = ({ selectedStudentId }: { selectedStudentId?: string }) => {
+  const { data: aiAnalysis, isLoading } = useQuery({
+    queryKey: ['/api/autism-ai-analysis', selectedStudentId],
+    queryFn: async () => {
+      if (!selectedStudentId) return null;
+      const response = await apiRequest('GET', `/api/autism-ai-analysis?student_id=${selectedStudentId}`);
+      return response.json();
+    },
+    enabled: !!selectedStudentId
+  });
+
+  if (!selectedStudentId) {
+    return (
+      <div className="text-center py-8">
+        <Brain className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
+        <p className="text-muted-foreground">Select a student to view AI analysis results.</p>
+      </div>
+    );
+  }
+
+  if (isLoading) {
+    return (
+      <div className="space-y-4">
+        {[...Array(3)].map((_, i) => (
+          <div key={i} className="bg-muted/50 p-4 rounded-lg animate-pulse">
+            <div className="h-4 bg-muted rounded w-1/4 mb-2"></div>
+            <div className="h-3 bg-muted rounded w-full mb-1"></div>
+            <div className="h-3 bg-muted rounded w-3/4"></div>
+          </div>
+        ))}
+      </div>
+    );
+  }
+
+  if (!aiAnalysis) {
+    return (
+      <div className="text-center py-8 border rounded-lg">
+        <Target className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
+        <h3 className="font-medium mb-2">No AI Analysis Yet</h3>
+        <p className="text-sm text-muted-foreground mb-4">
+          Request your first AI analysis below to get personalized autism support insights.
+        </p>
+      </div>
+    );
+  }
+
+  return (
+    <div className="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-950 dark:to-indigo-950 p-6 rounded-lg">
+      <h3 className="text-lg font-semibold mb-4 flex items-center">
+        <span className="text-2xl mr-2">🧩</span>
+        AI Autism Analysis Results
+      </h3>
+      
+      <div className="space-y-4">
+        {aiAnalysis.sensory_analysis && (
+          <div className="bg-white dark:bg-gray-800 p-4 rounded-lg">
+            <h4 className="font-medium text-blue-700 dark:text-blue-300 mb-2">📊 Sensory Profile Analysis</h4>
+            <p className="text-sm text-muted-foreground">{aiAnalysis.sensory_analysis}</p>
+          </div>
+        )}
+        
+        {aiAnalysis.communication_insights && (
+          <div className="bg-white dark:bg-gray-800 p-4 rounded-lg">
+            <h4 className="font-medium text-green-700 dark:text-green-300 mb-2">🗣️ Communication Insights</h4>
+            <div className="text-sm text-muted-foreground">
+              {Array.isArray(aiAnalysis.communication_insights) ? (
+                <ul className="space-y-1">
+                  {aiAnalysis.communication_insights.map((insight: string, i: number) => (
+                    <li key={i}>• {insight}</li>
+                  ))}
+                </ul>
+              ) : (
+                <p>{aiAnalysis.communication_insights}</p>
+              )}
+            </div>
+          </div>
+        )}
+        
+        {aiAnalysis.behavioral_analysis && (
+          <div className="bg-white dark:bg-gray-800 p-4 rounded-lg">
+            <h4 className="font-medium text-purple-700 dark:text-purple-300 mb-2">📋 Behavioral Strategy Analysis</h4>
+            <p className="text-sm text-muted-foreground">{aiAnalysis.behavioral_analysis}</p>
+          </div>
+        )}
+
+        {aiAnalysis.recommendations && (
+          <div className="bg-white dark:bg-gray-800 p-4 rounded-lg">
+            <h4 className="font-medium text-orange-700 dark:text-orange-300 mb-2">🎯 Personalized Recommendations</h4>
+            <div className="text-sm text-muted-foreground">
+              {Array.isArray(aiAnalysis.recommendations) ? (
+                <ul className="space-y-1">
+                  {aiAnalysis.recommendations.map((rec: string, i: number) => (
+                    <li key={i}>• {rec}</li>
+                  ))}
+                </ul>
+              ) : (
+                <p>{aiAnalysis.recommendations}</p>
+              )}
+            </div>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+};
+
 // Autism Accommodations Tab Component
 const AutismAccommodationsTab = ({ selectedStudentId }: { selectedStudentId?: string }) => {
   const [activeView, setActiveView] = useState<'overview' | 'category' | 'ai_insights'>('overview');
   const [selectedCategory, setSelectedCategory] = useState<string>('');
+  const [customAnalysisRequest, setCustomAnalysisRequest] = useState<string>('');
   const { toast } = useToast();
   const queryClient = useQueryClient();
+
+  // AI Analysis mutation
+  const autismAIAnalysis = useMutation({
+    mutationFn: async ({ studentId, analysisType, customRequest }: { 
+      studentId: string; 
+      analysisType: string; 
+      customRequest?: string 
+    }) => {
+      const response = await apiRequest('POST', '/api/autism-ai-analysis', {
+        student_id: studentId,
+        analysis_type: analysisType,
+        custom_request: customRequest
+      });
+      return response.json();
+    },
+    onSuccess: (data) => {
+      queryClient.invalidateQueries({ queryKey: ['/api/autism-ai-analysis'] });
+      toast({
+        title: "AI Analysis Complete",
+        description: "New autism insights have been generated and saved to the student's profile."
+      });
+    },
+    onError: (error: any) => {
+      toast({
+        title: "Analysis Error",
+        description: "Failed to generate AI insights. Please try again.",
+        variant: "destructive"
+      });
+    }
+  });
+
+  const handleAutismAIAnalysis = (analysisType: string, customRequest?: string) => {
+    if (!selectedStudentId) {
+      toast({
+        title: "Error",
+        description: "Please select a student first",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    autismAIAnalysis.mutate({
+      studentId: selectedStudentId,
+      analysisType,
+      customRequest
+    });
+  };
 
   // Fetch existing accommodations
   const { data: accommodations = [] } = useQuery({
@@ -241,90 +396,64 @@ const AutismAccommodationsTab = ({ selectedStudentId }: { selectedStudentId?: st
         </CardHeader>
         <CardContent>
           <div className="space-y-6">
-            {/* AI Analysis Results */}
-            <div className="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-950 dark:to-indigo-950 p-6 rounded-lg">
-              <h3 className="text-lg font-semibold mb-4 flex items-center">
-                <span className="text-2xl mr-2">🧩</span>
-                AI Autism Analysis Results
-              </h3>
-              
-              <div className="space-y-4">
-                <div className="bg-white dark:bg-gray-800 p-4 rounded-lg">
-                  <h4 className="font-medium text-blue-700 dark:text-blue-300 mb-2">📊 Sensory Profile Analysis</h4>
-                  <p className="text-sm text-muted-foreground">
-                    Based on current accommodations, your child shows strong sensory sensitivity patterns, particularly 
-                    to auditory stimuli. The noise-canceling headphones have been highly effective. Consider adding 
-                    weighted sensory tools for additional self-regulation support.
-                  </p>
-                </div>
-                
-                <div className="bg-white dark:bg-gray-800 p-4 rounded-lg">
-                  <h4 className="font-medium text-green-700 dark:text-green-300 mb-2">🗣️ Communication Insights</h4>
-                  <ul className="text-sm text-muted-foreground space-y-1">
-                    <li>• Visual schedules are showing 85% effectiveness in reducing transition anxiety</li>
-                    <li>• Social scripts could be enhanced with peer modeling videos</li>
-                    <li>• Consider implementing a communication choice board for overwhelming moments</li>
-                    <li>• AAC device usage has improved expressive communication by 40%</li>
-                  </ul>
-                </div>
-                
-                <div className="bg-white dark:bg-gray-800 p-4 rounded-lg">
-                  <h4 className="font-medium text-purple-700 dark:text-purple-300 mb-2">📋 Behavioral Strategy Analysis</h4>
-                  <p className="text-sm text-muted-foreground">
-                    Movement breaks every 30 minutes are optimal for attention regulation. The data suggests 
-                    implementing a "break card" system could provide more student autonomy while maintaining 
-                    the regulatory benefits.
-                  </p>
-                </div>
-
-                <div className="bg-white dark:bg-gray-800 p-4 rounded-lg">
-                  <h4 className="font-medium text-orange-700 dark:text-orange-300 mb-2">🎯 Personalized Recommendations</h4>
-                  <ul className="text-sm text-muted-foreground space-y-1">
-                    <li>• <strong>Immediate:</strong> Add fidget toolkit with 3 texture options</li>
-                    <li>• <strong>This week:</strong> Introduce "calm down corner" with sensory supports</li>
-                    <li>• <strong>This month:</strong> Explore peer buddy system for structured social interaction</li>
-                    <li>• <strong>Long-term:</strong> Consider assistive technology evaluation for writing tasks</li>
-                  </ul>
-                </div>
-              </div>
-            </div>
+            {/* Real AI Analysis Results */}
+            <AutismAIAnalysis selectedStudentId={selectedStudentId} />
             
             {/* Request New Analysis */}
             <div className="border rounded-lg p-4">
               <h3 className="font-medium mb-3">Request Specialized AI Analysis</h3>
               <div className="space-y-3">
                 <div className="grid grid-cols-2 gap-2">
-                  <Button variant="outline" size="sm">Sensory Analysis</Button>
-                  <Button variant="outline" size="sm">Communication Assessment</Button>
-                  <Button variant="outline" size="sm">Behavioral Patterns</Button>
-                  <Button variant="outline" size="sm">Social Skills Review</Button>
+                  <Button 
+                    variant="outline" 
+                    size="sm"
+                    onClick={() => handleAutismAIAnalysis('sensory')}
+                    disabled={!selectedStudentId}
+                  >
+                    Sensory Analysis
+                  </Button>
+                  <Button 
+                    variant="outline" 
+                    size="sm"
+                    onClick={() => handleAutismAIAnalysis('communication')}
+                    disabled={!selectedStudentId}
+                  >
+                    Communication Assessment
+                  </Button>
+                  <Button 
+                    variant="outline" 
+                    size="sm"
+                    onClick={() => handleAutismAIAnalysis('behavioral')}
+                    disabled={!selectedStudentId}
+                  >
+                    Behavioral Patterns
+                  </Button>
+                  <Button 
+                    variant="outline" 
+                    size="sm"
+                    onClick={() => handleAutismAIAnalysis('social')}
+                    disabled={!selectedStudentId}
+                  >
+                    Social Skills Review
+                  </Button>
                 </div>
                 <textarea 
                   className="w-full p-3 border rounded-md h-20" 
                   placeholder="Describe specific autism-related questions or behaviors you'd like AI analysis on..."
+                  value={customAnalysisRequest}
+                  onChange={(e) => setCustomAnalysisRequest(e.target.value)}
                 />
-                <Button className="w-full">
-                  <span className="mr-2">🤖</span>
+                <Button 
+                  className="w-full"
+                  onClick={() => handleAutismAIAnalysis('custom', customAnalysisRequest)}
+                  disabled={!selectedStudentId || autismAIAnalysis.isPending}
+                >
+                  {autismAIAnalysis.isPending ? (
+                    <div className="animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent mr-2" />
+                  ) : (
+                    <span className="mr-2">🤖</span>
+                  )}
                   Generate Autism-Specific AI Insights
-                </Button>
-              </div>
-            </div>
-
-            {/* Quick Assessment Tools */}
-            <div className="bg-muted/30 rounded-lg p-4">
-              <h3 className="font-medium mb-3">Quick Assessment Tools</h3>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                <Button variant="ghost" className="justify-start h-auto p-3">
-                  <div className="text-left">
-                    <div className="font-medium">Sensory Profile Check</div>
-                    <div className="text-xs text-muted-foreground">5-minute sensory needs assessment</div>
-                  </div>
-                </Button>
-                <Button variant="ghost" className="justify-start h-auto p-3">
-                  <div className="text-left">
-                    <div className="font-medium">Communication Progress</div>
-                    <div className="text-xs text-muted-foreground">Track expressive/receptive gains</div>
-                  </div>
                 </Button>
               </div>
             </div>

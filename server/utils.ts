@@ -33,22 +33,20 @@ export async function getUserId(req: express.Request): Promise<string> {
     return user.claims.sub;
   }
   
-  // Enhanced session debugging for main endpoints
+  // Check for session-based authentication (Replit Auth fallback)
   const session = (req as any).session;
-  console.log('getUserId: Full session object:', JSON.stringify(session, null, 2));
-  console.log('getUserId: Request headers:', JSON.stringify(req.headers, null, 2));
   
   if (!user && session && session.passport && session.passport.user) {
     console.log('getUserId: Found session user:', session.passport.user.claims?.sub);
     return session.passport.user.claims?.sub;
   }
   
-  // Try direct session access
+  // Debug logging only when session exists but user is missing
   if (!user && session) {
-    console.log('getUserId: Checking all session keys:', Object.keys(session));
-    for (const key of Object.keys(session)) {
-      console.log(`getUserId: Session[${key}]:`, session[key]);
-    }
+    console.log('getUserId: Session exists but no user found');
+    console.log('getUserId: Session keys:', Object.keys(session));
+  } else if (!user && !session) {
+    console.log('getUserId: No user session found - authentication required');
   }
   
   // CRITICAL: Don't return a default fallback - throw error to force proper authentication

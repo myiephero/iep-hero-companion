@@ -352,7 +352,7 @@ export const gifted_assessments = pgTable("gifted_assessments", {
   student_id: varchar("student_id").notNull(),
   assessment_type: varchar("assessment_type").notNull(),
   giftedness_areas: json("giftedness_areas").notNull(),
-  strengths: json("strengths").notNull(),
+  strengths: json("strengths"),
   challenges: json("challenges"),
   learning_differences: json("learning_differences"),
   assessment_scores: json("assessment_scores"),

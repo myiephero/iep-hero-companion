@@ -3970,35 +3970,55 @@ Respond with this exact JSON format:
         return res.json(null);
       }
 
-      // Combine analyses into comprehensive result
-      const combined = {
-        sensory_analysis: null,
-        communication_insights: null,
-        behavioral_analysis: null,
-        social_analysis: null,
-        recommendations: []
-      };
+      // Return the most comprehensive analysis available
+      // First, try to find a recent comprehensive analysis with the new format
+      const latestAnalysis = analyses[0];
+      const analysisData = latestAnalysis.ai_analysis as any;
 
-      analyses.forEach(analysis => {
-        const data = analysis.ai_analysis as any;
-        const type = analysis.review_type.replace('autism_', '');
-        
-        if (type === 'sensory') {
-          combined.sensory_analysis = data.sensory_analysis || data.analysis || data.summary;
-        } else if (type === 'communication') {
-          combined.communication_insights = data.communication_insights || data.insights || data.recommendations || [];
-        } else if (type === 'behavioral') {
-          combined.behavioral_analysis = data.behavioral_analysis || data.analysis || data.summary;
-        } else if (type === 'social') {
-          combined.social_analysis = data.social_analysis || data.analysis || data.summary;
-        }
-        
-        if (data.recommendations) {
-          combined.recommendations.push(...(Array.isArray(data.recommendations) ? data.recommendations : [data.recommendations]));
-        }
-      });
+      // Check if this is new format (has structured fields) or legacy format
+      const hasNewFormat = analysisData.analysis_type || analysisData.student_summary || analysisData.detailed_analysis;
+      
+      if (hasNewFormat) {
+        // Return the new structured format directly
+        res.json({
+          analyses: [{
+            id: latestAnalysis.id,
+            ai_analysis: analysisData,
+            timestamp: latestAnalysis.created_at,
+            type: latestAnalysis.review_type
+          }]
+        });
+      } else {
+        // Legacy format: combine analyses for backward compatibility
+        const combined = {
+          sensory_analysis: null,
+          communication_insights: null,
+          behavioral_analysis: null,
+          social_analysis: null,
+          recommendations: []
+        };
 
-      res.json(combined);
+        analyses.forEach(analysis => {
+          const data = analysis.ai_analysis as any;
+          const type = analysis.review_type.replace('autism_', '');
+          
+          if (type === 'sensory') {
+            combined.sensory_analysis = data.sensory_analysis || data.detailed_analysis || data.summary;
+          } else if (type === 'communication') {
+            combined.communication_insights = data.communication_insights || data.visual_supports || data.recommendations || [];
+          } else if (type === 'behavioral') {
+            combined.behavioral_analysis = data.behavioral_analysis || data.detailed_analysis || data.summary;
+          } else if (type === 'social') {
+            combined.social_analysis = data.social_analysis || data.detailed_analysis || data.summary;
+          }
+          
+          if (data.recommendations) {
+            combined.recommendations.push(...(Array.isArray(data.recommendations) ? data.recommendations : [data.recommendations]));
+          }
+        });
+
+        res.json(combined);
+      }
 
     } catch (error) {
       console.error('Error fetching autism AI analysis:', error);

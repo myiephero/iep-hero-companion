@@ -948,11 +948,13 @@ const ParentStudents = () => {
             </Card>
 
             <Tabs defaultValue="overview" className="space-y-6">
-              <TabsList className="grid w-full grid-cols-2 sm:grid-cols-4 premium-card">
+              <TabsList className="grid w-full grid-cols-3 sm:grid-cols-6 premium-card">
                 <TabsTrigger value="overview">Overview</TabsTrigger>
                 <TabsTrigger value="goals">Goals ({goals.length})</TabsTrigger>
                 <TabsTrigger value="services">Services ({services.length})</TabsTrigger>
                 <TabsTrigger value="accommodations">Accommodations ({accommodations.length})</TabsTrigger>
+                <TabsTrigger value="autism" className="bg-blue-600 text-white">🧩 Autism</TabsTrigger>
+                <TabsTrigger value="gifted" className="bg-purple-600 text-white">🎓 Gifted</TabsTrigger>
               </TabsList>
 
               <TabsContent value="overview" className="space-y-6">
@@ -1159,6 +1161,82 @@ const ParentStudents = () => {
                         ))}
                       </div>
                     )}
+                  </CardContent>
+                </Card>
+              </TabsContent>
+
+              <TabsContent value="autism" className="space-y-6">
+                <Card className="premium-card">
+                  <CardHeader>
+                    <CardTitle className="flex items-center">
+                      <span className="text-2xl mr-2">🧩</span>
+                      Autism Support Tools
+                    </CardTitle>
+                    <CardDescription>Specialized accommodations and strategies for autism spectrum support</CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="text-center py-8">
+                      <div className="text-4xl mb-4">🎯</div>
+                      <h3 className="text-lg font-semibold mb-2">Integrated Autism Support</h3>
+                      <p className="text-muted-foreground mb-4">
+                        All autism-specific accommodations and tools are now integrated directly into your student's profile for streamlined access.
+                      </p>
+                      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mt-6">
+                        <div className="bg-muted/30 p-4 rounded-lg border">
+                          <div className="text-blue-600 mb-2">📊</div>
+                          <h4 className="font-medium mb-1">Sensory Accommodations</h4>
+                          <p className="text-sm text-muted-foreground">Track sensory needs and environmental modifications</p>
+                        </div>
+                        <div className="bg-muted/30 p-4 rounded-lg border">
+                          <div className="text-green-600 mb-2">🗣️</div>
+                          <h4 className="font-medium mb-1">Communication Support</h4>
+                          <p className="text-sm text-muted-foreground">Monitor communication strategies and progress</p>
+                        </div>
+                        <div className="bg-muted/30 p-4 rounded-lg border">
+                          <div className="text-purple-600 mb-2">📋</div>
+                          <h4 className="font-medium mb-1">Behavioral Strategies</h4>
+                          <p className="text-sm text-muted-foreground">Document effective behavioral interventions</p>
+                        </div>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              </TabsContent>
+
+              <TabsContent value="gifted" className="space-y-6">
+                <Card className="premium-card">
+                  <CardHeader>
+                    <CardTitle className="flex items-center">
+                      <span className="text-2xl mr-2">🎓</span>
+                      Gifted & Twice-Exceptional Support
+                    </CardTitle>
+                    <CardDescription>Advanced learning assessments and support for gifted and 2E learners</CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="text-center py-8">
+                      <div className="text-4xl mb-4">✨</div>
+                      <h3 className="text-lg font-semibold mb-2">Integrated Gifted Support</h3>
+                      <p className="text-muted-foreground mb-4">
+                        Comprehensive gifted and twice-exceptional assessment tools are now seamlessly integrated into your student's profile.
+                      </p>
+                      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mt-6">
+                        <div className="bg-muted/30 p-4 rounded-lg border">
+                          <div className="text-blue-600 mb-2">🧠</div>
+                          <h4 className="font-medium mb-1">Cognitive Assessment</h4>
+                          <p className="text-sm text-muted-foreground">Track intellectual abilities and learning patterns</p>
+                        </div>
+                        <div className="bg-muted/30 p-4 rounded-lg border">
+                          <div className="text-green-600 mb-2">⚡</div>
+                          <h4 className="font-medium mb-1">Enrichment Needs</h4>
+                          <p className="text-sm text-muted-foreground">Document advanced learning opportunities</p>
+                        </div>
+                        <div className="bg-muted/30 p-4 rounded-lg border">
+                          <div className="text-purple-600 mb-2">🎯</div>
+                          <h4 className="font-medium mb-1">2E Support</h4>
+                          <p className="text-sm text-muted-foreground">Address unique twice-exceptional needs</p>
+                        </div>
+                      </div>
+                    </div>
                   </CardContent>
                 </Card>
               </TabsContent>

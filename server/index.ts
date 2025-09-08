@@ -770,7 +770,7 @@ app.get('/api/verify-email', async (req: any, res) => {
       .where(eq(schema.users.id, user.id));
 
     // Send welcome email
-    await sendWelcomeEmail(user.email!, user.firstName || 'User', user.role);
+    await sendWelcomeEmail(user.email || '', user.firstName || 'User', user.role || 'parent');
 
     console.log(`Email verified successfully for ${user.email}`);
 
@@ -1276,14 +1276,14 @@ app.post('/api/process-checkout-success', async (req, res) => {
     // For subscription mode, customer email might be in different places
     const email = session.customer_email || session.customer_details?.email;
     const customerObject = session.customer;
-    let customerId = null;
+    let customerId: string | null = null;
     
     if (typeof customerObject === 'string') {
       customerId = customerObject;
-    } else if (customerObject && customerObject.id) {
+    } else if (customerObject && typeof customerObject === 'object' && 'id' in customerObject) {
       customerId = customerObject.id;
-    } else if (session.subscription && typeof session.subscription === 'object') {
-      customerId = session.subscription.customer;
+    } else if (session.subscription && typeof session.subscription === 'object' && 'customer' in session.subscription) {
+      customerId = typeof session.subscription.customer === 'string' ? session.subscription.customer : null;
     }
     
     console.log('🎯 Extracted customer info:', {

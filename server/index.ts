@@ -1,6 +1,7 @@
 import express from 'express';
 import cors from 'cors';
 import { db } from './db';
+import { sql } from 'drizzle-orm';
 import * as schema from '../shared/schema';
 import { eq, and, gt } from 'drizzle-orm';
 import matchRoutes from './routes/match';
@@ -3415,9 +3416,9 @@ app.get('/api/cases', async (req: any, res) => {
   });
   
   // Autism AI Analysis endpoint
-  app.post('/api/autism-ai-analysis', isAuthenticated, async (req: any, res) => {
+  app.post('/api/autism-ai-analysis', async (req: any, res) => {
     try {
-      const userId = req.user.claims.sub;
+      const userId = await getUserId(req);
       const { student_id, analysis_type, custom_request } = req.body;
 
       if (!student_id || !analysis_type) {
@@ -3623,9 +3624,9 @@ Respond with a detailed JSON object containing your analysis.`;
   });
 
   // Get existing autism AI analysis
-  app.get('/api/autism-ai-analysis', isAuthenticated, async (req: any, res) => {
+  app.get('/api/autism-ai-analysis', async (req: any, res) => {
     try {
-      const userId = req.user.claims.sub;
+      const userId = await getUserId(req);
       const { student_id } = req.query;
 
       if (!student_id) {

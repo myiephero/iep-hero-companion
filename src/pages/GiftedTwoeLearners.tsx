@@ -12,7 +12,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Checkbox } from "@/components/ui/checkbox";
 import { StudentSelector } from "@/components/StudentSelector";
 import { Brain, Plus, Star, BookOpen, Lightbulb, Zap, Users, Target, TrendingUp } from "lucide-react";
-// // import { supabase } from "@/integrations/supabase/client"; // Removed during migration // Removed during migration
+// // import { apiRequest } from "@/lib/queryClient"; // Removed during migration // Removed during migration
 import { useToast } from "@/hooks/use-toast";
 
 interface GiftedAssessment {
@@ -96,22 +96,17 @@ export default function GiftedTwoeLearners() {
 
   const fetchAssessments = async () => {
     try {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) return;
-
-      let query = supabase
-        .from('gifted_assessments')
-        .select('*')
-        .eq('user_id', user.id)
-        .order('created_at', { ascending: false });
-
-      if (selectedStudent) {
-        query = query.eq('student_id', selectedStudent);
+      if (!selectedStudent) {
+        setAssessments([]);
+        return;
       }
 
-      const { data, error } = await query;
-
-      if (error) throw error;
+      const response = await apiRequest(
+        'GET',
+        `/api/gifted-assessments?student_id=${selectedStudent}`
+      );
+      const data = await response.json();
+      
       setAssessments(data || []);
     } catch (error) {
       console.error('Error fetching assessments:', error);
@@ -127,11 +122,9 @@ export default function GiftedTwoeLearners() {
 
   const handleCreateAssessment = async () => {
     try {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user || !selectedStudent) throw new Error('User not authenticated or no student selected');
+      if (!selectedStudent) throw new Error('No student selected');
 
       const assessmentData = {
-        user_id: user.id,
         student_id: selectedStudent,
         assessment_type: formData.assessment_type,
         giftedness_areas: formData.giftedness_areas,
@@ -151,11 +144,16 @@ export default function GiftedTwoeLearners() {
         status: 'active'
       };
 
-      const { error } = await supabase
-        .from('gifted_assessments')
-        .insert(assessmentData);
-
-      if (error) throw error;
+      const response = await apiRequest(
+        'POST',
+        '/api/gifted-assessments',
+        assessmentData
+      );
+      
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Failed to create assessment');
+      }
 
       toast({
         title: "Success",

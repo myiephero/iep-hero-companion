@@ -2771,6 +2771,50 @@ app.get('/api/students', async (req: any, res) => {
   }
 });
 
+// POST endpoint for creating new students
+app.post('/api/students', async (req: any, res) => {
+  try {
+    const userId = await getUserId(req);
+    console.log('✅ PRODUCTION: Creating student for authenticated user:', userId);
+    
+    // Get user's data from users table
+    const [user] = await db
+      .select()
+      .from(schema.users)
+      .where(eq(schema.users.id, userId))
+      .limit(1);
+    
+    if (!user) {
+      console.log('❌ User not found for:', userId);
+      return res.status(404).json({ error: 'User not found' });
+    }
+    
+    const userRole = user.role || 'parent';
+    const studentData = req.body;
+    
+    // Create new student record
+    const [newStudent] = await db
+      .insert(schema.students)
+      .values({
+        ...studentData,
+        user_id: userId,
+        parent_id: userRole === 'parent' ? userId : studentData.parent_id,
+        created_at: new Date(),
+        updated_at: new Date()
+      })
+      .returning();
+    
+    console.log('✅ PRODUCTION: Created new student:', newStudent.full_name);
+    res.status(201).json(newStudent);
+  } catch (error) {
+    console.error('❌ Error creating student:', error);
+    if (error.message.includes('Authentication required')) {
+      return res.status(401).json({ error: 'Authentication required' });
+    }
+    res.status(500).json({ error: 'Failed to create student' });
+  }
+});
+
 app.get('/api/cases', async (req: any, res) => {
   try {
     const userId = await getUserId(req);

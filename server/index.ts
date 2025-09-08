@@ -2815,6 +2815,70 @@ app.post('/api/students', async (req: any, res) => {
   }
 });
 
+// GET endpoint for fetching gifted assessments
+app.get('/api/gifted-assessments', async (req: any, res) => {
+  try {
+    const userId = await getUserId(req);
+    console.log('✅ PRODUCTION: Getting gifted assessments for authenticated user:', userId);
+    
+    const { student_id } = req.query;
+    
+    let query = db
+      .select()
+      .from(schema.gifted_assessments)
+      .where(eq(schema.gifted_assessments.user_id, userId))
+      .orderBy(schema.gifted_assessments.created_at);
+    
+    if (student_id) {
+      query = query.where(and(
+        eq(schema.gifted_assessments.user_id, userId),
+        eq(schema.gifted_assessments.student_id, student_id)
+      ));
+    }
+    
+    const assessments = await query;
+    
+    console.log(`✅ PRODUCTION: Found ${assessments.length} gifted assessments for user ${userId}`);
+    res.json(assessments);
+  } catch (error) {
+    console.error('❌ Error getting gifted assessments:', error);
+    if (error.message.includes('Authentication required')) {
+      return res.status(401).json({ error: 'Authentication required' });
+    }
+    res.status(500).json({ error: 'Failed to fetch gifted assessments' });
+  }
+});
+
+// POST endpoint for creating new gifted assessments
+app.post('/api/gifted-assessments', async (req: any, res) => {
+  try {
+    const userId = await getUserId(req);
+    console.log('✅ PRODUCTION: Creating gifted assessment for authenticated user:', userId);
+    
+    const assessmentData = req.body;
+    
+    // Create new assessment record
+    const [newAssessment] = await db
+      .insert(schema.gifted_assessments)
+      .values({
+        ...assessmentData,
+        user_id: userId,
+        created_at: new Date(),
+        updated_at: new Date()
+      })
+      .returning();
+    
+    console.log('✅ PRODUCTION: Created new gifted assessment:', newAssessment.id);
+    res.status(201).json(newAssessment);
+  } catch (error) {
+    console.error('❌ Error creating gifted assessment:', error);
+    if (error.message.includes('Authentication required')) {
+      return res.status(401).json({ error: 'Authentication required' });
+    }
+    res.status(500).json({ error: 'Failed to create gifted assessment' });
+  }
+});
+
 app.get('/api/cases', async (req: any, res) => {
   try {
     const userId = await getUserId(req);

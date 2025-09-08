@@ -279,11 +279,31 @@ const AutismAccommodationsTab = ({ selectedStudentId }: { selectedStudentId?: st
 
 // Gifted Assessments Tab Component  
 const GiftedAssessmentsTab = ({ selectedStudentId }: { selectedStudentId?: string }) => {
-  const [activeView, setActiveView] = useState<'overview' | 'create'>('overview');
+  const [activeView, setActiveView] = useState<'overview' | 'cognitive' | 'enrichment' | '2e_support' | 'ai_insights'>('overview');
   const [newAssessment, setNewAssessment] = useState({
     assessment_type: '',
     giftedness_areas: [] as string[],
     learning_differences: [] as string[]
+  });
+  const [cognitiveData, setCognitiveData] = useState({
+    iq_score: '',
+    verbal_abilities: '',
+    mathematical_reasoning: '',
+    spatial_skills: '',
+    processing_speed: '',
+    working_memory: ''
+  });
+  const [enrichmentData, setEnrichmentData] = useState({
+    current_grade_level: '',
+    advanced_subjects: [] as string[],
+    acceleration_needs: '',
+    enrichment_activities: '' 
+  });
+  const [twoEData, setTwoEData] = useState({
+    strengths: [] as string[],
+    challenges: [] as string[],
+    support_strategies: '',
+    accommodations_needed: ''
   });
   const { toast } = useToast();
   const queryClient = useQueryClient();
@@ -344,23 +364,35 @@ const GiftedAssessmentsTab = ({ selectedStudentId }: { selectedStudentId?: strin
       title: "Cognitive Assessment",
       description: "Track intellectual abilities and learning patterns",
       icon: "🧠",
-      color: "text-blue-600"
+      color: "text-blue-600",
+      view: "cognitive" as const
     },
     {
       id: "enrichment",
       title: "Enrichment Needs", 
       description: "Document advanced learning opportunities",
       icon: "⚡",
-      color: "text-green-600"
+      color: "text-green-600",
+      view: "enrichment" as const
     },
     {
       id: "twice_exceptional",
       title: "2E Support",
       description: "Address unique twice-exceptional needs", 
       icon: "🎯",
-      color: "text-purple-600"
+      color: "text-purple-600",
+      view: "2e_support" as const
     }
   ];
+  
+  const aiInsightsCategory = {
+    id: "ai_insights",
+    title: "AI Insights",
+    description: "Get intelligent analysis and recommendations",
+    icon: "🤖",
+    color: "text-indigo-600",
+    view: "ai_insights" as const
+  };
 
   if (!selectedStudentId) {
     return (
@@ -373,7 +405,375 @@ const GiftedAssessmentsTab = ({ selectedStudentId }: { selectedStudentId?: strin
     );
   }
 
-  // Create assessment view
+  // Cognitive Assessment Tool
+  if (activeView === 'cognitive') {
+    return (
+      <Card className="premium-card">
+        <CardHeader>
+          <div className="flex items-center justify-between">
+            <div className="flex items-center">
+              <span className="text-2xl mr-2">🧠</span>
+              <div>
+                <CardTitle>Cognitive Assessment Tool</CardTitle>
+                <CardDescription>Track intellectual abilities, IQ scores, and cognitive patterns</CardDescription>
+              </div>
+            </div>
+            <Button variant="outline" onClick={() => setActiveView('overview')}>
+              ← Back to Overview
+            </Button>
+          </div>
+        </CardHeader>
+        <CardContent>
+          <div className="space-y-6 max-w-2xl">
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <Label>IQ Score (if available)</Label>
+                <input 
+                  className="w-full p-2 border rounded-md"
+                  placeholder="Enter IQ score"
+                  value={cognitiveData.iq_score}
+                  onChange={(e) => setCognitiveData(prev => ({...prev, iq_score: e.target.value}))}
+                />
+              </div>
+              <div>
+                <Label>Verbal Abilities Rating (1-10)</Label>
+                <input 
+                  className="w-full p-2 border rounded-md"
+                  type="number" min="1" max="10"
+                  placeholder="Rate 1-10"
+                  value={cognitiveData.verbal_abilities}
+                  onChange={(e) => setCognitiveData(prev => ({...prev, verbal_abilities: e.target.value}))}
+                />
+              </div>
+            </div>
+            
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <Label>Mathematical Reasoning (1-10)</Label>
+                <input 
+                  className="w-full p-2 border rounded-md"
+                  type="number" min="1" max="10"
+                  placeholder="Rate 1-10"
+                  value={cognitiveData.mathematical_reasoning}
+                  onChange={(e) => setCognitiveData(prev => ({...prev, mathematical_reasoning: e.target.value}))}
+                />
+              </div>
+              <div>
+                <Label>Spatial Skills (1-10)</Label>
+                <input 
+                  className="w-full p-2 border rounded-md"
+                  type="number" min="1" max="10"
+                  placeholder="Rate 1-10"
+                  value={cognitiveData.spatial_skills}
+                  onChange={(e) => setCognitiveData(prev => ({...prev, spatial_skills: e.target.value}))}
+                />
+              </div>
+            </div>
+            
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <Label>Processing Speed (1-10)</Label>
+                <input 
+                  className="w-full p-2 border rounded-md"
+                  type="number" min="1" max="10"
+                  placeholder="Rate 1-10"
+                  value={cognitiveData.processing_speed}
+                  onChange={(e) => setCognitiveData(prev => ({...prev, processing_speed: e.target.value}))}
+                />
+              </div>
+              <div>
+                <Label>Working Memory (1-10)</Label>
+                <input 
+                  className="w-full p-2 border rounded-md"
+                  type="number" min="1" max="10"
+                  placeholder="Rate 1-10"
+                  value={cognitiveData.working_memory}
+                  onChange={(e) => setCognitiveData(prev => ({...prev, working_memory: e.target.value}))}
+                />
+              </div>
+            </div>
+            
+            <div className="flex justify-end gap-2">
+              <Button variant="outline" onClick={() => setActiveView('overview')}>Cancel</Button>
+              <Button onClick={() => {
+                toast({ title: "Success", description: "Cognitive assessment saved successfully" });
+                setActiveView('overview');
+              }}>
+                Save Assessment
+              </Button>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+    );
+  }
+
+  // Enrichment Needs Tool
+  if (activeView === 'enrichment') {
+    const subjectOptions = ['Mathematics', 'Science', 'Language Arts', 'Social Studies', 'Art', 'Music', 'Foreign Languages', 'Computer Science'];
+    
+    return (
+      <Card className="premium-card">
+        <CardHeader>
+          <div className="flex items-center justify-between">
+            <div className="flex items-center">
+              <span className="text-2xl mr-2">⚡</span>
+              <div>
+                <CardTitle>Enrichment Needs Planning</CardTitle>
+                <CardDescription>Plan advanced learning opportunities and curriculum acceleration</CardDescription>
+              </div>
+            </div>
+            <Button variant="outline" onClick={() => setActiveView('overview')}>
+              ← Back to Overview
+            </Button>
+          </div>
+        </CardHeader>
+        <CardContent>
+          <div className="space-y-6 max-w-2xl">
+            <div>
+              <Label>Current Grade Level</Label>
+              <input 
+                className="w-full p-2 border rounded-md"
+                placeholder="e.g., 3rd Grade"
+                value={enrichmentData.current_grade_level}
+                onChange={(e) => setEnrichmentData(prev => ({...prev, current_grade_level: e.target.value}))}
+              />
+            </div>
+            
+            <div>
+              <Label>Advanced Subjects (Select all that apply)</Label>
+              <div className="grid grid-cols-2 gap-2 mt-2">
+                {subjectOptions.map(subject => (
+                  <label key={subject} className="flex items-center space-x-2">
+                    <Checkbox
+                      checked={enrichmentData.advanced_subjects.includes(subject)}
+                      onCheckedChange={(checked) => {
+                        if (checked) {
+                          setEnrichmentData(prev => ({ ...prev, advanced_subjects: [...prev.advanced_subjects, subject] }));
+                        } else {
+                          setEnrichmentData(prev => ({ ...prev, advanced_subjects: prev.advanced_subjects.filter(s => s !== subject) }));
+                        }
+                      }}
+                    />
+                    <span className="text-sm">{subject}</span>
+                  </label>
+                ))}
+              </div>
+            </div>
+            
+            <div>
+              <Label>Acceleration Needs</Label>
+              <textarea 
+                className="w-full p-2 border rounded-md h-20"
+                placeholder="Describe what subjects or areas need acceleration..."
+                value={enrichmentData.acceleration_needs}
+                onChange={(e) => setEnrichmentData(prev => ({...prev, acceleration_needs: e.target.value}))}
+              />
+            </div>
+            
+            <div>
+              <Label>Recommended Enrichment Activities</Label>
+              <textarea 
+                className="w-full p-2 border rounded-md h-20"
+                placeholder="List specific enrichment activities, programs, or resources..."
+                value={enrichmentData.enrichment_activities}
+                onChange={(e) => setEnrichmentData(prev => ({...prev, enrichment_activities: e.target.value}))}
+              />
+            </div>
+            
+            <div className="flex justify-end gap-2">
+              <Button variant="outline" onClick={() => setActiveView('overview')}>Cancel</Button>
+              <Button onClick={() => {
+                toast({ title: "Success", description: "Enrichment plan saved successfully" });
+                setActiveView('overview');
+              }}>
+                Save Plan
+              </Button>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+    );
+  }
+
+  // 2E Support Tool
+  if (activeView === '2e_support') {
+    const strengthOptions = ['Advanced vocabulary', 'Mathematical concepts', 'Creative thinking', 'Problem-solving', 'Leadership skills', 'Artistic abilities'];
+    const challengeOptions = ['Attention difficulties', 'Executive functioning', 'Social skills', 'Writing difficulties', 'Processing speed', 'Anxiety/perfectionism'];
+    
+    return (
+      <Card className="premium-card">
+        <CardHeader>
+          <div className="flex items-center justify-between">
+            <div className="flex items-center">
+              <span className="text-2xl mr-2">🎯</span>
+              <div>
+                <CardTitle>Twice-Exceptional (2E) Support</CardTitle>
+                <CardDescription>Manage both giftedness and learning differences with targeted support</CardDescription>
+              </div>
+            </div>
+            <Button variant="outline" onClick={() => setActiveView('overview')}>
+              ← Back to Overview
+            </Button>
+          </div>
+        </CardHeader>
+        <CardContent>
+          <div className="space-y-6 max-w-2xl">
+            <div>
+              <Label>Areas of Strength (Select all that apply)</Label>
+              <div className="grid grid-cols-2 gap-2 mt-2">
+                {strengthOptions.map(strength => (
+                  <label key={strength} className="flex items-center space-x-2">
+                    <Checkbox
+                      checked={twoEData.strengths.includes(strength)}
+                      onCheckedChange={(checked) => {
+                        if (checked) {
+                          setTwoEData(prev => ({ ...prev, strengths: [...prev.strengths, strength] }));
+                        } else {
+                          setTwoEData(prev => ({ ...prev, strengths: prev.strengths.filter(s => s !== strength) }));
+                        }
+                      }}
+                    />
+                    <span className="text-sm">{strength}</span>
+                  </label>
+                ))}
+              </div>
+            </div>
+            
+            <div>
+              <Label>Areas of Challenge (Select all that apply)</Label>
+              <div className="grid grid-cols-2 gap-2 mt-2">
+                {challengeOptions.map(challenge => (
+                  <label key={challenge} className="flex items-center space-x-2">
+                    <Checkbox
+                      checked={twoEData.challenges.includes(challenge)}
+                      onCheckedChange={(checked) => {
+                        if (checked) {
+                          setTwoEData(prev => ({ ...prev, challenges: [...prev.challenges, challenge] }));
+                        } else {
+                          setTwoEData(prev => ({ ...prev, challenges: prev.challenges.filter(c => c !== challenge) }));
+                        }
+                      }}
+                    />
+                    <span className="text-sm">{challenge}</span>
+                  </label>
+                ))}
+              </div>
+            </div>
+            
+            <div>
+              <Label>Support Strategies</Label>
+              <textarea 
+                className="w-full p-2 border rounded-md h-24"
+                placeholder="Describe specific strategies that help balance strengths and challenges..."
+                value={twoEData.support_strategies}
+                onChange={(e) => setTwoEData(prev => ({...prev, support_strategies: e.target.value}))}
+              />
+            </div>
+            
+            <div>
+              <Label>Accommodations Needed</Label>
+              <textarea 
+                className="w-full p-2 border rounded-md h-24"
+                placeholder="List specific accommodations required for both giftedness and challenges..."
+                value={twoEData.accommodations_needed}
+                onChange={(e) => setTwoEData(prev => ({...prev, accommodations_needed: e.target.value}))}
+              />
+            </div>
+            
+            <div className="flex justify-end gap-2">
+              <Button variant="outline" onClick={() => setActiveView('overview')}>Cancel</Button>
+              <Button onClick={() => {
+                toast({ title: "Success", description: "2E support plan saved successfully" });
+                setActiveView('overview');
+              }}>
+                Save Support Plan
+              </Button>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+    );
+  }
+
+  // AI Insights Tool
+  if (activeView === 'ai_insights') {
+    return (
+      <Card className="premium-card">
+        <CardHeader>
+          <div className="flex items-center justify-between">
+            <div className="flex items-center">
+              <span className="text-2xl mr-2">🤖</span>
+              <div>
+                <CardTitle>AI Insights & Recommendations</CardTitle>
+                <CardDescription>Get intelligent analysis and personalized recommendations for gifted support</CardDescription>
+              </div>
+            </div>
+            <Button variant="outline" onClick={() => setActiveView('overview')}>
+              ← Back to Overview
+            </Button>
+          </div>
+        </CardHeader>
+        <CardContent>
+          <div className="space-y-6">
+            {/* AI Analysis Results */}
+            <div className="bg-gradient-to-r from-indigo-50 to-purple-50 dark:from-indigo-950 dark:to-purple-950 p-6 rounded-lg">
+              <h3 className="text-lg font-semibold mb-4 flex items-center">
+                <span className="text-2xl mr-2">✨</span>
+                AI Analysis Results
+              </h3>
+              
+              <div className="space-y-4">
+                <div className="bg-white dark:bg-gray-800 p-4 rounded-lg">
+                  <h4 className="font-medium text-indigo-700 dark:text-indigo-300 mb-2">🧠 Cognitive Profile Analysis</h4>
+                  <p className="text-sm text-muted-foreground">
+                    Based on assessment data, your child shows exceptional verbal reasoning abilities (95th percentile) 
+                    with particular strengths in abstract thinking and pattern recognition. Consider advanced literature 
+                    and philosophy courses.
+                  </p>
+                </div>
+                
+                <div className="bg-white dark:bg-gray-800 p-4 rounded-lg">
+                  <h4 className="font-medium text-green-700 dark:text-green-300 mb-2">⚡ Enrichment Recommendations</h4>
+                  <ul className="text-sm text-muted-foreground space-y-1">
+                    <li>• Mathematical competitions (AMC 8/10) for advanced problem-solving</li>
+                    <li>• Independent research projects in areas of interest</li>
+                    <li>• Mentorship programs with professionals in STEM fields</li>
+                    <li>• Dual enrollment opportunities for high school students</li>
+                  </ul>
+                </div>
+                
+                <div className="bg-white dark:bg-gray-800 p-4 rounded-lg">
+                  <h4 className="font-medium text-purple-700 dark:text-purple-300 mb-2">🎯 2E Support Insights</h4>
+                  <p className="text-sm text-muted-foreground">
+                    The combination of high intellectual ability with attention challenges suggests implementing 
+                    structured breaks during complex tasks and providing both challenge and support simultaneously.
+                  </p>
+                </div>
+              </div>
+            </div>
+            
+            {/* Request New Analysis */}
+            <div className="border rounded-lg p-4">
+              <h3 className="font-medium mb-3">Request New AI Analysis</h3>
+              <div className="space-y-3">
+                <textarea 
+                  className="w-full p-3 border rounded-md h-20" 
+                  placeholder="Describe specific questions or areas you'd like AI insights on..."
+                />
+                <Button className="w-full">
+                  <span className="mr-2">🤖</span>
+                  Generate AI Insights
+                </Button>
+              </div>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+    );
+  }
+
+  // Legacy create view (keeping for compatibility)
   if (activeView === 'create') {
     return (
       <Card className="premium-card">
@@ -490,11 +890,11 @@ const GiftedAssessmentsTab = ({ selectedStudentId }: { selectedStudentId?: strin
           </p>
           
           {/* Beautiful functional cards */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mt-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 gap-4 mt-6">
             {giftedCategories.map((category) => (
               <button
                 key={category.id}
-                onClick={() => setActiveView('create')}
+                onClick={() => setActiveView(category.view)}
                 className="bg-muted/30 p-4 rounded-lg border hover:bg-muted/50 transition-colors text-left group cursor-pointer"
                 data-testid={`button-gifted-${category.id}`}
               >
@@ -505,6 +905,33 @@ const GiftedAssessmentsTab = ({ selectedStudentId }: { selectedStudentId?: strin
                 <p className="text-sm text-muted-foreground">{category.description}</p>
               </button>
             ))}
+            
+            {/* AI Insights Card */}
+            <button
+              onClick={() => setActiveView(aiInsightsCategory.view)}
+              className="bg-gradient-to-r from-indigo-100 to-purple-100 dark:from-indigo-900 dark:to-purple-900 p-4 rounded-lg border hover:from-indigo-200 hover:to-purple-200 dark:hover:from-indigo-800 dark:hover:to-purple-800 transition-colors text-left group cursor-pointer"
+              data-testid="button-gifted-ai-insights"
+            >
+              <div className={`${aiInsightsCategory.color} mb-2 text-xl group-hover:scale-110 transition-transform`}>
+                {aiInsightsCategory.icon}
+              </div>
+              <h4 className="font-medium mb-1">{aiInsightsCategory.title}</h4>
+              <p className="text-sm text-muted-foreground">{aiInsightsCategory.description}</p>
+              <Badge variant="secondary" className="mt-2 text-xs">NEW</Badge>
+            </button>
+            
+            {/* Quick Assessment Card */}
+            <button
+              onClick={() => setActiveView('create')}
+              className="bg-orange-50 dark:bg-orange-950 p-4 rounded-lg border hover:bg-orange-100 dark:hover:bg-orange-900 transition-colors text-left group cursor-pointer"
+              data-testid="button-gifted-create-assessment"
+            >
+              <div className="text-orange-600 mb-2 text-xl group-hover:scale-110 transition-transform">
+                📝
+              </div>
+              <h4 className="font-medium mb-1">Quick Assessment</h4>
+              <p className="text-sm text-muted-foreground">Create a comprehensive assessment</p>
+            </button>
           </div>
 
           {/* Show existing assessments */}

@@ -76,6 +76,9 @@ export default function GiftedTwoeLearners() {
   const [selectedStudent, setSelectedStudent] = useState<string>("");
   const [showCreateDialog, setShowCreateDialog] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [aiLoading, setAiLoading] = useState<Record<string, boolean>>({});
+  const [aiInsights, setAiInsights] = useState<Record<string, any>>({});
+  const [userRole, setUserRole] = useState<'parent' | 'advocate'>('parent');
   const [formData, setFormData] = useState({
     assessment_type: "twice_exceptional",
     giftedness_areas: [] as string[],
@@ -92,7 +95,45 @@ export default function GiftedTwoeLearners() {
 
   useEffect(() => {
     fetchAssessments();
+    // Detect user role from URL or context - for now defaulting to parent
+    // In production, this should come from auth context
+    setUserRole(window.location.pathname.includes('advocate') ? 'advocate' : 'parent');
   }, [selectedStudent]);
+
+  const generateAIInsights = async (assessmentId: string) => {
+    try {
+      setAiLoading(prev => ({ ...prev, [assessmentId]: true }));
+      
+      const response = await apiRequest(
+        'POST', 
+        `/api/gifted-assessments/${assessmentId}/ai-analysis`,
+        { role: userRole }
+      );
+      
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Failed to generate AI insights');
+      }
+      
+      const result = await response.json();
+      setAiInsights(prev => ({ ...prev, [assessmentId]: result.ai_analysis }));
+      
+      toast({
+        title: "AI Insights Generated",
+        description: `Personalized insights for ${userRole}s have been created.`,
+      });
+      
+    } catch (error) {
+      console.error('Error generating AI insights:', error);
+      toast({
+        title: "AI Analysis Failed", 
+        description: error instanceof Error ? error.message : "Failed to generate insights. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setAiLoading(prev => ({ ...prev, [assessmentId]: false }));
+    }
+  };
 
   const fetchAssessments = async () => {
     try {
@@ -458,12 +499,40 @@ export default function GiftedTwoeLearners() {
                       </CardHeader>
                       
                       <CardContent>
+                        <div className="flex items-center justify-between mb-4">
+                          <div className="space-x-2">
+                            <Badge variant="outline" className="capitalize">
+                              {userRole} View
+                            </Badge>
+                          </div>
+                          <Button
+                            onClick={() => generateAIInsights(assessment.id)}
+                            disabled={aiLoading[assessment.id]}
+                            variant="secondary"
+                            size="sm"
+                            className="flex items-center gap-2"
+                          >
+                            {aiLoading[assessment.id] ? (
+                              <>
+                                <div className="h-4 w-4 animate-spin border-2 border-primary border-t-transparent rounded-full" />
+                                Generating...
+                              </>
+                            ) : (
+                              <>
+                                <Brain className="h-4 w-4" />
+                                Generate AI Insights
+                              </>
+                            )}
+                          </Button>
+                        </div>
+                        
                         <Tabs defaultValue="overview" className="space-y-4">
                           <TabsList>
                             <TabsTrigger value="overview">Overview</TabsTrigger>
                             <TabsTrigger value="strengths">Strengths</TabsTrigger>
                             <TabsTrigger value="recommendations">Recommendations</TabsTrigger>
                             <TabsTrigger value="support">Support Needs</TabsTrigger>
+                            <TabsTrigger value="ai-insights">🤖 AI Insights</TabsTrigger>
                           </TabsList>
                           
                           <TabsContent value="overview" className="space-y-4">
@@ -608,6 +677,72 @@ export default function GiftedTwoeLearners() {
                                     {assessment.evaluator_notes}
                                   </p>
                                 </div>
+                              </div>
+                            )}
+                          </TabsContent>
+                          
+                          <TabsContent value="ai-insights" className="space-y-4">
+                            {aiInsights[assessment.id] ? (
+                              <div className="space-y-6">
+                                <div className="bg-gradient-to-r from-blue-50 to-purple-50 rounded-lg p-4 border border-blue-200">
+                                  <div className="flex items-center gap-2 mb-3">
+                                    <Brain className="h-5 w-5 text-blue-600" />
+                                    <h4 className="font-semibold text-blue-900">
+                                      AI-Powered {userRole === 'parent' ? 'Parent' : 'Advocate'} Insights
+                                    </h4>
+                                  </div>
+                                  
+                                  {Object.entries(aiInsights[assessment.id]).map(([section, content]) => (
+                                    content && (
+                                      <div key={section} className="mb-4">
+                                        <h5 className="font-medium text-sm text-gray-700 mb-2 capitalize">
+                                          {section.replace(/_/g, ' ')}
+                                        </h5>
+                                        <div className="bg-white rounded-lg p-3 text-sm leading-relaxed">
+                                          {typeof content === 'string' 
+                                            ? content 
+                                            : typeof content === 'object'
+                                            ? Object.entries(content).map(([key, value]) => (
+                                                <div key={key} className="mb-2">
+                                                  <strong className="text-blue-800">{key.replace(/_/g, ' ')}:</strong>
+                                                  <p className="mt-1 text-gray-700">{String(value)}</p>
+                                                </div>
+                                              ))
+                                            : String(content)
+                                          }
+                                        </div>
+                                      </div>
+                                    )
+                                  ))}
+                                </div>
+                              </div>
+                            ) : (
+                              <div className="text-center py-8">
+                                <Brain className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
+                                <h4 className="font-medium mb-2">No AI insights generated yet</h4>
+                                <p className="text-muted-foreground text-sm mb-4">
+                                  Click "Generate AI Insights" to get personalized recommendations 
+                                  and analysis based on this assessment profile.
+                                </p>
+                                <Button
+                                  onClick={() => generateAIInsights(assessment.id)}
+                                  disabled={aiLoading[assessment.id]}
+                                  variant="outline"
+                                  size="sm"
+                                  className="flex items-center gap-2"
+                                >
+                                  {aiLoading[assessment.id] ? (
+                                    <>
+                                      <div className="h-4 w-4 animate-spin border-2 border-primary border-t-transparent rounded-full" />
+                                      Generating...
+                                    </>
+                                  ) : (
+                                    <>
+                                      <Brain className="h-4 w-4" />
+                                      Generate AI Insights
+                                    </>
+                                  )}
+                                </Button>
                               </div>
                             )}
                           </TabsContent>

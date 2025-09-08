@@ -143,9 +143,11 @@ ${assessment.evaluator_notes ? `Notes: ${assessment.evaluator_notes}` : ''}
       `.trim();
 
       // Update student notes by appending the assessment summary
-      const response = await apiRequest('PUT', `/api/students/${selectedStudent}`, {
+      const updateData = {
         notes: student.notes ? `${student.notes}\n\n${assessmentSummary}` : assessmentSummary
-      });
+      };
+      
+      const response = await apiRequest('PUT', `/api/students/${selectedStudent}`, updateData);
 
       if (response.ok) {
         toast({

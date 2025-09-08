@@ -171,16 +171,8 @@ const ParentStudents = () => {
         full_name: `${newStudent.first_name} ${newStudent.last_name}`,
       };
       
-      const token = localStorage.getItem('authToken');
-      const response = await fetch(`/api/students/${editingStudent.id}`, {
-        method: 'PATCH',
-        headers: {
-          'Content-Type': 'application/json',
-          ...(token && { Authorization: `Bearer ${token}` })
-        },
-        credentials: 'include',
-        body: JSON.stringify(studentData),
-      });
+      const { apiRequest } = await import('@/lib/queryClient');
+      const response = await apiRequest('PUT', `/api/students/${editingStudent.id}`, studentData);
       
       if (response.ok) {
         setIsEditStudentOpen(false);

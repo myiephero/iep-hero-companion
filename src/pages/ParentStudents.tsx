@@ -41,8 +41,8 @@ import { apiRequest } from "@/lib/queryClient";
 
 // Autism Accommodations Tab Component
 const AutismAccommodationsTab = ({ selectedStudentId }: { selectedStudentId?: string }) => {
-  const [activeCategory, setActiveCategory] = useState<string>("all");
-  const [addedAccommodations, setAddedAccommodations] = useState<string[]>([]);
+  const [activeView, setActiveView] = useState<'overview' | 'category'>('overview');
+  const [selectedCategory, setSelectedCategory] = useState<string>('');
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
@@ -75,35 +75,49 @@ const AutismAccommodationsTab = ({ selectedStudentId }: { selectedStudentId?: st
   const accommodationCategories = [
     {
       id: "sensory",
-      title: "Sensory Support",
-      icon: <Volume2 className="h-5 w-5" />,
+      title: "Sensory Accommodations", 
+      description: "Track sensory needs and environmental modifications",
+      icon: "📊",
+      color: "text-blue-600",
       items: [
         { id: "noise-canceling", title: "Noise-Canceling Headphones", description: "Provide noise-canceling headphones for noisy environments" },
         { id: "sensory-breaks", title: "Sensory Breaks", description: "Regular breaks to sensory room or quiet space every 30 minutes" },
-        { id: "fidget-tools", title: "Fidget Tools", description: "Allow use of fidget toys or stress balls during instruction" }
+        { id: "fidget-tools", title: "Fidget Tools", description: "Allow use of fidget toys or stress balls during instruction" },
+        { id: "lighting", title: "Lighting Adjustments", description: "Adjusted lighting or seating away from fluorescent lights" }
       ]
     },
     {
       id: "communication",
-      title: "Communication",
-      icon: <Users className="h-5 w-5" />,
+      title: "Communication Support",
+      description: "Monitor communication strategies and progress", 
+      icon: "🗣️",
+      color: "text-green-600",
       items: [
         { id: "visual-schedules", title: "Visual Schedules", description: "Visual schedules and social stories for transitions" },
         { id: "communication-device", title: "AAC Device", description: "Access to AAC device or picture cards for communication" },
-        { id: "peer-support", title: "Peer Support", description: "Structured peer interaction opportunities" }
+        { id: "peer-support", title: "Peer Support", description: "Structured peer interaction opportunities" },
+        { id: "social-scripts", title: "Social Scripts", description: "Pre-written social scripts for common situations" }
       ]
     },
     {
-      id: "academic",
-      title: "Academic Support",
-      icon: <BookOpen className="h-5 w-5" />,
+      id: "behavioral",
+      title: "Behavioral Strategies",
+      description: "Document effective behavioral interventions",
+      icon: "📋", 
+      color: "text-purple-600",
       items: [
         { id: "extended-time", title: "Extended Time", description: "Extended time for assignments and tests (1.5x)" },
         { id: "chunking", title: "Task Chunking", description: "Breaking assignments into smaller, manageable chunks" },
-        { id: "visual-supports", title: "Visual Supports", description: "Visual aids and graphic organizers for learning" }
+        { id: "visual-supports", title: "Visual Supports", description: "Visual aids and graphic organizers for learning" },
+        { id: "movement-breaks", title: "Movement Breaks", description: "Regular movement breaks to help with focus and regulation" }
       ]
     }
   ];
+
+  const handleCategoryClick = (categoryId: string) => {
+    setSelectedCategory(categoryId);
+    setActiveView('category');
+  };
 
   const handleAddAccommodation = (item: any) => {
     if (!selectedStudentId) {
@@ -115,7 +129,7 @@ const AutismAccommodationsTab = ({ selectedStudentId }: { selectedStudentId?: st
       student_id: selectedStudentId,
       title: item.title,
       description: item.description,
-      category: accommodationCategories.find(cat => cat.items.some(i => i.id === item.id))?.id || 'general',
+      category: selectedCategory,
       accommodation_type: 'autism_support',
       status: 'active'
     });
@@ -132,6 +146,82 @@ const AutismAccommodationsTab = ({ selectedStudentId }: { selectedStudentId?: st
     );
   }
 
+  // Category detail view
+  if (activeView === 'category') {
+    const category = accommodationCategories.find(cat => cat.id === selectedCategory);
+    if (!category) return null;
+
+    return (
+      <Card className="premium-card">
+        <CardHeader>
+          <div className="flex items-center justify-between">
+            <div className="flex items-center">
+              <span className="text-2xl mr-2">🧩</span>
+              <div>
+                <CardTitle>{category.title}</CardTitle>
+                <CardDescription>{category.description}</CardDescription>
+              </div>
+            </div>
+            <Button variant="outline" onClick={() => setActiveView('overview')}>
+              ← Back to Overview
+            </Button>
+          </div>
+        </CardHeader>
+        <CardContent>
+          <div className="space-y-4">
+            {/* Show existing accommodations in this category */}
+            {accommodations.filter((acc: any) => acc.category === selectedCategory).length > 0 && (
+              <div className="space-y-3">
+                <h4 className="font-medium">Current {category.title}</h4>
+                <div className="space-y-2">
+                  {accommodations
+                    .filter((acc: any) => acc.category === selectedCategory)
+                    .map((acc: any) => (
+                      <div key={acc.id} className="border rounded-lg p-3 bg-muted/30">
+                        <div className="flex items-center justify-between">
+                          <h5 className="font-medium">{acc.title}</h5>
+                          <Badge variant="secondary">Active</Badge>
+                        </div>
+                        <p className="text-sm text-muted-foreground mt-1">{acc.description}</p>
+                      </div>
+                    ))}
+                </div>
+              </div>
+            )}
+
+            {/* Available accommodations to add */}
+            <div className="space-y-3">
+              <h4 className="font-medium">Add {category.title}</h4>
+              <div className="grid gap-3">
+                {category.items.map((item) => (
+                  <div key={item.id} className="border rounded-lg p-4 flex items-center justify-between hover:bg-muted/50 transition-colors">
+                    <div className="flex-1">
+                      <h6 className="font-medium">{item.title}</h6>
+                      <p className="text-sm text-muted-foreground mt-1">{item.description}</p>
+                    </div>
+                    <Button 
+                      size="sm" 
+                      onClick={() => handleAddAccommodation(item)}
+                      disabled={addAccommodation.isPending || accommodations.some((acc: any) => acc.title === item.title)}
+                      className="ml-4"
+                    >
+                      {accommodations.some((acc: any) => acc.title === item.title) ? (
+                        <CheckCircle className="h-4 w-4" />
+                      ) : (
+                        <Plus className="h-4 w-4" />
+                      )}
+                    </Button>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+    );
+  }
+
+  // Overview with beautiful cards
   return (
     <Card className="premium-card">
       <CardHeader>
@@ -142,91 +232,54 @@ const AutismAccommodationsTab = ({ selectedStudentId }: { selectedStudentId?: st
         <CardDescription>Specialized accommodations and strategies for autism spectrum support</CardDescription>
       </CardHeader>
       <CardContent>
-        <div className="space-y-6">
-          {/* Category filters */}
-          <div className="flex gap-2 flex-wrap">
-            <Button
-              variant={activeCategory === "all" ? "default" : "outline"}
-              size="sm"
-              onClick={() => setActiveCategory("all")}
-            >
-              All Categories
-            </Button>
+        <div className="text-center py-8">
+          <div className="text-4xl mb-4">🎯</div>
+          <h3 className="text-lg font-semibold mb-2">Integrated Autism Support</h3>
+          <p className="text-muted-foreground mb-6">
+            All autism-specific accommodations and tools are now integrated directly into your student's profile for streamlined access.
+          </p>
+          
+          {/* Beautiful functional cards */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mt-6">
             {accommodationCategories.map((category) => (
-              <Button
+              <button
                 key={category.id}
-                variant={activeCategory === category.id ? "default" : "outline"}
-                size="sm"
-                onClick={() => setActiveCategory(category.id)}
+                onClick={() => handleCategoryClick(category.id)}
+                className="bg-muted/30 p-4 rounded-lg border hover:bg-muted/50 transition-colors text-left group cursor-pointer"
+                data-testid={`button-autism-${category.id}`}
               >
-                {category.icon}
-                <span className="ml-2">{category.title}</span>
-              </Button>
+                <div className={`${category.color} mb-2 text-xl group-hover:scale-110 transition-transform`}>
+                  {category.icon}
+                </div>
+                <h4 className="font-medium mb-1">{category.title}</h4>
+                <p className="text-sm text-muted-foreground">{category.description}</p>
+                
+                {/* Show count of active accommodations */}
+                {accommodations.filter((acc: any) => acc.category === category.id).length > 0 && (
+                  <Badge variant="secondary" className="mt-2">
+                    {accommodations.filter((acc: any) => acc.category === category.id).length} active
+                  </Badge>
+                )}
+              </button>
             ))}
           </div>
-
-          {/* Existing accommodations */}
+          
           {accommodations.length > 0 && (
-            <div className="space-y-4">
-              <h4 className="font-medium">Current Accommodations</h4>
-              <div className="space-y-2">
-                {accommodations.map((acc: any) => (
-                  <div key={acc.id} className="border rounded-lg p-3 bg-muted/30">
-                    <div className="flex items-center justify-between">
-                      <h5 className="font-medium">{acc.title}</h5>
-                      <Badge variant="secondary">{acc.category}</Badge>
-                    </div>
-                    <p className="text-sm text-muted-foreground mt-1">{acc.description}</p>
-                  </div>
-                ))}
-              </div>
+            <div className="mt-8 p-4 bg-green-50 dark:bg-green-950 rounded-lg border">
+              <p className="text-sm font-medium text-green-800 dark:text-green-200">
+                ✅ You have {accommodations.length} active autism accommodations for this student
+              </p>
             </div>
           )}
-
-          {/* Available accommodations to add */}
-          <div className="space-y-4">
-            <h4 className="font-medium">Add Accommodations</h4>
-            {accommodationCategories
-              .filter(category => activeCategory === "all" || activeCategory === category.id)
-              .map((category) => (
-                <div key={category.id} className="space-y-3">
-                  <h5 className="flex items-center font-medium text-sm">
-                    {category.icon}
-                    <span className="ml-2">{category.title}</span>
-                  </h5>
-                  <div className="grid gap-2">
-                    {category.items.map((item) => (
-                      <div key={item.id} className="border rounded-lg p-3 flex items-center justify-between">
-                        <div>
-                          <h6 className="font-medium text-sm">{item.title}</h6>
-                          <p className="text-xs text-muted-foreground">{item.description}</p>
-                        </div>
-                        <Button 
-                          size="sm" 
-                          onClick={() => handleAddAccommodation(item)}
-                          disabled={addAccommodation.isPending || accommodations.some((acc: any) => acc.title === item.title)}
-                        >
-                          {accommodations.some((acc: any) => acc.title === item.title) ? (
-                            <CheckCircle className="h-4 w-4" />
-                          ) : (
-                            <Plus className="h-4 w-4" />
-                          )}
-                        </Button>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              ))}
-          </div>
         </div>
       </CardContent>
     </Card>
   );
 };
 
-// Gifted Assessments Tab Component
+// Gifted Assessments Tab Component  
 const GiftedAssessmentsTab = ({ selectedStudentId }: { selectedStudentId?: string }) => {
-  const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
+  const [activeView, setActiveView] = useState<'overview' | 'create'>('overview');
   const [newAssessment, setNewAssessment] = useState({
     assessment_type: '',
     giftedness_areas: [] as string[],
@@ -249,7 +302,12 @@ const GiftedAssessmentsTab = ({ selectedStudentId }: { selectedStudentId?: strin
   // Mutation for creating assessments
   const createAssessment = useMutation({
     mutationFn: async (assessmentData: any) => {
-      const response = await apiRequest('POST', '/api/gifted-assessments', assessmentData);
+      const response = await apiRequest('POST', '/api/gifted-assessments', {
+        ...assessmentData,
+        strengths: {}, // Provide default empty object to prevent null constraint error
+        challenges: {},
+        recommendations: {}
+      });
       return response.json();
     },
     onSuccess: () => {
@@ -280,6 +338,30 @@ const GiftedAssessmentsTab = ({ selectedStudentId }: { selectedStudentId?: strin
     { value: 'twice_exceptional', label: 'Twice-Exceptional Profile' }
   ];
 
+  const giftedCategories = [
+    {
+      id: "cognitive", 
+      title: "Cognitive Assessment",
+      description: "Track intellectual abilities and learning patterns",
+      icon: "🧠",
+      color: "text-blue-600"
+    },
+    {
+      id: "enrichment",
+      title: "Enrichment Needs", 
+      description: "Document advanced learning opportunities",
+      icon: "⚡",
+      color: "text-green-600"
+    },
+    {
+      id: "twice_exceptional",
+      title: "2E Support",
+      description: "Address unique twice-exceptional needs", 
+      icon: "🎯",
+      color: "text-purple-600"
+    }
+  ];
+
   if (!selectedStudentId) {
     return (
       <Card className="premium-card">
@@ -291,6 +373,99 @@ const GiftedAssessmentsTab = ({ selectedStudentId }: { selectedStudentId?: strin
     );
   }
 
+  // Create assessment view
+  if (activeView === 'create') {
+    return (
+      <Card className="premium-card">
+        <CardHeader>
+          <div className="flex items-center justify-between">
+            <div className="flex items-center">
+              <span className="text-2xl mr-2">🎓</span>
+              <div>
+                <CardTitle>Create New Assessment</CardTitle>
+                <CardDescription>Create a comprehensive gifted and twice-exceptional assessment</CardDescription>
+              </div>
+            </div>
+            <Button variant="outline" onClick={() => setActiveView('overview')}>
+              ← Back to Overview
+            </Button>
+          </div>
+        </CardHeader>
+        <CardContent>
+          <div className="space-y-6 max-w-2xl">
+            <div>
+              <Label>Assessment Type</Label>
+              <Select value={newAssessment.assessment_type} onValueChange={(value) => setNewAssessment(prev => ({ ...prev, assessment_type: value }))}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Select assessment type" />
+                </SelectTrigger>
+                <SelectContent>
+                  {assessmentTypes.map(type => (
+                    <SelectItem key={type.value} value={type.value}>{type.label}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <div>
+              <Label>Areas of Giftedness</Label>
+              <div className="grid grid-cols-2 gap-2 mt-2">
+                {giftednessAreas.map(area => (
+                  <label key={area} className="flex items-center space-x-2">
+                    <Checkbox
+                      checked={newAssessment.giftedness_areas.includes(area)}
+                      onCheckedChange={(checked) => {
+                        if (checked) {
+                          setNewAssessment(prev => ({ ...prev, giftedness_areas: [...prev.giftedness_areas, area] }));
+                        } else {
+                          setNewAssessment(prev => ({ ...prev, giftedness_areas: prev.giftedness_areas.filter(a => a !== area) }));
+                        }
+                      }}
+                    />
+                    <span className="text-sm">{area}</span>
+                  </label>
+                ))}
+              </div>
+            </div>
+            <div>
+              <Label>Learning Differences (if any)</Label>
+              <div className="grid grid-cols-2 gap-2 mt-2">
+                {learningDifferences.map(diff => (
+                  <label key={diff} className="flex items-center space-x-2">
+                    <Checkbox
+                      checked={newAssessment.learning_differences.includes(diff)}
+                      onCheckedChange={(checked) => {
+                        if (checked) {
+                          setNewAssessment(prev => ({ ...prev, learning_differences: [...prev.learning_differences, diff] }));
+                        } else {
+                          setNewAssessment(prev => ({ ...prev, learning_differences: prev.learning_differences.filter(d => d !== diff) }));
+                        }
+                      }}
+                    />
+                    <span className="text-sm">{diff}</span>
+                  </label>
+                ))}
+              </div>
+            </div>
+            <div className="flex justify-end gap-2">
+              <Button variant="outline" onClick={() => setActiveView('overview')}>Cancel</Button>
+              <Button 
+                onClick={() => createAssessment.mutate({ 
+                  student_id: selectedStudentId, 
+                  ...newAssessment,
+                  status: 'draft'
+                })}
+                disabled={!newAssessment.assessment_type || createAssessment.isPending}
+              >
+                Create Assessment
+              </Button>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+    );
+  }
+
+  // Beautiful overview with functional cards
   return (
     <Card className="premium-card">
       <CardHeader>
@@ -299,123 +474,67 @@ const GiftedAssessmentsTab = ({ selectedStudentId }: { selectedStudentId?: strin
             <span className="text-2xl mr-2">🎓</span>
             Gifted & Twice-Exceptional Support
           </div>
-          <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
-            <DialogTrigger asChild>
-              <Button>
-                <Plus className="h-4 w-4 mr-2" />
-                New Assessment
-              </Button>
-            </DialogTrigger>
-            <DialogContent className="max-w-2xl">
-              <DialogHeader>
-                <DialogTitle>Create New Assessment</DialogTitle>
-                <CardDescription>Create a comprehensive gifted and twice-exceptional assessment</CardDescription>
-              </DialogHeader>
-              <div className="space-y-4">
-                <div>
-                  <Label>Assessment Type</Label>
-                  <Select value={newAssessment.assessment_type} onValueChange={(value) => setNewAssessment(prev => ({ ...prev, assessment_type: value }))}>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select assessment type" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {assessmentTypes.map(type => (
-                        <SelectItem key={type.value} value={type.value}>{type.label}</SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-                <div>
-                  <Label>Areas of Giftedness</Label>
-                  <div className="grid grid-cols-2 gap-2 mt-2">
-                    {giftednessAreas.map(area => (
-                      <label key={area} className="flex items-center space-x-2">
-                        <Checkbox
-                          checked={newAssessment.giftedness_areas.includes(area)}
-                          onCheckedChange={(checked) => {
-                            if (checked) {
-                              setNewAssessment(prev => ({ ...prev, giftedness_areas: [...prev.giftedness_areas, area] }));
-                            } else {
-                              setNewAssessment(prev => ({ ...prev, giftedness_areas: prev.giftedness_areas.filter(a => a !== area) }));
-                            }
-                          }}
-                        />
-                        <span className="text-sm">{area}</span>
-                      </label>
-                    ))}
-                  </div>
-                </div>
-                <div>
-                  <Label>Learning Differences (if any)</Label>
-                  <div className="grid grid-cols-2 gap-2 mt-2">
-                    {learningDifferences.map(diff => (
-                      <label key={diff} className="flex items-center space-x-2">
-                        <Checkbox
-                          checked={newAssessment.learning_differences.includes(diff)}
-                          onCheckedChange={(checked) => {
-                            if (checked) {
-                              setNewAssessment(prev => ({ ...prev, learning_differences: [...prev.learning_differences, diff] }));
-                            } else {
-                              setNewAssessment(prev => ({ ...prev, learning_differences: prev.learning_differences.filter(d => d !== diff) }));
-                            }
-                          }}
-                        />
-                        <span className="text-sm">{diff}</span>
-                      </label>
-                    ))}
-                  </div>
-                </div>
-                <div className="flex justify-end gap-2">
-                  <Button variant="outline" onClick={() => setIsCreateDialogOpen(false)}>Cancel</Button>
-                  <Button 
-                    onClick={() => createAssessment.mutate({ 
-                      student_id: selectedStudentId, 
-                      ...newAssessment,
-                      status: 'draft'
-                    })}
-                    disabled={!newAssessment.assessment_type || createAssessment.isPending}
-                  >
-                    Create Assessment
-                  </Button>
-                </div>
-              </div>
-            </DialogContent>
-          </Dialog>
+          <Button onClick={() => setActiveView('create')}>
+            <Plus className="h-4 w-4 mr-2" />
+            New Assessment
+          </Button>
         </CardTitle>
         <CardDescription>Advanced learning assessments and support for gifted and 2E learners</CardDescription>
       </CardHeader>
       <CardContent>
-        <div className="space-y-6">
-          {assessments.length === 0 ? (
-            <div className="text-center py-8">
-              <Lightbulb className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
-              <h3 className="text-lg font-semibold mb-2">No Assessments Yet</h3>
-              <p className="text-muted-foreground mb-4">
-                Create your first gifted assessment to track your child's exceptional abilities.
-              </p>
-            </div>
-          ) : (
-            <div className="space-y-4">
-              {assessments.map((assessment: any) => (
-                <div key={assessment.id} className="border rounded-lg p-4">
-                  <div className="flex items-center justify-between mb-2">
-                    <h4 className="font-medium capitalize">{assessment.assessment_type.replace('_', ' ')} Assessment</h4>
-                    <Badge>{assessment.status}</Badge>
-                  </div>
-                  {assessment.giftedness_areas && assessment.giftedness_areas.length > 0 && (
-                    <div className="mb-2">
-                      <span className="text-sm font-medium">Areas of Giftedness: </span>
-                      <span className="text-sm text-muted-foreground">{assessment.giftedness_areas.join(', ')}</span>
-                    </div>
-                  )}
-                  {assessment.learning_differences && assessment.learning_differences.length > 0 && (
-                    <div>
-                      <span className="text-sm font-medium">Learning Differences: </span>
-                      <span className="text-sm text-muted-foreground">{assessment.learning_differences.join(', ')}</span>
-                    </div>
-                  )}
+        <div className="text-center py-8">
+          <div className="text-4xl mb-4">✨</div>
+          <h3 className="text-lg font-semibold mb-2">Integrated Gifted Support</h3>
+          <p className="text-muted-foreground mb-6">
+            Comprehensive gifted and twice-exceptional assessment tools are now seamlessly integrated into your student's profile.
+          </p>
+          
+          {/* Beautiful functional cards */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mt-6">
+            {giftedCategories.map((category) => (
+              <button
+                key={category.id}
+                onClick={() => setActiveView('create')}
+                className="bg-muted/30 p-4 rounded-lg border hover:bg-muted/50 transition-colors text-left group cursor-pointer"
+                data-testid={`button-gifted-${category.id}`}
+              >
+                <div className={`${category.color} mb-2 text-xl group-hover:scale-110 transition-transform`}>
+                  {category.icon}
                 </div>
-              ))}
+                <h4 className="font-medium mb-1">{category.title}</h4>
+                <p className="text-sm text-muted-foreground">{category.description}</p>
+              </button>
+            ))}
+          </div>
+
+          {/* Show existing assessments */}
+          {assessments.length > 0 && (
+            <div className="mt-8 space-y-4">
+              <h4 className="font-medium">Your Assessments</h4>
+              <div className="grid gap-3">
+                {assessments.map((assessment: any) => (
+                  <div key={assessment.id} className="border rounded-lg p-4 text-left">
+                    <div className="flex items-center justify-between mb-2">
+                      <h5 className="font-medium capitalize">{assessment.assessment_type.replace('_', ' ')} Assessment</h5>
+                      <Badge>{assessment.status}</Badge>
+                    </div>
+                    {assessment.giftedness_areas && assessment.giftedness_areas.length > 0 && (
+                      <p className="text-sm text-muted-foreground">
+                        <span className="font-medium">Areas: </span>
+                        {assessment.giftedness_areas.join(', ')}
+                      </p>
+                    )}
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+          
+          {assessments.length > 0 && (
+            <div className="mt-6 p-4 bg-purple-50 dark:bg-purple-950 rounded-lg border">
+              <p className="text-sm font-medium text-purple-800 dark:text-purple-200">
+                ✅ You have {assessments.length} gifted assessments for this student
+              </p>
             </div>
           )}
         </div>

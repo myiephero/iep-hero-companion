@@ -4,8 +4,10 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Calendar, Clock, Video, MapPin, Plus, CalendarX } from "lucide-react";
 import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 
 export default function AdvocateSchedule() {
+  const navigate = useNavigate();
   const [meetings, setMeetings] = useState([]);
   const [loading, setLoading] = useState(true);
 
@@ -54,7 +56,7 @@ export default function AdvocateSchedule() {
             <h1 className="text-3xl font-bold">Schedule</h1>
             <p className="text-muted-foreground">Manage your meetings and appointments</p>
           </div>
-          <Button>
+          <Button onClick={() => navigate('/advocate/schedule/new')} data-testid="button-schedule-meeting">
             <Plus className="h-4 w-4 mr-2" />
             Schedule Meeting
           </Button>
@@ -119,7 +121,11 @@ export default function AdvocateSchedule() {
                   <CalendarX className="h-12 w-12 mx-auto mb-4 opacity-50" />
                   <h3 className="text-lg font-medium mb-2">No Upcoming Meetings</h3>
                   <p className="text-muted-foreground mb-4">Schedule your first meeting with a family</p>
-                  <Button variant="outline">
+                  <Button 
+                    variant="outline" 
+                    onClick={() => navigate('/advocate/schedule/new')}
+                    data-testid="button-schedule-first-meeting"
+                  >
                     <Plus className="h-4 w-4 mr-2" />
                     Schedule Meeting
                   </Button>

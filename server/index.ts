@@ -3565,9 +3565,9 @@ Respond with a detailed JSON object containing your analysis.`;
   });
 
   // Gifted AI Analysis endpoint 
-  app.post('/api/gifted-assessments/:assessmentId/ai-analysis', isAuthenticated, async (req: any, res) => {
+  app.post('/api/gifted-assessments/:assessmentId/ai-analysis', async (req: any, res) => {
     try {
-      const userId = req.user.claims.sub;
+      const userId = await getUserId(req);
       const { assessmentId } = req.params;
       const { role } = req.body;
 

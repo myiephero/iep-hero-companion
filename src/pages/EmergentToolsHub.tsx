@@ -103,6 +103,24 @@ const emergentTools = [
     category: "Wellness Support",
     badge: "Wellness",
     features: ["Daily Check-ins", "Mood Tracking", "Pattern Analysis", "Family Support"]
+  },
+  {
+    title: "IEP Goal Helper",
+    description: "Learn about IEP goals, create personalized goals for your child, and check if existing goals meet quality standards.",
+    icon: Target,
+    path: "/parent/tools/goal-generator",
+    category: "IEP Planning",
+    badge: "Parent-Friendly",
+    features: ["Goal Education", "Smart Goal Creation", "Quality Checker", "Parent Guide"]
+  },
+  {
+    title: "Parent IEP Helper Suite",
+    description: "Complete IEP toolkit for parents - understand IEPs, analyze documents, check goals, and see examples in simple language.",
+    icon: Brain,
+    path: "/parent/tools/iep-master-suite",
+    category: "IEP Analysis",
+    badge: "Pro",
+    features: ["IEP Education", "Document Analysis", "Goal Checker", "Parent Examples"]
   }
 ];
 
@@ -120,6 +138,8 @@ const getBadgeVariant = (badge: string) => {
     case "Prep": return "bg-indigo-100 dark:bg-indigo-900 text-indigo-700 dark:text-indigo-300 border-indigo-200 dark:border-indigo-700";
     case "Secure": return "bg-red-100 dark:bg-red-900 text-red-700 dark:text-red-300 border-red-200 dark:border-red-700";
     case "Wellness": return "bg-emerald-100 dark:bg-emerald-900 text-emerald-700 dark:text-emerald-300 border-emerald-200 dark:border-emerald-700";
+    case "Parent-Friendly": return "bg-pink-100 dark:bg-pink-900 text-pink-700 dark:text-pink-300 border-pink-200 dark:border-pink-700";
+    case "Pro": return "bg-cyan-100 dark:bg-cyan-900 text-cyan-700 dark:text-cyan-300 border-cyan-200 dark:border-cyan-700";
     default: return "bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 border-gray-200 dark:border-gray-600";
   }
 };

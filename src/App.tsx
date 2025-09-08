@@ -64,6 +64,7 @@ import ProgressAnalyzer from "./pages/ProgressAnalyzer";
 import GoalGenerator from "./pages/GoalGenerator";
 import ParentGoalGenerator from "./pages/ParentGoalGenerator";
 import IEPMasterSuite from "./pages/IEPMasterSuite";
+import ParentIEPMasterSuite from "./pages/ParentIEPMasterSuite";
 import AskAIDocs from "./pages/AskAIDocs";
 import ProgressNotes from "./pages/ProgressNotes";
 import CommunicationTracker from "./pages/CommunicationTracker";
@@ -347,6 +348,11 @@ function App() {
               <Route path="/parent/tools/goal-generator" element={
                 <ProtectedRoute allowedRoles={['parent']}>
                   <ParentGoalGenerator />
+                </ProtectedRoute>
+              } />
+              <Route path="/parent/tools/iep-master-suite" element={
+                <ProtectedRoute allowedRoles={['parent']}>
+                  <ParentIEPMasterSuite />
                 </ProtectedRoute>
               } />
               <Route path="/parent/matching" element={

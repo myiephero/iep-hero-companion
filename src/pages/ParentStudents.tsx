@@ -1738,20 +1738,44 @@ const ParentStudents = () => {
                 {/* IEP Status */}
                 <div className="bg-muted/30 p-4 rounded-lg border">
                   <h3 className="font-medium text-sm text-primary mb-3">IEP Information</h3>
-                  <div className="space-y-2">
-                    <Label htmlFor="iep_status" className="text-sm font-medium">IEP Status</Label>
-                    <Select value={newStudent.iep_status} onValueChange={(value) => setNewStudent(prev => ({ ...prev, iep_status: value }))}>
-                      <SelectTrigger className="h-10">
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="Active">Active</SelectItem>
-                        <SelectItem value="Developing">Developing</SelectItem>
-                        <SelectItem value="Review">Under Review</SelectItem>
-                        <SelectItem value="Expired">Expired</SelectItem>
-                        <SelectItem value="None">No IEP</SelectItem>
-                      </SelectContent>
-                    </Select>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="iep_status" className="text-sm font-medium">IEP Status</Label>
+                      <Select value={newStudent.iep_status} onValueChange={(value) => setNewStudent(prev => ({ ...prev, iep_status: value }))}>
+                        <SelectTrigger className="h-10">
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="Active">Active</SelectItem>
+                          <SelectItem value="Developing">Developing</SelectItem>
+                          <SelectItem value="Review">Under Review</SelectItem>
+                          <SelectItem value="Expired">Expired</SelectItem>
+                          <SelectItem value="None">No IEP</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="disability_category" className="text-sm font-medium">Primary Disability Category</Label>
+                      <Select value={newStudent.disability_category} onValueChange={(value) => setNewStudent(prev => ({ ...prev, disability_category: value }))}>
+                        <SelectTrigger className="h-10">
+                          <SelectValue placeholder="Select primary disability" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="Autism Spectrum Disorder">Autism Spectrum Disorder</SelectItem>
+                          <SelectItem value="ADHD">ADHD</SelectItem>
+                          <SelectItem value="Learning Disability">Learning Disability</SelectItem>
+                          <SelectItem value="Intellectual Disability">Intellectual Disability</SelectItem>
+                          <SelectItem value="Speech/Language Impairment">Speech/Language Impairment</SelectItem>
+                          <SelectItem value="Emotional Behavioral Disorder">Emotional Behavioral Disorder</SelectItem>
+                          <SelectItem value="Other Health Impairment">Other Health Impairment</SelectItem>
+                          <SelectItem value="Multiple Disabilities">Multiple Disabilities</SelectItem>
+                          <SelectItem value="Hearing Impairment">Hearing Impairment</SelectItem>
+                          <SelectItem value="Visual Impairment">Visual Impairment</SelectItem>
+                          <SelectItem value="Orthopedic Impairment">Orthopedic Impairment</SelectItem>
+                          <SelectItem value="Traumatic Brain Injury">Traumatic Brain Injury</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
                   </div>
                 </div>
 

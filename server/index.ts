@@ -3563,6 +3563,65 @@ Respond with a detailed JSON object containing your analysis.`;
     }
   });
 
+  // Gifted AI Analysis endpoint 
+  app.post('/api/gifted-assessments/:assessmentId/ai-analysis', isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.claims.sub;
+      const { assessmentId } = req.params;
+      const { role } = req.body;
+
+      if (!assessmentId) {
+        return res.status(400).json({ error: 'Assessment ID is required' });
+      }
+
+      // Get assessment data from database
+      const [assessment] = await db.select().from(schema.gifted_assessments)
+        .where(and(
+          eq(schema.gifted_assessments.id, assessmentId),
+          eq(schema.gifted_assessments.user_id, userId)
+        ));
+
+      if (!assessment) {
+        return res.status(404).json({ error: 'Assessment not found' });
+      }
+
+      // Get student data for additional context
+      let student = null;
+      if (assessment.student_id) {
+        [student] = await db.select().from(schema.students)
+          .where(eq(schema.students.id, assessment.student_id));
+      }
+
+      // Use the existing generateGiftedAssessmentAI function
+      const aiAnalysis = await generateGiftedAssessmentAI(assessment, role || 'parent');
+
+      // Save analysis to database
+      const [savedAnalysis] = await db.insert(schema.ai_reviews).values({
+        user_id: userId,
+        student_id: assessment.student_id,
+        review_type: 'gifted_assessment',
+        ai_analysis: aiAnalysis,
+        recommendations: aiAnalysis.recommendations || [],
+        priority_level: 'medium',
+        status: 'active'
+      }).returning();
+
+      res.json({
+        success: true,
+        ai_analysis: aiAnalysis,
+        saved_id: savedAnalysis.id,
+        message: 'Gifted assessment AI analysis completed and saved to student profile'
+      });
+
+    } catch (error) {
+      console.error('Gifted AI Analysis Error:', error);
+      res.status(500).json({ 
+        error: 'Failed to generate gifted analysis',
+        details: error instanceof Error ? error.message : 'Unknown error'
+      });
+    }
+  });
+
   // Get existing autism AI analysis
   app.get('/api/autism-ai-analysis', isAuthenticated, async (req: any, res) => {
     try {

@@ -41,12 +41,9 @@ export async function getUserId(req: express.Request): Promise<string> {
     return session.passport.user.claims?.sub;
   }
   
-  // Debug logging only when session exists but user is missing
-  if (!user && session) {
-    console.log('getUserId: Session exists but no user found');
-    console.log('getUserId: Session keys:', Object.keys(session));
-  } else if (!user && !session) {
-    console.log('getUserId: No user session found - authentication required');
+  // Debug logging only when needed
+  if (!user) {
+    console.log('getUserId: No authenticated user found - checking if user needs to log in');
   }
   
   // CRITICAL: Don't return a default fallback - throw error to force proper authentication

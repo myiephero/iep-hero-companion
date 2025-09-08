@@ -3414,6 +3414,215 @@ app.get('/api/cases', async (req: any, res) => {
     }
   });
   
+  // Autism AI Analysis endpoint
+  app.post('/api/autism-ai-analysis', isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.claims.sub;
+      const { student_id, analysis_type, custom_request } = req.body;
+
+      if (!student_id || !analysis_type) {
+        return res.status(400).json({ error: 'student_id and analysis_type are required' });
+      }
+
+      // Get student data for context
+      const [student] = await db.select().from(schema.students)
+        .where(and(
+          eq(schema.students.id, student_id),
+          eq(schema.students.user_id, userId)
+        ));
+
+      if (!student) {
+        return res.status(404).json({ error: 'Student not found' });
+      }
+
+      // Get existing autism accommodations for context
+      const accommodations = await db.select().from(schema.autism_accommodations)
+        .where(and(
+          eq(schema.autism_accommodations.student_id, student_id),
+          eq(schema.autism_accommodations.user_id, userId)
+        ));
+
+      // Create AI analysis prompt based on analysis type
+      let systemPrompt = `You are an expert autism support specialist and educational consultant. Your role is to provide evidence-based, practical analysis and recommendations for students with autism spectrum disorders. Use current research and best practices in autism education.`;
+      
+      let userPrompt = '';
+      const studentContext = `
+Student: ${student.full_name}
+Grade Level: ${student.grade_level || 'Not specified'}
+School: ${student.school_name || 'Not specified'}
+Disability Category: ${student.disability_category || 'Not specified'}
+Current Accommodations: ${accommodations.length} autism-specific accommodations on file
+Notes: ${student.notes || 'No additional notes'}
+      `;
+
+      switch (analysis_type) {
+        case 'sensory':
+          userPrompt = `Analyze this student's sensory needs and provide specific recommendations for sensory supports and accommodations. Include:
+1. Sensory processing patterns likely present
+2. Environmental modifications needed
+3. Sensory tools and strategies
+4. Signs to watch for sensory overload
+5. Specific sensory breaks and timing
+
+${studentContext}
+
+Respond with a detailed JSON object containing your sensory analysis.`;
+          break;
+
+        case 'communication':
+          userPrompt = `Analyze this student's communication needs and provide comprehensive communication support recommendations. Include:
+1. Communication strengths and challenges
+2. Visual support recommendations
+3. Social communication strategies
+4. AAC considerations if applicable
+5. Peer interaction supports
+
+${studentContext}
+
+Respond with a detailed JSON object containing your communication analysis.`;
+          break;
+
+        case 'behavioral':
+          userPrompt = `Analyze behavioral patterns and provide positive behavior support recommendations. Include:
+1. Likely behavioral triggers and patterns
+2. Self-regulation strategies
+3. Environmental modifications
+4. Replacement behaviors and coping skills
+5. Crisis prevention strategies
+
+${studentContext}
+
+Respond with a detailed JSON object containing your behavioral analysis.`;
+          break;
+
+        case 'social':
+          userPrompt = `Analyze social skills needs and provide comprehensive social support recommendations. Include:
+1. Social strengths and areas for growth
+2. Peer interaction strategies
+3. Social skills teaching opportunities
+4. Structured social activities
+5. Generalization strategies
+
+${studentContext}
+
+Respond with a detailed JSON object containing your social skills analysis.`;
+          break;
+
+        case 'custom':
+          userPrompt = `Based on this specific request: "${custom_request}"
+
+Please provide comprehensive autism-specific analysis and recommendations for this student. Consider all aspects of autism support including sensory, communication, behavioral, social, and academic needs as relevant.
+
+${studentContext}
+
+Respond with a detailed JSON object containing your analysis.`;
+          break;
+
+        default:
+          return res.status(400).json({ error: 'Invalid analysis type' });
+      }
+
+      // Generate AI analysis using OpenAI
+      const completion = await openai.chat.completions.create({
+        model: "gpt-5", // the newest OpenAI model is "gpt-5" which was released August 7, 2025. do not change this unless explicitly requested by the user
+        messages: [
+          { role: "system", content: systemPrompt },
+          { role: "user", content: userPrompt }
+        ],
+        max_completion_tokens: 1500,
+        response_format: { type: "json_object" }
+      });
+
+      const aiResponse = completion.choices[0].message.content;
+      const analysisData = JSON.parse(aiResponse || '{}');
+
+      // Save analysis to database
+      const [savedAnalysis] = await db.insert(schema.ai_reviews).values({
+        user_id: userId,
+        student_id: student_id,
+        review_type: `autism_${analysis_type}`,
+        ai_analysis: analysisData,
+        recommendations: analysisData.recommendations || [],
+        priority_level: 'medium',
+        status: 'active'
+      }).returning();
+
+      res.json({
+        success: true,
+        analysis: analysisData,
+        saved_id: savedAnalysis.id,
+        message: 'Autism AI analysis completed and saved to student profile'
+      });
+
+    } catch (error) {
+      console.error('Autism AI Analysis Error:', error);
+      res.status(500).json({ 
+        error: 'Failed to generate autism analysis',
+        details: error instanceof Error ? error.message : 'Unknown error'
+      });
+    }
+  });
+
+  // Get existing autism AI analysis
+  app.get('/api/autism-ai-analysis', isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.claims.sub;
+      const { student_id } = req.query;
+
+      if (!student_id) {
+        return res.status(400).json({ error: 'student_id is required' });
+      }
+
+      // Get latest autism AI analysis for this student
+      const analyses = await db.select().from(schema.ai_reviews)
+        .where(and(
+          eq(schema.ai_reviews.user_id, userId),
+          eq(schema.ai_reviews.student_id, student_id),
+          sql`${schema.ai_reviews.review_type} LIKE 'autism_%'`
+        ))
+        .orderBy(sql`${schema.ai_reviews.created_at} DESC`)
+        .limit(5);
+
+      if (analyses.length === 0) {
+        return res.json(null);
+      }
+
+      // Combine analyses into comprehensive result
+      const combined = {
+        sensory_analysis: null,
+        communication_insights: null,
+        behavioral_analysis: null,
+        social_analysis: null,
+        recommendations: []
+      };
+
+      analyses.forEach(analysis => {
+        const data = analysis.ai_analysis as any;
+        const type = analysis.review_type.replace('autism_', '');
+        
+        if (type === 'sensory') {
+          combined.sensory_analysis = data.sensory_analysis || data.analysis || data.summary;
+        } else if (type === 'communication') {
+          combined.communication_insights = data.communication_insights || data.insights || data.recommendations || [];
+        } else if (type === 'behavioral') {
+          combined.behavioral_analysis = data.behavioral_analysis || data.analysis || data.summary;
+        } else if (type === 'social') {
+          combined.social_analysis = data.social_analysis || data.analysis || data.summary;
+        }
+        
+        if (data.recommendations) {
+          combined.recommendations.push(...(Array.isArray(data.recommendations) ? data.recommendations : [data.recommendations]));
+        }
+      });
+
+      res.json(combined);
+
+    } catch (error) {
+      console.error('Error fetching autism AI analysis:', error);
+      res.status(500).json({ error: 'Failed to fetch analysis' });
+    }
+  });
+
   // Start the server after all setup is complete
   app.listen(PORT, '0.0.0.0', () => {
     console.log(`Server running on port ${PORT}`);

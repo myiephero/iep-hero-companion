@@ -3523,19 +3523,52 @@ Respond with a detailed JSON object containing your analysis.`;
           return res.status(400).json({ error: 'Invalid analysis type' });
       }
 
-      // Generate AI analysis using OpenAI
-      const completion = await openai.chat.completions.create({
-        model: "gpt-5", // the newest OpenAI model is "gpt-5" which was released August 7, 2025. do not change this unless explicitly requested by the user
-        messages: [
-          { role: "system", content: systemPrompt },
-          { role: "user", content: userPrompt }
-        ],
-        max_completion_tokens: 1500,
-        response_format: { type: "json_object" }
-      });
+      // Generate AI analysis using OpenAI with proper error handling
+      let analysisData = {};
+      
+      try {
+        console.log(`🤖 Generating ${analysis_type} analysis for student ${student.full_name}...`);
+        
+        const completion = await openai.chat.completions.create({
+          model: "gpt-5", // the newest OpenAI model is "gpt-5" which was released August 7, 2025. do not change this unless explicitly requested by the user
+          messages: [
+            { role: "system", content: systemPrompt },
+            { role: "user", content: userPrompt }
+          ],
+          max_completion_tokens: 1500,
+          response_format: { type: "json_object" }
+        });
 
-      const aiResponse = completion.choices[0].message.content;
-      const analysisData = JSON.parse(aiResponse || '{}');
+        const aiResponse = completion.choices[0].message.content;
+        console.log('✅ OpenAI response received, length:', aiResponse?.length);
+        
+        if (!aiResponse) {
+          throw new Error('Empty response from OpenAI');
+        }
+        
+        analysisData = JSON.parse(aiResponse);
+        console.log('✅ Analysis data parsed successfully:', Object.keys(analysisData));
+        
+        // Ensure we have meaningful data
+        if (Object.keys(analysisData).length === 0) {
+          throw new Error('OpenAI returned empty analysis object');
+        }
+        
+      } catch (openAIError) {
+        console.error('❌ OpenAI analysis failed:', openAIError);
+        
+        // Create fallback analysis with helpful content
+        analysisData = {
+          [`${analysis_type}_analysis`]: `AI analysis for ${analysis_type} patterns is temporarily unavailable. Please try again in a few minutes.`,
+          recommendations: [
+            `Consider consulting with school autism specialist for ${analysis_type} support strategies`,
+            "Document current patterns and share with IEP team",
+            "Review existing accommodations for effectiveness"
+          ],
+          summary: `${analysis_type.charAt(0).toUpperCase() + analysis_type.slice(1)} analysis requested for ${student.full_name}. AI service temporarily unavailable.`,
+          status: "fallback_content"
+        };
+      }
 
       // Save analysis to database
       const [savedAnalysis] = await db.insert(schema.ai_reviews).values({

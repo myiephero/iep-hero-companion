@@ -446,3 +446,6 @@ export type InsertConversation = typeof conversations.$inferInsert;
 
 export type Message = typeof messages.$inferSelect;
 export type InsertMessage = typeof messages.$inferInsert;
+
+export type Student = typeof students.$inferSelect;
+export type InsertStudent = typeof students.$inferInsert;

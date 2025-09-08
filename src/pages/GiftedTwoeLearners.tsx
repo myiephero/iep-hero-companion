@@ -14,6 +14,7 @@ import { StudentSelector } from "@/components/StudentSelector";
 import { Brain, Plus, Star, BookOpen, Lightbulb, Zap, Users, Target, TrendingUp, Save } from "lucide-react";
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
+import type { Student } from "@shared/schema";
 
 interface GiftedAssessment {
   id: string;

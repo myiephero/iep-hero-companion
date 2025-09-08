@@ -19,6 +19,7 @@ import { sendVerificationEmail, sendWelcomeEmail } from './emailService';
 import { getUserId } from './utils';
 import { standardsAnalyzer } from './standards-analyzer';
 import { ALL_STANDARDS, STATE_SPECIFIC_STANDARDS } from './standards-database';
+import OpenAI from 'openai';
 
 // Initialize Stripe
 if (!process.env.STRIPE_SECRET_KEY) {
@@ -36,6 +37,95 @@ function createId(): string {
 // Generate verification token
 function generateVerificationToken(): string {
   return Date.now().toString(36) + Math.random().toString(36).substr(2) + Math.random().toString(36).substr(2);
+}
+
+// Initialize OpenAI
+const openai = new OpenAI({ 
+  apiKey: process.env.OPENAI_API_KEY 
+});
+
+// AI Analysis function for Gifted Assessments
+async function generateGiftedAssessmentAI(assessmentData: any, role: 'parent' | 'advocate'): Promise<any> {
+  try {
+    const isParent = role === 'parent';
+    
+    // Create detailed context from assessment data
+    const assessmentContext = `
+Assessment Type: ${assessmentData.assessment_type}
+Areas of Giftedness: ${Array.isArray(assessmentData.giftedness_areas) ? assessmentData.giftedness_areas.join(', ') : assessmentData.giftedness_areas}
+Learning Differences: ${Array.isArray(assessmentData.learning_differences) ? assessmentData.learning_differences.join(', ') : assessmentData.learning_differences || 'None specified'}
+Strengths: ${typeof assessmentData.strengths === 'object' ? assessmentData.strengths?.notes || JSON.stringify(assessmentData.strengths) : assessmentData.strengths || 'Not specified'}
+Challenges: ${typeof assessmentData.challenges === 'object' ? assessmentData.challenges?.notes || JSON.stringify(assessmentData.challenges) : assessmentData.challenges || 'Not specified'}
+Current Recommendations: ${typeof assessmentData.recommendations === 'object' ? assessmentData.recommendations?.notes || JSON.stringify(assessmentData.recommendations) : assessmentData.recommendations || 'Not specified'}
+Enrichment Activities: ${typeof assessmentData.enrichment_activities === 'object' ? assessmentData.enrichment_activities?.notes || JSON.stringify(assessmentData.enrichment_activities) : assessmentData.enrichment_activities || 'Not specified'}
+Acceleration Needs: ${typeof assessmentData.acceleration_needs === 'object' ? assessmentData.acceleration_needs?.notes || JSON.stringify(assessmentData.acceleration_needs) : assessmentData.acceleration_needs || 'Not specified'}
+Social-Emotional Needs: ${typeof assessmentData.social_emotional_needs === 'object' ? assessmentData.social_emotional_needs?.notes || JSON.stringify(assessmentData.social_emotional_needs) : assessmentData.social_emotional_needs || 'Not specified'}
+Evaluator Notes: ${assessmentData.evaluator_notes || 'Not specified'}
+    `;
+
+    const systemPrompt = isParent 
+      ? `You are an expert educational consultant specializing in gifted and twice-exceptional learners. Your role is to provide clear, practical guidance to PARENTS about their child's educational needs. Use everyday language that parents can understand and focus on actionable steps they can take to support their child at home and advocate at school.
+
+Your analysis should be compassionate, encouraging, and focused on celebrating the child's unique gifts while addressing challenges constructively. Avoid overly technical jargon and instead provide practical, real-world advice that empowers parents.`
+      
+      : `You are a seasoned educational advocate and specialist in gifted and twice-exceptional education. Your role is to provide detailed, professional analysis to EDUCATIONAL ADVOCATES who are working with families. Use precise educational terminology and provide comprehensive insights that will help advocates develop effective IEP goals, accommodations, and educational strategies.
+
+Your analysis should be thorough, evidence-based, and focused on actionable advocacy strategies, legal considerations, and best practices in gifted and 2e education.`;
+
+    const userPrompt = isParent
+      ? `Based on this gifted/twice-exceptional assessment, please provide a comprehensive analysis for the PARENT that includes:
+
+1. **Celebration of Strengths**: Help the parent understand and celebrate their child's unique gifts and abilities
+2. **Understanding Challenges**: Explain any challenges in simple terms and why they occur alongside giftedness  
+3. **Home Support Strategies**: Specific, practical ways the parent can support their child at home
+4. **School Advocacy Guide**: Key points the parent should discuss with teachers and school staff
+5. **Questions for IEP/504 Meetings**: Important questions the parent should ask during educational planning meetings
+6. **Resources and Next Steps**: Helpful resources, books, websites, or organizations for ongoing support
+7. **Social-Emotional Support**: Ways to support the child's emotional and social needs
+8. **Long-term Planning**: Considerations for the child's educational journey ahead
+
+Please provide this analysis in a warm, encouraging tone that empowers the parent while being practical and actionable.
+
+Assessment Data:
+${assessmentContext}`
+
+      : `Based on this gifted/twice-exceptional assessment, please provide a comprehensive professional analysis for the EDUCATIONAL ADVOCATE that includes:
+
+1. **Clinical Assessment Summary**: Professional interpretation of the student's profile and educational needs
+2. **IEP Goal Development**: Specific, measurable goal recommendations across relevant domains
+3. **Accommodation Strategies**: Detailed accommodation and modification recommendations with justification
+4. **Legal Considerations**: Relevant IDEA, 504, and gifted education law implications
+5. **Evidence-Based Interventions**: Research-backed instructional strategies and interventions
+6. **Assessment Recommendations**: Suggestions for additional evaluations or assessments needed
+7. **Collaboration Framework**: Strategies for working effectively with the educational team
+8. **Progress Monitoring**: Methods to track student progress and intervention effectiveness
+9. **Transition Planning**: Considerations for educational transitions and long-term planning
+10. **Parent Support**: Guidance for supporting the family and building parent-advocate partnership
+
+Please provide this analysis using professional educational terminology and evidence-based practices.
+
+Assessment Data:
+${assessmentContext}`;
+
+    // the newest OpenAI model is "gpt-5" which was released August 7, 2025. do not change this unless explicitly requested by the user
+    const completion = await openai.chat.completions.create({
+      model: "gpt-5",
+      messages: [
+        { role: "system", content: systemPrompt },
+        { role: "user", content: userPrompt }
+      ],
+      temperature: 0.7,
+      max_tokens: 2000,
+      response_format: { type: "json_object" }
+    });
+
+    const aiResponse = completion.choices[0].message.content;
+    return JSON.parse(aiResponse || '{}');
+    
+  } catch (error) {
+    console.error('Error generating AI analysis:', error);
+    throw new Error('Failed to generate AI analysis');
+  }
 }
 
 // Helper function to get accommodation templates
@@ -2872,6 +2962,82 @@ app.post('/api/gifted-assessments', async (req: any, res) => {
       return res.status(401).json({ error: 'Authentication required' });
     }
     res.status(500).json({ error: 'Failed to create gifted assessment' });
+  }
+});
+
+// AI Analysis endpoint for Gifted Assessments
+app.post('/api/gifted-assessments/:id/ai-analysis', async (req: any, res) => {
+  try {
+    const userId = await getUserId(req);
+    const { id } = req.params;
+    const { role = 'parent' } = req.body; // parent or advocate
+
+    console.log(`✅ PRODUCTION: Generating AI analysis for assessment ${id}, user: ${userId}, role: ${role}`);
+
+    // Get the assessment
+    const [assessment] = await db
+      .select()
+      .from(schema.gifted_assessments)
+      .where(and(
+        eq(schema.gifted_assessments.id, id),
+        eq(schema.gifted_assessments.user_id, userId)
+      ))
+      .limit(1);
+
+    if (!assessment) {
+      return res.status(404).json({ error: 'Assessment not found' });
+    }
+
+    // Check if we have OpenAI API key
+    if (!process.env.OPENAI_API_KEY) {
+      return res.status(500).json({ error: 'AI analysis not available - missing API key' });
+    }
+
+    // Prepare assessment data for AI analysis
+    const assessmentData = {
+      assessment_type: assessment.assessment_type,
+      giftedness_areas: assessment.giftedness_areas,
+      learning_differences: assessment.learning_differences,
+      strengths: assessment.strengths,
+      challenges: assessment.challenges,
+      recommendations: assessment.recommendations,
+      enrichment_activities: assessment.enrichment_activities,
+      acceleration_needs: assessment.acceleration_needs,
+      social_emotional_needs: assessment.social_emotional_needs,
+      evaluator_notes: assessment.evaluator_notes
+    };
+
+    // Generate AI insights using OpenAI
+    const aiInsights = await generateGiftedAssessmentAI(assessmentData, role);
+
+    // Save AI analysis to database
+    const updateData: any = {
+      updated_at: new Date(),
+      ai_generated_at: new Date()
+    };
+
+    if (role === 'parent') {
+      updateData.ai_analysis_parent = aiInsights;
+    } else {
+      updateData.ai_analysis_advocate = aiInsights;
+    }
+
+    await db
+      .update(schema.gifted_assessments)
+      .set(updateData)
+      .where(eq(schema.gifted_assessments.id, id));
+
+    console.log(`✅ PRODUCTION: AI analysis generated and saved for assessment ${id}`);
+    
+    res.json({
+      success: true,
+      ai_analysis: aiInsights,
+      generated_at: new Date().toISOString()
+    });
+
+  } catch (error) {
+    console.error('❌ Error generating AI analysis:', error);
+    res.status(500).json({ error: 'Failed to generate AI analysis' });
   }
 });
 

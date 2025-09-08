@@ -12,7 +12,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Checkbox } from "@/components/ui/checkbox";
 import { StudentSelector } from "@/components/StudentSelector";
 import { Brain, Plus, Star, BookOpen, Lightbulb, Zap, Users, Target, TrendingUp } from "lucide-react";
-// // import { apiRequest } from "@/lib/queryClient"; // Removed during migration // Removed during migration
+import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 
 interface GiftedAssessment {

@@ -2908,6 +2908,87 @@ app.post('/api/students', async (req: any, res) => {
   }
 });
 
+// PUT endpoint for updating students
+app.put('/api/students/:id', async (req: any, res) => {
+  try {
+    const userId = await getUserId(req);
+    const studentId = req.params.id;
+    const updateData = req.body;
+
+    console.log('✅ PRODUCTION: Updating student:', studentId, 'by user:', userId);
+
+    // Get user's role to verify permission
+    const [user] = await db.select()
+      .from(schema.users)
+      .where(eq(schema.users.id, userId));
+
+    if (!user) {
+      return res.status(401).json({ error: 'User not found' });
+    }
+
+    const userRole = user.role || 'parent';
+
+    // Verify the user has permission to update this student
+    const [existingStudent] = await db.select()
+      .from(schema.students)
+      .where(eq(schema.students.id, studentId));
+
+    if (!existingStudent) {
+      return res.status(404).json({ error: 'Student not found' });
+    }
+
+    // Check permissions
+    if (userRole === 'parent' && existingStudent.parent_id !== userId) {
+      return res.status(403).json({ error: 'Not authorized to update this student' });
+    }
+
+    if (userRole === 'advocate') {
+      // For advocates, check if they have access to this student through cases or client relationships
+      const hasAccess = await db.select()
+        .from(schema.cases)
+        .where(and(
+          eq(schema.cases.advocate_id, userId),
+          eq(schema.cases.student_id, studentId)
+        ))
+        .limit(1);
+
+      if (hasAccess.length === 0) {
+        // Also check advocate-client relationships
+        const hasClientAccess = await db.select()
+          .from(schema.advocate_clients)
+          .where(and(
+            eq(schema.advocate_clients.advocate_id, userId),
+            eq(schema.advocate_clients.client_id, existingStudent.parent_id)
+          ))
+          .limit(1);
+
+        if (hasClientAccess.length === 0) {
+          return res.status(403).json({ error: 'Not authorized to update this student' });
+        }
+      }
+    }
+
+    // Update the student
+    const [updatedStudent] = await db
+      .update(schema.students)
+      .set({
+        ...updateData,
+        updated_at: new Date()
+      })
+      .where(eq(schema.students.id, studentId))
+      .returning();
+
+    console.log('✅ PRODUCTION: Student updated successfully:', updatedStudent.id);
+    res.json(updatedStudent);
+  } catch (error) {
+    console.error('❌ Error updating student:', error);
+    if (error.message.includes('Authentication required')) {
+      return res.status(401).json({ error: 'Authentication required' });
+    }
+    res.status(500).json({ error: 'Failed to update student' });
+  }
+});
+
 // GET endpoint for fetching gifted assessments
 app.get('/api/gifted-assessments', async (req: any, res) => {
   try {

@@ -19,6 +19,8 @@ export async function apiRequest(
   options?: RequestInit
 ): Promise<Response> {
   const token = localStorage.getItem('authToken');
+  // Removed debug logs
+  
   const response = await fetch(url, {
     method,
     headers: {
@@ -31,7 +33,7 @@ export async function apiRequest(
   });
 
   if (!response.ok && response.status === 401) {
-    // Token expired or invalid, clear it
+    console.log('🚫 Token expired or invalid, clearing authToken');
     localStorage.removeItem('authToken');
     throw new Error(`${response.status}: ${response.statusText || 'Unauthorized'}`);
   }

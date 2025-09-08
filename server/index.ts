@@ -84,7 +84,7 @@ Your analysis should be thorough, evidence-based, and focused on actionable advo
 7. **Social-Emotional Support**: Ways to support the child's emotional and social needs
 8. **Long-term Planning**: Considerations for the child's educational journey ahead
 
-Please provide this analysis in a warm, encouraging tone that empowers the parent while being practical and actionable.
+Please provide this analysis in a warm, encouraging tone that empowers the parent while being practical and actionable. Respond with a detailed JSON object containing your analysis.
 
 Assessment Data:
 ${assessmentContext}`
@@ -102,7 +102,7 @@ ${assessmentContext}`
 9. **Transition Planning**: Considerations for educational transitions and long-term planning
 10. **Parent Support**: Guidance for supporting the family and building parent-advocate partnership
 
-Please provide this analysis using professional educational terminology and evidence-based practices.
+Please provide this analysis using professional educational terminology and evidence-based practices. Respond with a detailed JSON object containing your analysis.
 
 Assessment Data:
 ${assessmentContext}`;

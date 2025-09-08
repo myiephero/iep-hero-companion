@@ -26,11 +26,403 @@ import {
   Save,
   Trash2,
   AlertCircle,
-  CheckCircle
+  CheckCircle,
+  Volume2,
+  Brain,
+  Star,
+  BookOpen,
+  Lightbulb
 } from "lucide-react";
 // import { supabase } from "@/integrations/supabase/client"; // Removed during migration
 import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { apiRequest } from "@/lib/queryClient";
+
+// Autism Accommodations Tab Component
+const AutismAccommodationsTab = ({ selectedStudentId }: { selectedStudentId?: string }) => {
+  const [activeCategory, setActiveCategory] = useState<string>("all");
+  const [addedAccommodations, setAddedAccommodations] = useState<string[]>([]);
+  const { toast } = useToast();
+  const queryClient = useQueryClient();
+
+  // Fetch existing accommodations
+  const { data: accommodations = [] } = useQuery({
+    queryKey: ['/api/autism_accommodations', selectedStudentId],
+    queryFn: async () => {
+      if (!selectedStudentId) return [];
+      const response = await apiRequest('GET', `/api/autism_accommodations?student_id=${selectedStudentId}`);
+      return response.json();
+    },
+    enabled: !!selectedStudentId
+  });
+
+  // Mutation for adding accommodations
+  const addAccommodation = useMutation({
+    mutationFn: async (accommodationData: any) => {
+      const response = await apiRequest('POST', '/api/autism_accommodations', accommodationData);
+      return response.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['/api/autism_accommodations'] });
+      toast({ title: "Success", description: "Accommodation added successfully" });
+    },
+    onError: (error: any) => {
+      toast({ title: "Error", description: "Failed to add accommodation", variant: "destructive" });
+    }
+  });
+
+  const accommodationCategories = [
+    {
+      id: "sensory",
+      title: "Sensory Support",
+      icon: <Volume2 className="h-5 w-5" />,
+      items: [
+        { id: "noise-canceling", title: "Noise-Canceling Headphones", description: "Provide noise-canceling headphones for noisy environments" },
+        { id: "sensory-breaks", title: "Sensory Breaks", description: "Regular breaks to sensory room or quiet space every 30 minutes" },
+        { id: "fidget-tools", title: "Fidget Tools", description: "Allow use of fidget toys or stress balls during instruction" }
+      ]
+    },
+    {
+      id: "communication",
+      title: "Communication",
+      icon: <Users className="h-5 w-5" />,
+      items: [
+        { id: "visual-schedules", title: "Visual Schedules", description: "Visual schedules and social stories for transitions" },
+        { id: "communication-device", title: "AAC Device", description: "Access to AAC device or picture cards for communication" },
+        { id: "peer-support", title: "Peer Support", description: "Structured peer interaction opportunities" }
+      ]
+    },
+    {
+      id: "academic",
+      title: "Academic Support",
+      icon: <BookOpen className="h-5 w-5" />,
+      items: [
+        { id: "extended-time", title: "Extended Time", description: "Extended time for assignments and tests (1.5x)" },
+        { id: "chunking", title: "Task Chunking", description: "Breaking assignments into smaller, manageable chunks" },
+        { id: "visual-supports", title: "Visual Supports", description: "Visual aids and graphic organizers for learning" }
+      ]
+    }
+  ];
+
+  const handleAddAccommodation = (item: any) => {
+    if (!selectedStudentId) {
+      toast({ title: "Error", description: "Please select a student first", variant: "destructive" });
+      return;
+    }
+
+    addAccommodation.mutate({
+      student_id: selectedStudentId,
+      title: item.title,
+      description: item.description,
+      category: accommodationCategories.find(cat => cat.items.some(i => i.id === item.id))?.id || 'general',
+      accommodation_type: 'autism_support',
+      status: 'active'
+    });
+  };
+
+  if (!selectedStudentId) {
+    return (
+      <Card className="premium-card">
+        <CardContent className="text-center py-8">
+          <Brain className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
+          <p className="text-muted-foreground">Select a student to view and manage autism accommodations.</p>
+        </CardContent>
+      </Card>
+    );
+  }
+
+  return (
+    <Card className="premium-card">
+      <CardHeader>
+        <CardTitle className="flex items-center">
+          <span className="text-2xl mr-2">🧩</span>
+          Autism Support Tools
+        </CardTitle>
+        <CardDescription>Specialized accommodations and strategies for autism spectrum support</CardDescription>
+      </CardHeader>
+      <CardContent>
+        <div className="space-y-6">
+          {/* Category filters */}
+          <div className="flex gap-2 flex-wrap">
+            <Button
+              variant={activeCategory === "all" ? "default" : "outline"}
+              size="sm"
+              onClick={() => setActiveCategory("all")}
+            >
+              All Categories
+            </Button>
+            {accommodationCategories.map((category) => (
+              <Button
+                key={category.id}
+                variant={activeCategory === category.id ? "default" : "outline"}
+                size="sm"
+                onClick={() => setActiveCategory(category.id)}
+              >
+                {category.icon}
+                <span className="ml-2">{category.title}</span>
+              </Button>
+            ))}
+          </div>
+
+          {/* Existing accommodations */}
+          {accommodations.length > 0 && (
+            <div className="space-y-4">
+              <h4 className="font-medium">Current Accommodations</h4>
+              <div className="space-y-2">
+                {accommodations.map((acc: any) => (
+                  <div key={acc.id} className="border rounded-lg p-3 bg-muted/30">
+                    <div className="flex items-center justify-between">
+                      <h5 className="font-medium">{acc.title}</h5>
+                      <Badge variant="secondary">{acc.category}</Badge>
+                    </div>
+                    <p className="text-sm text-muted-foreground mt-1">{acc.description}</p>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Available accommodations to add */}
+          <div className="space-y-4">
+            <h4 className="font-medium">Add Accommodations</h4>
+            {accommodationCategories
+              .filter(category => activeCategory === "all" || activeCategory === category.id)
+              .map((category) => (
+                <div key={category.id} className="space-y-3">
+                  <h5 className="flex items-center font-medium text-sm">
+                    {category.icon}
+                    <span className="ml-2">{category.title}</span>
+                  </h5>
+                  <div className="grid gap-2">
+                    {category.items.map((item) => (
+                      <div key={item.id} className="border rounded-lg p-3 flex items-center justify-between">
+                        <div>
+                          <h6 className="font-medium text-sm">{item.title}</h6>
+                          <p className="text-xs text-muted-foreground">{item.description}</p>
+                        </div>
+                        <Button 
+                          size="sm" 
+                          onClick={() => handleAddAccommodation(item)}
+                          disabled={addAccommodation.isPending || accommodations.some((acc: any) => acc.title === item.title)}
+                        >
+                          {accommodations.some((acc: any) => acc.title === item.title) ? (
+                            <CheckCircle className="h-4 w-4" />
+                          ) : (
+                            <Plus className="h-4 w-4" />
+                          )}
+                        </Button>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              ))}
+          </div>
+        </div>
+      </CardContent>
+    </Card>
+  );
+};
+
+// Gifted Assessments Tab Component
+const GiftedAssessmentsTab = ({ selectedStudentId }: { selectedStudentId?: string }) => {
+  const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
+  const [newAssessment, setNewAssessment] = useState({
+    assessment_type: '',
+    giftedness_areas: [] as string[],
+    learning_differences: [] as string[]
+  });
+  const { toast } = useToast();
+  const queryClient = useQueryClient();
+
+  // Fetch existing assessments
+  const { data: assessments = [] } = useQuery({
+    queryKey: ['/api/gifted-assessments', selectedStudentId],
+    queryFn: async () => {
+      if (!selectedStudentId) return [];
+      const response = await apiRequest('GET', `/api/gifted-assessments?student_id=${selectedStudentId}`);
+      return response.json();
+    },
+    enabled: !!selectedStudentId
+  });
+
+  // Mutation for creating assessments
+  const createAssessment = useMutation({
+    mutationFn: async (assessmentData: any) => {
+      const response = await apiRequest('POST', '/api/gifted-assessments', assessmentData);
+      return response.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['/api/gifted-assessments'] });
+      toast({ title: "Success", description: "Assessment created successfully" });
+      setIsCreateDialogOpen(false);
+      setNewAssessment({ assessment_type: '', giftedness_areas: [], learning_differences: [] });
+    },
+    onError: (error: any) => {
+      toast({ title: "Error", description: "Failed to create assessment", variant: "destructive" });
+    }
+  });
+
+  const giftednessAreas = [
+    'Intellectual/Academic', 'Creative/Divergent Thinking', 'Artistic/Visual Arts', 'Musical',
+    'Leadership', 'Mathematical', 'Scientific', 'Linguistic/Verbal', 'Spatial'
+  ];
+
+  const learningDifferences = [
+    'ADHD', 'Autism Spectrum Disorder', 'Dyslexia', 'Dysgraphia', 'Dyscalculia',
+    'Executive Function Deficits', 'Processing Speed Deficits', 'Working Memory Challenges'
+  ];
+
+  const assessmentTypes = [
+    { value: 'cognitive', label: 'Cognitive Assessment' },
+    { value: 'academic', label: 'Academic Assessment' },
+    { value: 'creative', label: 'Creative Assessment' },
+    { value: 'twice_exceptional', label: 'Twice-Exceptional Profile' }
+  ];
+
+  if (!selectedStudentId) {
+    return (
+      <Card className="premium-card">
+        <CardContent className="text-center py-8">
+          <Star className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
+          <p className="text-muted-foreground">Select a student to view and manage gifted assessments.</p>
+        </CardContent>
+      </Card>
+    );
+  }
+
+  return (
+    <Card className="premium-card">
+      <CardHeader>
+        <CardTitle className="flex items-center justify-between">
+          <div className="flex items-center">
+            <span className="text-2xl mr-2">🎓</span>
+            Gifted & Twice-Exceptional Support
+          </div>
+          <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
+            <DialogTrigger asChild>
+              <Button>
+                <Plus className="h-4 w-4 mr-2" />
+                New Assessment
+              </Button>
+            </DialogTrigger>
+            <DialogContent className="max-w-2xl">
+              <DialogHeader>
+                <DialogTitle>Create New Assessment</DialogTitle>
+                <CardDescription>Create a comprehensive gifted and twice-exceptional assessment</CardDescription>
+              </DialogHeader>
+              <div className="space-y-4">
+                <div>
+                  <Label>Assessment Type</Label>
+                  <Select value={newAssessment.assessment_type} onValueChange={(value) => setNewAssessment(prev => ({ ...prev, assessment_type: value }))}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select assessment type" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {assessmentTypes.map(type => (
+                        <SelectItem key={type.value} value={type.value}>{type.label}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div>
+                  <Label>Areas of Giftedness</Label>
+                  <div className="grid grid-cols-2 gap-2 mt-2">
+                    {giftednessAreas.map(area => (
+                      <label key={area} className="flex items-center space-x-2">
+                        <Checkbox
+                          checked={newAssessment.giftedness_areas.includes(area)}
+                          onCheckedChange={(checked) => {
+                            if (checked) {
+                              setNewAssessment(prev => ({ ...prev, giftedness_areas: [...prev.giftedness_areas, area] }));
+                            } else {
+                              setNewAssessment(prev => ({ ...prev, giftedness_areas: prev.giftedness_areas.filter(a => a !== area) }));
+                            }
+                          }}
+                        />
+                        <span className="text-sm">{area}</span>
+                      </label>
+                    ))}
+                  </div>
+                </div>
+                <div>
+                  <Label>Learning Differences (if any)</Label>
+                  <div className="grid grid-cols-2 gap-2 mt-2">
+                    {learningDifferences.map(diff => (
+                      <label key={diff} className="flex items-center space-x-2">
+                        <Checkbox
+                          checked={newAssessment.learning_differences.includes(diff)}
+                          onCheckedChange={(checked) => {
+                            if (checked) {
+                              setNewAssessment(prev => ({ ...prev, learning_differences: [...prev.learning_differences, diff] }));
+                            } else {
+                              setNewAssessment(prev => ({ ...prev, learning_differences: prev.learning_differences.filter(d => d !== diff) }));
+                            }
+                          }}
+                        />
+                        <span className="text-sm">{diff}</span>
+                      </label>
+                    ))}
+                  </div>
+                </div>
+                <div className="flex justify-end gap-2">
+                  <Button variant="outline" onClick={() => setIsCreateDialogOpen(false)}>Cancel</Button>
+                  <Button 
+                    onClick={() => createAssessment.mutate({ 
+                      student_id: selectedStudentId, 
+                      ...newAssessment,
+                      status: 'draft'
+                    })}
+                    disabled={!newAssessment.assessment_type || createAssessment.isPending}
+                  >
+                    Create Assessment
+                  </Button>
+                </div>
+              </div>
+            </DialogContent>
+          </Dialog>
+        </CardTitle>
+        <CardDescription>Advanced learning assessments and support for gifted and 2E learners</CardDescription>
+      </CardHeader>
+      <CardContent>
+        <div className="space-y-6">
+          {assessments.length === 0 ? (
+            <div className="text-center py-8">
+              <Lightbulb className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
+              <h3 className="text-lg font-semibold mb-2">No Assessments Yet</h3>
+              <p className="text-muted-foreground mb-4">
+                Create your first gifted assessment to track your child's exceptional abilities.
+              </p>
+            </div>
+          ) : (
+            <div className="space-y-4">
+              {assessments.map((assessment: any) => (
+                <div key={assessment.id} className="border rounded-lg p-4">
+                  <div className="flex items-center justify-between mb-2">
+                    <h4 className="font-medium capitalize">{assessment.assessment_type.replace('_', ' ')} Assessment</h4>
+                    <Badge>{assessment.status}</Badge>
+                  </div>
+                  {assessment.giftedness_areas && assessment.giftedness_areas.length > 0 && (
+                    <div className="mb-2">
+                      <span className="text-sm font-medium">Areas of Giftedness: </span>
+                      <span className="text-sm text-muted-foreground">{assessment.giftedness_areas.join(', ')}</span>
+                    </div>
+                  )}
+                  {assessment.learning_differences && assessment.learning_differences.length > 0 && (
+                    <div>
+                      <span className="text-sm font-medium">Learning Differences: </span>
+                      <span className="text-sm text-muted-foreground">{assessment.learning_differences.join(', ')}</span>
+                    </div>
+                  )}
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      </CardContent>
+    </Card>
+  );
+};
 
 interface Student {
   id: string;
@@ -1166,79 +1558,11 @@ const ParentStudents = () => {
               </TabsContent>
 
               <TabsContent value="autism" className="space-y-6">
-                <Card className="premium-card">
-                  <CardHeader>
-                    <CardTitle className="flex items-center">
-                      <span className="text-2xl mr-2">🧩</span>
-                      Autism Support Tools
-                    </CardTitle>
-                    <CardDescription>Specialized accommodations and strategies for autism spectrum support</CardDescription>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="text-center py-8">
-                      <div className="text-4xl mb-4">🎯</div>
-                      <h3 className="text-lg font-semibold mb-2">Integrated Autism Support</h3>
-                      <p className="text-muted-foreground mb-4">
-                        All autism-specific accommodations and tools are now integrated directly into your student's profile for streamlined access.
-                      </p>
-                      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mt-6">
-                        <div className="bg-muted/30 p-4 rounded-lg border">
-                          <div className="text-blue-600 mb-2">📊</div>
-                          <h4 className="font-medium mb-1">Sensory Accommodations</h4>
-                          <p className="text-sm text-muted-foreground">Track sensory needs and environmental modifications</p>
-                        </div>
-                        <div className="bg-muted/30 p-4 rounded-lg border">
-                          <div className="text-green-600 mb-2">🗣️</div>
-                          <h4 className="font-medium mb-1">Communication Support</h4>
-                          <p className="text-sm text-muted-foreground">Monitor communication strategies and progress</p>
-                        </div>
-                        <div className="bg-muted/30 p-4 rounded-lg border">
-                          <div className="text-purple-600 mb-2">📋</div>
-                          <h4 className="font-medium mb-1">Behavioral Strategies</h4>
-                          <p className="text-sm text-muted-foreground">Document effective behavioral interventions</p>
-                        </div>
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
+                <AutismAccommodationsTab selectedStudentId={selectedStudent?.id} />
               </TabsContent>
 
               <TabsContent value="gifted" className="space-y-6">
-                <Card className="premium-card">
-                  <CardHeader>
-                    <CardTitle className="flex items-center">
-                      <span className="text-2xl mr-2">🎓</span>
-                      Gifted & Twice-Exceptional Support
-                    </CardTitle>
-                    <CardDescription>Advanced learning assessments and support for gifted and 2E learners</CardDescription>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="text-center py-8">
-                      <div className="text-4xl mb-4">✨</div>
-                      <h3 className="text-lg font-semibold mb-2">Integrated Gifted Support</h3>
-                      <p className="text-muted-foreground mb-4">
-                        Comprehensive gifted and twice-exceptional assessment tools are now seamlessly integrated into your student's profile.
-                      </p>
-                      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mt-6">
-                        <div className="bg-muted/30 p-4 rounded-lg border">
-                          <div className="text-blue-600 mb-2">🧠</div>
-                          <h4 className="font-medium mb-1">Cognitive Assessment</h4>
-                          <p className="text-sm text-muted-foreground">Track intellectual abilities and learning patterns</p>
-                        </div>
-                        <div className="bg-muted/30 p-4 rounded-lg border">
-                          <div className="text-green-600 mb-2">⚡</div>
-                          <h4 className="font-medium mb-1">Enrichment Needs</h4>
-                          <p className="text-sm text-muted-foreground">Document advanced learning opportunities</p>
-                        </div>
-                        <div className="bg-muted/30 p-4 rounded-lg border">
-                          <div className="text-purple-600 mb-2">🎯</div>
-                          <h4 className="font-medium mb-1">2E Support</h4>
-                          <p className="text-sm text-muted-foreground">Address unique twice-exceptional needs</p>
-                        </div>
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
+                <GiftedAssessmentsTab selectedStudentId={selectedStudent?.id} />
               </TabsContent>
             </Tabs>
           </div>

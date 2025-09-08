@@ -8,7 +8,7 @@ import expertRoutes from './routes/expert';
 import feedbackRoutes from './routes/feedback';
 import messagingRoutes from './routes/messaging';
 import simpleMessagingRoutes from './routes/simple-messages';
-import { mainRoutes } from './routes/main';
+// Removed non-existent main routes import
 import { createRequire } from 'module';
 const require = createRequire(import.meta.url);
 const pdf = require('pdf-parse');
@@ -25,7 +25,7 @@ if (!process.env.STRIPE_SECRET_KEY) {
   throw new Error('Missing required Stripe secret: STRIPE_SECRET_KEY');
 }
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY, {
-  apiVersion: "2024-06-20",
+  apiVersion: "2024-06-20" as any,
 });
 
 // Generate simple IDs since we don't have cuid2

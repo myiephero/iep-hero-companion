@@ -249,27 +249,22 @@ const StudentProfiles = () => {
 
     setLoading(true);
     try {
-      const { data, error } = await supabase
-        .from("students")
-        .insert({
-          user_id: user.id,
-          full_name: newStudent.full_name,
-          date_of_birth: newStudent.date_of_birth || null,
-          grade_level: newStudent.grade_level || null,
-          school_name: newStudent.school_name || null,
-          district: newStudent.district || null,
-          disability_category: newStudent.disability_category || null,
-          case_manager: newStudent.case_manager || null,
-          case_manager_email: newStudent.case_manager_email || null,
-          emergency_contact: newStudent.emergency_contact || null,
-          emergency_phone: newStudent.emergency_phone || null,
-          medical_info: newStudent.medical_info || null,
-          notes: newStudent.notes || null
-        })
-        .select()
-        .single();
-
-      if (error) throw error;
+      const { apiRequest } = await import('@/lib/queryClient');
+      const response = await apiRequest('POST', '/api/students', {
+        full_name: newStudent.full_name,
+        date_of_birth: newStudent.date_of_birth || null,
+        grade_level: newStudent.grade_level || null,
+        school_name: newStudent.school_name || null,
+        district: newStudent.district || null,
+        disability_category: newStudent.disability_category || null,
+        case_manager: newStudent.case_manager || null,
+        case_manager_email: newStudent.case_manager_email || null,
+        emergency_contact: newStudent.emergency_contact || null,
+        emergency_phone: newStudent.emergency_phone || null,
+        medical_info: newStudent.medical_info || null,
+        notes: newStudent.notes || null
+      });
+      const data = await response.json();
 
       toast({
         title: "Success",
@@ -310,13 +305,8 @@ const StudentProfiles = () => {
     if (!user || !currentStudent) return;
 
     try {
-      const { error } = await supabase
-        .from("students")
-        .update(updates)
-        .eq("id", currentStudent.id)
-        .eq("user_id", user.id);
-
-      if (error) throw error;
+      const { apiRequest } = await import('@/lib/queryClient');
+      await apiRequest('PUT', `/api/students/${currentStudent.id}`, updates);
 
       toast({
         title: "Success",

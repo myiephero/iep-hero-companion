@@ -217,7 +217,7 @@ export default function EmergentToolsHub() {
           </div>
           <p className="text-xl text-muted-foreground max-w-3xl mx-auto">
             Advanced AI-powered tools and specialized resources for special education advocacy, 
-            designed to streamline IEP processes and improve student outcomes.
+            designed to streamline IEP processes and improve student outcomes. Now with 18 comprehensive tools!
           </p>
           <div className="flex items-center justify-center gap-4 pt-4">
             <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200">

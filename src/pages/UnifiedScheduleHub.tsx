@@ -635,7 +635,7 @@ export default function UnifiedScheduleHub() {
                 <Button 
                   variant="outline" 
                   className="w-full justify-start"
-                  onClick={() => navigate('/parent/messaging')}
+                  onClick={() => navigate('/parent/messages')}
                   data-testid="button-message-advocate"
                 >
                   <MessageCircle className="h-4 w-4 mr-2" />

@@ -255,6 +255,11 @@ function App() {
                   <SmartLetterGenerator />
                 </ProtectedRoute>
               } />
+              <Route path="/parent/tools/timeline-calculator" element={
+                <ProtectedRoute allowedRoles={['parent']}>
+                  <TimelineCalculator />
+                </ProtectedRoute>
+              } />
               
               {/* Advocate Tools - Namespaced */}
               <Route path="/advocate/tools/smart-letter-generator" element={

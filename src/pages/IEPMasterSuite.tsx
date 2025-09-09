@@ -12,7 +12,7 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Progress } from "@/components/ui/progress";
 import { Separator } from "@/components/ui/separator";
 import { useToast } from "@/hooks/use-toast";
-import { FileText, Target, CheckCircle, Brain, Upload, Lightbulb, BarChart3, X } from "lucide-react";
+import { FileText, Target, CheckCircle, Brain, Upload, Lightbulb, BarChart3, X, Shield, Award, DollarSign, Gavel, Clock, Users } from "lucide-react";
 import { DocumentUpload } from "@/components/DocumentUpload";
 import { StudentSelector } from "@/components/StudentSelector";
 
@@ -140,8 +140,39 @@ const ACADEMIC_SUBJECTS = [
   'Career and Technical Education'
 ];
 
+// Expert Analysis Types for Professional Reviews
+const EXPERT_ANALYSIS_TYPES = [
+  {
+    id: "comprehensive",
+    title: "Comprehensive Review",
+    price: 150,
+    icon: Award,
+    description: "Complete IEP analysis covering goals, services, accommodations, and legal compliance",
+    includes: ["Full goal analysis", "Service recommendations", "Accommodation review", "Legal compliance check", "Progress monitoring plan", "Meeting preparation guide"],
+    timeframe: "24-48 hours"
+  },
+  {
+    id: "focused",
+    title: "Focused Review", 
+    price: 75,
+    icon: Target,
+    description: "Targeted review of specific areas of concern",
+    includes: ["Specific goal areas", "Targeted recommendations", "Priority action items", "Key compliance issues"],
+    timeframe: "24 hours"
+  },
+  {
+    id: "compliance",
+    title: "Compliance Check",
+    price: 50,
+    icon: Shield,
+    description: "Legal compliance and procedural requirements review",
+    includes: ["IDEA compliance check", "Procedural safeguards review", "Documentation analysis", "Rights protection"],
+    timeframe: "12-24 hours"
+  }
+];
+
 export default function IEPMasterSuite() {
-  const [activeTab, setActiveTab] = useState<'review' | 'generate' | 'check' | 'align'>('review');
+  const [activeTab, setActiveTab] = useState<'review' | 'generate' | 'expert' | 'check' | 'align'>('review');
   const { toast } = useToast();
   
   // Document Review States
@@ -164,6 +195,11 @@ export default function IEPMasterSuite() {
   const [complianceGoalText, setComplianceGoalText] = useState('');
   const [isCheckingCompliance, setIsCheckingCompliance] = useState(false);
   const [complianceResult, setComplianceResult] = useState<any>(null);
+
+  // Expert Analysis States
+  const [selectedExpertType, setSelectedExpertType] = useState('');
+  const [uploadedDocument, setUploadedDocument] = useState<any>(null);
+  const [expertAnalyses, setExpertAnalyses] = useState<any[]>([]);
 
   // Standards Alignment States
   const [alignmentState, setAlignmentState] = useState('California');
@@ -333,7 +369,7 @@ export default function IEPMasterSuite() {
         <Tabs value={activeTab} onValueChange={(value) => setActiveTab(value as any)} className="space-y-6">
           <div className="border rounded-lg bg-card">
             <div className="p-4 border-b">
-              <TabsList className="grid w-full grid-cols-4 h-auto">
+              <TabsList className="grid w-full grid-cols-5 h-auto">
                 <TabsTrigger value="review" className="flex flex-col items-center gap-1 py-3 px-4 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
                   <FileText className="h-5 w-5" />
                   <span className="text-xs font-medium">Document Review</span>
@@ -341,6 +377,10 @@ export default function IEPMasterSuite() {
                 <TabsTrigger value="generate" className="flex flex-col items-center gap-1 py-3 px-4 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
                   <Target className="h-5 w-5" />
                   <span className="text-xs font-medium">Generate Goals</span>
+                </TabsTrigger>
+                <TabsTrigger value="expert" className="flex flex-col items-center gap-1 py-3 px-4 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
+                  <BarChart3 className="h-5 w-5" />
+                  <span className="text-xs font-medium">Expert Review</span>
                 </TabsTrigger>
                 <TabsTrigger value="check" className="flex flex-col items-center gap-1 py-3 px-4 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
                   <CheckCircle className="h-5 w-5" />
@@ -560,6 +600,200 @@ export default function IEPMasterSuite() {
                       </Card>
                     )}
                   </div>
+                </div>
+              </TabsContent>
+
+              {/* Expert Professional Review Tab */}
+              <TabsContent value="expert" className="space-y-6 mt-0">
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                  {/* Request Professional Analysis */}
+                  <Card>
+                    <CardHeader>
+                      <CardTitle className="flex items-center space-x-2">
+                        <Gavel className="h-5 w-5 text-primary" />
+                        <span>Professional Expert Review</span>
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent className="space-y-4">
+                      <Alert>
+                        <Award className="h-4 w-4" />
+                        <AlertDescription>
+                          Get comprehensive IEP analysis from certified educational advocates and special education experts for your clients.
+                        </AlertDescription>
+                      </Alert>
+
+                      {!selectedStudentId && (
+                        <Alert>
+                          <Users className="h-4 w-4" />
+                          <AlertDescription>
+                            Please select a student/client context above to request expert analysis.
+                          </AlertDescription>
+                        </Alert>
+                      )}
+
+                      {/* Expert Analysis Options */}
+                      <div className="space-y-4">
+                        <Label className="text-base font-medium">Choose Expert Analysis Type:</Label>
+                        {EXPERT_ANALYSIS_TYPES.map((type) => {
+                          const IconComponent = type.icon;
+                          return (
+                            <Card 
+                              key={type.id} 
+                              className={`cursor-pointer transition-all ${selectedExpertType === type.id ? 'ring-2 ring-purple-500 bg-purple-50 dark:bg-purple-900/30' : 'hover:bg-gray-50 dark:hover:bg-gray-800'}`}
+                              onClick={() => setSelectedExpertType(type.id)}
+                            >
+                              <CardContent className="p-4">
+                                <div className="flex items-start space-x-4">
+                                  <div className="p-2 rounded-lg bg-purple-100 dark:bg-purple-900">
+                                    <IconComponent className="h-5 w-5 text-purple-600" />
+                                  </div>
+                                  <div className="flex-1">
+                                    <div className="flex items-center justify-between mb-2">
+                                      <h3 className="font-semibold">{type.title}</h3>
+                                      <div className="flex items-center space-x-2">
+                                        <Badge variant="outline" className="bg-green-100 text-green-700">${type.price}</Badge>
+                                        <Badge variant="outline" className="bg-blue-100 text-blue-700">{type.timeframe}</Badge>
+                                      </div>
+                                    </div>
+                                    <p className="text-sm text-gray-600 dark:text-gray-300 mb-3">{type.description}</p>
+                                    <div className="space-y-1">
+                                      <p className="text-xs font-medium text-gray-700 dark:text-gray-300">Includes:</p>
+                                      <ul className="text-xs text-gray-600 dark:text-gray-400 space-y-1">
+                                        {type.includes.map((item, index) => (
+                                          <li key={index} className="flex items-center space-x-1">
+                                            <CheckCircle className="h-3 w-3 text-green-600" />
+                                            <span>{item}</span>
+                                          </li>
+                                        ))}
+                                      </ul>
+                                    </div>
+                                  </div>
+                                </div>
+                              </CardContent>
+                            </Card>
+                          );
+                        })}
+                      </div>
+
+                      {/* Document Upload for Expert Analysis */}
+                      {selectedExpertType && (
+                        <div className="space-y-4 p-4 bg-purple-50 dark:bg-purple-900/20 rounded-lg border border-purple-200">
+                          <Label className="text-base font-medium">Upload IEP Document for Expert Review:</Label>
+                          <DocumentUpload onAnalysisComplete={(result) => setUploadedDocument(result)} />
+                          
+                          {uploadedDocument && (
+                            <div className="space-y-4">
+                              <div className="flex items-center space-x-2 p-3 bg-green-50 dark:bg-green-900/20 rounded-lg">
+                                <CheckCircle className="h-5 w-5 text-green-600" />
+                                <span className="text-sm font-medium">Document ready: {uploadedDocument.name}</span>
+                              </div>
+                              
+                              <div className="p-4 bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700">
+                                <h4 className="font-medium mb-2">Review Summary:</h4>
+                                <div className="space-y-2 text-sm">
+                                  <div className="flex justify-between">
+                                    <span>Analysis Type:</span>
+                                    <span className="font-medium">{EXPERT_ANALYSIS_TYPES.find(t => t.id === selectedExpertType)?.title}</span>
+                                  </div>
+                                  <div className="flex justify-between">
+                                    <span>Cost:</span>
+                                    <span className="font-medium">${EXPERT_ANALYSIS_TYPES.find(t => t.id === selectedExpertType)?.price}</span>
+                                  </div>
+                                  <div className="flex justify-between">
+                                    <span>Timeframe:</span>
+                                    <span className="font-medium">{EXPERT_ANALYSIS_TYPES.find(t => t.id === selectedExpertType)?.timeframe}</span>
+                                  </div>
+                                  <div className="flex justify-between">
+                                    <span>Client Context:</span>
+                                    <span className="font-medium">{selectedStudentId ? 'Selected' : 'Please select client'}</span>
+                                  </div>
+                                </div>
+                              </div>
+
+                              <Button 
+                                className="w-full"
+                                disabled={!selectedStudentId || !selectedExpertType}
+                                onClick={() => {
+                                  toast({
+                                    title: "Expert Review Submitted",
+                                    description: `Professional analysis request submitted for $${EXPERT_ANALYSIS_TYPES.find(t => t.id === selectedExpertType)?.price}`,
+                                    variant: "default"
+                                  });
+                                }}
+                                data-testid="button-submit-expert-analysis"
+                              >
+                                <DollarSign className="h-4 w-4 mr-2" />
+                                Submit for Expert Review - ${EXPERT_ANALYSIS_TYPES.find(t => t.id === selectedExpertType)?.price}
+                              </Button>
+                            </div>
+                          )}
+                        </div>
+                      )}
+                    </CardContent>
+                  </Card>
+
+                  {/* My Professional Analyses */}
+                  <Card>
+                    <CardHeader>
+                      <CardTitle className="flex items-center space-x-2">
+                        <FileText className="h-5 w-5 text-primary" />
+                        <span>Client Expert Analyses</span>
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent className="space-y-4">
+                      <Alert>
+                        <Clock className="h-4 w-4" />
+                        <AlertDescription>
+                          Track your submitted expert analyses and view completed professional reports for your clients.
+                        </AlertDescription>
+                      </Alert>
+
+                      {/* Professional analyses tracking */}
+                      <div className="space-y-4">
+                        {expertAnalyses.length === 0 ? (
+                          <div className="text-center py-8">
+                            <FileText className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
+                            <h3 className="text-lg font-medium mb-2">No Expert Analyses Yet</h3>
+                            <p className="text-muted-foreground text-sm">
+                              Submit your first client IEP for expert review to see analyses here.
+                            </p>
+                          </div>
+                        ) : (
+                          expertAnalyses.map((analysis, index) => (
+                            <Card key={index} className="border border-gray-200 dark:border-gray-700">
+                              <CardContent className="p-4">
+                                <div className="flex items-center justify-between mb-3">
+                                  <div className="flex items-center space-x-2">
+                                    <div className="p-1 rounded bg-purple-100 dark:bg-purple-900">
+                                      <Gavel className="h-4 w-4 text-purple-600" />
+                                    </div>
+                                    <div>
+                                      <h4 className="font-medium">{analysis.type} Review</h4>
+                                      <p className="text-sm text-gray-600 dark:text-gray-300">{analysis.clientName}</p>
+                                    </div>
+                                  </div>
+                                  <Badge variant={analysis.status === 'completed' ? 'default' : analysis.status === 'in_progress' ? 'secondary' : 'outline'}>
+                                    {analysis.status}
+                                  </Badge>
+                                </div>
+                                <div className="flex items-center justify-between text-sm">
+                                  <span className="text-gray-600 dark:text-gray-300">
+                                    Submitted: {analysis.submitted}
+                                  </span>
+                                  {analysis.status === 'completed' && (
+                                    <Button variant="outline" size="sm">
+                                      <FileText className="h-3 w-3 mr-1" />
+                                      View Report
+                                    </Button>
+                                  )}
+                                </div>
+                              </CardContent>
+                            </Card>
+                          ))
+                        )}
+                      </div>
+                    </CardContent>
+                  </Card>
                 </div>
               </TabsContent>
 

@@ -607,7 +607,8 @@ export default function ParentDashboard({ plan }: ParentDashboardProps) {
                   <TabsList className="grid w-full grid-cols-1 sm:grid-cols-3 bg-transparent p-1 h-auto">
                     <TabsTrigger 
                       value="goals" 
-                      className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-primary data-[state=active]:to-secondary data-[state=active]:text-white data-[state=active]:shadow-lg rounded-lg p-4 font-medium transition-all duration-300 hover:bg-white/50"
+                      className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-primary data-[state=active]:to-secondary data-[state=active]:text-white data-[state=active]:shadow-lg rounded-lg p-4 font-medium transition-all duration-300 hover:bg-white/50 cursor-pointer"
+                      data-testid="tab-goal-tracking"
                     >
                       <div className="flex items-center gap-2">
                         <Target className="h-5 w-5" />
@@ -616,7 +617,8 @@ export default function ParentDashboard({ plan }: ParentDashboardProps) {
                     </TabsTrigger>
                     <TabsTrigger 
                       value="meetings"
-                      className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-green-500 data-[state=active]:to-teal-600 data-[state=active]:text-white data-[state=active]:shadow-lg rounded-lg p-4 font-medium transition-all duration-300 hover:bg-white/50"
+                      className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-green-500 data-[state=active]:to-teal-600 data-[state=active]:text-white data-[state=active]:shadow-lg rounded-lg p-4 font-medium transition-all duration-300 hover:bg-white/50 cursor-pointer"
+                      data-testid="tab-meetings"
                     >
                       <div className="flex items-center gap-2">
                         <Calendar className="h-5 w-5" />
@@ -625,7 +627,8 @@ export default function ParentDashboard({ plan }: ParentDashboardProps) {
                     </TabsTrigger>
                     <TabsTrigger 
                       value="insights"
-                      className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-orange-500 data-[state=active]:to-red-600 data-[state=active]:text-white data-[state=active]:shadow-lg rounded-lg p-4 font-medium transition-all duration-300 hover:bg-white/50"
+                      className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-orange-500 data-[state=active]:to-red-600 data-[state=active]:text-white data-[state=active]:shadow-lg rounded-lg p-4 font-medium transition-all duration-300 hover:bg-white/50 cursor-pointer"
+                      data-testid="tab-ai-insights"
                     >
                       <div className="flex items-center gap-2">
                         <Sparkles className="h-5 w-5" />

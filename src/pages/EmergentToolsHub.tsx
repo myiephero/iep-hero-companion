@@ -130,6 +130,51 @@ const emergentTools = [
     category: "Legal & Rights",
     badge: "Parent-Friendly",
     features: ["IDEA Rights", "State Laws", "Parent Tips", "Contact Info"]
+  },
+  {
+    title: "Plan 504 Guide",
+    description: "Comprehensive guide to Section 504 plans with templates, eligibility criteria, and accommodation recommendations.",
+    icon: BookOpen,
+    path: "/parent/tools/plan-504-guide",
+    category: "Legal & Rights",
+    badge: "Essential",
+    features: ["504 vs IEP", "Eligibility Guide", "Accommodation Templates", "Legal Rights"]
+  },
+  {
+    title: "Progress Notes Tracker",
+    description: "Track your child's academic and behavioral progress with detailed notes, milestones, and data collection.",
+    icon: TrendingUp,
+    path: "/parent/tools/progress-notes",
+    category: "Student Management",
+    badge: "Tracking",
+    features: ["Daily Notes", "Goal Progress", "Data Charts", "Timeline View"]
+  },
+  {
+    title: "Ask AI About Documents",
+    description: "Upload any educational document and get instant AI-powered answers to your questions about content and implications.",
+    icon: MessageSquare,
+    path: "/parent/tools/ask-ai-documents",
+    category: "AI Support",
+    badge: "Interactive",
+    features: ["Document Upload", "AI Q&A", "Content Analysis", "Plain Language"]
+  },
+  {
+    title: "Communication Tracker",
+    description: "Log and organize all communications with school staff, including emails, meetings, and phone calls with follow-up reminders.",
+    icon: MessageSquare,
+    path: "/parent/tools/communication-tracker",
+    category: "Communication",
+    badge: "Organize",
+    features: ["Email Log", "Meeting Notes", "Follow-up Alerts", "Contact Directory"]
+  },
+  {
+    title: "OT Activity Recommender",
+    description: "Get personalized occupational therapy activity suggestions based on your child's specific needs and goals.",
+    icon: Target,
+    path: "/parent/tools/ot-activities",
+    category: "Therapy Support",
+    badge: "Personalized",
+    features: ["Custom Activities", "Skill Building", "Home Exercises", "Progress Tracking"]
   }
 ];
 
@@ -149,6 +194,11 @@ const getBadgeVariant = (badge: string) => {
     case "Wellness": return "bg-emerald-100 dark:bg-emerald-900 text-emerald-700 dark:text-emerald-300 border-emerald-200 dark:border-emerald-700";
     case "Parent-Friendly": return "bg-pink-100 dark:bg-pink-900 text-pink-700 dark:text-pink-300 border-pink-200 dark:border-pink-700";
     case "Pro": return "bg-cyan-100 dark:bg-cyan-900 text-cyan-700 dark:text-cyan-300 border-cyan-200 dark:border-cyan-700";
+    case "Essential": return "bg-amber-100 dark:bg-amber-900 text-amber-700 dark:text-amber-300 border-amber-200 dark:border-amber-700";
+    case "Tracking": return "bg-teal-100 dark:bg-teal-900 text-teal-700 dark:text-teal-300 border-teal-200 dark:border-teal-700";
+    case "Interactive": return "bg-violet-100 dark:bg-violet-900 text-violet-700 dark:text-violet-300 border-violet-200 dark:border-violet-700";
+    case "Organize": return "bg-rose-100 dark:bg-rose-900 text-rose-700 dark:text-rose-300 border-rose-200 dark:border-rose-700";
+    case "Personalized": return "bg-lime-100 dark:bg-lime-900 text-lime-700 dark:text-lime-300 border-lime-200 dark:border-lime-700";
     default: return "bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 border-gray-200 dark:border-gray-600";
   }
 };
@@ -172,7 +222,7 @@ export default function EmergentToolsHub() {
           <div className="flex items-center justify-center gap-4 pt-4">
             <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200">
               <TrendingUp className="h-3 w-3 mr-1" />
-              10 Active Tools
+              18 Active Tools
             </Badge>
             <Badge variant="outline" className="bg-blue-50 text-blue-700 border-blue-200">
               <Brain className="h-3 w-3 mr-1" />

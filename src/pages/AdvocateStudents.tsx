@@ -32,6 +32,7 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigge
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Textarea } from "@/components/ui/textarea";
+import { Link } from "react-router-dom";
 
 interface Client {
   id: string;
@@ -464,9 +465,9 @@ const AdvocateStudents = () => {
                               IEP {currentStudent.iep_status || 'Not Set'}
                             </Badge>
                           </div>
-                          {currentStudent.parent_name && (
+                          {currentStudent.full_name && (
                             <div className="flex items-center space-x-2 mt-2">
-                              <span className="text-sm">Parent: {currentStudent.parent_name}</span>
+                              <span className="text-sm">Student: {currentStudent.full_name}</span>
                               <Button asChild variant="outline" size="sm">
                                 <Link to={`/advocate/messages?parent=${currentStudent.parent_id || currentStudent.user_id}&student=${currentStudent.id}`}>
                                   <Mail className="h-3 w-3 mr-1" />

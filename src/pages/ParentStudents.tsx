@@ -1679,21 +1679,22 @@ const ParentStudents = () => {
   const openEditDialog = (student: Student) => {
     setEditingStudent(student);
     setNewStudent({
-      first_name: student.first_name || student.full_name.split(' ')[0] || '',
-      last_name: student.last_name || student.full_name.split(' ').slice(1).join(' ') || '',
+      first_name: (student as any).first_name || student.full_name?.split(' ')[0] || '',
+      last_name: (student as any).last_name || student.full_name?.split(' ').slice(1).join(' ') || '',
       date_of_birth: student.date_of_birth || '',
       grade_level: student.grade_level || '',
       school_name: student.school_name || '',
       district: student.district || '',
       disability_category: student.disability_category || '',
       iep_status: student.iep_status || 'Active',
-      disabilities: student.disabilities || [],
-      current_services: student.current_services || [],
+      disabilities: [],
+      current_services: [],
       case_manager: student.case_manager || '',
       case_manager_email: student.case_manager_email || '',
       emergency_contact: student.emergency_contact || '',
       emergency_phone: student.emergency_phone || '',
       notes: student.notes || '',
+      medical_info: student.medical_info || '',
     });
     setIsEditStudentOpen(true);
   };

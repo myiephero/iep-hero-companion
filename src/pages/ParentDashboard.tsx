@@ -180,7 +180,7 @@ export default function ParentDashboard({ plan }: ParentDashboardProps) {
         review_type: insight.review_type || 'quality'
       })));
       
-      setStudents(studentsData || []);
+      setStudents((studentsData || []) as Student[]);
     } catch (error) {
       console.error('Error fetching data:', error);
       toast({
@@ -840,7 +840,7 @@ export default function ParentDashboard({ plan }: ParentDashboardProps) {
                                 <div className="flex items-center gap-2 px-3 py-1.5 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-full border border-blue-200">
                                   <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
                                   <span className="text-sm font-semibold text-blue-700">
-                                    {getStudentName(goal.student_id)}
+                                    {getStudentName((goal as any).student_id || '')}
                                   </span>
                                 </div>
                               </div>

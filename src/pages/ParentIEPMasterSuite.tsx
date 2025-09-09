@@ -220,6 +220,37 @@ export default function ParentIEPMasterSuite() {
           </div>
         </div>
 
+        {/* Student Selection - Global for all tabs */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center space-x-2">
+              <Users className="h-5 w-5 text-primary" />
+              <span>Select Your Child</span>
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-2">
+              <Label htmlFor="student-select" className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                Choose which child you want to work with:
+              </Label>
+              <StudentSelector
+                selectedStudent={selectedStudent}
+                onStudentChange={setSelectedStudent}
+                placeholder="Select your child..."
+                data-testid="select-student"
+              />
+              {selectedStudent && (
+                <div className="flex items-center space-x-2 mt-2 p-2 bg-green-50 dark:bg-green-900/20 rounded-lg">
+                  <CheckCircle className="h-4 w-4 text-green-600" />
+                  <span className="text-sm text-green-700 dark:text-green-300 font-medium">
+                    Ready to work with your selected child's IEP
+                  </span>
+                </div>
+              )}
+            </div>
+          </CardContent>
+        </Card>
+
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
           <TabsList className="grid w-full grid-cols-4">
             <TabsTrigger value="learn" className="flex items-center space-x-2">
@@ -335,17 +366,14 @@ export default function ParentIEPMasterSuite() {
                   </AlertDescription>
                 </Alert>
 
-                {/* Student Selection */}
-                <div className="space-y-2">
-                  <Label htmlFor="student-select" className="text-sm font-medium">
-                    Select which child's IEP you're uploading:
-                  </Label>
-                  <StudentSelector
-                    selectedStudent={selectedStudent}
-                    onStudentChange={setSelectedStudent}
-                    placeholder="Choose your child..."
-                  />
-                </div>
+                {!selectedStudent && (
+                  <Alert>
+                    <Users className="h-4 w-4" />
+                    <AlertDescription>
+                      Please select your child from the dropdown above before uploading an IEP document.
+                    </AlertDescription>
+                  </Alert>
+                )}
                 
                 <DocumentUpload onAnalysisComplete={handleDocumentUpload} />
                 
@@ -496,6 +524,15 @@ export default function ParentIEPMasterSuite() {
                     Enter an IEP goal to see if it meets quality standards. Our AI will check if the goal is specific, measurable, achievable, and time-bound.
                   </AlertDescription>
                 </Alert>
+
+                {!selectedStudent && (
+                  <Alert>
+                    <Users className="h-4 w-4" />
+                    <AlertDescription>
+                      Please select your child from the dropdown above to check their IEP goals.
+                    </AlertDescription>
+                  </Alert>
+                )}
 
                 <div className="space-y-4">
                   <div>

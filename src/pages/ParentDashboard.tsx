@@ -227,23 +227,27 @@ export default function ParentDashboard({ plan }: ParentDashboardProps) {
         let strengths: string[] = [];
         let recommendations: string[] = [];
         
-        if ((insight as any).ai_analysis && typeof (insight as any).ai_analysis === 'object') {
-          const analysis = (insight as any).ai_analysis;
-          
-          // Map sensory processing patterns to areas of concern
-          if (analysis.sensory_needs_analysis?.sensory_processing_patterns) {
-            areas_of_concern = analysis.sensory_needs_analysis.sensory_processing_patterns;
+        try {
+          if ((insight as any).ai_analysis && typeof (insight as any).ai_analysis === 'object') {
+            const analysis = (insight as any).ai_analysis;
+            
+            // Safely map sensory processing patterns to areas of concern
+            if (analysis?.sensory_needs_analysis?.sensory_processing_patterns && Array.isArray(analysis.sensory_needs_analysis.sensory_processing_patterns)) {
+              areas_of_concern = analysis.sensory_needs_analysis.sensory_processing_patterns;
+            }
+            
+            // Safely map environmental modifications to strengths
+            if (analysis?.sensory_needs_analysis?.environmental_modifications && Array.isArray(analysis.sensory_needs_analysis.environmental_modifications)) {
+              strengths = analysis.sensory_needs_analysis.environmental_modifications;
+            }
+            
+            // Safely map learning accommodations to recommendations
+            if (analysis?.sensory_needs_analysis?.learning_accommodations && Array.isArray(analysis.sensory_needs_analysis.learning_accommodations)) {
+              recommendations = analysis.sensory_needs_analysis.learning_accommodations;
+            }
           }
-          
-          // Map environmental modifications to strengths
-          if (analysis.sensory_needs_analysis?.environmental_modifications) {
-            strengths = analysis.sensory_needs_analysis.environmental_modifications;
-          }
-          
-          // Map learning accommodations to recommendations
-          if (analysis.sensory_needs_analysis?.learning_accommodations) {
-            recommendations = analysis.sensory_needs_analysis.learning_accommodations;
-          }
+        } catch (error) {
+          console.warn('Error processing AI analysis data:', error);
         }
         
         // Fallback to direct arrays if they exist

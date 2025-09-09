@@ -435,6 +435,13 @@ app.use(cors({
 app.use(express.json({ limit: '50mb' }));
 app.use(express.urlencoded({ limit: '50mb', extended: true }));
 
+// Serve static files from the dist directory
+import path from 'path';
+import { fileURLToPath } from 'url';
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+app.use(express.static(path.join(__dirname, '../dist')));
+
 // Unified auth endpoint that checks both Replit Auth and custom login
 app.get('/api/auth/user', async (req: any, res) => {
   try {
@@ -4022,6 +4029,11 @@ Respond with this exact JSON format:
       console.error('Error fetching autism AI analysis:', error);
       res.status(500).json({ error: 'Failed to fetch analysis' });
     }
+  });
+
+  // Catch-all handler: send back React's index.html file for any non-API routes
+  app.get(/^(?!\/api).*/, (req, res) => {
+    res.sendFile(path.join(__dirname, '../dist/index.html'));
   });
 
   // Start the server after all setup is complete

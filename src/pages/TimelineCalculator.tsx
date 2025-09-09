@@ -14,18 +14,46 @@ import {
   ArrowLeft,
   Calculator,
   Download,
-  Share
+  Share,
+  CalendarPlus
 } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import { useToast } from "@/hooks/use-toast";
 import { format, addDays, addBusinessDays, isWeekend } from "date-fns";
 
 export default function TimelineCalculator() {
   const { profile } = useAuth();
   const isAdvocateUser = profile?.role === 'advocate';
+  const navigate = useNavigate();
+  const { toast } = useToast();
   const [requestType, setRequestType] = useState<string>("");
   const [requestDate, setRequestDate] = useState<string>("");
   const [calculatedDeadlines, setCalculatedDeadlines] = useState<any[]>([]);
+
+  const addToSchedule = (deadline: any) => {
+    const scheduleRoute = isAdvocateUser ? '/advocate/schedule' : '/parent/schedule';
+    
+    // Create a schedule item from the deadline
+    const scheduleItem = {
+      title: deadline.type,
+      date: deadline.deadlineDate,
+      description: `${deadline.type} response due`,
+      type: 'deadline',
+      reminders: [
+        { date: deadline.warningDate, type: 'warning' },
+        { date: deadline.urgentDate, type: 'urgent' }
+      ]
+    };
+    
+    // Navigate to schedule with the item data
+    navigate(scheduleRoute, { state: { newItem: scheduleItem } });
+    
+    toast({
+      title: "Added to Schedule",
+      description: `${deadline.type} deadline has been added to your schedule.`,
+    });
+  };
 
   const requestTypes = [
     { value: 'ferpa', label: 'FERPA Records Request', days: 45, businessDays: false },
@@ -196,9 +224,21 @@ export default function TimelineCalculator() {
             {calculatedDeadlines.length > 0 && (
               <Card>
                 <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <Clock className="h-5 w-5" />
-                    Timeline Results
+                  <CardTitle className="flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <Clock className="h-5 w-5" />
+                      Timeline Results
+                    </div>
+                    {calculatedDeadlines.length > 0 && (
+                      <Button 
+                        onClick={() => addToSchedule(calculatedDeadlines[0])}
+                        className="bg-green-600 hover:bg-green-700 text-white"
+                        size="sm"
+                      >
+                        <CalendarPlus className="h-4 w-4 mr-2" />
+                        Add to Schedule
+                      </Button>
+                    )}
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-4">

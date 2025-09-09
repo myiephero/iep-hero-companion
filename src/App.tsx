@@ -374,7 +374,7 @@ function App() {
               } />
               <Route path="/parent/tools/plan-504-guide" element={
                 <ProtectedRoute allowedRoles={['parent']}>
-                  <Plan504Builder />
+                  <Plan504Guide />
                 </ProtectedRoute>
               } />
               <Route path="/parent/tools/progress-notes" element={

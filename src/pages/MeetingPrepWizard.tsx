@@ -46,13 +46,19 @@ import {
 import { useToast } from "@/hooks/use-toast";
 import { api } from "@/lib/api";
 import { queryClient } from "@/lib/queryClient";
-import { Link } from "react-router-dom";
+import { Link, useNavigate, useLocation } from "react-router-dom";
 
 const MeetingPrepWizard = () => {
   const { toast } = useToast();
+  const navigate = useNavigate();
+  const location = useLocation();
   const [currentStep, setCurrentStep] = useState(1);
   const [responses, setResponses] = useState({});
   const [selectedMeetingType, setSelectedMeetingType] = useState("");
+  
+  // Extract meeting context from location state
+  const meetingContext = location.state?.meeting;
+  const fromSchedule = location.state?.fromSchedule;
   const [isLoading, setIsLoading] = useState(false);
   const [autoSave, setAutoSave] = useState(true);
   const [saveFormat, setSaveFormat] = useState('pdf');
@@ -420,10 +426,38 @@ const MeetingPrepWizard = () => {
         {/* Header */}
         <div className="flex justify-between items-center">
           <div>
-            <h1 className="text-3xl font-bold">Meeting Prep Wizard</h1>
+            <div className="flex items-center gap-3 mb-2">
+              {meetingContext && (
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => navigate('/parent/schedule')}
+                  data-testid="button-back-to-schedule"
+                >
+                  <ArrowLeft className="h-4 w-4 mr-1" />
+                  Back to Schedule
+                </Button>
+              )}
+              <h1 className="text-3xl font-bold">
+                {meetingContext ? `Prepare for ${meetingContext.title}` : 'Meeting Prep Wizard'}
+              </h1>
+            </div>
             <p className="text-muted-foreground">
-              Guided preparation for your IEP meeting with printable prep sheet
+              {meetingContext 
+                ? `Meeting scheduled for ${new Date(meetingContext.scheduled_date).toLocaleDateString()} - Guided preparation with printable prep sheet`
+                : 'Guided preparation for your IEP meeting with printable prep sheet'
+              }
             </p>
+            {meetingContext && (
+              <div className="flex gap-2 mt-2">
+                <Badge variant="outline" className="text-xs">
+                  {meetingContext.meeting_type?.replace('_', ' ') || 'Meeting'}
+                </Badge>
+                <Badge variant="outline" className="text-xs">
+                  {meetingContext.status}
+                </Badge>
+              </div>
+            )}
           </div>
           <Badge variant="outline" className="flex items-center gap-1">
             <Sparkles className="h-3 w-3" />

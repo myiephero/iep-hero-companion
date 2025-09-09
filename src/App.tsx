@@ -74,6 +74,9 @@ import AdvocacyReports from "./pages/AdvocacyReports";
 import EmotionTracker from "./pages/EmotionTracker";
 import Plan504Builder from "./pages/Plan504Builder";
 import OTRecommender from "./pages/OTRecommender";
+import ProgressNotesTracker from "./pages/ProgressNotesTracker";
+import AskAIDocuments from "./pages/AskAIDocuments";
+import OTActivityRecommender from "./pages/OTActivityRecommender";
 import ParentEmotionTracker from "./pages/ParentEmotionTracker";
 import PremiumToolsDemo from "./pages/PremiumToolsDemo";
 import NotFound from "./pages/NotFound";
@@ -367,6 +370,31 @@ function App() {
               <Route path="/parent/tools/idea-rights-guide" element={
                 <ProtectedRoute allowedRoles={['parent']}>
                   <ParentIDEARightsGuide />
+                </ProtectedRoute>
+              } />
+              <Route path="/parent/tools/plan-504-guide" element={
+                <ProtectedRoute allowedRoles={['parent']}>
+                  <Plan504Builder />
+                </ProtectedRoute>
+              } />
+              <Route path="/parent/tools/progress-notes" element={
+                <ProtectedRoute allowedRoles={['parent']}>
+                  <ProgressNotesTracker />
+                </ProtectedRoute>
+              } />
+              <Route path="/parent/tools/ask-ai-documents" element={
+                <ProtectedRoute allowedRoles={['parent']}>
+                  <AskAIDocuments />
+                </ProtectedRoute>
+              } />
+              <Route path="/parent/tools/communication-tracker" element={
+                <ProtectedRoute allowedRoles={['parent']}>
+                  <CommunicationTracker />
+                </ProtectedRoute>
+              } />
+              <Route path="/parent/tools/ot-activities" element={
+                <ProtectedRoute allowedRoles={['parent']}>
+                  <OTActivityRecommender />
                 </ProtectedRoute>
               } />
               <Route path="/parent/matching" element={

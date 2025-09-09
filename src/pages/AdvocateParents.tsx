@@ -292,7 +292,7 @@ export default function AdvocateParents() {
                           <div className="flex items-center gap-3">
                             <Avatar className="h-10 w-10">
                               <AvatarFallback className="bg-primary/10 text-primary font-semibold">
-                                {parent.full_name.split(' ').map(n => n[0]).join('').toUpperCase()}
+                                {parent.full_name?.split(' ').map(n => n[0]).join('').toUpperCase() || 'NA'}
                               </AvatarFallback>
                             </Avatar>
                             <div>
@@ -324,7 +324,7 @@ export default function AdvocateParents() {
                     <div className="flex items-center space-x-4">
                       <Avatar className="h-16 w-16">
                         <AvatarFallback className="text-lg bg-gradient-primary text-primary-foreground">
-                          {selectedParent.full_name.split(' ').map(n => n[0]).join('')}
+                          {selectedParent.full_name?.split(' ').map(n => n[0]).join('') || 'NA'}
                         </AvatarFallback>
                       </Avatar>
                       <div className="flex-1">

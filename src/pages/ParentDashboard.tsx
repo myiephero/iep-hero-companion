@@ -55,10 +55,18 @@ interface ParentDashboardProps {
   plan?: SubscriptionPlan;
 }
 
+interface Student {
+  id: string;
+  name: string;
+  grade?: string;
+  disability?: string;
+}
+
 export default function ParentDashboard({ plan }: ParentDashboardProps) {
   const [goals, setGoals] = useState<Goal[]>([]);
   const [meetings, setMeetings] = useState<Meeting[]>([]);
   const [insights, setInsights] = useState<AIInsight[]>([]);
+  const [students, setStudents] = useState<Student[]>([]);
   const [loading, setLoading] = useState(true);
   const [showGoalDialog, setShowGoalDialog] = useState(false);
   const [showMeetingDialog, setShowMeetingDialog] = useState(false);
@@ -87,6 +95,12 @@ export default function ParentDashboard({ plan }: ParentDashboardProps) {
     location: '',
     meeting_type: 'iep'
   });
+
+  const getStudentName = (studentId: string | undefined): string => {
+    if (!studentId) return 'Unknown Student';
+    const student = students.find(s => s.id === studentId);
+    return student?.name || 'Unknown Student';
+  };
 
   useEffect(() => {
     fetchData();
@@ -133,6 +147,9 @@ export default function ParentDashboard({ plan }: ParentDashboardProps) {
       
       // Fetch AI insights using new API
       const insightsData = await api.getAIReviews();
+      
+      // Fetch students using new API
+      const studentsData = await api.getStudents();
 
       setGoals((goalsData || []).map(goal => ({ 
         ...goal, 
@@ -162,6 +179,8 @@ export default function ParentDashboard({ plan }: ParentDashboardProps) {
         created_at: insight.created_at || '',
         review_type: insight.review_type || 'quality'
       })));
+      
+      setStudents(studentsData || []);
     } catch (error) {
       console.error('Error fetching data:', error);
       toast({
@@ -819,6 +838,16 @@ export default function ParentDashboard({ plan }: ParentDashboardProps) {
                         <CardContent className="p-6 relative">
                           <div className="flex items-start justify-between mb-4">
                             <div className="flex-1">
+                              {/* Student Name - Prominently displayed */}
+                              <div className="flex items-center gap-2 mb-3">
+                                <div className="flex items-center gap-2 px-3 py-1.5 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-full border border-blue-200">
+                                  <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
+                                  <span className="text-sm font-semibold text-blue-700">
+                                    {getStudentName(goal.student_id)}
+                                  </span>
+                                </div>
+                              </div>
+                              
                               <div className="flex items-center gap-3 mb-2">
                                 <div className={`w-4 h-4 rounded-full ${getStatusColor(goal.status)} shadow-sm`} />
                                 <h3 className="text-lg font-semibold text-gray-900">{goal.title}</h3>

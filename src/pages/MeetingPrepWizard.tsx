@@ -867,7 +867,7 @@ const MeetingPrepWizard = () => {
                     <span>Right to record meetings</span>
                   </div>
                 </div>
-                <Link to="/advocate/idea-rights-guide">
+                <Link to="/parent/tools/idea-rights-guide">
                   <Button variant="ghost" size="sm" className="w-full justify-start">
                     <BookOpen className="h-4 w-4 mr-2" />
                     Full Rights Guide

@@ -31,7 +31,7 @@ const features = [
 ];
 
 const Index = () => {
-  const { user, isLoading } = useAuth();
+  const { user } = useAuth();
   const [authMode, setAuthMode] = useState<'signin' | 'create'>('signin');
   const [showLoginForm, setShowLoginForm] = useState(false);
   const [showPassword, setShowPassword] = useState(false);

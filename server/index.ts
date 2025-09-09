@@ -2074,6 +2074,32 @@ app.post('/api/goals', async (req, res) => {
   }
 });
 
+app.patch('/api/goals/:goalId', async (req, res) => {
+  try {
+    const userId = await getUserId(req);
+    const { goalId } = req.params;
+    const updates = req.body;
+    
+    const [updatedGoal] = await db
+      .update(schema.goals)
+      .set(updates)
+      .where(and(
+        eq(schema.goals.id, goalId),
+        eq(schema.goals.user_id, userId)
+      ))
+      .returning();
+    
+    if (!updatedGoal) {
+      return res.status(404).json({ error: 'Goal not found' });
+    }
+    
+    res.json(updatedGoal);
+  } catch (error) {
+    console.error('Error updating goal:', error);
+    res.status(500).json({ error: 'Failed to update goal' });
+  }
+});
+
 // Meetings routes
 app.get('/api/meetings', async (req, res) => {
   try {

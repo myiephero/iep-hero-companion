@@ -1152,23 +1152,45 @@ export default function ParentDashboard({ plan }: ParentDashboardProps) {
                             <span className="text-gray-900">Areas of Focus</span>
                           </h4>
                           <div className="grid gap-3">
-                            {insights.slice(0, 3).map((insight, index) => {
-                              const concerns = Array.isArray(insight.areas_of_concern) ? insight.areas_of_concern : [];
-                              return concerns.slice(0, 2).map((concern: any, concernIndex: number) => (
-                                <div key={`${index}-${concernIndex}`} className="group hover:shadow-md transition-all duration-200 flex items-start gap-4 p-4 bg-orange-50 border border-orange-200 rounded-xl">
-                                  <div className="w-2 h-2 bg-orange-500 rounded-full mt-3 flex-shrink-0" />
-                                  <div className="flex-1">
-                                    <p className="text-sm font-medium text-orange-900 mb-1">
-                                      {typeof concern === 'string' ? concern : concern.title || concern.area || 'Concern identified'}
-                                    </p>
-                                    {typeof concern === 'object' && concern.description && (
-                                      <p className="text-xs text-orange-700">{concern.description}</p>
-                                    )}
+                            {insights.length > 0 ? (
+                              insights.slice(0, 3).map((insight, index) => {
+                                // Try to get areas of concern from the AI analysis or the dedicated field
+                                let concerns: any[] = [];
+                                if (Array.isArray(insight.areas_of_concern) && insight.areas_of_concern.length > 0) {
+                                  concerns = insight.areas_of_concern;
+                                } else if (insight.ai_analysis && typeof insight.ai_analysis === 'object') {
+                                  const analysis = insight.ai_analysis as any;
+                                  if (analysis.key_findings && Array.isArray(analysis.key_findings)) {
+                                    concerns = analysis.key_findings.slice(0, 2);
+                                  } else if (analysis.immediate_actions && Array.isArray(analysis.immediate_actions)) {
+                                    concerns = analysis.immediate_actions.slice(0, 2);
+                                  } else if (analysis.detailed_analysis) {
+                                    concerns = [analysis.detailed_analysis];
+                                  }
+                                }
+                                
+                                return concerns.slice(0, 2).map((concern: any, concernIndex: number) => (
+                                  <div key={`${index}-${concernIndex}`} className="group hover:shadow-md transition-all duration-200 flex items-start gap-4 p-4 bg-orange-50 border border-orange-200 rounded-xl">
+                                    <div className="w-2 h-2 bg-orange-500 rounded-full mt-3 flex-shrink-0" />
+                                    <div className="flex-1">
+                                      <p className="text-sm font-medium text-orange-900 mb-1">
+                                        {typeof concern === 'string' ? concern : concern.title || concern.area || 'Focus area identified'}
+                                      </p>
+                                      <p className="text-xs text-orange-700">
+                                        From your recent IEP analysis
+                                      </p>
+                                    </div>
+                                    <ChevronRight className="h-4 w-4 text-orange-400 group-hover:text-orange-600 transition-colors" />
                                   </div>
-                                  <ChevronRight className="h-4 w-4 text-orange-400 group-hover:text-orange-600 transition-colors" />
-                                </div>
-                              ));
-                            })}
+                                ));
+                              }).flat()
+                            ) : (
+                              <div className="bg-gray-50 border border-gray-200 rounded-lg p-6 text-center">
+                                <AlertCircle className="h-8 w-8 text-gray-400 mx-auto mb-2" />
+                                <p className="text-sm text-gray-600">No recent IEP analyses available.</p>
+                                <p className="text-xs text-gray-500 mt-1">Upload and analyze an IEP document to see insights here.</p>
+                              </div>
+                            )}
                           </div>
                         </div>
 
@@ -1181,23 +1203,44 @@ export default function ParentDashboard({ plan }: ParentDashboardProps) {
                             <span className="text-gray-900">Key Strengths</span>
                           </h4>
                           <div className="grid gap-3">
-                            {insights.slice(0, 3).map((insight, index) => {
-                              const strengths = Array.isArray(insight.strengths) ? insight.strengths : [];
-                              return strengths.slice(0, 2).map((strength: any, strengthIndex: number) => (
-                                <div key={`${index}-${strengthIndex}`} className="group hover:shadow-md transition-all duration-200 flex items-start gap-4 p-4 bg-green-50 border border-green-200 rounded-xl">
-                                  <div className="w-2 h-2 bg-green-500 rounded-full mt-3 flex-shrink-0" />
-                                  <div className="flex-1">
-                                    <p className="text-sm font-medium text-green-900 mb-1">
-                                      {typeof strength === 'string' ? strength : strength.title || strength.area || 'Strength identified'}
-                                    </p>
-                                    {typeof strength === 'object' && strength.description && (
-                                      <p className="text-xs text-green-700">{strength.description}</p>
-                                    )}
+                            {insights.length > 0 ? (
+                              insights.slice(0, 3).map((insight, index) => {
+                                // Try to get strengths from the AI analysis or the dedicated field
+                                let strengths: any[] = [];
+                                if (Array.isArray(insight.strengths) && insight.strengths.length > 0) {
+                                  strengths = insight.strengths;
+                                } else if (insight.ai_analysis && typeof insight.ai_analysis === 'object') {
+                                  const analysis = insight.ai_analysis as any;
+                                  if (analysis.environmental_modifications && Array.isArray(analysis.environmental_modifications)) {
+                                    strengths = analysis.environmental_modifications.slice(0, 2);
+                                  } else if (analysis.summary && typeof analysis.summary === 'string') {
+                                    // Extract positive aspects from summary
+                                    strengths = [analysis.summary.substring(0, 120) + '...'];
+                                  }
+                                }
+                                
+                                return strengths.slice(0, 2).map((strength: any, strengthIndex: number) => (
+                                  <div key={`${index}-${strengthIndex}`} className="group hover:shadow-md transition-all duration-200 flex items-start gap-4 p-4 bg-green-50 border border-green-200 rounded-xl">
+                                    <div className="w-2 h-2 bg-green-500 rounded-full mt-3 flex-shrink-0" />
+                                    <div className="flex-1">
+                                      <p className="text-sm font-medium text-green-900 mb-1">
+                                        {typeof strength === 'string' ? strength : strength.title || strength.area || 'Strength identified'}
+                                      </p>
+                                      <p className="text-xs text-green-700">
+                                        From your recent analysis
+                                      </p>
+                                    </div>
+                                    <Star className="h-4 w-4 text-green-400 group-hover:text-green-600 transition-colors" />
                                   </div>
-                                  <Star className="h-4 w-4 text-green-400 group-hover:text-green-600 transition-colors" />
-                                </div>
-                              ));
-                            })}
+                                ));
+                              }).flat()
+                            ) : (
+                              <div className="bg-gray-50 border border-gray-200 rounded-lg p-6 text-center">
+                                <TrendingUp className="h-8 w-8 text-gray-400 mx-auto mb-2" />
+                                <p className="text-sm text-gray-600">No documented strengths available.</p>
+                                <p className="text-xs text-gray-500 mt-1">Complete an IEP analysis to identify student strengths.</p>
+                              </div>
+                            )}
                           </div>
                         </div>
 
@@ -1210,23 +1253,45 @@ export default function ParentDashboard({ plan }: ParentDashboardProps) {
                             <span className="text-gray-900">AI Recommendations</span>
                           </h4>
                           <div className="grid gap-3">
-                            {insights.slice(0, 3).map((insight, index) => {
-                              const recommendations = Array.isArray(insight.recommendations) ? insight.recommendations : [];
-                              return recommendations.slice(0, 2).map((rec: any, recIndex: number) => (
-                                <div key={`${index}-${recIndex}`} className="group hover:shadow-md transition-all duration-200 flex items-start gap-4 p-4 bg-blue-50 border border-blue-200 rounded-xl">
-                                  <div className="w-2 h-2 bg-blue-500 rounded-full mt-3 flex-shrink-0" />
-                                  <div className="flex-1">
-                                    <p className="text-sm font-medium text-blue-900 mb-1">
-                                      {typeof rec === 'string' ? rec : rec.title || rec.recommendation || 'Recommendation available'}
-                                    </p>
-                                    {typeof rec === 'object' && rec.description && (
-                                      <p className="text-xs text-blue-700">{rec.description}</p>
-                                    )}
+                            {insights.length > 0 ? (
+                              insights.slice(0, 3).map((insight, index) => {
+                                // Try to get recommendations from the AI analysis or the dedicated field
+                                let recommendations: any[] = [];
+                                if (Array.isArray(insight.recommendations) && insight.recommendations.length > 0) {
+                                  recommendations = insight.recommendations;
+                                } else if (insight.ai_analysis && typeof insight.ai_analysis === 'object') {
+                                  const analysis = insight.ai_analysis as any;
+                                  if (analysis.recommendations && Array.isArray(analysis.recommendations)) {
+                                    recommendations = analysis.recommendations.slice(0, 2);
+                                  } else if (analysis.environmental_modifications && Array.isArray(analysis.environmental_modifications)) {
+                                    recommendations = analysis.environmental_modifications.slice(0, 2);
+                                  } else if (analysis.immediate_actions && Array.isArray(analysis.immediate_actions)) {
+                                    recommendations = analysis.immediate_actions.slice(0, 2);
+                                  }
+                                }
+                                
+                                return recommendations.slice(0, 2).map((rec: any, recIndex: number) => (
+                                  <div key={`${index}-${recIndex}`} className="group hover:shadow-md transition-all duration-200 flex items-start gap-4 p-4 bg-blue-50 border border-blue-200 rounded-xl">
+                                    <div className="w-2 h-2 bg-blue-500 rounded-full mt-3 flex-shrink-0" />
+                                    <div className="flex-1">
+                                      <p className="text-sm font-medium text-blue-900 mb-1">
+                                        {typeof rec === 'string' ? rec : rec.title || rec.recommendation || 'Recommendation available'}
+                                      </p>
+                                      <p className="text-xs text-blue-700">
+                                        AI-generated suggestion from analysis
+                                      </p>
+                                    </div>
+                                    <ArrowUpRight className="h-4 w-4 text-blue-400 group-hover:text-blue-600 transition-colors" />
                                   </div>
-                                  <ArrowUpRight className="h-4 w-4 text-blue-400 group-hover:text-blue-600 transition-colors" />
-                                </div>
-                              ));
-                            })}
+                                ));
+                              }).flat()
+                            ) : (
+                              <div className="bg-gray-50 border border-gray-200 rounded-lg p-6 text-center">
+                                <Target className="h-8 w-8 text-gray-400 mx-auto mb-2" />
+                                <p className="text-sm text-gray-600">No AI recommendations available.</p>
+                                <p className="text-xs text-gray-500 mt-1">Analyze an IEP document to receive personalized recommendations.</p>
+                              </div>
+                            )}
                           </div>
                         </div>
                       </CardContent>

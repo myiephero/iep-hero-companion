@@ -1016,7 +1016,30 @@ const STATE_INFO = {
       'New Hampshire Code of Administrative Rules Ed 1100'
     ],
     contacts: {
-      seaOffice: 'New Hampshire Department of Education - Bureau of Student Suppo
+      seaOffice: 'New Hampshire Department of Education - Bureau of Special Education',
+      phone: '(603) 271-3741',
+      website: 'https://www.education.nh.gov/who-we-are/division-of-learner-support/bureau-of-special-education',
+      email: 'specialeducation@doe.nh.gov'
+    },
+    uniqueRights: [
+      'Enhanced support for students in rural areas',
+      'Specific provisions for students with autism',
+      'Additional requirements for early childhood services'
+    ],
+    resources: [
+      {
+        name: 'Parent Information Center',
+        url: 'https://www.picnh.org/',
+        description: 'Training and support for New Hampshire families'
+      },
+      {
+        name: 'Disability Rights Center',
+        url: 'https://www.drcnh.org/',
+        description: 'Legal advocacy organization'
+      }
+    ]
+  }
+};
 
 export default function IDEARightsGuide() {
   const { profile } = useAuth();

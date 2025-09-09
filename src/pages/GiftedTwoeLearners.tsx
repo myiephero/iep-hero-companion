@@ -40,6 +40,9 @@ interface GiftedAssessment {
   assessment_scores?: any;
   evaluator_notes?: string;
   next_steps?: any;
+  ai_analysis_parent?: any;
+  ai_analysis_advocate?: any;
+  ai_generated_at?: string;
   status: string;
   created_at: string;
 }
@@ -209,6 +212,7 @@ ${assessment.evaluator_notes ? `Notes: ${assessment.evaluator_notes}` : ''}
     try {
       if (!selectedStudent) {
         setAssessments([]);
+        setAiInsights({}); // Clear AI insights when no student selected
         return;
       }
 
@@ -219,6 +223,20 @@ ${assessment.evaluator_notes ? `Notes: ${assessment.evaluator_notes}` : ''}
       const data = await response.json();
       
       setAssessments(data || []);
+      
+      // Load existing AI analysis for each assessment
+      const existingInsights: Record<string, any> = {};
+      (data || []).forEach((assessment: GiftedAssessment) => {
+        const roleBasedAnalysis = userRole === 'parent' 
+          ? assessment.ai_analysis_parent 
+          : assessment.ai_analysis_advocate;
+        
+        if (roleBasedAnalysis) {
+          existingInsights[assessment.id] = roleBasedAnalysis;
+        }
+      });
+      
+      setAiInsights(existingInsights);
     } catch (error) {
       console.error('Error fetching assessments:', error);
       toast({

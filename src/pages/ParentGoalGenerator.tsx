@@ -9,11 +9,13 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Separator } from "@/components/ui/separator";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Progress } from "@/components/ui/progress";
-import { Target, Brain, CheckCircle, Lightbulb, BookOpen, Clock, Upload, FileText, AlertCircle, CheckCheck, Users, UserPlus, User, GraduationCap, Heart, Search, Info } from "lucide-react";
+import { Target, Brain, CheckCircle, Lightbulb, BookOpen, Clock, Upload, FileText, AlertCircle, CheckCheck, Users, UserPlus, User, GraduationCap, Heart, Search, Info, Save } from "lucide-react";
 import { useState, useEffect } from "react";
 import { useDropzone } from "react-dropzone";
 import { StudentSelector } from "@/components/StudentSelector";
 import { apiRequest } from "@/lib/queryClient";
+import { useToast } from "@/hooks/use-toast";
+import { useNavigate } from "react-router-dom";
 
 interface GeneratedGoal {
   id: string;
@@ -69,10 +71,13 @@ interface ComplianceResult {
 }
 
 export default function ParentGoalGenerator() {
+  const { toast } = useToast();
+  const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState<'learn' | 'generate' | 'check'>('learn');
   const [isGenerating, setIsGenerating] = useState(false);
   const [generatedGoals, setGeneratedGoals] = useState<GeneratedGoal[]>([]);
   const [uploadedFile, setUploadedFile] = useState<File | null>(null);
+  const [savingGoals, setSavingGoals] = useState<Set<string>>(new Set());
   
   // Compliance checker states
   const [complianceGoalText, setComplianceGoalText] = useState('');
@@ -237,6 +242,64 @@ export default function ParentGoalGenerator() {
     if (complianceGoalText.trim()) {
       const results = checkCompliance(complianceGoalText);
       setComplianceResults(results);
+    }
+  };
+
+  const handleSaveGoal = async (goal: GeneratedGoal) => {
+    if (!selectedStudentId || selectedStudentId === 'no-student') {
+      toast({
+        title: "Student Required",
+        description: "Please select a student before saving goals.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    try {
+      setSavingGoals(prev => new Set([...prev, goal.id]));
+      
+      // Convert GeneratedGoal to dashboard goal format
+      const goalData = {
+        title: goal.category,
+        description: goal.goal,
+        goal_type: goal.category.toLowerCase().replace(/\s+/g, '_'),
+        target_date: new Date(new Date().getFullYear() + 1, 5, 30).toISOString().split('T')[0], // End of next school year
+        status: 'not_started' as const,
+        current_progress: 0,
+        notes: `Steps: ${goal.objectives.join('; ')} | Measurement: ${goal.measurableData} | Timeline: ${goal.timeframe}`,
+        student_id: selectedStudentId
+      };
+
+      const response = await apiRequest('POST', '/api/goals', goalData);
+      
+      if (response.ok) {
+        toast({
+          title: "Goal Saved Successfully!",
+          description: `"${goal.category}" has been added to your dashboard goal tracking.`,
+        });
+        
+        // Option to navigate to dashboard
+        setTimeout(() => {
+          if (confirm("Would you like to view this goal in your dashboard now?")) {
+            navigate('/parent/dashboard');
+          }
+        }, 1000);
+      } else {
+        throw new Error('Failed to save goal');
+      }
+    } catch (error) {
+      console.error('Error saving goal:', error);
+      toast({
+        title: "Save Failed",
+        description: "There was an error saving the goal. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setSavingGoals(prev => {
+        const newSet = new Set(prev);
+        newSet.delete(goal.id);
+        return newSet;
+      });
     }
   };
 
@@ -565,6 +628,32 @@ export default function ParentGoalGenerator() {
                         <p><strong>How we'll measure progress:</strong> {goal.measurableData}</p>
                         <p><strong>Timeline:</strong> {goal.timeframe}</p>
                       </div>
+                    </div>
+                    
+                    {/* Save to Dashboard Button */}
+                    <div className="flex items-center gap-2 pt-2">
+                      <Button
+                        size="sm"
+                        onClick={() => handleSaveGoal(goal)}
+                        disabled={savingGoals.has(goal.id) || !selectedStudentId || selectedStudentId === 'no-student'}
+                        className="bg-green-600 hover:bg-green-700 text-white"
+                        data-testid={`button-save-goal-${goal.id}`}
+                      >
+                        {savingGoals.has(goal.id) ? (
+                          <>
+                            <div className="animate-spin h-3 w-3 border border-white border-t-transparent rounded-full mr-2" />
+                            Saving...
+                          </>
+                        ) : (
+                          <>
+                            <Save className="h-3 w-3 mr-2" />
+                            Save to Dashboard
+                          </>
+                        )}
+                      </Button>
+                      {(!selectedStudentId || selectedStudentId === 'no-student') && (
+                        <span className="text-xs text-muted-foreground">Select a student first</span>
+                      )}
                     </div>
                   </div>
                 </div>

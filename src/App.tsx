@@ -35,7 +35,7 @@ import ExpertAnalysis from "./pages/ExpertAnalysis";
 import MatchingDashboard from "./pages/MatchingDashboard";
 import EmergentToolsHubNew from "./pages/EmergentToolsHubNew";
 import AllPagesView from "./pages/AllPagesView";
-import SmartLetterGenerator from "./pages/SmartLetterGenerator";
+import SmartLetterGeneratorNew from "./pages/SmartLetterGeneratorNew";
 import MeetingPrepWizard from "./pages/MeetingPrepWizard";
 // Removed Subscribe - consolidated into role-specific pricing pages
 import SubscriptionSuccess from "./pages/SubscriptionSuccess";
@@ -255,7 +255,7 @@ function App() {
               } />
               <Route path="/parent/tools/smart-letter-generator" element={
                 <ProtectedRoute allowedRoles={['parent']}>
-                  <SmartLetterGenerator />
+                  <SmartLetterGeneratorNew />
                 </ProtectedRoute>
               } />
               <Route path="/parent/tools/timeline-calculator" element={
@@ -267,14 +267,14 @@ function App() {
               {/* Advocate Tools - Namespaced */}
               <Route path="/advocate/tools/smart-letter-generator" element={
                 <ProtectedRoute allowedRoles={['advocate']}>
-                  <SmartLetterGenerator />
+                  <SmartLetterGeneratorNew />
                 </ProtectedRoute>
               } />
               
               {/* Root path variants for advocate tools from dashboard */}
               <Route path="/advocate/smart-letter-generator" element={
                 <ProtectedRoute allowedRoles={['advocate']}>
-                  <SmartLetterGenerator />
+                  <SmartLetterGeneratorNew />
                 </ProtectedRoute>
               } />
               
@@ -426,7 +426,7 @@ function App() {
               } />
               <Route path="/advocate/tools/smart-letter-generator" element={
                 <ProtectedRoute allowedRoles={['advocate']}>
-                  <SmartLetterGenerator />
+                  <SmartLetterGeneratorNew />
                 </ProtectedRoute>
               } />
               <Route path="/advocate/tools/meeting-prep" element={

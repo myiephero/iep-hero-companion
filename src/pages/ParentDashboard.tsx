@@ -528,40 +528,23 @@ export default function ParentDashboard({ plan }: ParentDashboardProps) {
                     const actions = [
                       () => {
                         console.log('📊 Goals card clicked!');
-                        toast({
-                          title: "Goal Tracking",
-                          description: `You have ${totalGoals} active goals with ${completedGoals} completed. Keep up the great work!`,
-                        });
-                        // Scroll to goals section
+                        navigate('/parent/tools/goal-generator');
+                      },
+                      () => {
+                        console.log('📅 Meetings card clicked!');
+                        navigate('/parent/schedule');
+                      },
+                      () => {
+                        console.log('📈 Progress card clicked!');
+                        // Scroll to goals section for completion rate details
                         setTimeout(() => {
                           const goalsSection = document.querySelector('[data-section="goals"]');
                           goalsSection?.scrollIntoView({ behavior: 'smooth', block: 'start' });
                         }, 100);
                       },
                       () => {
-                        console.log('📅 Meetings card clicked!');
-                        toast({
-                          title: "Meetings Overview",
-                          description: `You have ${upcomingMeetings} upcoming meetings scheduled. Auto-reminders are enabled.`,
-                        });
-                        // Create a meeting or show meeting dialog
-                        setShowMeetingDialog(true);
-                      },
-                      () => {
-                        console.log('📈 Progress card clicked!');
-                        toast({
-                          title: "Progress Details",
-                          description: `You have completed ${completedGoals} out of ${totalGoals} goals. ${badge}`,
-                        });
-                      },
-                      () => {
                         console.log('🔮 AI Insights card clicked!');
-                        toast({
-                          title: "AI Insights",
-                          description: `${insights.length} insights available. AI has analyzed your IEP data and progress.`,
-                        });
-                        // Navigate to AI insights tool
-                        navigate('/parent/unified-review');
+                        navigate('/parent/tools/unified-iep-review');
                       }
                     ];
                     actions[index]?.();

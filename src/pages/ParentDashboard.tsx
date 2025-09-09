@@ -70,6 +70,7 @@ export default function ParentDashboard({ plan }: ParentDashboardProps) {
   const [loading, setLoading] = useState(true);
   const [showGoalDialog, setShowGoalDialog] = useState(false);
   const [showMeetingDialog, setShowMeetingDialog] = useState(false);
+  const [activeTab, setActiveTab] = useState("goals");
   const { toast } = useToast();
   const { user } = useAuth();
   const navigate = useNavigate();
@@ -602,7 +603,7 @@ export default function ParentDashboard({ plan }: ParentDashboardProps) {
             
             {/* Enhanced Tabs with Unified Design System */}
             <Card className="border-0 shadow-lg overflow-hidden">
-              <Tabs defaultValue="goals" className="w-full">
+              <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
                 <div className="bg-gradient-to-r from-slate-50 to-gray-50 border-b border-gray-200">
                   <TabsList className="grid w-full grid-cols-1 sm:grid-cols-3 bg-transparent p-1 h-auto">
                     <TabsTrigger 

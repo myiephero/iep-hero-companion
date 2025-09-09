@@ -595,7 +595,7 @@ export default function ParentDashboard({ plan }: ParentDashboardProps) {
                       },
                       () => {
                         console.log('🔍 Deep Analysis card clicked!');
-                        navigate('/parent/tools/unified-iep-review');
+                        navigate('/parent/tools/iep-master-suite');
                       }
                     ];
                     actions[index]?.();

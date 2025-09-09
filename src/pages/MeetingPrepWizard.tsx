@@ -902,9 +902,13 @@ const MeetingPrepWizard = () => {
                   </div>
                 </div>
                 <Link to="/parent/tools/idea-rights-guide">
-                  <Button variant="ghost" size="sm" className="w-full justify-start">
-                    <BookOpen className="h-4 w-4 mr-2" />
-                    Full Rights Guide
+                  <Button 
+                    variant="outline" 
+                    size="sm" 
+                    className="w-full justify-start bg-gradient-to-r from-blue-50 to-indigo-50 border-blue-200 hover:from-blue-100 hover:to-indigo-100 hover:border-blue-300 text-blue-900 font-medium shadow-sm transition-all duration-200"
+                  >
+                    <BookOpen className="h-4 w-4 mr-2 text-blue-600" />
+                    📖 Full Rights Guide
                   </Button>
                 </Link>
               </CardContent>

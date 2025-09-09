@@ -15,6 +15,7 @@ import { useDropzone } from "react-dropzone";
 import { StudentSelector } from "@/components/StudentSelector";
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
+import { api } from "@/lib/api";
 
 interface GeneratedGoal {
   id: string;
@@ -324,30 +325,26 @@ export default function GoalGenerator() {
     setIsSaving(true);
     
     try {
-      // Save each goal to the database
+      // Save each goal to the database using the same API the dashboard uses
       for (const goal of generatedGoals) {
         const goalData = {
           student_id: selectedStudentId,
-          goal_text: goal.goal,
-          goal_category: goal.category,
-          short_term_objectives: goal.objectives,
-          measurement_criteria: goal.measurableData,
-          evaluation_procedures: goal.measurableData,
-          timeline: goal.timeframe,
-          standards_alignment: goal.standards,
-          compliance_score: goal.complianceScore,
-          status: 'draft',
-          baseline_data: '',
-          target_criteria: goal.measurableData,
-          review_dates: []
+          title: goal.category,
+          description: goal.goal,
+          goal_type: goal.category.toLowerCase().replace(/\s+/g, '_'),
+          status: 'not_started',
+          target_date: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000).toISOString().split('T')[0], // 1 year from now
+          current_progress: 0,
+          measurable_criteria: goal.measurableData,
+          notes: `Objectives: ${goal.objectives.join('; ')}. Standards: ${goal.standards.join(', ')}. Compliance Score: ${goal.complianceScore}%`
         };
 
-        await apiRequest('POST', '/api/goals', goalData);
+        await api.createGoal(goalData);
       }
 
       toast({
         title: "Goals Saved Successfully",
-        description: `${generatedGoals.length} goal${generatedGoals.length > 1 ? 's' : ''} saved to student profile.`,
+        description: `${generatedGoals.length} goal${generatedGoals.length > 1 ? 's' : ''} saved to student profile and will appear in your dashboard.`,
       });
 
       // Clear the generated goals after saving

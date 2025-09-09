@@ -52,9 +52,6 @@ interface SidebarSection {
 const getParentNavigation = (dashboardUrl: string, userPlan: string, isAdvocate: boolean): SidebarSection[] => {
   const baseItems: SidebarItem[] = [
     { title: "Dashboard", url: dashboardUrl, icon: LayoutDashboard },
-    { title: "My Students", url: "/parent/students", icon: GraduationCap },
-    { title: "Tools Hub", url: "/parent/tools/emergent", icon: FileSearch },
-    { title: "Document Vault", url: "/tools/document-vault", icon: FileText },
   ];
 
   // Only show HERO Plan upgrade if user is PARENT and not already on Hero plan

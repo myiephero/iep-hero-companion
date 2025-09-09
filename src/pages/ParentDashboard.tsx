@@ -372,15 +372,15 @@ export default function ParentDashboard({ plan }: ParentDashboardProps) {
               <Button 
                 variant="outline" 
                 size="lg"
-                className="border-2 border-green-500/30 hover:border-green-500 text-green-600 hover:bg-green-50 px-6 py-3 cursor-pointer"
+                className="border-2 border-purple-500/30 hover:border-purple-500 text-purple-600 hover:bg-purple-50 px-6 py-3 cursor-pointer"
                 onClick={() => {
-                  console.log('🎓 Create New Student clicked!');
-                  navigate('/parent/students?action=create');
+                  console.log('📁 Document Vault clicked!');
+                  navigate('/parent/tools/document-vault');
                 }}
-                data-testid="button-create-new-student"
+                data-testid="button-document-vault"
               >
-                <GraduationCap className="h-5 w-5 mr-2" />
-                Create New Student
+                <FileText className="h-5 w-5 mr-2" />
+                Document Vault
               </Button>
             </div>
           </div>

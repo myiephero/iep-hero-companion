@@ -316,8 +316,8 @@ export default function ParentDashboard({ plan }: ParentDashboardProps) {
       <div className="min-h-screen">
         {/* Enhanced Hero Section with Unified Design */}
         <div className="relative overflow-hidden">
-          <div className="absolute inset-0 bg-gradient-to-r from-primary/5 via-secondary/5 to-accent/5 rounded-2xl" />
-          <div className="relative p-8 text-center">
+          <div className="absolute inset-0 bg-gradient-to-r from-primary/5 via-secondary/5 to-accent/5 rounded-2xl pointer-events-none" />
+          <div className="relative p-8 text-center z-10">
             <div className="flex items-center justify-center gap-3 mb-4">
               <div className="p-3 bg-gradient-to-br from-primary to-secondary rounded-xl shadow-lg">
                 <Trophy className="h-8 w-8 text-white" />
@@ -346,8 +346,12 @@ export default function ParentDashboard({ plan }: ParentDashboardProps) {
             <div className="flex flex-col sm:flex-row gap-4 justify-center max-w-4xl mx-auto">
               <Button 
                 size="lg" 
-                className="bg-gradient-to-r from-primary to-secondary hover:from-primary/90 hover:to-secondary/90 text-white shadow-lg hover:shadow-xl transition-all duration-300 px-6 py-3"
-                onClick={() => navigate('/parent/tools/emergent')}
+                className="bg-gradient-to-r from-primary to-secondary hover:from-primary/90 hover:to-secondary/90 text-white shadow-lg hover:shadow-xl transition-all duration-300 px-6 py-3 cursor-pointer"
+                onClick={() => {
+                  console.log('🚀 Explore Premium Tools clicked!');
+                  navigate('/parent/tools/emergent');
+                }}
+                data-testid="button-explore-premium-tools"
               >
                 <Rocket className="h-5 w-5 mr-2" />
                 Explore Premium Tools
@@ -355,8 +359,12 @@ export default function ParentDashboard({ plan }: ParentDashboardProps) {
               <Button 
                 variant="outline" 
                 size="lg"
-                className="border-2 border-primary/30 hover:border-primary text-primary hover:bg-primary/5 px-6 py-3"
-                onClick={() => navigate('/parent/students')}
+                className="border-2 border-primary/30 hover:border-primary text-primary hover:bg-primary/5 px-6 py-3 cursor-pointer"
+                onClick={() => {
+                  console.log('👥 Manage Students clicked!');
+                  navigate('/parent/students');
+                }}
+                data-testid="button-manage-students"
               >
                 <Users className="h-5 w-5 mr-2" />
                 Manage Students
@@ -364,8 +372,12 @@ export default function ParentDashboard({ plan }: ParentDashboardProps) {
               <Button 
                 variant="outline" 
                 size="lg"
-                className="border-2 border-green-500/30 hover:border-green-500 text-green-600 hover:bg-green-50 px-6 py-3"
-                onClick={() => navigate('/parent/students')}
+                className="border-2 border-green-500/30 hover:border-green-500 text-green-600 hover:bg-green-50 px-6 py-3 cursor-pointer"
+                onClick={() => {
+                  console.log('🎓 Create New Student clicked!');
+                  navigate('/parent/students?action=create');
+                }}
+                data-testid="button-create-new-student"
               >
                 <GraduationCap className="h-5 w-5 mr-2" />
                 Create New Student

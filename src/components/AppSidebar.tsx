@@ -63,6 +63,13 @@ const getParentNavigation = (dashboardUrl: string, userPlan: string, isAdvocate:
     {
       title: "Parent Portal",
       items: baseItems
+    },
+    {
+      title: "Quick Tools",
+      items: [
+        { title: "Find Advocates", url: "/parent/matching", icon: UserCheck },
+        { title: "Messages", url: "/parent/messages", icon: MessageSquare },
+      ]
     }
   ];
 };

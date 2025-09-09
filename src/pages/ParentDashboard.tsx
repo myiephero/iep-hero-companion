@@ -1461,7 +1461,7 @@ export default function ParentDashboard({ plan }: ParentDashboardProps) {
               <TabsContent value="insights" className="p-6 space-y-6">
                 <div>
                   <h2 className="text-2xl font-bold text-gray-900">AI-Powered Insights</h2>
-                  <p className="text-gray-600 mt-1">Data-driven analysis of your child's IEP documents</p>
+                  <p className="text-gray-800 font-medium mt-1">Data-driven analysis of your child's IEP documents</p>
                 </div>
                 
                 {insights.length === 0 ? (

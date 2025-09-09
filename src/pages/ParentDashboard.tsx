@@ -1282,7 +1282,7 @@ export default function ParentDashboard({ plan }: ParentDashboardProps) {
                               <DialogHeader>
                                 <DialogTitle>Record Daily Mood</DialogTitle>
                                 <DialogDescription>
-                                  Document {selectedStudentEmotion ? getStudentName(selectedStudentEmotion) + "'s" : "your child's"} current emotional state
+                                  Document your child's current emotional state and daily mood patterns
                                 </DialogDescription>
                               </DialogHeader>
                               <div className="space-y-4">

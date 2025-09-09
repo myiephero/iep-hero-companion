@@ -255,6 +255,27 @@ export default function ParentDashboard({ plan }: ParentDashboardProps) {
     }
   };
 
+  const updateGoalProgress = async (goalId: string, progress: number) => {
+    try {
+      await api.updateGoal(goalId, { current_progress: progress });
+      setGoals(prev => prev.map(goal => 
+        goal.id === goalId ? { ...goal, current_progress: progress } : goal
+      ));
+      toast({
+        title: "Progress Updated",
+        description: `Goal progress set to ${progress}%`,
+      });
+      fetchData();
+    } catch (error) {
+      console.error('Error updating goal progress:', error);
+      toast({
+        title: "Error",
+        description: "Failed to update goal progress.",
+        variant: "destructive",
+      });
+    }
+  };
+
   const getStatusColor = (status: string) => {
     switch (status) {
       case 'completed': return 'bg-green-500';
@@ -746,12 +767,47 @@ export default function ParentDashboard({ plan }: ParentDashboardProps) {
                                 <span className="text-sm font-medium text-gray-700">{getStatusLabel(goal.status)}</span>
                                 <span className="text-sm font-semibold text-blue-600">{goal.current_progress || 0}%</span>
                               </div>
-                              <div className="relative">
+                              <div className="relative mb-3">
                                 <Progress value={goal.current_progress || 0} className="h-3 bg-gray-100" />
                                 <div 
                                   className="absolute inset-0 bg-gradient-to-r from-blue-500 to-indigo-500 rounded-full transition-all duration-500" 
                                   style={{width: `${goal.current_progress || 0}%`}}
                                 ></div>
+                              </div>
+                              <div className="flex items-center gap-3">
+                                <span className="text-xs text-gray-500 min-w-[60px]">Progress:</span>
+                                <input
+                                  type="range"
+                                  min="0"
+                                  max="100"
+                                  value={goal.current_progress || 0}
+                                  onChange={(e) => updateGoalProgress(goal.id, parseInt(e.target.value))}
+                                  className="flex-1 h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer slider"
+                                  style={{
+                                    background: `linear-gradient(to right, #3b82f6 0%, #3b82f6 ${goal.current_progress || 0}%, #e5e7eb ${goal.current_progress || 0}%, #e5e7eb 100%)`
+                                  }}
+                                  data-testid={`slider-progress-${goal.id}`}
+                                />
+                                <div className="flex gap-1">
+                                  <Button
+                                    size="sm"
+                                    variant="outline"
+                                    onClick={() => updateGoalProgress(goal.id, Math.max(0, (goal.current_progress || 0) - 10))}
+                                    className="h-6 w-6 p-0 text-xs"
+                                    data-testid={`button-decrease-progress-${goal.id}`}
+                                  >
+                                    -
+                                  </Button>
+                                  <Button
+                                    size="sm"
+                                    variant="outline"
+                                    onClick={() => updateGoalProgress(goal.id, Math.min(100, (goal.current_progress || 0) + 10))}
+                                    className="h-6 w-6 p-0 text-xs"
+                                    data-testid={`button-increase-progress-${goal.id}`}
+                                  >
+                                    +
+                                  </Button>
+                                </div>
                               </div>
                             </div>
                             {goal.target_date && (

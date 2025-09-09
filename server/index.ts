@@ -6,6 +6,7 @@ import * as schema from '../shared/schema';
 import { eq, and, gt } from 'drizzle-orm';
 import matchRoutes from './routes/match';
 import expertRoutes from './routes/expert';
+import expertReviewPaymentRoutes from './routes/expertReviewPayments';
 import feedbackRoutes from './routes/feedback';
 import messagingRoutes from './routes/messaging';
 import simpleMessagingRoutes from './routes/simple-messages';
@@ -2833,6 +2834,8 @@ app.get('/api/standards/:code', (req, res) => {
 // Mount new route modules
 app.use('/api/match', matchRoutes);
 app.use('/api/expert-analysis', expertRoutes);
+app.use('/api/create-expert-review-payment', expertReviewPaymentRoutes);
+app.use('/api/expert-review-payment-success', expertReviewPaymentRoutes);
 app.use('/api/feedback', feedbackRoutes);
 app.use('/api/messaging', messagingRoutes);
 app.use('/api/simple-messages', simpleMessagingRoutes);

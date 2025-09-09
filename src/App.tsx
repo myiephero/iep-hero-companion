@@ -117,8 +117,8 @@ function App() {
                 </ProtectedRoute>
               } />
               <Route path="/parent/dashboard-explorer" element={
-                <ProtectedRoute allowedRoles={['parent']} requiredPlan="explorer">
-                  <ParentDashboard plan="explorer" />
+                <ProtectedRoute allowedRoles={['parent']} requiredPlan="plus">
+                  <ParentDashboard plan="plus" />
                 </ProtectedRoute>
               } />
               <Route path="/parent/dashboard-premium" element={

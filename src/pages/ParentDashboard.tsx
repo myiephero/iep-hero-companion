@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Calendar, Target, TrendingUp, Clock, Plus, BookOpen, AlertCircle, Star, Trophy, Sparkles, ChevronRight, Users, CheckCircle2, ArrowUpRight, Rocket, FileText, GraduationCap, Smile, Brain, Save, Loader2 } from "lucide-react";
+import { Calendar, Target, TrendingUp, Clock, Plus, BookOpen, AlertCircle, AlertTriangle, Star, Trophy, Sparkles, ChevronRight, Users, CheckCircle2, ArrowUpRight, Rocket, FileText, GraduationCap, Smile, Brain, Save, Loader2 } from "lucide-react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";

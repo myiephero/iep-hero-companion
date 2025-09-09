@@ -2076,7 +2076,13 @@ app.post('/api/goals', async (req, res) => {
 
 app.patch('/api/goals/:goalId', async (req, res) => {
   try {
+    console.log('🎯 PATCH /api/goals/:goalId - Request received');
+    console.log('🎯 Goal ID:', req.params.goalId);
+    console.log('🎯 Request body:', req.body);
+    
     const userId = await getUserId(req);
+    console.log('🎯 User ID resolved:', userId);
+    
     const { goalId } = req.params;
     const updates = req.body;
     
@@ -2090,12 +2096,14 @@ app.patch('/api/goals/:goalId', async (req, res) => {
       .returning();
     
     if (!updatedGoal) {
+      console.log('❌ Goal not found for user:', userId, 'goalId:', goalId);
       return res.status(404).json({ error: 'Goal not found' });
     }
     
+    console.log('✅ Goal updated successfully:', updatedGoal);
     res.json(updatedGoal);
   } catch (error) {
-    console.error('Error updating goal:', error);
+    console.error('❌ Error updating goal:', error);
     res.status(500).json({ error: 'Failed to update goal' });
   }
 });

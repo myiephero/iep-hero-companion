@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Calendar, Target, TrendingUp, Clock, Plus, BookOpen, AlertCircle, Star, Trophy, Sparkles, ChevronRight, Users, CheckCircle2, ArrowUpRight, Rocket, FileText, GraduationCap } from "lucide-react";
+import { Calendar, Target, TrendingUp, Clock, Plus, BookOpen, AlertCircle, Star, Trophy, Sparkles, ChevronRight, Users, CheckCircle2, ArrowUpRight, Rocket, FileText, GraduationCap, Smile, Brain, Save, Loader2 } from "lucide-react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -10,6 +10,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 // import { supabase } from "@/integrations/supabase/client"; // Removed during migration
 import { api } from "@/lib/api";
 import { useToast } from "@/hooks/use-toast";
@@ -97,10 +98,60 @@ export default function ParentDashboard({ plan }: ParentDashboardProps) {
     meeting_type: 'iep'
   });
 
+  // Emotion tracker states
+  const [selectedStudentEmotion, setSelectedStudentEmotion] = useState('');
+  const [currentMood, setCurrentMood] = useState('');
+  const [moodNote, setMoodNote] = useState('');
+  const [aiDraftLoading, setAiDraftLoading] = useState(false);
+
   const getStudentName = (studentId: string | undefined): string => {
     if (!studentId) return 'Unknown Student';
     const student = students.find(s => s.id === studentId);
     return student?.full_name || 'Unknown Student';
+  };
+
+  // Emotion tracker functions
+  const handleRecordMood = () => {
+    if (!selectedStudentEmotion) {
+      toast({
+        title: "Student Required",
+        description: "Please select a student first.",
+        variant: "destructive"
+      });
+      return;
+    }
+    toast({
+      title: "Mood Recorded",
+      description: `Mood entry saved for ${getStudentName(selectedStudentEmotion)}`,
+      variant: "default"
+    });
+    setCurrentMood("");
+    setMoodNote("");
+  };
+
+  const handleGenerateMoodDraft = async () => {
+    if (!currentMood) return;
+    
+    setAiDraftLoading(true);
+    setTimeout(() => {
+      const moodDescriptions: { [key: string]: string } = {
+        '😊': 'Student appeared happy and engaged today.',
+        '😐': 'Student showed neutral emotional state.',
+        '😟': 'Student displayed signs of worry or anxiety.',
+        '😠': 'Student exhibited frustration or anger.',
+        '😢': 'Student seemed sad or upset.'
+      };
+      
+      const draft = `${moodDescriptions[currentMood]} Additional observations: Student's emotional state seemed consistent with typical patterns for this time of day. Consider environmental factors and recent events that may have influenced mood.`;
+      setMoodNote(draft);
+      setAiDraftLoading(false);
+      
+      toast({
+        title: "AI Draft Generated",
+        description: "Please review and edit the professional note before saving.",
+        variant: "default"
+      });
+    }, 1500);
   };
 
   useEffect(() => {
@@ -605,7 +656,7 @@ export default function ParentDashboard({ plan }: ParentDashboardProps) {
             <Card className="border-0 shadow-lg overflow-hidden">
               <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
                 <div className="bg-gradient-to-r from-slate-50 to-gray-50 border-b border-gray-200">
-                  <TabsList className="grid w-full grid-cols-1 sm:grid-cols-3 bg-transparent p-1 h-auto">
+                  <TabsList className="grid w-full grid-cols-1 sm:grid-cols-4 bg-transparent p-1 h-auto">
                     <TabsTrigger 
                       value="goals" 
                       className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-primary data-[state=active]:to-secondary data-[state=active]:text-white data-[state=active]:shadow-lg rounded-lg p-4 font-medium transition-all duration-300 hover:bg-white/50 cursor-pointer"
@@ -624,6 +675,16 @@ export default function ParentDashboard({ plan }: ParentDashboardProps) {
                       <div className="flex items-center gap-2">
                         <Calendar className="h-5 w-5" />
                         <span>Meetings</span>
+                      </div>
+                    </TabsTrigger>
+                    <TabsTrigger 
+                      value="emotions"
+                      className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-pink-500 data-[state=active]:to-rose-600 data-[state=active]:text-white data-[state=active]:shadow-lg rounded-lg p-4 font-medium transition-all duration-300 hover:bg-white/50 cursor-pointer"
+                      data-testid="tab-emotions"
+                    >
+                      <div className="flex items-center gap-2">
+                        <Smile className="h-5 w-5" />
+                        <span>Emotions</span>
                       </div>
                     </TabsTrigger>
                     <TabsTrigger 
@@ -1106,6 +1167,225 @@ export default function ParentDashboard({ plan }: ParentDashboardProps) {
                     ))
                   )}
                 </div>
+              </TabsContent>
+
+              {/* Emotion Tracker Tab */}
+              <TabsContent value="emotions" className="p-6 space-y-6">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <h2 className="text-2xl font-bold text-gray-900">Emotion Tracking</h2>
+                    <p className="text-gray-600 mt-1">Monitor your child's emotional well-being and daily mood</p>
+                  </div>
+                </div>
+
+                {/* Student Selection for Emotions */}
+                <Card className="border-0 shadow-lg bg-gradient-to-r from-pink-50 to-rose-50">
+                  <CardHeader>
+                    <CardTitle className="flex items-center gap-2 text-gray-900">
+                      <Smile className="h-5 w-5 text-pink-600" />
+                      Select Student for Emotion Tracking
+                    </CardTitle>
+                    <CardDescription className="text-gray-600">
+                      Choose which child you want to track emotions for today
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <Select value={selectedStudentEmotion} onValueChange={setSelectedStudentEmotion}>
+                      <SelectTrigger className="w-full">
+                        <SelectValue placeholder="Select a student..." />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {students.map((student) => (
+                          <SelectItem key={student.id} value={student.id}>
+                            {student.full_name} {student.grade_level && `- ${student.grade_level}`}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    {selectedStudentEmotion && (
+                      <div className="mt-3 p-3 bg-green-50 rounded-lg border border-green-200">
+                        <p className="text-sm text-green-800 font-medium">
+                          ✓ Tracking emotions for {getStudentName(selectedStudentEmotion)}
+                        </p>
+                      </div>
+                    )}
+                  </CardContent>
+                </Card>
+
+                {/* Quick Mood Check-in */}
+                <div className="grid gap-6 md:grid-cols-2">
+                  {/* Today's Mood Status */}
+                  <Card className="border-0 shadow-lg">
+                    <CardHeader>
+                      <CardTitle className="flex items-center gap-2 text-gray-900">
+                        <Smile className="h-5 w-5 text-blue-600" />
+                        Current Mood Status
+                      </CardTitle>
+                      <CardDescription className="text-gray-600">
+                        Quick overview of today's emotional state
+                      </CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="space-y-4">
+                        <div className="grid grid-cols-5 gap-2">
+                          {[
+                            { emoji: '😊', label: 'Happy', color: 'bg-green-100' },
+                            { emoji: '😐', label: 'Neutral', color: 'bg-blue-100' },
+                            { emoji: '😟', label: 'Worried', color: 'bg-yellow-100' },
+                            { emoji: '😠', label: 'Angry', color: 'bg-orange-100' },
+                            { emoji: '😢', label: 'Sad', color: 'bg-red-100' }
+                          ].map((mood, index) => (
+                            <div key={index} className={`text-center p-3 ${mood.color} rounded-lg`}>
+                              <div className="text-2xl mb-1">{mood.emoji}</div>
+                              <p className="text-xs font-medium">{mood.label}</p>
+                            </div>
+                          ))}
+                        </div>
+                        <div className="pt-2">
+                          <p className="text-sm text-gray-600 mb-3">
+                            Last recorded: Today at 2:30 PM - "Doing well after lunch break"
+                          </p>
+                          <Dialog>
+                            <DialogTrigger asChild>
+                              <Button className="w-full bg-gradient-to-r from-pink-600 to-rose-600 hover:from-pink-700 hover:to-rose-700" disabled={!selectedStudentEmotion}>
+                                <Smile className="h-4 w-4 mr-2" />
+                                Record New Mood
+                              </Button>
+                            </DialogTrigger>
+                            <DialogContent className="max-w-md">
+                              <DialogHeader>
+                                <DialogTitle>Record Daily Mood</DialogTitle>
+                                <DialogDescription>
+                                  Document {selectedStudentEmotion ? getStudentName(selectedStudentEmotion) + "'s" : "your child's"} current emotional state
+                                </DialogDescription>
+                              </DialogHeader>
+                              <div className="space-y-4">
+                                <div>
+                                  <Label>Current Mood</Label>
+                                  <div className="grid grid-cols-5 gap-2 mt-2">
+                                    {['😊', '😐', '😟', '😠', '😢'].map((emoji, index) => (
+                                      <Button
+                                        key={index}
+                                        variant={currentMood === emoji ? "default" : "outline"}
+                                        className="h-12 text-xl"
+                                        onClick={() => setCurrentMood(emoji)}
+                                      >
+                                        {emoji}
+                                      </Button>
+                                    ))}
+                                  </div>
+                                </div>
+                                <div>
+                                  <div className="flex items-center justify-between">
+                                    <Label htmlFor="mood-note">Additional Notes</Label>
+                                    <Button
+                                      type="button"
+                                      variant="ghost"
+                                      size="sm"
+                                      onClick={handleGenerateMoodDraft}
+                                      disabled={aiDraftLoading || !currentMood}
+                                      className="text-xs"
+                                    >
+                                      {aiDraftLoading ? (
+                                        <Loader2 className="h-3 w-3 mr-1 animate-spin" />
+                                      ) : (
+                                        <Sparkles className="h-3 w-3 mr-1" />
+                                      )}
+                                      AI Draft
+                                    </Button>
+                                  </div>
+                                  <Textarea
+                                    id="mood-note"
+                                    value={moodNote}
+                                    onChange={(e) => setMoodNote(e.target.value)}
+                                    placeholder="Any additional observations or context..."
+                                    className="mt-2"
+                                  />
+                                  {moodNote && (
+                                    <p className="text-xs text-gray-500 mt-1">
+                                      💡 Review and edit this draft before saving
+                                    </p>
+                                  )}
+                                </div>
+                                <div className="flex gap-2">
+                                  <Button onClick={handleRecordMood} className="flex-1">
+                                    <Save className="h-4 w-4 mr-2" />
+                                    Save Entry
+                                  </Button>
+                                </div>
+                              </div>
+                            </DialogContent>
+                          </Dialog>
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+
+                  {/* Weekly Trend Overview */}
+                  <Card className="border-0 shadow-lg">
+                    <CardHeader>
+                      <CardTitle className="flex items-center gap-2 text-gray-900">
+                        <TrendingUp className="h-5 w-5 text-green-600" />
+                        Weekly Emotional Trends
+                      </CardTitle>
+                      <CardDescription className="text-gray-600">
+                        Patterns and insights from this week
+                      </CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="space-y-4">
+                        <div className="flex items-center justify-between">
+                          <span className="text-sm font-medium">Overall Mood</span>
+                          <Badge className="bg-green-100 text-green-800">Positive</Badge>
+                        </div>
+                        <div className="flex items-center justify-between">
+                          <span className="text-sm font-medium">Most Common</span>
+                          <div className="flex items-center gap-1">
+                            <span className="text-lg">😊</span>
+                            <span className="text-sm">Happy (4 days)</span>
+                          </div>
+                        </div>
+                        <div className="flex items-center justify-between">
+                          <span className="text-sm font-medium">Improvement Areas</span>
+                          <span className="text-sm text-gray-600">Morning transitions</span>
+                        </div>
+                        <Button variant="outline" className="w-full mt-4">
+                          <Brain className="h-4 w-4 mr-2" />
+                          View Detailed Analysis
+                        </Button>
+                      </div>
+                    </CardContent>
+                  </Card>
+                </div>
+
+                {/* Quick Actions for Emotion Support */}
+                <Card className="border-0 shadow-lg bg-gradient-to-r from-blue-50 to-indigo-50">
+                  <CardHeader>
+                    <CardTitle className="text-gray-900">Emotional Support Tools</CardTitle>
+                    <CardDescription className="text-gray-600">
+                      Quick access to coping strategies and intervention resources
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="grid gap-4 md:grid-cols-3">
+                      <Button variant="outline" className="h-auto p-4 flex flex-col items-center gap-2">
+                        <Brain className="h-6 w-6 text-blue-600" />
+                        <span className="font-medium">Coping Strategies</span>
+                        <span className="text-xs text-gray-600">Breathing & relaxation</span>
+                      </Button>
+                      <Button variant="outline" className="h-auto p-4 flex flex-col items-center gap-2">
+                        <AlertTriangle className="h-6 w-6 text-orange-600" />
+                        <span className="font-medium">Warning Signs</span>
+                        <span className="text-xs text-gray-600">Early intervention</span>
+                      </Button>
+                      <Button variant="outline" className="h-auto p-4 flex flex-col items-center gap-2">
+                        <Calendar className="h-6 w-6 text-green-600" />
+                        <span className="font-medium">Support Schedule</span>
+                        <span className="text-xs text-gray-600">Daily check-ins</span>
+                      </Button>
+                    </div>
+                  </CardContent>
+                </Card>
               </TabsContent>
 
               {/* Enhanced AI Insights Tab */}

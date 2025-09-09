@@ -613,7 +613,7 @@ export default function ParentDashboard({ plan }: ParentDashboardProps) {
                       size="sm" 
                       className="bg-blue-50 text-blue-700 border-blue-200 hover:bg-blue-100 hover:text-blue-800 cursor-pointer"
                       onClick={(e) => {
-                        e.stopPropagation(); // Prevent card click
+                        // Allow card click to work by not stopping propagation
                         const actions = [
                           () => {
                             toast({

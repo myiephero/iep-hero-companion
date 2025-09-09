@@ -459,9 +459,16 @@ export default function ParentDashboard({ plan }: ParentDashboardProps) {
               <Button 
                 size="lg" 
                 className="bg-gradient-to-r from-primary to-secondary hover:from-primary/90 hover:to-secondary/90 text-white shadow-lg hover:shadow-xl transition-all duration-300 px-6 py-3 cursor-pointer"
-                onClick={() => {
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
                   console.log('🚀 Explore Premium Tools clicked!');
-                  navigate('/parent/tools/emergent');
+                  try {
+                    navigate('/parent/tools/emergent');
+                  } catch (error) {
+                    console.error('Navigation error:', error);
+                    window.location.href = '/parent/tools/emergent';
+                  }
                 }}
                 data-testid="button-explore-premium-tools"
               >
@@ -472,9 +479,16 @@ export default function ParentDashboard({ plan }: ParentDashboardProps) {
                 variant="outline" 
                 size="lg"
                 className="border-2 border-primary/30 hover:border-primary text-primary hover:bg-primary/5 px-6 py-3 cursor-pointer"
-                onClick={() => {
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
                   console.log('👥 Manage Students clicked!');
-                  navigate('/parent/students');
+                  try {
+                    navigate('/parent/students');
+                  } catch (error) {
+                    console.error('Navigation error:', error);
+                    window.location.href = '/parent/students';
+                  }
                 }}
                 data-testid="button-manage-students"
               >
@@ -485,9 +499,16 @@ export default function ParentDashboard({ plan }: ParentDashboardProps) {
                 variant="outline" 
                 size="lg"
                 className="border-2 border-purple-500/30 hover:border-purple-500 text-purple-600 hover:bg-purple-50 px-6 py-3 cursor-pointer"
-                onClick={() => {
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
                   console.log('📁 Document Vault clicked!');
-                  navigate('/parent/tools/document-vault');
+                  try {
+                    navigate('/parent/tools/document-vault');
+                  } catch (error) {
+                    console.error('Navigation error:', error);
+                    window.location.href = '/parent/tools/document-vault';
+                  }
                 }}
                 data-testid="button-document-vault"
               >
@@ -535,7 +556,16 @@ export default function ParentDashboard({ plan }: ParentDashboardProps) {
                     </div>
                     <div className="flex flex-col gap-4 min-w-[280px]">
                       <Button 
-                        onClick={() => navigate('/parent/subscribe')}
+                        onClick={(e) => {
+                          e.preventDefault();
+                          e.stopPropagation();
+                          try {
+                            navigate('/parent/subscribe');
+                          } catch (error) {
+                            console.error('Navigation error:', error);
+                            window.location.href = '/parent/subscribe';
+                          }
+                        }}
                         size="lg"
                         className="bg-white text-purple-600 hover:bg-white/90 font-bold text-lg py-4 px-8 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300"
                         data-testid="button-view-all-plans"
@@ -616,30 +646,55 @@ export default function ParentDashboard({ plan }: ParentDashboardProps) {
                     animationDelay: `${index * 100}ms`,
                     animation: 'fadeInUp 0.6s ease-out forwards'
                   }}
-                  onClick={() => {
+                  onClick={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
                     const actions = [
                       () => {
                         console.log('📊 Goals card clicked!');
-                        navigate('/parent/tools/goal-generator');
+                        try {
+                          navigate('/parent/tools/goal-generator');
+                        } catch (error) {
+                          console.error('Navigation error:', error);
+                          window.location.href = '/parent/tools/goal-generator';
+                        }
                       },
                       () => {
                         console.log('📅 Meetings card clicked!');
-                        navigate('/parent/schedule');
+                        try {
+                          navigate('/parent/schedule');
+                        } catch (error) {
+                          console.error('Navigation error:', error);
+                          window.location.href = '/parent/schedule';
+                        }
                       },
                       () => {
                         console.log('📈 Progress card clicked!');
-                        // Scroll to goals section for completion rate details
-                        setTimeout(() => {
-                          const goalsSection = document.querySelector('[data-section="goals"]');
-                          goalsSection?.scrollIntoView({ behavior: 'smooth', block: 'start' });
-                        }, 100);
+                        try {
+                          // Scroll to goals section for completion rate details
+                          setTimeout(() => {
+                            const goalsSection = document.querySelector('[data-section="goals"]');
+                            goalsSection?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                          }, 100);
+                        } catch (error) {
+                          console.error('Scroll error:', error);
+                        }
                       },
                       () => {
                         console.log('🔍 Deep Analysis card clicked!');
-                        navigate('/parent/tools/iep-master-suite');
+                        try {
+                          navigate('/parent/tools/iep-master-suite');
+                        } catch (error) {
+                          console.error('Navigation error:', error);
+                          window.location.href = '/parent/tools/iep-master-suite';
+                        }
                       }
                     ];
-                    actions[index]?.();
+                    try {
+                      actions[index]?.();
+                    } catch (error) {
+                      console.error('Action execution error:', error);
+                    }
                   }}
                   data-testid={`card-stat-${index}`}
                 >
@@ -1700,8 +1755,13 @@ export default function ParentDashboard({ plan }: ParentDashboardProps) {
                               key={insight.id} 
                               className="group hover:shadow-md transition-all duration-200 flex items-center justify-between p-4 border border-gray-200 rounded-xl hover:border-gray-300 w-full text-left cursor-pointer hover:bg-gray-50"
                               onClick={() => {
-                                // Navigate to the Document Vault to show the most recent IEP review
-                                window.location.href = '/tools/document-vault';
+                                // Use React Router instead of window.location
+                                try {
+                                  navigate('/parent/tools/document-vault');
+                                } catch (error) {
+                                  console.error('Navigation error:', error);
+                                  window.location.href = '/parent/tools/document-vault';
+                                }
                               }}
                             >
                               <div className="flex items-center gap-3">

@@ -104,8 +104,16 @@ export async function setupAuth(app: Express) {
     verified(null, user);
   };
 
-  for (const domain of process.env
-    .REPLIT_DOMAINS!.split(",")) {
+  const domains = process.env.REPLIT_DOMAINS 
+    ? process.env.REPLIT_DOMAINS.split(",")
+    : ['afd4ab41-fa60-4e78-9742-69bb4e3004d6-00-6i79wn87wfhu.janeway.replit.dev'];
+  
+  // Add published domain if not already included
+  if (!domains.includes('iep-hero-companion-myiephero.replit.app')) {
+    domains.push('iep-hero-companion-myiephero.replit.app');
+  }
+  
+  for (const domain of domains) {
     console.log(`Setting up auth strategy for domain: ${domain}`);
     const strategy = new Strategy(
       {
@@ -124,8 +132,9 @@ export async function setupAuth(app: Express) {
   passport.deserializeUser((user: Express.User, cb) => cb(null, user));
 
   app.get("/api/login", (req, res, next) => {
-    // Use the actual Replit domain instead of localhost
-    const domain = process.env.REPLIT_DOMAINS!.split(",")[0];
+    // Use the actual domain from the request hostname
+    const domain = req.hostname;
+    console.log(`Login request from domain: ${domain}`);
     passport.authenticate(`replitauth:${domain}`, {
       prompt: "login consent",
       scope: ["openid", "email", "profile", "offline_access"],
@@ -133,8 +142,9 @@ export async function setupAuth(app: Express) {
   });
 
   app.get("/api/callback", (req, res, next) => {
-    // Use the actual Replit domain instead of localhost
-    const domain = process.env.REPLIT_DOMAINS!.split(",")[0];
+    // Use the actual domain from the request hostname
+    const domain = req.hostname;
+    console.log(`Callback request from domain: ${domain}`);
     passport.authenticate(`replitauth:${domain}`, {
       failureRedirect: "/api/login",
     })(req, res, (err) => {

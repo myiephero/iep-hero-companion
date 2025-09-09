@@ -118,10 +118,20 @@ export default function GiftedTwoeLearners() {
   useEffect(() => {
     fetchStudents();
     fetchAssessments();
+  }, [selectedStudent]);
+
+  useEffect(() => {
     // Detect user role from URL or context - for now defaulting to parent
     // In production, this should come from auth context
     setUserRole(window.location.pathname.includes('advocate') ? 'advocate' : 'parent');
-  }, [selectedStudent]);
+  }, []);
+
+  useEffect(() => {
+    // Refresh assessments when user role changes to load role-specific AI analysis
+    if (selectedStudent) {
+      fetchAssessments();
+    }
+  }, [userRole]);
 
   const fetchStudents = async () => {
     try {
@@ -804,8 +814,8 @@ ${assessment.evaluator_notes ? `Notes: ${assessment.evaluator_notes}` : ''}
                                 <Brain className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
                                 <h4 className="font-medium mb-2">No AI insights generated yet</h4>
                                 <p className="text-muted-foreground text-sm mb-4">
-                                  Click "Generate AI Insights" to get personalized recommendations 
-                                  and analysis based on this assessment profile.
+                                  Generate AI-powered {userRole === 'parent' ? 'parent-friendly guidance' : 'professional advocate analysis'} 
+                                  based on this detailed assessment profile.
                                 </p>
                                 <Button
                                   onClick={() => generateAIInsights(assessment.id)}

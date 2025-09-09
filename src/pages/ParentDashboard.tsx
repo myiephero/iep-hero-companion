@@ -661,8 +661,14 @@ export default function ParentDashboard({ plan }: ParentDashboardProps) {
                       value="goals" 
                       className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-primary data-[state=active]:to-secondary data-[state=active]:text-white data-[state=active]:shadow-lg rounded-lg p-4 font-medium transition-all duration-300 hover:bg-white/50 cursor-pointer"
                       data-testid="tab-goal-tracking"
+                      onClick={(e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        console.log('🎯 Goal Tracking clicked!');
+                        setActiveTab("goals");
+                      }}
                     >
-                      <div className="flex items-center gap-2">
+                      <div className="flex items-center gap-2 pointer-events-none">
                         <Target className="h-5 w-5" />
                         <span>Goal Tracking</span>
                       </div>
@@ -671,8 +677,14 @@ export default function ParentDashboard({ plan }: ParentDashboardProps) {
                       value="meetings"
                       className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-green-500 data-[state=active]:to-teal-600 data-[state=active]:text-white data-[state=active]:shadow-lg rounded-lg p-4 font-medium transition-all duration-300 hover:bg-white/50 cursor-pointer"
                       data-testid="tab-meetings"
+                      onClick={(e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        console.log('📅 Meetings clicked!');
+                        setActiveTab("meetings");
+                      }}
                     >
-                      <div className="flex items-center gap-2">
+                      <div className="flex items-center gap-2 pointer-events-none">
                         <Calendar className="h-5 w-5" />
                         <span>Meetings</span>
                       </div>
@@ -681,8 +693,14 @@ export default function ParentDashboard({ plan }: ParentDashboardProps) {
                       value="emotions"
                       className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-pink-500 data-[state=active]:to-rose-600 data-[state=active]:text-white data-[state=active]:shadow-lg rounded-lg p-4 font-medium transition-all duration-300 hover:bg-white/50 cursor-pointer"
                       data-testid="tab-emotions"
+                      onClick={(e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        console.log('😊 Emotions clicked!');
+                        setActiveTab("emotions");
+                      }}
                     >
-                      <div className="flex items-center gap-2">
+                      <div className="flex items-center gap-2 pointer-events-none">
                         <Smile className="h-5 w-5" />
                         <span>Emotions</span>
                       </div>
@@ -691,8 +709,14 @@ export default function ParentDashboard({ plan }: ParentDashboardProps) {
                       value="insights"
                       className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-orange-500 data-[state=active]:to-red-600 data-[state=active]:text-white data-[state=active]:shadow-lg rounded-lg p-4 font-medium transition-all duration-300 hover:bg-white/50 cursor-pointer"
                       data-testid="tab-ai-insights"
+                      onClick={(e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        console.log('🔮 AI Insights clicked!');
+                        setActiveTab("insights");
+                      }}
                     >
-                      <div className="flex items-center gap-2">
+                      <div className="flex items-center gap-2 pointer-events-none">
                         <Sparkles className="h-5 w-5" />
                         <span>AI Insights</span>
                       </div>
@@ -709,7 +733,16 @@ export default function ParentDashboard({ plan }: ParentDashboardProps) {
                   </div>
                   <Dialog open={showGoalDialog} onOpenChange={setShowGoalDialog}>
                     <DialogTrigger asChild>
-                      <Button className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white shadow-lg hover:shadow-xl transition-all duration-200 rounded-xl px-6 py-3">
+                      <Button 
+                        className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white shadow-lg hover:shadow-xl transition-all duration-200 rounded-xl px-6 py-3"
+                        onClick={(e) => {
+                          e.preventDefault();
+                          e.stopPropagation();
+                          console.log('➕ Add New Goal clicked!');
+                          setShowGoalDialog(true);
+                        }}
+                        data-testid="button-add-new-goal"
+                      >
                         <Plus className="h-4 w-4 mr-2" />
                         Add New Goal
                       </Button>

@@ -126,9 +126,9 @@
     
     /* Text Hierarchy */
     --muted: 210 16% 60%;
-    --muted-foreground: 210 16% 46%;
+    --muted-foreground: 210 16% 25%;
     --subtle: 210 16% 70%;
-    --subtle-foreground: 210 16% 56%;
+    --subtle-foreground: 210 16% 35%;
     
     /* Interactive Elements */
     --border: 210 20% 90%;
@@ -278,9 +278,9 @@
     --surface-glass: 210 40% 8% / 0.8;
     
     --muted: 210 16% 50%;
-    --muted-foreground: 210 16% 70%;
+    --muted-foreground: 210 16% 75%;
     --subtle: 210 16% 40%;
-    --subtle-foreground: 210 16% 60%;
+    --subtle-foreground: 210 16% 65%;
     
     --border: 210 40% 15%;
     --border-light: 210 40% 18%;
@@ -371,6 +371,27 @@
 }
 
 @layer components {
+  /* Form Input Improvements for Better Readability */
+  input, textarea, select {
+    @apply text-foreground placeholder:text-muted-foreground;
+  }
+  
+  input:not([type="checkbox"]):not([type="radio"]),
+  textarea,
+  select {
+    @apply text-gray-900 dark:text-gray-100;
+  }
+  
+  input::placeholder,
+  textarea::placeholder {
+    @apply text-gray-500 dark:text-gray-400;
+  }
+  
+  /* Label improvements */
+  label {
+    @apply text-gray-700 dark:text-gray-300 font-medium;
+  }
+  
   /* Glass Effect Components */
   .glass-card {
     @apply bg-gradient-glass backdrop-blur-xl border border-border-light shadow-glass;

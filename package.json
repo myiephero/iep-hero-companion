@@ -5,6 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "concurrently \"tsx server/index.ts\" \"vite\" --names \"SERVER,CLIENT\" --prefix-colors \"blue,green\"",
+    "start": "tsx server/index.ts",
     "server": "tsx server/index.ts",
     "client": "vite",
     "build": "vite build",

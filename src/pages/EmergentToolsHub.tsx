@@ -180,6 +180,10 @@ const emergentTools = [
 
 const categories = Array.from(new Set(emergentTools.map(tool => tool.category)));
 
+// Force refresh - Updated at ${new Date().toISOString()}
+console.log('🔥 FORCED REFRESH: EmergentTools array length:', emergentTools.length);
+console.log('🔥 FORCED REFRESH: All 18 tools:', emergentTools.map(t => t.title));
+
 const getBadgeVariant = (badge: string) => {
   switch (badge) {
     case "Core": return "bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border-slate-200 dark:border-slate-600";
@@ -217,12 +221,12 @@ export default function EmergentToolsHub() {
           </div>
           <p className="text-xl text-muted-foreground max-w-3xl mx-auto">
             Advanced AI-powered tools and specialized resources for special education advocacy, 
-            designed to streamline IEP processes and improve student outcomes. Now with 18 comprehensive tools!
+            designed to streamline IEP processes and improve student outcomes. Now featuring 18 comprehensive tools!
           </p>
           <div className="flex items-center justify-center gap-4 pt-4">
             <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200">
               <TrendingUp className="h-3 w-3 mr-1" />
-              18 Active Tools
+              ⚡ 18 Active Tools ⚡
             </Badge>
             <Badge variant="outline" className="bg-blue-50 text-blue-700 border-blue-200">
               <Brain className="h-3 w-3 mr-1" />

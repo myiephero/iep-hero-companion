@@ -365,6 +365,37 @@ export default function IEPMasterSuite() {
           </div>
         </div>
 
+        {/* Student Selection - Global for all tabs */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center space-x-2">
+              <Users className="h-5 w-5 text-primary" />
+              <span>Select Client/Student</span>
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-2">
+              <Label htmlFor="client-select" className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                Choose which client/student you want to work with:
+              </Label>
+              <StudentSelector
+                selectedStudent={selectedStudentId?.toString() || ''}
+                onStudentChange={(id) => setSelectedStudentId(id ? parseInt(id) : null)}
+                placeholder="Select client/student..."
+                data-testid="select-client"
+              />
+              {selectedStudentId && (
+                <div className="flex items-center space-x-2 mt-2 p-2 bg-green-50 dark:bg-green-900/20 rounded-lg">
+                  <CheckCircle className="h-4 w-4 text-green-600" />
+                  <span className="text-sm text-green-700 dark:text-green-300 font-medium">
+                    Ready to work with selected client's IEP
+                  </span>
+                </div>
+              )}
+            </div>
+          </CardContent>
+        </Card>
+
         {/* Organized Workflow Tabs */}
         <Tabs value={activeTab} onValueChange={(value) => setActiveTab(value as any)} className="space-y-6">
           <div className="border rounded-lg bg-card">
@@ -428,11 +459,8 @@ export default function IEPMasterSuite() {
                         </div>
                         
                         <div className="space-y-2">
-                          <Label className="text-sm font-medium">Student Context (Optional)</Label>
-                          <StudentSelector 
-                            selectedStudent={selectedStudentId?.toString() || ''} 
-                            onStudentChange={(id) => setSelectedStudentId(id ? parseInt(id) : null)} 
-                          />
+                          <Label className="text-sm font-medium">Additional Context (Optional)</Label>
+                          <p className="text-xs text-muted-foreground">Client already selected above</p>
                         </div>
                       </CardContent>
                     </Card>

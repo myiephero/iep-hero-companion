@@ -32,11 +32,12 @@ import {
   FileType,
   Wand2,
   ChevronDown,
-  Settings
+  Settings,
+  CalendarCheck
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/hooks/useAuth";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { ApiClient } from "@/lib/api";
 import type { Student } from "@/lib/api";
@@ -44,6 +45,7 @@ import type { Student } from "@/lib/api";
 const SmartLetterGenerator = () => {
   const { toast } = useToast();
   const { profile } = useAuth();
+  const navigate = useNavigate();
   const isAdvocateUser = profile?.role === 'advocate';
   const [currentStep, setCurrentStep] = useState(1);
   const [selectedTemplate, setSelectedTemplate] = useState("");
@@ -760,6 +762,57 @@ const SmartLetterGenerator = () => {
                         {isAdvocateUser ? 'Prepare Legal Document' : 'Download PDF'}
                       </Button>
                     </Card>
+                  </div>
+
+                  {/* Next Steps & Workflow Integration */}
+                  <div className="space-y-4">
+                    <h3 className="font-semibold">Next Steps</h3>
+                    <div className="grid gap-3 md:grid-cols-3">
+                      <Button 
+                        variant="outline" 
+                        className="w-full h-auto p-4 flex flex-col items-start"
+                        onClick={() => navigate('/parent/schedule?action=schedule-meeting')}
+                        data-testid="button-schedule-meeting"
+                      >
+                        <div className="flex items-center gap-2 mb-1">
+                          <Calendar className="h-4 w-4" />
+                          <span className="font-semibold">Schedule Meeting</span>
+                        </div>
+                        <span className="text-sm text-muted-foreground text-left">
+                          Request a meeting to discuss this letter
+                        </span>
+                      </Button>
+                      
+                      <Button 
+                        variant="outline" 
+                        className="w-full h-auto p-4 flex flex-col items-start"
+                        onClick={() => navigate('/parent/tools/timeline-calculator')}
+                        data-testid="button-set-reminders"
+                      >
+                        <div className="flex items-center gap-2 mb-1">
+                          <Target className="h-4 w-4" />
+                          <span className="font-semibold">Set Timeline</span>
+                        </div>
+                        <span className="text-sm text-muted-foreground text-left">
+                          Calculate response deadlines
+                        </span>
+                      </Button>
+                      
+                      <Button 
+                        variant="outline" 
+                        className="w-full h-auto p-4 flex flex-col items-start"
+                        onClick={() => navigate('/parent/schedule')}
+                        data-testid="button-track-schedule"
+                      >
+                        <div className="flex items-center gap-2 mb-1">
+                          <CalendarCheck className="h-4 w-4" />
+                          <span className="font-semibold">Track in Schedule</span>
+                        </div>
+                        <span className="text-sm text-muted-foreground text-left">
+                          Add to your schedule hub
+                        </span>
+                      </Button>
+                    </div>
                   </div>
 
                   <div className={`p-4 rounded-lg ${isAdvocateUser ? 'bg-purple-50' : 'bg-blue-50'}`}>

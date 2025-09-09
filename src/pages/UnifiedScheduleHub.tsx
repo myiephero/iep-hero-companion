@@ -36,14 +36,16 @@ interface Meeting {
   id: string;
   title: string;
   scheduled_date: string;
-  start_time: string;
-  end_time: string;
-  location: string;
+  start_time?: string;
+  end_time?: string;
+  location?: string;
   meeting_type: string;
   status: 'scheduled' | 'confirmed' | 'pending' | 'completed' | 'cancelled';
   notes?: string;
   advocate_id?: string;
   client_id?: string;
+  description?: string;
+  created_at?: string;
 }
 
 interface TimelineDeadline {
@@ -106,6 +108,20 @@ export default function UnifiedScheduleHub() {
       window.history.replaceState({}, document.title);
     }
   }, [location.state, toast]);
+
+  // Handle query parameters from Smart Letter Generator
+  useEffect(() => {
+    const urlParams = new URLSearchParams(location.search);
+    const action = urlParams.get('action');
+    
+    if (action === 'schedule-meeting') {
+      setShowWorkflowSelector(true);
+      toast({
+        title: "Letter Sent Successfully",
+        description: "Now let's schedule a meeting to discuss your letter.",
+      });
+    }
+  }, [location.search, toast]);
 
   // Fetch meetings and timeline data
   useEffect(() => {
@@ -494,26 +510,39 @@ export default function UnifiedScheduleHub() {
                           </Badge>
                         </div>
                         
-                        {!isAdvocate && meeting.status === 'confirmed' && (
+                        {meeting.status === 'confirmed' && (
                           <div className="flex gap-2 mt-4">
+                            {!isAdvocate && (
+                              <Button 
+                                variant="outline" 
+                                size="sm"
+                                onClick={() => navigateToMeetingPrep(meeting.id)}
+                                data-testid={`button-prep-${meeting.id}`}
+                              >
+                                <BookOpen className="h-4 w-4 mr-1" />
+                                Prepare
+                              </Button>
+                            )}
                             <Button 
                               variant="outline" 
                               size="sm"
-                              onClick={() => navigateToMeetingPrep(meeting.id)}
-                              data-testid={`button-prep-${meeting.id}`}
-                            >
-                              <BookOpen className="h-4 w-4 mr-1" />
-                              Prepare
-                            </Button>
-                            <Button 
-                              variant="outline" 
-                              size="sm"
-                              onClick={() => navigate(`/parent/messaging?advocate=${meeting.advocate_id}`)}
+                              onClick={() => navigate(isAdvocate ? `/advocate/messaging?client=${meeting.client_id}` : `/parent/messaging?advocate=${meeting.advocate_id}`)}
                               data-testid={`button-message-${meeting.id}`}
                             >
                               <MessageCircle className="h-4 w-4 mr-1" />
                               Message
                             </Button>
+                            {isAdvocate && (
+                              <Button 
+                                variant="outline" 
+                                size="sm"
+                                onClick={() => navigate(`/advocate/students?client=${meeting.client_id}`)}
+                                data-testid={`button-view-client-${meeting.id}`}
+                              >
+                                <Users className="h-4 w-4 mr-1" />
+                                View Client
+                              </Button>
+                            )}
                           </div>
                         )}
                       </div>

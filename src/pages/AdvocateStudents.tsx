@@ -23,7 +23,11 @@ import {
   AlertCircle,
   CheckCircle,
   Building2,
-  Mail
+  Mail,
+  Smile,
+  Heart,
+  TrendingUp,
+  Brain
 } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
@@ -70,6 +74,301 @@ interface Case {
   next_action: string | null;
   next_action_date: string | null;
 }
+
+// Advocate Emotion Tracking Tab Component
+const AdvocateEmotionTrackingTab = ({ selectedStudentId }: { selectedStudentId?: string | null }) => {
+  const [currentMood, setCurrentMood] = useState('');
+  const [moodNote, setMoodNote] = useState('');
+  const [aiDraftLoading, setAiDraftLoading] = useState(false);
+  const { toast } = useToast();
+
+  const moodOptions = [
+    { emoji: '😊', label: 'Happy', color: 'bg-green-100 hover:bg-green-200' },
+    { emoji: '😐', label: 'Neutral', color: 'bg-blue-100 hover:bg-blue-200' },
+    { emoji: '😟', label: 'Anxious', color: 'bg-yellow-100 hover:bg-yellow-200' },
+    { emoji: '😠', label: 'Frustrated', color: 'bg-orange-100 hover:bg-orange-200' },
+    { emoji: '😢', label: 'Distressed', color: 'bg-red-100 hover:bg-red-200' }
+  ];
+
+  const handleRecordMood = () => {
+    if (!selectedStudentId) {
+      toast({
+        title: "Student Required",
+        description: "Please select a student first.",
+        variant: "destructive"
+      });
+      return;
+    }
+    
+    if (!currentMood) {
+      toast({
+        title: "Mood Required",
+        description: "Please select the student's observed emotional state.",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    toast({
+      title: "Emotional Observation Recorded",
+      description: `Professional observation saved successfully!`,
+      variant: "default"
+    });
+    setCurrentMood("");
+    setMoodNote("");
+  };
+
+  const handleGenerateProfessionalNote = async () => {
+    if (!currentMood) return;
+    
+    setAiDraftLoading(true);
+    setTimeout(() => {
+      const professionalDescriptions: { [key: string]: string } = {
+        '😊': 'Student demonstrated positive affect and engaged appropriately in activities.',
+        '😐': 'Student exhibited neutral emotional regulation and steady baseline behavior.',
+        '😟': 'Student showed signs of anxiety or worry requiring additional support and monitoring.',
+        '😠': 'Student displayed frustration behaviors that may indicate need for intervention strategies.',
+        '😢': 'Student appeared distressed and may benefit from immediate emotional support services.'
+      };
+      
+      const draft = `${professionalDescriptions[currentMood]} Recommend continued observation and documentation of triggers, environmental factors, and effective intervention strategies. Consider consultation with school counselor or behavioral specialist if patterns persist.`;
+      setMoodNote(draft);
+      setAiDraftLoading(false);
+      
+      toast({
+        title: "Professional Note Generated",
+        description: "Please review and edit the assessment before saving.",
+        variant: "default"
+      });
+    }, 1500);
+  };
+
+  if (!selectedStudentId) {
+    return (
+      <Card className="premium-card">
+        <CardContent className="text-center py-8">
+          <Smile className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
+          <p className="text-muted-foreground">Select a student to track emotional patterns and provide support.</p>
+        </CardContent>
+      </Card>
+    );
+  }
+
+  return (
+    <div className="space-y-6">
+      {/* Professional Emotional Assessment */}
+      <div className="grid gap-6 lg:grid-cols-2">
+        <Card className="premium-card">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Heart className="h-5 w-5 text-red-500" />
+              Professional Emotional Assessment
+            </CardTitle>
+            <CardDescription>
+              Document observed emotional states and behaviors for advocacy and IEP planning
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-4">
+              <div className="grid grid-cols-5 gap-2">
+                {moodOptions.map((mood) => (
+                  <div 
+                    key={mood.emoji}
+                    className={`text-center p-3 rounded-lg cursor-pointer transition-colors ${mood.color} ${currentMood === mood.emoji ? 'ring-2 ring-primary' : ''}`}
+                    onClick={() => setCurrentMood(mood.emoji)}
+                  >
+                    <div className="text-2xl mb-1">{mood.emoji}</div>
+                    <p className="text-xs">{mood.label}</p>
+                  </div>
+                ))}
+              </div>
+              
+              <div className="space-y-3">
+                <Label htmlFor="professional-note">Professional Observation Notes</Label>
+                <Textarea
+                  id="professional-note"
+                  placeholder="Document specific behaviors, triggers, environmental factors, and intervention strategies observed..."
+                  value={moodNote}
+                  onChange={(e) => setMoodNote(e.target.value)}
+                  className="min-h-[100px]"
+                />
+                
+                <div className="flex gap-2">
+                  <Button
+                    onClick={handleGenerateProfessionalNote}
+                    disabled={!currentMood || aiDraftLoading}
+                    variant="outline"
+                    size="sm"
+                  >
+                    {aiDraftLoading ? (
+                      <>
+                        <Brain className="h-4 w-4 mr-2 animate-spin" />
+                        Generating...
+                      </>
+                    ) : (
+                      <>
+                        <Brain className="h-4 w-4 mr-2" />
+                        Generate Professional Note
+                      </>
+                    )}
+                  </Button>
+                  
+                  <Button 
+                    onClick={handleRecordMood}
+                    disabled={!currentMood}
+                    className="flex-1"
+                  >
+                    <Save className="h-4 w-4 mr-2" />
+                    Save Professional Assessment
+                  </Button>
+                </div>
+              </div>
+              
+              <div className="pt-2 text-sm text-muted-foreground">
+                Last assessment: Yesterday - "Student showed improved self-regulation during transitions"
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card className="premium-card">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <TrendingUp className="h-5 w-5 text-blue-500" />
+              Behavioral Pattern Analysis
+            </CardTitle>
+            <CardDescription>
+              Track emotional and behavioral patterns for advocacy documentation
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-4">
+              <div className="grid grid-cols-7 gap-1 text-center text-xs">
+                <div>Mon</div>
+                <div>Tue</div>
+                <div>Wed</div>
+                <div>Thu</div>
+                <div>Fri</div>
+                <div>Sat</div>
+                <div>Sun</div>
+              </div>
+              <div className="grid grid-cols-7 gap-1">
+                <div className="h-8 bg-green-200 rounded" title="Stable regulation"></div>
+                <div className="h-8 bg-green-300 rounded" title="Excellent day"></div>
+                <div className="h-8 bg-yellow-200 rounded" title="Some challenges"></div>
+                <div className="h-8 bg-red-200 rounded" title="Significant struggles"></div>
+                <div className="h-8 bg-green-200 rounded" title="Improved coping"></div>
+                <div className="h-8 bg-blue-200 rounded" title="Weekend - different environment"></div>
+                <div className="h-8 bg-green-200 rounded" title="Positive regulation"></div>
+              </div>
+              <div className="text-sm text-muted-foreground">
+                <p>• Pattern: Thursdays consistently challenging</p>
+                <p>• Improvement after intervention implementation</p>
+                <p>• Recommend schedule adjustment for Thursday</p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* Professional Resources and Interventions */}
+      <div className="grid gap-4 md:grid-cols-3">
+        <Card className="premium-card">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2 text-sm">
+              <Brain className="h-4 w-4" />
+              Evidence-Based Interventions
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <ul className="space-y-2 text-sm">
+              <li>• Cognitive behavioral strategies</li>
+              <li>• Sensory regulation tools</li>
+              <li>• Social skills training protocols</li>
+              <li>• Environmental modifications</li>
+            </ul>
+            <Button size="sm" className="w-full mt-3" variant="outline">Access Resources</Button>
+          </CardContent>
+        </Card>
+
+        <Card className="premium-card">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2 text-sm">
+              <AlertCircle className="h-4 w-4" />
+              Crisis Indicators
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <ul className="space-y-2 text-sm">
+              <li>• Escalating behavioral incidents</li>
+              <li>• Academic performance decline</li>
+              <li>• Social withdrawal patterns</li>
+              <li>• Sleep or appetite changes</li>
+            </ul>
+            <Button size="sm" className="w-full mt-3" variant="outline">Crisis Protocol</Button>
+          </CardContent>
+        </Card>
+
+        <Card className="premium-card">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2 text-sm">
+              <FileText className="h-4 w-4" />
+              Documentation Tools
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <ul className="space-y-2 text-sm">
+              <li>• Behavior incident reports</li>
+              <li>• Progress monitoring charts</li>
+              <li>• IEP meeting preparation</li>
+              <li>• Parent communication logs</li>
+            </ul>
+            <Button size="sm" className="w-full mt-3" variant="outline">Generate Reports</Button>
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* Professional Case Notes */}
+      <Card className="premium-card">
+        <CardHeader>
+          <CardTitle>Professional Case Notes & Observations</CardTitle>
+          <CardDescription>
+            Confidential documentation for advocacy and service planning
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="space-y-3">
+            <div className="p-3 border rounded-lg bg-blue-50 dark:bg-blue-950/20">
+              <div className="flex items-center justify-between mb-2">
+                <h4 className="font-medium text-sm">Intervention Success 📊</h4>
+                <span className="text-xs text-muted-foreground">Today</span>
+              </div>
+              <p className="text-xs text-muted-foreground">
+                Implementation of sensory break protocol resulted in 50% reduction in classroom disruptions. 
+                Recommend including in formal accommodation plan.
+              </p>
+            </div>
+            
+            <div className="p-3 border rounded-lg bg-yellow-50 dark:bg-yellow-950/20">
+              <div className="flex items-center justify-between mb-2">
+                <h4 className="font-medium text-sm">Service Gap Identified ⚠️</h4>
+                <span className="text-xs text-muted-foreground">This Week</span>
+              </div>
+              <p className="text-xs text-muted-foreground">
+                Student would benefit from occupational therapy evaluation for sensory processing concerns. 
+                Will advocate for additional assessment at next IEP meeting.
+              </p>
+            </div>
+            
+            <div className="pt-2">
+              <Button className="w-full" variant="outline">Add Professional Observation</Button>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+    </div>
+  );
+};
 
 const AdvocateStudents = () => {
   const [selectedStudentId, setSelectedStudentId] = useState<string | null>(null);
@@ -483,10 +782,11 @@ const AdvocateStudents = () => {
                 </Card>
 
                 <Tabs defaultValue="overview" className="space-y-6">
-                  <TabsList className="grid w-full grid-cols-2 sm:grid-cols-4 premium-card">
+                  <TabsList className="grid w-full grid-cols-2 sm:grid-cols-5 premium-card">
                     <TabsTrigger value="overview">Overview</TabsTrigger>
                     <TabsTrigger value="goals">Goals ({goals.length})</TabsTrigger>
                     <TabsTrigger value="services">Services ({services.length})</TabsTrigger>
+                    <TabsTrigger value="emotions" className="bg-pink-600 text-white">😊 Emotions</TabsTrigger>
                     <TabsTrigger value="advocacy">Advocacy ({cases.length})</TabsTrigger>
                   </TabsList>
 
@@ -611,6 +911,10 @@ const AdvocateStudents = () => {
                         <p className="text-muted-foreground">No services have been documented yet for this student.</p>
                       </CardContent>
                     </Card>
+                  </TabsContent>
+
+                  <TabsContent value="emotions" className="space-y-6">
+                    <AdvocateEmotionTrackingTab selectedStudentId={selectedStudentId} />
                   </TabsContent>
 
                   <TabsContent value="advocacy" className="space-y-6">

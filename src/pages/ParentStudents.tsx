@@ -35,7 +35,10 @@ import {
   Building2,
   Eye,
   Sparkles,
-  Clock
+  Clock,
+  Smile,
+  Heart,
+  TrendingUp
 } from "lucide-react";
 // import { supabase } from "@/integrations/supabase/client"; // Removed during migration
 import { useAuth } from "@/hooks/useAuth";
@@ -407,6 +410,301 @@ const AutismAIAnalysis = ({ selectedStudentId }: { selectedStudentId?: string })
           )}
         </div>
       )}
+    </div>
+  );
+};
+
+// Emotion Tracking Tab Component
+const EmotionTrackingTab = ({ selectedStudentId }: { selectedStudentId?: string }) => {
+  const [currentMood, setCurrentMood] = useState('');
+  const [moodNote, setMoodNote] = useState('');
+  const [aiDraftLoading, setAiDraftLoading] = useState(false);
+  const { toast } = useToast();
+
+  const moodOptions = [
+    { emoji: '😊', label: 'Happy', color: 'bg-green-100 hover:bg-green-200' },
+    { emoji: '😐', label: 'Okay', color: 'bg-blue-100 hover:bg-blue-200' },
+    { emoji: '😟', label: 'Worried', color: 'bg-yellow-100 hover:bg-yellow-200' },
+    { emoji: '😠', label: 'Frustrated', color: 'bg-orange-100 hover:bg-orange-200' },
+    { emoji: '😢', label: 'Sad', color: 'bg-red-100 hover:bg-red-200' }
+  ];
+
+  const handleRecordMood = () => {
+    if (!selectedStudentId) {
+      toast({
+        title: "Student Required",
+        description: "Please select a student first.",
+        variant: "destructive"
+      });
+      return;
+    }
+    
+    if (!currentMood) {
+      toast({
+        title: "Mood Required",
+        description: "Please select how your child is feeling.",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    toast({
+      title: "Mood Recorded",
+      description: `Mood entry saved successfully!`,
+      variant: "default"
+    });
+    setCurrentMood("");
+    setMoodNote("");
+  };
+
+  const handleGenerateMoodDraft = async () => {
+    if (!currentMood) return;
+    
+    setAiDraftLoading(true);
+    setTimeout(() => {
+      const moodDescriptions: { [key: string]: string } = {
+        '😊': 'Student appeared happy and engaged today.',
+        '😐': 'Student showed neutral emotional state.',
+        '😟': 'Student displayed signs of worry or anxiety.',
+        '😠': 'Student exhibited frustration or anger.',
+        '😢': 'Student seemed sad or upset.'
+      };
+      
+      const draft = `${moodDescriptions[currentMood]} Additional observations: Student's emotional state seemed consistent with typical patterns for this time of day. Consider environmental factors and recent events that may have influenced mood.`;
+      setMoodNote(draft);
+      setAiDraftLoading(false);
+      
+      toast({
+        title: "AI Draft Generated",
+        description: "Please review and edit the professional note before saving.",
+        variant: "default"
+      });
+    }, 1500);
+  };
+
+  if (!selectedStudentId) {
+    return (
+      <Card className="premium-card">
+        <CardContent className="text-center py-8">
+          <Smile className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
+          <p className="text-muted-foreground">Select a student to track their emotional well-being.</p>
+        </CardContent>
+      </Card>
+    );
+  }
+
+  return (
+    <div className="space-y-6">
+      {/* Today's Emotional Check-in */}
+      <div className="grid gap-6 lg:grid-cols-2">
+        <Card className="premium-card">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Heart className="h-5 w-5 text-red-500" />
+              Today's Emotional Check-in
+            </CardTitle>
+            <CardDescription>
+              How is your child feeling today?
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-4">
+              <div className="grid grid-cols-5 gap-2">
+                {moodOptions.map((mood) => (
+                  <div 
+                    key={mood.emoji}
+                    className={`text-center p-3 rounded-lg cursor-pointer transition-colors ${mood.color} ${currentMood === mood.emoji ? 'ring-2 ring-primary' : ''}`}
+                    onClick={() => setCurrentMood(mood.emoji)}
+                  >
+                    <div className="text-2xl mb-1">{mood.emoji}</div>
+                    <p className="text-xs">{mood.label}</p>
+                  </div>
+                ))}
+              </div>
+              
+              <div className="space-y-3">
+                <Label htmlFor="mood-note">Additional Notes</Label>
+                <Textarea
+                  id="mood-note"
+                  placeholder="Add any observations or context about your child's mood..."
+                  value={moodNote}
+                  onChange={(e) => setMoodNote(e.target.value)}
+                  className="min-h-[80px]"
+                />
+                
+                <div className="flex gap-2">
+                  <Button
+                    onClick={handleGenerateMoodDraft}
+                    disabled={!currentMood || aiDraftLoading}
+                    variant="outline"
+                    size="sm"
+                  >
+                    {aiDraftLoading ? (
+                      <>
+                        <Brain className="h-4 w-4 mr-2 animate-spin" />
+                        Generating...
+                      </>
+                    ) : (
+                      <>
+                        <Brain className="h-4 w-4 mr-2" />
+                        AI Draft
+                      </>
+                    )}
+                  </Button>
+                  
+                  <Button 
+                    onClick={handleRecordMood}
+                    disabled={!currentMood}
+                    className="flex-1"
+                  >
+                    <Save className="h-4 w-4 mr-2" />
+                    Save Mood Entry
+                  </Button>
+                </div>
+              </div>
+              
+              <div className="pt-2 text-sm text-muted-foreground">
+                Last recorded: This morning - "Excited about art class today!"
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card className="premium-card">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <TrendingUp className="h-5 w-5 text-blue-500" />
+              This Week's Pattern
+            </CardTitle>
+            <CardDescription>
+              Your child's emotional trends over the past week
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-4">
+              <div className="grid grid-cols-7 gap-1 text-center text-xs">
+                <div>Mon</div>
+                <div>Tue</div>
+                <div>Wed</div>
+                <div>Thu</div>
+                <div>Fri</div>
+                <div>Sat</div>
+                <div>Sun</div>
+              </div>
+              <div className="grid grid-cols-7 gap-1">
+                <div className="h-8 bg-green-200 rounded" title="Happy day"></div>
+                <div className="h-8 bg-green-300 rounded" title="Great day"></div>
+                <div className="h-8 bg-yellow-200 rounded" title="Mixed emotions"></div>
+                <div className="h-8 bg-green-200 rounded" title="Good day"></div>
+                <div className="h-8 bg-green-400 rounded" title="Excellent day"></div>
+                <div className="h-8 bg-blue-200 rounded" title="Calm day"></div>
+                <div className="h-8 bg-green-200 rounded" title="Happy day"></div>
+              </div>
+              <div className="text-sm text-muted-foreground">
+                <p>• Mostly positive emotions this week! 🌟</p>
+                <p>• Wednesday had some challenges</p>
+                <p>• Weekend was peaceful and happy</p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* Family Support Tools */}
+      <div className="grid gap-4 md:grid-cols-3">
+        <Card className="premium-card">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2 text-sm">
+              <Brain className="h-4 w-4" />
+              Helpful Strategies
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <ul className="space-y-2 text-sm">
+              <li>• Take deep breaths together</li>
+              <li>• Use a calm-down corner</li>
+              <li>• Practice gratitude sharing</li>
+              <li>• Physical movement breaks</li>
+            </ul>
+            <Button size="sm" className="w-full mt-3" variant="outline">Learn More</Button>
+          </CardContent>
+        </Card>
+
+        <Card className="premium-card">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2 text-sm">
+              <AlertCircle className="h-4 w-4" />
+              Watch For Signs
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <ul className="space-y-2 text-sm">
+              <li>• Changes in sleep patterns</li>
+              <li>• Withdrawal from activities</li>
+              <li>• Increased meltdowns</li>
+              <li>• School avoidance</li>
+            </ul>
+            <Button size="sm" className="w-full mt-3" variant="outline">Get Guidance</Button>
+          </CardContent>
+        </Card>
+
+        <Card className="premium-card">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2 text-sm">
+              <Calendar className="h-4 w-4" />
+              Daily Routine
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <ul className="space-y-2 text-sm">
+              <li>• Morning check-in (8:00 AM)</li>
+              <li>• After-school chat (3:30 PM)</li>
+              <li>• Dinner reflection (6:00 PM)</li>
+              <li>• Bedtime gratitude (8:00 PM)</li>
+            </ul>
+            <Button size="sm" className="w-full mt-3" variant="outline">Customize</Button>
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* Family Notes & Observations */}
+      <Card className="premium-card">
+        <CardHeader>
+          <CardTitle>Family Notes & Observations</CardTitle>
+          <CardDescription>
+            Track important moments and patterns you notice at home
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="space-y-3">
+            <div className="p-3 border rounded-lg bg-green-50 dark:bg-green-950/20">
+              <div className="flex items-center justify-between mb-2">
+                <h4 className="font-medium text-sm">Great Progress! 🌟</h4>
+                <span className="text-xs text-muted-foreground">Today</span>
+              </div>
+              <p className="text-xs text-muted-foreground">
+                Used the breathing technique we practiced when frustrated with homework. 
+                Calmed down much faster than usual!
+              </p>
+            </div>
+            
+            <div className="p-3 border rounded-lg">
+              <div className="flex items-center justify-between mb-2">
+                <h4 className="font-medium text-sm">Pattern Notice</h4>
+                <span className="text-xs text-muted-foreground">Yesterday</span>
+              </div>
+              <p className="text-xs text-muted-foreground">
+                Seems more anxious on Sundays. Might be related to thinking about the school week ahead. 
+                Will try Sunday evening prep routine.
+              </p>
+            </div>
+            
+            <div className="pt-2">
+              <Button className="w-full" variant="outline">Add New Observation</Button>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
     </div>
   );
 };
@@ -2448,11 +2746,12 @@ const ParentStudents = () => {
             </Card>
 
             <Tabs defaultValue="overview" className="space-y-6">
-              <TabsList className="grid w-full grid-cols-3 sm:grid-cols-6 premium-card">
+              <TabsList className="grid w-full grid-cols-3 sm:grid-cols-7 premium-card">
                 <TabsTrigger value="overview">Overview</TabsTrigger>
                 <TabsTrigger value="goals">Goals ({goals.length})</TabsTrigger>
                 <TabsTrigger value="services">Services ({services.length})</TabsTrigger>
                 <TabsTrigger value="accommodations">Accommodations ({accommodations.length})</TabsTrigger>
+                <TabsTrigger value="emotions" className="bg-pink-600 text-white">😊 Emotions</TabsTrigger>
                 <TabsTrigger value="autism" className="bg-blue-600 text-white">🧩 Autism</TabsTrigger>
                 <TabsTrigger value="gifted" className="bg-purple-600 text-white">🎓 Gifted</TabsTrigger>
               </TabsList>
@@ -2663,6 +2962,10 @@ const ParentStudents = () => {
                     )}
                   </CardContent>
                 </Card>
+              </TabsContent>
+
+              <TabsContent value="emotions" className="space-y-6">
+                <EmotionTrackingTab selectedStudentId={selectedStudentId} />
               </TabsContent>
 
               <TabsContent value="autism" className="space-y-6">

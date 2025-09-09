@@ -102,6 +102,8 @@ export default function ParentDashboard({ plan }: ParentDashboardProps) {
   const [currentMood, setCurrentMood] = useState('');
   const [moodNote, setMoodNote] = useState('');
   const [aiDraftLoading, setAiDraftLoading] = useState(false);
+  const [moodDraft, setMoodDraft] = useState("");
+  const [isInitialized, setIsInitialized] = useState(false);
 
   const getStudentName = (studentId: string | undefined): string => {
     if (!studentId) return 'Unknown Student';
@@ -284,6 +286,18 @@ export default function ParentDashboard({ plan }: ParentDashboardProps) {
       setLoading(false);
     }
   };
+
+  // Initialize event handlers after data is loaded
+  useEffect(() => {
+    if (!loading && goals.length >= 0 && meetings.length >= 0 && insights.length >= 0) {
+      // Small delay to ensure DOM is ready
+      const timer = setTimeout(() => {
+        setIsInitialized(true);
+        console.log('🎯 Dashboard event handlers initialized');
+      }, 100);
+      return () => clearTimeout(timer);
+    }
+  }, [loading, goals, meetings, insights]);
 
   const createGoal = async () => {
     try {
@@ -641,14 +655,22 @@ export default function ParentDashboard({ plan }: ParentDashboardProps) {
               ].map(({ icon: Icon, title, subtitle, badge, color, index }) => (
                 <Card 
                   key={index}
-                  className="group hover:shadow-xl transition-all duration-300 hover:-translate-y-1 border-0 shadow-md overflow-hidden cursor-pointer"
+                  className={`group hover:shadow-xl transition-all duration-300 hover:-translate-y-1 border-0 shadow-md overflow-hidden ${isInitialized ? 'cursor-pointer' : 'cursor-wait'}`}
                   style={{ 
                     animationDelay: `${index * 100}ms`,
-                    animation: 'fadeInUp 0.6s ease-out forwards'
+                    animation: 'fadeInUp 0.6s ease-out forwards',
+                    opacity: isInitialized ? 1 : 0.7
                   }}
                   onClick={(e) => {
                     e.preventDefault();
                     e.stopPropagation();
+                    
+                    // Ensure handlers are initialized
+                    if (!isInitialized) {
+                      console.log('⚠️ Dashboard not initialized yet, skipping card click');
+                      return;
+                    }
+                    
                     const actions = [
                       () => {
                         console.log('📊 Goals card clicked!');

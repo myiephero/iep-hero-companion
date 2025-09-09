@@ -1509,8 +1509,8 @@ export default function ParentDashboard({ plan }: ParentDashboardProps) {
                                 let concerns: any[] = [];
                                 if (Array.isArray(insight.areas_of_concern) && insight.areas_of_concern.length > 0) {
                                   concerns = insight.areas_of_concern;
-                                } else if (insight.ai_analysis && typeof insight.ai_analysis === 'object') {
-                                  const analysis = insight.ai_analysis as any;
+                                } else if ((insight as any).ai_analysis && typeof (insight as any).ai_analysis === 'object') {
+                                  const analysis = (insight as any).ai_analysis;
                                   if (analysis.key_findings && Array.isArray(analysis.key_findings)) {
                                     concerns = analysis.key_findings.slice(0, 2);
                                   } else if (analysis.immediate_actions && Array.isArray(analysis.immediate_actions)) {
@@ -1560,8 +1560,8 @@ export default function ParentDashboard({ plan }: ParentDashboardProps) {
                                 let strengths: any[] = [];
                                 if (Array.isArray(insight.strengths) && insight.strengths.length > 0) {
                                   strengths = insight.strengths;
-                                } else if (insight.ai_analysis && typeof insight.ai_analysis === 'object') {
-                                  const analysis = insight.ai_analysis as any;
+                                } else if ((insight as any).ai_analysis && typeof (insight as any).ai_analysis === 'object') {
+                                  const analysis = (insight as any).ai_analysis;
                                   if (analysis.environmental_modifications && Array.isArray(analysis.environmental_modifications)) {
                                     strengths = analysis.environmental_modifications.slice(0, 2);
                                   } else if (analysis.summary && typeof analysis.summary === 'string') {
@@ -1610,8 +1610,8 @@ export default function ParentDashboard({ plan }: ParentDashboardProps) {
                                 let recommendations: any[] = [];
                                 if (Array.isArray(insight.recommendations) && insight.recommendations.length > 0) {
                                   recommendations = insight.recommendations;
-                                } else if (insight.ai_analysis && typeof insight.ai_analysis === 'object') {
-                                  const analysis = insight.ai_analysis as any;
+                                } else if ((insight as any).ai_analysis && typeof (insight as any).ai_analysis === 'object') {
+                                  const analysis = (insight as any).ai_analysis;
                                   if (analysis.recommendations && Array.isArray(analysis.recommendations)) {
                                     recommendations = analysis.recommendations.slice(0, 2);
                                   } else if (analysis.environmental_modifications && Array.isArray(analysis.environmental_modifications)) {

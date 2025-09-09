@@ -119,15 +119,15 @@ const EXPERT_ANALYSIS_TYPES = [
 
 export default function ParentIEPMasterSuite() {
   const [activeTab, setActiveTab] = useState("learn");
-  const [selectedStudent, setSelectedStudent] = useState("");
-  const [reviewType, setReviewType] = useState("");
+  const [selectedStudent, setSelectedStudent] = useState(undefined as string | undefined);
+  const [reviewType, setReviewType] = useState(undefined as string | undefined);
   const [analysisResult, setAnalysisResult] = useState<any>(null);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [uploadedDocument, setUploadedDocument] = useState<any>(null);
   const [customGoalText, setCustomGoalText] = useState("");
-  const [customGoalDomain, setCustomGoalDomain] = useState("");
+  const [customGoalDomain, setCustomGoalDomain] = useState(undefined as string | undefined);
   const [analysisType, setAnalysisType] = useState<"ai" | "expert">("ai");
-  const [selectedExpertType, setSelectedExpertType] = useState("");
+  const [selectedExpertType, setSelectedExpertType] = useState(undefined as string | undefined);
   const [expertAnalyses, setExpertAnalyses] = useState<any[]>([]);
   const { toast } = useToast();
 

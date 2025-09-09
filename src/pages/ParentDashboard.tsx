@@ -84,7 +84,7 @@ export default function ParentDashboard({ plan }: ParentDashboardProps) {
   const [goalForm, setGoalForm] = useState({
     title: '',
     description: '',
-    goal_type: '',
+    goal_type: undefined as string | undefined,
     target_date: '',
     status: 'not_started' as const
   });

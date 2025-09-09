@@ -420,13 +420,68 @@ export default function ParentDashboard({ plan }: ParentDashboardProps) {
               ))}
             </div>
             
+            {/* Stats Cards Row */}
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+              <div className="text-center">
+                <div className="bg-gradient-to-br from-blue-500 to-purple-600 w-16 h-16 rounded-xl flex items-center justify-center mx-auto mb-4">
+                  <Target className="h-8 w-8 text-white" />
+                </div>
+                <div className="text-4xl font-bold text-gray-900">{totalGoals}</div>
+                <div className="text-gray-600 font-medium">Active Goals</div>
+                <div className="mt-2">
+                  <Badge className="bg-blue-50 text-blue-700 border-blue-200 hover:bg-blue-100">
+                    {goals.filter(g => g.status === 'completed').length} completed
+                  </Badge>
+                </div>
+              </div>
+              
+              <div className="text-center">
+                <div className="bg-gradient-to-br from-green-500 to-teal-600 w-16 h-16 rounded-xl flex items-center justify-center mx-auto mb-4">
+                  <Calendar className="h-8 w-8 text-white" />
+                </div>
+                <div className="text-4xl font-bold text-gray-900">{upcomingMeetings}</div>
+                <div className="text-gray-600 font-medium">Upcoming Meetings</div>
+                <div className="mt-2">
+                  <Badge className="bg-green-50 text-green-700 border-green-200 hover:bg-green-100">
+                    Auto reminders on
+                  </Badge>
+                </div>
+              </div>
+              
+              <div className="text-center">
+                <div className="bg-gradient-to-br from-purple-500 to-pink-600 w-16 h-16 rounded-xl flex items-center justify-center mx-auto mb-4">
+                  <TrendingUp className="h-8 w-8 text-white" />
+                </div>
+                <div className="text-4xl font-bold text-gray-900">{completionRate}%</div>
+                <div className="text-gray-600 font-medium">Completion Rate</div>
+                <div className="mt-2">
+                  <Badge className="bg-purple-50 text-purple-700 border-purple-200 hover:bg-purple-100">
+                    Keep going!
+                  </Badge>
+                </div>
+              </div>
+              
+              <div className="text-center">
+                <div className="bg-gradient-to-br from-orange-500 to-red-600 w-16 h-16 rounded-xl flex items-center justify-center mx-auto mb-4">
+                  <Sparkles className="h-8 w-8 text-white" />
+                </div>
+                <div className="text-4xl font-bold text-gray-900">{insights.length}</div>
+                <div className="text-gray-600 font-medium">AI Insights</div>
+                <div className="mt-2">
+                  <Badge className="bg-orange-50 text-orange-700 border-orange-200 hover:bg-orange-100">
+                    Data analyzed
+                  </Badge>
+                </div>
+              </div>
+            </div>
+
             {/* Action Buttons Row */}
             <Card className="border-0 shadow-lg overflow-hidden">
-              <div className="bg-gradient-to-r from-slate-50 to-gray-50 border-b border-gray-200 p-6">
+              <div className="bg-gradient-to-r from-slate-50 to-gray-50 p-6">
                 <div className="grid w-full grid-cols-1 sm:grid-cols-3 gap-4">
                   <Button 
                     onClick={() => navigate('/parent/goals')}
-                    className="bg-gradient-to-r from-primary to-secondary hover:from-primary/90 hover:to-secondary/90 text-white shadow-lg hover:shadow-xl rounded-lg p-6 h-auto font-medium transition-all duration-300 flex flex-col items-center gap-3"
+                    className="bg-gradient-to-r from-primary to-secondary hover:from-primary/90 hover:to-secondary/90 text-white shadow-lg hover:shadow-xl rounded-lg p-6 h-auto font-medium transition-all duration-300 flex items-center justify-center gap-3"
                     data-testid="button-goal-tracking"
                   >
                     <Target className="h-6 w-6" />
@@ -434,7 +489,7 @@ export default function ParentDashboard({ plan }: ParentDashboardProps) {
                   </Button>
                   <Button 
                     onClick={() => navigate('/parent/schedule')}
-                    className="bg-gradient-to-r from-green-500 to-teal-600 hover:from-green-600 hover:to-teal-700 text-white shadow-lg hover:shadow-xl rounded-lg p-6 h-auto font-medium transition-all duration-300 flex flex-col items-center gap-3"
+                    className="bg-gradient-to-r from-green-500 to-teal-600 hover:from-green-600 hover:to-teal-700 text-white shadow-lg hover:shadow-xl rounded-lg p-6 h-auto font-medium transition-all duration-300 flex items-center justify-center gap-3"
                     data-testid="button-meetings"
                   >
                     <Calendar className="h-6 w-6" />
@@ -442,7 +497,7 @@ export default function ParentDashboard({ plan }: ParentDashboardProps) {
                   </Button>
                   <Button 
                     onClick={() => navigate('/parent/ai-insights')}
-                    className="bg-gradient-to-r from-orange-500 to-red-600 hover:from-orange-600 hover:to-red-700 text-white shadow-lg hover:shadow-xl rounded-lg p-6 h-auto font-medium transition-all duration-300 flex flex-col items-center gap-3"
+                    className="bg-gradient-to-r from-orange-500 to-red-600 hover:from-orange-600 hover:to-red-700 text-white shadow-lg hover:shadow-xl rounded-lg p-6 h-auto font-medium transition-all duration-300 flex items-center justify-center gap-3"
                     data-testid="button-ai-insights"
                   >
                     <Sparkles className="h-6 w-6" />
@@ -450,8 +505,10 @@ export default function ParentDashboard({ plan }: ParentDashboardProps) {
                   </Button>
                 </div>
               </div>
-              
-              {/* Add New Goal Section */}
+            </Card>
+            
+            {/* Add New Goal Section */}
+            <Card className="border-0 shadow-lg overflow-hidden mt-6">
               <div className="p-6 flex items-center justify-between">
                 <div>
                   <h3 className="text-lg font-medium text-gray-900">Track and celebrate your child's progress</h3>

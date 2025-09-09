@@ -46,6 +46,7 @@ import {
 import { useToast } from "@/hooks/use-toast";
 import { api } from "@/lib/api";
 import { queryClient } from "@/lib/queryClient";
+import { Link } from "react-router-dom";
 
 const MeetingPrepWizard = () => {
   const { toast } = useToast();
@@ -866,35 +867,15 @@ const MeetingPrepWizard = () => {
                     <span>Right to record meetings</span>
                   </div>
                 </div>
-                <Button variant="ghost" size="sm" className="w-full justify-start">
-                  <BookOpen className="h-4 w-4 mr-2" />
-                  Full Rights Guide
-                </Button>
+                <Link to="/advocate/idea-rights-guide">
+                  <Button variant="ghost" size="sm" className="w-full justify-start">
+                    <BookOpen className="h-4 w-4 mr-2" />
+                    Full Rights Guide
+                  </Button>
+                </Link>
               </CardContent>
             </Card>
 
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <HelpCircle className="h-5 w-5" />
-                  Need Help?
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-2">
-                <Button variant="ghost" size="sm" className="w-full justify-start">
-                  <MessageSquare className="h-4 w-4 mr-2" />
-                  Chat with Advocate
-                </Button>
-                <Button variant="ghost" size="sm" className="w-full justify-start">
-                  <Award className="h-4 w-4 mr-2" />
-                  Get Hero Plan Support
-                </Button>
-                <Button variant="ghost" size="sm" className="w-full justify-start">
-                  <Users className="h-4 w-4 mr-2" />
-                  Join Parent Community
-                </Button>
-              </CardContent>
-            </Card>
           </div>
         </div>
       </div>

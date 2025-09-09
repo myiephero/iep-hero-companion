@@ -5,7 +5,9 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { ProgressSteps } from "@/components/ProgressSteps";
-import { CheckCircle2, Circle, Download, FileText, Calendar, Plus } from "lucide-react";
+import { CheckCircle2, Circle, Download, FileText, Calendar, Plus, BookOpen, MessageSquare, Award, Users, HelpCircle, CheckCircle, Shield, Clock, Video, MapPin } from "lucide-react";
+import { Link } from "react-router-dom";
+import { useState, useEffect } from "react";
 
 // These would be fetched from the API based on the selected meeting/student
 const checklistItems = [
@@ -20,8 +22,45 @@ const checklistItems = [
 const documents = [];
 
 export default function ParentMeetingPrep() {
+  const [meetings, setMeetings] = useState([]);
+  const [loading, setLoading] = useState(true);
   const completedTasks = checklistItems.filter(item => item.completed).length;
   const progressPercentage = (completedTasks / checklistItems.length) * 100;
+
+  // Fetch upcoming meetings
+  useEffect(() => {
+    const fetchMeetings = async () => {
+      try {
+        const authToken = localStorage.getItem('authToken');
+        const response = await fetch('/api/meetings', {
+          credentials: 'include',
+          headers: {
+            'Authorization': authToken ? `Bearer ${authToken}` : '',
+          },
+        });
+        
+        if (response.ok) {
+          const data = await response.json();
+          // Filter for upcoming meetings
+          const today = new Date().toISOString().split('T')[0];
+          const upcomingMeetings = (data || []).filter(meeting => 
+            meeting.scheduled_date >= today && 
+            (meeting.status === 'scheduled' || meeting.status === 'confirmed')
+          );
+          setMeetings(upcomingMeetings);
+        } else {
+          setMeetings([]);
+        }
+      } catch (error) {
+        console.error('Error fetching meetings:', error);
+        setMeetings([]);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchMeetings();
+  }, []);
 
   return (
     <DashboardLayout>
@@ -137,6 +176,59 @@ export default function ParentMeetingPrep() {
             </Card>
 
             <Card className="p-6">
+              <h3 className="text-lg font-semibold mb-4">Upcoming Meetings</h3>
+              {loading ? (
+                <div className="flex items-center justify-center p-4">
+                  <div className="animate-spin w-6 h-6 border-4 border-primary border-t-transparent rounded-full"></div>
+                </div>
+              ) : meetings.length > 0 ? (
+                <div className="space-y-3">
+                  {meetings.slice(0, 3).map((meeting, index) => (
+                    <div key={index} className="p-3 border rounded-lg space-y-2">
+                      <div className="flex items-center justify-between">
+                        <h4 className="font-medium text-sm">{meeting.title || 'IEP Meeting'}</h4>
+                        <Badge variant={meeting.status === 'confirmed' ? 'default' : 'secondary'} className="text-xs">
+                          {meeting.status}
+                        </Badge>
+                      </div>
+                      <div className="flex items-center gap-4 text-xs text-muted-foreground">
+                        <div className="flex items-center gap-1">
+                          <Calendar className="h-3 w-3" />
+                          {new Date(meeting.scheduled_date).toLocaleDateString()}
+                        </div>
+                        {meeting.scheduled_time && (
+                          <div className="flex items-center gap-1">
+                            <Clock className="h-3 w-3" />
+                            {meeting.scheduled_time}
+                          </div>
+                        )}
+                        {meeting.meeting_type === 'video' && (
+                          <div className="flex items-center gap-1">
+                            <Video className="h-3 w-3" />
+                            Virtual
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  ))}
+                  {meetings.length > 3 && (
+                    <p className="text-xs text-muted-foreground text-center">+{meetings.length - 3} more meetings</p>
+                  )}
+                </div>
+              ) : (
+                <div className="text-center py-4">
+                  <p className="text-sm text-muted-foreground">No upcoming meetings</p>
+                  <Link to="/parent/schedule/request">
+                    <Button variant="outline" size="sm" className="mt-2">
+                      <Plus className="h-4 w-4 mr-2" />
+                      Request Meeting
+                    </Button>
+                  </Link>
+                </div>
+              )}
+            </Card>
+
+            <Card className="p-6">
               <h3 className="text-lg font-semibold mb-4">Quick Actions</h3>
               <div className="space-y-2">
                 <Button variant="outline" className="w-full justify-start">
@@ -145,9 +237,11 @@ export default function ParentMeetingPrep() {
                 <Button variant="outline" className="w-full justify-start">
                   Request Advocate Support
                 </Button>
-                <Button variant="outline" className="w-full justify-start">
-                  Schedule Follow-up
-                </Button>
+                <Link to="/parent/schedule/request">
+                  <Button variant="outline" className="w-full justify-start">
+                    Schedule Follow-up
+                  </Button>
+                </Link>
               </div>
             </Card>
 
@@ -159,6 +253,64 @@ export default function ParentMeetingPrep() {
                 <p>✓ Ask for clarification if needed</p>
                 <p>✓ Request a copy of the final IEP</p>
                 <p>✓ Don't sign if you need time to review</p>
+              </div>
+            </Card>
+
+            <Card className="p-6">
+              <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
+                <Shield className="h-5 w-5" />
+                Your Rights
+              </h3>
+              <div className="text-sm space-y-2 mb-4">
+                <div className="flex items-start gap-2">
+                  <CheckCircle className="h-3 w-3 text-green-600 mt-0.5" />
+                  <span>Right to meaningful participation</span>
+                </div>
+                <div className="flex items-start gap-2">
+                  <CheckCircle className="h-3 w-3 text-green-600 mt-0.5" />
+                  <span>Right to bring advocates/support</span>
+                </div>
+                <div className="flex items-start gap-2">
+                  <CheckCircle className="h-3 w-3 text-green-600 mt-0.5" />
+                  <span>Right to request interpreters</span>
+                </div>
+                <div className="flex items-start gap-2">
+                  <CheckCircle className="h-3 w-3 text-green-600 mt-0.5" />
+                  <span>Right to record meetings</span>
+                </div>
+              </div>
+              <Link to="/parent/tools/idea-rights-guide">
+                <Button variant="ghost" size="sm" className="w-full justify-start">
+                  <BookOpen className="h-4 w-4 mr-2" />
+                  Full Rights Guide
+                </Button>
+              </Link>
+            </Card>
+
+            <Card className="p-6">
+              <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
+                <HelpCircle className="h-5 w-5" />
+                Need Help?
+              </h3>
+              <div className="space-y-2">
+                <a href="mailto:info@myiephero.com">
+                  <Button variant="ghost" size="sm" className="w-full justify-start">
+                    <Award className="h-4 w-4 mr-2" />
+                    Get Hero Plan Support
+                  </Button>
+                </a>
+                <Link to="/parent/matching">
+                  <Button variant="ghost" size="sm" className="w-full justify-start">
+                    <MessageSquare className="h-4 w-4 mr-2" />
+                    Chat with Advocate
+                  </Button>
+                </Link>
+                <a href="https://www.facebook.com/myiephero" target="_blank" rel="noopener noreferrer">
+                  <Button variant="ghost" size="sm" className="w-full justify-start">
+                    <Users className="h-4 w-4 mr-2" />
+                    Join Our Community
+                  </Button>
+                </a>
               </div>
             </Card>
           </div>

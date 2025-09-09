@@ -2747,10 +2747,10 @@ const ParentStudents = () => {
 
             <Tabs defaultValue="overview" className="space-y-6">
               <TabsList className="grid w-full grid-cols-3 sm:grid-cols-7 premium-card">
-                <TabsTrigger value="overview">Overview</TabsTrigger>
-                <TabsTrigger value="goals">Goals ({goals.length})</TabsTrigger>
-                <TabsTrigger value="services">Services ({services.length})</TabsTrigger>
-                <TabsTrigger value="accommodations">Accommodations ({accommodations.length})</TabsTrigger>
+                <TabsTrigger value="overview" className="bg-slate-600 text-white">📋 Overview</TabsTrigger>
+                <TabsTrigger value="goals" className="bg-green-600 text-white">🎯 Goals ({goals.length})</TabsTrigger>
+                <TabsTrigger value="services" className="bg-teal-600 text-white">🛠️ Services ({services.length})</TabsTrigger>
+                <TabsTrigger value="accommodations" className="bg-orange-600 text-white">⚙️ Accommodations ({accommodations.length})</TabsTrigger>
                 <TabsTrigger value="emotions" className="bg-pink-600 text-white">😊 Emotions</TabsTrigger>
                 <TabsTrigger value="autism" className="bg-blue-600 text-white">🧩 Autism</TabsTrigger>
                 <TabsTrigger value="gifted" className="bg-purple-600 text-white">🎓 Gifted</TabsTrigger>

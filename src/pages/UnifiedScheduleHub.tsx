@@ -27,7 +27,7 @@ import {
   CheckCircle,
   Settings
 } from "lucide-react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/hooks/useAuth";
 import { api } from "@/lib/api";
@@ -58,6 +58,7 @@ interface TimelineDeadline {
 
 export default function UnifiedScheduleHub() {
   const navigate = useNavigate();
+  const location = useLocation();
   const { toast } = useToast();
   const { user, profile } = useAuth();
   const isAdvocate = profile?.role === 'advocate';
@@ -81,6 +82,31 @@ export default function UnifiedScheduleHub() {
     priority: "normal" as 'low' | 'normal' | 'high' | 'urgent'
   });
 
+  // Handle incoming timeline data from Timeline Calculator
+  useEffect(() => {
+    if (location.state?.newItem) {
+      const newDeadline: TimelineDeadline = {
+        id: `timeline-${Date.now()}`,
+        title: location.state.newItem.title,
+        date: location.state.newItem.dates[0]?.date || '',
+        priority: location.state.newItem.dates[0]?.type === 'urgent' ? 'high' : 'medium',
+        type: location.state.newItem.type || 'meeting',
+        student_id: location.state.newItem.student_id || 'default',
+        imported_from_timeline: true
+      };
+      
+      setTimelineDeadlines(prev => [newDeadline, ...prev]);
+      
+      toast({
+        title: "Timeline Added",
+        description: "Timeline deadline has been added to your schedule.",
+      });
+      
+      // Clear the state to prevent re-adding on refresh
+      window.history.replaceState({}, document.title);
+    }
+  }, [location.state, toast]);
+
   // Fetch meetings and timeline data
   useEffect(() => {
     const fetchData = async () => {
@@ -95,7 +121,10 @@ export default function UnifiedScheduleHub() {
         ]);
         
         setMeetings(meetingsData || []);
-        setTimelineDeadlines(timelinesData || []);
+        // Only set if we don't have timeline data from location state
+        if (!location.state?.newItem) {
+          setTimelineDeadlines(timelinesData || []);
+        }
       } catch (error) {
         console.error('Error fetching schedule data:', error);
         toast({
@@ -109,7 +138,7 @@ export default function UnifiedScheduleHub() {
     };
 
     fetchData();
-  }, [toast]);
+  }, [toast, location.state]);
 
   // Filter for upcoming meetings and deadlines
   const today = new Date().toISOString().split('T')[0];

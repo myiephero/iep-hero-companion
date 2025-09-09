@@ -18,6 +18,7 @@ import AdvocateSchedule from "./pages/AdvocateSchedule";
 import ScheduleMeeting from "./pages/ScheduleMeeting";
 import ParentSchedule from "./pages/ParentSchedule";
 import RequestMeeting from "./pages/RequestMeeting";
+import UnifiedScheduleHub from "./pages/UnifiedScheduleHub";
 import AdvocateParents from "./pages/AdvocateParents";
 import ParentStudents from "./pages/ParentStudents";
 import AdvocateStudents from "./pages/AdvocateStudents";
@@ -147,12 +148,13 @@ function App() {
               } />
               <Route path="/parent/schedule" element={
                 <ProtectedRoute allowedRoles={['parent']}>
-                  <ParentSchedule />
+                  <UnifiedScheduleHub />
                 </ProtectedRoute>
               } />
+              {/* Legacy route for compatibility */}
               <Route path="/parent/schedule/request" element={
                 <ProtectedRoute allowedRoles={['parent']}>
-                  <RequestMeeting />
+                  <UnifiedScheduleHub />
                 </ProtectedRoute>
               } />
               
@@ -184,12 +186,13 @@ function App() {
               } />
               <Route path="/advocate/schedule" element={
                 <ProtectedRoute allowedRoles={['advocate']}>
-                  <AdvocateSchedule />
+                  <UnifiedScheduleHub />
                 </ProtectedRoute>
               } />
+              {/* Legacy route for compatibility */}
               <Route path="/advocate/schedule/new" element={
                 <ProtectedRoute allowedRoles={['advocate']}>
-                  <ScheduleMeeting />
+                  <UnifiedScheduleHub />
                 </ProtectedRoute>
               } />
               <Route path="/advocate/parents" element={

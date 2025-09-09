@@ -667,7 +667,7 @@ export default function ParentDashboard({ plan }: ParentDashboardProps) {
                         setActiveTab("goals");
                       }}
                     >
-                      <div className="flex items-center gap-2 pointer-events-none">
+                      <div className="flex items-center gap-2">
                         <Target className="h-5 w-5" />
                         <span>Goal Tracking</span>
                       </div>
@@ -683,7 +683,7 @@ export default function ParentDashboard({ plan }: ParentDashboardProps) {
                         setActiveTab("meetings");
                       }}
                     >
-                      <div className="flex items-center gap-2 pointer-events-none">
+                      <div className="flex items-center gap-2">
                         <Calendar className="h-5 w-5" />
                         <span>Meetings</span>
                       </div>
@@ -699,7 +699,7 @@ export default function ParentDashboard({ plan }: ParentDashboardProps) {
                         setActiveTab("emotions");
                       }}
                     >
-                      <div className="flex items-center gap-2 pointer-events-none">
+                      <div className="flex items-center gap-2">
                         <Smile className="h-5 w-5" />
                         <span>Emotions</span>
                       </div>
@@ -715,7 +715,7 @@ export default function ParentDashboard({ plan }: ParentDashboardProps) {
                         setActiveTab("insights");
                       }}
                     >
-                      <div className="flex items-center gap-2 pointer-events-none">
+                      <div className="flex items-center gap-2">
                         <Sparkles className="h-5 w-5" />
                         <span>AI Insights</span>
                       </div>

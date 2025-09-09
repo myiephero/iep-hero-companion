@@ -17,6 +17,7 @@ import { DashboardLayout } from "@/layouts/DashboardLayout";
 import { useAuth } from "@/hooks/useAuth";
 import { useNavigate } from "react-router-dom";
 import { SubscriptionPlan, hasFeatureAccess, getPlanFeatures, normalizeSubscriptionPlan, getPlanDisplayName } from "@/lib/planAccess";
+import { FeedbackChat } from "@/components/FeedbackChat";
 
 interface Goal {
   id: string;
@@ -499,11 +500,43 @@ export default function ParentDashboard({ plan }: ParentDashboardProps) {
               ].map(({ icon: Icon, title, subtitle, badge, color, index }) => (
                 <Card 
                   key={index}
-                  className="group hover:shadow-xl transition-all duration-300 hover:-translate-y-1 border-0 shadow-md overflow-hidden"
+                  className="group hover:shadow-xl transition-all duration-300 hover:-translate-y-1 border-0 shadow-md overflow-hidden cursor-pointer"
                   style={{ 
                     animationDelay: `${index * 100}ms`,
                     animation: 'fadeInUp 0.6s ease-out forwards'
                   }}
+                  onClick={() => {
+                    const actions = [
+                      () => {
+                        console.log('📊 Goals card clicked!');
+                        // Focus on goals tab
+                        const goalsTab = document.querySelector('[value="goals"]') as HTMLElement;
+                        goalsTab?.click();
+                      },
+                      () => {
+                        console.log('📅 Meetings card clicked!');
+                        // Focus on meetings tab  
+                        const meetingsTab = document.querySelector('[value="meetings"]') as HTMLElement;
+                        meetingsTab?.click();
+                      },
+                      () => {
+                        console.log('📈 Progress card clicked!');
+                        // Show progress details
+                        toast({
+                          title: "Progress Details",
+                          description: `You have completed ${completedGoals} out of ${totalGoals} goals. ${badge}`,
+                        });
+                      },
+                      () => {
+                        console.log('🔮 AI Insights card clicked!');
+                        // Focus on AI insights tab
+                        const insightsTab = document.querySelector('[value="insights"]') as HTMLElement;
+                        insightsTab?.click();
+                      }
+                    ];
+                    actions[index]?.();
+                  }}
+                  data-testid={`card-stat-${index}`}
                 >
                   <CardContent className="p-6 text-center">
                     <div className={`inline-flex items-center justify-center w-16 h-16 bg-gradient-to-br ${color} rounded-2xl mb-4 group-hover:scale-110 transition-transform duration-300 shadow-lg`}>
@@ -511,9 +544,44 @@ export default function ParentDashboard({ plan }: ParentDashboardProps) {
                     </div>
                     <h3 className="text-3xl font-bold mb-2 text-gray-900 dark:text-white">{title}</h3>
                     <p className="text-muted-foreground mb-3 font-medium">{subtitle}</p>
-                    <Badge variant="secondary" className="bg-blue-50 text-blue-700 border-blue-200">
+                    <Button 
+                      variant="secondary" 
+                      size="sm" 
+                      className="bg-blue-50 text-blue-700 border-blue-200 hover:bg-blue-100 hover:text-blue-800 cursor-pointer"
+                      onClick={(e) => {
+                        e.stopPropagation(); // Prevent card click
+                        const actions = [
+                          () => {
+                            toast({
+                              title: "Goal Completion",
+                              description: `${completedGoals} goals completed out of ${totalGoals} total goals.`,
+                            });
+                          },
+                          () => {
+                            toast({
+                              title: "Auto Reminders",
+                              description: "Email reminders are automatically sent 7, 3, and 1 day before each meeting.",
+                            });
+                          },
+                          () => {
+                            toast({
+                              title: "Completion Rate",
+                              description: `Your completion rate is ${completionRate}%. ${badge}`,
+                            });
+                          },
+                          () => {
+                            toast({
+                              title: "AI Analysis",
+                              description: `${insights.length} AI insights have been generated from your data.`,
+                            });
+                          }
+                        ];
+                        actions[index]?.();
+                      }}
+                      data-testid={`button-badge-${index}`}
+                    >
                       {badge}
-                    </Badge>
+                    </Button>
                   </CardContent>
                 </Card>
               ))}
@@ -1185,6 +1253,9 @@ export default function ParentDashboard({ plan }: ParentDashboardProps) {
           </div>
         </div>
       </div>
+      
+      {/* Feedback Chat Component */}
+      <FeedbackChat />
     </DashboardLayout>
   );
 }

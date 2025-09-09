@@ -57,9 +57,9 @@ interface ParentDashboardProps {
 
 interface Student {
   id: string;
-  name: string;
-  grade?: string;
-  disability?: string;
+  full_name: string;
+  grade_level?: string;
+  disability_category?: string;
 }
 
 export default function ParentDashboard({ plan }: ParentDashboardProps) {
@@ -99,7 +99,7 @@ export default function ParentDashboard({ plan }: ParentDashboardProps) {
   const getStudentName = (studentId: string | undefined): string => {
     if (!studentId) return 'Unknown Student';
     const student = students.find(s => s.id === studentId);
-    return student?.name || 'Unknown Student';
+    return student?.full_name || 'Unknown Student';
   };
 
   useEffect(() => {

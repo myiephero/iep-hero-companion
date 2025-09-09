@@ -208,7 +208,7 @@ export default function EmergentToolsHub() {
         <div className="text-center space-y-6">
           <div className="flex items-center justify-center gap-2 mb-4">
             <Zap className="h-8 w-8 text-primary" />
-            <h1 className="text-4xl font-bold">Emergent Tools Hub</h1>
+            <h1 className="text-4xl font-bold">🚀 Emergent Tools Hub - FRESH BUILD</h1>
           </div>
           <p className="text-xl text-muted-foreground max-w-3xl mx-auto">
             Advanced AI-powered tools and specialized resources for special education advocacy, 

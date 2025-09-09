@@ -33,7 +33,7 @@ import SmartMatching from "./pages/SmartMatching";
 import GiftedTwoeLearners from "./pages/GiftedTwoeLearners";
 import ExpertAnalysis from "./pages/ExpertAnalysis";
 import MatchingDashboard from "./pages/MatchingDashboard";
-import EmergentToolsHub from "./pages/EmergentToolsHub";
+import EmergentToolsHubNew from "./pages/EmergentToolsHubNew";
 import AllPagesView from "./pages/AllPagesView";
 import SmartLetterGenerator from "./pages/SmartLetterGenerator";
 import MeetingPrepWizard from "./pages/MeetingPrepWizard";
@@ -334,7 +334,7 @@ function App() {
               {/* Parent Tools - Additional */}
               <Route path="/parent/tools/emergent" element={
                 <ProtectedRoute allowedRoles={['parent']}>
-                  <EmergentToolsHub />
+                  <EmergentToolsHubNew />
                 </ProtectedRoute>
               } />
               <Route path="/parent/tools/document-vault" element={

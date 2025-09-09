@@ -221,15 +221,52 @@ export default function ParentDashboard({ plan }: ParentDashboardProps) {
         meeting_type: meeting.meeting_type || '',
         created_at: meeting.created_at || ''
       })));
-      setInsights((insightsData || []).map(insight => ({ 
-        ...insight,
-        id: insight.id || '',
-        areas_of_concern: Array.isArray(insight.areas_of_concern) ? insight.areas_of_concern : [],
-        strengths: Array.isArray(insight.strengths) ? insight.strengths : [],
-        recommendations: Array.isArray(insight.recommendations) ? insight.recommendations : [],
-        created_at: insight.created_at || '',
-        review_type: insight.review_type || 'quality'
-      })));
+      setInsights((insightsData || []).map(insight => {
+        // Extract data from ai_analysis object for autism analyses
+        let areas_of_concern: string[] = [];
+        let strengths: string[] = [];
+        let recommendations: string[] = [];
+        
+        if ((insight as any).ai_analysis && typeof (insight as any).ai_analysis === 'object') {
+          const analysis = (insight as any).ai_analysis;
+          
+          // Map sensory processing patterns to areas of concern
+          if (analysis.sensory_needs_analysis?.sensory_processing_patterns) {
+            areas_of_concern = analysis.sensory_needs_analysis.sensory_processing_patterns;
+          }
+          
+          // Map environmental modifications to strengths
+          if (analysis.sensory_needs_analysis?.environmental_modifications) {
+            strengths = analysis.sensory_needs_analysis.environmental_modifications;
+          }
+          
+          // Map learning accommodations to recommendations
+          if (analysis.sensory_needs_analysis?.learning_accommodations) {
+            recommendations = analysis.sensory_needs_analysis.learning_accommodations;
+          }
+        }
+        
+        // Fallback to direct arrays if they exist
+        if (Array.isArray(insight.areas_of_concern) && insight.areas_of_concern.length > 0) {
+          areas_of_concern = insight.areas_of_concern;
+        }
+        if (Array.isArray(insight.strengths) && insight.strengths.length > 0) {
+          strengths = insight.strengths;
+        }
+        if (Array.isArray(insight.recommendations) && insight.recommendations.length > 0) {
+          recommendations = insight.recommendations;
+        }
+        
+        return { 
+          ...insight,
+          id: insight.id || '',
+          areas_of_concern,
+          strengths,
+          recommendations,
+          created_at: insight.created_at || '',
+          review_type: insight.review_type || 'quality'
+        };
+      }));
       
       setStudents((studentsData || []) as Student[]);
     } catch (error) {

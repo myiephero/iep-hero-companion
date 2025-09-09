@@ -15,6 +15,7 @@ import { Separator } from "@/components/ui/separator";
 import { useToast } from "@/hooks/use-toast";
 import { FileText, Target, CheckCircle, Brain, Upload, Lightbulb, BarChart3, X, BookOpen, Users, Star, Gavel, Clock, Shield, Award, DollarSign, Calendar } from "lucide-react";
 import { DocumentUpload } from "@/components/DocumentUpload";
+import { SimpleFileUpload } from "@/components/SimpleFileUpload";
 import { StudentSelector } from "@/components/StudentSelector";
 import { EXPERT_REVIEW_PRODUCTS, getExpertReviewCheckoutUrl } from "@/lib/expertReviewPricing";
 
@@ -758,7 +759,7 @@ export default function ParentIEPMasterSuite() {
                   {selectedExpertType && (
                     <div className="space-y-4 p-4 bg-purple-50 dark:bg-purple-900/20 rounded-lg border border-purple-200">
                       <Label className="text-base font-medium">Upload IEP Document for Expert Review:</Label>
-                      <DocumentUpload onAnalysisComplete={handleDocumentUpload} />
+                      <SimpleFileUpload onFileUpload={handleDocumentUpload} />
                       
                       {uploadedDocument && (
                         <div className="space-y-4">

@@ -710,9 +710,7 @@ export default function ParentDashboard({ plan }: ParentDashboardProps) {
                     <DialogTrigger asChild>
                       <Button 
                         className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white shadow-lg hover:shadow-xl transition-all duration-200 rounded-xl px-6 py-3"
-                        onClick={(e) => {
-                          e.preventDefault();
-                          e.stopPropagation();
+                        onClick={() => {
                           console.log('➕ Add New Goal clicked!');
                           setShowGoalDialog(true);
                         }}

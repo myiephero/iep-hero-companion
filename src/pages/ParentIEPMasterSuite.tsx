@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { DashboardLayout } from "@/layouts/DashboardLayout";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -15,6 +16,7 @@ import { useToast } from "@/hooks/use-toast";
 import { FileText, Target, CheckCircle, Brain, Upload, Lightbulb, BarChart3, X, BookOpen, Users, Star, Gavel, Clock, Shield, Award, DollarSign, Calendar } from "lucide-react";
 import { DocumentUpload } from "@/components/DocumentUpload";
 import { StudentSelector } from "@/components/StudentSelector";
+import { EXPERT_REVIEW_PRODUCTS, getExpertReviewCheckoutUrl } from "@/lib/expertReviewPricing";
 
 // Parent-friendly sample IEP goals for understanding
 const PARENT_SAMPLE_GOALS = {
@@ -86,34 +88,34 @@ These services work together with your child's regular classroom learning.`
   }
 };
 
-// Expert Analysis Types
+// Expert Analysis Types - now using the official Stripe product configuration
 const EXPERT_ANALYSIS_TYPES = [
   {
     id: "comprehensive",
-    title: "Comprehensive Review",
-    price: 150,
+    title: EXPERT_REVIEW_PRODUCTS.comprehensive.name.replace('IEP ', ''),
+    price: EXPERT_REVIEW_PRODUCTS.comprehensive.amount,
     icon: Award,
-    description: "Complete IEP analysis covering goals, services, accommodations, and legal compliance",
-    includes: ["Full goal analysis", "Service recommendations", "Accommodation review", "Legal compliance check", "Progress monitoring plan", "Meeting preparation guide"],
-    timeframe: "24-48 hours"
+    description: EXPERT_REVIEW_PRODUCTS.comprehensive.description,
+    includes: EXPERT_REVIEW_PRODUCTS.comprehensive.features,
+    timeframe: EXPERT_REVIEW_PRODUCTS.comprehensive.timeframe
   },
   {
     id: "focused",
-    title: "Focused Review", 
-    price: 75,
+    title: EXPERT_REVIEW_PRODUCTS.focused.name.replace('IEP ', ''),
+    price: EXPERT_REVIEW_PRODUCTS.focused.amount,
     icon: Target,
-    description: "Targeted review of specific areas of concern",
-    includes: ["Specific goal areas", "Targeted recommendations", "Priority action items", "Key compliance issues"],
-    timeframe: "24 hours"
+    description: EXPERT_REVIEW_PRODUCTS.focused.description,
+    includes: EXPERT_REVIEW_PRODUCTS.focused.features,
+    timeframe: EXPERT_REVIEW_PRODUCTS.focused.timeframe
   },
   {
     id: "compliance",
-    title: "Compliance Check",
-    price: 50,
+    title: EXPERT_REVIEW_PRODUCTS.compliance.name.replace('IEP ', ''),
+    price: EXPERT_REVIEW_PRODUCTS.compliance.amount,
     icon: Shield,
-    description: "Legal compliance and procedural requirements review",
-    includes: ["IDEA compliance check", "Procedural safeguards review", "Documentation analysis", "Rights protection"],
-    timeframe: "12-24 hours"
+    description: EXPERT_REVIEW_PRODUCTS.compliance.description,
+    includes: EXPERT_REVIEW_PRODUCTS.compliance.features,
+    timeframe: EXPERT_REVIEW_PRODUCTS.compliance.timeframe
   }
 ];
 
@@ -123,11 +125,13 @@ export default function ParentIEPMasterSuite() {
   const [reviewType, setReviewType] = useState(undefined as string | undefined);
   const [analysisResult, setAnalysisResult] = useState<any>(null);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
+  const [uploadedFileName, setUploadedFileName] = useState<string>('');
+  const navigate = useNavigate();
   const [uploadedDocument, setUploadedDocument] = useState<any>(null);
   const [customGoalText, setCustomGoalText] = useState("");
   const [customGoalDomain, setCustomGoalDomain] = useState(undefined as string | undefined);
   const [analysisType, setAnalysisType] = useState<"ai" | "expert">("ai");
-  const [selectedExpertType, setSelectedExpertType] = useState(undefined as string | undefined);
+  const [selectedExpertType, setSelectedExpertType] = useState<string | undefined>(undefined);
   const [expertAnalyses, setExpertAnalyses] = useState<any[]>([]);
   const { toast } = useToast();
 
@@ -137,6 +141,45 @@ export default function ParentIEPMasterSuite() {
       title: "Document Uploaded",
       description: "Your IEP document has been uploaded successfully. You can now analyze it.",
     });
+  };
+
+  // New function to handle expert review checkout
+  const handleExpertReviewCheckout = () => {
+    if (!selectedStudent) {
+      toast({
+        title: "No Student Selected",
+        description: "Please select which child this IEP belongs to first.",
+        variant: "destructive",
+      });
+      return;
+    }
+    
+    if (!selectedExpertType) {
+      toast({
+        title: "No Review Type Selected",
+        description: "Please select a review type first.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    if (!uploadedDocument) {
+      toast({
+        title: "No Document Uploaded",
+        description: "Please upload an IEP document for expert review.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    // Create checkout URL with student and document metadata
+    const checkoutUrl = getExpertReviewCheckoutUrl(selectedExpertType, {
+      studentName: selectedStudent,
+      fileName: uploadedDocument.name || 'IEP Document'
+    });
+
+    // Navigate to checkout page
+    navigate(checkoutUrl);
   };
 
   const handleAnalyzeDocument = async () => {
@@ -749,6 +792,7 @@ export default function ParentIEPMasterSuite() {
                           <Button 
                             className="w-full"
                             disabled={!selectedStudent || !selectedExpertType}
+                            onClick={handleExpertReviewCheckout}
                             data-testid="button-submit-expert-analysis"
                           >
                             <DollarSign className="h-4 w-4 mr-2" />

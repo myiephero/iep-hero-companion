@@ -10,7 +10,6 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 // import { supabase } from "@/integrations/supabase/client"; // Removed during migration
 import { api } from "@/lib/api";
 import { useToast } from "@/hooks/use-toast";
@@ -1280,7 +1279,25 @@ export default function ParentDashboard({ plan }: ParentDashboardProps) {
                           </p>
                           <Dialog>
                             <DialogTrigger asChild>
-                              <Button className="w-full bg-gradient-to-r from-pink-600 to-rose-600 hover:from-pink-700 hover:to-rose-700" disabled={!selectedStudentEmotion}>
+                              <Button 
+                                className="w-full bg-gradient-to-r from-pink-600 to-rose-600 hover:from-pink-700 hover:to-rose-700"
+                                disabled={!selectedStudentEmotion}
+                                onClick={() => {
+                                  if (!selectedStudentEmotion) {
+                                    toast({
+                                      title: "Student Required",
+                                      description: "Please select a student first to record their mood.",
+                                      variant: "destructive"
+                                    });
+                                    return;
+                                  }
+                                  toast({
+                                    title: "Mood Recording",
+                                    description: "Opening mood recording interface...",
+                                    variant: "default"
+                                  });
+                                }}
+                              >
                                 <Smile className="h-4 w-4 mr-2" />
                                 Record New Mood
                               </Button>

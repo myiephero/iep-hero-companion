@@ -3,10 +3,10 @@ import { QueryClient } from '@tanstack/react-query';
 export const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
-      staleTime: 0, // Always refetch for fresh data
-      gcTime: 5 * 60 * 1000, // 5 minutes
-      refetchOnWindowFocus: true, // Refetch when window gets focus
-      refetchOnMount: true, // Always refetch on component mount
+      staleTime: 5 * 60 * 1000, // Data stays fresh for 5 minutes
+      gcTime: 10 * 60 * 1000, // 10 minutes cache
+      refetchOnWindowFocus: false, // Don't refetch on window focus
+      refetchOnMount: false, // Don't always refetch on mount
     },
   },
 });

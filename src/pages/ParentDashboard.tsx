@@ -9,6 +9,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { api } from "@/lib/api";
 import { useToast } from "@/hooks/use-toast";
 import { DashboardLayout } from "@/layouts/DashboardLayout";
@@ -419,129 +420,272 @@ export default function ParentDashboard({ plan }: ParentDashboardProps) {
               ))}
             </div>
             
-            {/* Navigation Action Buttons */}
+            {/* Enhanced Tabs with Unified Design System */}
             <Card className="border-0 shadow-lg overflow-hidden">
-              <div className="bg-gradient-to-r from-slate-50 to-gray-50 border-b border-gray-200 p-6">
-                <div className="grid w-full grid-cols-1 sm:grid-cols-3 gap-4">
-                  <Button 
-                    onClick={() => {
-                      console.log('🎯 Navigating to Goal Tracking');
-                      navigate('/parent/goals');
-                    }}
-                    className="bg-gradient-to-r from-primary to-secondary hover:from-primary/90 hover:to-secondary/90 text-white shadow-lg hover:shadow-xl rounded-lg p-6 h-auto font-medium transition-all duration-300 flex flex-col items-center gap-3"
-                    data-testid="button-goal-tracking"
-                  >
-                    <Target className="h-6 w-6" />
-                    <span>Goal Tracking</span>
-                    <span className="text-xs opacity-90">{totalGoals} active goals</span>
-                  </Button>
-                  <Button 
-                    onClick={() => {
-                      console.log('📅 Navigating to Schedule Hub');
-                      navigate('/parent/schedule');
-                    }}
-                    className="bg-gradient-to-r from-green-500 to-teal-600 hover:from-green-600 hover:to-teal-700 text-white shadow-lg hover:shadow-xl rounded-lg p-6 h-auto font-medium transition-all duration-300 flex flex-col items-center gap-3"
-                    data-testid="button-meetings"
-                  >
-                    <Calendar className="h-6 w-6" />
-                    <span>Meetings</span>
-                    <span className="text-xs opacity-90">{upcomingMeetings} upcoming</span>
-                  </Button>
-                  <Button 
-                    onClick={() => {
-                      console.log('✨ Navigating to AI Insights');
-                      navigate('/parent/ai-insights');
-                    }}
-                    className="bg-gradient-to-r from-orange-500 to-red-600 hover:from-orange-600 hover:to-red-700 text-white shadow-lg hover:shadow-xl rounded-lg p-6 h-auto font-medium transition-all duration-300 flex flex-col items-center gap-3"
-                    data-testid="button-ai-insights"
-                  >
-                    <Sparkles className="h-6 w-6" />
-                    <span>AI Insights</span>
-                    <span className="text-xs opacity-90">{insights.length} generated</span>
-                  </Button>
+              <Tabs defaultValue="goals" className="w-full">
+                <div className="bg-gradient-to-r from-slate-50 to-gray-50 border-b border-gray-200">
+                  <TabsList className="grid w-full grid-cols-1 sm:grid-cols-3 bg-transparent p-1 h-auto">
+                    <TabsTrigger 
+                      value="goals" 
+                      className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-primary data-[state=active]:to-secondary data-[state=active]:text-white data-[state=active]:shadow-lg rounded-lg p-4 font-medium transition-all duration-300 hover:bg-white/50"
+                      data-testid="button-goal-tracking"
+                    >
+                      <div className="flex items-center gap-2">
+                        <Target className="h-5 w-5" />
+                        <span>Goal Tracking</span>
+                      </div>
+                    </TabsTrigger>
+                    <TabsTrigger 
+                      value="meetings"
+                      className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-green-500 data-[state=active]:to-teal-600 data-[state=active]:text-white data-[state=active]:shadow-lg rounded-lg p-4 font-medium transition-all duration-300 hover:bg-white/50"
+                      data-testid="button-meetings"
+                    >
+                      <div className="flex items-center gap-2">
+                        <Calendar className="h-5 w-5" />
+                        <span>Meetings</span>
+                      </div>
+                    </TabsTrigger>
+                    <TabsTrigger 
+                      value="insights"
+                      className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-orange-500 data-[state=active]:to-red-600 data-[state=active]:text-white data-[state=active]:shadow-lg rounded-lg p-4 font-medium transition-all duration-300 hover:bg-white/50"
+                      data-testid="button-ai-insights"
+                    >
+                      <div className="flex items-center gap-2">
+                        <Sparkles className="h-5 w-5" />
+                        <span>AI Insights</span>
+                      </div>
+                    </TabsTrigger>
+                  </TabsList>
                 </div>
-              </div>
-              
-              {/* Add New Goal Section */}
-              <div className="p-6 text-center">
-                <div className="mb-6">
-                  <h3 className="text-xl font-semibold text-gray-900 mb-2">Quick Actions</h3>
-                  <p className="text-gray-600">Create new goals and manage your child's IEP journey</p>
-                </div>
-                
-                <Dialog open={showGoalDialog} onOpenChange={setShowGoalDialog}>
-                  <DialogTrigger asChild>
-                    <Button className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white shadow-lg hover:shadow-xl transition-all duration-200 rounded-xl px-8 py-4 text-lg"
-                            data-testid="button-add-new-goal">
-                      <Plus className="h-5 w-5 mr-2" />
-                      Add New Goal
-                    </Button>
-                  </DialogTrigger>
-                  <DialogContent className="max-w-md border-0 shadow-2xl bg-white/95 backdrop-blur-sm">
-                    <DialogHeader>
-                      <DialogTitle className="text-xl font-semibold text-gray-900">Create New Goal</DialogTitle>
-                      <DialogDescription className="text-gray-600">
-                        Set up a new IEP goal to track your child's progress.
-                      </DialogDescription>
-                    </DialogHeader>
-                    <div className="space-y-4">
-                      <div>
-                        <Label htmlFor="goal-title" className="text-sm font-medium text-gray-700">Goal Title</Label>
-                        <Input
-                          id="goal-title"
-                          value={goalForm.title}
-                          onChange={(e) => setGoalForm({...goalForm, title: e.target.value})}
-                          placeholder="Enter goal title"
-                          className="mt-1 border-gray-300 focus:border-blue-500 focus:ring-blue-500 rounded-lg"
-                        />
-                      </div>
-                      <div>
-                        <Label htmlFor="goal-description" className="text-sm font-medium text-gray-700">Description</Label>
-                        <Textarea
-                          id="goal-description"
-                          value={goalForm.description}
-                          onChange={(e) => setGoalForm({...goalForm, description: e.target.value})}
-                          placeholder="Describe the goal"
-                          className="mt-1 border-gray-300 focus:border-blue-500 focus:ring-blue-500 rounded-lg"
-                        />
-                      </div>
-                      <div>
-                        <Label htmlFor="goal-type" className="text-sm font-medium text-gray-700">Goal Type</Label>
-                        <Select value={goalForm.goal_type} onValueChange={(value) => setGoalForm({...goalForm, goal_type: value})}>
-                          <SelectTrigger className="mt-1 border-gray-300 focus:border-blue-500 focus:ring-blue-500 rounded-lg">
-                            <SelectValue placeholder="Select goal type" />
-                          </SelectTrigger>
-                          <SelectContent>
-                            <SelectItem value="academic">Academic</SelectItem>
-                            <SelectItem value="behavioral">Behavioral</SelectItem>
-                            <SelectItem value="communication">Communication</SelectItem>
-                            <SelectItem value="social">Social</SelectItem>
-                            <SelectItem value="life-skills">Life Skills</SelectItem>
-                          </SelectContent>
-                        </Select>
-                      </div>
-                      <div>
-                        <Label htmlFor="target-date" className="text-sm font-medium text-gray-700">Target Date</Label>
-                        <Input
-                          id="target-date"
-                          type="date"
-                          value={goalForm.target_date}
-                          onChange={(e) => setGoalForm({...goalForm, target_date: e.target.value})}
-                          className="mt-1 border-gray-300 focus:border-blue-500 focus:ring-blue-500 rounded-lg"
-                        />
-                      </div>
-                      <div className="flex justify-end gap-3 pt-4">
-                        <Button variant="outline" onClick={() => setShowGoalDialog(false)}>
-                          Cancel
-                        </Button>
-                        <Button onClick={handleCreateGoal} className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700">
-                          Create Goal
-                        </Button>
-                      </div>
+
+                {/* Enhanced Goals Tab */}
+                <TabsContent value="goals" className="p-6 space-y-6">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <h2 className="text-2xl font-bold text-gray-900">IEP Goals</h2>
+                      <p className="text-gray-600 mt-1">Track and celebrate your child's progress</p>
                     </div>
-                  </DialogContent>
-                </Dialog>
-              </div>
+                    <Dialog open={showGoalDialog} onOpenChange={setShowGoalDialog}>
+                      <DialogTrigger asChild>
+                        <Button className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white shadow-lg hover:shadow-xl transition-all duration-200 rounded-xl px-6 py-3"
+                                data-testid="button-add-new-goal">
+                          <Plus className="h-4 w-4 mr-2" />
+                          Add New Goal
+                        </Button>
+                      </DialogTrigger>
+                      <DialogContent className="max-w-md border-0 shadow-2xl bg-white/95 backdrop-blur-sm">
+                        <DialogHeader>
+                          <DialogTitle className="text-xl font-semibold text-gray-900">Create New Goal</DialogTitle>
+                          <DialogDescription className="text-gray-600">
+                            Set up a new IEP goal to track your child's progress.
+                          </DialogDescription>
+                        </DialogHeader>
+                        <div className="space-y-4">
+                          <div>
+                            <Label htmlFor="goal-title" className="text-sm font-medium text-gray-700">Goal Title</Label>
+                            <Input
+                              id="goal-title"
+                              value={goalForm.title}
+                              onChange={(e) => setGoalForm({...goalForm, title: e.target.value})}
+                              placeholder="Enter goal title"
+                              className="mt-1 border-gray-300 focus:border-blue-500 focus:ring-blue-500 rounded-lg"
+                            />
+                          </div>
+                          <div>
+                            <Label htmlFor="goal-description" className="text-sm font-medium text-gray-700">Description</Label>
+                            <Textarea
+                              id="goal-description"
+                              value={goalForm.description}
+                              onChange={(e) => setGoalForm({...goalForm, description: e.target.value})}
+                              placeholder="Describe the goal"
+                              className="mt-1 border-gray-300 focus:border-blue-500 focus:ring-blue-500 rounded-lg"
+                            />
+                          </div>
+                          <div>
+                            <Label htmlFor="goal-type" className="text-sm font-medium text-gray-700">Goal Type</Label>
+                            <Select value={goalForm.goal_type} onValueChange={(value) => setGoalForm({...goalForm, goal_type: value})}>
+                              <SelectTrigger className="mt-1 border-gray-300 focus:border-blue-500 focus:ring-blue-500 rounded-lg">
+                                <SelectValue placeholder="Select goal type" />
+                              </SelectTrigger>
+                              <SelectContent>
+                                <SelectItem value="academic">Academic</SelectItem>
+                                <SelectItem value="behavioral">Behavioral</SelectItem>
+                                <SelectItem value="communication">Communication</SelectItem>
+                                <SelectItem value="social">Social</SelectItem>
+                                <SelectItem value="life-skills">Life Skills</SelectItem>
+                              </SelectContent>
+                            </Select>
+                          </div>
+                          <div>
+                            <Label htmlFor="target-date" className="text-sm font-medium text-gray-700">Target Date</Label>
+                            <Input
+                              id="target-date"
+                              type="date"
+                              value={goalForm.target_date}
+                              onChange={(e) => setGoalForm({...goalForm, target_date: e.target.value})}
+                              className="mt-1 border-gray-300 focus:border-blue-500 focus:ring-blue-500 rounded-lg"
+                            />
+                          </div>
+                          <div className="flex justify-end gap-3 pt-4">
+                            <Button variant="outline" onClick={() => setShowGoalDialog(false)}>
+                              Cancel
+                            </Button>
+                            <Button onClick={handleCreateGoal} className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700">
+                              Create Goal
+                            </Button>
+                          </div>
+                        </div>
+                      </DialogContent>
+                    </Dialog>
+                  </div>
+
+                  <div className="grid gap-6">
+                    {goals.length > 0 ? (
+                      goals.map((goal) => (
+                        <Card key={goal.id} className="p-6 border-0 shadow-md hover:shadow-lg transition-shadow duration-200">
+                          <div className="flex items-center justify-between mb-4">
+                            <div>
+                              <h3 className="text-lg font-semibold text-gray-900">{goal.title}</h3>
+                              <p className="text-gray-600 text-sm mt-1">{goal.description}</p>
+                            </div>
+                            <Badge 
+                              variant={goal.status === 'completed' ? 'default' : goal.status === 'in_progress' ? 'secondary' : 'outline'}
+                              className="capitalize"
+                            >
+                              {goal.status.replace('_', ' ')}
+                            </Badge>
+                          </div>
+                          <div className="space-y-3">
+                            <div className="flex items-center justify-between text-sm">
+                              <span className="text-gray-600">Progress</span>
+                              <span className="font-medium text-gray-900">{goal.current_progress}%</span>
+                            </div>
+                            <Progress value={goal.current_progress} className="h-2" />
+                            <div className="flex items-center justify-between text-sm text-gray-500">
+                              <span>Type: {goal.goal_type}</span>
+                              <span>Due: {new Date(goal.target_date).toLocaleDateString()}</span>
+                            </div>
+                          </div>
+                        </Card>
+                      ))
+                    ) : (
+                      <div className="text-center py-12">
+                        <Target className="h-12 w-12 text-gray-400 mx-auto mb-4" />
+                        <h3 className="text-lg font-medium text-gray-900 mb-2">No Goals Yet</h3>
+                        <p className="text-gray-600 mb-4">Create your first IEP goal to get started.</p>
+                      </div>
+                    )}
+                  </div>
+                </TabsContent>
+
+                {/* Enhanced Meetings Tab */}
+                <TabsContent value="meetings" className="p-6 space-y-6">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <h2 className="text-2xl font-bold text-gray-900">Meeting Schedule</h2>
+                      <p className="text-gray-600 mt-1">Stay organized with automated reminders</p>
+                    </div>
+                    <Button 
+                      onClick={() => navigate('/parent/schedule')}
+                      className="bg-gradient-to-r from-green-600 to-teal-600 hover:from-green-700 hover:to-teal-700 text-white shadow-lg hover:shadow-xl transition-all duration-200 rounded-xl px-6 py-3"
+                    >
+                      <Calendar className="h-4 w-4 mr-2" />
+                      Schedule Hub
+                    </Button>
+                  </div>
+
+                  <div className="grid gap-4">
+                    {meetings.length > 0 ? (
+                      meetings.slice(0, 3).map((meeting) => (
+                        <Card key={meeting.id} className="p-4 border-0 shadow-md hover:shadow-lg transition-shadow duration-200">
+                          <div className="flex items-center justify-between">
+                            <div className="flex items-center gap-4">
+                              <div className="p-2 bg-green-100 rounded-lg">
+                                <Calendar className="h-4 w-4 text-green-600" />
+                              </div>
+                              <div>
+                                <h3 className="font-semibold text-gray-900">{meeting.title}</h3>
+                                <div className="flex items-center gap-4 text-sm text-gray-600 mt-1">
+                                  <span>{new Date(meeting.scheduled_date).toLocaleDateString()}</span>
+                                  <span>{meeting.location}</span>
+                                </div>
+                              </div>
+                            </div>
+                            <Badge 
+                              variant={meeting.status === 'completed' ? 'default' : meeting.status === 'scheduled' ? 'secondary' : 'outline'}
+                              className="capitalize"
+                            >
+                              {meeting.status}
+                            </Badge>
+                          </div>
+                        </Card>
+                      ))
+                    ) : (
+                      <div className="text-center py-12">
+                        <Calendar className="h-12 w-12 text-gray-400 mx-auto mb-4" />
+                        <h3 className="text-lg font-medium text-gray-900 mb-2">No Meetings Scheduled</h3>
+                        <p className="text-gray-600 mb-4">Schedule your first meeting to get started.</p>
+                        <Button 
+                          onClick={() => navigate('/parent/schedule')}
+                          className="bg-gradient-to-r from-green-600 to-teal-600 hover:from-green-700 hover:to-teal-700"
+                        >
+                          Schedule Meeting
+                        </Button>
+                      </div>
+                    )}
+                  </div>
+                </TabsContent>
+
+                {/* Enhanced AI Insights Tab */}
+                <TabsContent value="insights" className="p-6 space-y-6">
+                  <div>
+                    <h2 className="text-2xl font-bold text-gray-900">AI-Powered Insights</h2>
+                    <p className="text-gray-600 mt-1">Data-driven analysis of your child's IEP documents</p>
+                  </div>
+
+                  <div className="grid gap-4">
+                    {insights.length > 0 ? (
+                      insights.slice(0, 3).map((insight) => (
+                        <Card key={insight.id} className="p-4 border-0 shadow-md hover:shadow-lg transition-shadow duration-200 cursor-pointer"
+                              onClick={() => navigate('/parent/ai-insights')}>
+                          <div className="flex items-center justify-between">
+                            <div className="flex items-center gap-4">
+                              <div className="p-2 bg-orange-100 rounded-lg">
+                                <Sparkles className="h-4 w-4 text-orange-600" />
+                              </div>
+                              <div>
+                                <h3 className="font-semibold text-gray-900 capitalize">{insight.review_type} Analysis</h3>
+                                <p className="text-sm text-gray-600 mt-1">
+                                  Generated on {new Date(insight.created_at).toLocaleDateString()}
+                                </p>
+                              </div>
+                            </div>
+                            <div className="flex items-center gap-2">
+                              <Badge className="bg-green-100 text-green-700 border-green-200">
+                                <CheckCircle2 className="h-3 w-3 mr-1" />
+                                Analyzed
+                              </Badge>
+                              <ChevronRight className="h-4 w-4 text-gray-400" />
+                            </div>
+                          </div>
+                        </Card>
+                      ))
+                    ) : (
+                      <div className="text-center py-12">
+                        <Sparkles className="h-12 w-12 text-gray-400 mx-auto mb-4" />
+                        <h3 className="text-lg font-medium text-gray-900 mb-2">No AI Insights Yet</h3>
+                        <p className="text-gray-600 mb-4">Upload an IEP document to get AI-powered analysis.</p>
+                        <Button 
+                          onClick={() => navigate('/parent/document-vault')}
+                          className="bg-gradient-to-r from-orange-600 to-red-600 hover:from-orange-700 hover:to-red-700"
+                        >
+                          Upload Document
+                        </Button>
+                      </div>
+                    )}
+                  </div>
+                </TabsContent>
+              </Tabs>
             </Card>
           </div>
         </div>

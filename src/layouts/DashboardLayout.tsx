@@ -1,8 +1,9 @@
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/AppSidebar";
 import { Button } from "@/components/ui/button";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { Link, useNavigate } from "react-router-dom";
-import { Crown, User, LogOut } from "lucide-react";
+import { Crown, User, LogOut, Settings } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
 import { normalizeSubscriptionPlan } from "@/lib/planAccess";
@@ -69,24 +70,41 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
                   </>
                 )}
                 
-                {/* User Display */}
-                {(profile?.full_name || user?.email) && (
-                  <span className="text-sm text-muted-foreground hidden lg:block">
-                    {profile?.full_name || user?.email}
-                  </span>
-                )}
-                
-                <Button variant="ghost" size="icon" onClick={() => {
-                  const currentPath = window.location.pathname;
-                  const isAdvocateRoute = currentPath.startsWith('/advocate');
-                  navigate(isAdvocateRoute ? '/advocate/profile' : '/parent/profile');
-                }} title="Profile">
-                  <User className="h-4 w-4" />
-                </Button>
-                
-                <Button variant="ghost" size="icon" onClick={handleSignOut} title="Sign Out">
-                  <LogOut className="h-4 w-4" />
-                </Button>
+                {/* User Dropdown */}
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button variant="ghost" className="flex items-center gap-2 px-3">
+                      <User className="h-4 w-4" />
+                      {(profile?.full_name || user?.email) && (
+                        <span className="text-sm text-muted-foreground hidden lg:block">
+                          {profile?.full_name || user?.email}
+                        </span>
+                      )}
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end" className="w-56">
+                    <DropdownMenuItem onClick={() => {
+                      const currentPath = window.location.pathname;
+                      const isAdvocateRoute = currentPath.startsWith('/advocate');
+                      navigate(isAdvocateRoute ? '/advocate/profile' : '/parent/profile');
+                    }}>
+                      <User className="h-4 w-4 mr-2" />
+                      Profile
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => {
+                      const currentPath = window.location.pathname;
+                      const isAdvocateRoute = currentPath.startsWith('/advocate');
+                      navigate(isAdvocateRoute ? '/advocate/settings' : '/parent/settings');
+                    }}>
+                      <Settings className="h-4 w-4 mr-2" />
+                      Settings
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onClick={handleSignOut}>
+                      <LogOut className="h-4 w-4 mr-2" />
+                      Sign Out
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
               </div>
             </div>
           </header>

@@ -96,11 +96,7 @@ const getAdvocateNavigation = (dashboardUrl: string): SidebarSection[] => [
   }
 ];
 
-// Dynamic account items based on role
-const getAccountItems = (isAdvocateRoute: boolean): SidebarItem[] => [
-  { title: "Profile", url: isAdvocateRoute ? "/advocate/profile" : "/parent/profile", icon: User },
-  { title: "Settings", url: isAdvocateRoute ? "/advocate/settings" : "/parent/settings", icon: Settings },
-];
+// Account items moved to top right dropdown
 
 export function AppSidebar() {
   const { state } = useSidebar();
@@ -125,7 +121,6 @@ export function AppSidebar() {
   const dashboardUrl = isAdvocate ? `/advocate/dashboard-${advocatePlanSlug}` : `/parent/dashboard-${userPlan}`;
   
   const navigation = isAdvocate ? getAdvocateNavigation(dashboardUrl) : getParentNavigation(dashboardUrl, userPlan, isAdvocate);
-  const accountItems = getAccountItems(isAdvocate);
   
   const isActive = (path: string) => currentPath === path;
   
@@ -193,35 +188,6 @@ export function AppSidebar() {
           </SidebarGroup>
         ))}
 
-        {/* Account Section */}
-        <SidebarGroup className="mt-auto">
-          {!collapsed && (
-            <SidebarGroupLabel className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-2">
-              Account
-            </SidebarGroupLabel>
-          )}
-          <SidebarGroupContent>
-            <SidebarMenu className="space-y-1">
-              {accountItems.map((item) => (
-                <SidebarMenuItem key={item.title}>
-                  <SidebarMenuButton 
-                    asChild
-                    className={`w-full justify-start gap-3 px-3 py-2 rounded-lg transition-all ${
-                      isActive(item.url)
-                        ? 'bg-sidebar-primary text-sidebar-primary-foreground'
-                        : 'text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground'
-                    }`}
-                  >
-                    <Link to={item.url}>
-                      <item.icon className={`h-4 w-4 ${collapsed ? 'mx-auto' : ''}`} />
-                      {!collapsed && <span>{item.title}</span>}
-                    </Link>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-              ))}
-            </SidebarMenu>
-          </SidebarGroupContent>
-        </SidebarGroup>
       </SidebarContent>
     </Sidebar>
   );

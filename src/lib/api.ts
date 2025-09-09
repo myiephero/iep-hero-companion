@@ -154,7 +154,7 @@ class ApiClient {
       
       const headers: Record<string, string> = {
         'Content-Type': 'application/json',
-        ...options.headers,
+        ...(options.headers as Record<string, string> || {}),
       };
       
       // Add Authorization header only if we have a token
@@ -302,6 +302,13 @@ class ApiClient {
     return this.request('/goals', {
       method: 'POST',
       body: JSON.stringify(goal),
+    });
+  }
+
+  async updateGoal(goalId: string, updates: Partial<Goal>): Promise<Goal> {
+    return this.request(`/goals/${goalId}`, {
+      method: 'PATCH',
+      body: JSON.stringify(updates),
     });
   }
 

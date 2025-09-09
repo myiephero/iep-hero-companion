@@ -237,8 +237,7 @@ export default function ParentDashboard({ plan }: ParentDashboardProps) {
 
   const updateGoalStatus = async (goalId: string, status: string) => {
     try {
-      // TODO: Add updateGoal API method - for now just skip
-      console.log('Update goal status:', goalId, status);
+      await api.updateGoal(goalId, { status });
 
       toast({
         title: "Success",

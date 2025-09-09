@@ -3,34 +3,27 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Link } from "react-router-dom";
-import { Brain, FileText, Users, Star, Zap, Building, BookOpen, MessageSquare, Target, TrendingUp, Smile, Heart } from "lucide-react";
+import { Zap, Users, Star, FileText, Target, Building, BookOpen, Smile, TrendingUp, MessageSquare, Brain, Heart } from "lucide-react";
 
-// Get user role from current location
-const getUserRole = () => {
-  const path = window.location.pathname;
-  if (path.startsWith('/parent')) return 'parent';
-  if (path.startsWith('/advocate')) return 'advocate';
-  return 'parent'; // default to parent
-};
-
+// ALL 18 EMERGENT TOOLS - COMPLETE REFRESH v2.0
 const emergentTools = [
   {
     title: "Unified IEP Review",
-    description: "Comprehensive AI-powered IEP analysis with quality scoring, compliance checks, bulk operations, and action letter generation.",
+    description: "Comprehensive AI-powered IEP analysis with quality scoring, compliance checks, and actionable improvement recommendations.",
     icon: Brain,
-    path: "/tools/unified-iep-review",
-    category: "IEP Analysis",
+    path: "/parent/tools/unified-iep-review",
+    category: "AI Analysis",
     badge: "Enhanced",
-    features: ["AI Analysis", "Quality Scoring", "Compliance Check", "Action Letters", "Bulk Operations"]
+    features: ["AI Analysis", "Quality Scoring", "Compliance Check", "Improvement Plan"]
   },
   {
     title: "Autism Accommodation Builder",
-    description: "Create autism-specific accommodations with sensory, communication, and behavioral support recommendations.",
-    icon: Zap,
-    path: "/tools/autism-accommodations",
-    category: "Accommodations",
+    description: "Create autism-specific accommodations with sensory, communication, and behavioral support strategies.",
+    icon: Users,
+    path: "/parent/tools/autism-accommodation-builder",
+    category: "Specialized Support",
     badge: "Specialized",
-    features: ["Sensory Support", "Communication Aids", "Behavioral Plans", "Environmental Mods"]
+    features: ["Sensory Support", "Communication Aid", "Behavioral Strategies", "School Collaboration"]
   },
   {
     title: "Advocate Matching Tool",
@@ -180,9 +173,9 @@ const emergentTools = [
 
 const categories = Array.from(new Set(emergentTools.map(tool => tool.category)));
 
-// Force refresh - Updated at ${new Date().toISOString()}
-console.log('🔥 FORCED REFRESH: EmergentTools array length:', emergentTools.length);
-console.log('🔥 FORCED REFRESH: All 18 tools:', emergentTools.map(t => t.title));
+// VERIFICATION: 18 tools loaded
+console.log('🔥 COMPLETE REFRESH: EmergentTools array length:', emergentTools.length);
+console.log('🔥 All 18 tools loaded:', emergentTools.map(t => t.title));
 
 const getBadgeVariant = (badge: string) => {
   switch (badge) {
@@ -208,25 +201,23 @@ const getBadgeVariant = (badge: string) => {
 };
 
 export default function EmergentToolsHub() {
-  const userRole = getUserRole();
-  
   return (
     <DashboardLayout>
       <div className="space-y-8">
         {/* Hero Section */}
-        <div className="text-center space-y-4">
+        <div className="text-center space-y-6">
           <div className="flex items-center justify-center gap-2 mb-4">
             <Zap className="h-8 w-8 text-primary" />
             <h1 className="text-4xl font-bold">Emergent Tools Hub</h1>
           </div>
           <p className="text-xl text-muted-foreground max-w-3xl mx-auto">
             Advanced AI-powered tools and specialized resources for special education advocacy, 
-            designed to streamline IEP processes and improve student outcomes. Now featuring 18 comprehensive tools!
+            designed to streamline IEP processes and improve student outcomes. Complete 18-tool suite!
           </p>
           <div className="flex items-center justify-center gap-4 pt-4">
             <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200">
               <TrendingUp className="h-3 w-3 mr-1" />
-              ⚡ 18 Active Tools ⚡
+              ✅ 18 COMPLETE TOOLS ✅
             </Badge>
             <Badge variant="outline" className="bg-blue-50 text-blue-700 border-blue-200">
               <Brain className="h-3 w-3 mr-1" />
@@ -239,7 +230,7 @@ export default function EmergentToolsHub() {
           </div>
         </div>
 
-        {/* Compact Tools Grid - All Tools Visible */}
+        {/* Complete Tools Grid - All 18 Tools Visible */}
         <div className="space-y-6">
           <h2 className="text-2xl font-semibold text-center">Complete Toolbox Overview</h2>
           

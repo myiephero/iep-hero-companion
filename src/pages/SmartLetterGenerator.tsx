@@ -289,21 +289,39 @@ const SmartLetterGenerator = () => {
     { value: "MI", name: "Michigan" }
   ];
 
+  // Pre-populate parent information when profile loads
+  useEffect(() => {
+    if (profile && !isAdvocateUser) {
+      setFormData(prev => ({
+        ...prev,
+        parentName: profile?.firstName && profile?.lastName 
+          ? `${profile.firstName} ${profile.lastName}` 
+          : profile?.username || "",
+        parentPhone: profile?.phone || "",
+        parentEmail: profile?.email || ""
+      }));
+    }
+  }, [profile, isAdvocateUser]);
+
   // Update form data when student is selected
   useEffect(() => {
     if (selectedStudent) {
-      setFormData({
+      setFormData(prev => ({
+        ...prev,
         studentName: selectedStudent.full_name || "",
         studentGrade: selectedStudent.grade_level || "",
         schoolName: selectedStudent.school_name || "",
         schoolDistrict: selectedStudent.district || "",
         principalName: "",
-        parentName: "",
-        parentPhone: "",
-        parentEmail: ""
-      });
+        // Keep existing parent data if already populated
+        parentName: prev.parentName || (profile?.firstName && profile?.lastName 
+          ? `${profile.firstName} ${profile.lastName}` 
+          : profile?.username || ""),
+        parentPhone: prev.parentPhone || profile?.phone || "",
+        parentEmail: prev.parentEmail || profile?.email || ""
+      }));
     }
-  }, [selectedStudent]);
+  }, [selectedStudent, profile]);
 
   const formFields = [
     { id: "studentName", label: "Student Name", type: "text", required: true },

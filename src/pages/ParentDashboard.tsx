@@ -618,7 +618,7 @@ export default function ParentDashboard({ plan }: ParentDashboardProps) {
         <div className="px-6 pb-16">
           <div className="max-w-7xl mx-auto">
             {/* Enhanced Quick Stats with Unified Design */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-12 relative" style={{ zIndex: 10 }}>
               {[
                 {
                   icon: Target,
@@ -770,7 +770,7 @@ export default function ParentDashboard({ plan }: ParentDashboardProps) {
             </div>
             
             {/* Enhanced Tabs with Unified Design System */}
-            <Card className="border-0 shadow-lg overflow-hidden">
+            <Card className="border-0 shadow-lg overflow-hidden relative" style={{ zIndex: 'auto' }}>
               <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
                 <div className="bg-gradient-to-r from-slate-50 to-gray-50 border-b border-gray-200">
                   <TabsList className="grid w-full grid-cols-1 sm:grid-cols-4 bg-transparent p-1 h-auto">
@@ -818,7 +818,7 @@ export default function ParentDashboard({ plan }: ParentDashboardProps) {
                 </div>
 
               {/* Enhanced Goals Tab */}
-              <TabsContent value="goals" className="p-6 space-y-6">
+              <TabsContent value="goals" className="p-6 space-y-6 relative" style={{ zIndex: 1 }}>
                 <div className="flex items-center justify-between">
                   <div>
                     <h2 className="text-2xl font-bold text-gray-900">IEP Goals</h2>

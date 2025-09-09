@@ -759,6 +759,7 @@ export default function ParentIEPMasterSuite() {
                   {selectedExpertType && (
                     <div className="space-y-4 p-4 bg-purple-50 dark:bg-purple-900/20 rounded-lg border border-purple-200">
                       <Label className="text-base font-medium">Upload IEP Document for Expert Review:</Label>
+                      {/* Using SimpleFileUpload for expert reviews - no AI features */}
                       <SimpleFileUpload onFileUpload={handleDocumentUpload} />
                       
                       {uploadedDocument && (

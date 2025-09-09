@@ -50,62 +50,105 @@ async function generateGiftedAssessmentAI(assessmentData: any, role: 'parent' | 
   try {
     const isParent = role === 'parent';
     
-    // Create detailed context from assessment data
-    const assessmentContext = `
-Assessment Type: ${assessmentData.assessment_type}
-Areas of Giftedness: ${Array.isArray(assessmentData.giftedness_areas) ? assessmentData.giftedness_areas.join(', ') : assessmentData.giftedness_areas}
-Learning Differences: ${Array.isArray(assessmentData.learning_differences) ? assessmentData.learning_differences.join(', ') : assessmentData.learning_differences || 'None specified'}
-Strengths: ${typeof assessmentData.strengths === 'object' ? assessmentData.strengths?.notes || JSON.stringify(assessmentData.strengths) : assessmentData.strengths || 'Not specified'}
-Challenges: ${typeof assessmentData.challenges === 'object' ? assessmentData.challenges?.notes || JSON.stringify(assessmentData.challenges) : assessmentData.challenges || 'Not specified'}
-Current Recommendations: ${typeof assessmentData.recommendations === 'object' ? assessmentData.recommendations?.notes || JSON.stringify(assessmentData.recommendations) : assessmentData.recommendations || 'Not specified'}
-Enrichment Activities: ${typeof assessmentData.enrichment_activities === 'object' ? assessmentData.enrichment_activities?.notes || JSON.stringify(assessmentData.enrichment_activities) : assessmentData.enrichment_activities || 'Not specified'}
-Acceleration Needs: ${typeof assessmentData.acceleration_needs === 'object' ? assessmentData.acceleration_needs?.notes || JSON.stringify(assessmentData.acceleration_needs) : assessmentData.acceleration_needs || 'Not specified'}
-Social-Emotional Needs: ${typeof assessmentData.social_emotional_needs === 'object' ? assessmentData.social_emotional_needs?.notes || JSON.stringify(assessmentData.social_emotional_needs) : assessmentData.social_emotional_needs || 'Not specified'}
-Evaluator Notes: ${assessmentData.evaluator_notes || 'Not specified'}
-    `;
+    // Validate that we have sufficient real assessment data
+    const hasRealStrengths = assessmentData.strengths?.notes && assessmentData.strengths.notes.trim().length > 0;
+    const hasRealChallenges = assessmentData.challenges?.notes && assessmentData.challenges.notes.trim().length > 0;
+    const hasRealRecommendations = assessmentData.recommendations?.notes && assessmentData.recommendations.notes.trim().length > 0;
+    const hasEvaluatorNotes = assessmentData.evaluator_notes && assessmentData.evaluator_notes.trim().length > 0;
+    
+    // Require at least strengths or evaluator notes for meaningful analysis
+    if (!hasRealStrengths && !hasEvaluatorNotes) {
+      throw new Error('Insufficient assessment data: This assessment needs more detailed information about the student\'s strengths and abilities before AI insights can be generated. Please complete the assessment with specific observations and notes.');
+    }
+    
+    // Extract only real, non-empty data
+    const getRealData = (field: any) => {
+      if (typeof field === 'object' && field?.notes && field.notes.trim().length > 0) {
+        return field.notes;
+      }
+      if (typeof field === 'string' && field.trim().length > 0) {
+        return field;
+      }
+      return null;
+    };
+    
+    // Build context only with actual data
+    const realDataParts = [
+      `Assessment Type: ${assessmentData.assessment_type}`,
+      `Areas of Giftedness: ${Array.isArray(assessmentData.giftedness_areas) ? assessmentData.giftedness_areas.join(', ') : assessmentData.giftedness_areas}`
+    ];
+    
+    if (assessmentData.learning_differences?.length) {
+      realDataParts.push(`Learning Differences: ${Array.isArray(assessmentData.learning_differences) ? assessmentData.learning_differences.join(', ') : assessmentData.learning_differences}`);
+    }
+    
+    const strengthsData = getRealData(assessmentData.strengths);
+    if (strengthsData) realDataParts.push(`Documented Strengths: ${strengthsData}`);
+    
+    const challengesData = getRealData(assessmentData.challenges);
+    if (challengesData) realDataParts.push(`Documented Challenges: ${challengesData}`);
+    
+    const recommendationsData = getRealData(assessmentData.recommendations);
+    if (recommendationsData) realDataParts.push(`Current Recommendations: ${recommendationsData}`);
+    
+    const enrichmentData = getRealData(assessmentData.enrichment_activities);
+    if (enrichmentData) realDataParts.push(`Enrichment Activities: ${enrichmentData}`);
+    
+    const accelerationData = getRealData(assessmentData.acceleration_needs);
+    if (accelerationData) realDataParts.push(`Acceleration Needs: ${accelerationData}`);
+    
+    const socialEmotionalData = getRealData(assessmentData.social_emotional_needs);
+    if (socialEmotionalData) realDataParts.push(`Social-Emotional Needs: ${socialEmotionalData}`);
+    
+    if (assessmentData.evaluator_notes) {
+      realDataParts.push(`Evaluator Notes: ${assessmentData.evaluator_notes}`);
+    }
+    
+    const assessmentContext = realDataParts.join('\n');
 
     const systemPrompt = isParent 
-      ? `You are an expert educational consultant specializing in gifted and twice-exceptional learners. Your role is to provide clear, practical guidance to PARENTS about their child's educational needs. Use everyday language that parents can understand and focus on actionable steps they can take to support their child at home and advocate at school.
+      ? `You are an expert educational consultant specializing in gifted and twice-exceptional learners. Your role is to provide clear, practical guidance to PARENTS about their child's educational needs based ONLY on the actual assessment data provided.
 
-Your analysis should be compassionate, encouraging, and focused on celebrating the child's unique gifts while addressing challenges constructively. Avoid overly technical jargon and instead provide practical, real-world advice that empowers parents.`
+CRITICAL: Base your analysis exclusively on the specific information documented in this assessment. Do not make assumptions or add generic information not present in the assessment data. If certain information is not documented, acknowledge that it would need additional evaluation.
+
+Use everyday language that parents can understand and focus on actionable steps they can take to support their child at home and advocate at school. Your analysis should be compassionate, encouraging, and focused on celebrating the child's documented gifts while addressing documented challenges constructively.`
       
-      : `You are a seasoned educational advocate and specialist in gifted and twice-exceptional education. Your role is to provide detailed, professional analysis to EDUCATIONAL ADVOCATES who are working with families. Use precise educational terminology and provide comprehensive insights that will help advocates develop effective IEP goals, accommodations, and educational strategies.
+      : `You are a seasoned educational advocate and specialist in gifted and twice-exceptional education. Your role is to provide detailed, professional analysis to EDUCATIONAL ADVOCATES based strictly on the documented assessment data provided.
 
-Your analysis should be thorough, evidence-based, and focused on actionable advocacy strategies, legal considerations, and best practices in gifted and 2e education.`;
+CRITICAL: Base your analysis exclusively on the specific information documented in this assessment. Do not make assumptions or add generic recommendations not supported by the assessment data. If certain areas need additional evaluation, clearly state this.
+
+Use precise educational terminology and provide comprehensive insights that will help advocates develop effective IEP goals, accommodations, and educational strategies based on the documented profile.`;
 
     const userPrompt = isParent
-      ? `Based on this gifted/twice-exceptional assessment, please provide a comprehensive analysis for the PARENT that includes:
+      ? `Based EXCLUSIVELY on the documented assessment data below, provide a comprehensive analysis for the PARENT. Only reference information that is explicitly documented in the assessment data. If a category lacks sufficient documentation, state that additional evaluation would be needed.
 
-1. **Celebration of Strengths**: Help the parent understand and celebrate their child's unique gifts and abilities
-2. **Understanding Challenges**: Explain any challenges in simple terms and why they occur alongside giftedness  
-3. **Home Support Strategies**: Specific, practical ways the parent can support their child at home
-4. **School Advocacy Guide**: Key points the parent should discuss with teachers and school staff
-5. **Questions for IEP/504 Meetings**: Important questions the parent should ask during educational planning meetings
-6. **Resources and Next Steps**: Helpful resources, books, websites, or organizations for ongoing support
-7. **Social-Emotional Support**: Ways to support the child's emotional and social needs
-8. **Long-term Planning**: Considerations for the child's educational journey ahead
+Provide analysis only in these areas where sufficient data exists:
 
-Please provide this analysis in a warm, encouraging tone that empowers the parent while being practical and actionable. Respond with a detailed JSON object containing your analysis.
+1. **Documented Strengths**: Celebrate only the specific abilities and gifts documented in this assessment
+2. **Documented Challenges**: Address only the challenges specifically noted in the assessment data
+3. **Home Support Strategies**: Practical suggestions based only on the documented profile
+4. **School Advocacy Guide**: Key points derived directly from the documented assessment findings
+5. **Next Steps**: Recommendations based on what is documented vs. what needs further evaluation
 
-Assessment Data:
+Use a warm, encouraging tone but stay strictly within the bounds of the documented assessment data. If information is missing or insufficient, clearly state this. Respond with a detailed JSON object.
+
+DOCUMENTED ASSESSMENT DATA:
 ${assessmentContext}`
 
-      : `Based on this gifted/twice-exceptional assessment, please provide a comprehensive professional analysis for the EDUCATIONAL ADVOCATE that includes:
+      : `Based EXCLUSIVELY on the documented assessment data below, provide a comprehensive professional analysis for the EDUCATIONAL ADVOCATE. Only reference information that is explicitly documented in the assessment. If a domain lacks sufficient documentation, identify this as needing additional evaluation.
 
-1. **Clinical Assessment Summary**: Professional interpretation of the student's profile and educational needs
-2. **IEP Goal Development**: Specific, measurable goal recommendations across relevant domains
-3. **Accommodation Strategies**: Detailed accommodation and modification recommendations with justification
-4. **Legal Considerations**: Relevant IDEA, 504, and gifted education law implications
-5. **Evidence-Based Interventions**: Research-backed instructional strategies and interventions
-6. **Assessment Recommendations**: Suggestions for additional evaluations or assessments needed
-7. **Collaboration Framework**: Strategies for working effectively with the educational team
-8. **Progress Monitoring**: Methods to track student progress and intervention effectiveness
-9. **Transition Planning**: Considerations for educational transitions and long-term planning
-10. **Parent Support**: Guidance for supporting the family and building parent-advocate partnership
+Provide analysis only in these areas where sufficient data exists:
 
-Please provide this analysis using professional educational terminology and evidence-based practices. Respond with a detailed JSON object containing your analysis.
+1. **Assessment Data Summary**: Professional interpretation of only the documented findings
+2. **IEP Goal Recommendations**: Goals based specifically on documented strengths and needs
+3. **Accommodation Strategies**: Recommendations justified by the documented profile
+4. **Additional Assessment Needs**: Identify areas requiring further evaluation
+5. **Evidence-Based Interventions**: Strategies that align with the documented profile
+6. **Progress Monitoring**: Methods appropriate for the documented areas of focus
 
-Assessment Data:
+Use professional terminology while staying strictly within the documented assessment boundaries. If information is insufficient for comprehensive recommendations, clearly identify these gaps. Respond with a detailed JSON object.
+
+DOCUMENTED ASSESSMENT DATA:
 ${assessmentContext}`;
 
     // Using GPT-4 Omni, the latest production OpenAI model

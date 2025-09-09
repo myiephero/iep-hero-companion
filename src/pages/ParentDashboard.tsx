@@ -562,8 +562,8 @@ export default function ParentDashboard({ plan }: ParentDashboardProps) {
                 {
                   icon: Sparkles,
                   title: insights.length,
-                  subtitle: "AI Insights",
-                  badge: "Data analyzed",
+                  subtitle: "Deep Analysis",
+                  badge: "Full IEP review",
                   color: "from-orange-500 to-red-600",
                   index: 3
                 }
@@ -693,7 +693,7 @@ export default function ParentDashboard({ plan }: ParentDashboardProps) {
                     >
                       <div className="flex items-center gap-2">
                         <Sparkles className="h-5 w-5" />
-                        <span>AI Insights</span>
+                        <span>Quick Insights</span>
                       </div>
                     </TabsTrigger>
                   </TabsList>

@@ -1253,7 +1253,7 @@ export default function ParentDashboard({ plan }: ParentDashboardProps) {
                         <Smile className="h-5 w-5 text-blue-600" />
                         Current Mood Status
                       </CardTitle>
-                      <CardDescription className="text-gray-600">
+                      <CardDescription className="text-gray-800 font-medium">
                         Quick overview of today's emotional state
                       </CardDescription>
                     </CardHeader>
@@ -1379,7 +1379,7 @@ export default function ParentDashboard({ plan }: ParentDashboardProps) {
                         <TrendingUp className="h-5 w-5 text-green-600" />
                         Weekly Emotional Trends
                       </CardTitle>
-                      <CardDescription className="text-gray-600">
+                      <CardDescription className="text-gray-800 font-medium">
                         Patterns and insights from this week
                       </CardDescription>
                     </CardHeader>

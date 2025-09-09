@@ -14,7 +14,6 @@ import { Progress } from "@/components/ui/progress";
 import { Separator } from "@/components/ui/separator";
 import { useToast } from "@/hooks/use-toast";
 import { FileText, Target, CheckCircle, Brain, Upload, Lightbulb, BarChart3, X, BookOpen, Users, Star, Gavel, Clock, Shield, Award, DollarSign, Calendar } from "lucide-react";
-import { DocumentUpload } from "@/components/DocumentUpload";
 import { SimpleFileUpload } from "@/components/SimpleFileUpload";
 import { StudentSelector } from "@/components/StudentSelector";
 import { EXPERT_REVIEW_PRODUCTS, getExpertReviewCheckoutUrl } from "@/lib/expertReviewPricing";
@@ -541,7 +540,28 @@ export default function ParentIEPMasterSuite() {
                   </div>
                 )}
                 
-                <DocumentUpload onAnalysisComplete={handleDocumentUpload} />
+                {/* Basic file upload for IEP analysis */}
+                <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center">
+                  <Upload className="h-8 w-8 text-gray-400 mx-auto mb-2" />
+                  <p className="text-sm font-medium text-gray-600 mb-1">
+                    Drag & drop your IEP document here, or click to select
+                  </p>
+                  <input
+                    type="file"
+                    accept=".pdf,.doc,.docx"
+                    onChange={(e) => {
+                      const file = e.target.files?.[0];
+                      if (file) {
+                        handleDocumentUpload({
+                          name: file.name,
+                          size: file.size,
+                          type: file.type
+                        });
+                      }
+                    }}
+                    className="mt-2 text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
+                  />
+                </div>
                 
                 {uploadedDocument && (
                   <div className="space-y-4">

@@ -14,7 +14,7 @@ import { Shield, Folder, Search, Filter, Download, Upload, Eye, Edit, Trash2, Ch
 import { format } from 'date-fns';
 import { apiRequest } from '@/lib/queryClient';
 import { useToast } from '@/hooks/use-toast';
-import { Document, Student } from '@shared/schema';
+import type { Document, Student } from '@shared/schema';
 import DocumentUpload from '@/components/DocumentUpload';
 
 interface ViewDialogState {
@@ -539,7 +539,10 @@ const DocumentVault: React.FC = () => {
                           : 'Upload your first IEP document to get started with AI-powered analysis'}
                       </p>
                       {!searchTerm && filterType === 'all' && (
-                        <Button onClick={() => document.querySelector('input[type="file"]')?.click()} className="gap-2">
+                        <Button onClick={() => {
+                          const fileInput = document.querySelector('input[type="file"]') as HTMLInputElement;
+                          fileInput?.click();
+                        }} className="gap-2">
                           <Upload className="h-4 w-4" />
                           Upload Document
                         </Button>

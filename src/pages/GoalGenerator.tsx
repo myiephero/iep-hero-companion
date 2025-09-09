@@ -9,11 +9,12 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Separator } from "@/components/ui/separator";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Progress } from "@/components/ui/progress";
-import { Target, Brain, CheckCircle, Lightbulb, BookOpen, Clock, Upload, FileText, AlertCircle, CheckCheck, Users, UserPlus, User, GraduationCap, Heart, Search } from "lucide-react";
+import { Target, Brain, CheckCircle, Lightbulb, BookOpen, Clock, Upload, FileText, AlertCircle, CheckCheck, Users, UserPlus, User, GraduationCap, Heart, Search, Save } from "lucide-react";
 import { useState, useEffect } from "react";
 import { useDropzone } from "react-dropzone";
 import { StudentSelector } from "@/components/StudentSelector";
 import { apiRequest } from "@/lib/queryClient";
+import { useToast } from "@/hooks/use-toast";
 
 interface GeneratedGoal {
   id: string;
@@ -115,10 +116,12 @@ interface ComplianceResult {
 }
 
 export default function GoalGenerator() {
+  const { toast } = useToast();
   const [activeTab, setActiveTab] = useState<'generate' | 'check' | 'align'>('generate');
   const [isGenerating, setIsGenerating] = useState(false);
   const [generatedGoals, setGeneratedGoals] = useState<GeneratedGoal[]>([]);
   const [uploadedFile, setUploadedFile] = useState<File | null>(null);
+  const [isSaving, setIsSaving] = useState(false);
   
   // Compliance checker states
   const [complianceGoalText, setComplianceGoalText] = useState('');
@@ -306,6 +309,60 @@ export default function GoalGenerator() {
     if (goal.timeframe) score += 20;
     if (goal.standards.length > 0) score += 20;
     return score;
+  };
+
+  const handleSaveGoals = async () => {
+    if (!selectedStudentId || selectedStudentId === 'no-student') {
+      toast({
+        title: "Student Required",
+        description: "Please select a student before saving goals.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setIsSaving(true);
+    
+    try {
+      // Save each goal to the database
+      for (const goal of generatedGoals) {
+        const goalData = {
+          student_id: selectedStudentId,
+          goal_text: goal.goal,
+          goal_category: goal.category,
+          short_term_objectives: goal.objectives,
+          measurement_criteria: goal.measurableData,
+          evaluation_procedures: goal.measurableData,
+          timeline: goal.timeframe,
+          standards_alignment: goal.standards,
+          compliance_score: goal.complianceScore,
+          status: 'draft',
+          baseline_data: '',
+          target_criteria: goal.measurableData,
+          review_dates: []
+        };
+
+        await apiRequest('POST', '/api/goals', goalData);
+      }
+
+      toast({
+        title: "Goals Saved Successfully",
+        description: `${generatedGoals.length} goal${generatedGoals.length > 1 ? 's' : ''} saved to student profile.`,
+      });
+
+      // Clear the generated goals after saving
+      setGeneratedGoals([]);
+      
+    } catch (error) {
+      console.error('Error saving goals:', error);
+      toast({
+        title: "Error Saving Goals",
+        description: "Failed to save goals. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsSaving(false);
+    }
   };
 
   const renderGenerateTab = () => (
@@ -517,14 +574,20 @@ export default function GoalGenerator() {
 
       {generatedGoals.length > 0 && (
         <div className="space-y-4">
-          <h3 className="text-xl font-semibold">Generated SMART Goals</h3>
+          <div className="flex items-center justify-between">
+            <h3 className="text-xl font-semibold">Generated Goals for {studentInfo.name || 'Student'}</h3>
+            <p className="text-sm text-muted-foreground">
+              Here are personalized IEP goals for your child. You can share these with your child's IEP team.
+            </p>
+          </div>
+          
           {generatedGoals.map((goal) => (
             <Card key={goal.id} className="border-l-4 border-l-primary">
               <CardHeader>
                 <div className="flex items-center justify-between">
                   <CardTitle className="text-base">{goal.category}</CardTitle>
                   <Badge variant={goal.complianceScore >= 90 ? "default" : "secondary"}>
-                    {goal.complianceScore}% Compliant
+                    {goal.complianceScore}% SMART Goal
                   </Badge>
                 </div>
               </CardHeader>
@@ -535,7 +598,7 @@ export default function GoalGenerator() {
                 </div>
                 
                 <div className="space-y-2">
-                  <Label className="text-sm font-medium">Short-term Objectives</Label>
+                  <Label className="text-sm font-medium">Steps to achieve this goal:</Label>
                   <ul className="text-sm space-y-1 ml-4">
                     {goal.objectives.map((objective, idx) => (
                       <li key={idx} className="flex items-start gap-2">
@@ -548,11 +611,11 @@ export default function GoalGenerator() {
 
                 <div className="grid gap-4 md:grid-cols-2">
                   <div className="space-y-2">
-                    <Label className="text-sm font-medium">Measurement</Label>
+                    <Label className="text-sm font-medium">How we'll measure progress:</Label>
                     <p className="text-sm text-muted-foreground">{goal.measurableData}</p>
                   </div>
                   <div className="space-y-2">
-                    <Label className="text-sm font-medium">Timeframe</Label>
+                    <Label className="text-sm font-medium">Timeline:</Label>
                     <p className="text-sm text-muted-foreground">{goal.timeframe}</p>
                   </div>
                 </div>
@@ -570,6 +633,45 @@ export default function GoalGenerator() {
               </CardContent>
             </Card>
           ))}
+          
+          <Card className="bg-gradient-to-br from-green-50/50 to-emerald-50/30 dark:from-green-950/20 dark:to-emerald-950/10 border-green-200 dark:border-green-800">
+            <CardContent className="p-6">
+              <div className="text-center space-y-4">
+                <div className="flex items-center justify-center gap-2">
+                  <CheckCircle className="h-5 w-5 text-green-600" />
+                  <h4 className="text-lg font-semibold text-green-800 dark:text-green-200">
+                    Ready to Save Your Goals?
+                  </h4>
+                </div>
+                <p className="text-sm text-green-700 dark:text-green-300 max-w-md mx-auto">
+                  Save these goals to your student's profile to track progress and share with the IEP team.
+                </p>
+                <Button 
+                  onClick={handleSaveGoals}
+                  disabled={isSaving || !selectedStudentId || selectedStudentId === 'no-student'}
+                  className="bg-green-600 hover:bg-green-700 text-white"
+                  data-testid="button-save-goals"
+                >
+                  {isSaving ? (
+                    <>
+                      <Save className="h-4 w-4 mr-2 animate-spin" />
+                      Saving Goals...
+                    </>
+                  ) : (
+                    <>
+                      <Save className="h-4 w-4 mr-2" />
+                      Save Goals to Student Profile
+                    </>
+                  )}
+                </Button>
+                {(!selectedStudentId || selectedStudentId === 'no-student') && (
+                  <p className="text-xs text-amber-600 dark:text-amber-400">
+                    Please select a student above to save goals
+                  </p>
+                )}
+              </div>
+            </CardContent>
+          </Card>
         </div>
       )}
     </div>

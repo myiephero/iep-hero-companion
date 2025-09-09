@@ -106,6 +106,15 @@ export default function ParentIEPMasterSuite() {
   };
 
   const handleAnalyzeDocument = async () => {
+    if (!selectedStudent) {
+      toast({
+        title: "No Student Selected",
+        description: "Please select which child this IEP belongs to first.",
+        variant: "destructive",
+      });
+      return;
+    }
+    
     if (!uploadedDocument) {
       toast({
         title: "No Document",
@@ -325,6 +334,18 @@ export default function ParentIEPMasterSuite() {
                     Upload your child's current IEP document and our AI will analyze it to help you understand its strengths and areas for improvement. All documents are kept secure and private.
                   </AlertDescription>
                 </Alert>
+
+                {/* Student Selection */}
+                <div className="space-y-2">
+                  <Label htmlFor="student-select" className="text-sm font-medium">
+                    Select which child's IEP you're uploading:
+                  </Label>
+                  <StudentSelector
+                    selectedStudent={selectedStudent}
+                    onStudentChange={setSelectedStudent}
+                    placeholder="Choose your child..."
+                  />
+                </div>
                 
                 <DocumentUpload onAnalysisComplete={handleDocumentUpload} />
                 

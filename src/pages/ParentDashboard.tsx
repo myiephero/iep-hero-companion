@@ -528,19 +528,27 @@ export default function ParentDashboard({ plan }: ParentDashboardProps) {
                     const actions = [
                       () => {
                         console.log('📊 Goals card clicked!');
-                        // Focus on goals tab
-                        const goalsTab = document.querySelector('[value="goals"]') as HTMLElement;
-                        goalsTab?.click();
+                        toast({
+                          title: "Goal Tracking",
+                          description: `You have ${totalGoals} active goals with ${completedGoals} completed. Keep up the great work!`,
+                        });
+                        // Scroll to goals section
+                        setTimeout(() => {
+                          const goalsSection = document.querySelector('[data-section="goals"]');
+                          goalsSection?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                        }, 100);
                       },
                       () => {
                         console.log('📅 Meetings card clicked!');
-                        // Focus on meetings tab  
-                        const meetingsTab = document.querySelector('[value="meetings"]') as HTMLElement;
-                        meetingsTab?.click();
+                        toast({
+                          title: "Meetings Overview",
+                          description: `You have ${upcomingMeetings} upcoming meetings scheduled. Auto-reminders are enabled.`,
+                        });
+                        // Create a meeting or show meeting dialog
+                        setShowMeetingDialog(true);
                       },
                       () => {
                         console.log('📈 Progress card clicked!');
-                        // Show progress details
                         toast({
                           title: "Progress Details",
                           description: `You have completed ${completedGoals} out of ${totalGoals} goals. ${badge}`,
@@ -548,9 +556,12 @@ export default function ParentDashboard({ plan }: ParentDashboardProps) {
                       },
                       () => {
                         console.log('🔮 AI Insights card clicked!');
-                        // Focus on AI insights tab
-                        const insightsTab = document.querySelector('[value="insights"]') as HTMLElement;
-                        insightsTab?.click();
+                        toast({
+                          title: "AI Insights",
+                          description: `${insights.length} insights available. AI has analyzed your IEP data and progress.`,
+                        });
+                        // Navigate to AI insights tool
+                        navigate('/parent/unified-review');
                       }
                     ];
                     actions[index]?.();
@@ -719,7 +730,7 @@ export default function ParentDashboard({ plan }: ParentDashboardProps) {
                   </Dialog>
                 </div>
 
-                <div className="grid gap-6">
+                <div className="grid gap-6" data-section="goals">
                   {goals.length === 0 ? (
                     <div className="space-y-6">
                       {/* Main Welcome Card */}

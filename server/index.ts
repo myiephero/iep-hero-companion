@@ -429,7 +429,12 @@ const PORT = Number(process.env.PORT) || 5000;
 
 // Middleware
 app.use(cors({
-  origin: ['http://localhost:8080', 'http://localhost:5000'],
+  origin: [
+    'http://localhost:8080', 
+    'http://localhost:5000',
+    'https://iep-hero-companion-myiephero.replit.app',
+    'https://afd4ab41-fa60-4e78-9742-69bb4e3004d6-00-6i79wn87wfhu.janeway.replit.dev'
+  ],
   credentials: true
 }));
 app.use(express.json({ limit: '50mb' }));

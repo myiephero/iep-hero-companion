@@ -12,7 +12,7 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Progress } from "@/components/ui/progress";
 import { Separator } from "@/components/ui/separator";
 import { useToast } from "@/hooks/use-toast";
-import { FileText, Target, CheckCircle, Brain, Upload, Lightbulb, BarChart3, X, BookOpen, Users, Star } from "lucide-react";
+import { FileText, Target, CheckCircle, Brain, Upload, Lightbulb, BarChart3, X, BookOpen, Users, Star, Gavel, Clock, Shield, Award, DollarSign, Calendar } from "lucide-react";
 import { DocumentUpload } from "@/components/DocumentUpload";
 import { StudentSelector } from "@/components/StudentSelector";
 
@@ -86,6 +86,37 @@ These services work together with your child's regular classroom learning.`
   }
 };
 
+// Expert Analysis Types
+const EXPERT_ANALYSIS_TYPES = [
+  {
+    id: "comprehensive",
+    title: "Comprehensive Review",
+    price: 150,
+    icon: Award,
+    description: "Complete IEP analysis covering goals, services, accommodations, and legal compliance",
+    includes: ["Full goal analysis", "Service recommendations", "Accommodation review", "Legal compliance check", "Progress monitoring plan", "Meeting preparation guide"],
+    timeframe: "24-48 hours"
+  },
+  {
+    id: "focused",
+    title: "Focused Review", 
+    price: 75,
+    icon: Target,
+    description: "Targeted review of specific areas of concern",
+    includes: ["Specific goal areas", "Targeted recommendations", "Priority action items", "Key compliance issues"],
+    timeframe: "24 hours"
+  },
+  {
+    id: "compliance",
+    title: "Compliance Check",
+    price: 50,
+    icon: Shield,
+    description: "Legal compliance and procedural requirements review",
+    includes: ["IDEA compliance check", "Procedural safeguards review", "Documentation analysis", "Rights protection"],
+    timeframe: "12-24 hours"
+  }
+];
+
 export default function ParentIEPMasterSuite() {
   const [activeTab, setActiveTab] = useState("learn");
   const [selectedStudent, setSelectedStudent] = useState("");
@@ -95,6 +126,9 @@ export default function ParentIEPMasterSuite() {
   const [uploadedDocument, setUploadedDocument] = useState<any>(null);
   const [customGoalText, setCustomGoalText] = useState("");
   const [customGoalDomain, setCustomGoalDomain] = useState("");
+  const [analysisType, setAnalysisType] = useState<"ai" | "expert">("ai");
+  const [selectedExpertType, setSelectedExpertType] = useState("");
+  const [expertAnalyses, setExpertAnalyses] = useState<any[]>([]);
   const { toast } = useToast();
 
   const handleDocumentUpload = (document: any) => {
@@ -252,7 +286,7 @@ export default function ParentIEPMasterSuite() {
         </Card>
 
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-          <TabsList className="grid w-full grid-cols-4">
+          <TabsList className="grid w-full grid-cols-5">
             <TabsTrigger value="learn" className="flex items-center space-x-2">
               <BookOpen className="h-4 w-4" />
               <span>Learn About IEPs</span>
@@ -260,6 +294,10 @@ export default function ParentIEPMasterSuite() {
             <TabsTrigger value="analyze" className="flex items-center space-x-2">
               <Brain className="h-4 w-4" />
               <span>Analyze My Child's IEP</span>
+            </TabsTrigger>
+            <TabsTrigger value="expert" className="flex items-center space-x-2">
+              <Gavel className="h-4 w-4" />
+              <span>Expert Professional Review</span>
             </TabsTrigger>
             <TabsTrigger value="goals" className="flex items-center space-x-2">
               <Target className="h-4 w-4" />
@@ -349,7 +387,7 @@ export default function ParentIEPMasterSuite() {
             </Card>
           </TabsContent>
 
-          {/* Analyze My Child's IEP Tab */}
+          {/* Analyze My Child's IEP Tab - Enhanced with Two-Tier System */}
           <TabsContent value="analyze" className="space-y-6">
             <Card>
               <CardHeader>
@@ -362,7 +400,7 @@ export default function ParentIEPMasterSuite() {
                 <Alert>
                   <Brain className="h-4 w-4" />
                   <AlertDescription>
-                    Upload your child's current IEP document and our AI will analyze it to help you understand its strengths and areas for improvement. All documents are kept secure and private.
+                    Upload your child's current IEP document and choose your analysis type. Start with free AI analysis or upgrade to professional expert review.
                   </AlertDescription>
                 </Alert>
 
@@ -373,6 +411,90 @@ export default function ParentIEPMasterSuite() {
                       Please select your child from the dropdown above before uploading an IEP document.
                     </AlertDescription>
                   </Alert>
+                )}
+
+                {/* Analysis Type Selection */}
+                <div className="space-y-4">
+                  <Label className="text-base font-medium">Choose Analysis Type:</Label>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <Card className={`cursor-pointer transition-all ${analysisType === 'ai' ? 'ring-2 ring-primary bg-primary/5' : 'hover:bg-gray-50 dark:hover:bg-gray-800'}`} onClick={() => setAnalysisType('ai')}>
+                      <CardContent className="p-4">
+                        <div className="flex items-center space-x-3">
+                          <div className="p-2 rounded-lg bg-blue-100 dark:bg-blue-900">
+                            <Brain className="h-5 w-5 text-blue-600" />
+                          </div>
+                          <div className="flex-1">
+                            <h3 className="font-semibold">Free AI Analysis</h3>
+                            <p className="text-sm text-gray-600 dark:text-gray-300">Instant insights & parent-friendly guidance</p>
+                          </div>
+                          <Badge variant="secondary" className="bg-green-100 text-green-700 border-green-300">FREE</Badge>
+                        </div>
+                      </CardContent>
+                    </Card>
+
+                    <Card className={`cursor-pointer transition-all ${analysisType === 'expert' ? 'ring-2 ring-primary bg-primary/5' : 'hover:bg-gray-50 dark:hover:bg-gray-800'}`} onClick={() => setAnalysisType('expert')}>
+                      <CardContent className="p-4">
+                        <div className="flex items-center space-x-3">
+                          <div className="p-2 rounded-lg bg-purple-100 dark:bg-purple-900">
+                            <Gavel className="h-5 w-5 text-purple-600" />
+                          </div>
+                          <div className="flex-1">
+                            <h3 className="font-semibold">Professional Expert Review</h3>
+                            <p className="text-sm text-gray-600 dark:text-gray-300">Certified expert analysis in 24-48 hours</p>
+                          </div>
+                          <Badge variant="outline" className="bg-purple-100 text-purple-700 border-purple-300">PREMIUM</Badge>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  </div>
+                </div>
+
+                {/* Expert Analysis Type Selection */}
+                {analysisType === 'expert' && (
+                  <div className="space-y-4 p-4 bg-purple-50 dark:bg-purple-900/20 rounded-lg border border-purple-200">
+                    <Label className="text-base font-medium">Select Expert Analysis Type:</Label>
+                    <div className="grid grid-cols-1 gap-4">
+                      {EXPERT_ANALYSIS_TYPES.map((type) => {
+                        const IconComponent = type.icon;
+                        return (
+                          <Card 
+                            key={type.id} 
+                            className={`cursor-pointer transition-all ${selectedExpertType === type.id ? 'ring-2 ring-purple-500 bg-purple-50 dark:bg-purple-900/30' : 'hover:bg-gray-50 dark:hover:bg-gray-800'}`}
+                            onClick={() => setSelectedExpertType(type.id)}
+                          >
+                            <CardContent className="p-4">
+                              <div className="flex items-start space-x-4">
+                                <div className="p-2 rounded-lg bg-purple-100 dark:bg-purple-900">
+                                  <IconComponent className="h-5 w-5 text-purple-600" />
+                                </div>
+                                <div className="flex-1">
+                                  <div className="flex items-center justify-between mb-2">
+                                    <h3 className="font-semibold">{type.title}</h3>
+                                    <div className="flex items-center space-x-2">
+                                      <Badge variant="outline" className="bg-green-100 text-green-700">${type.price}</Badge>
+                                      <Badge variant="outline" className="bg-blue-100 text-blue-700">{type.timeframe}</Badge>
+                                    </div>
+                                  </div>
+                                  <p className="text-sm text-gray-600 dark:text-gray-300 mb-3">{type.description}</p>
+                                  <div className="space-y-1">
+                                    <p className="text-xs font-medium text-gray-700 dark:text-gray-300">Includes:</p>
+                                    <ul className="text-xs text-gray-600 dark:text-gray-400 grid grid-cols-2 gap-1">
+                                      {type.includes.map((item, index) => (
+                                        <li key={index} className="flex items-center space-x-1">
+                                          <CheckCircle className="h-3 w-3 text-green-600" />
+                                          <span>{item}</span>
+                                        </li>
+                                      ))}
+                                    </ul>
+                                  </div>
+                                </div>
+                              </div>
+                            </CardContent>
+                          </Card>
+                        );
+                      })}
+                    </div>
+                  </div>
                 )}
                 
                 <DocumentUpload onAnalysisComplete={handleDocumentUpload} />
@@ -386,19 +508,28 @@ export default function ParentIEPMasterSuite() {
                     
                     <Button 
                       onClick={handleAnalyzeDocument} 
-                      disabled={isAnalyzing}
+                      disabled={isAnalyzing || (analysisType === 'expert' && !selectedExpertType)}
                       className="w-full"
                       data-testid="button-analyze-iep"
                     >
                       {isAnalyzing ? (
                         <>
                           <Brain className="h-4 w-4 mr-2 animate-spin" />
-                          Analyzing Your Child's IEP...
+                          {analysisType === 'ai' ? 'Analyzing Your Child\'s IEP...' : 'Submitting for Expert Review...'}
                         </>
                       ) : (
                         <>
-                          <Brain className="h-4 w-4 mr-2" />
-                          Analyze My Child's IEP
+                          {analysisType === 'ai' ? (
+                            <>
+                              <Brain className="h-4 w-4 mr-2" />
+                              Get Free AI Analysis
+                            </>
+                          ) : (
+                            <>
+                              <Gavel className="h-4 w-4 mr-2" />
+                              Submit for Expert Review {selectedExpertType && `($${EXPERT_ANALYSIS_TYPES.find(t => t.id === selectedExpertType)?.price})`}
+                            </>
+                          )}
                         </>
                       )}
                     </Button>
@@ -506,6 +637,287 @@ export default function ParentIEPMasterSuite() {
                 )}
               </CardContent>
             </Card>
+          </TabsContent>
+
+          {/* Expert Professional Review Tab */}
+          <TabsContent value="expert" className="space-y-6">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              {/* Request Professional Analysis */}
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center space-x-2">
+                    <Gavel className="h-5 w-5 text-primary" />
+                    <span>Request Professional Analysis</span>
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <Alert>
+                    <Award className="h-4 w-4" />
+                    <AlertDescription>
+                      Get comprehensive IEP analysis from certified educational advocates and special education experts.
+                    </AlertDescription>
+                  </Alert>
+
+                  {!selectedStudent && (
+                    <Alert>
+                      <Users className="h-4 w-4" />
+                      <AlertDescription>
+                        Please select your child from the dropdown above to request expert analysis.
+                      </AlertDescription>
+                    </Alert>
+                  )}
+
+                  {/* Expert Analysis Options */}
+                  <div className="space-y-4">
+                    <Label className="text-base font-medium">Choose Expert Analysis Type:</Label>
+                    {EXPERT_ANALYSIS_TYPES.map((type) => {
+                      const IconComponent = type.icon;
+                      return (
+                        <Card 
+                          key={type.id} 
+                          className={`cursor-pointer transition-all ${selectedExpertType === type.id ? 'ring-2 ring-purple-500 bg-purple-50 dark:bg-purple-900/30' : 'hover:bg-gray-50 dark:hover:bg-gray-800'}`}
+                          onClick={() => setSelectedExpertType(type.id)}
+                        >
+                          <CardContent className="p-4">
+                            <div className="flex items-start space-x-4">
+                              <div className="p-2 rounded-lg bg-purple-100 dark:bg-purple-900">
+                                <IconComponent className="h-5 w-5 text-purple-600" />
+                              </div>
+                              <div className="flex-1">
+                                <div className="flex items-center justify-between mb-2">
+                                  <h3 className="font-semibold">{type.title}</h3>
+                                  <div className="flex items-center space-x-2">
+                                    <Badge variant="outline" className="bg-green-100 text-green-700">${type.price}</Badge>
+                                    <Badge variant="outline" className="bg-blue-100 text-blue-700">{type.timeframe}</Badge>
+                                  </div>
+                                </div>
+                                <p className="text-sm text-gray-600 dark:text-gray-300 mb-3">{type.description}</p>
+                                <div className="space-y-1">
+                                  <p className="text-xs font-medium text-gray-700 dark:text-gray-300">Includes:</p>
+                                  <ul className="text-xs text-gray-600 dark:text-gray-400 space-y-1">
+                                    {type.includes.map((item, index) => (
+                                      <li key={index} className="flex items-center space-x-1">
+                                        <CheckCircle className="h-3 w-3 text-green-600" />
+                                        <span>{item}</span>
+                                      </li>
+                                    ))}
+                                  </ul>
+                                </div>
+                              </div>
+                            </div>
+                          </CardContent>
+                        </Card>
+                      );
+                    })}
+                  </div>
+
+                  {/* Document Upload for Expert Analysis */}
+                  {selectedExpertType && (
+                    <div className="space-y-4 p-4 bg-purple-50 dark:bg-purple-900/20 rounded-lg border border-purple-200">
+                      <Label className="text-base font-medium">Upload IEP Document for Expert Review:</Label>
+                      <DocumentUpload onAnalysisComplete={handleDocumentUpload} />
+                      
+                      {uploadedDocument && (
+                        <div className="space-y-4">
+                          <div className="flex items-center space-x-2 p-3 bg-green-50 dark:bg-green-900/20 rounded-lg">
+                            <CheckCircle className="h-5 w-5 text-green-600" />
+                            <span className="text-sm font-medium">Document ready: {uploadedDocument.name}</span>
+                          </div>
+                          
+                          <div className="p-4 bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700">
+                            <h4 className="font-medium mb-2">Review Summary:</h4>
+                            <div className="space-y-2 text-sm">
+                              <div className="flex justify-between">
+                                <span>Analysis Type:</span>
+                                <span className="font-medium">{EXPERT_ANALYSIS_TYPES.find(t => t.id === selectedExpertType)?.title}</span>
+                              </div>
+                              <div className="flex justify-between">
+                                <span>Cost:</span>
+                                <span className="font-medium">${EXPERT_ANALYSIS_TYPES.find(t => t.id === selectedExpertType)?.price}</span>
+                              </div>
+                              <div className="flex justify-between">
+                                <span>Timeframe:</span>
+                                <span className="font-medium">{EXPERT_ANALYSIS_TYPES.find(t => t.id === selectedExpertType)?.timeframe}</span>
+                              </div>
+                              <div className="flex justify-between">
+                                <span>Student:</span>
+                                <span className="font-medium">{selectedStudent ? 'Selected' : 'Please select student'}</span>
+                              </div>
+                            </div>
+                          </div>
+
+                          <Button 
+                            className="w-full"
+                            disabled={!selectedStudent || !selectedExpertType}
+                            data-testid="button-submit-expert-analysis"
+                          >
+                            <DollarSign className="h-4 w-4 mr-2" />
+                            Submit for Expert Review - ${EXPERT_ANALYSIS_TYPES.find(t => t.id === selectedExpertType)?.price}
+                          </Button>
+                        </div>
+                      )}
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+
+              {/* My Professional Analyses */}
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center space-x-2">
+                    <FileText className="h-5 w-5 text-primary" />
+                    <span>My Professional Analyses</span>
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <Alert>
+                    <Clock className="h-4 w-4" />
+                    <AlertDescription>
+                      Track your submitted expert analyses and view completed professional reports.
+                    </AlertDescription>
+                  </Alert>
+
+                  {/* Mock expert analyses for demonstration */}
+                  <div className="space-y-4">
+                    {expertAnalyses.length === 0 ? (
+                      <div className="text-center py-8">
+                        <FileText className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
+                        <h3 className="text-lg font-medium mb-2">No Expert Analyses Yet</h3>
+                        <p className="text-muted-foreground text-sm">
+                          Submit your first IEP for expert review to see analyses here.
+                        </p>
+                      </div>
+                    ) : (
+                      expertAnalyses.map((analysis, index) => (
+                        <Card key={index} className="border border-gray-200 dark:border-gray-700">
+                          <CardContent className="p-4">
+                            <div className="flex items-center justify-between mb-3">
+                              <div className="flex items-center space-x-2">
+                                <div className="p-1 rounded bg-purple-100 dark:bg-purple-900">
+                                  <Gavel className="h-4 w-4 text-purple-600" />
+                                </div>
+                                <div>
+                                  <h4 className="font-medium">{analysis.type} Review</h4>
+                                  <p className="text-sm text-gray-600 dark:text-gray-300">{analysis.studentName}</p>
+                                </div>
+                              </div>
+                              <Badge variant={analysis.status === 'completed' ? 'default' : analysis.status === 'in_progress' ? 'secondary' : 'outline'}>
+                                {analysis.status}
+                              </Badge>
+                            </div>
+                            
+                            <div className="space-y-2 text-sm">
+                              <div className="flex justify-between">
+                                <span>Submitted:</span>
+                                <span>{analysis.submittedDate}</span>
+                              </div>
+                              <div className="flex justify-between">
+                                <span>Expected:</span>
+                                <span>{analysis.expectedDate}</span>
+                              </div>
+                              {analysis.status === 'completed' && (
+                                <div className="flex justify-between">
+                                  <span>Completed:</span>
+                                  <span>{analysis.completedDate}</span>
+                                </div>
+                              )}
+                            </div>
+
+                            {analysis.status === 'completed' && (
+                              <div className="mt-4 space-y-2">
+                                <Button variant="outline" size="sm" className="w-full">
+                                  <FileText className="h-4 w-4 mr-2" />
+                                  View Expert Report
+                                </Button>
+                                <Button variant="outline" size="sm" className="w-full">
+                                  <Upload className="h-4 w-4 mr-2" />
+                                  Download PDF Report
+                                </Button>
+                              </div>
+                            )}
+                          </CardContent>
+                        </Card>
+                      ))
+                    )}
+                  </div>
+
+                  {/* Demo Sample Analyses for Display */}
+                  <div className="space-y-4">
+                    <Card className="border border-green-200 dark:border-green-700 bg-green-50 dark:bg-green-900/20">
+                      <CardContent className="p-4">
+                        <div className="flex items-center justify-between mb-3">
+                          <div className="flex items-center space-x-2">
+                            <div className="p-1 rounded bg-green-100 dark:bg-green-900">
+                              <Award className="h-4 w-4 text-green-600" />
+                            </div>
+                            <div>
+                              <h4 className="font-medium">Comprehensive Review</h4>
+                              <p className="text-sm text-gray-600 dark:text-gray-300">Student-1 Student-1</p>
+                            </div>
+                          </div>
+                          <Badge variant="default" className="bg-green-100 text-green-700 border-green-300">completed</Badge>
+                        </div>
+                        
+                        <div className="space-y-2 text-sm">
+                          <div className="flex justify-between">
+                            <span>Submitted:</span>
+                            <span>Dec 8, 2024</span>
+                          </div>
+                          <div className="flex justify-between">
+                            <span>Completed:</span>
+                            <span>Dec 10, 2024</span>
+                          </div>
+                        </div>
+
+                        <div className="mt-4 space-y-2">
+                          <Button variant="outline" size="sm" className="w-full">
+                            <FileText className="h-4 w-4 mr-2" />
+                            View Expert Report
+                          </Button>
+                          <Button variant="outline" size="sm" className="w-full">
+                            <Upload className="h-4 w-4 mr-2" />
+                            Download PDF Report
+                          </Button>
+                        </div>
+                      </CardContent>
+                    </Card>
+
+                    <Card className="border border-blue-200 dark:border-blue-700 bg-blue-50 dark:bg-blue-900/20">
+                      <CardContent className="p-4">
+                        <div className="flex items-center justify-between mb-3">
+                          <div className="flex items-center space-x-2">
+                            <div className="p-1 rounded bg-blue-100 dark:bg-blue-900">
+                              <Target className="h-4 w-4 text-blue-600" />
+                            </div>
+                            <div>
+                              <h4 className="font-medium">Focused Review</h4>
+                              <p className="text-sm text-gray-600 dark:text-gray-300">Student-2 Student-2</p>
+                            </div>
+                          </div>
+                          <Badge variant="secondary" className="bg-blue-100 text-blue-700 border-blue-300">in_progress</Badge>
+                        </div>
+                        
+                        <div className="space-y-2 text-sm">
+                          <div className="flex justify-between">
+                            <span>Submitted:</span>
+                            <span>Dec 9, 2024</span>
+                          </div>
+                          <div className="flex justify-between">
+                            <span>Expected:</span>
+                            <span>Dec 10, 2024</span>
+                          </div>
+                        </div>
+
+                        <div className="mt-4">
+                          <Progress value={75} className="w-full" />
+                          <p className="text-xs text-center mt-2 text-blue-600">Expert review in progress - 75% complete</p>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
           </TabsContent>
 
           {/* Check IEP Goals Tab */}

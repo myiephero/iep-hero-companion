@@ -1269,7 +1269,7 @@ export default function ParentDashboard({ plan }: ParentDashboardProps) {
                             { emoji: '😢', label: 'Sad', color: 'bg-red-100' }
                           ].map((mood, index) => (
                             <div key={index} className={`text-center p-3 ${mood.color} rounded-lg`}>
-                              <div className="text-2xl mb-1">{mood.emoji}</div>
+                              <div className="text-2xl mb-1" style={{fontFamily: 'Apple Color Emoji, Segoe UI Emoji, Noto Color Emoji, Emoji, sans-serif'}}>{mood.emoji}</div>
                               <p className="text-xs font-medium">{mood.label}</p>
                             </div>
                           ))}
@@ -1301,6 +1301,7 @@ export default function ParentDashboard({ plan }: ParentDashboardProps) {
                                         key={index}
                                         variant={currentMood === emoji ? "default" : "outline"}
                                         className="h-12 text-xl"
+                                        style={{fontFamily: 'Apple Color Emoji, Segoe UI Emoji, Noto Color Emoji, Emoji, sans-serif'}}
                                         onClick={() => setCurrentMood(emoji)}
                                       >
                                         {emoji}
@@ -1382,7 +1383,18 @@ export default function ParentDashboard({ plan }: ParentDashboardProps) {
                           <span className="text-sm font-medium">Improvement Areas</span>
                           <span className="text-sm text-gray-600">Morning transitions</span>
                         </div>
-                        <Button variant="outline" className="w-full mt-4">
+                        <Button 
+                          variant="outline" 
+                          className="w-full mt-4"
+                          onClick={() => {
+                            toast({
+                              title: "Detailed Analysis",
+                              description: "Opening comprehensive emotional analysis dashboard...",
+                              variant: "default"
+                            });
+                            navigate('/parent/tools/emotion-tracker');
+                          }}
+                        >
                           <Brain className="h-4 w-4 mr-2" />
                           View Detailed Analysis
                         </Button>
@@ -1401,17 +1413,50 @@ export default function ParentDashboard({ plan }: ParentDashboardProps) {
                   </CardHeader>
                   <CardContent>
                     <div className="grid gap-4 md:grid-cols-3">
-                      <Button variant="outline" className="h-auto p-4 flex flex-col items-center gap-2">
+                      <Button 
+                        variant="outline" 
+                        className="h-auto p-4 flex flex-col items-center gap-2"
+                        onClick={() => {
+                          toast({
+                            title: "Coping Strategies",
+                            description: "Opening breathing exercises and relaxation techniques...",
+                            variant: "default"
+                          });
+                          navigate('/parent/tools/coping-strategies');
+                        }}
+                      >
                         <Brain className="h-6 w-6 text-blue-600" />
                         <span className="font-medium">Coping Strategies</span>
                         <span className="text-xs text-gray-600">Breathing & relaxation</span>
                       </Button>
-                      <Button variant="outline" className="h-auto p-4 flex flex-col items-center gap-2">
+                      <Button 
+                        variant="outline" 
+                        className="h-auto p-4 flex flex-col items-center gap-2"
+                        onClick={() => {
+                          toast({
+                            title: "Warning Signs",
+                            description: "Opening early intervention guidance and warning signals...",
+                            variant: "default"
+                          });
+                          navigate('/parent/tools/warning-signs');
+                        }}
+                      >
                         <AlertTriangle className="h-6 w-6 text-orange-600" />
                         <span className="font-medium">Warning Signs</span>
                         <span className="text-xs text-gray-600">Early intervention</span>
                       </Button>
-                      <Button variant="outline" className="h-auto p-4 flex flex-col items-center gap-2">
+                      <Button 
+                        variant="outline" 
+                        className="h-auto p-4 flex flex-col items-center gap-2"
+                        onClick={() => {
+                          toast({
+                            title: "Support Schedule",
+                            description: "Opening daily check-in schedule and routine management...",
+                            variant: "default"
+                          });
+                          navigate('/parent/tools/support-schedule');
+                        }}
+                      >
                         <Calendar className="h-6 w-6 text-green-600" />
                         <span className="font-medium">Support Schedule</span>
                         <span className="text-xs text-gray-600">Daily check-ins</span>

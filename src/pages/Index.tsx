@@ -31,7 +31,7 @@ const features = [
 ];
 
 const Index = () => {
-  const { user } = useAuth();
+  const { user, isLoading } = useAuth();
   const [authMode, setAuthMode] = useState<'signin' | 'create'>('signin');
   const [showLoginForm, setShowLoginForm] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
@@ -75,6 +75,9 @@ const Index = () => {
     }
   };
 
+  if (isLoading) {
+    return <div className="min-h-screen flex items-center justify-center">Loading...</div>;
+  }
 
   return (
     <div className="min-h-screen">

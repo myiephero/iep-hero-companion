@@ -1,9 +1,8 @@
 import express from 'express';
 import cors from 'cors';
 import { db } from './db';
-import { sql } from 'drizzle-orm';
 import * as schema from '../shared/schema';
-import { eq, and, gt } from 'drizzle-orm';
+import { eq, and, gt, desc, sql, like, or, ne, inArray } from 'drizzle-orm';
 import matchRoutes from './routes/match';
 import expertRoutes from './routes/expert';
 import expertReviewPaymentRoutes from './routes/expertReviewPayments';
@@ -2222,9 +2221,9 @@ app.get('/api/parents', isAuthenticated, async (req, res) => {
       .filter(pc => pc.user) // Only include records where user data exists
       .map(({ client, user }) => ({
         id: user!.id,
-        full_name: `${user!.first_name || ''} ${user!.last_name || ''}`.trim() || user!.email,
+        full_name: `${user!.firstName || ''} ${user!.lastName || ''}`.trim() || user!.email,
         email: user!.email,
-        phone: user!.phone || '',
+        phone: '', // Note: phone field doesn't exist in users table
         created_at: client.created_at,
         status: client.status || 'active',
         students_count: 0, // TODO: Calculate actual student count
@@ -3002,53 +3001,6 @@ app.get('/health', (req, res) => {
   res.json({ status: 'ok', timestamp: new Date().toISOString() });
 });
 
-app.get('/api/parents', async (req: any, res) => {
-  try {
-    const userId = await getUserId(req);
-    console.log('✅ PRODUCTION: Getting clients for authenticated user:', userId);
-    
-    // Get user's profile to determine role
-    const [userProfile] = await db
-      .select()
-      .from(schema.profiles)
-      .where(eq(schema.profiles.user_id, userId))
-      .limit(1);
-    
-    if (!userProfile) {
-      console.log('❌ User profile not found for:', userId);
-      return res.status(404).json({ error: 'User profile not found' });
-    }
-    
-    // Only advocates should have clients/parents
-    if (userProfile.role !== 'advocate') {
-      console.log('❌ Non-advocate user requesting clients:', userProfile.role);
-      return res.status(403).json({ error: 'Only advocates can access client data' });
-    }
-    
-    // Get real client data for the authenticated advocate
-    const clients = await db
-      .select({
-        id: schema.profiles.user_id,
-        full_name: schema.profiles.full_name,
-        email: schema.profiles.email,
-        role: schema.profiles.role,
-        created_at: schema.profiles.created_at,
-        updated_at: schema.profiles.updated_at
-      })
-      .from(schema.advocate_clients)
-      .leftJoin(schema.profiles, eq(schema.advocate_clients.client_id, schema.profiles.user_id))
-      .where(eq(schema.advocate_clients.advocate_id, userId));
-    
-    console.log(`✅ PRODUCTION: Found ${clients.length} clients for advocate:`, clients.map(c => c.full_name));
-    res.json(clients);
-  } catch (error) {
-    console.error('❌ Error getting clients:', error);
-    if (error.message.includes('Authentication required')) {
-      return res.status(401).json({ error: 'Authentication required' });
-    }
-    res.status(500).json({ error: 'Failed to fetch clients' });
-  }
-});
 
 app.get('/api/students', isAuthenticated, async (req: any, res) => {
   try {
@@ -3485,93 +3437,7 @@ app.get('/api/cases', isAuthenticated, async (req: any, res) => {
   await setupAuth(app);
   console.log('Replit Auth setup completed successfully');
   
-  // 🔥 DEFINE MAIN ROUTES AFTER AUTH SETUP (same pattern as /api/auth/user)
-  
-  // Parents/Clients routes - for advocates to see their clients
-  app.get('/api/parents', async (req: any, res) => {
-    console.log('🚨 /API/PARENTS ENDPOINT HIT - AFTER AUTH SETUP');
-    try {
-      // Use same pattern as /api/auth/user (which works!)
-      let userId = null;
-      
-      // Try token-based auth first
-      const token = req.headers.authorization?.replace('Bearer ', '');
-      if (token && token.trim()) {
-        try {
-          const [tokenRecord] = await db.select()
-            .from(schema.auth_tokens)
-            .where(and(
-              eq(schema.auth_tokens.token, token),
-              gt(schema.auth_tokens.expires_at, new Date())
-            ))
-            .limit(1);
-          
-          if (tokenRecord) {
-            userId = tokenRecord.user_id;
-          }
-        } catch (error) {
-          console.warn('Token auth failed:', error);
-        }
-      }
-      
-      // Try Replit Auth session  
-      if (!userId) {
-        const user = req.user;
-        if (user && user.claims && user.claims.sub) {
-          userId = user.claims.sub;
-        }
-      }
-      
-      if (!userId) {
-        return res.status(401).json({ message: 'Unauthorized' });
-      }
-      
-      console.log('✅ PARENTS: Got user ID:', userId);
-      
-      // Get advocate profile
-      const advocate = await db.select().from(schema.advocates)
-        .where(eq(schema.advocates.user_id, userId))
-        .then(results => results[0]);
-      
-      if (!advocate) {
-        return res.status(404).json({ error: 'Advocate profile not found' });
-      }
-      
-      console.log('✅ PARENTS: Found advocate:', advocate.id);
-      
-      // Get all clients (parents) for this advocate
-      const clientRelations = await db.select({
-        relationship: schema.advocate_clients,
-        client: schema.users
-      })
-      .from(schema.advocate_clients)
-      .leftJoin(schema.users, eq(schema.advocate_clients.client_id, schema.users.id))
-      .where(and(
-        eq(schema.advocate_clients.advocate_id, advocate.id),
-        eq(schema.advocate_clients.status, 'active')
-      ));
-
-      const clients = clientRelations.map(({ relationship, client }) => ({
-        id: client?.id || '',
-        email: client?.email || '',
-        firstName: client?.firstName || '',
-        lastName: client?.lastName || '',
-        role: client?.role || 'parent',
-        subscriptionPlan: client?.subscriptionPlan || 'Free Plan',
-        specializations: [],
-        // Add advocate relationship info
-        relationship_status: relationship.status,
-        created_at: relationship.created_at,
-        case_type: (relationship as any).case_type || 'general'
-      }));
-      
-      console.log(`✅ PARENTS: Found ${clients.length} clients for advocate ${userId}`);
-      res.json(clients);
-    } catch (error) {
-      console.error('Error fetching parents:', error);
-      res.status(500).json({ error: 'Failed to fetch parents' });
-    }
-  });
+  // Setup complete
 
   // Students endpoint - for advocates viewing their clients' students
   app.get('/api/students', async (req: any, res) => {

@@ -214,7 +214,7 @@ const ParentPricingPlan = () => {
 
         {/* Billing Toggle */}
         <div className="flex justify-center items-center gap-6 mb-12">
-          <div className="relative bg-gray-100 rounded-full p-1 flex items-center">
+          <div className="relative bg-gray-300 rounded-full p-1 flex items-center">
             <div
               className={`absolute inset-y-1 w-32 bg-blue-600 rounded-full transition-transform duration-300 ease-in-out ${
                 isYearly ? 'translate-x-32' : 'translate-x-0'

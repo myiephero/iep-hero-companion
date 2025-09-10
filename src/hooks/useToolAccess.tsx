@@ -4,29 +4,37 @@ import { checkToolAccess, hasFeatureAccess, normalizeSubscriptionPlan, type Plan
 export function useToolAccess() {
   const { user } = useAuth();
   
-  // Debug logging to track the issue
-  console.log('🔍 useToolAccess - Full user object:', user);
+  // Enhanced debug logging to track the issue
+  console.log('🔍 useToolAccess - Full user object:', JSON.stringify(user, null, 2));
   console.log('🔍 useToolAccess - Raw subscriptionPlan:', user?.subscriptionPlan);
   console.log('🔍 useToolAccess - User role:', user?.role);
+  console.log('🔍 useToolAccess - User ID:', user?.id);
   
   // CRITICAL FIX: Use normalization function to handle different plan formats
   const rawPlan = user?.subscriptionPlan;
   const normalizedPlan = normalizeSubscriptionPlan(rawPlan);
   
-  // Default-deny approach: only allow known normalized plans
+  // STRICT default-deny approach: only allow known normalized plans
   const validPlans: SubscriptionPlan[] = ['free', 'essential', 'premium', 'hero', 'starter', 'pro', 'agency', 'agency-plus'];
   const currentPlan: SubscriptionPlan = validPlans.includes(normalizedPlan) ? normalizedPlan : 'free';
   
   console.log('🔍 useToolAccess - Raw plan:', rawPlan);
   console.log('🔍 useToolAccess - Normalized plan:', normalizedPlan);
-  console.log('🔍 useToolAccess - Final currentPlan (default-deny):', currentPlan);
+  console.log('🔍 useToolAccess - Final currentPlan (STRICT default-deny):', currentPlan);
+  console.log('🔍 useToolAccess - Plan validation result:', validPlans.includes(normalizedPlan) ? 'VALID' : 'INVALID -> DEFAULTED TO FREE');
 
   const checkAccess = (requiredTool: keyof PlanFeatures) => {
-    return checkToolAccess(currentPlan, requiredTool);
+    console.log('🔍 useToolAccess.checkAccess - Called with:', requiredTool, 'for plan:', currentPlan);
+    const result = checkToolAccess(currentPlan, requiredTool);
+    console.log('🔍 useToolAccess.checkAccess - Result:', result);
+    return result;
   };
 
   const hasAccess = (feature: keyof PlanFeatures): boolean => {
-    return hasFeatureAccess(currentPlan, feature);
+    console.log('🔍 useToolAccess.hasAccess - Called with feature:', feature, 'for plan:', currentPlan);
+    const result = hasFeatureAccess(currentPlan, feature);
+    console.log('🔍 useToolAccess.hasAccess - Result:', result);
+    return result;
   };
 
   const getCurrentPlan = (): SubscriptionPlan => {
@@ -38,6 +46,8 @@ export function useToolAccess() {
   };
 
   console.log('🔍 useToolAccess - Returning with currentPlan:', currentPlan);
+  console.log('🔍 useToolAccess - User authenticated:', !!user);
+  console.log('🔍 useToolAccess - Ready to gate access');
   
   return {
     currentPlan,

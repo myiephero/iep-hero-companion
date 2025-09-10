@@ -674,9 +674,24 @@ export const PLAN_FEATURES: Record<SubscriptionPlan, PlanFeatures> = {
   }
 };
 
-// Enhanced utility functions
+// Enhanced utility functions - FIXED: Default-deny for unknown plans
 export function hasFeatureAccess(plan: SubscriptionPlan, feature: keyof PlanFeatures): boolean {
-  return PLAN_FEATURES[plan][feature] as boolean;
+  // CRITICAL FIX: Default-deny approach for unknown plans
+  const validPlans: SubscriptionPlan[] = ['free', 'essential', 'premium', 'hero', 'starter', 'pro', 'agency', 'agency-plus'];
+  if (!validPlans.includes(plan)) {
+    console.warn('🚨 hasFeatureAccess - Unknown plan detected:', plan, '-> DENYING access to feature:', feature);
+    return false;
+  }
+  
+  const planFeatures = PLAN_FEATURES[plan];
+  if (!planFeatures) {
+    console.warn('🚨 hasFeatureAccess - No features found for plan:', plan, '-> DENYING access to feature:', feature);
+    return false;
+  }
+  
+  const hasAccess = planFeatures[feature] as boolean;
+  console.log('🔍 hasFeatureAccess - Plan:', plan, '| Feature:', feature, '| Access:', hasAccess);
+  return hasAccess;
 }
 
 export function getPlanFeatures(plan: SubscriptionPlan): PlanFeatures {
@@ -697,51 +712,70 @@ export function getPlanDashboardRoute(plan: SubscriptionPlan): string {
 }
 
 export function normalizeSubscriptionPlan(plan: string | null | undefined): SubscriptionPlan {
-  if (!plan) return 'free';
+  console.log('🔍 normalizeSubscriptionPlan - Input plan:', plan);
+  
+  if (!plan) {
+    console.log('🔍 normalizeSubscriptionPlan - No plan provided, defaulting to "free"');
+    return 'free';
+  }
   
   const normalized = plan.toLowerCase().replace(/\s+/g, '').replace(/[-_]/g, '');
+  console.log('🔍 normalizeSubscriptionPlan - Normalized:', normalized);
   
   // Handle specific plan name variations
+  let result: SubscriptionPlan;
   switch (normalized) {
     // Parent plan variations
     case 'herofamilypack':
     case 'herofamily':
     case 'familypack':
-      return 'hero';
+      result = 'hero';
+      break;
     case 'essential':
     case 'basic':
-      return 'essential';
+      result = 'essential';
+      break;
     case 'premium':
     case 'plus':
-      return 'premium';
+      result = 'premium';
+      break;
     case 'free':
     case 'trial':
-      return 'free';
+      result = 'free';
+      break;
     
     // Advocate plan variations  
     case 'starter':
     case 'start':
-      return 'starter';
+      result = 'starter';
+      break;
     case 'pro':
     case 'professional':
-      return 'pro';
+      result = 'pro';
+      break;
     case 'agency':
-      return 'agency';
+      result = 'agency';
+      break;
     case 'agencyplus':
     case 'agencyplus':
     case 'agency+':
-      return 'agency-plus';
+      result = 'agency-plus';
+      break;
     
     default:
-      // Direct match for known plans
+      // Direct match for known plans - STRICT VALIDATION
       const validPlans: SubscriptionPlan[] = ['free', 'essential', 'premium', 'hero', 'starter', 'pro', 'agency', 'agency-plus'];
       if (validPlans.includes(normalized as SubscriptionPlan)) {
-        return normalized as SubscriptionPlan;
+        result = normalized as SubscriptionPlan;
+      } else {
+        console.warn('🚨 normalizeSubscriptionPlan - Unknown plan format:', plan, '-> DEFAULT-DENY to "free"');
+        result = 'free';
       }
-      
-      console.warn('🚨 Unknown subscription plan format:', plan, '-> normalizing to "free"');
-      return 'free';
+      break;
   }
+  
+  console.log('🔍 normalizeSubscriptionPlan - Final result:', result);
+  return result;
 }
 
 export function shouldShowUpgrade(currentPlan: SubscriptionPlan, requiredPlan: SubscriptionPlan): boolean {
@@ -761,13 +795,30 @@ export function getPlanDisplayName(plan: SubscriptionPlan): string {
   }
 }
 
-// New utility for checking specific tool access with upgrade prompts
+// New utility for checking specific tool access with upgrade prompts - FIXED: Enhanced debugging
 export function checkToolAccess(userPlan: SubscriptionPlan, requiredTool: keyof PlanFeatures): {
   hasAccess: boolean;
   upgradeRequired?: SubscriptionPlan;
   message?: string;
 } {
-  if (hasFeatureAccess(userPlan, requiredTool)) {
+  console.log('🔍 checkToolAccess - UserPlan:', userPlan, '| RequiredTool:', requiredTool);
+  
+  // STRICT validation - ensure plan exists
+  const validPlans: SubscriptionPlan[] = ['free', 'essential', 'premium', 'hero', 'starter', 'pro', 'agency', 'agency-plus'];
+  if (!validPlans.includes(userPlan)) {
+    console.warn('🚨 checkToolAccess - Invalid userPlan detected:', userPlan, '-> DENYING access');
+    return {
+      hasAccess: false,
+      upgradeRequired: 'essential',
+      message: 'Invalid subscription plan - please contact support.'
+    };
+  }
+  
+  const hasAccess = hasFeatureAccess(userPlan, requiredTool);
+  console.log('🔍 checkToolAccess - Access result:', hasAccess);
+  
+  if (hasAccess) {
+    console.log('✅ checkToolAccess - ACCESS GRANTED for', userPlan, 'to use', requiredTool);
     return { hasAccess: true };
   }
 
@@ -775,6 +826,7 @@ export function checkToolAccess(userPlan: SubscriptionPlan, requiredTool: keyof 
   const planOrder: SubscriptionPlan[] = ['essential', 'premium', 'hero'];
   for (const plan of planOrder) {
     if (hasFeatureAccess(plan, requiredTool)) {
+      console.log('🔒 checkToolAccess - ACCESS DENIED - Need to upgrade from', userPlan, 'to', plan, 'for', requiredTool);
       return {
         hasAccess: false,
         upgradeRequired: plan,
@@ -783,6 +835,7 @@ export function checkToolAccess(userPlan: SubscriptionPlan, requiredTool: keyof 
     }
   }
 
+  console.log('🚨 checkToolAccess - Tool not available in any plan:', requiredTool);
   return {
     hasAccess: false,
     message: 'This tool is not available in any current plan.'

@@ -6,6 +6,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { MessageCircle, Send, Plus } from 'lucide-react';
+import { apiRequest } from '@/lib/queryClient'; // FIXED: Import authenticated API client
 
 interface Message {
   id: string;
@@ -44,13 +45,10 @@ export default function SimpleMessaging({ userRole, userId }: SimpleMessagingPro
   // Load conversations
   const loadConversations = async () => {
     try {
-      const response = await fetch('/api/simple-messages/test-conversations');
-      if (response.ok) {
-        const data = await response.json();
-        setConversations(data.conversations || []);
-      } else {
-        console.error('Failed to load conversations:', response.status);
-      }
+      // FIXED: Use authenticated apiRequest instead of direct fetch
+      const response = await apiRequest('GET', '/api/simple-messages/test-conversations');
+      const data = await response.json();
+      setConversations(data.conversations || []);
     } catch (error) {
       console.error('Error loading conversations:', error);
     } finally {
@@ -61,13 +59,10 @@ export default function SimpleMessaging({ userRole, userId }: SimpleMessagingPro
   // Load messages for selected conversation
   const loadMessages = async (conversationId: string) => {
     try {
-      const response = await fetch(`/api/simple-messages/test-conversations/${conversationId}/messages`);
-      if (response.ok) {
-        const data = await response.json();
-        setMessages(data.messages || []);
-      } else {
-        console.error('Failed to load messages:', response.status);
-      }
+      // FIXED: Use authenticated apiRequest instead of direct fetch
+      const response = await apiRequest('GET', `/api/simple-messages/test-conversations/${conversationId}/messages`);
+      const data = await response.json();
+      setMessages(data.messages || []);
     } catch (error) {
       console.error('Error loading messages:', error);
     }
@@ -79,26 +74,16 @@ export default function SimpleMessaging({ userRole, userId }: SimpleMessagingPro
 
     setSending(true);
     try {
-      const response = await fetch(`/api/simple-messages/test-conversations/${selectedConversation.id}/messages`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          content: newMessage.trim(),
-        }),
+      // FIXED: Use authenticated apiRequest instead of direct fetch
+      const response = await apiRequest('POST', `/api/simple-messages/test-conversations/${selectedConversation.id}/messages`, {
+        content: newMessage.trim()
       });
 
-      if (response.ok) {
-        setNewMessage('');
-        // Reload messages to show the new one
-        await loadMessages(selectedConversation.id);
-        // Reload conversations to update last message time
-        await loadConversations();
-      } else {
-        console.error('Failed to send message:', response.status);
-        alert('Failed to send message. Please try again.');
-      }
+      setNewMessage('');
+      // Reload messages to show the new one
+      await loadMessages(selectedConversation.id);
+      // Reload conversations to update last message time
+      await loadConversations();
     } catch (error) {
       console.error('Error sending message:', error);
       alert('Error sending message. Please try again.');

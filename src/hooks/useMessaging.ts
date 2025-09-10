@@ -10,6 +10,7 @@ import {
   type MessageHistory,
   type Message
 } from '../lib/messaging';
+import { apiRequest } from '@/lib/queryClient'; // FIXED: Import authenticated API client
 
 export function useConversations() {
   const [conversations, setConversations] = useState<Conversation[]>([]);
@@ -183,14 +184,8 @@ export function useProposalContacts() {
       setLoading(true);
       setError(null);
       
-      // Use the same authentication pattern as other messaging functions
-      const token = localStorage.getItem('authToken');
-      const response = await fetch('/api/messaging/proposal-contacts', {
-        headers: {
-          'Content-Type': 'application/json',
-          ...(token && { Authorization: `Bearer ${token}` }),
-        },
-      });
+      // FIXED: Use authenticated apiRequest instead of direct fetch
+      const response = await apiRequest('GET', '/api/messaging/proposal-contacts');
 
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);

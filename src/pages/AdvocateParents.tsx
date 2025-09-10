@@ -59,13 +59,23 @@ export default function AdvocateParents() {
       return;
     }
 
+    // Enhanced debugging for authentication
+    const token = localStorage.getItem('authToken');
+    console.log('🔍 fetchParents - Auth token present:', !!token);
+    if (token) {
+      console.log('🔍 fetchParents - Token preview:', `${token.substring(0,20)}...`);
+    }
+    console.log('🔍 fetchParents - User object:', JSON.stringify(user, null, 2));
+
     try {
-      console.log('📡 Making API call to /api/parents using authenticated API client...');
+      console.log('📡 Making authenticated API call to /api/parents...');
       
-      // Use the proper authenticated API request function
+      // Use the FIXED authenticated API request function
       const response = await apiRequest('GET', '/api/parents');
       
-      console.log('📡 API response received successfully');
+      console.log('✅ fetchParents - API response received successfully');
+      console.log('📡 fetchParents - Response status:', response.status);
+      console.log('📡 fetchParents - Response headers:', Object.fromEntries(response.headers.entries()));
       
       const data = await response.json();
         console.log('✅ Fetched parent clients raw data:', data);

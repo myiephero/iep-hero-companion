@@ -13,6 +13,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Users, Mail, Phone, Plus, UserCheck, UserPlus, GraduationCap } from "lucide-react";
 import { Link } from "react-router-dom";
 import { api } from "@/lib/api";
+import { apiRequest } from "@/lib/queryClient";
 
 interface Parent {
   id: string;
@@ -59,21 +60,14 @@ export default function AdvocateParents() {
     }
 
     try {
-      console.log('📡 Making API call to /api/parents using centralized API client...');
+      console.log('📡 Making API call to /api/parents using authenticated API client...');
       
-      // Use centralized API client instead of manual fetch with auth headers
-      const response = await fetch('/api/parents', {
-        credentials: 'include',
-        headers: {
-          'Content-Type': 'application/json',
-          // Let authentication be handled by session/cookies instead of manual tokens
-        }
-      });
+      // Use the proper authenticated API request function
+      const response = await apiRequest('GET', '/api/parents');
       
-      console.log('📡 API response status:', response.status, response.statusText);
+      console.log('📡 API response received successfully');
       
-      if (response.ok) {
-        const data = await response.json();
+      const data = await response.json();
         console.log('✅ Fetched parent clients raw data:', data);
         
         // Validate API response format and handle different response shapes
@@ -97,22 +91,13 @@ export default function AdvocateParents() {
         }
         
         setParents(parentClients);
-      } else {
-        console.error('❌ Failed to fetch parents:', response.status, response.statusText);
-        const errorText = await response.text();
-        console.error('❌ Error response body:', errorText);
-        
-        // Handle authentication failure properly
-        if (response.status === 401) {
-          console.log('🔄 Authentication failed - user needs to log in again');
-          // Clear any stale tokens and redirect to auth
-          localStorage.removeItem('authToken');
-          window.location.href = '/auth';
-        }
-        setParents([]);
-      }
-    } catch (error) {
+    } catch (error: any) {
       console.error('❌ Error fetching parents:', error);
+      
+      // Authentication errors are already handled by apiRequest
+      if (error.message && error.message.includes('401')) {
+        console.log('🔄 Authentication failed - apiRequest already handled token cleanup');
+      }
       setParents([]);
     } finally {
       console.log('🏁 fetchParents completed, setting loading to false');

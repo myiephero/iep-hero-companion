@@ -19,7 +19,8 @@ export async function apiRequest(
   options?: RequestInit
 ): Promise<Response> {
   const token = localStorage.getItem('authToken');
-  // Removed debug logs
+  console.log('🔍 apiRequest - Token from localStorage:', token ? `${token.substring(0,20)}...` : 'NULL');
+  console.log('🔍 apiRequest - Making request to:', url, 'with method:', method);
   
   const response = await fetch(url, {
     method,

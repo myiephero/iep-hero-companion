@@ -18,18 +18,44 @@ export async function apiRequest(
   body?: any,
   options?: RequestInit
 ): Promise<Response> {
-  // FORCE console output to always appear (using console.error to guarantee visibility)
-  console.error('🚨 APIQUEST DEBUG - URL:', url, 'METHOD:', method);
+  // FORCE console output to always appear (using console.log for better visibility in Replit)
+  console.log('🚨 APIQUEST DEBUG - URL:', url, 'METHOD:', method);
   
-  // Get token with additional validation
+  // Get token with additional validation and better error handling
   const token = localStorage.getItem('authToken');
-  console.error('🚨 APIQUEST TOKEN:', token ? `FOUND: ${token.substring(0,20)}...` : 'MISSING');
+  console.log('🚨 APIQUEST TOKEN CHECK:', token ? `FOUND: ${token.substring(0,20)}...` : 'MISSING - No token in localStorage');
+  
+  // If no token, try to get fresh token from auth endpoint
+  if (!token) {
+    console.log('🚨 APIQUEST: No token found, attempting to retrieve from auth session...');
+    try {
+      const authResponse = await fetch('/api/auth/me', {
+        credentials: 'include'
+      });
+      
+      if (authResponse.ok) {
+        const authData = await authResponse.json();
+        if (authData.authToken) {
+          localStorage.setItem('authToken', authData.authToken);
+          console.log('🚨 APIQUEST: Fresh token retrieved and stored');
+        }
+      }
+    } catch (authError) {
+      console.log('🚨 APIQUEST: Failed to get fresh token:', authError);
+    }
+  }
+  
+  // Re-check token after potential refresh
+  const finalToken = localStorage.getItem('authToken');
+  console.log('🚨 APIQUEST FINAL TOKEN:', finalToken ? `USING: ${finalToken.substring(0,20)}...` : 'STILL MISSING');
   
   // Build headers with guaranteed type safety
   const finalHeaders = new Headers();
   
-  // Always add content type
-  finalHeaders.set('Content-Type', 'application/json');
+  // Always add content type for POST/PUT requests
+  if (method === 'POST' || method === 'PUT') {
+    finalHeaders.set('Content-Type', 'application/json');
+  }
   
   // Add any existing headers from options
   if (options?.headers) {
@@ -43,20 +69,20 @@ export async function apiRequest(
   }
   
   // CRITICAL: Force add auth header if token exists
-  if (token && token.trim().length > 0) {
-    const authValue = `Bearer ${token}`;
+  if (finalToken && finalToken.trim().length > 0) {
+    const authValue = `Bearer ${finalToken}`;
     finalHeaders.set('Authorization', authValue);
-    console.error('🚨 APIQUEST AUTH ADDED:', `Bearer ${token.substring(0,20)}...`);
+    console.log('🚨 APIQUEST AUTH HEADER SET:', `Bearer ${finalToken.substring(0,20)}...`);
   } else {
-    console.error('🚨 APIQUEST AUTH MISSING - NO VALID TOKEN');
+    console.log('🚨 APIQUEST AUTH MISSING - NO VALID TOKEN TO SEND');
   }
   
-  // Debug final headers
+  // Debug final headers (without exposing full token)
   const headersObj: Record<string, string> = {};
   finalHeaders.forEach((value, key) => {
     headersObj[key] = key === 'Authorization' ? `Bearer ${value.substring(7, 27)}...` : value;
   });
-  console.error('🚨 APIQUEST FINAL HEADERS:', JSON.stringify(headersObj));
+  console.log('🚨 APIQUEST FINAL HEADERS:', JSON.stringify(headersObj));
   
   try {
     const fetchOptions: RequestInit = {
@@ -65,31 +91,36 @@ export async function apiRequest(
       credentials: 'include',
     };
     
-    if (body) {
+    if (body && (method === 'POST' || method === 'PUT')) {
       fetchOptions.body = JSON.stringify(body);
     }
     
-    console.error('🚨 APIQUEST MAKING FETCH CALL...');
+    console.log('🚨 APIQUEST MAKING FETCH CALL TO:', url);
     const response = await fetch(url, fetchOptions);
     
-    console.error('🚨 APIQUEST RESPONSE STATUS:', response.status, 'for', url);
+    console.log('🚨 APIQUEST RESPONSE STATUS:', response.status, 'for', url);
     
     if (!response.ok) {
-      console.error('🚨 APIQUEST FAILED - STATUS:', response.status, 'TEXT:', response.statusText);
+      console.log('🚨 APIQUEST FAILED - STATUS:', response.status, 'TEXT:', response.statusText);
       
       if (response.status === 401) {
-        console.error('🚨 APIQUEST 401 - CLEARING TOKEN');
+        console.log('🚨 APIQUEST 401 - CLEARING EXPIRED TOKEN');
         localStorage.removeItem('authToken');
+        // Try to redirect to auth if this is an authentication failure
+        if (typeof window !== 'undefined' && !window.location.pathname.includes('/auth')) {
+          console.log('🚨 APIQUEST 401 - REDIRECTING TO AUTH');
+          window.location.href = '/auth';
+        }
       }
       
       throw new Error(`HTTP ${response.status}: ${response.statusText || 'Request failed'}`);
     }
     
-    console.error('🚨 APIQUEST SUCCESS:', url);
+    console.log('🚨 APIQUEST SUCCESS:', url);
     return response;
     
   } catch (error) {
-    console.error('🚨 APIQUEST CATCH ERROR:', error);
+    console.log('🚨 APIQUEST CATCH ERROR:', error);
     throw error;
   }
 }

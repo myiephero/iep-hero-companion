@@ -70,28 +70,34 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
         
         // If no stored token, check for Replit Auth session
         if (!token) {
-          console.log('🔍 No stored token, checking Replit Auth session...');
+          console.log('🔍 useAuth: No stored token, checking Replit Auth session...');
           try {
             const authResponse = await fetch('/api/auth/me', {
               credentials: 'include'
             });
             
+            console.log('🔍 useAuth: Auth response status:', authResponse.status);
+            
             if (authResponse.ok) {
               const authData = await authResponse.json();
-              console.log('✅ Replit Auth session found, storing token...');
+              console.log('✅ useAuth: Replit Auth session found, response data:', authData);
               
               // Store the auth token for API calls
               if (authData.authToken) {
                 localStorage.setItem('authToken', authData.authToken);
                 token = authData.authToken;
-                console.log('✅ Auth token stored in localStorage');
+                console.log('✅ useAuth: Auth token stored in localStorage:', `${authData.authToken.substring(0,20)}...`);
+              } else {
+                console.log('⚠️ useAuth: No authToken in response data');
               }
             } else {
-              console.log('❌ No Replit Auth session found');
+              console.log('❌ useAuth: No Replit Auth session found, status:', authResponse.status);
             }
           } catch (error) {
-            console.log('❌ Error checking Replit Auth session:', error);
+            console.log('❌ useAuth: Error checking Replit Auth session:', error);
           }
+        } else {
+          console.log('✅ useAuth: Found existing token in localStorage:', `${token.substring(0,20)}...`);
         }
         
         if (!token) {

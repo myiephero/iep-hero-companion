@@ -1993,9 +1993,10 @@ app.post('/api/autism_accommodations/preview', async (req, res) => {
     // Fetch student info if provided
     let student = null;
     if (student_id) {
-      [student] = await db.select()
+      const studentResult = await db.select()
         .from(schema.students)
         .where(eq(schema.students.id, student_id));
+      student = studentResult[0] || null;
     }
     
     // Fetch accommodations
@@ -3203,13 +3204,16 @@ app.put('/api/students/:id', async (req: any, res) => {
 
       if (hasAccess.length === 0) {
         // Also check advocate-client relationships
-        const hasClientAccess = await db.select()
-          .from(schema.advocate_clients)
-          .where(and(
-            eq(schema.advocate_clients.advocate_id, userId),
-            eq(schema.advocate_clients.client_id, existingStudent.parent_id)
-          ))
-          .limit(1);
+        let hasClientAccess: any[] = [];
+        if (existingStudent.parent_id) {
+          hasClientAccess = await db.select()
+            .from(schema.advocate_clients)
+            .where(and(
+              eq(schema.advocate_clients.advocate_id, userId),
+              eq(schema.advocate_clients.client_id, existingStudent.parent_id)
+            ))
+            .limit(1);
+        }
 
         if (hasClientAccess.length === 0) {
           return res.status(403).json({ error: 'Not authorized to update this student' });
@@ -3480,7 +3484,7 @@ app.get('/api/cases', isAuthenticated, async (req: any, res) => {
             ))
             .limit(1);
           
-          if (tokenRecord) {
+          if (tokenRecord && tokenRecord.user_id) {
             userId = tokenRecord.user_id;
           }
         } catch (error) {
@@ -4024,7 +4028,9 @@ Respond with this exact JSON format:
         student_id: student_id,
         review_type: `autism_${analysis_type}`,
         ai_analysis: analysisData,
-        recommendations: analysisData.recommendations || [],
+        recommendations: (analysisData && typeof analysisData === 'object' && 'recommendations' in analysisData) 
+          ? (analysisData as any).recommendations || [] 
+          : [],
         priority_level: 'medium',
         status: 'active'
       }).returning();
@@ -4114,7 +4120,10 @@ Respond with this exact JSON format:
           }
           
           if (data.recommendations) {
-            combined.recommendations.push(...(Array.isArray(data.recommendations) ? data.recommendations : [data.recommendations]));
+            const recs = Array.isArray(data.recommendations) 
+              ? data.recommendations 
+              : [data.recommendations];
+            combined.recommendations.push(...recs.filter(Boolean));
           }
         });
 

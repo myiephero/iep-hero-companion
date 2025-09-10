@@ -65,14 +65,8 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
           return;
         }
 
-        // For testing: Set a known working token for wxwinn@gmail.com
-        let token = localStorage.getItem('authToken');
-        
-        // If no token exists, use the test token for this user
-        if (!token && window.location.pathname.includes('/advocate/')) {
-          token = 'test-token-for-wxwinn';
-          localStorage.setItem('authToken', token);
-        }
+        // Get token and make authenticated request
+        const token = localStorage.getItem('authToken');
         
         if (!token) {
           setUser(null);

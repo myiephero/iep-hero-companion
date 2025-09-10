@@ -2547,6 +2547,8 @@ app.post('/api/invite-parent', isAuthenticated, async (req, res) => {
       id: relationshipId,
       advocate_id: advocateUserId,
       client_id: parentUserId,
+      client_first_name: firstName,
+      client_last_name: lastName,
       relationship_type: 'invited_client',
       status: 'active',
       start_date: new Date().toISOString(),

@@ -192,7 +192,6 @@ export async function setupAuth(app: Express) {
 export const isAuthenticated: RequestHandler = async (req, res, next) => {
   // First check for custom token-based auth (My IEP Hero users)
   const token = req.headers.authorization?.replace('Bearer ', '');
-  console.log('🔑 Auth Debug - Token received:', token ? `${token.substring(0, 20)}...` : 'NO TOKEN');
   
   if (token) {
     // Check database for token (primary method for custom auth)

@@ -40,6 +40,9 @@ function generateVerificationToken(): string {
   return Date.now().toString(36) + Math.random().toString(36).substr(2) + Math.random().toString(36).substr(2);
 }
 
+// BUILD VERSION FOR ENVIRONMENT PARITY
+const BUILD_ID = "BUILD_SEP10_2025_1531";
+
 // Initialize OpenAI
 const openai = new OpenAI({ 
   apiKey: process.env.OPENAI_API_KEY 
@@ -538,6 +541,16 @@ app.get('/api/auth/user', async (req: any, res) => {
     
     res.status(500).json({ message: "Failed to fetch user" });
   }
+});
+
+// CRITICAL: Build version endpoint for environment parity verification
+app.get('/api/_version', (req, res) => {
+  console.log('🔥 VERSION ENDPOINT CALLED - BUILD_ID:', BUILD_ID);
+  res.json({ 
+    build_id: BUILD_ID,
+    timestamp: new Date().toISOString(),
+    environment: process.env.NODE_ENV || 'development'
+  });
 });
 
 // Update profile endpoint

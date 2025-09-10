@@ -3,7 +3,11 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Link } from "react-router-dom";
-import { Zap, Users, Star, FileText, Target, Building, BookOpen, Smile, TrendingUp, MessageSquare, Brain, Heart } from "lucide-react";
+import { Zap, Users, Star, FileText, Target, Building, BookOpen, Smile, TrendingUp, MessageSquare, Brain, Heart, Code } from "lucide-react";
+import { useEffect, useState } from "react";
+
+// BUILD VERSION FOR ENVIRONMENT PARITY
+const BUILD_ID = "BUILD_SEP10_2025_1531";
 
 // COMPLETELY NEW FILE - TESTING 18 TOOLS
 const emergentTools = [
@@ -154,7 +158,27 @@ const emergentTools = [
 ];
 
 export default function EmergentToolsHubNew() {
-  console.log('🆕 NEW FILE LOADED - 18 tools:', emergentTools.length);
+  const [apiVersion, setApiVersion] = useState<string>('');
+  
+  useEffect(() => {
+    // Log BUILD_ID to console immediately
+    console.log('🔥 FRONTEND BUILD_ID:', BUILD_ID);
+    console.log('🆕 NEW FILE LOADED - 18 tools:', emergentTools.length);
+    
+    // Fetch API version to confirm environment parity
+    fetch('/api/_version')
+      .then(res => res.json())
+      .then(data => {
+        console.log('🔥 BACKEND BUILD_ID:', data.build_id);
+        setApiVersion(data.build_id);
+        if (data.build_id === BUILD_ID) {
+          console.log('✅ ENVIRONMENT PARITY CONFIRMED!');
+        } else {
+          console.log('❌ ENVIRONMENT MISMATCH DETECTED!');
+        }
+      })
+      .catch(err => console.log('❌ Could not fetch API version:', err));
+  }, []);
   
   return (
     <DashboardLayout>
@@ -167,7 +191,30 @@ export default function EmergentToolsHubNew() {
           <p className="text-xl text-muted-foreground max-w-3xl mx-auto">
             TESTING NEW FILE WITH ALL 18 TOOLS INCLUDING THE 5 NEW ONES
           </p>
-          <div className="flex items-center justify-center gap-4 pt-4">
+          
+          {/* CRITICAL: BUILD_ID BADGES FOR ENVIRONMENT PARITY */}
+          <div className="flex items-center justify-center gap-4 pt-4 flex-wrap">
+            <Badge className="bg-red-100 text-red-800 border-red-300 font-mono text-sm px-3 py-2" data-testid="frontend-build-id">
+              <Code className="h-4 w-4 mr-2" />
+              FRONTEND: {BUILD_ID}
+            </Badge>
+            {apiVersion && (
+              <Badge className={`font-mono text-sm px-3 py-2 ${
+                apiVersion === BUILD_ID 
+                  ? 'bg-green-100 text-green-800 border-green-300' 
+                  : 'bg-red-100 text-red-800 border-red-300'
+              }`} data-testid="backend-build-id">
+                <Code className="h-4 w-4 mr-2" />
+                BACKEND: {apiVersion}
+              </Badge>
+            )}
+            <Badge className={`text-sm px-3 py-2 ${
+              apiVersion === BUILD_ID 
+                ? 'bg-green-100 text-green-800 border-green-300' 
+                : 'bg-red-100 text-red-800 border-red-300'
+            }`} data-testid="environment-status">
+              {apiVersion === BUILD_ID ? '✅ ENV SYNCED' : '❌ ENV MISMATCH'}
+            </Badge>
             <Badge className="bg-green-50 text-green-700 border-green-200">
               <TrendingUp className="h-3 w-3 mr-1" />
               ✅ 18 TOOLS CONFIRMED ✅

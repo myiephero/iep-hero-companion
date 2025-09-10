@@ -182,9 +182,12 @@ export default function SubscriptionSetup() {
       });
 
       if (!response.ok) {
-        const errorData = await response.json();
+        const errorData = await response.json().catch(() => ({ message: 'Network error' }));
         throw new Error(errorData.message || 'Failed to create account');
       }
+
+      const result = await response.json();
+      console.log('Account creation result:', result);
 
       toast({
         title: "Account Created!",
@@ -198,6 +201,7 @@ export default function SubscriptionSetup() {
       await createCheckoutSession();
       
     } catch (error: any) {
+      console.error('Account creation error:', error);
       toast({
         title: "Account Creation Failed",
         description: error.message,
@@ -249,10 +253,12 @@ export default function SubscriptionSetup() {
       });
 
       if (!response.ok) {
-        throw new Error('Failed to create checkout session');
+        const errorData = await response.json().catch(() => ({ error: 'Network error' }));
+        throw new Error(errorData.error || 'Failed to create checkout session');
       }
 
       const data = await response.json();
+      console.log('Checkout session result:', data);
       
       if (data.url) {
         // Redirect to Stripe Checkout
@@ -262,6 +268,7 @@ export default function SubscriptionSetup() {
       }
       
     } catch (error: any) {
+      console.error('Checkout session error:', error);
       toast({
         title: "Setup Failed",
         description: error.message,

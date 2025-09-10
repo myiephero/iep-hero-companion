@@ -386,9 +386,11 @@ export async function sendPasswordResetEmail(email: string, firstName: string, r
   }
 }
 
-export async function sendAdvocateInviteEmail(email: string, firstName: string, lastName: string, advocateName: string): Promise<boolean> {
+export async function sendAdvocateInviteEmail(email: string, firstName: string, lastName: string, advocateName: string, passwordSetupToken: string): Promise<boolean> {
   try {
-    const loginUrl = getDashboardUrl('parent');
+    const currentDomain = process.env.REPLIT_DOMAINS?.split(',')[0] || 'localhost:8080';
+    const protocol = currentDomain.includes('localhost') ? 'http' : 'https';
+    const passwordSetupUrl = `${protocol}://${currentDomain}/setup-password?token=${passwordSetupToken}`;
     
     const htmlContent = `
 <!DOCTYPE html>
@@ -431,19 +433,22 @@ export async function sendAdvocateInviteEmail(email: string, firstName: string, 
         <li>📝 Document storage and organization</li>
       </ul>
       
-      <p>To get started, click the button below to access your dashboard:</p>
+      <p>To get started, you'll need to set up your password first. Click the button below:</p>
       
       <div style="text-align: center; margin: 30px 0;">
-        <a href="${loginUrl}" class="button">Access My Dashboard</a>
+        <a href="${passwordSetupUrl}" class="button">Set Up My Password</a>
       </div>
       
       <p><strong>Next Steps:</strong></p>
       <ol>
-        <li>Click the button above to log in</li>
+        <li>Click the button above to set your password</li>
+        <li>Log in with your new credentials</li>
         <li>Complete your profile setup</li>
         <li>Start collaborating with your advocate</li>
         <li>Upload any relevant IEP documents</li>
       </ol>
+      
+      <p><strong>Important:</strong> This password setup link will expire in 24 hours for security reasons.</p>
       
       <p>If you have any questions or need assistance getting started, feel free to reach out to your advocate or our support team.</p>
     </div>

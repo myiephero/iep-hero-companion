@@ -2970,6 +2970,60 @@ app.use('/api/messaging', messagingRoutes);
 app.use('/api/simple-messages', simpleMessagingRoutes);
 // app.use('/api', mainRoutes); // Temporarily disabled - session context issue
 
+// API route for getting advocate's parent clients
+app.get('/api/parents', async (req, res) => {
+  try {
+    const userId = await getUserId(req);
+    console.log('Fetching parent clients for advocate user:', userId);
+    
+    // Get advocate record for current user
+    const advocate = await db.select().from(schema.advocates)
+      .where(eq(schema.advocates.user_id, userId))
+      .then(results => results[0]);
+    
+    if (!advocate) {
+      console.log('No advocate profile found for user:', userId);
+      return res.status(404).json({ error: 'Advocate profile not found' });
+    }
+    
+    console.log('Found advocate:', advocate.id);
+    
+    // Get all parent clients for this advocate
+    const parentClients = await db.select({
+      client: schema.advocate_clients,
+      user: schema.users
+    })
+    .from(schema.advocate_clients)
+    .leftJoin(schema.users, eq(schema.advocate_clients.client_id, schema.users.id))
+    .where(eq(schema.advocate_clients.advocate_id, advocate.id))
+    .orderBy(desc(schema.advocate_clients.created_at));
+    
+    console.log(`Found ${parentClients.length} parent clients for advocate`);
+    
+    // Format the response to match what the frontend expects
+    const formattedParents = parentClients
+      .filter(pc => pc.user) // Only include records where user data exists
+      .map(({ client, user }) => ({
+        id: user!.id,
+        full_name: `${user!.first_name || ''} ${user!.last_name || ''}`.trim() || user!.email,
+        email: user!.email,
+        phone: user!.phone || '',
+        created_at: client.created_at,
+        status: client.status || 'active',
+        students_count: 0, // TODO: Calculate actual student count
+        relationship_type: client.relationship_type
+      }));
+    
+    res.json(formattedParents);
+  } catch (error) {
+    console.error('Error fetching parent clients:', error);
+    if (error instanceof Error && error.message.includes('Authentication required')) {
+      return res.status(401).json({ error: 'Authentication required' });
+    }
+    res.status(500).json({ error: 'Failed to fetch parent clients' });
+  }
+});
+
 // Health check
 app.get('/health', (req, res) => {
   res.json({ status: 'ok', timestamp: new Date().toISOString() });

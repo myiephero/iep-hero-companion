@@ -192,18 +192,52 @@ export async function setupAuth(app: Express) {
 export const isAuthenticated: RequestHandler = async (req, res, next) => {
   // First check for custom token-based auth (My IEP Hero users)
   const token = req.headers.authorization?.replace('Bearer ', '');
-  if (token && (global as any).activeTokens && (global as any).activeTokens[token]) {
-    const tokenData = (global as any).activeTokens[token];
-    // Check if token is not expired (24 hours)
-    if (Date.now() - tokenData.createdAt < 24 * 60 * 60 * 1000) {
-      // Add user info to request for consistency
-      (req as any).user = {
-        claims: {
-          sub: tokenData.userId
-        },
-        role: tokenData.userRole
-      };
-      return next();
+  console.log('🔑 Auth Debug - Token received:', token ? `${token.substring(0, 20)}...` : 'NO TOKEN');
+  
+  if (token) {
+    // Check database for token (primary method for custom auth)
+    try {
+      const { db } = await import('../server/db');
+      const schema = await import('../shared/schema');
+      const { eq, and, gt } = await import('drizzle-orm');
+      
+      const [tokenRecord] = await db
+        .select()
+        .from(schema.auth_tokens)
+        .where(and(
+          eq(schema.auth_tokens.token, token),
+          gt(schema.auth_tokens.expires_at, new Date())
+        ))
+        .limit(1);
+      
+      if (tokenRecord) {
+        console.log('✅ Valid database token found for user:', tokenRecord.user_id);
+        (req as any).user = {
+          claims: {
+            sub: tokenRecord.user_id
+          },
+          role: tokenRecord.user_role
+        };
+        return next();
+      }
+    } catch (error) {
+      console.warn('Error checking database token:', error);
+    }
+    
+    // Fallback: Check in-memory tokens (legacy)
+    if ((global as any).activeTokens && (global as any).activeTokens[token]) {
+      const tokenData = (global as any).activeTokens[token];
+      // Check if token is not expired (24 hours)
+      if (Date.now() - tokenData.createdAt < 24 * 60 * 60 * 1000) {
+        console.log('✅ Valid in-memory token found for user:', tokenData.userId);
+        (req as any).user = {
+          claims: {
+            sub: tokenData.userId
+          },
+          role: tokenData.userRole
+        };
+        return next();
+      }
     }
   }
 

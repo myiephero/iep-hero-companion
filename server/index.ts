@@ -2188,7 +2188,7 @@ app.post('/api/meetings', async (req, res) => {
 });
 
 // Parents routes
-app.get('/api/parents', async (req, res) => {
+app.get('/api/parents', isAuthenticated, async (req, res) => {
   try {
     const userId = await getUserId(req);
     console.log('✅ PRODUCTION: Fetching parents for user:', userId);
@@ -2893,7 +2893,7 @@ app.get('/api/parents', async (req: any, res) => {
   }
 });
 
-app.get('/api/students', async (req: any, res) => {
+app.get('/api/students', isAuthenticated, async (req: any, res) => {
   try {
     const userId = await getUserId(req);
     console.log('✅ PRODUCTION: Getting students for authenticated user:', userId);
@@ -3243,7 +3243,7 @@ app.post('/api/gifted-assessments/:id/ai-analysis', async (req: any, res) => {
   }
 });
 
-app.get('/api/cases', async (req: any, res) => {
+app.get('/api/cases', isAuthenticated, async (req: any, res) => {
   try {
     const userId = await getUserId(req);
     console.log('✅ PRODUCTION: Getting cases for authenticated user:', userId);

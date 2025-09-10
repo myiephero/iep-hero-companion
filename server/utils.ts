@@ -41,10 +41,9 @@ export async function getUserId(req: express.Request): Promise<string> {
     return session.passport.user.claims?.sub;
   }
   
-  // EMERGENCY BYPASS: Critical fix for missing authentication
-  // Frontend shows user authenticated but authToken missing - bypass temporarily
-  console.log('⚡ EMERGENCY BYPASS: Restoring functionality with fallback user ID');
-  return 'mf7ihb7dqeiv8rz5yx'; // Known working parent user ID
+  // No authenticated user found
+  console.log('❌ No authenticated user found');
+  throw new Error('Authentication required');
 }
 
 // Synchronous version for backward compatibility (tries token check without database)

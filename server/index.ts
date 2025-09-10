@@ -2555,6 +2555,31 @@ app.post('/api/invite-parent', isAuthenticated, async (req, res) => {
       notes: `Parent invited by advocate on ${new Date().toLocaleDateString()}`
     });
     
+    // Step 3: Send welcome email to the new parent
+    try {
+      const { sendAdvocateInviteEmail } = await import('./emailService');
+      
+      // Get advocate name for email
+      const [advocate] = await db
+        .select({ first_name: schema.users.first_name, last_name: schema.users.last_name })
+        .from(schema.users)
+        .where(eq(schema.users.id, advocateUserId))
+        .limit(1);
+      
+      const advocateName = advocate ? `${advocate.first_name} ${advocate.last_name}` : 'Your Advocate';
+      
+      const emailSent = await sendAdvocateInviteEmail(email, firstName, lastName, advocateName);
+      
+      if (emailSent) {
+        console.log(`✅ Welcome email sent to parent: ${email}`);
+      } else {
+        console.log(`⚠️ Failed to send welcome email to parent: ${email}`);
+      }
+    } catch (error) {
+      console.error('Error sending welcome email:', error);
+      // Don't fail the entire request if email fails
+    }
+    
     // Log the invitation for tracking
     console.log(`Parent invited: ${firstName} ${lastName} (${email}) - User ID: ${parentUserId}, Relationship ID: ${relationshipId}`);
     

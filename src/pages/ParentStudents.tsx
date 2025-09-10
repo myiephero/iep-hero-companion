@@ -1856,6 +1856,7 @@ interface Accommodation {
 
 const ParentStudents = () => {
   const [selectedStudentId, setSelectedStudentId] = useState<string | null>(null);
+  const [selectedTab, setSelectedTab] = useState<string>("overview");
   const [students, setStudents] = useState<Student[]>([]);
   const [currentStudent, setCurrentStudent] = useState<Student | null>(null);
   const [goals, setGoals] = useState<Goal[]>([]);
@@ -2176,38 +2177,64 @@ const ParentStudents = () => {
   return (
     <DashboardLayout>
       <div className="space-y-6">
-        <div className="flex items-center justify-between">
-          <div>
-            <h1 className="text-3xl font-bold tracking-tight">My Students</h1>
-            <p className="text-muted-foreground">
-              Manage your children's educational profiles and track their progress
+        {/* Enhanced Header Section */}
+        <div className="relative overflow-hidden">
+          <div className="absolute inset-0 bg-gradient-to-r from-primary/5 via-secondary/5 to-accent/5 rounded-2xl pointer-events-none" />
+          <div className="relative p-8 text-center z-10">
+            <div className="flex items-center justify-center gap-3 mb-4">
+              <div className="p-3 bg-gradient-to-br from-blue-500 to-purple-600 rounded-xl shadow-lg">
+                <GraduationCap className="h-8 w-8 text-white" />
+              </div>
+              <h1 className="text-4xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+                My Students
+              </h1>
+            </div>
+            <p className="text-lg text-muted-foreground max-w-2xl mx-auto mb-8">
+              Manage your children's educational profiles and track their progress across all areas of development.
             </p>
-          </div>
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button className="button-premium">
-                <User className="h-4 w-4 mr-2" />
-                Student
-                <Plus className="h-4 w-4 ml-2" />
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="w-48">
-              <DropdownMenuItem onClick={() => {
-                resetForm();
-                setIsAddStudentOpen(true);
-              }}>
-                <Plus className="h-4 w-4 mr-2" />
+              
+            <div className="flex flex-col sm:flex-row gap-4 justify-center max-w-4xl mx-auto">
+              <Button 
+                size="lg" 
+                className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white shadow-lg hover:shadow-xl transition-all duration-300 px-6 py-3"
+                onClick={() => {
+                  resetForm();
+                  setIsAddStudentOpen(true);
+                }}
+                data-testid="button-add-student"
+              >
+                <Plus className="h-5 w-5 mr-2" />
                 Add New Student
-              </DropdownMenuItem>
-              <DropdownMenuItem 
+              </Button>
+              <Button 
+                variant="outline" 
+                size="lg"
+                className="border-2 border-blue-500/30 hover:border-blue-500 text-blue-600 hover:bg-blue-50 px-6 py-3"
                 onClick={() => currentStudent ? openEditDialog(currentStudent) : null}
                 disabled={!currentStudent}
+                data-testid="button-edit-student"
               >
-                <Edit className="h-4 w-4 mr-2" />
-                Edit Current Student
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
+                <Edit className="h-5 w-5 mr-2" />
+                Edit Student Profile
+              </Button>
+              <Button 
+                variant="outline" 
+                size="lg"
+                className="border-2 border-purple-500/30 hover:border-purple-500 text-purple-600 hover:bg-purple-50 px-6 py-3"
+                onClick={() => {
+                  // Navigate to IEP Master Suite if student is selected
+                  if (currentStudent) {
+                    window.location.href = '/parent/tools/iep-master-suite';
+                  }
+                }}
+                disabled={!currentStudent}
+                data-testid="button-analyze-iep"
+              >
+                <Brain className="h-5 w-5 mr-2" />
+                Analyze IEP
+              </Button>
+            </div>
+          </div>
         </div>
 
         {/* Add Student Dialog */}
@@ -2745,18 +2772,100 @@ const ParentStudents = () => {
               </CardHeader>
             </Card>
 
-            <Tabs defaultValue="overview" className="space-y-6">
-              <TabsList className="grid w-full grid-cols-3 sm:grid-cols-7 premium-card">
-                <TabsTrigger value="overview" className="bg-slate-600 text-white">📋 Overview</TabsTrigger>
-                <TabsTrigger value="goals" className="bg-green-600 text-white">🎯 Goals ({goals.length})</TabsTrigger>
-                <TabsTrigger value="services" className="bg-teal-600 text-white">🛠️ Services ({services.length})</TabsTrigger>
-                <TabsTrigger value="accommodations" className="bg-orange-600 text-white">⚙️ Accommodations ({accommodations.length})</TabsTrigger>
-                <TabsTrigger value="emotions" className="bg-pink-600 text-white">😊 Emotions</TabsTrigger>
-                <TabsTrigger value="autism" className="bg-blue-600 text-white">🧩 Autism</TabsTrigger>
-                <TabsTrigger value="gifted" className="bg-purple-600 text-white">🎓 Gifted</TabsTrigger>
-              </TabsList>
+            <div className="space-y-6">
+              {/* Modern Horizontal Tab Navigation */}
+              <div className="w-full mb-8">
+                <div className="bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 p-1 rounded-2xl shadow-lg">
+                  <div className="flex bg-white dark:bg-gray-900 rounded-xl p-2 gap-1">
+                    <button
+                      onClick={() => setSelectedTab("overview")}
+                      className={`flex items-center gap-2 px-3 py-3 rounded-lg font-medium transition-all duration-200 flex-1 justify-center ${
+                        selectedTab === "overview"
+                          ? "bg-gradient-to-r from-slate-500 to-slate-600 text-white shadow-md"
+                          : "text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800"
+                      }`}
+                    >
+                      <FileText className="h-4 w-4" />
+                      <span className="hidden lg:inline">Overview</span>
+                    </button>
+                    <button
+                      onClick={() => setSelectedTab("goals")}
+                      className={`flex items-center gap-2 px-3 py-3 rounded-lg font-medium transition-all duration-200 flex-1 justify-center ${
+                        selectedTab === "goals"
+                          ? "bg-gradient-to-r from-green-500 to-green-600 text-white shadow-md"
+                          : "text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800"
+                      }`}
+                    >
+                      <Target className="h-4 w-4" />
+                      <span className="hidden lg:inline">Goals</span>
+                      <span className="lg:hidden">({goals.length})</span>
+                      <span className="hidden lg:inline">({goals.length})</span>
+                    </button>
+                    <button
+                      onClick={() => setSelectedTab("services")}
+                      className={`flex items-center gap-2 px-3 py-3 rounded-lg font-medium transition-all duration-200 flex-1 justify-center ${
+                        selectedTab === "services"
+                          ? "bg-gradient-to-r from-teal-500 to-teal-600 text-white shadow-md"
+                          : "text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800"
+                      }`}
+                    >
+                      <Building2 className="h-4 w-4" />
+                      <span className="hidden lg:inline">Services</span>
+                      <span className="lg:hidden">({services.length})</span>
+                      <span className="hidden lg:inline">({services.length})</span>
+                    </button>
+                    <button
+                      onClick={() => setSelectedTab("accommodations")}
+                      className={`flex items-center gap-2 px-3 py-3 rounded-lg font-medium transition-all duration-200 flex-1 justify-center ${
+                        selectedTab === "accommodations"
+                          ? "bg-gradient-to-r from-orange-500 to-orange-600 text-white shadow-md"
+                          : "text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800"
+                      }`}
+                    >
+                      <Lightbulb className="h-4 w-4" />
+                      <span className="hidden lg:inline">Accommodations</span>
+                      <span className="lg:hidden">({accommodations.length})</span>
+                      <span className="hidden lg:inline">({accommodations.length})</span>
+                    </button>
+                    <button
+                      onClick={() => setSelectedTab("emotions")}
+                      className={`flex items-center gap-2 px-3 py-3 rounded-lg font-medium transition-all duration-200 flex-1 justify-center ${
+                        selectedTab === "emotions"
+                          ? "bg-gradient-to-r from-pink-500 to-pink-600 text-white shadow-md"
+                          : "text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800"
+                      }`}
+                    >
+                      <Smile className="h-4 w-4" />
+                      <span className="hidden lg:inline">Emotions</span>
+                    </button>
+                    <button
+                      onClick={() => setSelectedTab("autism")}
+                      className={`flex items-center gap-2 px-3 py-3 rounded-lg font-medium transition-all duration-200 flex-1 justify-center ${
+                        selectedTab === "autism"
+                          ? "bg-gradient-to-r from-blue-500 to-blue-600 text-white shadow-md"
+                          : "text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800"
+                      }`}
+                    >
+                      <Brain className="h-4 w-4" />
+                      <span className="hidden lg:inline">Autism</span>
+                    </button>
+                    <button
+                      onClick={() => setSelectedTab("gifted")}
+                      className={`flex items-center gap-2 px-3 py-3 rounded-lg font-medium transition-all duration-200 flex-1 justify-center ${
+                        selectedTab === "gifted"
+                          ? "bg-gradient-to-r from-purple-500 to-purple-600 text-white shadow-md"
+                          : "text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800"
+                      }`}
+                    >
+                      <Star className="h-4 w-4" />
+                      <span className="hidden lg:inline">Gifted</span>
+                    </button>
+                  </div>
+                </div>
+              </div>
 
-              <TabsContent value="overview" className="space-y-6">
+              {selectedTab === "overview" && (
+                <div className="space-y-6">
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                   <Card className="premium-card">
                     <CardHeader>
@@ -2859,9 +2968,11 @@ const ParentStudents = () => {
                     )}
                   </CardContent>
                 </Card>
-              </TabsContent>
+                </div>
+              )}
 
-              <TabsContent value="goals" className="space-y-6">
+              {selectedTab === "goals" && (
+                <div className="space-y-6">
                 <Card className="premium-card">
                   <CardHeader>
                     <CardTitle>IEP Goals</CardTitle>
@@ -2899,9 +3010,11 @@ const ParentStudents = () => {
                     )}
                   </CardContent>
                 </Card>
-              </TabsContent>
+                </div>
+              )}
 
-              <TabsContent value="services" className="space-y-6">
+              {selectedTab === "services" && (
+                <div className="space-y-6">
                 <Card className="premium-card">
                   <CardHeader>
                     <CardTitle>Educational Services</CardTitle>
@@ -2936,46 +3049,55 @@ const ParentStudents = () => {
                     )}
                   </CardContent>
                 </Card>
-              </TabsContent>
+                </div>
+              )}
 
-              <TabsContent value="accommodations" className="space-y-6">
-                <Card className="premium-card">
-                  <CardHeader>
-                    <CardTitle>Accommodations</CardTitle>
-                    <CardDescription>Special accommodations and modifications for your child</CardDescription>
-                  </CardHeader>
-                  <CardContent>
-                    {accommodations.length === 0 ? (
-                      <p className="text-muted-foreground text-center py-8">No accommodations have been documented yet.</p>
-                    ) : (
-                      <div className="space-y-4">
-                        {accommodations.map((accommodation) => (
-                          <div key={accommodation.id} className="border rounded-lg p-4">
-                            <div className="flex items-center justify-between mb-2">
-                              <h4 className="font-medium">{accommodation.title}</h4>
-                              <Badge>{accommodation.category}</Badge>
+              {selectedTab === "accommodations" && (
+                <div className="space-y-6">
+                  <Card className="premium-card">
+                    <CardHeader>
+                      <CardTitle>Accommodations</CardTitle>
+                      <CardDescription>Special accommodations and modifications for your child</CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                      {accommodations.length === 0 ? (
+                        <p className="text-muted-foreground text-center py-8">No accommodations have been documented yet.</p>
+                      ) : (
+                        <div className="space-y-4">
+                          {accommodations.map((accommodation) => (
+                            <div key={accommodation.id} className="border rounded-lg p-4">
+                              <div className="flex items-center justify-between mb-2">
+                                <h4 className="font-medium">{accommodation.title}</h4>
+                                <Badge>{accommodation.category}</Badge>
+                              </div>
+                              <p className="text-sm text-muted-foreground">{accommodation.description}</p>
                             </div>
-                            <p className="text-sm text-muted-foreground">{accommodation.description}</p>
-                          </div>
-                        ))}
-                      </div>
-                    )}
-                  </CardContent>
-                </Card>
-              </TabsContent>
+                          ))}
+                        </div>
+                      )}
+                    </CardContent>
+                  </Card>
+                </div>
+              )}
 
-              <TabsContent value="emotions" className="space-y-6">
-                <EmotionTrackingTab selectedStudentId={selectedStudentId} />
-              </TabsContent>
+              {selectedTab === "emotions" && (
+                <div className="space-y-6">
+                  <EmotionTrackingTab selectedStudentId={selectedStudentId} />
+                </div>
+              )}
 
-              <TabsContent value="autism" className="space-y-6">
-                <AutismAccommodationsTab selectedStudentId={selectedStudentId} />
-              </TabsContent>
+              {selectedTab === "autism" && (
+                <div className="space-y-6">
+                  <AutismAccommodationsTab selectedStudentId={selectedStudentId} />
+                </div>
+              )}
 
-              <TabsContent value="gifted" className="space-y-6">
-                <GiftedAssessmentsTab selectedStudentId={selectedStudentId} />
-              </TabsContent>
-            </Tabs>
+              {selectedTab === "gifted" && (
+                <div className="space-y-6">
+                  <GiftedAssessmentsTab selectedStudentId={selectedStudentId} />
+                </div>
+              )}
+            </div>
           </div>
         )}
 

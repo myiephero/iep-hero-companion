@@ -2535,13 +2535,13 @@ app.post('/api/invite-parent', isAuthenticated, async (req, res) => {
     await db.insert(schema.users).values({
       id: parentUserId,
       email,
-      first_name: firstName,
-      last_name: lastName,
+      firstName: firstName,
+      lastName: lastName,
       role: 'parent',
-      email_verified: true, // Advocate-created accounts are pre-verified
-      subscription_status: 'active',
-      subscription_plan: 'free', // Default plan for new parents
-      verification_token: passwordSetupToken // Use verification_token field for password setup
+      emailVerified: true, // Advocate-created accounts are pre-verified
+      subscriptionStatus: 'active',
+      subscriptionPlan: 'free', // Default plan for new parents
+      verificationToken: passwordSetupToken // Use verificationToken field for password setup
     });
     
     // Step 2: Create advocate-client relationship (business relationship)
@@ -2552,6 +2552,7 @@ app.post('/api/invite-parent', isAuthenticated, async (req, res) => {
       client_id: parentUserId,
       client_first_name: firstName,
       client_last_name: lastName,
+      client_email: email,
       relationship_type: 'invited_client',
       status: 'active',
       start_date: new Date().toISOString(),
@@ -2564,12 +2565,12 @@ app.post('/api/invite-parent', isAuthenticated, async (req, res) => {
       
       // Get advocate name for email
       const [advocate] = await db
-        .select({ first_name: schema.users.first_name, last_name: schema.users.last_name })
+        .select({ firstName: schema.users.firstName, lastName: schema.users.lastName })
         .from(schema.users)
         .where(eq(schema.users.id, advocateUserId))
         .limit(1);
       
-      const advocateName = advocate ? `${advocate.first_name} ${advocate.last_name}` : 'Your Advocate';
+      const advocateName = advocate ? `${advocate.firstName} ${advocate.lastName}` : 'Your Advocate';
       
       const emailSent = await sendAdvocateInviteEmail(email, firstName, lastName, advocateName, passwordSetupToken);
       
@@ -2614,7 +2615,7 @@ app.post('/api/setup-password', async (req, res) => {
     const [user] = await db
       .select()
       .from(schema.users)
-      .where(eq(schema.users.verification_token, token))
+      .where(eq(schema.users.verificationToken, token))
       .limit(1);
     
     if (!user) {
@@ -2629,8 +2630,8 @@ app.post('/api/setup-password', async (req, res) => {
       .update(schema.users)
       .set({
         password: hashedPassword,
-        verification_token: null, // Clear the setup token
-        updated_at: new Date()
+        verificationToken: null, // Clear the setup token
+        updatedAt: new Date()
       })
       .where(eq(schema.users.id, user.id));
     
@@ -2654,14 +2655,14 @@ app.post('/api/setup-password', async (req, res) => {
       user: {
         id: user.id,
         email: user.email,
-        firstName: user.first_name,
-        lastName: user.last_name,
+        firstName: user.firstName,
+        lastName: user.lastName,
         role: user.role,
-        subscriptionPlan: user.subscription_plan
+        subscriptionPlan: user.subscriptionPlan
       },
       redirectTo: user.role === 'parent' 
-        ? `/parent/dashboard-${user.subscription_plan?.toLowerCase().replace(/\s+/g, '') || 'free'}` 
-        : `/advocate/dashboard-${user.subscription_plan?.toLowerCase().replace(/\s+/g, '') || 'free'}`
+        ? `/parent/dashboard-${user.subscriptionPlan?.toLowerCase().replace(/\s+/g, '') || 'free'}` 
+        : `/advocate/dashboard-${user.subscriptionPlan?.toLowerCase().replace(/\s+/g, '') || 'free'}`
     });
   } catch (error) {
     console.error('Error setting up password:', error);

@@ -35,11 +35,7 @@ const PricingSelection = () => {
                 </div>
                 <div className="flex items-center gap-2">
                   <div className="w-2 h-2 bg-primary rounded-full" />
-                  <span className="font-medium">Basic:</span> 11 Core Tools (No AI)
-                </div>
-                <div className="flex items-center gap-2">
-                  <div className="w-2 h-2 bg-primary rounded-full" />
-                  <span className="font-medium">Plus:</span> 25+ Tools + AI Analysis
+                  <span className="font-medium">Essential:</span> 25+ Tools + AI Analysis
                 </div>
                 <div className="flex items-center gap-2">
                   <div className="w-2 h-2 bg-primary rounded-full" />

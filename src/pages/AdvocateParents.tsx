@@ -44,9 +44,12 @@ export default function AdvocateParents() {
 
   useEffect(() => {
     console.log('🔍 AdvocateParents useEffect triggered with user:', user);
-    if (user) {
-      console.log('✅ User found, calling fetchParents...');
+    console.log('🔍 User role:', user?.role, 'Email:', user?.email);
+    if (user && user.role === 'advocate') {
+      console.log('✅ Advocate user found, calling fetchParents...');
       fetchParents();
+    } else if (user && user.role !== 'advocate') {
+      console.log('❌ User is not an advocate, role:', user.role);
     } else {
       console.log('❌ No user found, skipping fetchParents');
     }
@@ -56,6 +59,11 @@ export default function AdvocateParents() {
     console.log('🚀 fetchParents called');
     if (!user) {
       console.log('❌ fetchParents: No user, returning early');
+      return;
+    }
+
+    if (user.role !== 'advocate') {
+      console.log('❌ fetchParents: User is not advocate, role:', user.role);
       return;
     }
 

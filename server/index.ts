@@ -2227,6 +2227,11 @@ app.post('/api/parents', isAuthenticated, async (req, res) => {
       return res.status(400).json({ error: 'Full name and email are required' });
     }
 
+    // Parse full_name into firstName and lastName
+    const nameParts = full_name.trim().split(' ');
+    const firstName = nameParts[0] || '';
+    const lastName = nameParts.slice(1).join(' ') || '';
+
     // Check if user already exists
     const [existingUser] = await db.select()
       .from(schema.users)
@@ -2236,11 +2241,17 @@ app.post('/api/parents', isAuthenticated, async (req, res) => {
       return res.status(400).json({ error: 'User with this email already exists' });
     }
 
-    // Create user account
+    // Create user account (fixed to include firstName/lastName)
     const [newUser] = await db.insert(schema.users).values({
       email,
+      firstName,
+      lastName,
       role: 'parent',
       emailVerified: false, // They'll need to verify via email
+      subscriptionStatus: 'active',
+      subscriptionPlan: 'free',
+      createdAt: new Date(),
+      updatedAt: new Date()
     }).returning();
 
     // Create profile

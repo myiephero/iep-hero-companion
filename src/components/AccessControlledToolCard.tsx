@@ -81,18 +81,18 @@ export function AccessControlledToolCard({
   const { hasAccess, currentPlan } = useToolAccess();
   const [showUpgradeDialog, setShowUpgradeDialog] = useState(false);
   
-  // CRITICAL FIX: Use proper access control based on plan features
-  let isAccessible = hasAccess(requiredFeature);
-  
-  // ENHANCED DEBUG: Log all access checks to diagnose issues
+  // CRITICAL DEBUG: Log access control state for this tool
   console.log('🔍 AccessControlledToolCard DEBUG:', {
     title,
     requiredFeature,
     requiredPlan,
     currentPlan,
-    hasAccess: isAccessible,
+    hasAccessResult: hasAccess(requiredFeature),
     timestamp: new Date().toISOString()
   });
+  
+  // CRITICAL FIX: Use proper access control based on plan features
+  let isAccessible = hasAccess(requiredFeature);
   
   // STRICT ACCESS CONTROL: For free plan, only allow explicitly free features
   if (currentPlan === 'free') {

@@ -190,10 +190,14 @@ export async function setupAuth(app: Express) {
 }
 
 export const isAuthenticated: RequestHandler = async (req, res, next) => {
+  console.log('🔍 isAuthenticated middleware called for:', req.path);
+  console.log('🔍 Authorization header:', req.headers.authorization ? 'Present' : 'Missing');
+  
   // First check for custom token-based auth (My IEP Hero users)
   const token = req.headers.authorization?.replace('Bearer ', '');
   
   if (token) {
+    console.log('🔍 Found token, checking database...');
     // Check database for token (primary method for custom auth)
     try {
       const { db } = await import('../server/db');
@@ -218,6 +222,8 @@ export const isAuthenticated: RequestHandler = async (req, res, next) => {
           role: tokenRecord.user_role
         };
         return next();
+      } else {
+        console.log('❌ Database token not found or expired');
       }
     } catch (error) {
       console.warn('Error checking database token:', error);

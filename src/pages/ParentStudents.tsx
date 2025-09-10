@@ -1899,16 +1899,8 @@ const ParentStudents = () => {
         parent_id: user?.id
       };
       
-      const token = localStorage.getItem('authToken');
-      const response = await fetch('/api/students', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          ...(token && { Authorization: `Bearer ${token}` })
-        },
-        credentials: 'include',
-        body: JSON.stringify(studentData),
-      });
+      // FIXED: Use authenticated apiRequest instead of direct fetch with manual auth
+      const response = await apiRequest('POST', '/api/students', studentData);
       
       if (response.ok) {
         setIsAddStudentOpen(false);

@@ -416,13 +416,8 @@ const AdvocateStudents = () => {
         parent_id: newStudent.assigned_client
       };
       
-      const response = await fetch('/api/students', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(studentData),
-      });
+      // FIXED: Use authenticated apiRequest instead of direct fetch
+      const response = await apiRequest('POST', '/api/students', studentData);
       
       if (response.ok) {
         setIsAddStudentOpen(false);
@@ -460,13 +455,8 @@ const AdvocateStudents = () => {
         full_name: `${newStudent.first_name} ${newStudent.last_name}`,
       };
       
-      const response = await fetch(`/api/students/${editingStudent.id}`, {
-        method: 'PATCH',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(studentData),
-      });
+      // FIXED: Use authenticated apiRequest instead of direct fetch
+      const response = await apiRequest('PATCH', `/api/students/${editingStudent.id}`, studentData);
       
       if (response.ok) {
         setIsEditStudentOpen(false);
@@ -585,11 +575,8 @@ const AdvocateStudents = () => {
           'Content-Type': 'application/json'
         };
         
-        // Fetch services for this student
-        const servicesRes = await fetch(`/api/students/${studentId}/services`, { 
-          credentials: 'include', 
-          headers 
-        });
+        // FIXED: Use authenticated apiRequest instead of direct fetch
+        const servicesRes = await apiRequest('GET', `/api/students/${studentId}/services`);
         if (servicesRes.ok) {
           const servicesData = await servicesRes.json();
           setServices(servicesData || []);
@@ -597,11 +584,8 @@ const AdvocateStudents = () => {
           setServices([]);
         }
         
-        // Fetch cases for this student
-        const casesRes = await fetch(`/api/students/${studentId}/cases`, { 
-          credentials: 'include', 
-          headers 
-        });
+        // FIXED: Use authenticated apiRequest instead of direct fetch
+        const casesRes = await apiRequest('GET', `/api/students/${studentId}/cases`);
         if (casesRes.ok) {
           const casesData = await casesRes.json();
           setCases(casesData || []);

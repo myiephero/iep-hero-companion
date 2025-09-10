@@ -11,7 +11,7 @@ export const queryClient = new QueryClient({
   },
 });
 
-// API request helper with token support
+// API request helper with token support - FIXED: Always include auth header
 export async function apiRequest(
   method: 'GET' | 'POST' | 'PUT' | 'DELETE',
   url: string,
@@ -22,16 +22,28 @@ export async function apiRequest(
   console.log('🔍 apiRequest - Token from localStorage:', token ? `${token.substring(0,20)}...` : 'NULL');
   console.log('🔍 apiRequest - Making request to:', url, 'with method:', method);
   
+  // CRITICAL FIX: Always build headers with proper auth
+  const headers: Record<string, string> = {
+    'Content-Type': 'application/json',
+    ...(options?.headers || {}),
+  };
+
+  // ALWAYS include Authorization header if token exists (fix for missing headers)
+  if (token) {
+    headers['Authorization'] = `Bearer ${token}`;
+    console.log('✅ apiRequest - Authorization header added:', `Bearer ${token.substring(0,20)}...`);
+  } else {
+    console.log('⚠️ apiRequest - No auth token found in localStorage');
+  }
+  
   const response = await fetch(url, {
     method,
-    headers: {
-      'Content-Type': 'application/json',
-      ...(token && { Authorization: `Bearer ${token}` }),
-      ...(options?.headers || {}),
-    },
-    credentials: 'include',
+    headers,
+    credentials: 'include', // Always include for authenticated endpoints
     body: body ? JSON.stringify(body) : undefined,
   });
+
+  console.log('📡 apiRequest - Response status:', response.status, 'for', url);
 
   if (!response.ok && response.status === 401) {
     console.log('🚫 Token expired or invalid, clearing authToken');
@@ -40,6 +52,7 @@ export async function apiRequest(
   }
 
   if (!response.ok) {
+    console.log('❌ apiRequest - Request failed:', response.status, response.statusText);
     throw new Error(`${response.status}: ${response.statusText}`);
   }
 

@@ -10,6 +10,7 @@ import { useToast } from "@/hooks/use-toast";
 // // import { supabase } from "@/integrations/supabase/client"; // Removed during migration // Removed during migration
 import { Plus, Users, UserPlus } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
+import { apiRequest } from "@/lib/queryClient"; // FIXED: Import authenticated API client
 
 interface Student {
   id: string;
@@ -65,10 +66,8 @@ export function StudentManager({ onStudentSelect, selectedStudentId }: StudentMa
     if (!user) return;
     
     try {
-      const response = await fetch('/api/students');
-      if (!response.ok) {
-        throw new Error('Failed to fetch students');
-      }
+      // FIXED: Use authenticated apiRequest instead of direct fetch
+      const response = await apiRequest('GET', '/api/students');
       const data = await response.json();
       setStudents(data || []);
     } catch (error) {
@@ -87,14 +86,8 @@ export function StudentManager({ onStudentSelect, selectedStudentId }: StudentMa
     if (!user) return;
     
     try {
-      const authToken = localStorage.getItem('authToken');
-      
-      const response = await fetch('/api/parents', {
-        credentials: 'include',
-        headers: {
-          'Authorization': authToken ? `Bearer ${authToken}` : '',
-        },
-      });
+      // FIXED: Use authenticated apiRequest instead of direct fetch with manual auth
+      const response = await apiRequest('GET', '/api/parents');
 
       if (response.ok) {
         const data = await response.json();
@@ -129,13 +122,8 @@ export function StudentManager({ onStudentSelect, selectedStudentId }: StudentMa
         iep_status: 'active'
       };
 
-      const response = await fetch('/api/students', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(studentData),
-      });
+      // FIXED: Use authenticated apiRequest instead of direct fetch
+      const response = await apiRequest('POST', '/api/students', studentData);
 
       if (!response.ok) {
         throw new Error('Failed to create student');
@@ -173,21 +161,12 @@ export function StudentManager({ onStudentSelect, selectedStudentId }: StudentMa
     const phone = formData.get('phone') as string;
 
     try {
-      const authToken = localStorage.getItem('authToken');
-      
-      const response = await fetch('/api/parents', {
-        method: 'POST',
-        credentials: 'include',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': authToken ? `Bearer ${authToken}` : '',
-        },
-        body: JSON.stringify({
-          full_name,
-          email,
-          phone,
-          role: 'parent'
-        }),
+      // FIXED: Use authenticated apiRequest instead of direct fetch
+      const response = await apiRequest('POST', '/api/parents', {
+        full_name,
+        email,
+        phone,
+        role: 'parent'
       });
 
       if (!response.ok) {

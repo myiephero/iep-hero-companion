@@ -213,22 +213,36 @@ const ParentPricingPlan = () => {
         </div>
 
         {/* Billing Toggle */}
-        <div className="flex justify-center items-center gap-4 mb-12">
-          <span className={`text-lg font-medium ${!isYearly ? 'text-blue-600' : 'text-gray-500'}`}>
-            Monthly
-          </span>
-          <div className="relative">
-            <Switch
-              checked={isYearly}
-              onCheckedChange={setIsYearly}
-              className="data-[state=checked]:bg-blue-600"
+        <div className="flex justify-center items-center gap-6 mb-12">
+          <div className="relative bg-gray-100 rounded-full p-1 flex items-center">
+            <div
+              className={`absolute inset-y-1 w-32 bg-blue-600 rounded-full transition-transform duration-300 ease-in-out ${
+                isYearly ? 'translate-x-32' : 'translate-x-0'
+              }`}
             />
+            <button
+              onClick={() => setIsYearly(false)}
+              className={`relative z-10 px-6 py-3 rounded-full font-semibold text-base transition-colors duration-300 w-32 ${
+                !isYearly 
+                  ? 'text-white' 
+                  : 'text-gray-600 hover:text-gray-800'
+              }`}
+            >
+              Monthly
+            </button>
+            <button
+              onClick={() => setIsYearly(true)}
+              className={`relative z-10 px-6 py-3 rounded-full font-semibold text-base transition-colors duration-300 w-32 ${
+                isYearly 
+                  ? 'text-white' 
+                  : 'text-gray-600 hover:text-gray-800'
+              }`}
+            >
+              Yearly
+            </button>
           </div>
-          <span className={`text-lg font-medium ${isYearly ? 'text-blue-600' : 'text-gray-500'}`}>
-            Yearly
-          </span>
-          <Badge className="bg-green-100 text-green-700 border-green-300 ml-2">
-            Save up to 25%
+          <Badge className="bg-gradient-to-r from-green-500 to-emerald-600 text-white border-0 px-4 py-2 text-sm font-semibold shadow-lg">
+            💰 Save up to 25%
           </Badge>
         </div>
 

@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { Switch } from "@/components/ui/switch";
 import { 
   Check, 
   Crown, 
@@ -15,14 +16,16 @@ import { getCheckoutUrl, requiresPayment } from '@/lib/stripePricing';
 
 const ParentPricingPlan = () => {
   const [selectedPlan, setSelectedPlan] = useState<string | null>(null);
+  const [isYearly, setIsYearly] = useState(false);
   const { toast } = useToast();
 
   const pricingTiers = [
     {
       id: 'free',
       name: 'Free',
-      price: '$0',
-      period: '/month',
+      monthlyPrice: '$0',
+      yearlyPrice: '$0',
+      period: isYearly ? '/year' : '/month',
       description: 'Try the basics with 1 student',
       toolCount: '3 Essential Tools',
       features: [
@@ -46,8 +49,10 @@ const ParentPricingPlan = () => {
     {
       id: 'essential',
       name: 'Essential',
-      price: '$59',
-      period: '/month',
+      monthlyPrice: '$59',
+      yearlyPrice: '$49',
+      period: isYearly ? '/month (billed yearly)' : '/month',
+      yearlyDiscount: '17% off',
       description: 'AI-powered tools for comprehensive IEP support',
       toolCount: '25+ Tools + AI Analysis',
       features: [
@@ -78,8 +83,10 @@ const ParentPricingPlan = () => {
     {
       id: 'premium',
       name: 'Premium',
-      price: '$199',
-      period: '/month',
+      monthlyPrice: '$199',
+      yearlyPrice: '$149',
+      period: isYearly ? '/month (billed yearly)' : '/month',
+      yearlyDiscount: '25% off',
       description: 'Multi-child families with expert support',
       toolCount: '35+ Professional Tools',
       features: [
@@ -107,8 +114,10 @@ const ParentPricingPlan = () => {
     {
       id: 'hero',
       name: 'Hero',
-      price: '$249',
-      period: '/month',
+      monthlyPrice: '$249',
+      yearlyPrice: '$199',
+      period: isYearly ? '/month (billed yearly)' : '/month',
+      yearlyDiscount: '20% off',
       description: 'Ultimate tier with unlimited access',
       toolCount: '50+ Premium Tools + Unlimited',
       features: [
@@ -203,6 +212,26 @@ const ParentPricingPlan = () => {
           </div>
         </div>
 
+        {/* Billing Toggle */}
+        <div className="flex justify-center items-center gap-4 mb-12">
+          <span className={`text-lg font-medium ${!isYearly ? 'text-blue-600' : 'text-gray-500'}`}>
+            Monthly
+          </span>
+          <div className="relative">
+            <Switch
+              checked={isYearly}
+              onCheckedChange={setIsYearly}
+              className="data-[state=checked]:bg-blue-600"
+            />
+          </div>
+          <span className={`text-lg font-medium ${isYearly ? 'text-blue-600' : 'text-gray-500'}`}>
+            Yearly
+          </span>
+          <Badge className="bg-green-100 text-green-700 border-green-300 ml-2">
+            Save up to 25%
+          </Badge>
+        </div>
+
         {/* 4 Equal-sized Cards */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
           {pricingTiers.map((tier) => (
@@ -233,9 +262,20 @@ const ParentPricingPlan = () => {
                     {tier.toolCount}
                   </Badge>
                 </div>
-                <div className="flex items-baseline justify-center gap-1">
-                  <span className="text-3xl font-bold text-gray-900">{tier.price}</span>
-                  <span className="text-gray-500 text-sm">{tier.period}</span>
+                <div className="text-center">
+                  {isYearly && tier.yearlyDiscount && (
+                    <div className="mb-2">
+                      <Badge className="bg-green-100 text-green-700 border-green-300 text-xs">
+                        {tier.yearlyDiscount}
+                      </Badge>
+                    </div>
+                  )}
+                  <div className="flex items-baseline justify-center gap-1">
+                    <span className="text-3xl font-bold text-gray-900">
+                      {isYearly ? tier.yearlyPrice : tier.monthlyPrice}
+                    </span>
+                    <span className="text-gray-500 text-sm">{tier.period}</span>
+                  </div>
                 </div>
               </CardHeader>
               

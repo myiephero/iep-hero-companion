@@ -2526,7 +2526,7 @@ app.post('/api/invite-parent', isAuthenticated, async (req, res) => {
     }
 
     // Get the authenticated advocate user ID  
-    const advocateUserId = getUserId(req);
+    const advocateUserId = await getUserId(req);
     
     // Create parent user record
     const userId = createId();

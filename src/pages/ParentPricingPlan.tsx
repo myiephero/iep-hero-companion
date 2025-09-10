@@ -44,58 +44,31 @@ const ParentPricingPlan = () => {
       popular: false
     },
     {
-      id: 'basic',
-      name: 'Basic',
-      price: '$19',
+      id: 'essential',
+      name: 'Essential',
+      price: '$59',
       period: '/month',
-      description: 'Core tools for active IEP management',
-      toolCount: '11 Core Tools (No AI)',
+      description: 'AI-powered tools for comprehensive IEP support',
+      toolCount: '25+ Tools + AI Analysis',
       features: [
         'Everything in Free',
-        '1 Student profile',
-        'Goal Management system',
-        'Meeting Scheduler',
-        'Document Vault (2GB)',
-        'Progress Notes tracking',
-        'Meeting Prep Wizard',
-        'Plan 504 Guide',
-        'Email support',
-        '50 Documents, 10 letters/month'
-      ],
-      limitations: [
-        'No AI analysis or insights',
-        'No document review tools',
-        'Basic templates only'
-      ],
-      icon: <Heart className="h-6 w-6 text-white" />,
-      gradient: 'from-pink-500 to-rose-600',
-      popular: false
-    },
-    {
-      id: 'plus',
-      name: 'Plus',
-      price: '$29',
-      period: '/month',
-      description: 'AI-powered analysis and comprehensive tools',
-      toolCount: '25+ Tools + AI',
-      features: [
-        'Everything in Basic',
         '1 Student profile',
         'AI Insights & Analytics',
         'Progress Analytics dashboard',
         'Unified IEP Review with AI',
         'Ask AI About Documents',
-        'Parent Messages system',
-        'Communication Tracker',
-        'Accommodation Builder',
-        '504 Plan Builder',
+        'Document Vault (5GB)',
+        'Meeting Prep Wizard',
+        'All Accommodation Builders',
         'Goal Generator (AI)',
         'Emotion Trackers',
-        'Advocate Matching',
-        'Priority email support (5GB)'
+        'Communication Tracker',
+        'Priority email support',
+        '100 documents, 25 AI analyses, 50 letters/month'
       ],
       limitations: [
-        'No expert analysis',
+        'Limited to 1 child',
+        'No expert support',
         'Basic specialization tools'
       ],
       icon: <Star className="h-6 w-6 text-white" />,
@@ -105,30 +78,55 @@ const ParentPricingPlan = () => {
     {
       id: 'premium',
       name: 'Premium',
-      price: '$49',
+      price: '$199',
       period: '/month',
-      description: 'Professional-grade tools with expert features',
+      description: 'Multi-child families with expert support',
       toolCount: '35+ Professional Tools',
       features: [
-        'Everything in Plus',
-        '2 Student profiles',
-        'Expert Analysis requests',
+        'Everything in Essential',
+        '3 Student profiles',
+        'Expert Support (phone & email)',
         'Advanced AI IEP Review',
         'Autism Accommodation Builder',
         'Gifted & 2e Learner tools',
         'OT Activity Recommender',
         'Advanced analytics & insights',
         'Professional meeting prep',
-        'Priority email support',
-        'Document storage (10GB)',
-        '500 documents, 100 letters/month'
+        'Advocate Matching Tool',
+        'Document storage (25GB)',
+        '1000 documents, 100 AI analyses, 200 letters/month'
       ],
       limitations: [
-        'No strategy calls',
-        'No advocate coordination'
+        'No dedicated support manager',
+        'No strategy calls'
       ],
       icon: <Crown className="h-6 w-6 text-white" />,
       gradient: 'from-purple-500 to-indigo-600',
+      popular: false
+    },
+    {
+      id: 'hero',
+      name: 'Hero',
+      price: '$249',
+      period: '/month',
+      description: 'Ultimate tier with unlimited access',
+      toolCount: '50+ Premium Tools + Unlimited',
+      features: [
+        'Everything in Premium',
+        'Unlimited student profiles',
+        'Dedicated support manager',
+        'White-glove setup ($495 value)',
+        'Monthly strategy calls',
+        'Full advocate tool access',
+        'Priority platform features',
+        'Advanced specialization tools',
+        'Professional meeting coordination',
+        'Unlimited storage',
+        'Unlimited documents, AI analyses & letters'
+      ],
+      limitations: [],
+      icon: <Shield className="h-6 w-6 text-white" />,
+      gradient: 'from-orange-500 to-pink-600',
       popular: false
     }
   ];
@@ -348,7 +346,7 @@ const ParentPricingPlan = () => {
                         </div>
                         <div className="flex items-center gap-2 text-white text-xs">
                           <Crown className="h-3 w-3 text-yellow-200" />
-                          <span>Lifetime rate lock at $199/month</span>
+                          <span>Lifetime rate lock at $249/month</span>
                         </div>
                         <div className="flex items-center gap-2 text-white text-xs">
                           <Star className="h-3 w-3 text-yellow-200" />
@@ -357,7 +355,7 @@ const ParentPricingPlan = () => {
                       </div>
                     </div>
                     
-                    <h4 className="text-lg font-semibold text-white mb-3">$199/Month Ongoing Includes:</h4>
+                    <h4 className="text-lg font-semibold text-white mb-3">$249/Month Ongoing Includes:</h4>
                     <div className="mb-4">
                       <Badge variant="secondary" className="bg-white/20 text-white border-white/30 mb-3">
                         ALL 50+ Professional Tools
@@ -426,16 +424,16 @@ const ParentPricingPlan = () => {
                         </div>
                         <div className="flex justify-between">
                           <span>First month subscription</span>
-                          <span>$199</span>
+                          <span>$249</span>
                         </div>
                         <div className="flex justify-between">
                           <span>IEP Success Bonus (3 months)</span>
-                          <span>$597</span>
+                          <span>$747</span>
                         </div>
                         <div className="border-t border-white/20 pt-1 mt-1">
                           <div className="flex justify-between font-bold">
                             <span>Total Value</span>
-                            <span>$1,786</span>
+                            <span>$1,986</span>
                           </div>
                         </div>
                       </div>
@@ -443,18 +441,18 @@ const ParentPricingPlan = () => {
                     
                     <div className="space-y-2">
                       <div className="flex items-baseline justify-center lg:justify-end gap-2">
-                        <span className="text-lg line-through text-orange-300">$1,786</span>
+                        <span className="text-lg line-through text-orange-300">$1,986</span>
                         <span className="text-3xl font-bold text-white">$495</span>
                         <span className="text-orange-100">today only</span>
                       </div>
-                      <div className="text-sm text-orange-200">Then locked at $199/month forever</div>
+                      <div className="text-sm text-orange-200">Then locked at $249/month forever</div>
                     </div>
                     <div className="text-sm text-orange-200 mt-2">Covers your entire family</div>
                     
                     {/* Ultimate Savings callout */}
                     <div className="bg-red-500/20 border border-red-400/30 rounded-lg p-3 mt-4">
                       <p className="text-sm text-white font-bold">
-                        🔥 SAVE $1,291 TODAY!
+                        🔥 SAVE $1,491 TODAY!
                       </p>
                       <p className="text-xs text-orange-100">
                         LIMITED: Only 47 founding families accepted

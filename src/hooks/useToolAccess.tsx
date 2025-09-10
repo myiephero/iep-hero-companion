@@ -4,8 +4,14 @@ import { checkToolAccess, hasFeatureAccess, type PlanFeatures, type Subscription
 export function useToolAccess() {
   const { user } = useAuth();
   
+  // Debug logging to track the issue
+  console.log('🔍 useToolAccess - Full user object:', user);
+  console.log('🔍 useToolAccess - Raw subscriptionPlan:', user?.subscriptionPlan);
+  
   // Default to 'free' plan if no subscription data
   const currentPlan: SubscriptionPlan = user?.subscriptionPlan || 'free';
+  
+  console.log('🔍 useToolAccess - Final currentPlan:', currentPlan);
 
   const checkAccess = (requiredTool: keyof PlanFeatures) => {
     return checkToolAccess(currentPlan, requiredTool);
@@ -23,6 +29,8 @@ export function useToolAccess() {
     return !hasFeatureAccess(currentPlan, requiredTool);
   };
 
+  console.log('🔍 useToolAccess - Returning with currentPlan:', currentPlan);
+  
   return {
     currentPlan,
     checkAccess,

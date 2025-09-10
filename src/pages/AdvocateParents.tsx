@@ -51,8 +51,13 @@ export default function AdvocateParents() {
     if (!user) return;
 
     try {
+      const token = localStorage.getItem('authToken');
+      
       const response = await fetch('/api/parents', {
-        credentials: 'include' // Send session cookies
+        credentials: 'include',
+        headers: {
+          Authorization: `Bearer ${token}`,
+        }
       });
       if (response.ok) {
         const data = await response.json();

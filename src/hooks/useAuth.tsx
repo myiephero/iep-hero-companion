@@ -84,6 +84,8 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
         
         if (response.ok) {
           const userData = await response.json();
+          console.log('🔍 useAuth - Received user data:', userData);
+          console.log('🔍 useAuth - subscriptionPlan from server:', userData.subscriptionPlan);
           setUser(userData);
           setProfile(userData);
           

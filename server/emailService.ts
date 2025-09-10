@@ -385,3 +385,93 @@ export async function sendPasswordResetEmail(email: string, firstName: string, r
     return false;
   }
 }
+
+export async function sendAdvocateInviteEmail(email: string, firstName: string, lastName: string, advocateName: string): Promise<boolean> {
+  try {
+    const loginUrl = getDashboardUrl('parent');
+    
+    const htmlContent = `
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Welcome to My IEP Hero - Invited by Your Advocate</title>
+  <style>
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; line-height: 1.6; color: #333; }
+    .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+    .header { background: linear-gradient(135deg, #1e40af 0%, #7c3aed 100%); color: white; padding: 30px; text-align: center; border-radius: 8px 8px 0 0; }
+    .content { background: white; padding: 30px; border: 1px solid #e5e7eb; border-top: none; }
+    .button { display: inline-block; background: #1e40af; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; font-weight: 600; margin: 20px 0; }
+    .footer { background: #f9fafb; padding: 20px; text-align: center; font-size: 14px; color: #6b7280; border: 1px solid #e5e7eb; border-top: none; border-radius: 0 0 8px 8px; }
+    .advocate-info { background: #f8fafc; padding: 20px; border-radius: 6px; margin: 20px 0; border-left: 4px solid #1e40af; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <h1 style="margin: 0; font-size: 24px;">Welcome to My IEP Hero! 🎉</h1>
+      <p style="margin: 10px 0 0 0; opacity: 0.9;">Your advocate has created an account for you</p>
+    </div>
+    
+    <div class="content">
+      <p>Hi ${firstName},</p>
+      
+      <div class="advocate-info">
+        <p><strong>${advocateName}</strong> has created a My IEP Hero account for you to streamline your collaboration and access powerful IEP support tools.</p>
+      </div>
+      
+      <p>Your account includes access to:</p>
+      <ul>
+        <li>🤖 AI-powered IEP document analysis</li>
+        <li>📋 Meeting preparation tools</li>
+        <li>📚 Educational resource library</li>
+        <li>💬 Direct communication with your advocate</li>
+        <li>📊 Progress tracking and reports</li>
+        <li>📝 Document storage and organization</li>
+      </ul>
+      
+      <p>To get started, click the button below to access your dashboard:</p>
+      
+      <div style="text-align: center; margin: 30px 0;">
+        <a href="${loginUrl}" class="button">Access My Dashboard</a>
+      </div>
+      
+      <p><strong>Next Steps:</strong></p>
+      <ol>
+        <li>Click the button above to log in</li>
+        <li>Complete your profile setup</li>
+        <li>Start collaborating with your advocate</li>
+        <li>Upload any relevant IEP documents</li>
+      </ol>
+      
+      <p>If you have any questions or need assistance getting started, feel free to reach out to your advocate or our support team.</p>
+    </div>
+    
+    <div class="footer">
+      <p>Need help? Contact us at support@myiephero.com</p>
+      <p>© 2025 My IEP Hero. All rights reserved.</p>
+    </div>
+  </div>
+</body>
+</html>`;
+
+    const { data: result, error } = await resend.emails.send({
+      from: 'My IEP Hero <noreply@myiephero.com>',
+      to: [email],
+      subject: `Welcome to My IEP Hero - Account Created by ${advocateName}`,
+      html: htmlContent,
+    });
+
+    if (error) {
+      console.error('Resend error:', error);
+      return false;
+    }
+
+    console.log('Advocate invite email sent successfully:', result);
+    return true;
+  } catch (error) {
+    console.error('Error sending advocate invite email:', error);
+    return false;
+  }
+}

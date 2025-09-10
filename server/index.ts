@@ -2528,22 +2528,35 @@ app.post('/api/invite-parent', isAuthenticated, async (req, res) => {
     // Get the authenticated advocate user ID  
     const advocateUserId = await getUserId(req);
     
-    // Create parent user record
-    const userId = createId();
+    // Step 1: Create parent profile (user account)
+    const parentUserId = createId();
     await db.insert(schema.profiles).values({
-      id: userId,
-      user_id: userId,
+      id: parentUserId,
+      user_id: parentUserId,
       email,
       full_name: `${firstName} ${lastName}`,
-      role: 'parent',
-      created_by: advocateUserId // Track which advocate created this parent
+      role: 'parent'
+    });
+    
+    // Step 2: Create advocate-client relationship (business relationship)
+    const relationshipId = createId();
+    await db.insert(schema.advocate_clients).values({
+      id: relationshipId,
+      advocate_id: advocateUserId,
+      client_id: parentUserId,
+      relationship_type: 'invited_client',
+      status: 'active',
+      start_date: new Date().toISOString(),
+      notes: `Parent invited by advocate on ${new Date().toLocaleDateString()}`
     });
     
     // Log the invitation for tracking
-    console.log(`Parent invited: ${firstName} ${lastName} (${email}) - User ID: ${userId}`);
+    console.log(`Parent invited: ${firstName} ${lastName} (${email}) - User ID: ${parentUserId}, Relationship ID: ${relationshipId}`);
     
     res.json({
-      userId
+      userId: parentUserId,
+      relationshipId: relationshipId,
+      success: true
     });
   } catch (error) {
     console.error('Error inviting parent:', error);

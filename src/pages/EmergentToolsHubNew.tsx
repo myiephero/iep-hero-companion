@@ -1,23 +1,38 @@
 import { DashboardLayout } from "@/layouts/DashboardLayout";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Link } from "react-router-dom";
+import { AccessControlledToolCard } from "@/components/AccessControlledToolCard";
 import { Zap, Users, Star, FileText, Target, Building, BookOpen, Smile, TrendingUp, MessageSquare, Brain, Heart, Code } from "lucide-react";
 import { useEffect, useState } from "react";
+import { getToolRequiredPlan } from "@/lib/toolAccess";
+import type { PlanFeatures, SubscriptionPlan } from "@/lib/planAccess";
 
 // BUILD VERSION FOR ENVIRONMENT PARITY
 const BUILD_ID = "BUILD_SEP10_2025_1531";
 
-// COMPLETELY NEW FILE - TESTING 18 TOOLS
-const emergentTools = [
+// COMPLETELY NEW FILE - TESTING 18 TOOLS WITH PROPER ACCESS CONTROL
+interface ToolConfig {
+  title: string;
+  description: string;
+  icon: React.ComponentType<{ className?: string }>;
+  path: string;
+  category: string;
+  badge: string;
+  features: string[];
+  requiredFeature: keyof PlanFeatures;
+  requiredPlan: SubscriptionPlan;
+}
+
+const emergentTools: ToolConfig[] = [
   {
     title: "Unified IEP Review",
     description: "Comprehensive AI-powered IEP analysis with quality scoring, compliance checks, and actionable improvement recommendations.",
     icon: Brain,
     path: "/parent/tools/unified-iep-review",
     category: "AI Analysis",
-    badge: "Enhanced"
+    badge: "Enhanced",
+    features: ["AI-powered analysis", "Quality scoring", "Compliance checks"],
+    requiredFeature: "unifiedIEPReview",
+    requiredPlan: "essential"
   },
   {
     title: "Autism Accommodation Builder", 
@@ -25,7 +40,10 @@ const emergentTools = [
     icon: Users,
     path: "/parent/tools/autism-accommodation-builder",
     category: "Specialized Support", 
-    badge: "Specialized"
+    badge: "Specialized",
+    features: ["Sensory supports", "Communication aids", "Behavioral strategies"],
+    requiredFeature: "autismAccommodationBuilder",
+    requiredPlan: "premium"
   },
   {
     title: "Advocate Matching Tool",
@@ -33,7 +51,10 @@ const emergentTools = [
     icon: Users,
     path: "/tools/advocate-matching",
     category: "Professional Support",
-    badge: "Connect"
+    badge: "Connect",
+    features: ["Professional matching", "Local advocates", "Specialization search"],
+    requiredFeature: "advocateMatchingTool",
+    requiredPlan: "hero"
   },
   {
     title: "Gifted & 2e Learners",
@@ -41,7 +62,10 @@ const emergentTools = [
     icon: Star,
     path: "/tools/gifted-2e-learners",
     category: "Specialized Needs",
-    badge: "2e"
+    badge: "2e",
+    features: ["Gifted assessments", "2e profiles", "Strength-based planning"],
+    requiredFeature: "giftedTwoeSupport",
+    requiredPlan: "premium"
   },
   {
     title: "Smart Letter Generator",
@@ -49,7 +73,10 @@ const emergentTools = [
     icon: FileText,
     path: "/parent/tools/smart-letter-generator",
     category: "Communication",
-    badge: "Templates"
+    badge: "Templates",
+    features: ["Letter templates", "Professional language", "Situation-specific"],
+    requiredFeature: "smartLetterGenerator",
+    requiredPlan: "free"
   },
   {
     title: "Meeting Prep Wizard",
@@ -57,7 +84,10 @@ const emergentTools = [
     icon: Target,
     path: "/parent/tools/meeting-prep",
     category: "Meeting Support",
-    badge: "Prep"
+    badge: "Prep",
+    features: ["Meeting checklists", "Goal preparation", "Question guides"],
+    requiredFeature: "meetingPrepWizard",
+    requiredPlan: "essential"
   },
   {
     title: "Document Vault",
@@ -65,7 +95,10 @@ const emergentTools = [
     icon: Building,
     path: "/tools/document-vault",
     category: "Organization",
-    badge: "Secure"
+    badge: "Secure",
+    features: ["Secure storage", "Document organization", "Easy retrieval"],
+    requiredFeature: "documentVault",
+    requiredPlan: "essential"
   },
   {
     title: "Student Profiles",
@@ -73,7 +106,10 @@ const emergentTools = [
     icon: BookOpen,
     path: "/tools/student-profiles",
     category: "Student Management",
-    badge: "Core"
+    badge: "Core",
+    features: ["Profile management", "Goal tracking", "Progress monitoring"],
+    requiredFeature: "studentProfileManagement",
+    requiredPlan: "free"
   },
   {
     title: "Expert Analysis",
@@ -81,7 +117,10 @@ const emergentTools = [
     icon: Target,
     path: "/parent/tools/expert-analysis",
     category: "Professional Support",
-    badge: "Pro"
+    badge: "Pro",
+    features: ["Expert reviews", "Professional analysis", "Detailed reports"],
+    requiredFeature: "expertAnalysis",
+    requiredPlan: "premium"
   },
   {
     title: "Emotion Tracker",
@@ -89,7 +128,10 @@ const emergentTools = [
     icon: Smile,
     path: "/parent/tools/emotion-tracker",
     category: "Wellness Support",
-    badge: "Wellness"
+    badge: "Wellness",
+    features: ["Emotion tracking", "Behavioral patterns", "School communication"],
+    requiredFeature: "emotionTracker",
+    requiredPlan: "essential"
   },
   {
     title: "IEP Goal Helper",
@@ -97,7 +139,10 @@ const emergentTools = [
     icon: Target,
     path: "/parent/tools/goal-generator",
     category: "IEP Planning",
-    badge: "Parent-Friendly"
+    badge: "Parent-Friendly",
+    features: ["Goal creation", "Quality checking", "Parent education"],
+    requiredFeature: "goalGenerator",
+    requiredPlan: "essential"
   },
   {
     title: "Parent IEP Helper Suite",
@@ -105,7 +150,10 @@ const emergentTools = [
     icon: Brain,
     path: "/parent/tools/iep-master-suite",
     category: "IEP Analysis",
-    badge: "Pro"
+    badge: "Pro",
+    features: ["Document analysis", "Goal checking", "Parent education"],
+    requiredFeature: "unifiedIEPReview",
+    requiredPlan: "essential"
   },
   {
     title: "Your Child's Rights Guide",
@@ -113,7 +161,10 @@ const emergentTools = [
     icon: Heart,
     path: "/parent/tools/idea-rights-guide",
     category: "Legal & Rights",
-    badge: "Parent-Friendly"
+    badge: "Parent-Friendly",
+    features: ["Rights education", "State-specific info", "Practical tips"],
+    requiredFeature: "ideaRightsGuide",
+    requiredPlan: "free"
   },
   {
     title: "Plan 504 Guide",
@@ -121,7 +172,10 @@ const emergentTools = [
     icon: BookOpen,
     path: "/parent/tools/plan-504-guide",
     category: "Legal & Rights",
-    badge: "Essential"
+    badge: "Essential",
+    features: ["504 plan guide", "Eligibility info", "Accommodation templates"],
+    requiredFeature: "plan504Guide",
+    requiredPlan: "essential"
   },
   {
     title: "Progress Notes Tracker",
@@ -129,7 +183,10 @@ const emergentTools = [
     icon: TrendingUp,
     path: "/parent/tools/progress-notes",
     category: "Student Management",
-    badge: "Tracking"
+    badge: "Tracking",
+    features: ["Progress tracking", "Milestone recording", "Data collection"],
+    requiredFeature: "progressNotes",
+    requiredPlan: "essential"
   },
   {
     title: "Ask AI About Documents",
@@ -137,7 +194,10 @@ const emergentTools = [
     icon: MessageSquare,
     path: "/parent/tools/ask-ai-documents",
     category: "AI Support",
-    badge: "Interactive"
+    badge: "Interactive",
+    features: ["Document upload", "AI analysis", "Instant answers"],
+    requiredFeature: "askAIAboutDocs",
+    requiredPlan: "essential"
   },
   {
     title: "Communication Tracker",
@@ -145,7 +205,10 @@ const emergentTools = [
     icon: MessageSquare,
     path: "/parent/tools/communication-tracker",
     category: "Communication",
-    badge: "Organize"
+    badge: "Organize",
+    features: ["Communication logs", "Follow-up reminders", "School correspondence"],
+    requiredFeature: "communicationTracker",
+    requiredPlan: "essential"
   },
   {
     title: "OT Activity Recommender",
@@ -153,7 +216,10 @@ const emergentTools = [
     icon: Target,
     path: "/parent/tools/ot-activities",
     category: "Therapy Support",
-    badge: "Personalized"
+    badge: "Personalized",
+    features: ["Activity suggestions", "Personalized recommendations", "OT support"],
+    requiredFeature: "otActivityRecommender",
+    requiredPlan: "premium"
   }
 ];
 
@@ -223,41 +289,22 @@ export default function EmergentToolsHubNew() {
         </div>
 
         <div className="space-y-6">
-          <h2 className="text-2xl font-semibold text-center">All 18 Tools - Including 5 NEW</h2>
+          <h2 className="text-2xl font-semibold text-center">All 18 Tools - INCLUDING 5 NEW - WITH ACCESS CONTROL</h2>
           
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
-            {emergentTools.map((tool, index) => (
-              <Card key={tool.title} className="hover:shadow-xl transition-all duration-200 hover:scale-[1.02] group border border-slate-600 hover:border-primary/30 bg-slate-800 h-[280px] flex flex-col">
-                <CardHeader className="pb-3 pt-4 px-4 flex-shrink-0">
-                  <div className="flex flex-col items-center text-center space-y-3">
-                    <div className="p-3 rounded-lg bg-gradient-to-br from-primary/10 to-primary/5 group-hover:from-primary/20 group-hover:to-primary/10 transition-all duration-200 shadow-sm">
-                      <tool.icon className="h-6 w-6 text-primary" />
-                    </div>
-                    <div className="space-y-2">
-                      <Badge className="text-xs px-2 py-1 shadow-sm bg-blue-100 text-blue-700">
-                        {tool.badge}
-                      </Badge>
-                      <CardTitle className="text-sm font-semibold text-white group-hover:text-primary transition-colors leading-tight">
-                        {tool.title}
-                      </CardTitle>
-                    </div>
-                  </div>
-                </CardHeader>
-                
-                <CardContent className="pt-0 px-4 pb-4 flex-1 flex flex-col justify-between">
-                  <div className="space-y-3 flex-1">
-                    <p className="text-xs text-gray-300 text-center leading-relaxed">
-                      {tool.description.length > 80 ? `${tool.description.substring(0, 80)}...` : tool.description}
-                    </p>
-                  </div>
-                  
-                  <Button asChild size="sm" className="w-full text-xs py-2">
-                    <Link to={tool.path}>
-                      Open Tool
-                    </Link>
-                  </Button>
-                </CardContent>
-              </Card>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+            {emergentTools.map((tool) => (
+              <AccessControlledToolCard
+                key={tool.title}
+                title={tool.title}
+                description={tool.description}
+                icon={tool.icon}
+                path={tool.path}
+                badge={tool.badge}
+                features={tool.features}
+                requiredFeature={tool.requiredFeature}
+                requiredPlan={tool.requiredPlan}
+                className="h-[280px]"
+              />
             ))}
           </div>
         </div>

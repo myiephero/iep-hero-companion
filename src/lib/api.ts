@@ -373,9 +373,13 @@ class ApiClient {
   }
 
   async inviteParent(email: string, firstName: string, lastName: string): Promise<any> {
-    return this.request('/invite-parent', {
+    return this.request('/parents', {
       method: 'POST',
-      body: JSON.stringify({ email, firstName, lastName })
+      body: JSON.stringify({ 
+        full_name: `${firstName} ${lastName}`,
+        email,
+        role: 'parent'
+      })
     });
   }
 

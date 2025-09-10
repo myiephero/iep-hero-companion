@@ -221,7 +221,7 @@ function App() {
               } />
               <Route path="/parent/tools/emergent" element={
                 <ProtectedRoute allowedRoles={['parent']}>
-                  <EmergentToolsHub />
+                  <EmergentToolsHubNew />
                 </ProtectedRoute>
               } />
               <Route path="/advocate/tools" element={
@@ -337,7 +337,7 @@ function App() {
               {/* Parent Tools - Additional */}
               <Route path="/parent/tools/emergent" element={
                 <ProtectedRoute allowedRoles={['parent']}>
-                  <EmergentToolsHub />
+                  <EmergentToolsHubNew />
                 </ProtectedRoute>
               } />
               <Route path="/parent/tools/document-vault" element={

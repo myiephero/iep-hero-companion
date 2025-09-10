@@ -330,28 +330,73 @@ export default function ParentIEPMasterSuite() {
         </Card>
 
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-          <TabsList className="grid w-full grid-cols-5">
-            <TabsTrigger value="learn" className="flex items-center space-x-2">
-              <BookOpen className="h-4 w-4" />
-              <span>Learn About IEPs</span>
-            </TabsTrigger>
-            <TabsTrigger value="analyze" className="flex items-center space-x-2">
-              <Brain className="h-4 w-4" />
-              <span>Analyze My Child's IEP</span>
-            </TabsTrigger>
-            <TabsTrigger value="expert" className="flex items-center space-x-2">
-              <Gavel className="h-4 w-4" />
-              <span>Expert Professional Review</span>
-            </TabsTrigger>
-            <TabsTrigger value="goals" className="flex items-center space-x-2">
-              <Target className="h-4 w-4" />
-              <span>Check IEP Goals</span>
-            </TabsTrigger>
-            <TabsTrigger value="examples" className="flex items-center space-x-2">
-              <Star className="h-4 w-4" />
-              <span>See Good Examples</span>
-            </TabsTrigger>
-          </TabsList>
+          {/* Modern Horizontal Tab Navigation */}
+          <div className="w-full mb-8">
+            <div className="bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 p-1 rounded-2xl shadow-lg">
+              <div className="flex bg-white dark:bg-gray-900 rounded-xl p-2 gap-2">
+                <button
+                  onClick={() => setActiveTab("learn")}
+                  className={`flex items-center gap-2 px-4 py-3 rounded-lg font-medium transition-all duration-200 flex-1 justify-center ${
+                    activeTab === "learn"
+                      ? "bg-gradient-to-r from-blue-500 to-purple-500 text-white shadow-md"
+                      : "text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800"
+                  }`}
+                >
+                  <BookOpen className="h-4 w-4" />
+                  <span className="hidden sm:inline">Learn About IEPs</span>
+                  <span className="sm:hidden">Learn</span>
+                </button>
+                <button
+                  onClick={() => setActiveTab("analyze")}
+                  className={`flex items-center gap-2 px-4 py-3 rounded-lg font-medium transition-all duration-200 flex-1 justify-center ${
+                    activeTab === "analyze"
+                      ? "bg-gradient-to-r from-blue-500 to-purple-500 text-white shadow-md"
+                      : "text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800"
+                  }`}
+                >
+                  <Brain className="h-4 w-4" />
+                  <span className="hidden sm:inline">Analyze IEP</span>
+                  <span className="sm:hidden">Analyze</span>
+                </button>
+                <button
+                  onClick={() => setActiveTab("expert")}
+                  className={`flex items-center gap-2 px-4 py-3 rounded-lg font-medium transition-all duration-200 flex-1 justify-center ${
+                    activeTab === "expert"
+                      ? "bg-gradient-to-r from-blue-500 to-purple-500 text-white shadow-md"
+                      : "text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800"
+                  }`}
+                >
+                  <Gavel className="h-4 w-4" />
+                  <span className="hidden sm:inline">Expert Review</span>
+                  <span className="sm:hidden">Expert</span>
+                </button>
+                <button
+                  onClick={() => setActiveTab("goals")}
+                  className={`flex items-center gap-2 px-4 py-3 rounded-lg font-medium transition-all duration-200 flex-1 justify-center ${
+                    activeTab === "goals"
+                      ? "bg-gradient-to-r from-blue-500 to-purple-500 text-white shadow-md"
+                      : "text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800"
+                  }`}
+                >
+                  <Target className="h-4 w-4" />
+                  <span className="hidden sm:inline">Check Goals</span>
+                  <span className="sm:hidden">Goals</span>
+                </button>
+                <button
+                  onClick={() => setActiveTab("examples")}
+                  className={`flex items-center gap-2 px-4 py-3 rounded-lg font-medium transition-all duration-200 flex-1 justify-center ${
+                    activeTab === "examples"
+                      ? "bg-gradient-to-r from-blue-500 to-purple-500 text-white shadow-md"
+                      : "text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800"
+                  }`}
+                >
+                  <Star className="h-4 w-4" />
+                  <span className="hidden sm:inline">Examples</span>
+                  <span className="sm:hidden">Examples</span>
+                </button>
+              </div>
+            </div>
+          </div>
 
           {/* Learn About IEPs Tab */}
           <TabsContent value="learn" className="space-y-6">

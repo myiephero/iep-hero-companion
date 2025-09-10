@@ -34,6 +34,7 @@ import GiftedTwoeLearners from "./pages/GiftedTwoeLearners";
 import ExpertAnalysis from "./pages/ExpertAnalysis";
 import MatchingDashboard from "./pages/MatchingDashboard";
 import EmergentToolsHubNew from "./pages/EmergentToolsHubNew";
+import EmergentToolsHub from "./pages/EmergentToolsHub";
 import AllPagesView from "./pages/AllPagesView";
 import SmartLetterGeneratorNew from "./pages/SmartLetterGeneratorNew";
 import MeetingPrepWizard from "./pages/MeetingPrepWizard";
@@ -218,6 +219,11 @@ function App() {
                   <ToolsHub />
                 </ProtectedRoute>
               } />
+              <Route path="/parent/tools/emergent" element={
+                <ProtectedRoute allowedRoles={['parent']}>
+                  <EmergentToolsHub />
+                </ProtectedRoute>
+              } />
               <Route path="/advocate/tools" element={
                 <ProtectedRoute allowedRoles={['advocate']}>
                   <AdvocateToolsHub />
@@ -331,7 +337,7 @@ function App() {
               {/* Parent Tools - Additional */}
               <Route path="/parent/tools/emergent" element={
                 <ProtectedRoute allowedRoles={['parent']}>
-                  <EmergentToolsHubNew />
+                  <EmergentToolsHub />
                 </ProtectedRoute>
               } />
               <Route path="/parent/tools/document-vault" element={

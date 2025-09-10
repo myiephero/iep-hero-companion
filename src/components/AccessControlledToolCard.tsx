@@ -81,24 +81,41 @@ export function AccessControlledToolCard({
   const { hasAccess, currentPlan } = useToolAccess();
   const [showUpgradeDialog, setShowUpgradeDialog] = useState(false);
   
-  // CRITICAL FIX: Ensure proper access control for all plan tiers
+  // CRITICAL FIX: Use proper access control based on plan features
   let isAccessible = hasAccess(requiredFeature);
   
-  // FORCE OVERRIDE: Ensure free plan users get upgrade prompts for premium tools
+  // ENHANCED DEBUG: Log all access checks to diagnose issues
+  console.log('🔍 AccessControlledToolCard DEBUG:', {
+    title,
+    requiredFeature,
+    requiredPlan,
+    currentPlan,
+    hasAccess: isAccessible,
+    timestamp: new Date().toISOString()
+  });
+  
+  // STRICT ACCESS CONTROL: For free plan, only allow explicitly free features
   if (currentPlan === 'free') {
-    const premiumFeatures: (keyof PlanFeatures)[] = [
-      'unifiedIEPReview', 'autismAccommodationBuilder', 'expertAnalysis', 
-      'giftedTwoeSupport', 'otActivityRecommender', 'meetingPrepWizard',
-      'documentVault', 'askAIAboutDocs', 'accommodationBuilder', 'emotionTracker'
+    // Only these features are available to free plan users
+    const freeFeatures: (keyof PlanFeatures)[] = [
+      'ideaRightsGuide',
+      'ferpaOverview', 
+      'timelineCalculator',
+      'smartLetterGenerator', // Limited usage
+      'studentProfileManagement' // Limited to 1 child
     ];
     
-    if (premiumFeatures.includes(requiredFeature)) {
-      isAccessible = false; // Force upgrade prompt for premium tools
+    // If not in free features list, deny access
+    if (!freeFeatures.includes(requiredFeature)) {
+      isAccessible = false;
+      console.log('🚫 FREE PLAN RESTRICTION:', title, '- Access denied, upgrade required');
+    } else {
+      console.log('✅ FREE PLAN ACCESS:', title, '- Feature available to free users');
     }
   }
   
-  // DEBUG: Log access decision 
-  console.log(`🔒 ACCESS: ${title} | Plan: ${currentPlan} | Required: ${requiredPlan} | Accessible: ${isAccessible}`);
+  // FINAL ACCESS DECISION 
+  console.log(`🔒 FINAL ACCESS DECISION: ${title} | Current Plan: ${currentPlan} | Required Plan: ${requiredPlan} | Is Accessible: ${isAccessible}`);
   const truncatedDescription = description.length > 80 ? `${description.substring(0, 80)}...` : description;
 
   const handleClick = (e: React.MouseEvent) => {

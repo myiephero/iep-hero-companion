@@ -70,8 +70,21 @@ export default function AdvocateParents() {
     try {
       console.log('📡 Making authenticated API call to /api/parents...');
       
-      // Use the FIXED authenticated API request function
-      const response = await apiRequest('GET', '/api/parents');
+      // DEBUGGING: Check if authToken exists and test direct fetch
+      const authToken = localStorage.getItem('authToken');
+      console.error('🚨 MANUAL TOKEN CHECK:', authToken ? `FOUND: ${authToken.substring(0,20)}...` : 'MISSING');
+      
+      // Try direct fetch with manual headers to see if that works
+      const response = await fetch('/api/parents', {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': authToken ? `Bearer ${authToken}` : '',
+        },
+        credentials: 'include',
+      });
+      
+      console.error('🚨 DIRECT FETCH RESPONSE:', response.status, response.statusText);
       
       console.log('✅ fetchParents - API response received successfully');
       console.log('📡 fetchParents - Response status:', response.status);

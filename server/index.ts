@@ -2216,7 +2216,7 @@ app.get('/api/parents', async (req, res) => {
   }
 });
 
-app.post('/api/parents', async (req, res) => {
+app.post('/api/parents', isAuthenticated, async (req, res) => {
   try {
     const userId = await getUserId(req);
     console.log('✅ PRODUCTION: Creating parent account by user:', userId);

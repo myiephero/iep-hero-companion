@@ -169,6 +169,21 @@ class ApiClient {
       });
 
       if (!response.ok) {
+        if (response.status === 401) {
+          // Token is expired or invalid - clear it and redirect to login
+          console.log('🚫 API call failed with 401 - clearing expired token');
+          localStorage.removeItem('authToken');
+          
+          // Only redirect if we're not already on a public page
+          const currentPath = window.location.pathname;
+          const publicPaths = ['/parent/pricing', '/advocate/pricing', '/', '/auth', '/login'];
+          const isPublicPage = publicPaths.some(path => currentPath === path || currentPath.includes(path));
+          
+          if (!isPublicPage) {
+            window.location.href = '/auth';
+          }
+        }
+        
         throw new Error(`API error: ${response.statusText}`);
       }
 

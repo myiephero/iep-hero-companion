@@ -37,43 +37,15 @@ const PARENT_PRICING = [
     isFree: true
   },
   {
-    id: 'basic',
-    name: 'Basic',
-    price: 19,
-    period: '/month',
-    description: 'Core tools for active IEP management',
-    toolCount: '11 Core Tools (No AI)',
-    features: [
-      'Everything in Free',
-      '2 Student profiles',
-      'Goal Management system',
-      'Meeting Scheduler',
-      'Document Vault (2GB)',
-      'Progress Notes tracking',
-      'Meeting Prep Wizard',
-      'Plan 504 Guide',
-      'Email support',
-      '50 Documents, 10 letters/month'
-    ],
-    limitations: [
-      'No AI analysis or insights',
-      'No document review tools',
-      'Basic templates only'
-    ],
-    icon: <Heart className="h-6 w-6" />,
-    gradient: 'from-pink-500 to-rose-600',
-    priceId: 'price_1Rr3bk8iKZXV0srZ0URHZo4O'
-  },
-  {
-    id: 'plus',
-    name: 'Plus',
-    price: 29,
+    id: 'essential',
+    name: 'Essential',
+    price: 59,
     period: '/month',
     description: 'AI-powered analysis and comprehensive tools',
     toolCount: '25+ Tools + AI',
     features: [
-      'Everything in Basic',
-      '3 Student profiles',
+      'Everything in Free',
+      '1 Student profile',
       'AI Insights & Analytics',
       'Progress Analytics dashboard',
       'Unified IEP Review with AI',
@@ -88,24 +60,25 @@ const PARENT_PRICING = [
       'Priority email support (5GB)'
     ],
     limitations: [
-      'No expert analysis',
+      'Limited to 1 child',
+      'No expert support',
       'Basic specialization tools'
     ],
     icon: <Star className="h-6 w-6" />,
     gradient: 'from-blue-500 to-indigo-600',
     popular: true,
-    priceId: 'price_1Rr3co8iKZXV0srZA1kEdBW1'
+    priceId: 'price_essential_59_monthly'
   },
   {
     id: 'premium',
     name: 'Premium',
-    price: 49,
+    price: 199,
     period: '/month',
-    description: 'Expert analysis with specialized support',
+    description: 'Multi-child families with expert support',
     toolCount: '35+ Professional Tools',
     features: [
-      'Everything in Plus',
-      '5 Student profiles',
+      'Everything in Essential',
+      '3 Student profiles',
       'Expert Analysis tools',
       'Specialized Autism tools',
       'Gifted/2E specialized support',
@@ -114,18 +87,42 @@ const PARENT_PRICING = [
       'Professional behavioral support',
       'Advanced data analytics',
       'Custom letter builder',
-      'Priority phone support (10GB)',
+      'Priority phone support (25GB)',
       'Advanced report generation'
     ],
     limitations: [
-      'Single family only'
+      'No unlimited access',
+      'No white-glove service'
     ],
     icon: <Crown className="h-6 w-6" />,
     gradient: 'from-purple-500 to-purple-600',
-    priceId: 'price_1Rr3ds8iKZXV0srZdGlZvDbN'
+    priceId: 'price_premium_199_monthly'
   },
   {
     id: 'hero',
+    name: 'Hero',
+    price: 249,
+    period: '/month',
+    description: 'Ultimate tier with unlimited access',
+    toolCount: 'ALL 50+ Tools + Services',
+    features: [
+      'Everything in Premium',
+      'Unlimited student profiles',
+      'White-glove onboarding',
+      'Advocate matching & pairing',
+      'Crisis support hotline',
+      'Dedicated success manager',
+      'Unlimited AI & storage',
+      'Priority everything'
+    ],
+    limitations: [],
+    icon: <Crown className="h-6 w-6" />,
+    gradient: 'from-orange-500 to-red-600',
+    popular: false,
+    priceId: 'price_hero_249_monthly'
+  },
+  {
+    id: 'hero-family',
     name: 'Hero Family Pack',
     price: 199,
     period: '/month',

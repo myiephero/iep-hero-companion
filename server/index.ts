@@ -1991,7 +1991,7 @@ app.post('/api/autism_accommodations/preview', async (req, res) => {
     const { accommodation_ids, student_id, template_type } = req.body;
     
     // Fetch student info if provided
-    let student = null;
+    let student: any = null;
     if (student_id) {
       const studentResult = await db.select()
         .from(schema.students)
@@ -3471,7 +3471,7 @@ app.get('/api/cases', isAuthenticated, async (req: any, res) => {
     console.log('🚨 /API/STUDENTS ENDPOINT HIT - AFTER AUTH SETUP');
     try {
       // Same auth pattern as /api/auth/user
-      let userId = null;
+      let userId: string | null = null;
       
       const token = req.headers.authorization?.replace('Bearer ', '');
       if (token && token.trim()) {
@@ -4097,7 +4097,13 @@ Respond with this exact JSON format:
         });
       } else {
         // Legacy format: combine analyses for backward compatibility
-        const combined = {
+        const combined: {
+          sensory_analysis: any;
+          communication_insights: any;
+          behavioral_analysis: any;
+          social_analysis: any;
+          recommendations: string[];
+        } = {
           sensory_analysis: null,
           communication_insights: null,
           behavioral_analysis: null,
@@ -4123,7 +4129,7 @@ Respond with this exact JSON format:
             const recs = Array.isArray(data.recommendations) 
               ? data.recommendations 
               : [data.recommendations];
-            combined.recommendations.push(...recs.filter(Boolean));
+            combined.recommendations.push(...recs.filter((item): item is string => Boolean(item)));
           }
         });
 

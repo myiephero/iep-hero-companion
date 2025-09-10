@@ -158,6 +158,7 @@ export const advocate_clients = pgTable("advocate_clients", {
   client_id: varchar("client_id").notNull(),
   client_first_name: varchar("client_first_name"),
   client_last_name: varchar("client_last_name"),
+  client_email: varchar("client_email"),
   relationship_type: varchar("relationship_type"),
   status: varchar("status"),
   start_date: varchar("start_date"),

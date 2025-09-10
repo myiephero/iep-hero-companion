@@ -373,8 +373,13 @@ class ApiClient {
   }
 
   async inviteParent(email: string, firstName: string, lastName: string): Promise<any> {
+    console.log('🔄 CALLING NEW API ENDPOINT: /parents'); // Debug log
     return this.request('/parents', {
       method: 'POST',
+      headers: {
+        'Cache-Control': 'no-cache',
+        'Pragma': 'no-cache'
+      },
       body: JSON.stringify({ 
         full_name: `${firstName} ${lastName}`,
         email,

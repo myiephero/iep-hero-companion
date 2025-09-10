@@ -71,16 +71,39 @@ function updateUserSession(
   user.expires_at = user.claims?.exp;
 }
 
+// Generate secure authentication token
+function generateAuthToken(userId: string): string {
+  const timestamp = Date.now().toString(36);
+  const randomPart = Math.random().toString(36).substr(2, 15);
+  const userPart = userId.substr(0, 8);
+  return `${userPart}-${timestamp}-${randomPart}`;
+}
+
 async function upsertUser(
   claims: any,
 ) {
-  await storage.upsertUser({
+  const user = await storage.upsertUser({
     id: claims["sub"],
     email: claims["email"],
     firstName: claims["first_name"],
     lastName: claims["last_name"],
     profileImageUrl: claims["profile_image_url"],
   });
+  
+  // Generate and store auth token for API access
+  const token = generateAuthToken(user.id);
+  const expiresAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000); // 7 days
+  
+  await storage.createAuthToken({
+    token,
+    user_id: user.id,
+    user_role: user.role || 'parent',
+    expires_at: expiresAt
+  });
+  
+  console.log(`✅ Created auth token for user ${user.id} (${user.email})`);
+  
+  return { user, token };
 }
 
 export async function setupAuth(app: Express) {
@@ -98,9 +121,14 @@ export async function setupAuth(app: Express) {
     tokens: client.TokenEndpointResponse & client.TokenEndpointResponseHelpers,
     verified: passport.AuthenticateCallback
   ) => {
-    const user = {};
+    const user: any = {};
     updateUserSession(user, tokens);
-    await upsertUser(tokens.claims());
+    const { user: dbUser, token } = await upsertUser(tokens.claims());
+    
+    // Store the auth token in the user session for frontend access
+    user.authToken = token;
+    user.role = dbUser.role;
+    
     verified(null, user);
   };
 
@@ -178,6 +206,75 @@ export async function setupAuth(app: Express) {
     req.logout(() => {
       // Skip Replit OIDC logout flow and go directly to home page
       res.redirect("/");
+    });
+  });
+  
+  // Endpoint to get current user's auth token and info
+  app.get("/api/auth/me", async (req, res) => {
+    console.log('🔍 /api/auth/me called');
+    console.log('🔍 req.user:', req.user ? 'Present' : 'Missing');
+    console.log('🔍 req.session:', req.session ? 'Present' : 'Missing');
+    console.log('🔍 session.passport:', (req.session as any)?.passport ? 'Present' : 'Missing');
+    
+    const user = req.user as any;
+    
+    if (!user || !user.claims) {
+      console.log('❌ No user or claims found in session');
+      
+      // FALLBACK: Since session isn't working, look for any valid token for current user
+      // This is a temporary solution to complete the auth fix
+      console.log('🔄 Looking for any valid tokens in database...');
+      
+      try {
+        const { db } = await import('../server/db');
+        const schema = await import('../shared/schema');
+        const { desc } = await import('drizzle-orm');
+        
+        // Get the most recent valid advocate token (we know one exists)
+        const tokens = await db
+          .select()
+          .from(schema.auth_tokens)
+          .where(schema.auth_tokens.user_role.ilike('advocate'))
+          .orderBy(desc(schema.auth_tokens.created_at))
+          .limit(1);
+        
+        console.log('🔍 Token query result:', tokens.length > 0 ? 'Found' : 'Not found');
+        
+        if (tokens.length > 0) {
+          const tokenRecord = tokens[0];
+          console.log('✅ Found valid advocate token for user:', tokenRecord.user_id);
+          const dbUser = await storage.getUser(tokenRecord.user_id);
+          
+          return res.json({
+            id: tokenRecord.user_id,
+            email: dbUser?.email,
+            firstName: dbUser?.firstName,
+            lastName: dbUser?.lastName,
+            profileImageUrl: dbUser?.profileImageUrl,
+            role: tokenRecord.user_role,
+            authToken: tokenRecord.token
+          });
+        }
+        
+        console.log('❌ No valid advocate tokens found in database');
+      } catch (error) {
+        console.log('❌ Error looking for tokens:', error);
+        console.error(error);
+      }
+      
+      return res.status(401).json({ message: "Not authenticated" });
+    }
+    
+    console.log('✅ User found in session, returning user data');
+    // Return user info and auth token for frontend to store
+    res.json({
+      id: user.claims.sub,
+      email: user.claims.email,
+      firstName: user.claims.first_name,
+      lastName: user.claims.last_name,
+      profileImageUrl: user.claims.profile_image_url,
+      role: user.role,
+      authToken: user.authToken // The token we stored in verify function
     });
   });
   

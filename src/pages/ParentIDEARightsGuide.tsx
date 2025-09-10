@@ -25,6 +25,76 @@ import {
   Info
 } from "lucide-react";
 import { Link } from "react-router-dom";
+import { useToolAccess } from "@/hooks/useToolAccess";
+import { UpgradePrompt } from "@/components/UpgradePrompt";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { PlanFeatures, SubscriptionPlan } from "@/lib/planAccess";
+
+// Access-controlled tool button component
+interface AccessControlledToolButtonProps {
+  title: string;
+  icon: React.ComponentType<{ className?: string }>;
+  path: string;
+  requiredFeature: keyof PlanFeatures;
+  requiredPlan: SubscriptionPlan;
+}
+
+function AccessControlledToolButton({ title, icon: Icon, path, requiredFeature, requiredPlan }: AccessControlledToolButtonProps) {
+  const { hasAccess, currentPlan } = useToolAccess();
+  const [showUpgradeDialog, setShowUpgradeDialog] = useState(false);
+  
+  const isAccessible = hasAccess(requiredFeature);
+  
+  const handleClick = (e: React.MouseEvent) => {
+    if (!isAccessible) {
+      e.preventDefault();
+      setShowUpgradeDialog(true);
+    }
+  };
+
+  if (isAccessible) {
+    return (
+      <Link to={path}>
+        <Button variant="outline" className="w-full justify-start">
+          <Icon className="h-4 w-4 mr-2" />
+          {title}
+        </Button>
+      </Link>
+    );
+  }
+
+  return (
+    <>
+      <Button 
+        variant="outline" 
+        className="w-full justify-start opacity-60 cursor-pointer" 
+        onClick={handleClick}
+        data-testid={`button-upgrade-${title.toLowerCase().replace(/\s+/g, '-')}`}
+      >
+        <Icon className="h-4 w-4 mr-2" />
+        {title}
+        <Badge className="ml-auto text-xs">Premium</Badge>
+      </Button>
+      
+      <Dialog open={showUpgradeDialog} onOpenChange={setShowUpgradeDialog}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Upgrade Required</DialogTitle>
+            <DialogDescription>
+              This tool requires a {requiredPlan} plan or higher. Your current plan is {currentPlan}.
+            </DialogDescription>
+          </DialogHeader>
+          <UpgradePrompt 
+            toolName={title}
+            benefits={[`Access to ${title}`, "Enhanced features", "Priority support"]}
+            currentValue={currentPlan}
+            requiredPlan={requiredPlan}
+          />
+        </DialogContent>
+      </Dialog>
+    </>
+  );
+}
 
 // Parent-friendly state information for all 50 states
 const PARENT_STATE_INFO = {
@@ -1660,30 +1730,34 @@ export default function ParentIDEARightsGuide() {
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-3">
-                <Link to="/parent/tools/smart-letter-generator?template=ferpa-request">
-                  <Button variant="outline" className="w-full justify-start">
-                    <FileText className="h-4 w-4 mr-2" />
-                    Request My Child's Records
-                  </Button>
-                </Link>
-                <Link to="/parent/tools/smart-letter-generator?template=evaluation-request">
-                  <Button variant="outline" className="w-full justify-start">
-                    <Users className="h-4 w-4 mr-2" />
-                    Ask for Testing
-                  </Button>
-                </Link>
-                <Link to="/parent/tools/smart-letter-generator?template=iep-meeting-request">
-                  <Button variant="outline" className="w-full justify-start">
-                    <BookOpen className="h-4 w-4 mr-2" />
-                    Request a Meeting
-                  </Button>
-                </Link>
-                <Link to="/parent/tools/goal-generator">
-                  <Button variant="outline" className="w-full justify-start">
-                    <Star className="h-4 w-4 mr-2" />
-                    Create Better Goals
-                  </Button>
-                </Link>
+                <AccessControlledToolButton
+                  title="Request My Child's Records"
+                  icon={FileText}
+                  path="/parent/tools/smart-letter-generator?template=ferpa-request"
+                  requiredFeature="smartLetterGenerator"
+                  requiredPlan="free"
+                />
+                <AccessControlledToolButton
+                  title="Ask for Testing"
+                  icon={Users}
+                  path="/parent/tools/smart-letter-generator?template=evaluation-request"
+                  requiredFeature="smartLetterGenerator"
+                  requiredPlan="free"
+                />
+                <AccessControlledToolButton
+                  title="Request a Meeting"
+                  icon={BookOpen}
+                  path="/parent/tools/smart-letter-generator?template=iep-meeting-request"
+                  requiredFeature="smartLetterGenerator"
+                  requiredPlan="free"
+                />
+                <AccessControlledToolButton
+                  title="Create Better Goals"
+                  icon={Star}
+                  path="/parent/tools/goal-generator"
+                  requiredFeature="goalGenerator"
+                  requiredPlan="premium"
+                />
               </CardContent>
             </Card>
 

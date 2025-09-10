@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
+import { apiRequest } from "@/lib/queryClient";
 import { 
   Users, 
   Calendar, 
@@ -84,10 +85,10 @@ const AdvocateDashboard = ({ plan }: AdvocateDashboardProps) => {
         
         // Fetch students, cases, parents, and conversations in parallel
         const [studentsRes, casesRes, parentsRes, conversationsRes] = await Promise.all([
-          fetch('/api/students').then(r => r.ok ? r.json() : []),
-          fetch('/api/cases').then(r => r.ok ? r.json() : []),
-          fetch('/api/parents').then(r => r.ok ? r.json() : []),
-          fetch('/api/messaging/conversations').then(r => r.ok ? r.json() : [])
+          apiRequest('GET', '/api/students').then(r => r.json()).catch(() => []),
+          apiRequest('GET', '/api/cases').then(r => r.json()).catch(() => []),
+          apiRequest('GET', '/api/parents').then(r => r.json()).catch(() => []),
+          apiRequest('GET', '/api/messaging/conversations').then(r => r.json()).catch(() => [])
         ]);
         
         setStudents(studentsRes || []);

@@ -32,6 +32,7 @@ import {
 import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
 import { api, type Student } from "@/lib/api";
+import { apiRequest } from "@/lib/queryClient";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -558,11 +559,9 @@ const AdvocateStudents = () => {
 
   const fetchClients = async () => {
     try {
-      const response = await fetch('/api/parents');
-      if (response.ok) {
-        const data = await response.json();
-        setClients(data || []);
-      }
+      const response = await apiRequest('GET', '/api/parents');
+      const data = await response.json();
+      setClients(data || []);
     } catch (error) {
       console.error('Error fetching clients:', error);
       setClients([]);

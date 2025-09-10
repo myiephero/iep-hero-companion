@@ -66,7 +66,33 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
         }
 
         // Get token and make authenticated request
-        const token = localStorage.getItem('authToken');
+        let token = localStorage.getItem('authToken');
+        
+        // If no stored token, check for Replit Auth session
+        if (!token) {
+          console.log('🔍 No stored token, checking Replit Auth session...');
+          try {
+            const authResponse = await fetch('/api/auth/me', {
+              credentials: 'include'
+            });
+            
+            if (authResponse.ok) {
+              const authData = await authResponse.json();
+              console.log('✅ Replit Auth session found, storing token...');
+              
+              // Store the auth token for API calls
+              if (authData.authToken) {
+                localStorage.setItem('authToken', authData.authToken);
+                token = authData.authToken;
+                console.log('✅ Auth token stored in localStorage');
+              }
+            } else {
+              console.log('❌ No Replit Auth session found');
+            }
+          } catch (error) {
+            console.log('❌ Error checking Replit Auth session:', error);
+          }
+        }
         
         if (!token) {
           setUser(null);

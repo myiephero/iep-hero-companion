@@ -85,29 +85,22 @@ const ParentHeroPlan = () => {
 
   const comparisonPlans = [
     {
-      name: "Basic",
-      price: "$19/mo",
-      toolCount: "11 Core Tools",
-      features: ["No AI analysis", "2GB storage", "Email support", "Basic templates only"],
-      highlight: false
-    },
-    {
-      name: "Plus", 
-      price: "$29/mo",
+      name: "Essential",
+      price: "$59/mo",
       toolCount: "25+ Tools + AI",
       features: ["AI-powered insights", "5GB storage", "Advocate matching", "Priority support"],
       highlight: false
     },
     {
       name: "Premium",
-      price: "$49/mo", 
+      price: "$199/mo", 
       toolCount: "35+ Professional Tools",
-      features: ["Expert analysis tools", "10GB storage", "Specialized autism/2E tools", "Phone support"],
+      features: ["Expert analysis tools", "25GB storage", "Specialized autism/2E tools", "Phone support"],
       highlight: false
     },
     {
       name: "Hero Plan",
-      price: "$199/mo",
+      price: "$249/mo",
       toolCount: "ALL 50+ Tools + Services",
       features: ["Professional advocate services", "Unlimited AI & storage", "Crisis hotline", "Dedicated success manager"],
       highlight: true

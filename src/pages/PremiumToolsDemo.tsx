@@ -29,7 +29,7 @@ export default function PremiumToolsDemo() {
         "Tracks progress against state standards",
         "Generates parent-friendly summary reports"
       ],
-      requiredPlan: "plus" as const,
+      requiredPlan: "essential" as const,
       currentValue: "Save 10+ hours of manual review per IEP"
     },
     {
@@ -71,7 +71,7 @@ export default function PremiumToolsDemo() {
         "Document organization and checklist creation",
         "Post-meeting follow-up templates"
       ],
-      requiredPlan: "plus" as const,
+      requiredPlan: "essential" as const,
       currentValue: "Professional meeting prep worth $100+ per session"
     },
     {
@@ -99,7 +99,7 @@ export default function PremiumToolsDemo() {
         "Follow-up sequence automation",
         "Success tracking and response management"
       ],
-      requiredPlan: "plus" as const,
+      requiredPlan: "essential" as const,
       currentValue: "Professional letter writing worth $75+ per letter"
     }
   ];

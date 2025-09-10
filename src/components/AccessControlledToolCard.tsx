@@ -81,7 +81,24 @@ export function AccessControlledToolCard({
   const { hasAccess, currentPlan } = useToolAccess();
   const [showUpgradeDialog, setShowUpgradeDialog] = useState(false);
   
-  const isAccessible = hasAccess(requiredFeature);
+  // CRITICAL FIX: Ensure proper access control for all plan tiers
+  let isAccessible = hasAccess(requiredFeature);
+  
+  // FORCE OVERRIDE: Ensure free plan users get upgrade prompts for premium tools
+  if (currentPlan === 'free') {
+    const premiumFeatures: (keyof PlanFeatures)[] = [
+      'unifiedIEPReview', 'autismAccommodationBuilder', 'expertAnalysis', 
+      'giftedTwoeSupport', 'otActivityRecommender', 'meetingPrepWizard',
+      'documentVault', 'askAIAboutDocs', 'accommodationBuilder', 'emotionTracker'
+    ];
+    
+    if (premiumFeatures.includes(requiredFeature)) {
+      isAccessible = false; // Force upgrade prompt for premium tools
+    }
+  }
+  
+  // DEBUG: Log access decision 
+  console.log(`🔒 ACCESS: ${title} | Plan: ${currentPlan} | Required: ${requiredPlan} | Accessible: ${isAccessible}`);
   const truncatedDescription = description.length > 80 ? `${description.substring(0, 80)}...` : description;
 
   const handleClick = (e: React.MouseEvent) => {

@@ -2530,6 +2530,8 @@ app.post('/api/invite-parent', isAuthenticated, async (req, res) => {
     
     // Step 1: Create parent in users table (standardized approach)
     const parentUserId = createId();
+    const passwordSetupToken = `${parentUserId}-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+    
     await db.insert(schema.users).values({
       id: parentUserId,
       email,
@@ -2538,7 +2540,8 @@ app.post('/api/invite-parent', isAuthenticated, async (req, res) => {
       role: 'parent',
       email_verified: true, // Advocate-created accounts are pre-verified
       subscription_status: 'active',
-      subscription_plan: 'free' // Default plan for new parents
+      subscription_plan: 'free', // Default plan for new parents
+      verification_token: passwordSetupToken // Use verification_token field for password setup
     });
     
     // Step 2: Create advocate-client relationship (business relationship)
@@ -2568,7 +2571,7 @@ app.post('/api/invite-parent', isAuthenticated, async (req, res) => {
       
       const advocateName = advocate ? `${advocate.first_name} ${advocate.last_name}` : 'Your Advocate';
       
-      const emailSent = await sendAdvocateInviteEmail(email, firstName, lastName, advocateName);
+      const emailSent = await sendAdvocateInviteEmail(email, firstName, lastName, advocateName, passwordSetupToken);
       
       if (emailSent) {
         console.log(`✅ Welcome email sent to parent: ${email}`);
@@ -2591,6 +2594,78 @@ app.post('/api/invite-parent', isAuthenticated, async (req, res) => {
   } catch (error) {
     console.error('Error inviting parent:', error);
     res.status(500).json({ error: 'Failed to invite parent' });
+  }
+});
+
+// Password setup endpoint for advocate-invited parents
+app.post('/api/setup-password', async (req, res) => {
+  try {
+    const { token, password } = req.body;
+    
+    if (!token || !password) {
+      return res.status(400).json({ error: 'Token and password are required' });
+    }
+    
+    if (password.length < 8) {
+      return res.status(400).json({ error: 'Password must be at least 8 characters long' });
+    }
+    
+    // Find user by verification token
+    const [user] = await db
+      .select()
+      .from(schema.users)
+      .where(eq(schema.users.verification_token, token))
+      .limit(1);
+    
+    if (!user) {
+      return res.status(400).json({ error: 'Invalid or expired setup link' });
+    }
+    
+    // Hash the password
+    const hashedPassword = await hashPassword(password);
+    
+    // Update user with password and clear token
+    await db
+      .update(schema.users)
+      .set({
+        password: hashedPassword,
+        verification_token: null, // Clear the setup token
+        updated_at: new Date()
+      })
+      .where(eq(schema.users.id, user.id));
+    
+    // Create auth token for immediate login
+    const loginToken = `${user.id}-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+    const expiresAt = new Date(Date.now() + 24 * 60 * 60 * 1000); // 24 hours
+    
+    await db.insert(schema.auth_tokens).values({
+      token: loginToken,
+      user_id: user.id,
+      user_role: user.role,
+      expires_at: expiresAt
+    });
+    
+    console.log(`✅ Password setup completed for parent: ${user.email}`);
+    
+    res.json({
+      success: true,
+      message: 'Password setup completed successfully',
+      token: loginToken,
+      user: {
+        id: user.id,
+        email: user.email,
+        firstName: user.first_name,
+        lastName: user.last_name,
+        role: user.role,
+        subscriptionPlan: user.subscription_plan
+      },
+      redirectTo: user.role === 'parent' 
+        ? `/parent/dashboard-${user.subscription_plan?.toLowerCase().replace(/\s+/g, '') || 'free'}` 
+        : `/advocate/dashboard-${user.subscription_plan?.toLowerCase().replace(/\s+/g, '') || 'free'}`
+    });
+  } catch (error) {
+    console.error('Error setting up password:', error);
+    res.status(500).json({ error: 'Failed to set up password' });
   }
 });
 

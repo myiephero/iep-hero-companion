@@ -83,6 +83,7 @@ import NotFound from "./pages/NotFound";
 import CardShowcase from "./pages/CardShowcase";
 import PricingSelection from "./pages/PricingSelection";
 import MessagesTest from "./pages/MessagesTest";
+import SetupPassword from "./pages/SetupPassword";
 
 import { queryClient } from "./lib/queryClient";
 
@@ -99,6 +100,7 @@ function App() {
               <Route path="/" element={<Index />} />
               <Route path="/pricing" element={<PricingSelection />} />
               <Route path="/auth" element={<Auth />} />
+              <Route path="/setup-password" element={<SetupPassword />} />
               <Route path="/onboarding" element={<Onboarding />} />
               
               {/* Parent Routes - Protected */}

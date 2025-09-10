@@ -2528,14 +2528,17 @@ app.post('/api/invite-parent', isAuthenticated, async (req, res) => {
     // Get the authenticated advocate user ID  
     const advocateUserId = await getUserId(req);
     
-    // Step 1: Create parent profile (user account)
+    // Step 1: Create parent in users table (standardized approach)
     const parentUserId = createId();
-    await db.insert(schema.profiles).values({
+    await db.insert(schema.users).values({
       id: parentUserId,
-      user_id: parentUserId,
       email,
-      full_name: `${firstName} ${lastName}`,
-      role: 'parent'
+      first_name: firstName,
+      last_name: lastName,
+      role: 'parent',
+      email_verified: true, // Advocate-created accounts are pre-verified
+      subscription_status: 'active',
+      subscription_plan: 'free' // Default plan for new parents
     });
     
     // Step 2: Create advocate-client relationship (business relationship)

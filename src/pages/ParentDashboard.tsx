@@ -769,52 +769,66 @@ export default function ParentDashboard({ plan }: ParentDashboardProps) {
               ))}
             </div>
             
-            {/* Enhanced Tabs with Unified Design System */}
+            {/* Modern Horizontal Tab Navigation */}
             <Card className="border-0 shadow-lg overflow-hidden relative" style={{ zIndex: 'auto' }}>
               <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-                <div className="bg-gradient-to-r from-slate-50 to-gray-50 border-b border-gray-200">
-                  <TabsList className="grid w-full grid-cols-1 sm:grid-cols-4 bg-transparent p-1 h-auto">
-                    <TabsTrigger 
-                      value="goals" 
-                      className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-primary data-[state=active]:to-secondary data-[state=active]:text-white data-[state=active]:shadow-lg rounded-lg p-4 font-medium transition-all duration-300 hover:bg-white/50 cursor-pointer"
-                      data-testid="tab-goal-tracking"
-                    >
-                      <div className="flex items-center gap-2">
-                        <Target className="h-5 w-5" />
-                        <span>Goal Tracking</span>
-                      </div>
-                    </TabsTrigger>
-                    <TabsTrigger 
-                      value="meetings"
-                      className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-green-500 data-[state=active]:to-teal-600 data-[state=active]:text-white data-[state=active]:shadow-lg rounded-lg p-4 font-medium transition-all duration-300 hover:bg-white/50 cursor-pointer"
-                      data-testid="tab-meetings"
-                    >
-                      <div className="flex items-center gap-2">
-                        <Calendar className="h-5 w-5" />
-                        <span>Meetings</span>
-                      </div>
-                    </TabsTrigger>
-                    <TabsTrigger 
-                      value="emotions"
-                      className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-pink-500 data-[state=active]:to-rose-600 data-[state=active]:text-white data-[state=active]:shadow-lg rounded-lg p-4 font-medium transition-all duration-300 hover:bg-white/50 cursor-pointer"
-                      data-testid="tab-emotions"
-                    >
-                      <div className="flex items-center gap-2">
-                        <Smile className="h-5 w-5" />
-                        <span>Emotions</span>
-                      </div>
-                    </TabsTrigger>
-                    <TabsTrigger 
-                      value="insights"
-                      className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-orange-500 data-[state=active]:to-red-600 data-[state=active]:text-white data-[state=active]:shadow-lg rounded-lg p-4 font-medium transition-all duration-300 hover:bg-white/50 cursor-pointer"
-                      data-testid="tab-ai-insights"
-                    >
-                      <div className="flex items-center gap-2">
-                        <Sparkles className="h-5 w-5" />
-                        <span>Quick Insights</span>
-                      </div>
-                    </TabsTrigger>
-                  </TabsList>
+                <div className="w-full p-6 pb-0">
+                  <div className="bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 p-1 rounded-2xl shadow-lg">
+                    <div className="flex bg-white dark:bg-gray-900 rounded-xl p-2 gap-2">
+                      <button
+                        onClick={() => setActiveTab("goals")}
+                        className={`flex items-center gap-2 px-4 py-3 rounded-lg font-medium transition-all duration-200 flex-1 justify-center ${
+                          activeTab === "goals"
+                            ? "bg-gradient-to-r from-blue-500 to-purple-500 text-white shadow-md"
+                            : "text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800"
+                        }`}
+                        data-testid="tab-goal-tracking"
+                      >
+                        <Target className="h-4 w-4" />
+                        <span className="hidden sm:inline">Goal Tracking</span>
+                        <span className="sm:hidden">Goals</span>
+                      </button>
+                      <button
+                        onClick={() => setActiveTab("meetings")}
+                        className={`flex items-center gap-2 px-4 py-3 rounded-lg font-medium transition-all duration-200 flex-1 justify-center ${
+                          activeTab === "meetings"
+                            ? "bg-gradient-to-r from-green-500 to-teal-600 text-white shadow-md"
+                            : "text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800"
+                        }`}
+                        data-testid="tab-meetings"
+                      >
+                        <Calendar className="h-4 w-4" />
+                        <span className="hidden sm:inline">Meetings</span>
+                        <span className="sm:hidden">Meetings</span>
+                      </button>
+                      <button
+                        onClick={() => setActiveTab("emotions")}
+                        className={`flex items-center gap-2 px-4 py-3 rounded-lg font-medium transition-all duration-200 flex-1 justify-center ${
+                          activeTab === "emotions"
+                            ? "bg-gradient-to-r from-pink-500 to-rose-600 text-white shadow-md"
+                            : "text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800"
+                        }`}
+                        data-testid="tab-emotions"
+                      >
+                        <Smile className="h-4 w-4" />
+                        <span className="hidden sm:inline">Emotions</span>
+                        <span className="sm:hidden">Emotions</span>
+                      </button>
+                      <button
+                        onClick={() => setActiveTab("insights")}
+                        className={`flex items-center gap-2 px-4 py-3 rounded-lg font-medium transition-all duration-200 flex-1 justify-center ${
+                          activeTab === "insights"
+                            ? "bg-gradient-to-r from-orange-500 to-red-600 text-white shadow-md"
+                            : "text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800"
+                        }`}
+                        data-testid="tab-ai-insights"
+                      >
+                        <Sparkles className="h-4 w-4" />
+                        <span className="hidden sm:inline">Quick Insights</span>
+                        <span className="sm:hidden">Insights</span>
+                      </button>
+                    </div>
+                  </div>
                 </div>
 
               {/* Enhanced Goals Tab */}

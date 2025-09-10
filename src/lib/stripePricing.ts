@@ -10,43 +10,36 @@ export interface StripePlanConfig {
   setupFee?: number; // Optional one-time setup fee
 }
 
-// Parent Plans (5 total)
+// Parent Plans (4 total - Streamlined Structure)
 export const PARENT_STRIPE_PLANS: Record<string, StripePlanConfig> = {
   free: {
     priceId: '', // Free plan doesn't need Stripe
     amount: 0,
     interval: 'month',
     description: 'Community access with basic tools',
-    features: ['1 student', '3 core tools', 'Community support']
+    features: ['1 student', '5 core tools', 'Community support', 'IDEA Rights Guide']
   },
-  basic: {
-    priceId: 'price_1Rr3bk8iKZXV0srZ0URHZo4O', // PRODUCTION: Parent Basic $19/month
-    amount: 19,
+  essential: {
+    priceId: 'price_essential_59_monthly', // TODO: Create in Stripe Dashboard
+    amount: 59,
     interval: 'month',
-    description: 'Essential tools without AI',
-    features: ['1 student', '12 tools', 'Email support', 'No AI features']
-  },
-  plus: {
-    priceId: 'price_1Rr3co8iKZXV0srZA1kEdBW1', // PRODUCTION: Parent Plus $29/month
-    amount: 29,
-    interval: 'month',
-    description: 'AI-powered analysis and planning',
-    features: ['1 student', '25+ tools', 'AI analysis', 'Priority support']
+    description: 'AI-powered analysis and comprehensive planning tools',
+    features: ['1 student', '30+ tools', 'AI analysis', 'IEP Master Suite', 'Letter generator', 'Priority support']
   },
   premium: {
-    priceId: 'price_1Rr3e68iKZXV0srZnPPK5J3R', // PRODUCTION: Parent Premium $49/month
-    amount: 49,
-    interval: 'month',
-    description: 'Advanced tools and analytics',
-    features: ['2 students', '35+ tools', 'Advanced AI', 'Phone support']
-  },
-  hero: {
-    priceId: 'price_1S3nyI8iKZXV0srZy1awxPBd', // PRODUCTION: Hero Family Pack $199/month
+    priceId: 'price_premium_199_monthly', // TODO: Create in Stripe Dashboard 
     amount: 199,
     interval: 'month',
+    description: 'Advanced multi-child support with expert features',
+    features: ['3 students', '45+ tools', 'Advanced AI', 'Expert analysis', 'Emotion tracking', 'Phone support']
+  },
+  hero: {
+    priceId: 'price_hero_249_monthly', // TODO: Create in Stripe Dashboard
+    amount: 249,
+    interval: 'month',
     description: 'Complete advocacy platform with matching',
-    features: ['3 students', 'ALL 50+ tools', 'Advocate matching', 'White-glove setup'],
-    setupFee: 495 // One-time setup fee for Hero Family Pack
+    features: ['Unlimited students', 'ALL 50+ tools', 'Advocate matching', 'White-glove setup', 'Dedicated support'],
+    setupFee: 495 // One-time setup fee for Hero Family Pack (includes first month)
   }
 };
 
@@ -115,8 +108,7 @@ export function getCheckoutUrl(planId: string, role: 'parent' | 'advocate'): str
 
   // Get proper plan names based on the plan ID
   const planNameMap: Record<string, string> = {
-    'basic': 'Basic',
-    'plus': 'Plus', 
+    'essential': 'Essential',
     'premium': 'Premium',
     'hero': 'Hero Family Pack',
     'starter': 'Starter',

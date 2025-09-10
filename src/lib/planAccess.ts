@@ -1,5 +1,5 @@
 // Comprehensive subscription plan access control for IEP Hero platform
-export type SubscriptionPlan = 'free' | 'basic' | 'plus' | 'premium' | 'hero' | 'starter' | 'pro' | 'agency' | 'agency-plus';
+export type SubscriptionPlan = 'free' | 'essential' | 'premium' | 'hero' | 'starter' | 'pro' | 'agency' | 'agency-plus';
 
 // Define all tools and features available in the platform
 export interface PlanFeatures {
@@ -154,82 +154,8 @@ export const PLAN_FEATURES: Record<SubscriptionPlan, PlanFeatures> = {
     letterGenerationLimit: 2
   },
 
-  basic: {
-    // Dashboard Features - Basic
-    goalManagement: true,
-    meetingScheduler: true,
-    aiInsights: false,
-    progressAnalytics: false,
-    studentProfileManagement: true,
-    subscriptionManagement: true,
-    
-    // Analysis & Review Tools - Basic (NO AI)
-    iepReviewTool: false, // DISCONTINUED - replaced by Unified IEP Review
-    unifiedIEPReview: false, // AI-powered, only available from Plus
-    askAIAboutDocs: false,
-    expertAnalysis: false,
-    aiIEPReview: false,
-    
-    // Communication & Documentation - Basic
-    smartLetterGenerator: true,
-    documentVault: true,
-    parentMessages: false,
-    communicationTracker: false,
-    progressNotes: true,
-    
-    // Meeting & Planning Tools - Expanded
-    meetingPrepWizard: true,
-    meetingPrepAssistant: false,
-    parentMeetingPrep: false,
-    timelineCalculator: true,
-    
-    // Specialized Support Tools - Limited
-    accommodationBuilder: false,
-    autismAccommodationBuilder: false,
-    giftedTwoeSupport: false,
-    plan504Builder: false,
-    goalGenerator: false,
-    otActivityRecommender: false,
-    
-    // Educational Resources - Expanded
-    ideaRightsGuide: true,
-    ferpaOverview: true,
-    plan504Guide: true,
-    emotionTracker: false,
-    parentEmotionTracker: false,
-    
-    // Premium Services - Limited
-    heroPlan: false,
-    advocateMatchingTool: false,
-    expertSupport: false,
-    
-    // Advocate Tools - None
-    clientManagement: false,
-    caseAnalytics: false,
-    billingTools: false,
-    scheduleManagement: false,
-    teamCollaboration: false,
-    professionalAnalysis: false,
-    advocateMessaging: false,
-    advocacyReports: false,
-    caseManagement: false,
-    professionalPlanning: false,
-    professionalResources: false,
-    businessManagement: false,
-    specializedProfessionalTools: false,
-    
-    // Limits
-    storageLimit: '2GB',
-    supportLevel: 'Email support',
-    prioritySupport: false,
-    maxChildren: 1,
-    maxDocuments: 50,
-    aiAnalysisLimit: 5,
-    letterGenerationLimit: 10
-  },
-
-  plus: {
-    // Dashboard Features - Enhanced
+  essential: {
+    // Dashboard Features - Complete (merged Basic + Plus)
     goalManagement: true,
     meetingScheduler: true,
     aiInsights: true,
@@ -237,35 +163,35 @@ export const PLAN_FEATURES: Record<SubscriptionPlan, PlanFeatures> = {
     studentProfileManagement: true,
     subscriptionManagement: true,
     
-    // Analysis & Review Tools - Enhanced
+    // Analysis & Review Tools - AI-Powered (Premium features for $59)
     iepReviewTool: true,
     unifiedIEPReview: true,
     askAIAboutDocs: true,
-    expertAnalysis: false,
+    expertAnalysis: false, // Reserved for Premium
     aiIEPReview: true,
     
-    // Communication & Documentation - Enhanced
+    // Communication & Documentation - Full Suite
     smartLetterGenerator: true,
     documentVault: true,
     parentMessages: true,
     communicationTracker: true,
     progressNotes: true,
     
-    // Meeting & Planning Tools - Full
+    // Meeting & Planning Tools - Complete
     meetingPrepWizard: true,
     meetingPrepAssistant: true,
     parentMeetingPrep: true,
     timelineCalculator: true,
     
-    // Specialized Support Tools - Basic
+    // Specialized Support Tools - Core Features
     accommodationBuilder: true,
-    autismAccommodationBuilder: false,
-    giftedTwoeSupport: false,
+    autismAccommodationBuilder: false, // Reserved for Premium
+    giftedTwoeSupport: false, // Reserved for Premium
     plan504Builder: true,
     goalGenerator: true,
-    otActivityRecommender: false,
+    otActivityRecommender: false, // Reserved for Premium
     
-    // Educational Resources - Full
+    // Educational Resources - Full Access
     ideaRightsGuide: true,
     ferpaOverview: true,
     plan504Guide: true,
@@ -274,7 +200,7 @@ export const PLAN_FEATURES: Record<SubscriptionPlan, PlanFeatures> = {
     
     // Premium Services - Limited
     heroPlan: false,
-    advocateMatchingTool: true,
+    advocateMatchingTool: false, // Reserved for Premium/Hero
     expertSupport: false,
     
     // Advocate Tools - None
@@ -292,18 +218,18 @@ export const PLAN_FEATURES: Record<SubscriptionPlan, PlanFeatures> = {
     businessManagement: false,
     specializedProfessionalTools: false,
     
-    // Limits
-    storageLimit: '5GB',
+    // Limits - Enhanced for $59 tier
+    storageLimit: '10GB',
     supportLevel: 'Priority email support',
     prioritySupport: true,
     maxChildren: 1,
-    maxDocuments: 200,
-    aiAnalysisLimit: 15,
-    letterGenerationLimit: 25
+    maxDocuments: 300,
+    aiAnalysisLimit: 25,
+    letterGenerationLimit: 50
   },
 
   premium: {
-    // Dashboard Features - Advanced
+    // Dashboard Features - Advanced ($199/month value)
     goalManagement: true,
     meetingScheduler: true,
     aiInsights: true,
@@ -311,27 +237,27 @@ export const PLAN_FEATURES: Record<SubscriptionPlan, PlanFeatures> = {
     studentProfileManagement: true,
     subscriptionManagement: true,
     
-    // Analysis & Review Tools - Advanced
+    // Analysis & Review Tools - Expert Level
     iepReviewTool: true,
     unifiedIEPReview: true,
     askAIAboutDocs: true,
     expertAnalysis: true,
     aiIEPReview: true,
     
-    // Communication & Documentation - Advanced
+    // Communication & Documentation - Full Suite
     smartLetterGenerator: true,
     documentVault: true,
     parentMessages: true,
     communicationTracker: true,
     progressNotes: true,
     
-    // Meeting & Planning Tools - Full
+    // Meeting & Planning Tools - Complete
     meetingPrepWizard: true,
     meetingPrepAssistant: true,
     parentMeetingPrep: true,
     timelineCalculator: true,
     
-    // Specialized Support Tools - Enhanced
+    // Specialized Support Tools - All Available
     accommodationBuilder: true,
     autismAccommodationBuilder: true,
     giftedTwoeSupport: true,
@@ -339,17 +265,17 @@ export const PLAN_FEATURES: Record<SubscriptionPlan, PlanFeatures> = {
     goalGenerator: true,
     otActivityRecommender: true,
     
-    // Educational Resources - Full
+    // Educational Resources - Complete Access
     ideaRightsGuide: true,
     ferpaOverview: true,
     plan504Guide: true,
     emotionTracker: true,
     parentEmotionTracker: true,
     
-    // Premium Services - Enhanced
+    // Premium Services - Enhanced for Multi-Child Families
     heroPlan: false,
     advocateMatchingTool: true,
-    expertSupport: false,
+    expertSupport: true,
     
     // Advocate Tools - None
     clientManagement: false,
@@ -366,14 +292,14 @@ export const PLAN_FEATURES: Record<SubscriptionPlan, PlanFeatures> = {
     businessManagement: false,
     specializedProfessionalTools: false,
     
-    // Limits
-    storageLimit: '10GB',
-    supportLevel: 'Priority email support',
+    // Enhanced Limits for $199/month
+    storageLimit: '25GB',
+    supportLevel: 'Phone & email support',
     prioritySupport: true,
-    maxChildren: 2,
-    maxDocuments: 500,
-    aiAnalysisLimit: 50,
-    letterGenerationLimit: 100
+    maxChildren: 3,
+    maxDocuments: 1000,
+    aiAnalysisLimit: 100,
+    letterGenerationLimit: 200
   },
 
   hero: {
@@ -440,14 +366,14 @@ export const PLAN_FEATURES: Record<SubscriptionPlan, PlanFeatures> = {
     businessManagement: false,
     specializedProfessionalTools: true,
     
-    // Limits - Unlimited
+    // Enhanced Limits for $249/month + $495 setup
     storageLimit: 'Unlimited',
-    supportLevel: 'Priority phone & email support + monthly strategy calls',
+    supportLevel: 'Dedicated support manager + White-glove setup + Monthly strategy calls',
     prioritySupport: true,
-    maxChildren: 3,
+    maxChildren: 999999, // Unlimited
     maxDocuments: 999999,
-    aiAnalysisLimit: 999,
-    letterGenerationLimit: 999
+    aiAnalysisLimit: 999999,
+    letterGenerationLimit: 999999
   },
 
   // === ADVOCATE PLANS ===
@@ -781,7 +707,7 @@ export function normalizeSubscriptionPlan(plan: string | null | undefined): Subs
     case 'hero_family_pack':
       return 'hero';
     default:
-      if (['free', 'basic', 'plus', 'premium', 'hero'].includes(normalized)) {
+      if (['free', 'essential', 'premium', 'hero'].includes(normalized)) {
         return normalized as SubscriptionPlan;
       }
       return 'free';
@@ -789,7 +715,7 @@ export function normalizeSubscriptionPlan(plan: string | null | undefined): Subs
 }
 
 export function shouldShowUpgrade(currentPlan: SubscriptionPlan, requiredPlan: SubscriptionPlan): boolean {
-  const planOrder: SubscriptionPlan[] = ['free', 'basic', 'plus', 'premium', 'hero'];
+  const planOrder: SubscriptionPlan[] = ['free', 'essential', 'premium', 'hero'];
   const currentIndex = planOrder.indexOf(currentPlan);
   const requiredIndex = planOrder.indexOf(requiredPlan);
   return currentIndex < requiredIndex;
@@ -798,8 +724,7 @@ export function shouldShowUpgrade(currentPlan: SubscriptionPlan, requiredPlan: S
 export function getPlanDisplayName(plan: SubscriptionPlan): string {
   switch (plan) {
     case 'free': return 'Free';
-    case 'basic': return 'Basic';
-    case 'plus': return 'Plus'; 
+    case 'essential': return 'Essential'; 
     case 'premium': return 'Premium';
     case 'hero': return 'Hero Family Pack';
     default: return 'Free';
@@ -817,7 +742,7 @@ export function checkToolAccess(userPlan: SubscriptionPlan, requiredTool: keyof 
   }
 
   // Find the minimum plan that offers this tool
-  const planOrder: SubscriptionPlan[] = ['basic', 'plus', 'premium', 'hero'];
+  const planOrder: SubscriptionPlan[] = ['essential', 'premium', 'hero'];
   for (const plan of planOrder) {
     if (hasFeatureAccess(plan, requiredTool)) {
       return {

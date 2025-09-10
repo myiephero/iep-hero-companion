@@ -109,19 +109,14 @@ function App() {
                   <ParentDashboard plan="free" />
                 </ProtectedRoute>
               } />
-              <Route path="/parent/dashboard-basic" element={
-                <ProtectedRoute allowedRoles={['parent']} requiredPlan="basic">
-                  <ParentDashboard plan="basic" />
-                </ProtectedRoute>
-              } />
-              <Route path="/parent/dashboard-plus" element={
-                <ProtectedRoute allowedRoles={['parent']} requiredPlan="plus">
-                  <ParentDashboard plan="plus" />
+              <Route path="/parent/dashboard-essential" element={
+                <ProtectedRoute allowedRoles={['parent']} requiredPlan="essential">
+                  <ParentDashboard plan="essential" />
                 </ProtectedRoute>
               } />
               <Route path="/parent/dashboard-explorer" element={
-                <ProtectedRoute allowedRoles={['parent']} requiredPlan="plus">
-                  <ParentDashboard plan="plus" />
+                <ProtectedRoute allowedRoles={['parent']} requiredPlan="essential">
+                  <ParentDashboard plan="essential" />
                 </ProtectedRoute>
               } />
               <Route path="/parent/dashboard-premium" element={
@@ -560,7 +555,7 @@ function App() {
                 </ProtectedRoute>
               } />
               <Route path="/tools/iep-master-suite" element={
-                <ProtectedRoute allowedRoles={['parent', 'advocate']} requiredPlan="plus">
+                <ProtectedRoute allowedRoles={['parent', 'advocate']} requiredPlan="essential">
                   <IEPMasterSuite />
                 </ProtectedRoute>
               } />

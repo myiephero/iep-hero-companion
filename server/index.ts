@@ -1079,14 +1079,14 @@ app.post('/api/custom-login', async (req: any, res) => {
       redirectTo: user.role === 'parent' 
         ? `/parent/dashboard-${user.subscriptionPlan?.toLowerCase().replace(/\s+/g, '') || 'free'}` 
         : (() => {
-            const advocatePlanMapping = {
+            const advocatePlanMapping: Record<string, string> = {
               'starter': 'starter',
               'pro': 'pro',
               'agency': 'agency', 
               'agency plus': 'agency-plus',
               'agencyplus': 'agency-plus'
             };
-            const planSlug = advocatePlanMapping[user.subscriptionPlan?.toLowerCase()] || 'starter';
+            const planSlug = advocatePlanMapping[user.subscriptionPlan?.toLowerCase() || ''] || 'starter';
             return `/advocate/dashboard-${planSlug}`;
           })()
     });
@@ -1159,8 +1159,8 @@ app.post('/api/create-account', async (req, res) => {
       await sendVerificationEmail({
         email,
         firstName,
-        verificationToken,
-        role
+        lastName: lastName || '',
+        verificationToken
       });
       
       res.json({ 
@@ -1489,8 +1489,7 @@ app.post('/api/process-checkout-success', async (req, res) => {
           email: user.email,
           firstName: user.firstName,
           lastName: user.lastName || '',
-          verificationToken: user.verificationToken,
-          role: user.role
+          verificationToken: user.verificationToken
         });
         console.log('🔒 Sent verification email to previously pending user:', user.email);
       } else {

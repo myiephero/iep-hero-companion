@@ -149,8 +149,24 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
               }
             }
           }
+        } else if (response.status === 401) {
+          // Token is expired or invalid
+          console.log('🚫 Authentication failed - clearing expired token');
+          localStorage.removeItem('authToken');
+          setUser(null);
+          setProfile(null);
+          
+          // Only redirect to login if we're on a protected route
+          const currentPath = window.location.pathname;
+          const publicPaths = ['/parent/pricing', '/advocate/pricing', '/', '/auth', '/login'];
+          const isProtectedRoute = !publicPaths.some(path => currentPath === path || currentPath.includes(path));
+          
+          if (isProtectedRoute) {
+            console.log('🔄 Redirecting to login due to expired authentication');
+            window.location.href = '/auth';
+          }
         } else {
-          // User not authenticated - this is OK for public pages
+          // Other error - clear auth state but don't redirect
           setUser(null);
           setProfile(null);
         }

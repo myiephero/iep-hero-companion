@@ -526,6 +526,16 @@ app.get('/api/auth/user', async (req: any, res) => {
     return res.status(401).json({ error: 'Unauthorized' });
   } catch (error) {
     console.error("Error fetching user:", error);
+    
+    // Provide more specific error messages for debugging
+    if (error.message === 'Authentication required') {
+      return res.status(401).json({ 
+        error: 'Unauthorized', 
+        message: 'No valid authentication token or session found',
+        details: 'Please log in again'
+      });
+    }
+    
     res.status(500).json({ message: "Failed to fetch user" });
   }
 });

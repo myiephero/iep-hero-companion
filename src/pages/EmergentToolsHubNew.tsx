@@ -180,7 +180,7 @@ export default function EmergentToolsHubNew() {
           
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
             {emergentTools.map((tool, index) => (
-              <Card key={tool.title} className="hover:shadow-xl transition-all duration-200 hover:scale-[1.02] group border border-gray-200 hover:border-primary/30 bg-white h-[280px] flex flex-col">
+              <Card key={tool.title} className="hover:shadow-xl transition-all duration-200 hover:scale-[1.02] group border border-slate-600 hover:border-primary/30 bg-slate-800 h-[280px] flex flex-col">
                 <CardHeader className="pb-3 pt-4 px-4 flex-shrink-0">
                   <div className="flex flex-col items-center text-center space-y-3">
                     <div className="p-3 rounded-lg bg-gradient-to-br from-primary/10 to-primary/5 group-hover:from-primary/20 group-hover:to-primary/10 transition-all duration-200 shadow-sm">
@@ -190,7 +190,7 @@ export default function EmergentToolsHubNew() {
                       <Badge className="text-xs px-2 py-1 shadow-sm bg-blue-100 text-blue-700">
                         {tool.badge}
                       </Badge>
-                      <CardTitle className="text-sm font-semibold group-hover:text-primary transition-colors leading-tight">
+                      <CardTitle className="text-sm font-semibold text-white group-hover:text-primary transition-colors leading-tight">
                         {tool.title}
                       </CardTitle>
                     </div>
@@ -199,7 +199,7 @@ export default function EmergentToolsHubNew() {
                 
                 <CardContent className="pt-0 px-4 pb-4 flex-1 flex flex-col justify-between">
                   <div className="space-y-3 flex-1">
-                    <p className="text-xs text-gray-600 text-center leading-relaxed">
+                    <p className="text-xs text-gray-300 text-center leading-relaxed">
                       {tool.description.length > 80 ? `${tool.description.substring(0, 80)}...` : tool.description}
                     </p>
                   </div>

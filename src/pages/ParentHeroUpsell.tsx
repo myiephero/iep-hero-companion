@@ -74,9 +74,8 @@ export default function ParentHeroUpsell() {
 
   const comparisonPlans = [
     { name: "Free", price: "$0", features: ["Template Library", "Education Hub"] },
-    { name: "Basic", price: "$19", features: ["Intake Vault", "Pre-built Letters"] },
-    { name: "Plus", price: "$29", features: ["Progress Tracker", "Self-IEP Tools"] },
-    { name: "Premium", price: "$49", features: ["Live Chat", "IEP Review", "Discounts"] },
+    { name: "Essential", price: "$59", features: ["AI Analysis", "Document Vault", "25+ Tools"] },
+    { name: "Premium", price: "$199", features: ["Multi-child Support", "Expert Support", "35+ Tools"] },
     { name: "Hero Family Pack", price: "$495", isHero: true, features: ["Advocate Pairing", "Strategy Call", "Doc Review", "IEP Meeting", "30-Day Toolbox Access"] }
   ];
 

@@ -699,17 +699,47 @@ export function getPlanDashboardRoute(plan: SubscriptionPlan): string {
 export function normalizeSubscriptionPlan(plan: string | null | undefined): SubscriptionPlan {
   if (!plan) return 'free';
   
-  const normalized = plan.toLowerCase().replace(/\s+/g, '');
+  const normalized = plan.toLowerCase().replace(/\s+/g, '').replace(/[-_]/g, '');
   
+  // Handle specific plan name variations
   switch (normalized) {
+    // Parent plan variations
     case 'herofamilypack':
-    case 'hero-family-pack':
-    case 'hero_family_pack':
+    case 'herofamily':
+    case 'familypack':
       return 'hero';
+    case 'essential':
+    case 'basic':
+      return 'essential';
+    case 'premium':
+    case 'plus':
+      return 'premium';
+    case 'free':
+    case 'trial':
+      return 'free';
+    
+    // Advocate plan variations  
+    case 'starter':
+    case 'start':
+      return 'starter';
+    case 'pro':
+    case 'professional':
+      return 'pro';
+    case 'agency':
+      return 'agency';
+    case 'agencyplus':
+    case 'agencyplus':
+    case 'agency+':
+      return 'agency-plus';
+    
     default:
-      if (['free', 'essential', 'premium', 'hero'].includes(normalized)) {
+      // Direct match for known plans
+      const validPlans: SubscriptionPlan[] = ['free', 'essential', 'premium', 'hero', 'starter', 'pro', 'agency', 'agency-plus'];
+      if (validPlans.includes(normalized as SubscriptionPlan)) {
         return normalized as SubscriptionPlan;
       }
+      
+      console.warn('🚨 Unknown subscription plan format:', plan, '-> normalizing to "free"');
       return 'free';
   }
 }

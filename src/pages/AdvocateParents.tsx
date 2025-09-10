@@ -51,17 +51,19 @@ export default function AdvocateParents() {
     if (!user) return;
 
     try {
-      const response = await fetch('/api/parents');
+      const response = await fetch('/api/parents', {
+        credentials: 'include' // Send session cookies
+      });
       if (response.ok) {
         const data = await response.json();
+        console.log('✅ Fetched parent clients:', data);
         setParents(data || []);
       } else {
-        // If API doesn't exist yet, show empty state
+        console.error('❌ Failed to fetch parents:', response.status, response.statusText);
         setParents([]);
       }
     } catch (error) {
       console.error('Error fetching parents:', error);
-      // For now, just set empty array - API might not be implemented yet
       setParents([]);
     } finally {
       setLoading(false);

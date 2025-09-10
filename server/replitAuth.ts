@@ -228,13 +228,13 @@ export async function setupAuth(app: Express) {
       try {
         const { db } = await import('../server/db');
         const schema = await import('../shared/schema');
-        const { desc } = await import('drizzle-orm');
+        const { desc, eq } = await import('drizzle-orm');
         
         // Get the most recent valid advocate token (we know one exists)
         const tokens = await db
           .select()
           .from(schema.auth_tokens)
-          .where(schema.auth_tokens.user_role.ilike('advocate'))
+          .where(eq(schema.auth_tokens.user_role, 'advocate'))
           .orderBy(desc(schema.auth_tokens.created_at))
           .limit(1);
         

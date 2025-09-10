@@ -90,7 +90,6 @@ const getAdvocateNavigation = (dashboardUrl: string): SidebarSection[] => [
   {
     title: "Quick Tools",
     items: [
-      { title: "Unified IEP Review", url: "/advocate/tools/unified-iep-review", icon: FileSearch, badge: "Enhanced" },
       { title: "Client Matching", url: "/advocate/matching", icon: UserCheck },
     ]
   }

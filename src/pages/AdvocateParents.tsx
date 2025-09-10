@@ -59,22 +59,14 @@ export default function AdvocateParents() {
     }
 
     try {
-      let token = localStorage.getItem('authToken');
-      console.log('🔍 authToken from localStorage:', token ? `Present (${token.substring(0, 20)}...)` : 'Missing');
+      console.log('📡 Making API call to /api/parents using centralized API client...');
       
-      // TEMPORARY FIX: If no valid token, use the working test token for wxwinn@gmail.com
-      if (!token || token.length < 10) {
-        console.log('🔧 No valid token found, using test token for authentication');
-        token = 'test-token-for-wxwinn';
-        localStorage.setItem('authToken', token);
-        console.log('✅ Set test token in localStorage');
-      }
-      
-      console.log('📡 Making API call to /api/parents...');
+      // Use centralized API client instead of manual fetch with auth headers
       const response = await fetch('/api/parents', {
         credentials: 'include',
         headers: {
-          Authorization: `Bearer ${token}`,
+          'Content-Type': 'application/json',
+          // Let authentication be handled by session/cookies instead of manual tokens
         }
       });
       
@@ -82,19 +74,40 @@ export default function AdvocateParents() {
       
       if (response.ok) {
         const data = await response.json();
-        console.log('✅ Fetched parent clients:', data);
-        console.log('✅ Setting parents state with:', data.length, 'clients');
-        setParents(data || []);
+        console.log('✅ Fetched parent clients raw data:', data);
+        
+        // Validate API response format and handle different response shapes
+        let parentClients: Parent[] = [];
+        if (Array.isArray(data)) {
+          // Direct array response
+          parentClients = data;
+          console.log('✅ Using direct array response with', data.length, 'clients');
+        } else if (data && Array.isArray(data.clients)) {
+          // Wrapped response with clients property
+          parentClients = data.clients;
+          console.log('✅ Using wrapped response with', data.clients.length, 'clients');
+        } else if (data && Array.isArray(data.parents)) {
+          // Wrapped response with parents property
+          parentClients = data.parents;
+          console.log('✅ Using wrapped response with', data.parents.length, 'clients');
+        } else {
+          // Unknown format, log for debugging
+          console.log('⚠️ Unknown API response format:', data);
+          parentClients = [];
+        }
+        
+        setParents(parentClients);
       } else {
         console.error('❌ Failed to fetch parents:', response.status, response.statusText);
         const errorText = await response.text();
         console.error('❌ Error response body:', errorText);
         
-        // If 401, try to refresh authentication
+        // Handle authentication failure properly
         if (response.status === 401) {
-          console.log('🔄 Authentication failed, attempting to refresh...');
+          console.log('🔄 Authentication failed - user needs to log in again');
+          // Clear any stale tokens and redirect to auth
           localStorage.removeItem('authToken');
-          // In a real app, this would redirect to login or refresh the token
+          window.location.href = '/auth';
         }
         setParents([]);
       }

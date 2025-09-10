@@ -4,6 +4,9 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { useAuth } from "@/hooks/useAuth";
+import { AccessControlledToolCard } from "@/components/AccessControlledToolCard";
+import { getToolRequiredPlan } from "@/lib/toolAccess";
+import { PlanFeatures } from "@/lib/planAccess";
 import { 
   FileText, 
   Users, 
@@ -24,49 +27,61 @@ import {
 interface Tool {
   title: string;
   description: string;
-  icon: React.ReactElement;
+  icon: React.ComponentType<{ className?: string }>;
   url: string;
   category: string;
   badge?: string;
+  features: string[];
+  requiredFeature: keyof PlanFeatures;
 }
 
 const parentTools: Tool[] = [
   {
     title: "IEP Review Tool",
     description: "Upload and analyze your child's IEP documents",
-    icon: <FileSearch className="h-6 w-6" />,
+    icon: FileSearch,
     url: "/tools/iep-review",
-    category: "Analysis"
+    category: "Analysis",
+    features: ["Document Analysis", "AI Review", "Compliance Check"],
+    requiredFeature: "aiIEPReview"
   },
   {
     title: "Smart Letter Generator",
     description: "Create professional advocacy letters with templates and AI assistance",
-    icon: <PenTool className="h-6 w-6" />,
+    icon: PenTool,
     url: "/parent/tools/smart-letter-generator",
     category: "Communication",
-    badge: "Popular"
+    badge: "Popular",
+    features: ["Letter Templates", "AI Assistance", "Professional Format"],
+    requiredFeature: "smartLetterGenerator"
   },
   {
     title: "Accommodation Builder",
     description: "Generate accommodations for various disabilities",
-    icon: <Building2 className="h-6 w-6" />,
+    icon: Building2,
     url: "/tools/autism-accommodations",
-    category: "Planning"
+    category: "Planning",
+    features: ["Autism Support", "Sensory Accommodations", "Behavioral Strategies"],
+    requiredFeature: "autismAccommodationBuilder"
   },
   {
     title: "Meeting Preparation",
     description: "Prepare effectively for IEP meetings with guided wizards",
-    icon: <Calendar className="h-6 w-6" />,
+    icon: Calendar,
     url: "/parent/meeting-prep",
-    category: "Meetings"
+    category: "Meetings",
+    features: ["Meeting Prep", "Guided Wizards", "Preparation Tools"],
+    requiredFeature: "meetingPrepWizard"
   },
   {
     title: "HERO Plan",
     description: "Get expert IEP review, strategy call, and meeting support",
-    icon: <Crown className="h-6 w-6" />,
+    icon: Crown,
     url: "/parent-hero-plan",
     badge: "Premium",
-    category: "Support"
+    category: "Support",
+    features: ["Expert Review", "Strategy Call", "Meeting Support"],
+    requiredFeature: "heroPlan"
   }
 ];
 
@@ -74,45 +89,57 @@ const advocateTools: Tool[] = [
   {
     title: "IEP Review Tool",
     description: "Professional IEP analysis and compliance review for your clients",
-    icon: <FileSearch className="h-6 w-6" />,
+    icon: FileSearch,
     url: "/tools/iep-review",
-    category: "Analysis"
+    category: "Analysis",
+    features: ["Professional Analysis", "Compliance Review", "Client Reports"],
+    requiredFeature: "unifiedIEPReview"
   },
   {
     title: "Smart Letter Generator",
     description: "Create professional advocacy letters with legal templates and client customization",
-    icon: <PenTool className="h-6 w-6" />,
+    icon: PenTool,
     url: "/advocate/tools/smart-letter-generator",
     category: "Communication",
-    badge: "Pro"
+    badge: "Pro",
+    features: ["Legal Templates", "Client Customization", "Professional Format"],
+    requiredFeature: "smartLetterGenerator"
   },
   {
     title: "Accommodation Builder",
     description: "Generate accommodations for students with various disabilities",
-    icon: <Building2 className="h-6 w-6" />,
+    icon: Building2,
     url: "/tools/autism-accommodations",
-    category: "Planning"
+    category: "Planning",
+    features: ["Disability Support", "Professional Accommodations", "Custom Plans"],
+    requiredFeature: "autismAccommodationBuilder"
   },
   {
     title: "Case Management",
     description: "Manage your client caseload and track progress",
-    icon: <Users className="h-6 w-6" />,
+    icon: Users,
     url: "#", // Will redirect to plan-specific dashboard
-    category: "Management"
+    category: "Management",
+    features: ["Client Management", "Progress Tracking", "Case Organization"],
+    requiredFeature: "caseManagement"
   },
   {
     title: "Schedule & Meetings",
     description: "Manage your calendar and client meetings",
-    icon: <Calendar className="h-6 w-6" />,
+    icon: Calendar,
     url: "/advocate/schedule",
-    category: "Meetings"
+    category: "Meetings",
+    features: ["Calendar Management", "Client Meetings", "Scheduling Tools"],
+    requiredFeature: "meetingScheduler"
   },
   {
     title: "Client Messages",
     description: "Communicate securely with your clients",
-    icon: <MessageSquare className="h-6 w-6" />,
+    icon: MessageSquare,
     url: "/advocate/messages",
-    category: "Communication"
+    category: "Communication",
+    features: ["Secure Messaging", "Client Communication", "Professional Tools"],
+    requiredFeature: "advocateMessaging"
   }
 ];
 
@@ -201,59 +228,21 @@ const ToolsHub = () => {
               {tools
                 .filter(tool => tool.category === category)
                 .map((tool, index) => {
-                  // Different card styles for visual variety
-                  const cardStyles = [
-                    "card-elevated", // Enhanced shadow with gradient
-                    "card-glass", // Glass morphism effect
-                    "card-premium", // Premium design with border accent
-                    "card-minimal", // Clean minimal design
-                  ];
-                  const cardStyle = cardStyles[index % cardStyles.length];
+                  const requiredPlan = getToolRequiredPlan(tool.requiredFeature);
                   
                   return (
-                    <Card key={tool.title} className={`${cardStyle} group cursor-pointer transform hover:scale-[1.02] transition-all duration-300 hover:shadow-xl hover:shadow-primary/10`}>
-                      <CardContent className="p-6 h-full">
-                        <div className="space-y-4 h-full flex flex-col">
-                          {/* Icon with enhanced styling */}
-                          <div className="relative">
-                            <div className="w-14 h-14 rounded-xl bg-gradient-to-br from-primary/10 to-accent/10 flex items-center justify-center text-primary group-hover:from-primary group-hover:to-accent group-hover:text-primary-foreground transition-all duration-300 shadow-sm">
-                              {tool.icon}
-                            </div>
-                            {tool.badge && (
-                              <Badge 
-                                variant={tool.badge === 'Popular' ? 'default' : tool.badge === 'Premium' ? 'secondary' : 'outline'} 
-                                className={`absolute -top-2 -right-2 text-xs font-medium ${
-                                  tool.badge === 'Popular' ? 'bg-gradient-to-r from-secondary to-secondary-light text-secondary-foreground shadow-sm' :
-                                  tool.badge === 'Premium' ? 'bg-gradient-to-r from-warning to-warning-light text-warning-foreground shadow-sm' :
-                                  tool.badge === 'Pro' ? 'bg-gradient-to-r from-accent to-accent-light text-accent-foreground shadow-sm' :
-                                  'bg-success/10 text-success border-success/20'
-                                }`}
-                              >
-                                {tool.badge}
-                              </Badge>
-                            )}
-                          </div>
-                          
-                          {/* Content with better typography */}
-                          <div className="flex-1">
-                            <h3 className="font-bold text-lg mb-2 text-foreground group-hover:text-primary transition-colors duration-200">
-                              {tool.title}
-                            </h3>
-                            <p className="text-sm text-muted-foreground leading-relaxed group-hover:text-foreground/80 transition-colors duration-200">
-                              {tool.description}
-                            </p>
-                          </div>
-                          
-                          {/* Enhanced button */}
-                          <Button asChild className="w-full bg-gradient-to-r from-primary to-primary-light hover:from-primary-dark hover:to-primary shadow-button hover:shadow-button-hover transition-all duration-200 group-hover:scale-105">
-                            <Link to={tool.url} className="flex items-center gap-2">
-                              Open Tool
-                              <Zap className="h-4 w-4 opacity-70 group-hover:opacity-100 transition-opacity" />
-                            </Link>
-                          </Button>
-                        </div>
-                      </CardContent>
-                    </Card>
+                    <AccessControlledToolCard
+                      key={tool.title}
+                      title={tool.title}
+                      description={tool.description}
+                      icon={tool.icon}
+                      path={tool.url}
+                      badge={tool.badge || "Core"}
+                      features={tool.features}
+                      requiredFeature={tool.requiredFeature}
+                      requiredPlan={requiredPlan}
+                      className="h-full"
+                    />
                   );
                 })}
             </div>

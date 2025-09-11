@@ -40,6 +40,24 @@ const getUserRole = () => {
 
 const advocateTools = [
   {
+    title: "Unified IEP Review",
+    description: "Comprehensive AI-powered IEP analysis with quality scoring, compliance checks, and actionable improvement recommendations.",
+    icon: Brain,
+    path: "/advocate/tools/unified-iep-review",
+    category: "AI Analysis",
+    badge: "Enhanced",
+    features: ["AI-powered analysis", "Quality scoring", "Compliance checks", "Professional insights"]
+  },
+  {
+    title: "IEP Master Suite",
+    description: "Complete IEP management toolkit with goal tracking, progress monitoring, and comprehensive reporting for professional advocacy.",
+    icon: FileBarChart,
+    path: "/advocate/tools/iep-master-suite",
+    category: "IEP Planning",
+    badge: "Master",
+    features: ["Goal tracking", "Progress monitoring", "Comprehensive reporting", "Professional analysis"]
+  },
+  {
     title: "Smart Letter Generator",
     description: "Generate legally sound advocacy letters with professional templates and customization options.",
     icon: PenTool,

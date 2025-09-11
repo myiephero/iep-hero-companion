@@ -3095,31 +3095,56 @@ app.get('/api/students', isAuthenticated, async (req: any, res) => {
     
     if (userRole === 'advocate') {
       // Advocate: Get students from all their clients
-      students = await db
-        .select({
-          id: schema.students.id,
-          full_name: schema.students.full_name,
-          date_of_birth: schema.students.date_of_birth,
-          grade_level: schema.students.grade_level,
-          school_name: schema.students.school_name,
-          district: schema.students.district,
-          case_manager: schema.students.case_manager,
-          case_manager_email: schema.students.case_manager_email,
-          disability_category: schema.students.disability_category,
-          iep_date: schema.students.iep_date,
-          iep_status: schema.students.iep_status,
-          next_review_date: schema.students.next_review_date,
-          emergency_contact: schema.students.emergency_contact,
-          emergency_phone: schema.students.emergency_phone,
-          medical_info: schema.students.medical_info,
-          notes: schema.students.notes,
-          parent_id: schema.students.parent_id,
-          created_at: schema.students.created_at,
-          updated_at: schema.students.updated_at
-        })
-        .from(schema.students)
-        .leftJoin(schema.advocate_clients, eq(schema.students.parent_id, schema.advocate_clients.client_id))
-        .where(eq(schema.advocate_clients.advocate_id, userId));
+      // First get the advocate profile record using the user_id
+      const [advocate] = await db
+        .select()
+        .from(schema.advocates)
+        .where(eq(schema.advocates.user_id, userId))
+        .limit(1);
+      
+      if (!advocate) {
+        console.log('❌ No advocate profile found for user:', userId);
+        students = [];
+      } else {
+        // Get students using the correct advocate profile ID (not user ID)
+        const studentsRaw = await db
+          .select({
+            id: schema.students.id,
+            full_name: schema.students.full_name,
+            date_of_birth: schema.students.date_of_birth,
+            grade_level: schema.students.grade_level,
+            school_name: schema.students.school_name,
+            district: schema.students.district,
+            case_manager: schema.students.case_manager,
+            case_manager_email: schema.students.case_manager_email,
+            disability_category: schema.students.disability_category,
+            iep_date: schema.students.iep_date,
+            iep_status: schema.students.iep_status,
+            next_review_date: schema.students.next_review_date,
+            emergency_contact: schema.students.emergency_contact,
+            emergency_phone: schema.students.emergency_phone,
+            medical_info: schema.students.medical_info,
+            notes: schema.students.notes,
+            parent_id: schema.students.parent_id,
+            created_at: schema.students.created_at,
+            updated_at: schema.students.updated_at
+          })
+          .from(schema.students)
+          .leftJoin(schema.advocate_clients, eq(schema.students.parent_id, schema.advocate_clients.client_id))
+          .where(and(
+            eq(schema.advocate_clients.advocate_id, advocate.id),
+            eq(schema.advocate_clients.status, 'active')
+          ));
+        
+        // Remove duplicates by student ID
+        const studentMap = new Map();
+        studentsRaw.forEach(student => {
+          if (student.id && !studentMap.has(student.id)) {
+            studentMap.set(student.id, student);
+          }
+        });
+        students = Array.from(studentMap.values());
+      }
     } else {
       // Parent: Get their own students
       students = await db
@@ -3511,121 +3536,6 @@ app.get('/api/cases', isAuthenticated, async (req: any, res) => {
   
   // Setup complete
 
-  // Students endpoint - for advocates viewing their clients' students
-  app.get('/api/students', async (req: any, res) => {
-    console.log('🚨 /API/STUDENTS ENDPOINT HIT - AFTER AUTH SETUP');
-    try {
-      // Same auth pattern as /api/auth/user
-      let userId: string | null = null;
-      
-      const token = req.headers.authorization?.replace('Bearer ', '');
-      if (token && token.trim()) {
-        try {
-          const [tokenRecord] = await db.select()
-            .from(schema.auth_tokens)
-            .where(and(
-              eq(schema.auth_tokens.token, token),
-              gt(schema.auth_tokens.expires_at, new Date())
-            ))
-            .limit(1);
-          
-          if (tokenRecord && tokenRecord.user_id) {
-            userId = tokenRecord.user_id;
-          }
-        } catch (error) {
-          console.warn('Token auth failed:', error);
-        }
-      }
-      
-      if (!userId) {
-        const user = req.user;
-        if (user && user.claims && user.claims.sub) {
-          userId = user.claims.sub;
-        }
-      }
-      
-      if (!userId) {
-        return res.status(401).json({ message: 'Unauthorized' });
-      }
-      
-      console.log('✅ STUDENTS: Got user ID:', userId);
-      
-      // Check if user is a parent or advocate
-      const user = await storage.getUser(userId);
-      let students: any[] = [];
-      
-      if (user?.role === 'advocate') {
-        console.log('Fetching students for advocate:', userId);
-        
-        // For advocates, get their profile first
-        const advocate = await db.select().from(schema.advocates)
-          .where(eq(schema.advocates.user_id, userId))
-          .then(results => results[0]);
-        
-        if (advocate) {
-          console.log('✅ STUDENTS: Found advocate profile:', advocate.id);
-          
-          // Get students from multiple sources:
-          // 1. From active cases
-          const caseStudents = await db.select({
-            student: schema.students,
-            case: schema.cases,
-            client: schema.users
-          })
-          .from(schema.cases)
-          .leftJoin(schema.students, eq(schema.cases.student_id, schema.students.id))
-          .leftJoin(schema.users, eq(schema.cases.client_id, schema.users.id))
-          .where(and(
-            eq(schema.cases.advocate_id, advocate.id),
-            eq(schema.cases.status, 'active')
-          ));
-          
-          // 2. From direct advocate-client relationships where clients have students
-          const clientStudents = await db.select({
-            student: schema.students,
-            client: schema.users
-          })
-          .from(schema.advocate_clients)
-          .leftJoin(schema.users, eq(schema.advocate_clients.client_id, schema.users.id))
-          .leftJoin(schema.students, eq(schema.students.parent_id, schema.users.id))
-          .where(and(
-            eq(schema.advocate_clients.advocate_id, advocate.id),
-            eq(schema.advocate_clients.status, 'active')
-          ));
-          
-          // Combine and deduplicate students
-          const allStudents = [...caseStudents, ...clientStudents];
-          const studentMap = new Map();
-          
-          allStudents.forEach(({ student, client }) => {
-            if (student && !studentMap.has(student.id)) {
-              studentMap.set(student.id, {
-                ...student,
-                parent: client ? {
-                  id: client.id,
-                  email: client.email,
-                  firstName: client.firstName,
-                  lastName: client.lastName
-                } : null
-              });
-            }
-          });
-          
-          students = Array.from(studentMap.values());
-        }
-      } else if (user?.role === 'parent') {
-        // For parents, get their own students
-        students = await db.select().from(schema.students)
-          .where(eq(schema.students.parent_id, userId));
-      }
-      
-      console.log(`✅ STUDENTS: Found ${students.length} students for user ${userId}`);
-      res.json(students);
-    } catch (error) {
-      console.error('Error fetching students:', error);
-      res.status(500).json({ error: 'Failed to fetch students' });
-    }
-  });
   
   // Autism AI Analysis endpoint
   app.post('/api/autism-ai-analysis', async (req: any, res) => {

@@ -7,11 +7,12 @@ import { Progress } from "@/components/ui/progress";
 import { useToast } from "@/hooks/use-toast";
 import { DashboardLayout } from "@/layouts/DashboardLayout";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Users, Mail, Phone, Plus, UserCheck, UserPlus, GraduationCap, Calendar, MapPin, Briefcase, FileText, Target, Building2, Heart, User } from "lucide-react";
+import { Users, Mail, Phone, Plus, UserCheck, UserPlus, GraduationCap, Calendar, MapPin, Briefcase, FileText, Target, Building2, Heart, User, ChevronDown } from "lucide-react";
 import { Link } from "react-router-dom";
 import { api } from "@/lib/api";
 import { apiRequest } from "@/lib/queryClient";
@@ -46,7 +47,15 @@ function CreateCaseButton({ parentId, parentName }: { parentId: string; parentNa
   const [caseDescription, setCaseDescription] = useState("");
   const [students, setStudents] = useState<Student[]>([]);
   const [loading, setLoading] = useState(false);
+  const [selectedStatus, setSelectedStatus] = useState<string>('active');
   const { toast } = useToast();
+
+  const statusOptions = [
+    { value: 'active', label: 'Active', color: 'text-green-600' },
+    { value: 'pending', label: 'Pending', color: 'text-yellow-600' },
+    { value: 'closed', label: 'Closed', color: 'text-gray-600' },
+    { value: 'inactive', label: 'Inactive', color: 'text-red-600' },
+  ];
 
   // Fetch students for this parent when dialog opens
   useEffect(() => {
@@ -94,7 +103,7 @@ function CreateCaseButton({ parentId, parentName }: { parentId: string; parentNa
         student_id: selectedStudentId,
         title: `IEP Support for ${selectedStudent?.full_name || 'Student'}`,
         description: caseDescription.trim(),
-        status: 'active'
+        status: selectedStatus
       };
 
       const response = await apiRequest('POST', '/api/cases', caseData);
@@ -107,6 +116,7 @@ function CreateCaseButton({ parentId, parentName }: { parentId: string; parentNa
         // Reset form and close dialog
         setSelectedStudentId("");
         setCaseDescription("");
+        setSelectedStatus('active');
         setIsCreateCaseOpen(false);
         
         // Refresh the page data
@@ -126,20 +136,44 @@ function CreateCaseButton({ parentId, parentName }: { parentId: string; parentNa
     }
   };
 
+  const currentStatusOption = statusOptions.find(option => option.value === selectedStatus);
+
   return (
     <>
       <Dialog open={isCreateCaseOpen} onOpenChange={setIsCreateCaseOpen}>
         <DialogTrigger asChild>
-          <Button size="sm" className="w-full" data-testid="button-create-case">
-            <Briefcase className="h-4 w-4 mr-2" />
-            Create Case
-          </Button>
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button size="sm" className="w-full" data-testid="button-create-case">
+                <Briefcase className="h-4 w-4 mr-2" />
+                Create Case
+                <ChevronDown className="h-4 w-4 ml-2" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" className="w-48">
+              {statusOptions.map((option) => (
+                <DropdownMenuItem
+                  key={option.value}
+                  onSelect={() => {
+                    setSelectedStatus(option.value);
+                    setIsCreateCaseOpen(true);
+                  }}
+                  data-testid={`menu-item-${option.value}`}
+                >
+                  <Briefcase className="h-4 w-4 mr-2" />
+                  <span className={option.color}>
+                    Create {option.label} Case
+                  </span>
+                </DropdownMenuItem>
+              ))}
+            </DropdownMenuContent>
+          </DropdownMenu>
         </DialogTrigger>
         <DialogContent>
           <DialogHeader>
             <DialogTitle>Create New Advocacy Case</DialogTitle>
             <DialogDescription>
-              Create a new advocacy case for {parentName}. This will begin an active advocacy relationship.
+              Create a new <span className={currentStatusOption?.color}>{currentStatusOption?.label.toLowerCase()}</span> advocacy case for {parentName}.
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-4">
@@ -159,6 +193,16 @@ function CreateCaseButton({ parentId, parentName }: { parentId: string; parentNa
                   </option>
                 ))}
               </select>
+            </div>
+            
+            <div>
+              <Label htmlFor="case-status">Case Status</Label>
+              <div className="flex items-center gap-2 p-2 border rounded-md bg-muted">
+                <Briefcase className="h-4 w-4" />
+                <span className={`font-medium ${currentStatusOption?.color}`}>
+                  {currentStatusOption?.label}
+                </span>
+              </div>
             </div>
             
             <div>

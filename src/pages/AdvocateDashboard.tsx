@@ -90,6 +90,11 @@ const AdvocateDashboard = ({ plan }: AdvocateDashboardProps) => {
     enabled: !!user
   });
   
+  const { data: goalsData = [], isLoading: goalsLoading } = useQuery({
+    queryKey: ['/api/goals'],
+    enabled: !!user
+  });
+  
   const { data: pendingData, isLoading: pendingLoading } = useQuery({
     queryKey: ['/api/match/pending-assignments'],
     enabled: !!user,
@@ -98,7 +103,7 @@ const AdvocateDashboard = ({ plan }: AdvocateDashboardProps) => {
   });
   
   const pendingAssignments = (pendingData as any)?.assignments || [];
-  const loading = studentsLoading || casesLoading || parentsLoading || conversationsLoading || pendingLoading;
+  const loading = studentsLoading || casesLoading || parentsLoading || conversationsLoading || pendingLoading || goalsLoading;
 
   // Accept proposal mutation with proper cache invalidation
   const acceptProposalMutation = useMutation({
@@ -158,6 +163,7 @@ const AdvocateDashboard = ({ plan }: AdvocateDashboardProps) => {
   // Calculate dashboard metrics
   const openCases = (cases as any[]).filter(c => c.status === 'active' || c.status === 'open');
   const totalPendingCount = pendingAssignments.length;
+  const completedGoals = (goalsData as any[]).filter(g => g.status === 'completed' || g.status === 'achieved' || g.status === 'met');
   const [upcomingMeetings, setUpcomingMeetings] = useState([]);
   const actionLoading = acceptProposalMutation.isPending || declineProposalMutation.isPending;
 
@@ -292,8 +298,8 @@ const AdvocateDashboard = ({ plan }: AdvocateDashboardProps) => {
           />
           <StatCard
             title="Goals Achieved"
-            value="24"
-            description="This month"
+            value={completedGoals.length.toString()}
+            description="Total completed"
             icon={<Target className="h-4 w-4" />}
           />
         </div>

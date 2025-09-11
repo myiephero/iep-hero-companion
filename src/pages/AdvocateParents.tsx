@@ -12,7 +12,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Users, Mail, Phone, Plus, UserCheck, UserPlus, GraduationCap, Calendar, MapPin, Briefcase, FileText, Target, Building2, Heart, User, ChevronDown } from "lucide-react";
+import { Users, Mail, Phone, Plus, UserCheck, UserPlus, GraduationCap, Calendar, MapPin, Briefcase, FileText, Target, Building2, Heart, User, ChevronDown, CheckCircle, Clock, XCircle, Pause } from "lucide-react";
 import { Link } from "react-router-dom";
 import { api } from "@/lib/api";
 import { apiRequest } from "@/lib/queryClient";
@@ -51,10 +51,42 @@ function CreateCaseButton({ parentId, parentName }: { parentId: string; parentNa
   const { toast } = useToast();
 
   const statusOptions = [
-    { value: 'active', label: 'Active', color: 'text-green-600' },
-    { value: 'pending', label: 'Pending', color: 'text-yellow-600' },
-    { value: 'closed', label: 'Closed', color: 'text-gray-600' },
-    { value: 'inactive', label: 'Inactive', color: 'text-red-600' },
+    { 
+      value: 'active', 
+      label: 'Active', 
+      color: 'text-green-700',
+      bgColor: 'hover:bg-green-50',
+      badgeColor: 'bg-green-100 text-green-800 border-green-200',
+      icon: CheckCircle,
+      description: 'Case is actively being worked on'
+    },
+    { 
+      value: 'pending', 
+      label: 'Pending', 
+      color: 'text-amber-700',
+      bgColor: 'hover:bg-amber-50', 
+      badgeColor: 'bg-amber-100 text-amber-800 border-amber-200',
+      icon: Clock,
+      description: 'Case is waiting for action or review'
+    },
+    { 
+      value: 'closed', 
+      label: 'Closed', 
+      color: 'text-slate-600',
+      bgColor: 'hover:bg-slate-50',
+      badgeColor: 'bg-slate-100 text-slate-800 border-slate-200',
+      icon: XCircle,
+      description: 'Case has been completed or resolved'
+    },
+    { 
+      value: 'inactive', 
+      label: 'Inactive', 
+      color: 'text-red-700',
+      bgColor: 'hover:bg-red-50',
+      badgeColor: 'bg-red-100 text-red-800 border-red-200',
+      icon: Pause,
+      description: 'Case is on hold or suspended'
+    },
   ];
 
   // Fetch students for this parent when dialog opens
@@ -150,22 +182,43 @@ function CreateCaseButton({ parentId, parentName }: { parentId: string; parentNa
                 <ChevronDown className="h-4 w-4 ml-2" />
               </Button>
             </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="w-48">
-              {statusOptions.map((option) => (
-                <DropdownMenuItem
-                  key={option.value}
-                  onSelect={() => {
-                    setSelectedStatus(option.value);
-                    setIsCreateCaseOpen(true);
-                  }}
-                  data-testid={`menu-item-${option.value}`}
-                >
-                  <Briefcase className="h-4 w-4 mr-2" />
-                  <span className={option.color}>
-                    Create {option.label} Case
-                  </span>
-                </DropdownMenuItem>
-              ))}
+            <DropdownMenuContent align="end" className="w-72 p-2">
+              <div className="px-2 py-1.5 mb-2">
+                <p className="text-sm font-medium text-muted-foreground">Choose case status</p>
+              </div>
+              {statusOptions.map((option) => {
+                const IconComponent = option.icon;
+                return (
+                  <DropdownMenuItem
+                    key={option.value}
+                    onSelect={() => {
+                      setSelectedStatus(option.value);
+                      setIsCreateCaseOpen(true);
+                    }}
+                    data-testid={`menu-item-${option.value}`}
+                    className={`p-3 cursor-pointer rounded-lg transition-all duration-200 ${option.bgColor} border border-transparent hover:border-border`}
+                  >
+                    <div className="flex items-center gap-3 w-full">
+                      <div className={`p-2 rounded-full ${option.badgeColor.replace('text-', 'bg-').replace('border-', 'bg-').replace('100', '200').replace('800', '100')}`}>
+                        <IconComponent className="h-4 w-4" />
+                      </div>
+                      <div className="flex-1">
+                        <div className="flex items-center gap-2">
+                          <span className={`font-medium ${option.color}`}>
+                            Create {option.label} Case
+                          </span>
+                          <Badge variant="outline" className={`text-xs ${option.badgeColor}`}>
+                            {option.label}
+                          </Badge>
+                        </div>
+                        <p className="text-xs text-muted-foreground mt-0.5">
+                          {option.description}
+                        </p>
+                      </div>
+                    </div>
+                  </DropdownMenuItem>
+                );
+              })}
             </DropdownMenuContent>
           </DropdownMenu>
         </DialogTrigger>

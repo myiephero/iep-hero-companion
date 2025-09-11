@@ -10,7 +10,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Users, Mail, Phone, Plus, UserCheck, UserPlus, GraduationCap } from "lucide-react";
+import { Users, Mail, Phone, Plus, UserCheck, UserPlus, GraduationCap, Calendar, MapPin } from "lucide-react";
 import { Link } from "react-router-dom";
 import { api } from "@/lib/api";
 import { apiRequest } from "@/lib/queryClient";
@@ -23,6 +23,113 @@ interface Parent {
   created_at: string;
   status: string;
   students_count?: number;
+}
+
+interface Student {
+  id: string;
+  full_name: string;
+  grade_level?: string;
+  school_name?: string;
+  disability_category?: string;
+  iep_status?: string;
+  created_at: string;
+}
+
+// Component to display students for a specific parent
+function StudentListForParent({ parentId }: { parentId: string }) {
+  const [students, setStudents] = useState<Student[]>([]);
+  const [loading, setLoading] = useState(true);
+  const { user } = useAuth();
+
+  useEffect(() => {
+    const fetchStudentsForParent = async () => {
+      try {
+        console.log(`🔍 Fetching students for parent: ${parentId}`);
+        
+        // Get all students for the advocate, then filter by parent
+        const response = await apiRequest('GET', '/api/students');
+        const allStudents = await response.json();
+        
+        console.log('🔍 All students:', allStudents);
+        
+        // Filter students that belong to this parent
+        const parentStudents = Array.isArray(allStudents) ? 
+          allStudents.filter((student: any) => student.user_id === parentId || student.parent_id === parentId) : 
+          [];
+        
+        console.log(`✅ Found ${parentStudents.length} students for parent ${parentId}:`, parentStudents);
+        setStudents(parentStudents);
+      } catch (error) {
+        console.error('❌ Error fetching students for parent:', error);
+        setStudents([]);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    if (parentId && user) {
+      fetchStudentsForParent();
+    }
+  }, [parentId, user]);
+
+  if (loading) {
+    return <div className="text-center py-4">Loading students...</div>;
+  }
+
+  if (students.length === 0) {
+    return (
+      <div className="text-center py-6">
+        <GraduationCap className="h-8 w-8 text-muted-foreground mx-auto mb-2" />
+        <p className="text-muted-foreground">No students found for this parent.</p>
+        <p className="text-sm text-muted-foreground mt-1">Students will appear here once they are properly linked.</p>
+      </div>
+    );
+  }
+
+  return (
+    <div className="space-y-4">
+      {students.map((student) => (
+        <Card key={student.id} className="border-l-4 border-l-primary/20">
+          <CardContent className="p-4">
+            <div className="flex items-start justify-between">
+              <div className="space-y-1">
+                <h4 className="font-medium">{student.full_name}</h4>
+                <div className="flex items-center gap-4 text-sm text-muted-foreground">
+                  {student.grade_level && (
+                    <span className="flex items-center gap-1">
+                      <GraduationCap className="h-3 w-3" />
+                      Grade {student.grade_level}
+                    </span>
+                  )}
+                  {student.school_name && (
+                    <span className="flex items-center gap-1">
+                      <MapPin className="h-3 w-3" />
+                      {student.school_name}
+                    </span>
+                  )}
+                </div>
+                {student.disability_category && (
+                  <Badge variant="outline" className="text-xs">
+                    {student.disability_category}
+                  </Badge>
+                )}
+              </div>
+              <div className="text-right">
+                {student.iep_status && (
+                  <Badge variant={student.iep_status === 'active' ? 'default' : 'secondary'} className="text-xs">
+                    IEP {student.iep_status}
+                  </Badge>
+                )}
+                <p className="text-xs text-muted-foreground mt-1">
+                  Added {new Date(student.created_at).toLocaleDateString()}
+                </p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      ))}
+    </div>
+  );
 }
 
 export default function AdvocateParents() {
@@ -465,7 +572,7 @@ export default function AdvocateParents() {
                         </CardDescription>
                       </CardHeader>
                       <CardContent>
-                        <p className="text-muted-foreground">Student list will be implemented when student-parent relationships are established.</p>
+                        <StudentListForParent parentId={selectedParent.id} />
                       </CardContent>
                     </Card>
                   </TabsContent>

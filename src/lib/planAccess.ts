@@ -149,9 +149,9 @@ export const PLAN_FEATURES: Record<SubscriptionPlan, PlanFeatures> = {
     supportLevel: 'Community forum',
     prioritySupport: false,
     maxChildren: 1,
-    maxDocuments: 5,
+    maxDocuments: 1,
     aiAnalysisLimit: 0,
-    letterGenerationLimit: 2
+    letterGenerationLimit: 1
   },
 
   essential: {
@@ -223,9 +223,9 @@ export const PLAN_FEATURES: Record<SubscriptionPlan, PlanFeatures> = {
     supportLevel: 'Priority email support',
     prioritySupport: true,
     maxChildren: 1,
-    maxDocuments: 300,
-    aiAnalysisLimit: 25,
-    letterGenerationLimit: 50
+    maxDocuments: 5,
+    aiAnalysisLimit: 5,
+    letterGenerationLimit: 5
   },
 
   premium: {
@@ -297,9 +297,9 @@ export const PLAN_FEATURES: Record<SubscriptionPlan, PlanFeatures> = {
     supportLevel: 'Phone & email support',
     prioritySupport: true,
     maxChildren: 3,
-    maxDocuments: 1000,
-    aiAnalysisLimit: 100,
-    letterGenerationLimit: 200
+    maxDocuments: 20,
+    aiAnalysisLimit: 20,
+    letterGenerationLimit: 20
   },
 
   hero: {

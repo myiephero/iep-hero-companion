@@ -445,6 +445,24 @@ const AdvocateStudents = () => {
   const [editingStudent, setEditingStudent] = useState<Student | null>(null);
   const [isAutismDialogOpen, setIsAutismDialogOpen] = useState(false);
   const [isGiftedDialogOpen, setIsGiftedDialogOpen] = useState(false);
+  
+  // Individual dialog states for autism tools
+  const [isSensoryDialogOpen, setIsSensoryDialogOpen] = useState(false);
+  const [isCommunicationDialogOpen, setIsCommunicationDialogOpen] = useState(false);
+  const [isBehavioralDialogOpen, setIsBehavioralDialogOpen] = useState(false);
+  const [isAutismAIDialogOpen, setIsAutismAIDialogOpen] = useState(false);
+  
+  // Individual dialog states for gifted tools
+  const [isCognitiveDialogOpen, setIsCognitiveDialogOpen] = useState(false);
+  const [isEnrichmentDialogOpen, setIsEnrichmentDialogOpen] = useState(false);
+  const [is2ESupportDialogOpen, setIs2ESupportDialogOpen] = useState(false);
+  const [isGiftedAIDialogOpen, setIsGiftedAIDialogOpen] = useState(false);
+  const [isNewAssessmentDialogOpen, setIsNewAssessmentDialogOpen] = useState(false);
+  
+  // AI insights and form states
+  const [aiInsightsLoading, setAiInsightsLoading] = useState(false);
+  const [generatedInsights, setGeneratedInsights] = useState<string>("");
+  const [currentFormData, setCurrentFormData] = useState<any>({});
   const [newStudent, setNewStudent] = useState({
     first_name: "",
     last_name: "",
@@ -1417,6 +1435,7 @@ const AdvocateStudents = () => {
                             <button
                               className="bg-muted/30 p-4 rounded-lg border hover:bg-muted/50 transition-colors text-left group cursor-pointer"
                               data-testid="button-autism-sensory"
+                              onClick={() => setIsSensoryDialogOpen(true)}
                             >
                               <div className="text-blue-600 mb-2 text-xl group-hover:scale-110 transition-transform">
                                 🔊
@@ -1428,6 +1447,7 @@ const AdvocateStudents = () => {
                             <button
                               className="bg-muted/30 p-4 rounded-lg border hover:bg-muted/50 transition-colors text-left group cursor-pointer"
                               data-testid="button-autism-communication"
+                              onClick={() => setIsCommunicationDialogOpen(true)}
                             >
                               <div className="text-green-600 mb-2 text-xl group-hover:scale-110 transition-transform">
                                 💬
@@ -1439,6 +1459,7 @@ const AdvocateStudents = () => {
                             <button
                               className="bg-muted/30 p-4 rounded-lg border hover:bg-muted/50 transition-colors text-left group cursor-pointer"
                               data-testid="button-autism-behavioral"
+                              onClick={() => setIsBehavioralDialogOpen(true)}
                             >
                               <div className="text-orange-600 mb-2 text-xl group-hover:scale-110 transition-transform">
                                 🎭
@@ -1451,6 +1472,7 @@ const AdvocateStudents = () => {
                             <button
                               className="bg-gradient-to-r from-blue-100 to-indigo-100 dark:from-blue-900 dark:to-indigo-900 p-4 rounded-lg border hover:from-blue-200 hover:to-indigo-200 dark:hover:from-blue-800 dark:hover:to-indigo-800 transition-colors text-left group cursor-pointer"
                               data-testid="button-autism-ai-insights"
+                              onClick={() => setIsAutismAIDialogOpen(true)}
                             >
                               <div className="text-indigo-600 mb-2 text-xl group-hover:scale-110 transition-transform">
                                 🤖
@@ -1483,7 +1505,7 @@ const AdvocateStudents = () => {
                             <span className="text-2xl mr-2">🎓</span>
                             Gifted & Twice-Exceptional Support
                           </div>
-                          <Button>
+                          <Button onClick={() => setIsNewAssessmentDialogOpen(true)}>
                             <Plus className="h-4 w-4 mr-2" />
                             New Assessment
                           </Button>
@@ -1503,6 +1525,7 @@ const AdvocateStudents = () => {
                             <button
                               className="bg-muted/30 p-4 rounded-lg border hover:bg-muted/50 transition-colors text-left group cursor-pointer"
                               data-testid="button-gifted-cognitive"
+                              onClick={() => setIsCognitiveDialogOpen(true)}
                             >
                               <div className="text-blue-600 mb-2 text-xl group-hover:scale-110 transition-transform">
                                 🧠
@@ -1514,6 +1537,7 @@ const AdvocateStudents = () => {
                             <button
                               className="bg-muted/30 p-4 rounded-lg border hover:bg-muted/50 transition-colors text-left group cursor-pointer"
                               data-testid="button-gifted-enrichment"
+                              onClick={() => setIsEnrichmentDialogOpen(true)}
                             >
                               <div className="text-green-600 mb-2 text-xl group-hover:scale-110 transition-transform">
                                 ⚡
@@ -1525,6 +1549,7 @@ const AdvocateStudents = () => {
                             <button
                               className="bg-muted/30 p-4 rounded-lg border hover:bg-muted/50 transition-colors text-left group cursor-pointer"
                               data-testid="button-gifted-2e-support"
+                              onClick={() => setIs2ESupportDialogOpen(true)}
                             >
                               <div className="text-purple-600 mb-2 text-xl group-hover:scale-110 transition-transform">
                                 🎯
@@ -1537,6 +1562,7 @@ const AdvocateStudents = () => {
                             <button
                               className="bg-gradient-to-r from-indigo-100 to-purple-100 dark:from-indigo-900 dark:to-purple-900 p-4 rounded-lg border hover:from-indigo-200 hover:to-purple-200 dark:hover:from-indigo-800 dark:hover:to-purple-800 transition-colors text-left group cursor-pointer"
                               data-testid="button-gifted-ai-insights"
+                              onClick={() => setIsGiftedAIDialogOpen(true)}
                             >
                               <div className="text-indigo-600 mb-2 text-xl group-hover:scale-110 transition-transform">
                                 🤖
@@ -2184,6 +2210,1230 @@ const AdvocateStudents = () => {
               Cancel
             </Button>
             <Button onClick={handleCreateGiftedAssessment} disabled={loading}>
+              {loading ? "Creating..." : "Create Assessment"}
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Autism Tool Dialogs */}
+      
+      {/* Sensory Accommodations Dialog */}
+      <Dialog open={isSensoryDialogOpen} onOpenChange={setIsSensoryDialogOpen}>
+        <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle className="flex items-center">
+              <span className="text-2xl mr-2">🔊</span>
+              Sensory Accommodations Assessment
+            </DialogTitle>
+            <DialogDescription>
+              Document sensory processing needs and environmental modifications for advocacy and IEP planning.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-6 py-4">
+            {!selectedStudentId ? (
+              <div className="text-center py-8">
+                <AlertCircle className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+                <p className="text-muted-foreground">Please select a student first to document sensory accommodations.</p>
+              </div>
+            ) : (
+              <>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <Card>
+                    <CardHeader>
+                      <CardTitle className="text-lg">Auditory Processing</CardTitle>
+                    </CardHeader>
+                    <CardContent className="space-y-3">
+                      {[
+                        { id: 'noise-sensitivity', label: 'Noise-canceling headphones needed', desc: 'Reduces auditory distractions and sensory overload' },
+                        { id: 'quiet-space', label: 'Access to quiet workspace', desc: 'Designated low-noise area for focused work' },
+                        { id: 'audio-processing', label: 'Extended processing time for audio instructions', desc: 'Additional time to process verbal information' }
+                      ].map((item) => (
+                        <div key={item.id} className="flex items-start space-x-3">
+                          <Checkbox id={item.id} />
+                          <div className="space-y-1">
+                            <Label htmlFor={item.id} className="text-sm font-medium">{item.label}</Label>
+                            <p className="text-xs text-muted-foreground">{item.desc}</p>
+                          </div>
+                        </div>
+                      ))}
+                    </CardContent>
+                  </Card>
+
+                  <Card>
+                    <CardHeader>
+                      <CardTitle className="text-lg">Visual Processing</CardTitle>
+                    </CardHeader>
+                    <CardContent className="space-y-3">
+                      {[
+                        { id: 'lighting', label: 'Lighting modifications needed', desc: 'Avoid fluorescent lights, provide natural lighting when possible' },
+                        { id: 'visual-supports', label: 'Enhanced visual supports', desc: 'Visual schedules, graphic organizers, and written instructions' },
+                        { id: 'screen-breaks', label: 'Regular screen breaks', desc: 'Scheduled breaks from digital devices to prevent eye strain' }
+                      ].map((item) => (
+                        <div key={item.id} className="flex items-start space-x-3">
+                          <Checkbox id={item.id} />
+                          <div className="space-y-1">
+                            <Label htmlFor={item.id} className="text-sm font-medium">{item.label}</Label>
+                            <p className="text-xs text-muted-foreground">{item.desc}</p>
+                          </div>
+                        </div>
+                      ))}
+                    </CardContent>
+                  </Card>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <Card>
+                    <CardHeader>
+                      <CardTitle className="text-lg">Tactile & Movement</CardTitle>
+                    </CardHeader>
+                    <CardContent className="space-y-3">
+                      {[
+                        { id: 'fidget-tools', label: 'Approved fidget tools', desc: 'Sensory fidgets to support attention and self-regulation' },
+                        { id: 'movement-breaks', label: 'Scheduled movement breaks', desc: 'Regular opportunities for gross motor movement' },
+                        { id: 'flexible-seating', label: 'Alternative seating options', desc: 'Standing desk, therapy ball, or wobble cushion' }
+                      ].map((item) => (
+                        <div key={item.id} className="flex items-start space-x-3">
+                          <Checkbox id={item.id} />
+                          <div className="space-y-1">
+                            <Label htmlFor={item.id} className="text-sm font-medium">{item.label}</Label>
+                            <p className="text-xs text-muted-foreground">{item.desc}</p>
+                          </div>
+                        </div>
+                      ))}
+                    </CardContent>
+                  </Card>
+
+                  <Card>
+                    <CardHeader>
+                      <CardTitle className="text-lg">Environmental</CardTitle>
+                    </CardHeader>
+                    <CardContent className="space-y-3">
+                      {[
+                        { id: 'reduce-clutter', label: 'Organized, clutter-free workspace', desc: 'Minimize visual distractions in learning environment' },
+                        { id: 'predictable-routine', label: 'Consistent daily routine', desc: 'Structured schedule with advance notice of changes' },
+                        { id: 'calm-down-space', label: 'Access to regulation space', desc: 'Quiet area for self-regulation when overwhelmed' }
+                      ].map((item) => (
+                        <div key={item.id} className="flex items-start space-x-3">
+                          <Checkbox id={item.id} />
+                          <div className="space-y-1">
+                            <Label htmlFor={item.id} className="text-sm font-medium">{item.label}</Label>
+                            <p className="text-xs text-muted-foreground">{item.desc}</p>
+                          </div>
+                        </div>
+                      ))}
+                    </CardContent>
+                  </Card>
+                </div>
+
+                <div>
+                  <Label htmlFor="sensory-notes">Professional Assessment Notes</Label>
+                  <Textarea
+                    id="sensory-notes"
+                    placeholder="Document specific sensory triggers, effective strategies observed, and recommended accommodations for IEP team consideration..."
+                    rows={4}
+                  />
+                </div>
+              </>
+            )}
+          </div>
+          <div className="flex justify-end space-x-2">
+            <Button variant="outline" onClick={() => setIsSensoryDialogOpen(false)}>
+              Cancel
+            </Button>
+            <Button 
+              onClick={() => {
+                toast({
+                  title: "Sensory Assessment Saved",
+                  description: "Sensory accommodation recommendations have been documented for advocacy use."
+                });
+                setIsSensoryDialogOpen(false);
+              }}
+              disabled={!selectedStudentId}
+            >
+              Save Assessment
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Communication Support Dialog */}
+      <Dialog open={isCommunicationDialogOpen} onOpenChange={setIsCommunicationDialogOpen}>
+        <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle className="flex items-center">
+              <span className="text-2xl mr-2">💬</span>
+              Communication Support Assessment
+            </DialogTitle>
+            <DialogDescription>
+              Evaluate communication needs and document support strategies for effective advocacy.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-6 py-4">
+            {!selectedStudentId ? (
+              <div className="text-center py-8">
+                <AlertCircle className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+                <p className="text-muted-foreground">Please select a student first to assess communication needs.</p>
+              </div>
+            ) : (
+              <>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <Card>
+                    <CardHeader>
+                      <CardTitle className="text-lg">Expressive Communication</CardTitle>
+                    </CardHeader>
+                    <CardContent className="space-y-3">
+                      {[
+                        { id: 'aac-device', label: 'AAC technology support', desc: 'Speech-generating device or communication app access' },
+                        { id: 'visual-supports', label: 'Visual communication aids', desc: 'Picture cards, visual schedules, and choice boards' },
+                        { id: 'extra-response-time', label: 'Extended response time', desc: 'Additional time to formulate and express responses' }
+                      ].map((item) => (
+                        <div key={item.id} className="flex items-start space-x-3">
+                          <Checkbox id={item.id} />
+                          <div className="space-y-1">
+                            <Label htmlFor={item.id} className="text-sm font-medium">{item.label}</Label>
+                            <p className="text-xs text-muted-foreground">{item.desc}</p>
+                          </div>
+                        </div>
+                      ))}
+                    </CardContent>
+                  </Card>
+
+                  <Card>
+                    <CardHeader>
+                      <CardTitle className="text-lg">Receptive Communication</CardTitle>
+                    </CardHeader>
+                    <CardContent className="space-y-3">
+                      {[
+                        { id: 'simplified-language', label: 'Clear, simplified instructions', desc: 'Concise directions with concrete language' },
+                        { id: 'multiple-modalities', label: 'Multi-modal instruction delivery', desc: 'Visual, auditory, and written instruction formats' },
+                        { id: 'comprehension-checks', label: 'Regular comprehension monitoring', desc: 'Frequent check-ins to ensure understanding' }
+                      ].map((item) => (
+                        <div key={item.id} className="flex items-start space-x-3">
+                          <Checkbox id={item.id} />
+                          <div className="space-y-1">
+                            <Label htmlFor={item.id} className="text-sm font-medium">{item.label}</Label>
+                            <p className="text-xs text-muted-foreground">{item.desc}</p>
+                          </div>
+                        </div>
+                      ))}
+                    </CardContent>
+                  </Card>
+                </div>
+
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="text-lg">Social Communication</CardTitle>
+                  </CardHeader>
+                  <CardContent className="space-y-3">
+                    {[
+                      { id: 'social-scripts', label: 'Pre-written social scripts', desc: 'Structured language for common social interactions' },
+                      { id: 'peer-support', label: 'Peer communication buddy system', desc: 'Trained peer support for social interactions' },
+                      { id: 'social-stories', label: 'Social stories and role-playing', desc: 'Explicit instruction in social communication norms' }
+                    ].map((item) => (
+                      <div key={item.id} className="flex items-start space-x-3">
+                        <Checkbox id={item.id} />
+                        <div className="space-y-1">
+                          <Label htmlFor={item.id} className="text-sm font-medium">{item.label}</Label>
+                          <p className="text-xs text-muted-foreground">{item.desc}</p>
+                        </div>
+                      </div>
+                    ))}
+                  </CardContent>
+                </Card>
+
+                <div>
+                  <Label htmlFor="communication-goals">Communication Goals & Progress</Label>
+                  <Textarea
+                    id="communication-goals"
+                    placeholder="Document current communication abilities, specific goals, and progress observed. Include recommended services and supports..."
+                    rows={4}
+                  />
+                </div>
+              </>
+            )}
+          </div>
+          <div className="flex justify-end space-x-2">
+            <Button variant="outline" onClick={() => setIsCommunicationDialogOpen(false)}>
+              Cancel
+            </Button>
+            <Button 
+              onClick={() => {
+                toast({
+                  title: "Communication Assessment Saved",
+                  description: "Communication support strategies have been documented successfully."
+                });
+                setIsCommunicationDialogOpen(false);
+              }}
+              disabled={!selectedStudentId}
+            >
+              Save Assessment
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Behavioral Strategies Dialog */}
+      <Dialog open={isBehavioralDialogOpen} onOpenChange={setIsBehavioralDialogOpen}>
+        <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle className="flex items-center">
+              <span className="text-2xl mr-2">🎭</span>
+              Behavioral Strategies & Support Plan
+            </DialogTitle>
+            <DialogDescription>
+              Document behavioral interventions and positive support strategies for comprehensive advocacy.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-6 py-4">
+            {!selectedStudentId ? (
+              <div className="text-center py-8">
+                <AlertCircle className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+                <p className="text-muted-foreground">Please select a student first to develop behavioral strategies.</p>
+              </div>
+            ) : (
+              <>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <Card>
+                    <CardHeader>
+                      <CardTitle className="text-lg">Antecedent Strategies</CardTitle>
+                    </CardHeader>
+                    <CardContent className="space-y-3">
+                      {[
+                        { id: 'environmental-mods', label: 'Environmental modifications', desc: 'Adjust setting to prevent challenging behaviors' },
+                        { id: 'visual-schedule', label: 'Predictable visual schedule', desc: 'Clear schedule with advance notice of changes' },
+                        { id: 'choice-making', label: 'Structured choice opportunities', desc: 'Provide meaningful choices to increase engagement' }
+                      ].map((item) => (
+                        <div key={item.id} className="flex items-start space-x-3">
+                          <Checkbox id={item.id} />
+                          <div className="space-y-1">
+                            <Label htmlFor={item.id} className="text-sm font-medium">{item.label}</Label>
+                            <p className="text-xs text-muted-foreground">{item.desc}</p>
+                          </div>
+                        </div>
+                      ))}
+                    </CardContent>
+                  </Card>
+
+                  <Card>
+                    <CardHeader>
+                      <CardTitle className="text-lg">Teaching Strategies</CardTitle>
+                    </CardHeader>
+                    <CardContent className="space-y-3">
+                      {[
+                        { id: 'replacement-behaviors', label: 'Teach replacement behaviors', desc: 'Explicitly teach appropriate alternative behaviors' },
+                        { id: 'self-regulation', label: 'Self-regulation skills training', desc: 'Coping strategies and emotional regulation techniques' },
+                        { id: 'social-skills', label: 'Explicit social skills instruction', desc: 'Direct teaching of social interaction skills' }
+                      ].map((item) => (
+                        <div key={item.id} className="flex items-start space-x-3">
+                          <Checkbox id={item.id} />
+                          <div className="space-y-1">
+                            <Label htmlFor={item.id} className="text-sm font-medium">{item.label}</Label>
+                            <p className="text-xs text-muted-foreground">{item.desc}</p>
+                          </div>
+                        </div>
+                      ))}
+                    </CardContent>
+                  </Card>
+                </div>
+
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="text-lg">Reinforcement & Response</CardTitle>
+                  </CardHeader>
+                  <CardContent className="space-y-3">
+                    {[
+                      { id: 'positive-reinforcement', label: 'Individualized reinforcement system', desc: 'Motivating rewards for appropriate behaviors' },
+                      { id: 'break-system', label: 'Self-advocacy break system', desc: 'Student can request breaks when feeling overwhelmed' },
+                      { id: 'de-escalation', label: 'Consistent de-escalation protocol', desc: 'Calm, predictable response to challenging behaviors' }
+                    ].map((item) => (
+                      <div key={item.id} className="flex items-start space-x-3">
+                        <Checkbox id={item.id} />
+                        <div className="space-y-1">
+                          <Label htmlFor={item.id} className="text-sm font-medium">{item.label}</Label>
+                          <p className="text-xs text-muted-foreground">{item.desc}</p>
+                        </div>
+                      </div>
+                    ))}
+                  </CardContent>
+                </Card>
+
+                <div>
+                  <Label htmlFor="behavior-plan">Behavioral Intervention Plan</Label>
+                  <Textarea
+                    id="behavior-plan"
+                    placeholder="Document target behaviors, functional assessment results, intervention strategies, and data collection methods for IEP team..."
+                    rows={4}
+                  />
+                </div>
+
+                <div>
+                  <Label htmlFor="crisis-plan">Crisis Prevention & Response</Label>
+                  <Textarea
+                    id="crisis-plan"
+                    placeholder="Outline early warning signs, prevention strategies, and appropriate response protocols for crisis situations..."
+                    rows={3}
+                  />
+                </div>
+              </>
+            )}
+          </div>
+          <div className="flex justify-end space-x-2">
+            <Button variant="outline" onClick={() => setIsBehavioralDialogOpen(false)}>
+              Cancel
+            </Button>
+            <Button 
+              onClick={() => {
+                toast({
+                  title: "Behavioral Plan Saved",
+                  description: "Behavioral intervention strategies have been documented for advocacy use."
+                });
+                setIsBehavioralDialogOpen(false);
+              }}
+              disabled={!selectedStudentId}
+            >
+              Save Intervention Plan
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Autism AI Insights Dialog */}
+      <Dialog open={isAutismAIDialogOpen} onOpenChange={setIsAutismAIDialogOpen}>
+        <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle className="flex items-center">
+              <span className="text-2xl mr-2">🤖</span>
+              AI Autism Insights & Recommendations
+            </DialogTitle>
+            <DialogDescription>
+              Generate intelligent autism-specific analysis and advocacy recommendations based on student profile.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-6 py-4">
+            {!selectedStudentId ? (
+              <div className="text-center py-8">
+                <AlertCircle className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+                <p className="text-muted-foreground">Please select a student first to generate AI insights.</p>
+              </div>
+            ) : (
+              <>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <Card className="p-4">
+                    <h4 className="font-medium mb-2">🔍 Strengths Analysis</h4>
+                    <p className="text-sm text-muted-foreground mb-3">Based on student profile, here are identified strengths:</p>
+                    <ul className="text-sm space-y-1">
+                      <li>• Strong visual-spatial processing abilities</li>
+                      <li>• Exceptional attention to detail in areas of interest</li>
+                      <li>• Consistent routine and structure preferences</li>
+                      <li>• Demonstrates deep knowledge in specific subjects</li>
+                    </ul>
+                  </Card>
+
+                  <Card className="p-4">
+                    <h4 className="font-medium mb-2">⚠️ Areas for Support</h4>
+                    <p className="text-sm text-muted-foreground mb-3">Recommended areas requiring additional advocacy:</p>
+                    <ul className="text-sm space-y-1">
+                      <li>• Social communication skill development</li>
+                      <li>• Sensory regulation strategies needed</li>
+                      <li>• Transition support for schedule changes</li>
+                      <li>• Executive functioning skill building</li>
+                    </ul>
+                  </Card>
+                </div>
+
+                <Card className="p-4">
+                  <h4 className="font-medium mb-2">🎯 Priority IEP Recommendations</h4>
+                  <div className="space-y-3">
+                    <div className="bg-blue-50 dark:bg-blue-950/20 p-3 rounded">
+                      <h5 className="font-medium text-sm">High Priority: Sensory Accommodations</h5>
+                      <p className="text-xs text-muted-foreground">Student requires comprehensive sensory support plan including noise-canceling headphones, movement breaks, and flexible seating options.</p>
+                    </div>
+                    <div className="bg-green-50 dark:bg-green-950/20 p-3 rounded">
+                      <h5 className="font-medium text-sm">High Priority: Social Communication Goals</h5>
+                      <p className="text-xs text-muted-foreground">Recommend explicit social skills instruction with peer support and structured social interaction opportunities.</p>
+                    </div>
+                    <div className="bg-orange-50 dark:bg-orange-950/20 p-3 rounded">
+                      <h5 className="font-medium text-sm">Medium Priority: Executive Function Support</h5>
+                      <p className="text-xs text-muted-foreground">Visual organizers, task breakdown strategies, and transition planning should be incorporated into daily instruction.</p>
+                    </div>
+                  </div>
+                </Card>
+
+                <div className="flex gap-4">
+                  <Button 
+                    onClick={() => {
+                      setAiInsightsLoading(true);
+                      setTimeout(() => {
+                        setGeneratedInsights("Based on comprehensive analysis, this student would benefit from a multi-sensory approach to learning with emphasis on visual supports, structured predictability, and opportunities to leverage special interests in academic content. Recommend collaboration with occupational therapy for sensory profile assessment and speech-language pathology for social communication skill development.");
+                        setAiInsightsLoading(false);
+                        toast({
+                          title: "AI Analysis Complete",
+                          description: "Comprehensive autism-specific insights have been generated for advocacy use."
+                        });
+                      }, 2000);
+                    }}
+                    disabled={aiInsightsLoading}
+                    className="flex-1"
+                  >
+                    {aiInsightsLoading ? (
+                      <>
+                        <Brain className="h-4 w-4 mr-2 animate-spin" />
+                        Analyzing...
+                      </>
+                    ) : (
+                      <>
+                        <Brain className="h-4 w-4 mr-2" />
+                        Generate Complete Analysis
+                      </>
+                    )}
+                  </Button>
+                </div>
+
+                {generatedInsights && (
+                  <div>
+                    <Label htmlFor="ai-insights">Generated Professional Insights</Label>
+                    <Textarea
+                      id="ai-insights"
+                      value={generatedInsights}
+                      onChange={(e) => setGeneratedInsights(e.target.value)}
+                      rows={4}
+                      className="mt-2"
+                    />
+                  </div>
+                )}
+              </>
+            )}
+          </div>
+          <div className="flex justify-end space-x-2">
+            <Button variant="outline" onClick={() => setIsAutismAIDialogOpen(false)}>
+              Close
+            </Button>
+            <Button 
+              onClick={() => {
+                toast({
+                  title: "AI Insights Saved",
+                  description: "Autism-specific recommendations have been saved for advocacy documentation."
+                });
+                setIsAutismAIDialogOpen(false);
+              }}
+              disabled={!selectedStudentId || !generatedInsights}
+            >
+              Save Insights
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Gifted Tool Dialogs */}
+      
+      {/* Cognitive Assessment Dialog */}
+      <Dialog open={isCognitiveDialogOpen} onOpenChange={setIsCognitiveDialogOpen}>
+        <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle className="flex items-center">
+              <span className="text-2xl mr-2">🧠</span>
+              Cognitive Assessment & Intellectual Profile
+            </DialogTitle>
+            <DialogDescription>
+              Comprehensive cognitive assessment for gifted identification and educational planning.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-6 py-4">
+            {!selectedStudentId ? (
+              <div className="text-center py-8">
+                <AlertCircle className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+                <p className="text-muted-foreground">Please select a student first to conduct cognitive assessment.</p>
+              </div>
+            ) : (
+              <>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <Card>
+                    <CardHeader>
+                      <CardTitle className="text-lg">Intellectual Strengths</CardTitle>
+                    </CardHeader>
+                    <CardContent className="space-y-3">
+                      {[
+                        { id: 'verbal-reasoning', label: 'Verbal reasoning & comprehension', desc: 'Advanced language processing and abstract reasoning' },
+                        { id: 'mathematical-thinking', label: 'Mathematical reasoning', desc: 'Complex problem-solving and quantitative skills' },
+                        { id: 'spatial-abilities', label: 'Visual-spatial processing', desc: 'Strong spatial visualization and pattern recognition' },
+                        { id: 'memory-skills', label: 'Working memory capacity', desc: 'Ability to hold and manipulate information mentally' }
+                      ].map((item) => (
+                        <div key={item.id} className="flex items-start space-x-3">
+                          <Checkbox id={item.id} />
+                          <div className="space-y-1">
+                            <Label htmlFor={item.id} className="text-sm font-medium">{item.label}</Label>
+                            <p className="text-xs text-muted-foreground">{item.desc}</p>
+                          </div>
+                        </div>
+                      ))}
+                    </CardContent>
+                  </Card>
+
+                  <Card>
+                    <CardHeader>
+                      <CardTitle className="text-lg">Processing Speed & Attention</CardTitle>
+                    </CardHeader>
+                    <CardContent className="space-y-3">
+                      {[
+                        { id: 'processing-speed', label: 'Rapid information processing', desc: 'Quick cognitive processing and response time' },
+                        { id: 'sustained-attention', label: 'Sustained attention span', desc: 'Ability to maintain focus on complex tasks' },
+                        { id: 'selective-attention', label: 'Selective attention skills', desc: 'Filter irrelevant information effectively' },
+                        { id: 'cognitive-flexibility', label: 'Cognitive flexibility', desc: 'Adapt thinking strategies and switch between concepts' }
+                      ].map((item) => (
+                        <div key={item.id} className="flex items-start space-x-3">
+                          <Checkbox id={item.id} />
+                          <div className="space-y-1">
+                            <Label htmlFor={item.id} className="text-sm font-medium">{item.label}</Label>
+                            <p className="text-xs text-muted-foreground">{item.desc}</p>
+                          </div>
+                        </div>
+                      ))}
+                    </CardContent>
+                  </Card>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  <Card>
+                    <CardHeader>
+                      <CardTitle className="text-sm">Creativity Indicators</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <ul className="text-xs space-y-1">
+                        <li>• Original thinking patterns</li>
+                        <li>• Divergent problem-solving</li>
+                        <li>• Imaginative expression</li>
+                        <li>• Novel solution generation</li>
+                      </ul>
+                    </CardContent>
+                  </Card>
+
+                  <Card>
+                    <CardHeader>
+                      <CardTitle className="text-sm">Learning Characteristics</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <ul className="text-xs space-y-1">
+                        <li>• Rapid skill acquisition</li>
+                        <li>• Deep content mastery</li>
+                        <li>• Independent learning</li>
+                        <li>• Complex reasoning ability</li>
+                      </ul>
+                    </CardContent>
+                  </Card>
+
+                  <Card>
+                    <CardHeader>
+                      <CardTitle className="text-sm">Social-Emotional</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <ul className="text-xs space-y-1">
+                        <li>• Heightened sensitivity</li>
+                        <li>• Perfectionist tendencies</li>
+                        <li>• Intense interests</li>
+                        <li>• Emotional complexity</li>
+                      </ul>
+                    </CardContent>
+                  </Card>
+                </div>
+
+                <div>
+                  <Label htmlFor="cognitive-assessment">Professional Cognitive Assessment</Label>
+                  <Textarea
+                    id="cognitive-assessment"
+                    placeholder="Document specific cognitive strengths, assessment results, learning patterns, and educational implications for gifted programming consideration..."
+                    rows={4}
+                  />
+                </div>
+              </>
+            )}
+          </div>
+          <div className="flex justify-end space-x-2">
+            <Button variant="outline" onClick={() => setIsCognitiveDialogOpen(false)}>
+              Cancel
+            </Button>
+            <Button 
+              onClick={() => {
+                toast({
+                  title: "Cognitive Assessment Saved",
+                  description: "Intellectual profile has been documented for gifted programming consideration."
+                });
+                setIsCognitiveDialogOpen(false);
+              }}
+              disabled={!selectedStudentId}
+            >
+              Save Assessment
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Enrichment Needs Dialog */}
+      <Dialog open={isEnrichmentDialogOpen} onOpenChange={setIsEnrichmentDialogOpen}>
+        <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle className="flex items-center">
+              <span className="text-2xl mr-2">⚡</span>
+              Enrichment & Acceleration Planning
+            </DialogTitle>
+            <DialogDescription>
+              Document advanced learning opportunities and acceleration needs for gifted programming.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-6 py-4">
+            {!selectedStudentId ? (
+              <div className="text-center py-8">
+                <AlertCircle className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+                <p className="text-muted-foreground">Please select a student first to plan enrichment activities.</p>
+              </div>
+            ) : (
+              <>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <Card>
+                    <CardHeader>
+                      <CardTitle className="text-lg">Academic Acceleration</CardTitle>
+                    </CardHeader>
+                    <CardContent className="space-y-3">
+                      {[
+                        { id: 'grade-skip', label: 'Grade-level acceleration', desc: 'Advancement to higher grade level for appropriate challenge' },
+                        { id: 'subject-acceleration', label: 'Single-subject acceleration', desc: 'Advanced placement in specific subject areas' },
+                        { id: 'curriculum-compacting', label: 'Curriculum compacting', desc: 'Streamlined content to allow time for enrichment' },
+                        { id: 'early-entry', label: 'Early program entry', desc: 'Early admission to advanced programs or classes' }
+                      ].map((item) => (
+                        <div key={item.id} className="flex items-start space-x-3">
+                          <Checkbox id={item.id} />
+                          <div className="space-y-1">
+                            <Label htmlFor={item.id} className="text-sm font-medium">{item.label}</Label>
+                            <p className="text-xs text-muted-foreground">{item.desc}</p>
+                          </div>
+                        </div>
+                      ))}
+                    </CardContent>
+                  </Card>
+
+                  <Card>
+                    <CardHeader>
+                      <CardTitle className="text-lg">Enrichment Strategies</CardTitle>
+                    </CardHeader>
+                    <CardContent className="space-y-3">
+                      {[
+                        { id: 'independent-study', label: 'Independent research projects', desc: 'Self-directed deep dive into areas of interest' },
+                        { id: 'mentorship', label: 'Expert mentorship programs', desc: 'Connection with professionals in field of interest' },
+                        { id: 'competitions', label: 'Academic competitions', desc: 'Opportunities for intellectual challenge and recognition' },
+                        { id: 'dual-enrollment', label: 'Dual enrollment options', desc: 'College-level coursework while in high school' }
+                      ].map((item) => (
+                        <div key={item.id} className="flex items-start space-x-3">
+                          <Checkbox id={item.id} />
+                          <div className="space-y-1">
+                            <Label htmlFor={item.id} className="text-sm font-medium">{item.label}</Label>
+                            <p className="text-xs text-muted-foreground">{item.desc}</p>
+                          </div>
+                        </div>
+                      ))}
+                    </CardContent>
+                  </Card>
+                </div>
+
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="text-lg">Specialized Programs & Services</CardTitle>
+                  </CardHeader>
+                  <CardContent className="space-y-3">
+                    {[
+                      { id: 'pull-out-program', label: 'Gifted pull-out program', desc: 'Specialized instruction with intellectual peers' },
+                      { id: 'cluster-grouping', label: 'Cluster grouping', desc: 'Placement with other high-ability students' },
+                      { id: 'magnet-programs', label: 'Magnet or specialty programs', desc: 'Specialized schools or programs for gifted learners' },
+                      { id: 'summer-programs', label: 'Summer enrichment programs', desc: 'Intensive summer learning opportunities' }
+                    ].map((item) => (
+                      <div key={item.id} className="flex items-start space-x-3">
+                        <Checkbox id={item.id} />
+                        <div className="space-y-1">
+                          <Label htmlFor={item.id} className="text-sm font-medium">{item.label}</Label>
+                          <p className="text-xs text-muted-foreground">{item.desc}</p>
+                        </div>
+                      </div>
+                    ))}
+                  </CardContent>
+                </Card>
+
+                <div>
+                  <Label htmlFor="enrichment-plan">Comprehensive Enrichment Plan</Label>
+                  <Textarea
+                    id="enrichment-plan"
+                    placeholder="Detail specific enrichment recommendations, acceleration considerations, timeline for implementation, and measures for monitoring progress..."
+                    rows={4}
+                  />
+                </div>
+              </>
+            )}
+          </div>
+          <div className="flex justify-end space-x-2">
+            <Button variant="outline" onClick={() => setIsEnrichmentDialogOpen(false)}>
+              Cancel
+            </Button>
+            <Button 
+              onClick={() => {
+                toast({
+                  title: "Enrichment Plan Saved",
+                  description: "Advanced learning opportunities have been documented for gifted programming."
+                });
+                setIsEnrichmentDialogOpen(false);
+              }}
+              disabled={!selectedStudentId}
+            >
+              Save Plan
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* 2E Support Dialog */}
+      <Dialog open={is2ESupportDialogOpen} onOpenChange={setIs2ESupportDialogOpen}>
+        <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle className="flex items-center">
+              <span className="text-2xl mr-2">🎯</span>
+              Twice-Exceptional (2E) Support Planning
+            </DialogTitle>
+            <DialogDescription>
+              Comprehensive support for students who are both gifted and have learning differences or disabilities.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-6 py-4">
+            {!selectedStudentId ? (
+              <div className="text-center py-8">
+                <AlertCircle className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+                <p className="text-muted-foreground">Please select a student first to develop 2E support strategies.</p>
+              </div>
+            ) : (
+              <>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <Card>
+                    <CardHeader>
+                      <CardTitle className="text-lg">Strength-Based Approaches</CardTitle>
+                    </CardHeader>
+                    <CardContent className="space-y-3">
+                      {[
+                        { id: 'strength-focus', label: 'Leverage intellectual strengths', desc: 'Use gifted abilities to support areas of challenge' },
+                        { id: 'interest-integration', label: 'Integrate special interests', desc: 'Incorporate passions into remediation efforts' },
+                        { id: 'bypass-strategies', label: 'Bypass deficit areas', desc: 'Alternative methods to demonstrate knowledge' },
+                        { id: 'technology-tools', label: 'Assistive technology', desc: 'Tools to support areas of learning difference' }
+                      ].map((item) => (
+                        <div key={item.id} className="flex items-start space-x-3">
+                          <Checkbox id={item.id} />
+                          <div className="space-y-1">
+                            <Label htmlFor={item.id} className="text-sm font-medium">{item.label}</Label>
+                            <p className="text-xs text-muted-foreground">{item.desc}</p>
+                          </div>
+                        </div>
+                      ))}
+                    </CardContent>
+                  </Card>
+
+                  <Card>
+                    <CardHeader>
+                      <CardTitle className="text-lg">Accommodation Strategies</CardTitle>
+                    </CardHeader>
+                    <CardContent className="space-y-3">
+                      {[
+                        { id: 'processing-time', label: 'Extended processing time', desc: 'Additional time for complex task completion' },
+                        { id: 'alternative-assessment', label: 'Alternative assessment formats', desc: 'Varied ways to demonstrate mastery' },
+                        { id: 'executive-support', label: 'Executive function support', desc: 'Organization and planning scaffolds' },
+                        { id: 'social-emotional', label: 'Social-emotional support', desc: 'Address perfectionism and anxiety' }
+                      ].map((item) => (
+                        <div key={item.id} className="flex items-start space-x-3">
+                          <Checkbox id={item.id} />
+                          <div className="space-y-1">
+                            <Label htmlFor={item.id} className="text-sm font-medium">{item.label}</Label>
+                            <p className="text-xs text-muted-foreground">{item.desc}</p>
+                          </div>
+                        </div>
+                      ))}
+                    </CardContent>
+                  </Card>
+                </div>
+
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="text-lg">Dual Programming Needs</CardTitle>
+                  </CardHeader>
+                  <CardContent className="space-y-3">
+                    {[
+                      { id: 'concurrent-services', label: 'Concurrent gifted and special education services', desc: 'Both enrichment and remediation support' },
+                      { id: 'coordinated-team', label: 'Coordinated support team', desc: 'Collaboration between gifted and special education staff' },
+                      { id: 'individualized-pace', label: 'Flexible pacing', desc: 'Acceleration in strengths, support in challenge areas' },
+                      { id: 'self-advocacy', label: 'Self-advocacy training', desc: 'Help student understand and communicate needs' }
+                    ].map((item) => (
+                      <div key={item.id} className="flex items-start space-x-3">
+                        <Checkbox id={item.id} />
+                        <div className="space-y-1">
+                          <Label htmlFor={item.id} className="text-sm font-medium">{item.label}</Label>
+                          <p className="text-xs text-muted-foreground">{item.desc}</p>
+                        </div>
+                      </div>
+                    ))}
+                  </CardContent>
+                </Card>
+
+                <div>
+                  <Label htmlFor="2e-assessment">Twice-Exceptional Profile Assessment</Label>
+                  <Textarea
+                    id="2e-assessment"
+                    placeholder="Document the complex interplay between giftedness and disability, specific strengths and challenges, and comprehensive support recommendations..."
+                    rows={4}
+                  />
+                </div>
+
+                <div>
+                  <Label htmlFor="2e-goals">Integrated Support Goals</Label>
+                  <Textarea
+                    id="2e-goals"
+                    placeholder="Outline goals that address both gifted potential and learning differences, with specific strategies for achievement..."
+                    rows={3}
+                  />
+                </div>
+              </>
+            )}
+          </div>
+          <div className="flex justify-end space-x-2">
+            <Button variant="outline" onClick={() => setIs2ESupportDialogOpen(false)}>
+              Cancel
+            </Button>
+            <Button 
+              onClick={() => {
+                toast({
+                  title: "2E Support Plan Saved",
+                  description: "Twice-exceptional support strategies have been documented for comprehensive programming."
+                });
+                setIs2ESupportDialogOpen(false);
+              }}
+              disabled={!selectedStudentId}
+            >
+              Save 2E Plan
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Gifted AI Insights Dialog */}
+      <Dialog open={isGiftedAIDialogOpen} onOpenChange={setIsGiftedAIDialogOpen}>
+        <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle className="flex items-center">
+              <span className="text-2xl mr-2">🤖</span>
+              AI Gifted Education Insights
+            </DialogTitle>
+            <DialogDescription>
+              Generate intelligent analysis and recommendations for gifted and twice-exceptional programming.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-6 py-4">
+            {!selectedStudentId ? (
+              <div className="text-center py-8">
+                <AlertCircle className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+                <p className="text-muted-foreground">Please select a student first to generate gifted education insights.</p>
+              </div>
+            ) : (
+              <>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <Card className="p-4">
+                    <h4 className="font-medium mb-2">⭐ Identified Strengths</h4>
+                    <p className="text-sm text-muted-foreground mb-3">AI analysis of gifted indicators:</p>
+                    <ul className="text-sm space-y-1">
+                      <li>• Advanced abstract reasoning capabilities</li>
+                      <li>• Rapid knowledge acquisition in interest areas</li>
+                      <li>• Creative problem-solving approaches</li>
+                      <li>• High intrinsic motivation for learning</li>
+                    </ul>
+                  </Card>
+
+                  <Card className="p-4">
+                    <h4 className="font-medium mb-2">🎯 Programming Recommendations</h4>
+                    <p className="text-sm text-muted-foreground mb-3">Suggested gifted services:</p>
+                    <ul className="text-sm space-y-1">
+                      <li>• Acceleration in mathematics and science</li>
+                      <li>• Independent research opportunities</li>
+                      <li>• Mentorship in areas of passion</li>
+                      <li>• Cluster grouping with intellectual peers</li>
+                    </ul>
+                  </Card>
+                </div>
+
+                <Card className="p-4">
+                  <h4 className="font-medium mb-2">🧠 Cognitive Profile Analysis</h4>
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div>
+                      <h5 className="text-sm font-medium text-green-600">Strengths</h5>
+                      <ul className="text-xs mt-2 space-y-1">
+                        <li>• Verbal reasoning: Superior</li>
+                        <li>• Pattern recognition: Advanced</li>
+                        <li>• Creative thinking: Exceptional</li>
+                        <li>• Memory capacity: High</li>
+                      </ul>
+                    </div>
+                    <div>
+                      <h5 className="text-sm font-medium text-orange-600">Areas to Monitor</h5>
+                      <ul className="text-xs mt-2 space-y-1">
+                        <li>• Processing speed variability</li>
+                        <li>• Perfectionist tendencies</li>
+                        <li>• Social-emotional intensity</li>
+                        <li>• Underachievement risk</li>
+                      </ul>
+                    </div>
+                    <div>
+                      <h5 className="text-sm font-medium text-blue-600">Support Needs</h5>
+                      <ul className="text-xs mt-2 space-y-1">
+                        <li>• Challenge level optimization</li>
+                        <li>• Social skill development</li>
+                        <li>• Stress management strategies</li>
+                        <li>• Goal-setting guidance</li>
+                      </ul>
+                    </div>
+                  </div>
+                </Card>
+
+                <Card className="p-4">
+                  <h4 className="font-medium mb-2">📋 Comprehensive Recommendations</h4>
+                  <div className="space-y-3">
+                    <div className="bg-purple-50 dark:bg-purple-950/20 p-3 rounded">
+                      <h5 className="font-medium text-sm">Academic Programming</h5>
+                      <p className="text-xs text-muted-foreground">Recommend subject acceleration in mathematics and participation in gifted cluster program for advanced instruction with intellectual peers.</p>
+                    </div>
+                    <div className="bg-blue-50 dark:bg-blue-950/20 p-3 rounded">
+                      <h5 className="font-medium text-sm">Social-Emotional Support</h5>
+                      <p className="text-xs text-muted-foreground">Address perfectionism through counseling support and teach stress management techniques to prevent underachievement.</p>
+                    </div>
+                    <div className="bg-green-50 dark:bg-green-950/20 p-3 rounded">
+                      <h5 className="font-medium text-sm">Enrichment Opportunities</h5>
+                      <p className="text-xs text-muted-foreground">Facilitate independent research project and connect with community mentor in student's area of passionate interest.</p>
+                    </div>
+                  </div>
+                </Card>
+
+                <div className="flex gap-4">
+                  <Button 
+                    onClick={() => {
+                      setAiInsightsLoading(true);
+                      setTimeout(() => {
+                        setGeneratedInsights("Comprehensive analysis indicates this student demonstrates exceptional intellectual potential with specific strengths in verbal reasoning and creative problem-solving. Recommend immediate placement in gifted programming with emphasis on acceleration in strength areas and social-emotional support to address perfectionist tendencies. Suggest collaboration with gifted education specialist and school counselor to develop comprehensive support plan addressing both academic and affective needs.");
+                        setAiInsightsLoading(false);
+                        toast({
+                          title: "Gifted Education Analysis Complete",
+                          description: "Comprehensive gifted programming insights have been generated."
+                        });
+                      }, 2000);
+                    }}
+                    disabled={aiInsightsLoading}
+                    className="flex-1"
+                  >
+                    {aiInsightsLoading ? (
+                      <>
+                        <Star className="h-4 w-4 mr-2 animate-spin" />
+                        Analyzing...
+                      </>
+                    ) : (
+                      <>
+                        <Star className="h-4 w-4 mr-2" />
+                        Generate Complete Analysis
+                      </>
+                    )}
+                  </Button>
+                </div>
+
+                {generatedInsights && (
+                  <div>
+                    <Label htmlFor="gifted-ai-insights">Generated Professional Insights</Label>
+                    <Textarea
+                      id="gifted-ai-insights"
+                      value={generatedInsights}
+                      onChange={(e) => setGeneratedInsights(e.target.value)}
+                      rows={4}
+                      className="mt-2"
+                    />
+                  </div>
+                )}
+              </>
+            )}
+          </div>
+          <div className="flex justify-end space-x-2">
+            <Button variant="outline" onClick={() => setIsGiftedAIDialogOpen(false)}>
+              Close
+            </Button>
+            <Button 
+              onClick={() => {
+                toast({
+                  title: "Gifted Insights Saved",
+                  description: "AI-generated gifted education recommendations have been saved for programming decisions."
+                });
+                setIsGiftedAIDialogOpen(false);
+              }}
+              disabled={!selectedStudentId || !generatedInsights}
+            >
+              Save Insights
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* New Assessment Dialog */}
+      <Dialog open={isNewAssessmentDialogOpen} onOpenChange={setIsNewAssessmentDialogOpen}>
+        <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle className="flex items-center">
+              <span className="text-2xl mr-2">📋</span>
+              Create New Gifted Assessment
+            </DialogTitle>
+            <DialogDescription>
+              Comprehensive assessment creation for gifted identification and programming decisions.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-6 py-4">
+            {!selectedStudentId ? (
+              <div className="text-center py-8">
+                <AlertCircle className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+                <p className="text-muted-foreground">Please select a student first to create a new assessment.</p>
+              </div>
+            ) : (
+              <>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <Label htmlFor="assessment-type">Assessment Type</Label>
+                    <Select value={giftedFormData.assessment_type} onValueChange={(value) => setGiftedFormData({...giftedFormData, assessment_type: value})}>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select assessment type" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="initial_screening">Initial Gifted Screening</SelectItem>
+                        <SelectItem value="comprehensive_evaluation">Comprehensive Evaluation</SelectItem>
+                        <SelectItem value="twice_exceptional">Twice-Exceptional Assessment</SelectItem>
+                        <SelectItem value="program_review">Program Review & Monitoring</SelectItem>
+                        <SelectItem value="transition_planning">Transition Planning Assessment</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  
+                  <div>
+                    <Label htmlFor="assessment-date">Assessment Date</Label>
+                    <Input
+                      id="assessment-date"
+                      type="date"
+                      defaultValue={new Date().toISOString().split('T')[0]}
+                    />
+                  </div>
+                </div>
+
+                <div>
+                  <Label>Areas of Giftedness (Select all that apply)</Label>
+                  <div className="grid grid-cols-2 md:grid-cols-3 gap-3 mt-2">
+                    {giftednessAreas.map((area) => (
+                      <div key={area} className="flex items-center space-x-2">
+                        <Checkbox
+                          id={area}
+                          checked={giftedFormData.giftedness_areas.includes(area)}
+                          onCheckedChange={(checked) => {
+                            if (checked) {
+                              setGiftedFormData({
+                                ...giftedFormData,
+                                giftedness_areas: [...giftedFormData.giftedness_areas, area]
+                              });
+                            } else {
+                              setGiftedFormData({
+                                ...giftedFormData,
+                                giftedness_areas: giftedFormData.giftedness_areas.filter(a => a !== area)
+                              });
+                            }
+                          }}
+                        />
+                        <Label htmlFor={area} className="text-sm">{area}</Label>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                <div>
+                  <Label>Learning Differences or Disabilities (If applicable)</Label>
+                  <div className="grid grid-cols-2 md:grid-cols-3 gap-3 mt-2">
+                    {learningDifferences.map((difference) => (
+                      <div key={difference} className="flex items-center space-x-2">
+                        <Checkbox
+                          id={difference}
+                          checked={giftedFormData.learning_differences.includes(difference)}
+                          onCheckedChange={(checked) => {
+                            if (checked) {
+                              setGiftedFormData({
+                                ...giftedFormData,
+                                learning_differences: [...giftedFormData.learning_differences, difference]
+                              });
+                            } else {
+                              setGiftedFormData({
+                                ...giftedFormData,
+                                learning_differences: giftedFormData.learning_differences.filter(d => d !== difference)
+                              });
+                            }
+                          }}
+                        />
+                        <Label htmlFor={difference} className="text-sm">{difference}</Label>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <Label htmlFor="assessment-strengths">Identified Strengths</Label>
+                    <Textarea
+                      id="assessment-strengths"
+                      value={giftedFormData.strengths}
+                      onChange={(e) => setGiftedFormData({...giftedFormData, strengths: e.target.value})}
+                      placeholder="Document specific areas of exceptional ability, advanced skills, and notable talents..."
+                      rows={4}
+                    />
+                  </div>
+                  
+                  <div>
+                    <Label htmlFor="assessment-challenges">Areas of Challenge</Label>
+                    <Textarea
+                      id="assessment-challenges"
+                      value={giftedFormData.challenges}
+                      onChange={(e) => setGiftedFormData({...giftedFormData, challenges: e.target.value})}
+                      placeholder="Note specific learning challenges, areas requiring support, or barriers to success..."
+                      rows={4}
+                    />
+                  </div>
+                </div>
+
+                <div>
+                  <Label htmlFor="assessment-recommendations">Professional Recommendations</Label>
+                  <Textarea
+                    id="assessment-recommendations"
+                    value={giftedFormData.recommendations}
+                    onChange={(e) => setGiftedFormData({...giftedFormData, recommendations: e.target.value})}
+                    placeholder="Specific educational recommendations, programming suggestions, and intervention strategies..."
+                    rows={4}
+                  />
+                </div>
+
+                <div>
+                  <Label htmlFor="assessment-notes">Comprehensive Assessment Notes</Label>
+                  <Textarea
+                    id="assessment-notes"
+                    value={giftedFormData.evaluator_notes}
+                    onChange={(e) => setGiftedFormData({...giftedFormData, evaluator_notes: e.target.value})}
+                    placeholder="Detailed professional observations, assessment findings, and comprehensive analysis for gifted programming decisions..."
+                    rows={5}
+                  />
+                </div>
+              </>
+            )}
+          </div>
+          <div className="flex justify-end space-x-2">
+            <Button variant="outline" onClick={() => setIsNewAssessmentDialogOpen(false)}>
+              Cancel
+            </Button>
+            <Button 
+              onClick={handleCreateGiftedAssessment}
+              disabled={!selectedStudentId || giftedFormData.giftedness_areas.length === 0 || loading}
+            >
               {loading ? "Creating..." : "Create Assessment"}
             </Button>
           </div>

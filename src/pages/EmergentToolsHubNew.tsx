@@ -257,35 +257,6 @@ export default function EmergentToolsHubNew() {
           <p className="text-xl text-muted-foreground max-w-3xl mx-auto">
             TESTING NEW FILE WITH ALL 18 TOOLS INCLUDING THE 5 NEW ONES
           </p>
-          
-          {/* CRITICAL: BUILD_ID BADGES FOR ENVIRONMENT PARITY */}
-          <div className="flex items-center justify-center gap-4 pt-4 flex-wrap">
-            <Badge className="bg-red-100 text-red-800 border-red-300 font-mono text-sm px-3 py-2" data-testid="frontend-build-id">
-              <Code className="h-4 w-4 mr-2" />
-              FRONTEND: {BUILD_ID}
-            </Badge>
-            {apiVersion && (
-              <Badge className={`font-mono text-sm px-3 py-2 ${
-                apiVersion === BUILD_ID 
-                  ? 'bg-green-100 text-green-800 border-green-300' 
-                  : 'bg-red-100 text-red-800 border-red-300'
-              }`} data-testid="backend-build-id">
-                <Code className="h-4 w-4 mr-2" />
-                BACKEND: {apiVersion}
-              </Badge>
-            )}
-            <Badge className={`text-sm px-3 py-2 ${
-              apiVersion === BUILD_ID 
-                ? 'bg-green-100 text-green-800 border-green-300' 
-                : 'bg-red-100 text-red-800 border-red-300'
-            }`} data-testid="environment-status">
-              {apiVersion === BUILD_ID ? '✅ ENV SYNCED' : '❌ ENV MISMATCH'}
-            </Badge>
-            <Badge className="bg-green-50 text-green-700 border-green-200">
-              <TrendingUp className="h-3 w-3 mr-1" />
-              ✅ 18 TOOLS CONFIRMED ✅
-            </Badge>
-          </div>
         </div>
 
         <div className="space-y-6">

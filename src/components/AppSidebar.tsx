@@ -88,7 +88,7 @@ const getAdvocateNavigation = (dashboardUrl: string): SidebarSection[] => [
     ]
   },
   {
-    title: "Quick Tools",
+    title: "🔥 TESTING - Quick Tools",
     items: [
       { title: "Client Matching", url: "/advocate/matching", icon: UserCheck },
     ]

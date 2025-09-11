@@ -40,15 +40,6 @@ const getUserRole = () => {
 
 const advocateTools = [
   {
-    title: "AI IEP Review & Compliance",
-    description: "Upload and analyze IEP documents with AI-powered insights, compliance checking, and professional recommendations.",
-    icon: Brain,
-    path: "/unified-iep-review",
-    category: "AI Tools",
-    badge: "Pro",
-    features: ["Document Analysis", "Compliance Check", "AI Recommendations", "Legal Review"]
-  },
-  {
     title: "Smart Letter Generator",
     description: "Generate legally sound advocacy letters with professional templates and customization options.",
     icon: PenTool,
@@ -83,15 +74,6 @@ const advocateTools = [
     category: "Data Analysis",
     badge: "Analytics",
     features: ["Data Analysis", "Progress Reports", "Goal Tracking", "Outcome Metrics"]
-  },
-  {
-    title: "IEP Master Suite",
-    description: "Comprehensive IEP document analysis, goal generation, compliance checking, and standards alignment in one powerful platform.",
-    icon: Target,
-    path: "/advocate/tools/iep-master-suite",
-    category: "IEP Planning",
-    badge: "AI",
-    features: ["Document Review", "Goal Generation", "Compliance Check", "Standards Alignment"]
   },
   {
     title: "IEP Goal Generator",

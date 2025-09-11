@@ -45,6 +45,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
+import { getIEPStatusColor } from "@/lib/utils";
 
 // Real AI Analysis Component
 const AutismAIAnalysis = ({ selectedStudentId }: { selectedStudentId?: string }) => {
@@ -2146,15 +2147,6 @@ const ParentStudents = () => {
     }
   };
 
-  const getIEPStatusColor = (status: string | null | undefined) => {
-    if (!status) return "bg-muted text-muted-foreground";
-    switch (status.toLowerCase()) {
-      case "active": return "bg-success text-success-foreground";
-      case "review": return "bg-warning text-warning-foreground";
-      case "expired": return "bg-destructive text-destructive-foreground";
-      default: return "bg-muted text-muted-foreground";
-    }
-  };
 
   if (!user) {
     return <div>Please log in to view student profiles.</div>;

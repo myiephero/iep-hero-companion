@@ -38,6 +38,7 @@ import {
 // import { supabase } from "@/integrations/supabase/client"; // Removed during migration
 import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
+import { getIEPStatusColor } from "@/lib/utils";
 
 interface Student {
   id: string;
@@ -324,14 +325,6 @@ const StudentProfiles = () => {
     }
   };
 
-  const getIEPStatusColor = (status: string) => {
-    switch (status.toLowerCase()) {
-      case "active": return "bg-success text-success-foreground";
-      case "review": return "bg-warning text-warning-foreground";
-      case "expired": return "bg-destructive text-destructive-foreground";
-      default: return "bg-muted text-muted-foreground";
-    }
-  };
 
   const getGoalStatusColor = (status: string) => {
     switch (status.toLowerCase()) {

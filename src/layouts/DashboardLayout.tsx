@@ -48,7 +48,7 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
             <div className="flex h-16 items-center justify-between px-4 md:px-6">
               <div className="flex items-center gap-2 md:gap-4">
                 <SidebarTrigger />
-                <div className="font-semibold text-base md:text-lg">My IEP Hero <span className="bg-green-500 text-white px-2 py-1 rounded text-xs">DEV MODE</span></div>
+                <div className="font-semibold text-base md:text-lg">My IEP Hero</div>
               </div>
               <div className="flex items-center gap-1 md:gap-3">
                 {/* Only show HERO Plan buttons for parent users who don't have paid plan */}

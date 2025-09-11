@@ -585,7 +585,7 @@ export default function ParentDashboard({ plan }: ParentDashboardProps) {
                         data-testid="button-view-all-plans"
                       >
                         <Star className="h-5 w-5 mr-2" />
-                        View All Plans & Test Payments
+                        View All Plans
                       </Button>
                       <Button 
                         onClick={() => navigate('/upsell/hero-plan')}
@@ -595,7 +595,7 @@ export default function ParentDashboard({ plan }: ParentDashboardProps) {
                         data-testid="button-hero-plan-test"
                       >
                         <Trophy className="h-5 w-5 mr-2" />
-                        Test Hero Plan ($495)
+                        Hero Plan ($495)
                       </Button>
                       <Button 
                         onClick={() => navigate('/subscribe')}

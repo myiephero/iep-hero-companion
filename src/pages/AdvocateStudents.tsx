@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useMutation } from "@tanstack/react-query";
 import { DashboardLayout } from "@/layouts/DashboardLayout";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -32,12 +32,18 @@ import {
   Lightbulb,
   Puzzle,
   Star,
-  Sparkles
+  Sparkles,
+  Palette,
+  Music,
+  ArrowRight,
+  Clock,
+  BookOpen,
+  Calculator
 } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
 import { api, type Student } from "@/lib/api";
-import { apiRequest } from "@/lib/queryClient";
+import { apiRequest, queryClient } from "@/lib/queryClient";
 import { getIEPStatusColor } from "@/lib/utils";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
@@ -673,6 +679,92 @@ const AdvocateStudents = () => {
   
   const { user } = useAuth();
   const { toast } = useToast();
+
+  // API Queries for Gifted Assessments
+  const { data: giftedProfileData, isLoading: giftedProfileLoading } = useQuery({
+    queryKey: ['/api/gifted-profile', selectedStudentId],
+    queryFn: async () => {
+      if (!selectedStudentId) return null;
+      const response = await apiRequest('GET', `/api/gifted_assessments/profile?student_id=${selectedStudentId}`);
+      return response.json();
+    },
+    enabled: !!selectedStudentId
+  });
+
+  // Fetch existing gifted assessments for selected student
+  const { data: existingGiftedAssessments } = useQuery({
+    queryKey: ['/api/gifted-assessments', selectedStudentId],
+    queryFn: async () => {
+      if (!selectedStudentId) return [];
+      const response = await apiRequest('GET', `/api/gifted-assessments?student_id=${selectedStudentId}`);
+      return response.json();
+    },
+    enabled: !!selectedStudentId
+  });
+
+  // Fetch existing AI analysis for selected student  
+  const { data: existingGiftedAIAnalysis } = useQuery({
+    queryKey: ['/api/gifted-ai-analysis', selectedStudentId],
+    queryFn: async () => {
+      if (!selectedStudentId) return null;
+      const response = await apiRequest('GET', `/api/gifted_assessments/ai-insights?student_id=${selectedStudentId}`);
+      return response.json();
+    },
+    enabled: !!selectedStudentId
+  });
+
+  // Mutations for gifted assessments
+  const createGiftedAssessmentMutation = useMutation({
+    mutationFn: async (assessmentData: any) => {
+      const response = await apiRequest('POST', '/api/gifted-assessments', {
+        ...assessmentData,
+        student_id: selectedStudentId,
+        assessor_name: user?.email || 'Advocate',
+        assessment_date: new Date().toISOString()
+      });
+      return response.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['/api/gifted-assessments'] });
+      queryClient.invalidateQueries({ queryKey: ['/api/gifted-profile'] });
+      toast({
+        title: "Assessment Saved",
+        description: "Gifted assessment has been saved successfully.",
+      });
+    },
+    onError: (error: any) => {
+      toast({
+        title: "Error",
+        description: error.message || "Failed to save assessment.",
+        variant: "destructive",
+      });
+    }
+  });
+
+  // AI Analysis mutation
+  const generateGiftedAIAnalysisMutation = useMutation({
+    mutationFn: async (assessmentId: string) => {
+      const response = await apiRequest('POST', `/api/gifted-assessments/${assessmentId}/ai-analysis`, {
+        role: 'advocate'
+      });
+      return response.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['/api/gifted-ai-analysis'] });
+      queryClient.invalidateQueries({ queryKey: ['/api/gifted-profile'] });
+      toast({
+        title: "AI Analysis Generated",
+        description: "Professional AI insights have been generated successfully.",
+      });
+    },
+    onError: (error: any) => {
+      toast({
+        title: "Error",
+        description: error.message || "Failed to generate AI analysis.",
+        variant: "destructive",
+      });
+    }
+  });
   
   // Autism accommodation categories (professional advocate version)
   const autismAccommodationCategories = [
@@ -1560,114 +1652,239 @@ const AdvocateStudents = () => {
 
                 {selectedTab === "gifted" && (
                   <div className="space-y-6">
-                    {giftedAssessments.length > 0 ? (
-                      <div className="grid gap-6">
-                        {giftedAssessments.map((assessment) => (
-                          <Card key={assessment.id}>
-                            <CardHeader>
-                              <div className="flex items-start justify-between">
-                                <div>
-                                  <CardTitle className="text-lg flex items-center gap-2">
-                                    <Sparkles className="h-5 w-5" />
-                                    {assessment.assessment_type === 'twice_exceptional' ? 'Twice-Exceptional Profile' : 'Gifted Assessment'}
-                                  </CardTitle>
-                                  <CardDescription className="flex items-center gap-2 mt-2">
-                                    <span className="text-sm text-muted-foreground">
-                                      Created {new Date(assessment.created_at).toLocaleDateString()}
-                                    </span>
-                                    {assessment.learning_differences && assessment.learning_differences.length > 0 && (
-                                      <Badge variant="outline" className="bg-blue-50 text-blue-700 border-blue-200">
-                                        2e Profile
-                                      </Badge>
-                                    )}
-                                  </CardDescription>
-                                </div>
-                                <Badge variant={assessment.status === 'completed' ? 'default' : 'secondary'}>
-                                  {assessment.status}
-                                </Badge>
-                              </div>
-                            </CardHeader>
-                            <CardContent className="space-y-4">
-                              {/* Areas of Giftedness */}
-                              <div>
-                                <h4 className="font-medium mb-2 flex items-center gap-2">
-                                  <Star className="h-4 w-4" />
-                                  Areas of Giftedness
-                                </h4>
-                                <div className="flex flex-wrap gap-2">
-                                  {assessment.giftedness_areas.map((area, index) => (
-                                    <Badge key={index} variant="secondary" className="bg-green-100 text-green-700">
-                                      {area}
-                                    </Badge>
-                                  ))}
-                                </div>
-                              </div>
-
-                              {/* Learning Differences */}
-                              {assessment.learning_differences && assessment.learning_differences.length > 0 && (
-                                <div>
-                                  <h4 className="font-medium mb-2 flex items-center gap-2">
-                                    <Brain className="h-4 w-4" />
-                                    Learning Differences
-                                  </h4>
-                                  <div className="flex flex-wrap gap-2">
-                                    {assessment.learning_differences.map((difference, index) => (
-                                      <Badge key={index} variant="outline" className="bg-blue-50 text-blue-700 border-blue-200">
-                                        {difference}
-                                      </Badge>
-                                    ))}
-                                  </div>
-                                </div>
-                              )}
-
-                              {/* Strengths */}
-                              {assessment.strengths && (
-                                <div>
-                                  <h4 className="font-medium mb-2 flex items-center gap-2">
-                                    <TrendingUp className="h-4 w-4" />
-                                    Strengths
-                                  </h4>
-                                  <div className="bg-muted/50 rounded-lg p-3">
-                                    <p className="text-sm">
-                                      {typeof assessment.strengths === 'object' ? 
-                                        assessment.strengths?.notes || JSON.stringify(assessment.strengths) : 
-                                        assessment.strengths}
-                                    </p>
-                                  </div>
-                                </div>
-                              )}
-
-                              {/* Evaluator Notes */}
-                              {assessment.evaluator_notes && (
-                                <div>
-                                  <h4 className="font-medium mb-2 flex items-center gap-2">
-                                    <FileText className="h-4 w-4" />
-                                    Evaluator Notes
-                                  </h4>
-                                  <div className="bg-muted/50 rounded-lg p-3">
-                                    <p className="text-sm">{assessment.evaluator_notes}</p>
-                                  </div>
-                                </div>
-                              )}
-                            </CardContent>
-                          </Card>
-                        ))}
-                      </div>
-                    ) : (
-                      <Card>
-                        <CardContent className="flex flex-col items-center justify-center py-12">
-                          <Lightbulb className="h-12 w-12 text-muted-foreground mb-4" />
-                          <h3 className="text-lg font-medium mb-2">No Gifted Assessments Yet</h3>
-                          <p className="text-sm text-muted-foreground text-center mb-4">
-                            Gifted and twice-exceptional assessments will appear here once they are created for this student.
+                    <Card className="premium-card">
+                      <CardHeader>
+                        <CardTitle className="flex items-center justify-between">
+                          <div className="flex items-center">
+                            <span className="text-2xl mr-2">🎓</span>
+                            Gifted & Twice-Exceptional Support
+                          </div>
+                        </CardTitle>
+                        <CardDescription>Advanced learning assessments and support for gifted and 2E learners</CardDescription>
+                      </CardHeader>
+                      <CardContent>
+                        <div className="text-center py-4 mb-6">
+                          <div className="text-4xl mb-4">✨</div>
+                          <h3 className="text-lg font-semibold mb-2">Integrated Gifted Support</h3>
+                          <p className="text-muted-foreground mb-6">
+                            Comprehensive gifted and twice-exceptional assessment tools are now seamlessly integrated into your student's profile.
                           </p>
-                          <Button variant="outline" size="sm">
-                            <Plus className="h-4 w-4 mr-2" />
-                            Create Gifted Assessment
-                          </Button>
-                        </CardContent>
-                      </Card>
-                    )}
+                        </div>
+                        
+                        {/* Interactive Tool Cards */}
+                        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-2 mb-8">
+                          {(() => {
+                            const giftedToolCards = [
+                              {
+                                id: "cognitive-assessment",
+                                title: "Cognitive Assessment",
+                                description: "Track intellectual abilities and learning patterns",
+                                icon: <Brain className="h-6 w-6" />,
+                                gradient: "from-purple-500 to-indigo-600",
+                                bgGradient: "from-purple-50 to-indigo-50 dark:from-purple-950 dark:to-indigo-950",
+                                borderColor: "border-purple-200 dark:border-purple-800",
+                                category: "Intellectual",
+                                estimatedTime: "15-20 min"
+                              },
+                              {
+                                id: "enrichment-needs", 
+                                title: "Enrichment Needs",
+                                description: "Document advanced learning opportunities",
+                                icon: <Lightbulb className="h-6 w-6" />,
+                                gradient: "from-yellow-500 to-orange-600",
+                                bgGradient: "from-yellow-50 to-orange-50 dark:from-yellow-950 dark:to-orange-950", 
+                                borderColor: "border-yellow-200 dark:border-yellow-800",
+                                category: "Academic",
+                                estimatedTime: "12-15 min"
+                              },
+                              {
+                                id: "2e-support",
+                                title: "2E Support", 
+                                description: "Address unique twice-exceptional needs",
+                                icon: <Target className="h-6 w-6" />,
+                                gradient: "from-green-500 to-emerald-600",
+                                bgGradient: "from-green-50 to-emerald-50 dark:from-green-950 dark:to-emerald-950",
+                                borderColor: "border-green-200 dark:border-green-800",
+                                category: "2E Support", 
+                                estimatedTime: "10-15 min"
+                              },
+                              {
+                                id: "ai-insights",
+                                title: "AI Insights",
+                                description: "Get intelligent analysis and recommendations",
+                                icon: <Sparkles className="h-6 w-6" />,
+                                gradient: "from-orange-500 to-pink-600",
+                                bgGradient: "from-orange-50 to-pink-50 dark:from-orange-950 dark:to-pink-950",
+                                borderColor: "border-orange-200 dark:border-orange-800",
+                                category: "AI Analysis",
+                                estimatedTime: "5 min",
+                                isNew: true
+                              }
+                            ];
+
+                            // Get completion status for progress indicators using real data
+                            const getToolCompletionStatus = (toolId: string) => {
+                              if (!existingGiftedAssessments) return false;
+                              
+                              switch (toolId) {
+                                case "cognitive-assessment":
+                                  return existingGiftedAssessments.some((assessment: any) => 
+                                    assessment.assessment_type === 'cognitive' && assessment.status === 'completed'
+                                  );
+                                case "enrichment-needs":
+                                  return existingGiftedAssessments.some((assessment: any) => 
+                                    assessment.assessment_type === 'enrichment' && assessment.status === 'completed'
+                                  );
+                                case "2e-support":
+                                  return existingGiftedAssessments.some((assessment: any) => 
+                                    assessment.assessment_type === 'twice_exceptional' && assessment.status === 'completed'
+                                  );
+                                case "ai-insights":
+                                  return (existingGiftedAIAnalysis?.analyses?.length || 0) > 0;
+                                default:
+                                  return false;
+                              }
+                            };
+
+                            // Handle card clicks to open appropriate dialogs
+                            const handleCardClick = (toolId: string) => {
+                              if (!selectedStudentId) {
+                                toast({
+                                  title: "Student Required",
+                                  description: "Please select a student first.",
+                                  variant: "destructive"
+                                });
+                                return;
+                              }
+
+                              switch (toolId) {
+                                case "cognitive-assessment":
+                                  setIsCognitiveDialogOpen(true);
+                                  break;
+                                case "enrichment-needs":
+                                  setIsEnrichmentDialogOpen(true);
+                                  break;
+                                case "2e-support":
+                                  setIs2ESupportDialogOpen(true);
+                                  break;
+                                case "ai-insights":
+                                  setIsGiftedAIDialogOpen(true);
+                                  break;
+                                default:
+                                  break;
+                              }
+                            };
+
+                            return giftedToolCards.map((tool) => {
+                              const isCompleted = getToolCompletionStatus(tool.id);
+                              
+                              return (
+                                <Card 
+                                  key={tool.id}
+                                  className="group relative overflow-hidden transition-all duration-300 hover:shadow-xl hover:-translate-y-1 cursor-pointer"
+                                  onClick={() => handleCardClick(tool.id)}
+                                  data-testid={`card-${tool.id}`}
+                                >
+                                <div className={`absolute inset-0 bg-gradient-to-br ${tool.bgGradient} opacity-30`} />
+                                
+                                <CardHeader className="relative pb-4">
+                                  <div className="flex items-start justify-between mb-4">
+                                    <div className={`p-3 rounded-xl bg-gradient-to-r ${tool.gradient} text-white`}>
+                                      {tool.icon}
+                                    </div>
+                                    <div className="flex flex-col items-end gap-2">
+                                      {tool.isNew && (
+                                        <Badge className="bg-gradient-to-r from-orange-500 to-pink-500 text-white font-bold">
+                                          <Sparkles className="h-3 w-3 mr-1" />
+                                          NEW
+                                        </Badge>
+                                      )}
+                                      {isCompleted && (
+                                        <Badge className="bg-green-100 dark:bg-green-900 text-green-700 dark:text-green-300">
+                                          <CheckCircle className="h-3 w-3 mr-1" />
+                                          Complete
+                                        </Badge>
+                                      )}
+                                    </div>
+                                  </div>
+                                  
+                                  <div>
+                                    <CardTitle className="text-lg font-semibold text-gray-900 dark:text-white mb-2">
+                                      {tool.title}
+                                    </CardTitle>
+                                    <CardDescription className="text-sm text-muted-foreground mb-3">
+                                      {tool.description}
+                                    </CardDescription>
+                                  </div>
+                                </CardHeader>
+
+                                <CardContent className="relative pt-0">
+                                  <div className="space-y-3 mb-4">
+                                    <div className="flex items-center justify-between text-xs">
+                                      <span className="text-muted-foreground">Estimated time:</span>
+                                      <span className="font-medium">{tool.estimatedTime}</span>
+                                    </div>
+                                    <div className="flex items-center justify-between text-xs">
+                                      <span className="text-muted-foreground">Category:</span>
+                                      <Badge variant="outline" className="text-xs">
+                                        {tool.category}
+                                      </Badge>
+                                    </div>
+                                  </div>
+
+                                  {/* Action Button */}
+                                  <div className={`flex items-center justify-between p-3 bg-gradient-to-r ${tool.bgGradient} rounded-lg border ${tool.borderColor}`}>
+                                    <span className="text-sm font-medium text-gray-900 dark:text-white">
+                                      {isCompleted ? 'Review Assessment' : 
+                                       tool.id === 'ai-insights' ? 'Generate Insights' : 
+                                       'Start Assessment'}
+                                    </span>
+                                    <ArrowRight className="h-4 w-4 text-gray-600 dark:text-gray-300 group-hover:translate-x-1 transition-transform" />
+                                  </div>
+                                </CardContent>
+                              </Card>
+                              );
+                            });
+                          })()}
+                        </div>
+
+                        {/* Show existing assessments if any */}
+                        {giftedAssessments.length > 0 && (
+                          <div className="mt-8 space-y-4">
+                            <h4 className="font-medium">Existing Assessments</h4>
+                            <div className="grid gap-3">
+                              {giftedAssessments.map((assessment) => (
+                                <div key={assessment.id} className="border rounded-lg p-4 text-left">
+                                  <div className="flex items-center justify-between mb-2">
+                                    <h5 className="font-medium capitalize flex items-center gap-2">
+                                      <Sparkles className="h-4 w-4" />
+                                      {assessment.assessment_type?.replace('_', ' ')} Assessment
+                                    </h5>
+                                    <Badge variant={assessment.status === 'completed' ? 'default' : 'secondary'}>
+                                      {assessment.status}
+                                    </Badge>
+                                  </div>
+                                  {assessment.giftedness_areas && assessment.giftedness_areas.length > 0 && (
+                                    <p className="text-sm text-muted-foreground">
+                                      <span className="font-medium">Areas: </span>
+                                      {assessment.giftedness_areas.join(', ')}
+                                    </p>
+                                  )}
+                                </div>
+                              ))}
+                            </div>
+                          </div>
+                        )}
+                        
+                        {giftedAssessments.length > 0 && (
+                          <div className="mt-6 p-4 bg-purple-50 dark:bg-purple-950 rounded-lg border">
+                            <p className="text-sm font-medium text-purple-800 dark:text-purple-200">
+                              ✅ You have {giftedAssessments.length} gifted assessments for this student
+                            </p>
+                          </div>
+                        )}
+                      </CardContent>
+                    </Card>
                   </div>
                 )}
 
@@ -3106,6 +3323,157 @@ const AdvocateStudents = () => {
               </div>
             ) : (
               <>
+                {/* Display existing AI analysis if available */}
+                {existingGiftedAIAnalysis?.analyses?.length > 0 ? (
+                  <div className="space-y-6">
+                    {/* Analysis Header */}
+                    <div className="bg-gradient-to-r from-orange-50 to-pink-50 dark:from-orange-950 dark:to-pink-950 p-6 rounded-lg">
+                      <h3 className="text-lg font-semibold mb-2 flex items-center">
+                        <span className="text-2xl mr-2">✨</span>
+                        Saved Gifted Education Analysis for Advocacy
+                        <Badge variant="outline" className="ml-2">Professional Analysis</Badge>
+                      </h3>
+                      <p className="text-sm text-muted-foreground">
+                        AI-powered gifted education analysis for IEP advocacy • 
+                        {existingGiftedAIAnalysis.analyses[0]?.timestamp ? 
+                          `Generated: ${new Date(existingGiftedAIAnalysis.analyses[0].timestamp).toLocaleDateString()}` : 
+                          'Previously Generated'
+                        }
+                      </p>
+                    </div>
+
+                    {/* Professional Analysis Display */}
+                    {existingGiftedAIAnalysis.analyses[0]?.ai_analysis?.detailed_analysis && (
+                      <Card className="premium-card">
+                        <CardHeader>
+                          <CardTitle className="flex items-center text-lg">
+                            <Brain className="h-5 w-5 mr-2" />
+                            Professional Gifted Education Analysis
+                          </CardTitle>
+                        </CardHeader>
+                        <CardContent>
+                          <p className="text-muted-foreground whitespace-pre-wrap">
+                            {existingGiftedAIAnalysis.analyses[0].ai_analysis.detailed_analysis}
+                          </p>
+                        </CardContent>
+                      </Card>
+                    )}
+
+                    {/* Recommendations for IEP Advocacy */}
+                    {existingGiftedAIAnalysis.analyses[0]?.ai_analysis?.recommendations && Array.isArray(existingGiftedAIAnalysis.analyses[0].ai_analysis.recommendations) && (
+                      <Card className="premium-card">
+                        <CardHeader>
+                          <CardTitle className="flex items-center text-lg">
+                            <Target className="h-5 w-5 mr-2" />
+                            IEP & Gifted Program Recommendations
+                          </CardTitle>
+                        </CardHeader>
+                        <CardContent>
+                          <ul className="space-y-2">
+                            {existingGiftedAIAnalysis.analyses[0].ai_analysis.recommendations.map((rec: string, i: number) => (
+                              <li key={i} className="flex items-start">
+                                <span className="text-primary mr-2 mt-1">→</span>
+                                <span className="text-muted-foreground">{rec}</span>
+                              </li>
+                            ))}
+                          </ul>
+                        </CardContent>
+                      </Card>
+                    )}
+
+                    {/* Key Findings */}
+                    {existingGiftedAIAnalysis.analyses[0]?.ai_analysis?.key_findings && Array.isArray(existingGiftedAIAnalysis.analyses[0].ai_analysis.key_findings) && (
+                      <Card className="premium-card">
+                        <CardHeader>
+                          <CardTitle className="flex items-center text-lg">
+                            <CheckCircle className="h-5 w-5 mr-2" />
+                            Critical Findings for Advocacy
+                          </CardTitle>
+                        </CardHeader>
+                        <CardContent>
+                          <ul className="space-y-2">
+                            {existingGiftedAIAnalysis.analyses[0].ai_analysis.key_findings.map((finding: string, i: number) => (
+                              <li key={i} className="flex items-start">
+                                <span className="text-primary mr-2 mt-1">•</span>
+                                <span className="text-muted-foreground">{finding}</span>
+                              </li>
+                            ))}
+                          </ul>
+                        </CardContent>
+                      </Card>
+                    )}
+                    
+                    <div className="flex justify-center">
+                      <Button
+                        onClick={() => {
+                          if (existingGiftedAssessments && existingGiftedAssessments.length > 0) {
+                            const latestAssessment = existingGiftedAssessments[existingGiftedAssessments.length - 1];
+                            generateGiftedAIAnalysisMutation.mutate(latestAssessment.id);
+                          }
+                        }}
+                        disabled={generateGiftedAIAnalysisMutation.isPending || !existingGiftedAssessments || existingGiftedAssessments.length === 0}
+                        className="button-premium"
+                        data-testid="button-regenerate-ai-analysis"
+                      >
+                        {generateGiftedAIAnalysisMutation.isPending ? (
+                          <>
+                            <Brain className="h-4 w-4 mr-2 animate-spin" />
+                            Regenerating...
+                          </>
+                        ) : (
+                          <>
+                            <Sparkles className="h-4 w-4 mr-2" />
+                            Regenerate Analysis
+                          </>
+                        )}
+                      </Button>
+                    </div>
+                  </div>
+                ) : (
+                  /* No existing analysis - show generation interface */
+                  <div className="space-y-6">
+                    <div className="text-center py-8 border rounded-lg">
+                      <Target className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
+                      <h3 className="font-medium mb-2">No Saved Analysis Results</h3>
+                      <p className="text-sm text-muted-foreground mb-4">
+                        Generate comprehensive AI insights based on completed gifted assessments.
+                      </p>
+                      
+                      {existingGiftedAssessments && existingGiftedAssessments.length > 0 ? (
+                        <div className="space-y-4">
+                          <div className="text-sm text-muted-foreground">
+                            Found {existingGiftedAssessments.length} assessment(s) available for analysis
+                          </div>
+                          <Button
+                            onClick={() => {
+                              const latestAssessment = existingGiftedAssessments[existingGiftedAssessments.length - 1];
+                              generateGiftedAIAnalysisMutation.mutate(latestAssessment.id);
+                            }}
+                            disabled={generateGiftedAIAnalysisMutation.isPending}
+                            className="button-premium"
+                            data-testid="button-generate-ai-analysis"
+                          >
+                            {generateGiftedAIAnalysisMutation.isPending ? (
+                              <>
+                                <Brain className="h-4 w-4 mr-2 animate-spin" />
+                                Generating Analysis...
+                              </>
+                            ) : (
+                              <>
+                                <Sparkles className="h-4 w-4 mr-2" />
+                                Generate AI Insights
+                              </>
+                            )}
+                          </Button>
+                        </div>
+                      ) : (
+                        <div className="text-sm text-muted-foreground">
+                          Complete some assessments first to generate AI insights.
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                )}
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <Card className="p-4">
                     <h4 className="font-medium mb-2">⭐ Identified Strengths</h4>

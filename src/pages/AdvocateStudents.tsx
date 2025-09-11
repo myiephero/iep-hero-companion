@@ -31,7 +31,8 @@ import {
   Brain,
   Lightbulb,
   Puzzle,
-  Star
+  Star,
+  Sparkles
 } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
@@ -117,9 +118,12 @@ interface GiftedAssessment {
   assessment_type: string;
   assessment_date: string;
   assessor_name: string;
+  giftedness_areas: string[];
+  learning_differences?: string[];
   strengths: any;
   recommendations: any;
   evaluator_notes: string | null;
+  status: string;
   created_at: string;
 }
 
@@ -1354,6 +1358,17 @@ const AdvocateStudents = () => {
                         <Smile className="h-4 w-4" />
                         <span className="hidden lg:inline">Emotions</span>
                       </button>
+                      <button
+                        onClick={() => setSelectedTab("gifted")}
+                        className={`flex items-center gap-2 px-3 py-3 rounded-lg font-medium transition-all duration-200 flex-1 justify-center ${
+                          selectedTab === "gifted"
+                            ? "bg-gradient-to-r from-purple-500 to-purple-600 text-white shadow-md"
+                            : "text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800"
+                        }`}
+                      >
+                        <Star className="h-4 w-4" />
+                        <span className="hidden lg:inline">Gifted</span>
+                      </button>
                     </div>
                   </div>
                 </div>
@@ -1543,6 +1558,118 @@ const AdvocateStudents = () => {
                   </div>
                 )}
 
+                {selectedTab === "gifted" && (
+                  <div className="space-y-6">
+                    {giftedAssessments.length > 0 ? (
+                      <div className="grid gap-6">
+                        {giftedAssessments.map((assessment) => (
+                          <Card key={assessment.id}>
+                            <CardHeader>
+                              <div className="flex items-start justify-between">
+                                <div>
+                                  <CardTitle className="text-lg flex items-center gap-2">
+                                    <Sparkles className="h-5 w-5" />
+                                    {assessment.assessment_type === 'twice_exceptional' ? 'Twice-Exceptional Profile' : 'Gifted Assessment'}
+                                  </CardTitle>
+                                  <CardDescription className="flex items-center gap-2 mt-2">
+                                    <span className="text-sm text-muted-foreground">
+                                      Created {new Date(assessment.created_at).toLocaleDateString()}
+                                    </span>
+                                    {assessment.learning_differences && assessment.learning_differences.length > 0 && (
+                                      <Badge variant="outline" className="bg-blue-50 text-blue-700 border-blue-200">
+                                        2e Profile
+                                      </Badge>
+                                    )}
+                                  </CardDescription>
+                                </div>
+                                <Badge variant={assessment.status === 'completed' ? 'default' : 'secondary'}>
+                                  {assessment.status}
+                                </Badge>
+                              </div>
+                            </CardHeader>
+                            <CardContent className="space-y-4">
+                              {/* Areas of Giftedness */}
+                              <div>
+                                <h4 className="font-medium mb-2 flex items-center gap-2">
+                                  <Star className="h-4 w-4" />
+                                  Areas of Giftedness
+                                </h4>
+                                <div className="flex flex-wrap gap-2">
+                                  {assessment.giftedness_areas.map((area, index) => (
+                                    <Badge key={index} variant="secondary" className="bg-green-100 text-green-700">
+                                      {area}
+                                    </Badge>
+                                  ))}
+                                </div>
+                              </div>
+
+                              {/* Learning Differences */}
+                              {assessment.learning_differences && assessment.learning_differences.length > 0 && (
+                                <div>
+                                  <h4 className="font-medium mb-2 flex items-center gap-2">
+                                    <Brain className="h-4 w-4" />
+                                    Learning Differences
+                                  </h4>
+                                  <div className="flex flex-wrap gap-2">
+                                    {assessment.learning_differences.map((difference, index) => (
+                                      <Badge key={index} variant="outline" className="bg-blue-50 text-blue-700 border-blue-200">
+                                        {difference}
+                                      </Badge>
+                                    ))}
+                                  </div>
+                                </div>
+                              )}
+
+                              {/* Strengths */}
+                              {assessment.strengths && (
+                                <div>
+                                  <h4 className="font-medium mb-2 flex items-center gap-2">
+                                    <TrendingUp className="h-4 w-4" />
+                                    Strengths
+                                  </h4>
+                                  <div className="bg-muted/50 rounded-lg p-3">
+                                    <p className="text-sm">
+                                      {typeof assessment.strengths === 'object' ? 
+                                        assessment.strengths?.notes || JSON.stringify(assessment.strengths) : 
+                                        assessment.strengths}
+                                    </p>
+                                  </div>
+                                </div>
+                              )}
+
+                              {/* Evaluator Notes */}
+                              {assessment.evaluator_notes && (
+                                <div>
+                                  <h4 className="font-medium mb-2 flex items-center gap-2">
+                                    <FileText className="h-4 w-4" />
+                                    Evaluator Notes
+                                  </h4>
+                                  <div className="bg-muted/50 rounded-lg p-3">
+                                    <p className="text-sm">{assessment.evaluator_notes}</p>
+                                  </div>
+                                </div>
+                              )}
+                            </CardContent>
+                          </Card>
+                        ))}
+                      </div>
+                    ) : (
+                      <Card>
+                        <CardContent className="flex flex-col items-center justify-center py-12">
+                          <Lightbulb className="h-12 w-12 text-muted-foreground mb-4" />
+                          <h3 className="text-lg font-medium mb-2">No Gifted Assessments Yet</h3>
+                          <p className="text-sm text-muted-foreground text-center mb-4">
+                            Gifted and twice-exceptional assessments will appear here once they are created for this student.
+                          </p>
+                          <Button variant="outline" size="sm">
+                            <Plus className="h-4 w-4 mr-2" />
+                            Create Gifted Assessment
+                          </Button>
+                        </CardContent>
+                      </Card>
+                    )}
+                  </div>
+                )}
 
               </>
             ) : (

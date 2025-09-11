@@ -134,7 +134,7 @@ export function AppSidebar() {
             </div>
             {!collapsed && (
               <div>
-                <h2 className="font-bold text-lg text-sidebar-foreground">My IEP Hero [TEST-MARKER-123]</h2>
+                <h2 className="font-bold text-lg text-sidebar-foreground">My IEP Hero</h2>
                 <div className="flex items-center gap-2">
                   <p className="text-xs text-muted-foreground">
                     {isAdvocate ? 'Advocate Portal' : 'Parent Portal'}

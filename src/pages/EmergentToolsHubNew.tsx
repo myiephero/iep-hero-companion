@@ -252,15 +252,15 @@ export default function EmergentToolsHubNew() {
         <div className="text-center space-y-6">
           <div className="flex items-center justify-center gap-2 mb-4">
             <Zap className="h-8 w-8 text-primary" />
-            <h1 className="text-4xl font-bold">🆕 NEW FILE - 18 Tools Hub</h1>
+            <h1 className="text-4xl font-bold">My IEP Hero Tools</h1>
           </div>
           <p className="text-xl text-muted-foreground max-w-3xl mx-auto">
-            TESTING NEW FILE WITH ALL 18 TOOLS INCLUDING THE 5 NEW ONES
+            Comprehensive suite of specialized tools designed to empower parents and advocates in creating effective IEPs and supporting student success.
           </p>
         </div>
 
         <div className="space-y-6">
-          <h2 className="text-2xl font-semibold text-center">All 18 Tools - INCLUDING 5 NEW - WITH ACCESS CONTROL</h2>
+          <h2 className="text-2xl font-semibold text-center">Complete Toolkit for Special Education Advocacy</h2>
           
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
             {emergentTools.map((tool) => (

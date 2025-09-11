@@ -42,6 +42,7 @@ import GiftedLeadershipTool from "./pages/GiftedLeadershipTool";
 import GiftedAIInsightsTool from "./pages/GiftedAIInsightsTool";
 import SmartMatching from "./pages/SmartMatching";
 import GiftedTwoeLearners from "./pages/GiftedTwoeLearners";
+import AdvocateGiftedToolsHub from "./pages/AdvocateGiftedToolsHub";
 import ExpertAnalysis from "./pages/ExpertAnalysis";
 import MatchingDashboard from "./pages/MatchingDashboard";
 import EmergentToolsHubNew from "./pages/EmergentToolsHubNew";
@@ -387,6 +388,38 @@ function App() {
                 </ProtectedRoute>
               } />
               
+              {/* New Card-Based Gifted Tools - Advocate */}
+              <Route path="/advocate/gifted-tools" element={
+                <ProtectedRoute allowedRoles={['advocate']}>
+                  <AdvocateGiftedToolsHub />
+                </ProtectedRoute>
+              } />
+              <Route path="/advocate/gifted-tools/cognitive" element={
+                <ProtectedRoute allowedRoles={['advocate']}>
+                  <GiftedCognitiveTool />
+                </ProtectedRoute>
+              } />
+              <Route path="/advocate/gifted-tools/academic" element={
+                <ProtectedRoute allowedRoles={['advocate']}>
+                  <GiftedAcademicTool />
+                </ProtectedRoute>
+              } />
+              <Route path="/advocate/gifted-tools/creative" element={
+                <ProtectedRoute allowedRoles={['advocate']}>
+                  <GiftedCreativeTool />
+                </ProtectedRoute>
+              } />
+              <Route path="/advocate/gifted-tools/leadership" element={
+                <ProtectedRoute allowedRoles={['advocate']}>
+                  <GiftedLeadershipTool />
+                </ProtectedRoute>
+              } />
+              <Route path="/advocate/gifted-tools/ai-insights" element={
+                <ProtectedRoute allowedRoles={['advocate']}>
+                  <GiftedAIInsightsTool />
+                </ProtectedRoute>
+              } />
+              
               {/* Advocate Tools - Namespaced */}
               <Route path="/advocate/tools/iep-review" element={
                 <ProtectedRoute allowedRoles={['advocate']}>
@@ -491,7 +524,7 @@ function App() {
               } />
               <Route path="/advocate/tools/gifted-2e-learners" element={
                 <ProtectedRoute allowedRoles={['advocate']}>
-                  <GiftedTwoeLearners />
+                  <AdvocateGiftedToolsHub />
                 </ProtectedRoute>
               } />
               <Route path="/advocate/tools/advocate-matching" element={

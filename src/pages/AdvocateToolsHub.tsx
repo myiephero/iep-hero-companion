@@ -169,13 +169,13 @@ const specializedTools = [
     features: ["Sensory Support", "Communication Plans", "Behavioral Strategies", "Professional Standards"]
   },
   {
-    title: "Gifted & 2e Learners",
-    description: "Comprehensive support for gifted and twice-exceptional learners with professional assessment tools.",
+    title: "Gifted & 2e Assessment Tools",
+    description: "Comprehensive gifted assessment tools including cognitive, academic, creative, leadership, and AI insights.",
     icon: GraduationCap,
-    path: "/gifted-2e-learners",
+    path: "/advocate/gifted-tools",
     category: "Specialized Needs",
     badge: "2e",
-    features: ["Giftedness Assessment", "Learning Differences", "Acceleration Plans", "Professional Evaluation"]
+    features: ["Cognitive Assessment", "Academic Evaluation", "Creative Analysis", "Leadership Profile", "AI Insights"]
   },
   {
     title: "504 Plan Builder",
@@ -272,8 +272,9 @@ export default function AdvocateToolsHub() {
       'autism-accommodations': 'autismAccommodationBuilder',
       'advocate/tools/autism-accommodations': 'autismAccommodationBuilder',
       
-      'gifted-2e-learners': 'giftedTwoeSupport',
+      'advocate/gifted-tools': 'giftedTwoeSupport',
       'advocate/tools/gifted-2e-learners': 'giftedTwoeSupport',
+      'gifted-2e-learners': 'giftedTwoeSupport',
       
       'messages': 'advocateMessaging',
       'advocate/messages': 'advocateMessaging',

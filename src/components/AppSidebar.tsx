@@ -1,5 +1,6 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useLocation, Link } from "react-router-dom";
+import { useQuery } from "@tanstack/react-query";
 import { 
   LayoutDashboard, 
   FileSearch, 
@@ -42,6 +43,7 @@ interface SidebarItem {
   url: string;
   icon: React.ComponentType<{ className?: string }>;
   badge?: string;
+  notificationCount?: number;
 }
 
 interface SidebarSection {
@@ -74,11 +76,11 @@ const getParentNavigation = (dashboardUrl: string, userPlan: string, isAdvocate:
   ];
 };
 
-const getAdvocateNavigation = (dashboardUrl: string): SidebarSection[] => [
+const getAdvocateNavigation = (dashboardUrl: string, pendingCount?: number): SidebarSection[] => [
   {
     title: "Advocate Portal", 
     items: [
-      { title: "My Cases", url: dashboardUrl, icon: LayoutDashboard },
+      { title: "My Cases", url: dashboardUrl, icon: LayoutDashboard, notificationCount: pendingCount },
       { title: "Parent Clients", url: "/advocate/parents", icon: Users },
       { title: "Client Students", url: "/advocate/students", icon: GraduationCap },
       { title: "Tools Hub", url: "/advocate/tools", icon: FileSearch },
@@ -119,7 +121,24 @@ export function AppSidebar() {
   const advocatePlanSlug = advocatePlanMapping[user?.subscriptionPlan?.toLowerCase()] || 'starter';
   const dashboardUrl = isAdvocate ? `/advocate/dashboard-${advocatePlanSlug}` : `/parent/dashboard-${userPlan}`;
   
-  const navigation = isAdvocate ? getAdvocateNavigation(dashboardUrl) : getParentNavigation(dashboardUrl, userPlan, isAdvocate);
+  // Use TanStack Query for real-time pending assignments count sync
+  const { data: pendingData = { assignments: [], total_pending: 0 } } = useQuery({
+    queryKey: ['/api/match/pending-assignments'],
+    enabled: isAdvocate && !!user,
+    refetchInterval: 30000, // Backup polling every 30 seconds
+    staleTime: 5000, // Consider data stale after 5 seconds for immediate updates
+    retry: (failureCount, error) => {
+      // Don't retry on 403/404 errors (advocate not found)
+      if (error?.message?.includes('403') || error?.message?.includes('404')) {
+        return false;
+      }
+      return failureCount < 3;
+    }
+  });
+  
+  const pendingAssignmentsCount = pendingData?.total_pending || 0;
+  
+  const navigation = isAdvocate ? getAdvocateNavigation(dashboardUrl, pendingAssignmentsCount) : getParentNavigation(dashboardUrl, userPlan, isAdvocate);
   
   const isActive = (path: string) => currentPath === path;
   
@@ -174,6 +193,11 @@ export function AppSidebar() {
                             {item.badge && (
                               <Badge variant="secondary" className="text-xs px-2 py-0">
                                 {item.badge}
+                              </Badge>
+                            )}
+                            {item.notificationCount && item.notificationCount > 0 && (
+                              <Badge variant="destructive" className="text-xs px-2 py-0 ml-auto bg-red-500 text-white" data-testid="notification-badge">
+                                {item.notificationCount}
                               </Badge>
                             )}
                           </>

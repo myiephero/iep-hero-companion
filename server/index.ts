@@ -2298,6 +2298,24 @@ app.get('/api/parents', isAuthenticated, async (req, res) => {
     
     console.log(`✅ Found ${parentClients.length} parent clients for advocate`);
     
+    // Get student counts for all parents in this batch
+    const parentIds = parentClients
+      .filter(pc => pc.user)
+      .map(pc => pc.user!.id);
+    
+    const studentCounts = await db.select({
+      parent_id: schema.students.parent_id,
+      count: sql`COUNT(*)`.as('count')
+    })
+    .from(schema.students)
+    .where(inArray(schema.students.parent_id, parentIds))
+    .groupBy(schema.students.parent_id);
+    
+    // Create a map for quick lookup
+    const studentCountMap = new Map(
+      studentCounts.map(sc => [sc.parent_id, Number(sc.count)])
+    );
+    
     // Format the response to match what the frontend expects
     const formattedParents = parentClients
       .filter(pc => pc.user) // Only include records where user data exists
@@ -2308,7 +2326,7 @@ app.get('/api/parents', isAuthenticated, async (req, res) => {
         phone: '', // Note: phone field doesn't exist in users table
         created_at: client.created_at,
         status: client.status || 'active',
-        students_count: 0, // TODO: Calculate actual student count
+        students_count: studentCountMap.get(user!.id) || 0, // Actual student count from database
         relationship_type: client.relationship_type
       }));
     

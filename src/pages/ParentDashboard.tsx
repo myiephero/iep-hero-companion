@@ -587,25 +587,6 @@ export default function ParentDashboard({ plan }: ParentDashboardProps) {
                         <Star className="h-5 w-5 mr-2" />
                         View All Plans
                       </Button>
-                      <Button 
-                        onClick={() => navigate('/upsell/hero-plan')}
-                        variant="outline" 
-                        size="lg"
-                        className="border-2 border-white/30 text-white hover:bg-white/10 font-bold text-lg py-4 px-8 rounded-xl backdrop-blur-sm"
-                        data-testid="button-hero-plan-test"
-                      >
-                        <Trophy className="h-5 w-5 mr-2" />
-                        Hero Plan ($495)
-                      </Button>
-                      <Button 
-                        onClick={() => navigate('/subscribe')}
-                        variant="ghost"
-                        size="lg"
-                        className="text-white/80 hover:text-white hover:bg-white/5 font-medium"
-                        data-testid="button-quick-subscribe"
-                      >
-                        Quick Subscribe Test →
-                      </Button>
                     </div>
                   </div>
                 </CardContent>

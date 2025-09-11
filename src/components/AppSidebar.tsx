@@ -56,10 +56,6 @@ const getParentNavigation = (dashboardUrl: string, userPlan: string, isAdvocate:
     { title: "Dashboard", url: dashboardUrl, icon: LayoutDashboard },
   ];
 
-  // Only show HERO Plan upgrade if user is PARENT and not already on Hero plan
-  if (!isAdvocate && userPlan !== 'hero') {
-    baseItems.push({ title: "HERO Plan", url: "/upsell/hero-plan", icon: Crown, badge: "Premium" });
-  }
 
   return [
     {

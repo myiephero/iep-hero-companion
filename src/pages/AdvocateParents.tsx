@@ -3,6 +3,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { Progress } from "@/components/ui/progress";
 import { useToast } from "@/hooks/use-toast";
 import { DashboardLayout } from "@/layouts/DashboardLayout";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
@@ -10,7 +11,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Users, Mail, Phone, Plus, UserCheck, UserPlus, GraduationCap, Calendar, MapPin, Briefcase } from "lucide-react";
+import { Users, Mail, Phone, Plus, UserCheck, UserPlus, GraduationCap, Calendar, MapPin, Briefcase, FileText, Target, Building2, Heart, User } from "lucide-react";
 import { Link } from "react-router-dom";
 import { api } from "@/lib/api";
 import { apiRequest } from "@/lib/queryClient";
@@ -30,8 +31,11 @@ interface Student {
   full_name: string;
   grade_level?: string;
   school_name?: string;
+  district?: string;
   disability_category?: string;
   iep_status?: string;
+  iep_date?: string;
+  next_review_date?: string;
   created_at: string;
 }
 
@@ -195,6 +199,8 @@ function CreateCaseButton({ parentId, parentName }: { parentId: string; parentNa
 // Component to display students for a specific parent
 function StudentListForParent({ parentId }: { parentId: string }) {
   const [students, setStudents] = useState<Student[]>([]);
+  const [selectedStudentId, setSelectedStudentId] = useState<string | null>(null);
+  const [goals, setGoals] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const { user } = useAuth();
 
@@ -229,6 +235,37 @@ function StudentListForParent({ parentId }: { parentId: string }) {
     }
   }, [parentId, user]);
 
+  // Fetch goals data when a student is selected
+  useEffect(() => {
+    const fetchGoalsData = async () => {
+      if (!selectedStudentId) return;
+      try {
+        const response = await apiRequest('GET', '/api/goals');
+        const data = await response.json();
+        const studentGoals = Array.isArray(data) ? 
+          data.filter((goal: any) => goal.student_id === selectedStudentId) : 
+          [];
+        setGoals(studentGoals);
+      } catch (error) {
+        console.error('Error fetching goals:', error);
+        setGoals([]);
+      }
+    };
+
+    fetchGoalsData();
+  }, [selectedStudentId]);
+
+  // Helper function for IEP status colors - same as Client Students page
+  const getStudentIEPStatusColor = (status: string | null | undefined) => {
+    if (!status) return "bg-muted text-muted-foreground";
+    switch (status.toLowerCase()) {
+      case "active": return "bg-success text-success-foreground";
+      case "developing": return "bg-warning text-warning-foreground";
+      case "inactive": return "bg-destructive text-destructive-foreground";
+      default: return "bg-muted text-muted-foreground";
+    }
+  };
+
   if (loading) {
     return <div className="text-center py-4">Loading students...</div>;
   }
@@ -243,48 +280,193 @@ function StudentListForParent({ parentId }: { parentId: string }) {
     );
   }
 
+  const selectedStudent = selectedStudentId ? students.find(s => s.id === selectedStudentId) : null;
+
   return (
-    <div className="space-y-4">
-      {students.map((student) => (
-        <Card key={student.id} className="border-l-4 border-l-primary/20">
-          <CardContent className="p-4">
-            <div className="flex items-start justify-between">
-              <div className="space-y-1">
-                <h4 className="font-medium">{student.full_name}</h4>
-                <div className="flex items-center gap-4 text-sm text-muted-foreground">
-                  {student.grade_level && (
-                    <span className="flex items-center gap-1">
-                      <GraduationCap className="h-3 w-3" />
-                      Grade {student.grade_level}
-                    </span>
-                  )}
-                  {student.school_name && (
-                    <span className="flex items-center gap-1">
-                      <MapPin className="h-3 w-3" />
-                      {student.school_name}
-                    </span>
-                  )}
+    <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      {/* Left Panel - Student List */}
+      <div className="lg:col-span-1">
+        <div className="space-y-2">
+          {students.map((student) => (
+            <div
+              key={student.id}
+              className={`p-3 rounded-lg border cursor-pointer transition-all hover:bg-muted/50 ${
+                selectedStudentId === student.id ? 'bg-primary/5 border-primary' : 'border-border'
+              }`}
+              onClick={() => setSelectedStudentId(student.id)}
+            >
+              <div className="flex items-center gap-3">
+                <Avatar className="h-10 w-10">
+                  <AvatarFallback className="bg-primary/10 text-primary font-semibold">
+                    {student.full_name.split(' ').map(n => n[0]).join('').toUpperCase()}
+                  </AvatarFallback>
+                </Avatar>
+                <div className="flex-1">
+                  <p className="font-medium text-sm">{student.full_name}</p>
+                  <p className="text-xs text-muted-foreground">
+                    {student.grade_level ? `Grade ${student.grade_level}` : 'Grade not specified'} • {student.school_name || 'School not specified'}
+                  </p>
                 </div>
-                {student.disability_category && (
-                  <Badge variant="outline" className="text-xs">
-                    {student.disability_category}
-                  </Badge>
-                )}
-              </div>
-              <div className="text-right">
-                {student.iep_status && (
-                  <Badge variant={student.iep_status === 'active' ? 'default' : 'secondary'} className="text-xs">
-                    IEP {student.iep_status}
-                  </Badge>
-                )}
-                <p className="text-xs text-muted-foreground mt-1">
-                  Added {new Date(student.created_at).toLocaleDateString()}
-                </p>
+                <Badge className={`text-xs ${getStudentIEPStatusColor(student.iep_status)}`}>
+                  {student.iep_status || 'Not Set'}
+                </Badge>
               </div>
             </div>
-          </CardContent>
-        </Card>
-      ))}
+          ))}
+        </div>
+      </div>
+
+      {/* Right Panel - Student Details (Tools from Client Students page) */}
+      <div className="lg:col-span-2">
+        {selectedStudent ? (
+          <div className="space-y-6">
+            {/* Header with student info */}
+            <div className="flex items-center gap-4 pb-4 border-b">
+              <Avatar className="h-16 w-16">
+                <AvatarFallback className="text-lg bg-primary/10 text-primary font-semibold">
+                  {selectedStudent.full_name.split(' ').map(n => n[0]).join('').toUpperCase()}
+                </AvatarFallback>
+              </Avatar>
+              <div>
+                <h3 className="text-2xl font-bold">{selectedStudent.full_name}</h3>
+                <div className="flex items-center gap-4 text-sm text-muted-foreground">
+                  <span>Grade {selectedStudent.grade_level || 'Not specified'}</span>
+                  <span>•</span>
+                  <span>{selectedStudent.school_name || 'School not specified'}</span>
+                  <Badge className={getStudentIEPStatusColor(selectedStudent.iep_status)}>
+                    {selectedStudent.iep_status || 'Not Set'}
+                  </Badge>
+                </div>
+              </div>
+            </div>
+
+            {/* Tool Cards - Copied from Client Students page */}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {/* IEP Status Card */}
+              <Card className="premium-card">
+                <CardHeader>
+                  <CardTitle className="flex items-center">
+                    <FileText className="h-5 w-5 mr-2" />
+                    IEP Status
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-2">
+                    <Badge className={getStudentIEPStatusColor(selectedStudent.iep_status)}>
+                      {selectedStudent.iep_status || 'Not Set'}
+                    </Badge>
+                    {selectedStudent.iep_date && (
+                      <p className="text-sm text-muted-foreground">
+                        IEP Date: {new Date(selectedStudent.iep_date).toLocaleDateString()}
+                      </p>
+                    )}
+                    {selectedStudent.next_review_date && (
+                      <p className="text-sm text-muted-foreground">
+                        Next Review: {new Date(selectedStudent.next_review_date).toLocaleDateString()}
+                      </p>
+                    )}
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* Goals Progress Card */}
+              <Card className="premium-card">
+                <CardHeader>
+                  <CardTitle className="flex items-center">
+                    <Target className="h-5 w-5 mr-2" />
+                    Goals Progress
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-2">
+                    <div className="flex justify-between text-sm">
+                      <span>Completed Goals</span>
+                      <span>{goals.filter(g => g.status === 'completed').length}/{goals.length}</span>
+                    </div>
+                    <Progress 
+                      value={goals.length > 0 ? (goals.filter(g => g.status === 'completed').length / goals.length) * 100 : 0} 
+                      className="h-2"
+                    />
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* School Info Card */}
+              <Card className="premium-card">
+                <CardHeader>
+                  <CardTitle className="flex items-center">
+                    <Building2 className="h-5 w-5 mr-2" />
+                    School Info
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-2">
+                    <div>
+                      <p className="font-medium">{selectedStudent.school_name || 'Not specified'}</p>
+                      <p className="text-sm text-muted-foreground">School</p>
+                    </div>
+                    <div>
+                      <p className="text-sm">{selectedStudent.district || 'Not specified'}</p>
+                      <p className="text-xs text-muted-foreground">District</p>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+
+            {/* Emotions Tracking Section */}
+            <Card className="premium-card">
+              <CardHeader>
+                <CardTitle className="flex items-center">
+                  <Heart className="h-5 w-5 mr-2 text-pink-500" />
+                  Emotions
+                </CardTitle>
+                <CardDescription>
+                  Track and record emotional observations for this student
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-4">
+                  <div>
+                    <Label className="text-sm font-medium">Current Emotional State</Label>
+                    <div className="grid grid-cols-5 gap-2 mt-2">
+                      {[
+                        { emoji: '😊', label: 'Happy', color: 'bg-green-100 hover:bg-green-200' },
+                        { emoji: '😐', label: 'Neutral', color: 'bg-blue-100 hover:bg-blue-200' },
+                        { emoji: '😟', label: 'Anxious', color: 'bg-yellow-100 hover:bg-yellow-200' },
+                        { emoji: '😠', label: 'Frustrated', color: 'bg-orange-100 hover:bg-orange-200' },
+                        { emoji: '😢', label: 'Distressed', color: 'bg-red-100 hover:bg-red-200' }
+                      ].map((mood) => (
+                        <Button
+                          key={mood.label}
+                          variant="outline"
+                          className={`h-12 flex-col gap-1 ${mood.color}`}
+                          onClick={() => {}}
+                        >
+                          <span className="text-lg">{mood.emoji}</span>
+                          <span className="text-xs">{mood.label}</span>
+                        </Button>
+                      ))}
+                    </div>
+                  </div>
+                  <Button className="w-full bg-pink-500 hover:bg-pink-600">
+                    <Heart className="h-4 w-4 mr-2" />
+                    Record Emotional Observation
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+        ) : (
+          <div className="flex items-center justify-center h-64 text-center">
+            <div>
+              <User className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+              <p className="text-lg font-medium">Select a Student</p>
+              <p className="text-muted-foreground">Choose a student from the list to view their detailed information and tools.</p>
+            </div>
+          </div>
+        )}
+      </div>
     </div>
   );
 }

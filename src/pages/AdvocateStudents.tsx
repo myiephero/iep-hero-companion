@@ -426,6 +426,8 @@ const AdvocateStudents = () => {
   const [isAddStudentOpen, setIsAddStudentOpen] = useState(false);
   const [isEditStudentOpen, setIsEditStudentOpen] = useState(false);
   const [editingStudent, setEditingStudent] = useState<Student | null>(null);
+  const [isAutismDialogOpen, setIsAutismDialogOpen] = useState(false);
+  const [isGiftedDialogOpen, setIsGiftedDialogOpen] = useState(false);
   const [newStudent, setNewStudent] = useState({
     first_name: "",
     last_name: "",
@@ -445,8 +447,256 @@ const AdvocateStudents = () => {
     current_services: [] as string[]
   });
   
+  // Autism accommodation form state
+  const [autismFormData, setAutismFormData] = useState({
+    title: "",
+    description: "",
+    category: "sensory",
+    accommodation_type: "modification",
+    implementation_notes: "",
+    sensory_profile: {},
+    communication_needs: {},
+    social_supports: {},
+    academic_supports: {},
+    behavioral_triggers: {},
+    environmental_modifications: {},
+    technology_supports: {},
+    status: "active"
+  });
+  
+  // Gifted assessment form state
+  const [giftedFormData, setGiftedFormData] = useState({
+    assessment_type: "twice_exceptional",
+    giftedness_areas: [] as string[],
+    learning_differences: [] as string[],
+    strengths: "",
+    challenges: "",
+    recommendations: "",
+    enrichment_activities: "",
+    acceleration_needs: "",
+    social_emotional_needs: "",
+    evaluator_notes: "",
+    status: "draft"
+  });
+  
   const { user } = useAuth();
   const { toast } = useToast();
+  
+  // Autism accommodation categories (professional advocate version)
+  const autismAccommodationCategories = [
+    {
+      id: "sensory",
+      title: "Sensory Processing Support",
+      description: "Environmental and sensory accommodations",
+      items: [
+        { id: "noise-canceling", title: "Noise-Canceling Headphones", description: "Access to noise-canceling headphones for auditory sensitivities", iepLanguage: "Student will have access to noise-canceling headphones during instruction to manage auditory sensitivities and maintain focus." },
+        { id: "sensory-breaks", title: "Sensory Regulation Breaks", description: "Scheduled sensory breaks every 30 minutes", iepLanguage: "Student will receive sensory regulation breaks every 30 minutes or as needed to prevent overstimulation and maintain self-regulation." },
+        { id: "fidget-tools", title: "Sensory Fidget Tools", description: "Access to approved fidget tools during instruction", iepLanguage: "Student may use approved sensory fidget tools during instruction to support attention and self-regulation without disrupting learning." },
+        { id: "lighting", title: "Lighting Modifications", description: "Preferential seating away from fluorescent lighting", iepLanguage: "Student will be provided seating away from fluorescent lights and access to natural lighting when possible to accommodate visual sensitivities." }
+      ]
+    },
+    {
+      id: "communication",
+      title: "Communication Support",
+      description: "Augmentative and alternative communication strategies",
+      items: [
+        { id: "visual-schedules", title: "Visual Schedule Systems", description: "Visual schedules and transition supports", iepLanguage: "Student will be provided with visual schedules and transition supports to reduce anxiety and support executive functioning." },
+        { id: "aac-device", title: "AAC Technology", description: "Access to augmentative communication device", iepLanguage: "Student will have access to appropriate augmentative and alternative communication (AAC) technology to support expressive communication needs." },
+        { id: "social-scripts", title: "Social Communication Scripts", description: "Pre-written scripts for social interactions", iepLanguage: "Student will be provided with social communication scripts and prompts to support appropriate peer interactions and social skill development." }
+      ]
+    },
+    {
+      id: "academic",
+      title: "Academic Accommodations",
+      description: "Learning and assessment modifications",
+      items: [
+        { id: "extended-time", title: "Extended Time", description: "Additional time for assignments and assessments", iepLanguage: "Student will receive extended time (1.5x) for assignments and assessments to accommodate processing differences." },
+        { id: "task-chunking", title: "Task Breakdown", description: "Breaking complex tasks into smaller components", iepLanguage: "Complex assignments will be broken down into smaller, manageable components with clear step-by-step instructions." },
+        { id: "visual-supports", title: "Visual Learning Supports", description: "Graphic organizers and visual aids", iepLanguage: "Student will be provided with graphic organizers, visual aids, and written instructions to support comprehension and organization." }
+      ]
+    },
+    {
+      id: "behavioral",
+      title: "Behavioral Support",
+      description: "Positive behavior interventions and supports",
+      items: [
+        { id: "behavior-plan", title: "Individualized Behavior Plan", description: "Comprehensive positive behavior support plan", iepLanguage: "Student will have an individualized positive behavior support plan that includes antecedent strategies, replacement behaviors, and response protocols." },
+        { id: "break-requests", title: "Self-Advocacy for Breaks", description: "Visual system for requesting breaks", iepLanguage: "Student will be taught and provided with a visual system to request breaks when feeling overwhelmed or overstimulated." },
+        { id: "calming-strategies", title: "Self-Regulation Strategies", description: "Explicit instruction in calming techniques", iepLanguage: "Student will receive explicit instruction in self-regulation strategies including deep breathing, counting, and appropriate help-seeking behaviors." }
+      ]
+    }
+  ];
+  
+  // Gifted assessment areas
+  const giftednessAreas = [
+    'Intellectual/Academic',
+    'Creative/Divergent Thinking', 
+    'Artistic/Visual Arts',
+    'Musical',
+    'Leadership',
+    'Psychomotor',
+    'Mathematical',
+    'Scientific',
+    'Linguistic/Verbal',
+    'Spatial'
+  ];
+  
+  const learningDifferences = [
+    'ADHD',
+    'Autism Spectrum Disorder',
+    'Dyslexia',
+    'Dysgraphia', 
+    'Dyscalculia',
+    'Executive Function Deficits',
+    'Processing Speed Deficits',
+    'Working Memory Challenges',
+    'Sensory Processing Disorder',
+    'Anxiety',
+    'Depression'
+  ];
+
+  // Handle autism accommodation creation
+  const handleCreateAutismProfile = async () => {
+    if (!selectedStudentId) {
+      toast({
+        title: "Student Required",
+        description: "Please select a student first.",
+        variant: "destructive"
+      });
+      return;
+    }
+    
+    if (!autismFormData.title || !autismFormData.description) {
+      toast({
+        title: "Required Fields Missing",
+        description: "Please fill in title and description.",
+        variant: "destructive"
+      });
+      return;
+    }
+    
+    setLoading(true);
+    try {
+      const accommodationData = {
+        ...autismFormData,
+        student_id: selectedStudentId,
+        user_id: user?.id
+      };
+      
+      const response = await apiRequest('POST', '/api/autism_accommodations', accommodationData);
+      
+      if (response.ok) {
+        const newAccommodation = await response.json();
+        setAutismAccommodations(prev => [...prev, newAccommodation]);
+        setIsAutismDialogOpen(false);
+        setAutismFormData({
+          title: "",
+          description: "",
+          category: "sensory",
+          accommodation_type: "modification",
+          implementation_notes: "",
+          sensory_profile: {},
+          communication_needs: {},
+          social_supports: {},
+          academic_supports: {},
+          behavioral_triggers: {},
+          environmental_modifications: {},
+          technology_supports: {},
+          status: "active"
+        });
+        
+        toast({
+          title: "Autism Support Profile Created",
+          description: "Professional autism accommodations have been documented.",
+        });
+      }
+    } catch (error) {
+      console.error('Error creating autism accommodation:', error);
+      toast({
+        title: "Error",
+        description: "Failed to create autism support profile. Please try again.",
+        variant: "destructive"
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+  
+  // Handle gifted assessment creation
+  const handleCreateGiftedAssessment = async () => {
+    if (!selectedStudentId) {
+      toast({
+        title: "Student Required",
+        description: "Please select a student first.",
+        variant: "destructive"
+      });
+      return;
+    }
+    
+    if (giftedFormData.giftedness_areas.length === 0) {
+      toast({
+        title: "Required Fields Missing",
+        description: "Please select at least one area of giftedness.",
+        variant: "destructive"
+      });
+      return;
+    }
+    
+    setLoading(true);
+    try {
+      const assessmentData = {
+        student_id: selectedStudentId,
+        assessment_type: giftedFormData.assessment_type,
+        giftedness_areas: giftedFormData.giftedness_areas,
+        learning_differences: giftedFormData.learning_differences.length > 0 ? giftedFormData.learning_differences : null,
+        strengths: { notes: giftedFormData.strengths },
+        challenges: giftedFormData.challenges ? { notes: giftedFormData.challenges } : null,
+        recommendations: giftedFormData.recommendations ? { notes: giftedFormData.recommendations } : null,
+        enrichment_activities: giftedFormData.enrichment_activities ? { notes: giftedFormData.enrichment_activities } : null,
+        acceleration_needs: giftedFormData.acceleration_needs ? { notes: giftedFormData.acceleration_needs } : null,
+        social_emotional_needs: giftedFormData.social_emotional_needs ? { notes: giftedFormData.social_emotional_needs } : null,
+        evaluator_notes: giftedFormData.evaluator_notes,
+        status: giftedFormData.status,
+        assessment_date: new Date().toISOString().split('T')[0],
+        assessor_name: user?.email || 'Professional Advocate'
+      };
+      
+      const response = await apiRequest('POST', '/api/gifted-assessments', assessmentData);
+      
+      if (response.ok) {
+        const newAssessment = await response.json();
+        setGiftedAssessments(prev => [...prev, newAssessment]);
+        setIsGiftedDialogOpen(false);
+        setGiftedFormData({
+          assessment_type: "twice_exceptional",
+          giftedness_areas: [],
+          learning_differences: [],
+          strengths: "",
+          challenges: "",
+          recommendations: "",
+          enrichment_activities: "",
+          acceleration_needs: "",
+          social_emotional_needs: "",
+          evaluator_notes: "",
+          status: "draft"
+        });
+        
+        toast({
+          title: "Gifted Assessment Created",
+          description: "Comprehensive gifted assessment has been documented.",
+        });
+      }
+    } catch (error) {
+      console.error('Error creating gifted assessment:', error);
+      toast({
+        title: "Error",
+        description: "Failed to create gifted assessment. Please try again.",
+        variant: "destructive"
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const handleAddStudent = async () => {
     if (!newStudent.first_name || !newStudent.last_name || !newStudent.assigned_client) return;
@@ -1138,7 +1388,12 @@ const AdvocateStudents = () => {
                             <p className="text-sm text-muted-foreground mb-4">
                               Specialized autism accommodations and support strategies will appear here.
                             </p>
-                            <Button variant="outline" size="sm" className="border-blue-200 text-blue-600">
+                            <Button 
+                              variant="outline" 
+                              size="sm" 
+                              className="border-blue-200 text-blue-600"
+                              onClick={() => setIsAutismDialogOpen(true)}
+                            >
                               <Plus className="h-4 w-4 mr-2" />
                               Add Autism Support Profile
                             </Button>
@@ -1219,7 +1474,12 @@ const AdvocateStudents = () => {
                             <p className="text-sm text-muted-foreground mb-4">
                               Gifted and twice-exceptional assessments will appear here once they are created.
                             </p>
-                            <Button variant="outline" size="sm" className="border-purple-200 text-purple-600">
+                            <Button 
+                              variant="outline" 
+                              size="sm" 
+                              className="border-purple-200 text-purple-600"
+                              onClick={() => setIsGiftedDialogOpen(true)}
+                            >
                               <Plus className="h-4 w-4 mr-2" />
                               Create Gifted Assessment
                             </Button>
@@ -1578,6 +1838,260 @@ const AdvocateStudents = () => {
             </Button>
             <Button onClick={handleEditStudent} disabled={loading}>
               {loading ? "Saving..." : "Save Changes"}
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Autism Support Profile Creation Dialog */}
+      <Dialog open={isAutismDialogOpen} onOpenChange={setIsAutismDialogOpen}>
+        <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <Puzzle className="h-5 w-5 text-blue-600" />
+              Create Autism Support Profile
+            </DialogTitle>
+            <DialogDescription>
+              Document professional autism accommodations and support strategies for advocacy and IEP planning.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-6 py-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <Label htmlFor="autism_title">Profile Title *</Label>
+                <Input
+                  id="autism_title"
+                  value={autismFormData.title}
+                  onChange={(e) => setAutismFormData({...autismFormData, title: e.target.value})}
+                  placeholder="e.g., Comprehensive Autism Support Plan"
+                />
+              </div>
+              <div>
+                <Label htmlFor="autism_category">Primary Category</Label>
+                <Select value={autismFormData.category} onValueChange={(value) => setAutismFormData({...autismFormData, category: value})}>
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="sensory">Sensory Processing Support</SelectItem>
+                    <SelectItem value="communication">Communication Support</SelectItem>
+                    <SelectItem value="academic">Academic Accommodations</SelectItem>
+                    <SelectItem value="behavioral">Behavioral Support</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+            
+            <div>
+              <Label htmlFor="autism_description">Professional Description *</Label>
+              <Textarea
+                id="autism_description"
+                value={autismFormData.description}
+                onChange={(e) => setAutismFormData({...autismFormData, description: e.target.value})}
+                placeholder="Document the specific autism-related needs, interventions, and accommodations required..."
+                rows={4}
+              />
+            </div>
+            
+            <div>
+              <Label htmlFor="autism_implementation">Implementation Notes</Label>
+              <Textarea
+                id="autism_implementation"
+                value={autismFormData.implementation_notes}
+                onChange={(e) => setAutismFormData({...autismFormData, implementation_notes: e.target.value})}
+                placeholder="Specific strategies for implementation, staff training needs, and monitoring protocols..."
+                rows={3}
+              />
+            </div>
+            
+            {/* Quick Add Accommodation Categories */}
+            <div className="space-y-4">
+              <h4 className="font-semibold">Professional Accommodation Categories</h4>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {autismAccommodationCategories.map((category) => (
+                  <Card key={category.id} className="border-blue-200">
+                    <CardHeader className="pb-3">
+                      <CardTitle className="text-sm flex items-center gap-2">
+                        {category.title}
+                      </CardTitle>
+                      <CardDescription className="text-xs">
+                        {category.description}
+                      </CardDescription>
+                    </CardHeader>
+                    <CardContent className="space-y-2">
+                      {category.items.slice(0, 2).map((item) => (
+                        <div key={item.id} className="text-xs p-2 bg-blue-50 rounded">
+                          <div className="font-medium">{item.title}</div>
+                          <div className="text-muted-foreground">{item.description}</div>
+                        </div>
+                      ))}
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+            </div>
+          </div>
+          <div className="flex justify-end space-x-2">
+            <Button variant="outline" onClick={() => setIsAutismDialogOpen(false)}>
+              Cancel
+            </Button>
+            <Button onClick={handleCreateAutismProfile} disabled={loading}>
+              {loading ? "Creating..." : "Create Support Profile"}
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Gifted Assessment Creation Dialog */}
+      <Dialog open={isGiftedDialogOpen} onOpenChange={setIsGiftedDialogOpen}>
+        <DialogContent className="max-w-6xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <Lightbulb className="h-5 w-5 text-purple-600" />
+              Create Gifted & Twice-Exceptional Assessment
+            </DialogTitle>
+            <DialogDescription>
+              Document comprehensive gifted assessment and twice-exceptional profile for educational planning.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-6 py-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <Label htmlFor="assessment_type">Assessment Type</Label>
+                <Select value={giftedFormData.assessment_type} onValueChange={(value) => setGiftedFormData({...giftedFormData, assessment_type: value})}>
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="twice_exceptional">Twice-Exceptional Profile</SelectItem>
+                    <SelectItem value="cognitive">Cognitive Assessment</SelectItem>
+                    <SelectItem value="academic">Academic Assessment</SelectItem>
+                    <SelectItem value="creative">Creative Assessment</SelectItem>
+                    <SelectItem value="leadership">Leadership Assessment</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+            
+            <div className="space-y-4">
+              <h4 className="font-semibold">Areas of Giftedness *</h4>
+              <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+                {giftednessAreas.map((area) => (
+                  <div key={area} className="flex items-center space-x-2">
+                    <Checkbox
+                      id={`gifted_${area}`}
+                      checked={giftedFormData.giftedness_areas.includes(area)}
+                      onCheckedChange={(checked) => {
+                        if (checked) {
+                          setGiftedFormData({
+                            ...giftedFormData,
+                            giftedness_areas: [...giftedFormData.giftedness_areas, area]
+                          });
+                        } else {
+                          setGiftedFormData({
+                            ...giftedFormData,
+                            giftedness_areas: giftedFormData.giftedness_areas.filter(a => a !== area)
+                          });
+                        }
+                      }}
+                    />
+                    <Label htmlFor={`gifted_${area}`} className="text-sm">{area}</Label>
+                  </div>
+                ))}
+              </div>
+            </div>
+            
+            <div className="space-y-4">
+              <h4 className="font-semibold">Learning Differences (2e Profile)</h4>
+              <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+                {learningDifferences.map((difference) => (
+                  <div key={difference} className="flex items-center space-x-2">
+                    <Checkbox
+                      id={`diff_${difference}`}
+                      checked={giftedFormData.learning_differences.includes(difference)}
+                      onCheckedChange={(checked) => {
+                        if (checked) {
+                          setGiftedFormData({
+                            ...giftedFormData,
+                            learning_differences: [...giftedFormData.learning_differences, difference]
+                          });
+                        } else {
+                          setGiftedFormData({
+                            ...giftedFormData,
+                            learning_differences: giftedFormData.learning_differences.filter(d => d !== difference)
+                          });
+                        }
+                      }}
+                    />
+                    <Label htmlFor={`diff_${difference}`} className="text-sm">{difference}</Label>
+                  </div>
+                ))}
+              </div>
+            </div>
+            
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <Label htmlFor="strengths">Identified Strengths</Label>
+                <Textarea
+                  id="strengths"
+                  value={giftedFormData.strengths}
+                  onChange={(e) => setGiftedFormData({...giftedFormData, strengths: e.target.value})}
+                  placeholder="Document specific areas of exceptional ability and talent..."
+                  rows={4}
+                />
+              </div>
+              <div>
+                <Label htmlFor="challenges">Areas of Challenge</Label>
+                <Textarea
+                  id="challenges"
+                  value={giftedFormData.challenges}
+                  onChange={(e) => setGiftedFormData({...giftedFormData, challenges: e.target.value})}
+                  placeholder="Note specific learning challenges or areas requiring support..."
+                  rows={4}
+                />
+              </div>
+            </div>
+            
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <Label htmlFor="recommendations">Professional Recommendations</Label>
+                <Textarea
+                  id="recommendations"
+                  value={giftedFormData.recommendations}
+                  onChange={(e) => setGiftedFormData({...giftedFormData, recommendations: e.target.value})}
+                  placeholder="Specific educational recommendations and interventions..."
+                  rows={3}
+                />
+              </div>
+              <div>
+                <Label htmlFor="enrichment">Enrichment Activities</Label>
+                <Textarea
+                  id="enrichment"
+                  value={giftedFormData.enrichment_activities}
+                  onChange={(e) => setGiftedFormData({...giftedFormData, enrichment_activities: e.target.value})}
+                  placeholder="Suggested enrichment and acceleration opportunities..."
+                  rows={3}
+                />
+              </div>
+            </div>
+            
+            <div>
+              <Label htmlFor="evaluator_notes">Professional Evaluation Notes</Label>
+              <Textarea
+                id="evaluator_notes"
+                value={giftedFormData.evaluator_notes}
+                onChange={(e) => setGiftedFormData({...giftedFormData, evaluator_notes: e.target.value})}
+                placeholder="Comprehensive professional notes on assessment findings, observations, and next steps..."
+                rows={4}
+              />
+            </div>
+          </div>
+          <div className="flex justify-end space-x-2">
+            <Button variant="outline" onClick={() => setIsGiftedDialogOpen(false)}>
+              Cancel
+            </Button>
+            <Button onClick={handleCreateGiftedAssessment} disabled={loading}>
+              {loading ? "Creating..." : "Create Assessment"}
             </Button>
           </div>
         </DialogContent>

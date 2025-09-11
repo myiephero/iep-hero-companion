@@ -40,37 +40,11 @@ const getOidcConfig = memoize(
 
 export function getSession() {
   const sessionTtl = 7 * 24 * 60 * 60 * 1000; // 1 week
-  const pgStore = connectPg(session);
   
-  // Configure session store with proper connection pool settings to prevent memory leaks
-  const sessionStore = new pgStore({
-    conString: process.env.DATABASE_URL,
-    createTableIfMissing: false,
-    ttl: sessionTtl,
-    tableName: "sessions",
-    // Add connection pool configuration to prevent memory leaks
-    pool: {
-      max: 5, // Maximum connections in pool
-      min: 1, // Minimum connections in pool
-      idleTimeoutMillis: 30000, // Close idle connections after 30 seconds
-      connectionTimeoutMillis: 10000, // Connection timeout
-    },
-    // Add error handling
-    errorLog: (error: any) => {
-      console.error('Session store error:', error.message);
-    },
-    // Reduce session check frequency to prevent connection spam
-    pruneSessionInterval: 60 * 15, // Check for expired sessions every 15 minutes instead of default 15 seconds
-  });
-  
-  // Handle session store errors gracefully
-  sessionStore.on('error', (error: any) => {
-    console.error('Session store connection error:', error.message);
-  });
-  
+  // Use memory store for development to avoid database connection issues
+  // Since we're using token-based auth primarily, this is just for Replit OAuth
   return session({
     secret: process.env.SESSION_SECRET || 'dev-secret-key-change-in-production',
-    store: sessionStore,
     resave: false,
     saveUninitialized: false,
     cookie: {

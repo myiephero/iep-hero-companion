@@ -1,5 +1,6 @@
 import { Link } from "react-router-dom";
 import { useEffect, useState } from "react";
+import { useQuery, useMutation } from "@tanstack/react-query";
 import { DashboardLayout } from "@/layouts/DashboardLayout";
 import { StatCard } from "@/components/StatCard";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -7,7 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
-import { apiRequest } from "@/lib/queryClient";
+import { apiRequest, queryClient } from "@/lib/queryClient";
 import { 
   Users, 
   Calendar, 
@@ -68,48 +69,97 @@ const AdvocateDashboard = ({ plan }: AdvocateDashboardProps) => {
     }
   }, [user, toast]);
 
-  // State for real data
-  const [students, setStudents] = useState([]);
-  const [cases, setCases] = useState([]);
-  const [parents, setParents] = useState([]);
-  const [conversations, setConversations] = useState([]);
-  const [loading, setLoading] = useState(true);
+  // Use TanStack Query for reactive data fetching
+  const { data: students = [], isLoading: studentsLoading } = useQuery({
+    queryKey: ['/api/students'],
+    enabled: !!user
+  });
+  
+  const { data: cases = [], isLoading: casesLoading } = useQuery({
+    queryKey: ['/api/cases'],
+    enabled: !!user
+  });
+  
+  const { data: parents = [], isLoading: parentsLoading } = useQuery({
+    queryKey: ['/api/parents'],
+    enabled: !!user
+  });
+  
+  const { data: conversations = [], isLoading: conversationsLoading } = useQuery({
+    queryKey: ['/api/messaging/conversations'],
+    enabled: !!user
+  });
+  
+  const { data: pendingData = { assignments: [], total_pending: 0 }, isLoading: pendingLoading } = useQuery({
+    queryKey: ['/api/match/pending-assignments'],
+    enabled: !!user,
+    refetchInterval: 30000, // Refresh every 30 seconds as backup
+    staleTime: 10000 // Consider data stale after 10 seconds
+  });
+  
+  const pendingAssignments = pendingData.assignments || [];
+  const loading = studentsLoading || casesLoading || parentsLoading || conversationsLoading || pendingLoading;
 
-  // Fetch data on component mount
-  useEffect(() => {
-    const fetchDashboardData = async () => {
-      if (!user) return;
-      
-      try {
-        setLoading(true);
-        
-        // Fetch students, cases, parents, and conversations in parallel
-        const [studentsRes, casesRes, parentsRes, conversationsRes] = await Promise.all([
-          apiRequest('GET', '/api/students').then(r => r.json()).catch(() => []),
-          apiRequest('GET', '/api/cases').then(r => r.json()).catch(() => []),
-          apiRequest('GET', '/api/parents').then(r => r.json()).catch(() => []),
-          apiRequest('GET', '/api/messaging/conversations').then(r => r.json()).catch(() => [])
-        ]);
-        
-        setStudents(studentsRes || []);
-        setCases(casesRes || []);
-        setParents(parentsRes || []);
-        setConversations(conversationsRes || []);
-        
-      } catch (error) {
-        console.error('Error fetching dashboard data:', error);
-      } finally {
-        setLoading(false);
+  // Accept proposal mutation with proper cache invalidation
+  const acceptProposalMutation = useMutation({
+    mutationFn: async ({ proposalId }: { proposalId: string }) => {
+      const response = await apiRequest('POST', `/api/match/${proposalId}/accept`);
+      if (!response.ok) {
+        throw new Error('Failed to accept proposal');
       }
-    };
-
-    fetchDashboardData();
-  }, [user]);
+      return response.json();
+    },
+    onSuccess: (data, { proposalId }) => {
+      // Invalidate all related queries immediately
+      queryClient.invalidateQueries({ queryKey: ['/api/match/pending-assignments'] });
+      queryClient.invalidateQueries({ queryKey: ['/api/cases'] });
+      queryClient.invalidateQueries({ queryKey: ['/api/students'] });
+      queryClient.invalidateQueries({ queryKey: ['/api/parents'] });
+      
+      // Force immediate refresh to update sidebar badge
+      queryClient.refetchQueries({ queryKey: ['/api/match/pending-assignments'] });
+    },
+    onError: (error) => {
+      console.error('Error accepting proposal:', error);
+      toast({
+        title: "Error",
+        description: "Failed to accept the case. Please try again.",
+        variant: "destructive"
+      });
+    }
+  });
+  
+  // Decline proposal mutation with proper cache invalidation
+  const declineProposalMutation = useMutation({
+    mutationFn: async ({ proposalId }: { proposalId: string }) => {
+      const response = await apiRequest('POST', `/api/match/${proposalId}/decline`, {
+        reason: 'Declined via dashboard'
+      });
+      if (!response.ok) {
+        throw new Error('Failed to decline proposal');
+      }
+      return response.json();
+    },
+    onSuccess: (data, { proposalId }) => {
+      // Invalidate and refetch pending assignments immediately
+      queryClient.invalidateQueries({ queryKey: ['/api/match/pending-assignments'] });
+      queryClient.refetchQueries({ queryKey: ['/api/match/pending-assignments'] });
+    },
+    onError: (error) => {
+      console.error('Error declining proposal:', error);
+      toast({
+        title: "Error",
+        description: "Failed to decline the case. Please try again.",
+        variant: "destructive"
+      });
+    }
+  });
 
   // Calculate dashboard metrics
   const openCases = cases.filter(c => c.status === 'active' || c.status === 'open');
-  const pendingStudents = students.filter(s => s.source === 'conversation' || s.source === 'client_relationship');
+  const totalPendingCount = pendingAssignments.length;
   const [upcomingMeetings, setUpcomingMeetings] = useState([]);
+  const actionLoading = acceptProposalMutation.isPending || declineProposalMutation.isPending;
 
   // Fetch upcoming meetings
   useEffect(() => {
@@ -143,6 +193,25 @@ const AdvocateDashboard = ({ plan }: AdvocateDashboardProps) => {
     fetchMeetings();
   }, [user]);
 
+  // Handle accepting/declining match proposals with toast notifications
+  const handleAcceptProposal = async (proposalId: string, studentName: string) => {
+    toast({
+      title: "Case Accepted",
+      description: `Successfully accepted the case for ${studentName}. A new client relationship and case have been created.`,
+    });
+    
+    acceptProposalMutation.mutate({ proposalId });
+  };
+
+  const handleDeclineProposal = async (proposalId: string, studentName: string) => {
+    toast({
+      title: "Case Declined",
+      description: `Declined the case for ${studentName}. The parent will be notified.`,
+    });
+    
+    declineProposalMutation.mutate({ proposalId });
+  };
+
   const getUrgencyColor = (urgency: string) => {
     switch(urgency) {
       case "high": return "bg-red-100 text-red-700 border-red-200";
@@ -152,6 +221,12 @@ const AdvocateDashboard = ({ plan }: AdvocateDashboardProps) => {
       case "pending": return "bg-gray-100 text-gray-700 border-gray-200";
       default: return "bg-gray-100 text-gray-700 border-gray-200";
     }
+  };
+
+  const getMatchScoreColor = (score: number) => {
+    if (score >= 80) return "bg-green-100 text-green-700 border-green-200";
+    if (score >= 60) return "bg-yellow-100 text-yellow-700 border-yellow-200";
+    return "bg-orange-100 text-orange-700 border-orange-200";
   };
 
   return (
@@ -197,10 +272,11 @@ const AdvocateDashboard = ({ plan }: AdvocateDashboardProps) => {
         {/* Stats Cards */}
         <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
           <StatCard
-            title="Pending Students"
-            value={pendingStudents.length.toString()}
-            description="Awaiting assignment"
+            title="Pending Assignments"
+            value={totalPendingCount.toString()}
+            description="Awaiting your response"
             icon={<Users className="h-4 w-4" />}
+            data-testid="stat-pending-assignments"
           />
           <StatCard
             title="Open Cases"
@@ -236,49 +312,141 @@ const AdvocateDashboard = ({ plan }: AdvocateDashboardProps) => {
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
-              {pendingStudents.map((student) => (
-                <div key={student.id} className="p-4 border rounded-lg space-y-2">
+              {loading ? (
+                <div className="text-center py-8">
+                  <div className="text-muted-foreground">
+                    <Clock className="h-8 w-8 mx-auto mb-2 animate-spin" />
+                    <p>Loading pending assignments...</p>
+                  </div>
+                </div>
+              ) : pendingAssignments.map((assignment) => (
+                <div key={assignment.id} className="p-4 border rounded-lg space-y-3" data-testid={`assignment-${assignment.id}`}>
+                  {/* Header with student name and match score */}
                   <div className="flex items-center justify-between">
-                    <h4 className="font-semibold">{student.name}</h4>
-                    <Badge className={getUrgencyColor(student.urgency)}>
-                      {student.urgency} priority
-                    </Badge>
-                  </div>
-                  <p className="text-sm text-muted-foreground">
-                    Parent: {student.parent} • {student.grade}
-                  </p>
-                  <div className="flex flex-wrap gap-1">
-                    {student.needs.map((need, index) => (
-                      <Badge key={index} variant="outline" className="text-xs">
-                        {need}
+                    <div className="space-y-1">
+                      <h4 className="font-semibold text-lg" data-testid={`student-name-${assignment.student.name}`}>
+                        {assignment.student.name}
+                      </h4>
+                      <p className="text-sm text-muted-foreground">
+                        {assignment.student.grade && `Grade ${assignment.student.grade} • `}
+                        {assignment.student.school || 'School not specified'}
+                      </p>
+                    </div>
+                    <div className="text-right space-y-1">
+                      <Badge className={getMatchScoreColor(assignment.match.score)}>
+                        {assignment.match.score}% Match
                       </Badge>
-                    ))}
+                      <Badge className={getUrgencyColor(assignment.match.urgency)}>
+                        {assignment.match.urgency} priority
+                      </Badge>
+                    </div>
                   </div>
-                  <div className="flex items-center justify-between pt-2">
+
+                  {/* Parent Information */}
+                  <div className="bg-gray-50 p-3 rounded-md">
+                    <h5 className="font-medium text-sm mb-1">Parent Contact</h5>
+                    <p className="text-sm font-medium" data-testid={`parent-name-${assignment.parent.name}`}>
+                      {assignment.parent.name}
+                    </p>
+                    <p className="text-sm text-muted-foreground" data-testid={`parent-email-${assignment.parent.email}`}>
+                      {assignment.parent.email}
+                    </p>
+                  </div>
+
+                  {/* Student Details */}
+                  <div>
+                    <h5 className="font-medium text-sm mb-2">Student Details</h5>
+                    <div className="space-y-2">
+                      {assignment.student.disability_category && (
+                        <p className="text-sm">
+                          <span className="font-medium">Disability Category:</span> {assignment.student.disability_category}
+                        </p>
+                      )}
+                      {assignment.student.iep_status && (
+                        <p className="text-sm">
+                          <span className="font-medium">IEP Status:</span> {assignment.student.iep_status}
+                        </p>
+                      )}
+                      {assignment.student.next_review_date && (
+                        <p className="text-sm">
+                          <span className="font-medium">Next Review:</span> {assignment.student.next_review_date}
+                        </p>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* Student Needs */}
+                  {assignment.student.needs.length > 0 && (
+                    <div>
+                      <h5 className="font-medium text-sm mb-2">Student Needs</h5>
+                      <div className="flex flex-wrap gap-1">
+                        {assignment.student.needs.map((need, index) => (
+                          <Badge key={index} variant="outline" className="text-xs">
+                            {need}
+                          </Badge>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Match Reasons */}
+                  <div>
+                    <h5 className="font-medium text-sm mb-2">Why You're a Good Match</h5>
+                    <ul className="text-sm space-y-1">
+                      {assignment.match.reasons.map((reason, index) => (
+                        <li key={index} className="flex items-center gap-2">
+                          <CheckCircle className="h-3 w-3 text-green-600 flex-shrink-0" />
+                          {reason}
+                        </li>
+                      ))}
+                    </ul>
+                    {assignment.match.specialization_overlap > 0 && (
+                      <p className="text-xs text-muted-foreground mt-1">
+                        {assignment.match.specialization_overlap}% specialization overlap
+                      </p>
+                    )}
+                  </div>
+
+                  {/* Action Buttons */}
+                  <div className="flex items-center justify-between pt-3 border-t">
                     <span className="text-xs text-muted-foreground">
-                      Matched {student.matchDate}
+                      Matched {new Date(assignment.match.created_at).toLocaleDateString()}
                     </span>
                     <div className="flex gap-2">
-                      <Button size="sm" variant="outline">
-                        <Eye className="h-3 w-3 mr-1" />
-                        Review
+                      <Button 
+                        size="sm" 
+                        variant="outline"
+                        onClick={() => handleDeclineProposal(assignment.proposal_id, assignment.student.name)}
+                        disabled={actionLoading}
+                        data-testid={`button-decline-${assignment.id}`}
+                      >
+                        <AlertCircle className="h-3 w-3 mr-1" />
+                        Decline
                       </Button>
-                      <Button size="sm">Accept Case</Button>
+                      <Button 
+                        size="sm"
+                        onClick={() => handleAcceptProposal(assignment.proposal_id, assignment.student.name)}
+                        disabled={actionLoading}
+                        data-testid={`button-accept-${assignment.id}`}
+                      >
+                        <CheckCircle className="h-3 w-3 mr-1" />
+                        Accept Case
+                      </Button>
                     </div>
                   </div>
                 </div>
               ))}
-              {pendingStudents.length === 0 && (
+              {!loading && pendingAssignments.length === 0 && (
                 <div className="text-center py-8">
                   <div className="text-muted-foreground mb-4">
                     <Users className="h-12 w-12 mx-auto mb-2 opacity-50" />
                     <p className="text-lg font-medium">No pending assignments yet</p>
-                    <p className="text-sm">Start by creating parent clients who will refer students to you</p>
+                    <p className="text-sm">New match proposals will appear here when parents submit requests</p>
                   </div>
-                  <Button asChild>
+                  <Button asChild variant="outline">
                     <Link to="/advocate/parents">
                       <UserPlus className="h-4 w-4 mr-2" />
-                      Create First Parent Client
+                      Manage Parent Clients
                     </Link>
                   </Button>
                 </div>

@@ -152,7 +152,7 @@ router.post('/auto-match', async (req: Request, res: Response) => {
 
       // 1. Specializations match (45% weight)
       const advocateSpecs = ((advocate.specializations as string[]) || [])
-        .filter(s => s)
+        .filter((s): s is string => Boolean(s) && typeof s === 'string')
         .map(s => s.toLowerCase().trim());
 
       const specOverlap = calculateJaccardSimilarity(studentNeeds, advocateSpecs);
@@ -541,6 +541,95 @@ router.post('/:id/decline', async (req: Request, res: Response) => {
     });
   } catch (error) {
     console.error('Server error:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+// GET /api/match/pending-assignments - Get pending assignments for advocate dashboard
+router.get('/pending-assignments', async (req: Request, res: Response) => {
+  try {
+    const userId = await getUserId(req);
+    
+    // Get advocate record for current user - NO FALLBACK for security
+    const advocate = await db.select().from(schema.advocates)
+      .where(eq(schema.advocates.user_id, userId))
+      .then(results => results[0]);
+
+    // SECURITY: Return 403 if no advocate found - never use another advocate's data
+    if (!advocate) {
+      console.log(`SECURITY: No advocate profile found for userId: ${userId}`);
+      return res.status(403).json({ 
+        error: 'Advocate profile not found', 
+        message: 'You must have an advocate profile to access pending assignments' 
+      });
+    }
+
+    // Get pending proposals for this advocate with parent notes from advocate_requests
+    const pendingProposals = await db.select({
+      proposal: schema.match_proposals,
+      student: schema.students,
+      advocate: schema.advocates,
+      parent: schema.users,
+      request: schema.advocate_requests
+    })
+    .from(schema.match_proposals)
+    .leftJoin(schema.students, eq(schema.match_proposals.student_id, schema.students.id))
+    .leftJoin(schema.advocates, eq(schema.match_proposals.advocate_id, schema.advocates.id))
+    .leftJoin(schema.users, eq(schema.match_proposals.parent_id, schema.users.id))
+    .leftJoin(schema.advocate_requests, and(
+      eq(schema.advocate_requests.parent_id, schema.match_proposals.parent_id),
+      eq(schema.advocate_requests.student_id, schema.match_proposals.student_id)
+    ))
+    .where(
+      and(
+        eq(schema.match_proposals.advocate_id, advocate.id),
+        eq(schema.match_proposals.status, 'pending')
+      )
+    );
+
+    const formattedAssignments = pendingProposals.map(({ proposal, student, advocate: advocateData, parent, request }) => ({
+      id: proposal.id,
+      student: {
+        id: student?.id || '',
+        name: student?.full_name || 'Unknown Student',
+        grade: student?.grade_level || '',
+        school: student?.school_name || '',
+        disability_category: student?.disability_category || '',
+        needs: student?.notes ? student.notes.split(',').map(n => n.trim()).filter(Boolean) : [],
+        iep_status: student?.iep_status || '',
+        next_review_date: student?.next_review_date || ''
+      },
+      parent: {
+        id: parent?.id || '',
+        name: `${parent?.firstName || ''} ${parent?.lastName || ''}`.trim() || 'Unknown Parent',
+        email: parent?.email || '',
+        phone: parent?.phoneNumber || '',
+        notes: request?.message || '', // Parent's request details/notes
+        subject: request?.subject || '',
+        urgency_level: request?.urgency_level || 'medium',
+        budget_range: request?.budget_range || '',
+        preferred_contact_method: request?.preferred_contact_method || 'email'
+      },
+      match: {
+        score: proposal.score,
+        reasons: proposal.match_reason && typeof proposal.match_reason === 'object' && 'reasons' in proposal.match_reason ? 
+          (Array.isArray((proposal.match_reason as any).reasons) ? (proposal.match_reason as any).reasons : ['General IEP expertise match']) :
+          ['General IEP expertise match'],
+        specialization_overlap: proposal.match_reason && typeof proposal.match_reason === 'object' && 'specialization_overlap' in proposal.match_reason ? 
+          ((proposal.match_reason as any).specialization_overlap || 0) : 0,
+        created_at: proposal.created_at,
+        urgency: request?.urgency_level || 'medium'
+      },
+      proposal_id: proposal.id,
+      status: proposal.status
+    }));
+
+    res.json({ 
+      assignments: formattedAssignments,
+      total_pending: formattedAssignments.length
+    });
+  } catch (error) {
+    console.error('Server error getting pending assignments:', error);
     res.status(500).json({ error: 'Internal server error' });
   }
 });

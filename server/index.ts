@@ -3511,9 +3511,14 @@ app.get('/api/cases', isAuthenticated, async (req: any, res) => {
             next_action: schema.cases.next_action,
             next_action_date: schema.cases.next_action_date,
             created_at: schema.cases.created_at,
-            updated_at: schema.cases.updated_at
+            updated_at: schema.cases.updated_at,
+            // Join with users table to get parent information
+            parent_first_name: schema.users.firstName,
+            parent_last_name: schema.users.lastName,
+            parent_email: schema.users.email
           })
           .from(schema.cases)
+          .leftJoin(schema.users, eq(schema.cases.client_id, schema.users.id))
           .where(eq(schema.cases.advocate_id, advocate.id));
       }
     } else {

@@ -495,7 +495,9 @@ const AdvocateDashboard = ({ plan }: AdvocateDashboardProps) => {
                     </Badge>
                   </div>
                   <p className="text-sm text-muted-foreground">
-                    Parent: {case_.parent}
+                    Parent: {case_.parent_first_name && case_.parent_last_name 
+                      ? `${case_.parent_first_name} ${case_.parent_last_name}` 
+                      : case_.parent_email || 'Unknown'}
                   </p>
                   <p className="text-sm">
                     <span className="font-medium">{case_.caseType}:</span> {case_.nextAction}

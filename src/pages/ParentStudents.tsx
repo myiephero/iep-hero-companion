@@ -1562,27 +1562,21 @@ const GiftedAssessmentsTab = ({ selectedStudentId }: { selectedStudentId?: strin
                 <div className="bg-white dark:bg-gray-800 p-4 rounded-lg">
                   <h4 className="font-medium text-indigo-700 dark:text-indigo-300 mb-2">🧠 Cognitive Profile Analysis</h4>
                   <p className="text-sm text-muted-foreground">
-                    Based on assessment data, your child shows exceptional verbal reasoning abilities (95th percentile) 
-                    with particular strengths in abstract thinking and pattern recognition. Consider advanced literature 
-                    and philosophy courses.
+                    Complete a comprehensive gifted assessment to receive personalized cognitive analysis and educational recommendations for your child. Our AI-powered system will analyze their unique profile and provide specific guidance for academic acceleration and enrichment opportunities.
                   </p>
                 </div>
                 
                 <div className="bg-white dark:bg-gray-800 p-4 rounded-lg">
                   <h4 className="font-medium text-green-700 dark:text-green-300 mb-2">⚡ Enrichment Recommendations</h4>
-                  <ul className="text-sm text-muted-foreground space-y-1">
-                    <li>• Mathematical competitions (AMC 8/10) for advanced problem-solving</li>
-                    <li>• Independent research projects in areas of interest</li>
-                    <li>• Mentorship programs with professionals in STEM fields</li>
-                    <li>• Dual enrollment opportunities for high school students</li>
-                  </ul>
+                  <p className="text-sm text-muted-foreground">
+                    AI-powered recommendations will appear here after completing a comprehensive gifted assessment. These will include personalized suggestions for academic acceleration, enrichment programs, and specialized opportunities tailored to your child's unique strengths.
+                  </p>
                 </div>
                 
                 <div className="bg-white dark:bg-gray-800 p-4 rounded-lg">
                   <h4 className="font-medium text-purple-700 dark:text-purple-300 mb-2">🎯 2E Support Insights</h4>
                   <p className="text-sm text-muted-foreground">
-                    The combination of high intellectual ability with attention challenges suggests implementing 
-                    structured breaks during complex tasks and providing both challenge and support simultaneously.
+                    For twice-exceptional learners, our AI analysis will provide specialized insights on balancing giftedness with learning differences, creating supportive educational strategies that address both exceptional abilities and support needs.
                   </p>
                 </div>
               </div>

@@ -1,5 +1,6 @@
 import express from 'express';
 import cors from 'cors';
+import { z } from 'zod';
 import { db } from './db';
 import * as schema from '../shared/schema';
 import { eq, and, gt, desc, sql, like, or, ne, inArray } from 'drizzle-orm';
@@ -43,6 +44,22 @@ function generateVerificationToken(): string {
 
 // BUILD VERSION FOR ENVIRONMENT PARITY
 const BUILD_ID = "BUILD_SEP10_2025_1531";
+
+// Validation schemas
+const updateProfileSchema = z.object({
+  firstName: z.string().trim().min(1, 'First name is required').max(50, 'First name too long').optional(),
+  lastName: z.string().trim().min(1, 'Last name is required').max(50, 'Last name too long').optional(),
+  email: z.string().email('Invalid email format').max(255, 'Email too long').optional(),
+  phoneNumber: z.string().regex(/^[\d\s\-\+\(\)]*$/, 'Invalid phone number format').max(20, 'Phone number too long').optional().nullable(),
+  subscriptionPlan: z.enum(['free', 'essential', 'premium', 'advocate']).optional()
+}).refine(data => Object.keys(data).length > 0, {
+  message: 'At least one field must be provided for update'
+});
+
+// Rate limiting storage for profile updates
+const profileUpdateAttempts = new Map<string, { count: number; resetTime: number }>();
+const PROFILE_UPDATE_LIMIT = 5; // 5 updates per hour
+const PROFILE_UPDATE_WINDOW = 60 * 60 * 1000; // 1 hour in milliseconds
 
 // Initialize OpenAI
 const openai = new OpenAI({ 
@@ -553,37 +570,62 @@ app.get('/api/_version', (req, res) => {
   });
 });
 
-// Update profile endpoint
+// Update profile endpoint - SECURE VERSION
 app.put('/api/auth/update-profile', async (req: any, res) => {
   try {
-    let userId;
+    // SECURITY FIX: Use proper authentication instead of vulnerable token parsing
+    const userId = await getUserId(req);
     
-    // First check for token-based auth
-    const token = req.headers.authorization?.replace('Bearer ', '');
+    if (userId === 'anonymous-user') {
+      console.log('❌ Profile update blocked: User not authenticated');
+      return res.status(401).json({ 
+        error: 'Authentication required',
+        message: 'Please log in to update your profile'
+      });
+    }
     
-    if (token) {
-      const tokenParts = token.split('-');
-      if (tokenParts.length >= 3) {
-        const extractedUserId = tokenParts[0];
-        const timestamp = parseInt(tokenParts[1]);
-        const isValidTimestamp = Date.now() - timestamp < 24 * 60 * 60 * 1000;
-        
-        if (isValidTimestamp) {
-          userId = extractedUserId;
+    // Rate limiting check
+    const now = Date.now();
+    const userAttempts = profileUpdateAttempts.get(userId);
+    
+    if (userAttempts) {
+      if (now < userAttempts.resetTime) {
+        if (userAttempts.count >= PROFILE_UPDATE_LIMIT) {
+          console.log(`❌ Profile update rate limited for user: ${userId}`);
+          return res.status(429).json({ 
+            error: 'Rate limit exceeded',
+            message: 'Too many profile updates. Please try again later.',
+            retryAfter: Math.ceil((userAttempts.resetTime - now) / 1000)
+          });
         }
+        userAttempts.count++;
+      } else {
+        // Reset window
+        userAttempts.count = 1;
+        userAttempts.resetTime = now + PROFILE_UPDATE_WINDOW;
       }
+    } else {
+      profileUpdateAttempts.set(userId, {
+        count: 1,
+        resetTime: now + PROFILE_UPDATE_WINDOW
+      });
     }
     
-    // Fall back to Replit Auth
-    if (!userId && req.isAuthenticated && req.isAuthenticated()) {
-      userId = req.user.claims.sub;
+    // Validate request body
+    let validatedData;
+    try {
+      validatedData = updateProfileSchema.parse(req.body);
+    } catch (error) {
+      console.log(`❌ Profile update validation failed for user ${userId}:`, error.errors);
+      return res.status(400).json({ 
+        error: 'Invalid data',
+        details: error.errors
+      });
     }
     
-    if (!userId) {
-      return res.status(401).json({ error: 'Not authenticated' });
-    }
+    console.log(`✅ Profile update initiated for authenticated user: ${userId}`);
     
-    const { firstName, lastName, email, phoneNumber, subscriptionPlan } = req.body;
+    const { firstName, lastName, email, phoneNumber, subscriptionPlan } = validatedData;
     
     // Update user table
     if (firstName || lastName || email || subscriptionPlan) {

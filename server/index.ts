@@ -4216,29 +4216,27 @@ Respond with this exact JSON format:
       res.sendFile(path.join(__dirname, '../dist/index.html'));
     });
   } else {
-    // Development: proxy non-API requests to Vite dev server
-    console.log('🚀 Development mode: Proxying frontend requests to Vite dev server on localhost:3000');
-    app.use(
-      (req, res, next) => {
-        // Only proxy non-API requests
-        if (req.path.startsWith('/api')) {
-          return next();
+    // Development: Create single proxy instance at startup to forward to Vite dev server
+    console.log('🚀 Development mode: Creating single proxy instance to Vite dev server on port 3000');
+    const viteProxy = createProxyMiddleware({
+      target: 'http://localhost:3000',
+      changeOrigin: true,
+      ws: true, // Enable WebSocket proxying for HMR
+      onError: (err, req, res) => {
+        console.log('Proxy Error:', err.message);
+        if (typeof res.status === 'function') {
+          res.status(500).send('Proxy error: Vite dev server may not be running on port 3000');
         }
-        
-        createProxyMiddleware({
-          target: 'http://localhost:3000',
-          changeOrigin: true,
-          ws: true, // Enable WebSocket proxying for HMR
-          onError: (err, req, res) => {
-            console.log('Proxy Error:', err.message);
-            // Fallback to basic error response
-            if (typeof res.status === 'function') {
-              res.status(500).send('Proxy error: Vite dev server may not be running');
-            }
-          }
-        })(req, res, next);
       }
-    );
+    });
+    
+    // Apply single proxy instance to all non-API routes
+    app.use((req, res, next) => {
+      if (req.path.startsWith('/api')) {
+        return next(); // Let API routes be handled by Express
+      }
+      viteProxy(req, res, next); // Proxy everything else to Vite
+    });
   }
 
   // Start the server after all setup is complete
@@ -4246,22 +4244,14 @@ Respond with this exact JSON format:
     console.log(`Server running on port ${PORT}`);
   });
 
-  // Keep the server process alive using process event handlers
-  // Prevent Node.js from exiting by keeping the event loop active
-  const keepAlive = setInterval(() => {
-    // Empty interval to keep the event loop busy
-  }, 300000); // 5 minutes interval
-  
-  // Handle graceful shutdown
-  process.on('SIGINT', () => {
+  // Handle graceful shutdown - use process.once to prevent multiple listeners
+  process.once('SIGINT', () => {
     console.log('Received SIGINT, shutting down gracefully...');
-    clearInterval(keepAlive);
     process.exit(0);
   });
   
-  process.on('SIGTERM', () => {
+  process.once('SIGTERM', () => {
     console.log('Received SIGTERM, shutting down gracefully...');
-    clearInterval(keepAlive);
     process.exit(0);
   });
 })().catch(console.error);

@@ -2067,6 +2067,22 @@ app.get('/api/documents', async (req, res) => {
   }
 });
 
+// Goals routes - for dashboard Goals Achieved stat
+app.get('/api/goals', async (req, res) => {
+  try {
+    const userId = await getUserId(req);
+    console.log('✅ PRODUCTION: Getting goals for authenticated user:', userId);
+    
+    const goals = await db.select().from(schema.goals).where(eq(schema.goals.user_id, userId));
+    console.log(`✅ PRODUCTION: Found ${goals.length} goals for user`);
+    
+    res.json(goals);
+  } catch (error) {
+    console.error('Error fetching goals:', error);
+    res.status(500).json({ error: 'Failed to fetch goals' });
+  }
+});
+
 app.post('/api/documents', async (req, res) => {
   try {
     const userId = await getUserId(req);
@@ -4115,7 +4131,6 @@ Respond with this exact JSON format:
         target: 'http://localhost:3000',
         changeOrigin: true,
         ws: true, // Enable WebSocket proxying for HMR
-        logLevel: 'silent', // Reduce proxy logging in development
         // Only proxy non-API requests
         filter: (pathname, req) => {
           return !pathname.startsWith('/api');

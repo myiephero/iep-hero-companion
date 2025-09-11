@@ -4219,23 +4219,25 @@ Respond with this exact JSON format:
     // Development: proxy non-API requests to Vite dev server
     console.log('🚀 Development mode: Proxying frontend requests to Vite dev server on localhost:3000');
     app.use(
-      '/',
-      createProxyMiddleware({
-        target: 'http://localhost:3000',
-        changeOrigin: true,
-        ws: true, // Enable WebSocket proxying for HMR
+      (req, res, next) => {
         // Only proxy non-API requests
-        filter: (pathname, req) => {
-          return !pathname.startsWith('/api');
-        },
-        onError: (err, req, res) => {
-          console.log('Proxy Error:', err.message);
-          // Fallback to basic error response
-          if (typeof res.status === 'function') {
-            res.status(500).send('Proxy error: Vite dev server may not be running');
-          }
+        if (req.path.startsWith('/api')) {
+          return next();
         }
-      })
+        
+        createProxyMiddleware({
+          target: 'http://localhost:3000',
+          changeOrigin: true,
+          ws: true, // Enable WebSocket proxying for HMR
+          onError: (err, req, res) => {
+            console.log('Proxy Error:', err.message);
+            // Fallback to basic error response
+            if (typeof res.status === 'function') {
+              res.status(500).send('Proxy error: Vite dev server may not be running');
+            }
+          }
+        })(req, res, next);
+      }
     );
   }
 

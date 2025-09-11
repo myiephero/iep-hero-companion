@@ -118,8 +118,38 @@ interface GiftedAssessment {
   assessment_scores?: any;
   evaluator_notes?: string;
   next_steps?: any;
+  ai_analysis_parent?: any;
+  ai_analysis_advocate?: any;
+  ai_generated_at?: string;
   status: string;
   created_at: string;
+}
+
+interface AutismAIAnalysis {
+  id?: string;
+  ai_analysis?: any;
+  timestamp?: string;
+  type?: string;
+  analyses?: Array<{
+    id: string;
+    ai_analysis: any;
+    timestamp: string;
+    type: string;
+  }>;
+  // Legacy format support
+  sensory_analysis?: any;
+  communication_insights?: any;
+  behavioral_analysis?: any;
+  social_analysis?: any;
+  recommendations?: string[];
+}
+
+interface GiftedAIAnalysis {
+  id: string;
+  ai_analysis_parent?: any;
+  ai_analysis_advocate?: any;
+  ai_generated_at?: string;
+  assessment_type: string;
 }
 
 const StudentProfiles = () => {
@@ -131,6 +161,8 @@ const StudentProfiles = () => {
   const [accommodations, setAccommodations] = useState<Accommodation[]>([]);
   const [autismAccommodations, setAutismAccommodations] = useState<AutismAccommodation[]>([]);
   const [giftedAssessments, setGiftedAssessments] = useState<GiftedAssessment[]>([]);
+  const [autismAIAnalysis, setAutismAIAnalysis] = useState<AutismAIAnalysis | null>(null);
+  const [giftedAIAnalysis, setGiftedAIAnalysis] = useState<GiftedAIAnalysis[]>([]);
   const [isAddStudentOpen, setIsAddStudentOpen] = useState(false);
   const [activeTab, setActiveTab] = useState("overview");
   const [newStudent, setNewStudent] = useState({
@@ -227,6 +259,22 @@ const StudentProfiles = () => {
       const giftedAssessmentsResponse = await apiRequest('GET', `/api/gifted-assessments?student_id=${studentId}`);
       const giftedAssessmentsData = await giftedAssessmentsResponse.json();
       setGiftedAssessments(giftedAssessmentsData || []);
+
+      // Fetch autism AI analysis results
+      try {
+        const autismAIResponse = await apiRequest('GET', `/api/autism-ai-analysis?student_id=${studentId}`);
+        const autismAIData = await autismAIResponse.json();
+        setAutismAIAnalysis(autismAIData);
+      } catch (error) {
+        console.log('No autism AI analysis found:', error);
+        setAutismAIAnalysis(null);
+      }
+
+      // Extract gifted AI analysis from assessments
+      const giftedWithAI = giftedAssessmentsData?.filter((assessment: any) => 
+        assessment.ai_analysis_parent || assessment.ai_analysis_advocate
+      ) || [];
+      setGiftedAIAnalysis(giftedWithAI);
 
     } catch (error: any) {
       console.error("Error fetching student data:", error);
@@ -757,44 +805,226 @@ const StudentProfiles = () => {
               </TabsContent>
 
               <TabsContent value="accommodations" className="space-y-6">
-                {accommodations.length > 0 ? (
-                  <div className="grid gap-4">
-                    {accommodations.map((accommodation) => (
-                      <Card key={accommodation.id}>
-                        <CardHeader>
-                          <div className="flex items-start justify-between">
-                            <div>
-                              <CardTitle className="text-lg">{accommodation.title}</CardTitle>
-                              <CardDescription>
-                                <Badge variant="outline">
-                                  {accommodation.category}
+                <div className="space-y-6">
+                  {/* AI Analysis Results Section */}
+                  {(autismAIAnalysis || giftedAIAnalysis.length > 0) && (
+                    <div className="space-y-4">
+                      <div className="flex items-center space-x-2 mb-4">
+                        <Brain className="h-5 w-5 text-primary" />
+                        <h3 className="text-lg font-semibold">AI Analysis Results</h3>
+                        <Badge variant="secondary">Saved Results</Badge>
+                      </div>
+                      
+                      {/* Autism AI Analysis */}
+                      {autismAIAnalysis && (
+                        <Card className="border-blue-200 bg-blue-50/50 dark:bg-blue-950/20">
+                          <CardHeader>
+                            <CardTitle className="flex items-center space-x-2">
+                              <span className="text-2xl">🧩</span>
+                              <span>Autism AI Analysis</span>
+                              <Badge variant="outline" className="bg-blue-100 text-blue-700 dark:bg-blue-900 dark:text-blue-300">
+                                Professional Analysis
+                              </Badge>
+                            </CardTitle>
+                            <CardDescription>
+                              Generated: {autismAIAnalysis.timestamp ? new Date(autismAIAnalysis.timestamp).toLocaleDateString() : 'Recently'}
+                            </CardDescription>
+                          </CardHeader>
+                          <CardContent className="space-y-4">
+                            {(() => {
+                              // Handle both new structured format and legacy format
+                              const analysis = autismAIAnalysis?.analyses?.[0]?.ai_analysis || autismAIAnalysis;
+                              
+                              if (analysis?.detailed_analysis) {
+                                return (
+                                  <div className="space-y-3">
+                                    <div>
+                                      <h4 className="font-medium text-sm mb-2">Comprehensive Analysis:</h4>
+                                      <p className="text-sm text-muted-foreground whitespace-pre-wrap bg-white dark:bg-gray-900 p-3 rounded border">
+                                        {analysis.detailed_analysis}
+                                      </p>
+                                    </div>
+                                    {analysis.recommendations && Array.isArray(analysis.recommendations) && analysis.recommendations.length > 0 && (
+                                      <div>
+                                        <h4 className="font-medium text-sm mb-2">Key Recommendations:</h4>
+                                        <ul className="space-y-1">
+                                          {analysis.recommendations.map((rec: string, i: number) => (
+                                            <li key={i} className="flex items-start text-sm">
+                                              <span className="text-primary mr-2 mt-1">→</span>
+                                              <span className="text-muted-foreground">{rec}</span>
+                                            </li>
+                                          ))}
+                                        </ul>
+                                      </div>
+                                    )}
+                                  </div>
+                                );
+                              }
+                              
+                              // Legacy format fallback
+                              if (analysis?.sensory_analysis || analysis?.communication_insights || analysis?.behavioral_analysis) {
+                                return (
+                                  <div className="space-y-3">
+                                    {analysis.sensory_analysis && (
+                                      <div>
+                                        <h4 className="font-medium text-sm mb-2">Sensory Analysis:</h4>
+                                        <p className="text-sm text-muted-foreground">{analysis.sensory_analysis}</p>
+                                      </div>
+                                    )}
+                                    {analysis.communication_insights && (
+                                      <div>
+                                        <h4 className="font-medium text-sm mb-2">Communication Insights:</h4>
+                                        <p className="text-sm text-muted-foreground">{analysis.communication_insights}</p>
+                                      </div>
+                                    )}
+                                    {analysis.behavioral_analysis && (
+                                      <div>
+                                        <h4 className="font-medium text-sm mb-2">Behavioral Analysis:</h4>
+                                        <p className="text-sm text-muted-foreground">{analysis.behavioral_analysis}</p>
+                                      </div>
+                                    )}
+                                  </div>
+                                );
+                              }
+                              
+                              return (
+                                <p className="text-sm text-muted-foreground">
+                                  Analysis data available - detailed results from autism-specific assessment.
+                                </p>
+                              );
+                            })()}
+                          </CardContent>
+                        </Card>
+                      )}
+
+                      {/* Gifted AI Analysis */}
+                      {giftedAIAnalysis.length > 0 && giftedAIAnalysis.map((assessment) => {
+                        const userRole = user?.role || 'parent';
+                        const aiData = userRole === 'advocate' ? assessment.ai_analysis_advocate : assessment.ai_analysis_parent;
+                        
+                        if (!aiData) return null;
+                        
+                        return (
+                          <Card key={assessment.id} className="border-purple-200 bg-purple-50/50 dark:bg-purple-950/20">
+                            <CardHeader>
+                              <CardTitle className="flex items-center space-x-2">
+                                <span className="text-2xl">🎓</span>
+                                <span>Gifted Education AI Analysis</span>
+                                <Badge variant="outline" className="bg-purple-100 text-purple-700 dark:bg-purple-900 dark:text-purple-300">
+                                  {userRole === 'advocate' ? 'Advocate View' : 'Parent View'}
                                 </Badge>
+                              </CardTitle>
+                              <CardDescription>
+                                Assessment Type: {assessment.assessment_type} • 
+                                Generated: {assessment.ai_generated_at ? new Date(assessment.ai_generated_at).toLocaleDateString() : 'Recently'}
                               </CardDescription>
-                            </div>
-                            <Badge variant={accommodation.status === 'active' ? 'default' : 'secondary'}>
-                              {accommodation.status}
-                            </Badge>
-                          </div>
-                        </CardHeader>
-                        <CardContent>
-                          <p className="text-sm text-muted-foreground">
-                            {accommodation.description}
-                          </p>
-                        </CardContent>
-                      </Card>
-                    ))}
+                            </CardHeader>
+                            <CardContent className="space-y-4">
+                              {(() => {
+                                if (typeof aiData === 'object' && aiData.detailed_analysis) {
+                                  return (
+                                    <div className="space-y-3">
+                                      <div>
+                                        <h4 className="font-medium text-sm mb-2">Professional Analysis:</h4>
+                                        <p className="text-sm text-muted-foreground whitespace-pre-wrap bg-white dark:bg-gray-900 p-3 rounded border">
+                                          {aiData.detailed_analysis}
+                                        </p>
+                                      </div>
+                                      {aiData.key_recommendations && Array.isArray(aiData.key_recommendations) && (
+                                        <div>
+                                          <h4 className="font-medium text-sm mb-2">Key Recommendations:</h4>
+                                          <ul className="space-y-1">
+                                            {aiData.key_recommendations.map((rec: string, i: number) => (
+                                              <li key={i} className="flex items-start text-sm">
+                                                <span className="text-primary mr-2 mt-1">→</span>
+                                                <span className="text-muted-foreground">{rec}</span>
+                                              </li>
+                                            ))}
+                                          </ul>
+                                        </div>
+                                      )}
+                                    </div>
+                                  );
+                                }
+                                
+                                if (typeof aiData === 'string') {
+                                  return (
+                                    <p className="text-sm text-muted-foreground whitespace-pre-wrap bg-white dark:bg-gray-900 p-3 rounded border">
+                                      {aiData}
+                                    </p>
+                                  );
+                                }
+                                
+                                return (
+                                  <p className="text-sm text-muted-foreground">
+                                    Gifted education analysis available for {assessment.assessment_type} assessment.
+                                  </p>
+                                );
+                              })()}
+                            </CardContent>
+                          </Card>
+                        );
+                      })}
+                    </div>
+                  )}
+
+                  {/* Regular Accommodations Section */}
+                  <div className="space-y-4">
+                    {accommodations.length > 0 && (
+                      <div className="flex items-center space-x-2 mb-4">
+                        <CheckCircle className="h-5 w-5 text-primary" />
+                        <h3 className="text-lg font-semibold">Current Accommodations</h3>
+                        <Badge variant="secondary">{accommodations.length} Active</Badge>
+                      </div>
+                    )}
+                    
+                    {accommodations.length > 0 ? (
+                      <div className="grid gap-4">
+                        {accommodations.map((accommodation) => (
+                          <Card key={accommodation.id}>
+                            <CardHeader>
+                              <div className="flex items-start justify-between">
+                                <div>
+                                  <CardTitle className="text-lg">{accommodation.title}</CardTitle>
+                                  <CardDescription>
+                                    <Badge variant="outline">
+                                      {accommodation.category}
+                                    </Badge>
+                                  </CardDescription>
+                                </div>
+                                <Badge variant={accommodation.status === 'active' ? 'default' : 'secondary'}>
+                                  {accommodation.status}
+                                </Badge>
+                              </div>
+                            </CardHeader>
+                            <CardContent>
+                              <p className="text-sm text-muted-foreground">
+                                {accommodation.description}
+                              </p>
+                            </CardContent>
+                          </Card>
+                        ))}
+                      </div>
+                    ) : (
+                      <>
+                        {(!autismAIAnalysis && giftedAIAnalysis.length === 0) && (
+                          <Card>
+                            <CardContent className="flex flex-col items-center justify-center py-12">
+                              <CheckCircle className="h-12 w-12 text-muted-foreground mb-4" />
+                              <h3 className="text-lg font-medium mb-2">No Accommodations Yet</h3>
+                              <p className="text-sm text-muted-foreground text-center mb-4">
+                                Accommodations will appear here once they are added to the student's IEP.
+                              </p>
+                              <p className="text-xs text-muted-foreground text-center">
+                                AI analysis results will also appear here when available.
+                              </p>
+                            </CardContent>
+                          </Card>
+                        )}
+                      </>
+                    )}
                   </div>
-                ) : (
-                  <Card>
-                    <CardContent className="flex flex-col items-center justify-center py-12">
-                      <CheckCircle className="h-12 w-12 text-muted-foreground mb-4" />
-                      <h3 className="text-lg font-medium mb-2">No Accommodations Yet</h3>
-                      <p className="text-sm text-muted-foreground text-center mb-4">
-                        Accommodations will appear here once they are added to the student's IEP.
-                      </p>
-                    </CardContent>
-                  </Card>
-                )}
+                </div>
               </TabsContent>
 
               <TabsContent value="autism" className="space-y-6">

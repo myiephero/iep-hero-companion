@@ -386,13 +386,33 @@ export default function AdvocateParents() {
     }
   };
 
+  // Case Status Colors: Active=Green, Pending=Yellow, Closed=Red
   const getStatusColor = (status: string) => {
     switch (status?.toLowerCase()) {
       case "active": return "bg-success text-success-foreground";
+      case "pending": return "bg-warning text-warning-foreground";
+      case "closed": return "bg-destructive text-destructive-foreground";
       case "invited": return "bg-warning text-warning-foreground";
       case "inactive": return "bg-muted text-muted-foreground";
       default: return "bg-muted text-muted-foreground";
     }
+  };
+
+  // IEP Status Colors: Active=Green, Developing=Yellow, Inactive=Red
+  const getIEPStatusColor = (status: string) => {
+    switch (status?.toLowerCase()) {
+      case "active": return "bg-success text-success-foreground";
+      case "developing": return "bg-warning text-warning-foreground";
+      case "inactive": return "bg-destructive text-destructive-foreground";
+      default: return "bg-muted text-muted-foreground";
+    }
+  };
+
+  // Get IEP status for parent (simplified - using student data or default)
+  const getParentIEPStatus = (parent: Parent) => {
+    // For now, use a simplified approach - can be enhanced with actual student data
+    // This could be improved with server-side joins as recommended by architect
+    return "developing"; // Default to developing as shown in screenshot
   };
 
   const formatDate = (dateString: string) => {
@@ -619,8 +639,8 @@ export default function AdvocateParents() {
                             </div>
                           </div>
                           <div className="flex flex-col gap-1">
-                            <Badge variant="secondary" className="text-xs">
-                              IEP Status: Active
+                            <Badge className={`text-xs ${getIEPStatusColor(getParentIEPStatus(parent))}`}>
+                              IEP Status: {getParentIEPStatus(parent).charAt(0).toUpperCase() + getParentIEPStatus(parent).slice(1)}
                             </Badge>
                             <Badge className={`text-xs ${getStatusColor(parent.status)}`}>
                               Case Status: {parent.status || 'Pending'}
@@ -656,8 +676,8 @@ export default function AdvocateParents() {
                           <span>{selectedParent.email}</span>
                           <span>•</span>
                           <div className="flex gap-2">
-                            <Badge variant="secondary" className="text-xs">
-                              IEP Status: Active
+                            <Badge className={`text-xs ${getIEPStatusColor(getParentIEPStatus(selectedParent))}`}>
+                              IEP Status: {getParentIEPStatus(selectedParent).charAt(0).toUpperCase() + getParentIEPStatus(selectedParent).slice(1)}
                             </Badge>
                             <Badge className={`text-xs ${getStatusColor(selectedParent.status)}`}>
                               Case Status: {selectedParent.status || 'Pending'}

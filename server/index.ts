@@ -4151,4 +4151,23 @@ Respond with this exact JSON format:
   app.listen(PORT, '0.0.0.0', () => {
     console.log(`Server running on port ${PORT}`);
   });
+
+  // Keep the server process alive using process event handlers
+  // Prevent Node.js from exiting by keeping the event loop active
+  const keepAlive = setInterval(() => {
+    // Empty interval to keep the event loop busy
+  }, 300000); // 5 minutes interval
+  
+  // Handle graceful shutdown
+  process.on('SIGINT', () => {
+    console.log('Received SIGINT, shutting down gracefully...');
+    clearInterval(keepAlive);
+    process.exit(0);
+  });
+  
+  process.on('SIGTERM', () => {
+    console.log('Received SIGTERM, shutting down gracefully...');
+    clearInterval(keepAlive);
+    process.exit(0);
+  });
 })().catch(console.error);

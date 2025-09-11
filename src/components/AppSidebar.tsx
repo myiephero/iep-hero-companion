@@ -118,7 +118,7 @@ export function AppSidebar() {
   const dashboardUrl = isAdvocate ? `/advocate/dashboard-${advocatePlanSlug}` : `/parent/dashboard-${userPlan}`;
   
   // Use TanStack Query for real-time pending assignments count sync
-  const { data: pendingData = { assignments: [], total_pending: 0 } } = useQuery({
+  const { data: pendingData } = useQuery({
     queryKey: ['/api/match/pending-assignments'],
     enabled: isAdvocate && !!user,
     refetchInterval: 30000, // Backup polling every 30 seconds
@@ -132,7 +132,7 @@ export function AppSidebar() {
     }
   });
   
-  const pendingAssignmentsCount = pendingData?.total_pending || 0;
+  const pendingAssignmentsCount = (pendingData as any)?.total_pending || 0;
   
   const navigation = isAdvocate ? getAdvocateNavigation(dashboardUrl, pendingAssignmentsCount) : getParentNavigation(dashboardUrl, userPlan, isAdvocate);
   

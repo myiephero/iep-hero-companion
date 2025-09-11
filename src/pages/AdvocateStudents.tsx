@@ -456,7 +456,7 @@ const AdvocateStudents = () => {
       };
       
       // FIXED: Use authenticated apiRequest instead of direct fetch
-      const response = await apiRequest('PATCH', `/api/students/${editingStudent.id}`, studentData);
+      const response = await apiRequest('PUT', `/api/students/${editingStudent.id}`, studentData);
       
       if (response.ok) {
         setIsEditStudentOpen(false);

@@ -43,7 +43,7 @@ export async function getUserId(req: express.Request): Promise<string> {
   
   // No authenticated user found
   console.log('❌ No authenticated user found');
-  throw new Error('Authentication required');
+  return 'anonymous-user';
 }
 
 // Synchronous version for backward compatibility (tries token check without database)

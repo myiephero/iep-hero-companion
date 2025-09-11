@@ -10,7 +10,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Users, Mail, Phone, Plus, UserCheck, UserPlus, GraduationCap, Calendar, MapPin } from "lucide-react";
+import { Users, Mail, Phone, Plus, UserCheck, UserPlus, GraduationCap, Calendar, MapPin, Briefcase } from "lucide-react";
 import { Link } from "react-router-dom";
 import { api } from "@/lib/api";
 import { apiRequest } from "@/lib/queryClient";
@@ -33,6 +33,163 @@ interface Student {
   disability_category?: string;
   iep_status?: string;
   created_at: string;
+}
+
+// Component to create a new case for a parent
+function CreateCaseButton({ parentId, parentName }: { parentId: string; parentName: string }) {
+  const [isCreateCaseOpen, setIsCreateCaseOpen] = useState(false);
+  const [selectedStudentId, setSelectedStudentId] = useState<string>("");
+  const [caseDescription, setCaseDescription] = useState("");
+  const [students, setStudents] = useState<Student[]>([]);
+  const [loading, setLoading] = useState(false);
+  const { toast } = useToast();
+
+  // Fetch students for this parent when dialog opens
+  useEffect(() => {
+    if (isCreateCaseOpen && parentId) {
+      const fetchStudents = async () => {
+        try {
+          const response = await apiRequest('GET', '/api/students');
+          const allStudents = await response.json();
+          const parentStudents = Array.isArray(allStudents) ? 
+            allStudents.filter((student: any) => student.user_id === parentId || student.parent_id === parentId) : 
+            [];
+          setStudents(parentStudents);
+        } catch (error) {
+          console.error('Error fetching students:', error);
+          setStudents([]);
+        }
+      };
+      fetchStudents();
+    }
+  }, [isCreateCaseOpen, parentId]);
+
+  const handleCreateCase = async () => {
+    if (!selectedStudentId) {
+      toast({
+        title: "Please select a student",
+        description: "You must select a student for this case.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    if (!caseDescription.trim()) {
+      toast({
+        title: "Please provide a description",
+        description: "You must provide a case description.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setLoading(true);
+    try {
+      const selectedStudent = students.find(s => s.id === selectedStudentId);
+      const caseData = {
+        student_id: selectedStudentId,
+        title: `IEP Support for ${selectedStudent?.full_name || 'Student'}`,
+        description: caseDescription.trim(),
+        status: 'active'
+      };
+
+      const response = await apiRequest('POST', '/api/cases', caseData);
+      if (response.ok) {
+        toast({
+          title: "Case created successfully!",
+          description: `New advocacy case created for ${selectedStudent?.full_name}`,
+        });
+        
+        // Reset form and close dialog
+        setSelectedStudentId("");
+        setCaseDescription("");
+        setIsCreateCaseOpen(false);
+        
+        // Refresh the page data
+        window.location.reload();
+      } else {
+        throw new Error('Failed to create case');
+      }
+    } catch (error) {
+      console.error('Error creating case:', error);
+      toast({
+        title: "Error creating case",
+        description: "There was an issue creating the case. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <>
+      <Dialog open={isCreateCaseOpen} onOpenChange={setIsCreateCaseOpen}>
+        <DialogTrigger asChild>
+          <Button size="sm" className="w-full" data-testid="button-create-case">
+            <Briefcase className="h-4 w-4 mr-2" />
+            Create Case
+          </Button>
+        </DialogTrigger>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Create New Advocacy Case</DialogTitle>
+            <DialogDescription>
+              Create a new advocacy case for {parentName}. This will begin an active advocacy relationship.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4">
+            <div>
+              <Label htmlFor="student-select">Select Student</Label>
+              <select
+                id="student-select"
+                className="w-full p-2 border rounded-md bg-background"
+                value={selectedStudentId}
+                onChange={(e) => setSelectedStudentId(e.target.value)}
+                data-testid="select-student"
+              >
+                <option value="">Choose a student...</option>
+                {students.map((student) => (
+                  <option key={student.id} value={student.id}>
+                    {student.full_name} {student.grade_level ? `(Grade ${student.grade_level})` : ''}
+                  </option>
+                ))}
+              </select>
+            </div>
+            
+            <div>
+              <Label htmlFor="case-description">Case Description</Label>
+              <textarea
+                id="case-description"
+                placeholder="Describe the advocacy needs and goals for this case..."
+                className="w-full p-2 border rounded-md bg-background min-h-[100px]"
+                value={caseDescription}
+                onChange={(e) => setCaseDescription(e.target.value)}
+                data-testid="input-case-description"
+              />
+            </div>
+            
+            <div className="flex justify-end space-x-2">
+              <Button 
+                variant="outline" 
+                onClick={() => setIsCreateCaseOpen(false)}
+                data-testid="button-cancel-case"
+              >
+                Cancel
+              </Button>
+              <Button 
+                onClick={handleCreateCase} 
+                disabled={loading}
+                data-testid="button-submit-case"
+              >
+                {loading ? 'Creating...' : 'Create Case'}
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
+    </>
+  );
 }
 
 // Component to display students for a specific parent
@@ -552,11 +709,14 @@ export default function AdvocateParents() {
                               <span className="text-sm">Total Students</span>
                               <span className="font-semibold">{selectedParent.students_count || 0}</span>
                             </div>
-                            <Button variant="outline" size="sm" asChild className="w-full">
-                              <Link to={`/advocate/students?parent=${selectedParent.id}`}>
-                                View All Students
-                              </Link>
-                            </Button>
+                            <div className="grid grid-cols-1 gap-2">
+                              <Button variant="outline" size="sm" asChild className="w-full">
+                                <Link to={`/advocate/students?parent=${selectedParent.id}`}>
+                                  View All Students
+                                </Link>
+                              </Button>
+                              <CreateCaseButton parentId={selectedParent.id} parentName={selectedParent.full_name} />
+                            </div>
                           </div>
                         </CardContent>
                       </Card>

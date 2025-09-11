@@ -18,6 +18,7 @@ import { storage } from './storage';
 import Stripe from 'stripe';
 import { sendVerificationEmail, sendWelcomeEmail } from './emailService';
 import { getUserId } from './utils';
+import { createProxyMiddleware } from 'http-proxy-middleware';
 import { standardsAnalyzer } from './standards-analyzer';
 import { ALL_STANDARDS, STATE_SPECIFIC_STANDARDS } from './standards-database';
 import OpenAI from 'openai';
@@ -4144,10 +4145,39 @@ Respond with this exact JSON format:
     }
   });
 
-  // Catch-all handler: send back React's index.html file for any non-API routes
-  app.get(/^(?!\/api).*/, (req, res) => {
-    res.sendFile(path.join(__dirname, '../dist/index.html'));
-  });
+  // Development vs Production handling for non-API routes
+  const isProduction = process.env.NODE_ENV === 'production';
+  
+  if (isProduction) {
+    // Production: serve static files from dist/
+    app.use(express.static(path.join(__dirname, '../dist')));
+    app.get(/^(?!\/api).*/, (req, res) => {
+      res.sendFile(path.join(__dirname, '../dist/index.html'));
+    });
+  } else {
+    // Development: proxy non-API requests to Vite dev server
+    console.log('🚀 Development mode: Proxying frontend requests to Vite dev server on localhost:3000');
+    app.use(
+      '/',
+      createProxyMiddleware({
+        target: 'http://localhost:3000',
+        changeOrigin: true,
+        ws: true, // Enable WebSocket proxying for HMR
+        logLevel: 'silent', // Reduce proxy logging in development
+        // Only proxy non-API requests
+        filter: (pathname, req) => {
+          return !pathname.startsWith('/api');
+        },
+        onError: (err, req, res) => {
+          console.log('Proxy Error:', err.message);
+          // Fallback to basic error response
+          if (typeof res.status === 'function') {
+            res.status(500).send('Proxy error: Vite dev server may not be running');
+          }
+        }
+      })
+    );
+  }
 
   // Start the server after all setup is complete
   app.listen(PORT, '0.0.0.0', () => {

@@ -90,14 +90,14 @@ const AdvocateDashboard = ({ plan }: AdvocateDashboardProps) => {
     enabled: !!user
   });
   
-  const { data: pendingData = { assignments: [], total_pending: 0 }, isLoading: pendingLoading } = useQuery({
+  const { data: pendingData, isLoading: pendingLoading } = useQuery({
     queryKey: ['/api/match/pending-assignments'],
     enabled: !!user,
     refetchInterval: 30000, // Refresh every 30 seconds as backup
     staleTime: 10000 // Consider data stale after 10 seconds
   });
   
-  const pendingAssignments = pendingData.assignments || [];
+  const pendingAssignments = (pendingData as any)?.assignments || [];
   const loading = studentsLoading || casesLoading || parentsLoading || conversationsLoading || pendingLoading;
 
   // Accept proposal mutation with proper cache invalidation
@@ -156,7 +156,7 @@ const AdvocateDashboard = ({ plan }: AdvocateDashboardProps) => {
   });
 
   // Calculate dashboard metrics
-  const openCases = cases.filter(c => c.status === 'active' || c.status === 'open');
+  const openCases = (cases as any[]).filter(c => c.status === 'active' || c.status === 'open');
   const totalPendingCount = pendingAssignments.length;
   const [upcomingMeetings, setUpcomingMeetings] = useState([]);
   const actionLoading = acceptProposalMutation.isPending || declineProposalMutation.isPending;
@@ -348,7 +348,7 @@ const AdvocateDashboard = ({ plan }: AdvocateDashboardProps) => {
                     <p className="text-sm font-medium" data-testid={`parent-name-${assignment.parent.name}`}>
                       {assignment.parent.name}
                     </p>
-                    <p className="text-sm text-muted-foreground" data-testid={`parent-email-${assignment.parent.email}`}>
+                    <p className="text-sm text-gray-700 font-medium" data-testid={`parent-email-${assignment.parent.email}`}>
                       {assignment.parent.email}
                     </p>
                   </div>

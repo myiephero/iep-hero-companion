@@ -16,6 +16,7 @@ import { Users, Mail, Phone, Plus, UserCheck, UserPlus, GraduationCap, Calendar,
 import { Link } from "react-router-dom";
 import { api } from "@/lib/api";
 import { apiRequest } from "@/lib/queryClient";
+import { getIEPStatusColor } from "@/lib/utils";
 
 interface Parent {
   id: string;
@@ -682,15 +683,6 @@ export default function AdvocateParents() {
     }
   };
 
-  // IEP Status Colors: Active=Green, Developing=Yellow, Inactive=Red
-  const getIEPStatusColor = (status: string) => {
-    switch (status?.toLowerCase()) {
-      case "active": return "bg-success text-success-foreground";
-      case "developing": return "bg-warning text-warning-foreground";
-      case "inactive": return "bg-destructive text-destructive-foreground";
-      default: return "bg-muted text-muted-foreground";
-    }
-  };
 
   // Get IEP status for parent (simplified - using student data or default)
   const getParentIEPStatus = (parent: Parent) => {
@@ -924,7 +916,7 @@ export default function AdvocateParents() {
                           </div>
                           <div className="flex flex-col gap-1">
                             <Badge className={`text-xs ${getIEPStatusColor(getParentIEPStatus(parent))}`}>
-                              IEP Status: {getParentIEPStatus(parent).charAt(0).toUpperCase() + getParentIEPStatus(parent).slice(1)}
+                              IEP: {getParentIEPStatus(parent).charAt(0).toUpperCase() + getParentIEPStatus(parent).slice(1)}
                             </Badge>
                             <Badge className={`text-xs ${getStatusColor(parent.status)}`}>
                               Case Status: {parent.status || 'Pending'}
@@ -961,7 +953,7 @@ export default function AdvocateParents() {
                           <span>•</span>
                           <div className="flex gap-2">
                             <Badge className={`text-xs ${getIEPStatusColor(getParentIEPStatus(selectedParent))}`}>
-                              IEP Status: {getParentIEPStatus(selectedParent).charAt(0).toUpperCase() + getParentIEPStatus(selectedParent).slice(1)}
+                              IEP: {getParentIEPStatus(selectedParent).charAt(0).toUpperCase() + getParentIEPStatus(selectedParent).slice(1)}
                             </Badge>
                             <Badge className={`text-xs ${getStatusColor(selectedParent.status)}`}>
                               Case Status: {selectedParent.status || 'Pending'}

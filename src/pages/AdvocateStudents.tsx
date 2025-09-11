@@ -36,6 +36,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
 import { api, type Student } from "@/lib/api";
 import { apiRequest } from "@/lib/queryClient";
+import { getIEPStatusColor } from "@/lib/utils";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -121,16 +122,6 @@ interface GiftedAssessment {
   created_at: string;
 }
 
-// Utility function for IEP status color coding
-const getIEPStatusColor = (status: string | null | undefined) => {
-  if (!status) return "bg-muted text-muted-foreground";
-  switch (status.toLowerCase()) {
-    case "active": return "bg-success text-success-foreground";
-    case "review": return "bg-warning text-warning-foreground";
-    case "expired": return "bg-destructive text-destructive-foreground";
-    default: return "bg-muted text-muted-foreground";
-  }
-};
 
 // Advocate Emotion Tracking Tab Component
 const AdvocateEmotionTrackingTab = ({ selectedStudentId }: { selectedStudentId?: string | null }) => {
@@ -1080,8 +1071,8 @@ const AdvocateStudents = () => {
                               </p>
                             </div>
                           </div>
-                          <Badge className={getStudentIEPWorkflowStageStyle(student.iep_workflow_stage || student.iep_status).className}>
-                            {getStudentIEPWorkflowStageStyle(student.iep_workflow_stage || student.iep_status).label}
+                          <Badge className={getIEPStatusColor(student.iep_status)}>
+                            IEP: {student.iep_status || 'Not Set'}
                           </Badge>
                         </div>
                         <div className="mt-2 text-xs text-muted-foreground">
@@ -1115,8 +1106,8 @@ const AdvocateStudents = () => {
                             <span>•</span>
                             <span>{currentStudent.school_name || 'School not specified'}</span>
                             <span>•</span>
-                            <Badge className={getStudentIEPWorkflowStageStyle(currentStudent.iep_workflow_stage || currentStudent.iep_status).className}>
-                              IEP: {getStudentIEPWorkflowStageStyle(currentStudent.iep_workflow_stage || currentStudent.iep_status).label}
+                            <Badge className={getIEPStatusColor(currentStudent.iep_status)}>
+                              IEP: {currentStudent.iep_status || 'Not Set'}
                             </Badge>
                           </div>
                           {currentStudent.full_name && (

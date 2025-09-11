@@ -1396,70 +1396,79 @@ const AdvocateStudents = () => {
 
                 {selectedTab === "autism" && (
                   <div className="space-y-6">
-                    <Card className="premium-card border-blue-200">
-                      <CardHeader className="bg-blue-50">
-                        <CardTitle className="flex items-center gap-2 text-blue-800">
-                          <Puzzle className="h-5 w-5" />
-                          🧩 Autism Support Profile
+                    <Card className="premium-card">
+                      <CardHeader>
+                        <CardTitle className="flex items-center">
+                          <span className="text-2xl mr-2">🧩</span>
+                          Autism Support Tools
                         </CardTitle>
-                        <CardDescription className="text-blue-700">
-                          Specialized autism accommodations and support strategies
-                        </CardDescription>
+                        <CardDescription>Specialized accommodations and strategies for autism spectrum support</CardDescription>
                       </CardHeader>
-                      <CardContent className="mt-6">
-                        {autismAccommodations.length > 0 ? (
-                          <div className="space-y-6">
-                            {autismAccommodations.map((accommodation) => (
-                              <div key={accommodation.id} className="space-y-4">
-                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                  {accommodation.sensory_needs && (
-                                    <div className="p-4 bg-blue-50 rounded-lg">
-                                      <h4 className="font-medium text-blue-800 mb-2">Sensory Needs</h4>
-                                      <p className="text-sm text-blue-700">
-                                        {typeof accommodation.sensory_needs === 'object' ? 
-                                          JSON.stringify(accommodation.sensory_needs) : 
-                                          accommodation.sensory_needs}
-                                      </p>
-                                    </div>
-                                  )}
-                                  {accommodation.communication_supports && (
-                                    <div className="p-4 bg-blue-50 rounded-lg">
-                                      <h4 className="font-medium text-blue-800 mb-2">Communication Supports</h4>
-                                      <p className="text-sm text-blue-700">
-                                        {typeof accommodation.communication_supports === 'object' ? 
-                                          JSON.stringify(accommodation.communication_supports) : 
-                                          accommodation.communication_supports}
-                                      </p>
-                                    </div>
-                                  )}
-                                </div>
-                                {accommodation.notes && (
-                                  <div className="p-4 bg-muted rounded-lg">
-                                    <h4 className="font-medium mb-2">Additional Notes</h4>
-                                    <p className="text-sm text-muted-foreground">{accommodation.notes}</p>
-                                  </div>
-                                )}
-                              </div>
-                            ))}
-                          </div>
-                        ) : (
-                          <div className="text-center py-8">
-                            <Puzzle className="h-12 w-12 text-blue-400 mx-auto mb-4" />
-                            <h3 className="text-lg font-medium mb-2">No Autism Supports Yet</h3>
-                            <p className="text-sm text-muted-foreground mb-4">
-                              Specialized autism accommodations and support strategies will appear here.
-                            </p>
-                            <Button 
-                              variant="outline" 
-                              size="sm" 
-                              className="border-blue-200 text-blue-600"
-                              onClick={() => setIsAutismDialogOpen(true)}
+                      <CardContent>
+                        <div className="text-center py-8">
+                          <div className="text-4xl mb-4">🎯</div>
+                          <h3 className="text-lg font-semibold mb-2">Integrated Autism Support</h3>
+                          <p className="text-muted-foreground mb-6">
+                            All autism-specific accommodations and tools are now integrated directly into your student's profile for streamlined access.
+                          </p>
+                          
+                          {/* Beautiful functional cards */}
+                          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 gap-4 mt-6">
+                            <button
+                              className="bg-muted/30 p-4 rounded-lg border hover:bg-muted/50 transition-colors text-left group cursor-pointer"
+                              data-testid="button-autism-sensory"
                             >
-                              <Plus className="h-4 w-4 mr-2" />
-                              Add Autism Support Profile
-                            </Button>
+                              <div className="text-blue-600 mb-2 text-xl group-hover:scale-110 transition-transform">
+                                🔊
+                              </div>
+                              <h4 className="font-medium mb-1">Sensory Accommodations</h4>
+                              <p className="text-sm text-muted-foreground">Track sensory needs and environmental modifications</p>
+                            </button>
+
+                            <button
+                              className="bg-muted/30 p-4 rounded-lg border hover:bg-muted/50 transition-colors text-left group cursor-pointer"
+                              data-testid="button-autism-communication"
+                            >
+                              <div className="text-green-600 mb-2 text-xl group-hover:scale-110 transition-transform">
+                                💬
+                              </div>
+                              <h4 className="font-medium mb-1">Communication Support</h4>
+                              <p className="text-sm text-muted-foreground">Monitor communication strategies and progress</p>
+                            </button>
+
+                            <button
+                              className="bg-muted/30 p-4 rounded-lg border hover:bg-muted/50 transition-colors text-left group cursor-pointer"
+                              data-testid="button-autism-behavioral"
+                            >
+                              <div className="text-orange-600 mb-2 text-xl group-hover:scale-110 transition-transform">
+                                🎭
+                              </div>
+                              <h4 className="font-medium mb-1">Behavioral Strategies</h4>
+                              <p className="text-sm text-muted-foreground">Document effective behavioral interventions</p>
+                            </button>
+
+                            {/* AI Insights Card for Autism */}
+                            <button
+                              className="bg-gradient-to-r from-blue-100 to-indigo-100 dark:from-blue-900 dark:to-indigo-900 p-4 rounded-lg border hover:from-blue-200 hover:to-indigo-200 dark:hover:from-blue-800 dark:hover:to-indigo-800 transition-colors text-left group cursor-pointer"
+                              data-testid="button-autism-ai-insights"
+                            >
+                              <div className="text-indigo-600 mb-2 text-xl group-hover:scale-110 transition-transform">
+                                🤖
+                              </div>
+                              <h4 className="font-medium mb-1">AI Autism Insights</h4>
+                              <p className="text-sm text-muted-foreground">Get intelligent autism-specific analysis and recommendations</p>
+                              <Badge variant="secondary" className="mt-2 text-xs">NEW</Badge>
+                            </button>
                           </div>
-                        )}
+                          
+                          {accommodations.length > 0 && (
+                            <div className="mt-8 p-4 bg-green-50 dark:bg-green-950 rounded-lg border">
+                              <p className="text-sm font-medium text-green-800 dark:text-green-200">
+                                ✅ You have {accommodations.length} active autism accommodations for this student
+                              </p>
+                            </div>
+                          )}
+                        </div>
                       </CardContent>
                     </Card>
                   </div>
@@ -1467,85 +1476,108 @@ const AdvocateStudents = () => {
 
                 {selectedTab === "gifted" && (
                   <div className="space-y-6">
-                    <Card className="premium-card border-purple-200">
-                      <CardHeader className="bg-purple-50">
-                        <CardTitle className="flex items-center gap-2 text-purple-800">
-                          <Lightbulb className="h-5 w-5" />
-                          🎓 Gifted & Twice-Exceptional Profile
+                    <Card className="premium-card">
+                      <CardHeader>
+                        <CardTitle className="flex items-center justify-between">
+                          <div className="flex items-center">
+                            <span className="text-2xl mr-2">🎓</span>
+                            Gifted & Twice-Exceptional Support
+                          </div>
+                          <Button>
+                            <Plus className="h-4 w-4 mr-2" />
+                            New Assessment
+                          </Button>
                         </CardTitle>
-                        <CardDescription className="text-purple-700">
-                          Gifted education assessments, accommodations, and enrichment planning
-                        </CardDescription>
+                        <CardDescription>Advanced learning assessments and support for gifted and 2E learners</CardDescription>
                       </CardHeader>
-                      <CardContent className="mt-6">
-                        {giftedAssessments.length > 0 ? (
-                          <div className="space-y-4">
-                            {giftedAssessments.map((assessment) => (
-                              <Card key={assessment.id} className="border-purple-200">
-                                <CardHeader className="pb-3">
-                                  <div className="flex justify-between items-start">
-                                    <div>
-                                      <CardTitle className="text-lg text-purple-800">
-                                        {assessment.assessment_type}
-                                      </CardTitle>
-                                      <CardDescription className="text-purple-600">
-                                        Assessed by: {assessment.assessor_name} • {new Date(assessment.assessment_date).toLocaleDateString()}
-                                      </CardDescription>
-                                    </div>
-                                    <Badge className="bg-purple-100 text-purple-800">
-                                      Assessment
-                                    </Badge>
-                                  </div>
-                                </CardHeader>
-                                <CardContent className="space-y-4">
-                                  {assessment.strengths && (
-                                    <div>
-                                      <h4 className="font-medium mb-2 flex items-center gap-2 text-purple-800">
-                                        <TrendingUp className="h-4 w-4" />
-                                        Identified Strengths
-                                      </h4>
-                                      <div className="bg-purple-50 rounded-lg p-3">
-                                        <p className="text-sm text-purple-700">
-                                          {typeof assessment.strengths === 'object' ? 
-                                            assessment.strengths?.notes || JSON.stringify(assessment.strengths) : 
-                                            assessment.strengths}
-                                        </p>
-                                      </div>
-                                    </div>
-                                  )}
-                                  {assessment.evaluator_notes && (
-                                    <div>
-                                      <h4 className="font-medium mb-2 flex items-center gap-2 text-purple-800">
-                                        <FileText className="h-4 w-4" />
-                                        Evaluator Notes
-                                      </h4>
-                                      <div className="bg-muted rounded-lg p-3">
-                                        <p className="text-sm">{assessment.evaluator_notes}</p>
-                                      </div>
-                                    </div>
-                                  )}
-                                </CardContent>
-                              </Card>
-                            ))}
-                          </div>
-                        ) : (
-                          <div className="text-center py-8">
-                            <Lightbulb className="h-12 w-12 text-purple-400 mx-auto mb-4" />
-                            <h3 className="text-lg font-medium mb-2">No Gifted Assessments Yet</h3>
-                            <p className="text-sm text-muted-foreground mb-4">
-                              Gifted and twice-exceptional assessments will appear here once they are created.
-                            </p>
-                            <Button 
-                              variant="outline" 
-                              size="sm" 
-                              className="border-purple-200 text-purple-600"
-                              onClick={() => setIsGiftedDialogOpen(true)}
+                      <CardContent>
+                        <div className="text-center py-8">
+                          <div className="text-4xl mb-4">✨</div>
+                          <h3 className="text-lg font-semibold mb-2">Integrated Gifted Support</h3>
+                          <p className="text-muted-foreground mb-6">
+                            Comprehensive gifted and twice-exceptional assessment tools are now seamlessly integrated into your student's profile.
+                          </p>
+                          
+                          {/* Beautiful functional cards */}
+                          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 gap-4 mt-6">
+                            <button
+                              className="bg-muted/30 p-4 rounded-lg border hover:bg-muted/50 transition-colors text-left group cursor-pointer"
+                              data-testid="button-gifted-cognitive"
                             >
-                              <Plus className="h-4 w-4 mr-2" />
-                              Create Gifted Assessment
-                            </Button>
+                              <div className="text-blue-600 mb-2 text-xl group-hover:scale-110 transition-transform">
+                                🧠
+                              </div>
+                              <h4 className="font-medium mb-1">Cognitive Assessment</h4>
+                              <p className="text-sm text-muted-foreground">Track intellectual abilities and learning patterns</p>
+                            </button>
+
+                            <button
+                              className="bg-muted/30 p-4 rounded-lg border hover:bg-muted/50 transition-colors text-left group cursor-pointer"
+                              data-testid="button-gifted-enrichment"
+                            >
+                              <div className="text-green-600 mb-2 text-xl group-hover:scale-110 transition-transform">
+                                ⚡
+                              </div>
+                              <h4 className="font-medium mb-1">Enrichment Needs</h4>
+                              <p className="text-sm text-muted-foreground">Document advanced learning opportunities</p>
+                            </button>
+
+                            <button
+                              className="bg-muted/30 p-4 rounded-lg border hover:bg-muted/50 transition-colors text-left group cursor-pointer"
+                              data-testid="button-gifted-2e-support"
+                            >
+                              <div className="text-purple-600 mb-2 text-xl group-hover:scale-110 transition-transform">
+                                🎯
+                              </div>
+                              <h4 className="font-medium mb-1">2E Support</h4>
+                              <p className="text-sm text-muted-foreground">Address unique twice-exceptional needs</p>
+                            </button>
+                            
+                            {/* AI Insights Card */}
+                            <button
+                              className="bg-gradient-to-r from-indigo-100 to-purple-100 dark:from-indigo-900 dark:to-purple-900 p-4 rounded-lg border hover:from-indigo-200 hover:to-purple-200 dark:hover:from-indigo-800 dark:hover:to-purple-800 transition-colors text-left group cursor-pointer"
+                              data-testid="button-gifted-ai-insights"
+                            >
+                              <div className="text-indigo-600 mb-2 text-xl group-hover:scale-110 transition-transform">
+                                🤖
+                              </div>
+                              <h4 className="font-medium mb-1">AI Insights</h4>
+                              <p className="text-sm text-muted-foreground">Get intelligent analysis and recommendations</p>
+                              <Badge variant="secondary" className="mt-2 text-xs">NEW</Badge>
+                            </button>
                           </div>
-                        )}
+
+                          {/* Show existing assessments */}
+                          {giftedAssessments.length > 0 && (
+                            <div className="mt-8 space-y-4">
+                              <h4 className="font-medium">Your Assessments</h4>
+                              <div className="grid gap-3">
+                                {giftedAssessments.map((assessment: any) => (
+                                  <div key={assessment.id} className="border rounded-lg p-4 text-left">
+                                    <div className="flex items-center justify-between mb-2">
+                                      <h5 className="font-medium capitalize">{assessment.assessment_type?.replace('_', ' ')} Assessment</h5>
+                                      <Badge>{assessment.status}</Badge>
+                                    </div>
+                                    {assessment.giftedness_areas && assessment.giftedness_areas.length > 0 && (
+                                      <p className="text-sm text-muted-foreground">
+                                        <span className="font-medium">Areas: </span>
+                                        {assessment.giftedness_areas.join(', ')}
+                                      </p>
+                                    )}
+                                  </div>
+                                ))}
+                              </div>
+                            </div>
+                          )}
+                          
+                          {giftedAssessments.length > 0 && (
+                            <div className="mt-6 p-4 bg-purple-50 dark:bg-purple-950 rounded-lg border">
+                              <p className="text-sm font-medium text-purple-800 dark:text-purple-200">
+                                ✅ You have {giftedAssessments.length} gifted assessments for this student
+                              </p>
+                            </div>
+                          )}
+                        </div>
                       </CardContent>
                     </Card>
                   </div>

@@ -199,8 +199,13 @@ function CreateCaseButton({ parentId, parentName }: { parentId: string; parentNa
                     className={`p-3 cursor-pointer rounded-lg transition-all duration-200 ${option.bgColor} border border-transparent hover:border-border`}
                   >
                     <div className="flex items-center gap-3 w-full">
-                      <div className={`p-2 rounded-full ${option.badgeColor.replace('text-', 'bg-').replace('border-', 'bg-').replace('100', '200').replace('800', '100')}`}>
-                        <IconComponent className="h-4 w-4" />
+                      <div className={`p-3 rounded-full flex items-center justify-center ${
+                        option.value === 'active' ? 'bg-green-500' :
+                        option.value === 'pending' ? 'bg-amber-500' :
+                        option.value === 'closed' ? 'bg-slate-500' :
+                        'bg-red-500'
+                      }`}>
+                        <IconComponent className="h-5 w-5 text-white font-bold" />
                       </div>
                       <div className="flex-1">
                         <div className="flex items-center gap-2">

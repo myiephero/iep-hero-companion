@@ -29,6 +29,17 @@ import AutismAccommodations from "./pages/AutismAccommodations";
 import AutismAccommodationBuilder from "./pages/AutismAccommodationBuilder";
 import ParentAutismAccommodations from "./pages/ParentAutismAccommodations";
 import AdvocateAutismAccommodations from "./pages/AdvocateAutismAccommodations";
+import AutismToolsHub from "./pages/AutismToolsHub";
+import AutismSensoryTool from "./pages/AutismSensoryTool";
+import AutismCommunicationTool from "./pages/AutismCommunicationTool";
+import AutismBehavioralTool from "./pages/AutismBehavioralTool";
+import AutismAIInsightsTool from "./pages/AutismAIInsightsTool";
+import GiftedToolsHub from "./pages/GiftedToolsHub";
+import GiftedCognitiveTool from "./pages/GiftedCognitiveTool";
+import GiftedAcademicTool from "./pages/GiftedAcademicTool";
+import GiftedCreativeTool from "./pages/GiftedCreativeTool";
+import GiftedLeadershipTool from "./pages/GiftedLeadershipTool";
+import GiftedAIInsightsTool from "./pages/GiftedAIInsightsTool";
 import SmartMatching from "./pages/SmartMatching";
 import GiftedTwoeLearners from "./pages/GiftedTwoeLearners";
 import ExpertAnalysis from "./pages/ExpertAnalysis";
@@ -251,6 +262,65 @@ function App() {
                   <ParentAutismAccommodations />
                 </ProtectedRoute>
               } />
+              
+              {/* New Card-Based Autism Tools */}
+              <Route path="/parent/autism-tools" element={
+                <ProtectedRoute allowedRoles={['parent']}>
+                  <AutismToolsHub />
+                </ProtectedRoute>
+              } />
+              <Route path="/parent/autism-tools/sensory" element={
+                <ProtectedRoute allowedRoles={['parent']}>
+                  <AutismSensoryTool />
+                </ProtectedRoute>
+              } />
+              <Route path="/parent/autism-tools/communication" element={
+                <ProtectedRoute allowedRoles={['parent']}>
+                  <AutismCommunicationTool />
+                </ProtectedRoute>
+              } />
+              <Route path="/parent/autism-tools/behavioral" element={
+                <ProtectedRoute allowedRoles={['parent']}>
+                  <AutismBehavioralTool />
+                </ProtectedRoute>
+              } />
+              <Route path="/parent/autism-tools/ai-insights" element={
+                <ProtectedRoute allowedRoles={['parent']}>
+                  <AutismAIInsightsTool />
+                </ProtectedRoute>
+              } />
+              
+              {/* New Card-Based Gifted Tools */}
+              <Route path="/parent/gifted-tools" element={
+                <ProtectedRoute allowedRoles={['parent']}>
+                  <GiftedToolsHub />
+                </ProtectedRoute>
+              } />
+              <Route path="/parent/gifted-tools/cognitive" element={
+                <ProtectedRoute allowedRoles={['parent']}>
+                  <GiftedCognitiveTool />
+                </ProtectedRoute>
+              } />
+              <Route path="/parent/gifted-tools/academic" element={
+                <ProtectedRoute allowedRoles={['parent']}>
+                  <GiftedAcademicTool />
+                </ProtectedRoute>
+              } />
+              <Route path="/parent/gifted-tools/creative" element={
+                <ProtectedRoute allowedRoles={['parent']}>
+                  <GiftedCreativeTool />
+                </ProtectedRoute>
+              } />
+              <Route path="/parent/gifted-tools/leadership" element={
+                <ProtectedRoute allowedRoles={['parent']}>
+                  <GiftedLeadershipTool />
+                </ProtectedRoute>
+              } />
+              <Route path="/parent/gifted-tools/ai-insights" element={
+                <ProtectedRoute allowedRoles={['parent']}>
+                  <GiftedAIInsightsTool />
+                </ProtectedRoute>
+              } />
               <Route path="/parent/tools/meeting-prep" element={
                 <ProtectedRoute allowedRoles={['parent']}>
                   <MeetingPrepWizard />
@@ -348,6 +418,13 @@ function App() {
               <Route path="/parent/tools/gifted-2e-learners" element={
                 <ProtectedRoute allowedRoles={['parent']}>
                   <GiftedTwoeLearners />
+                </ProtectedRoute>
+              } />
+              
+              {/* New Card-Based Gifted Tools */}
+              <Route path="/parent/gifted-tools" element={
+                <ProtectedRoute allowedRoles={['parent']}>
+                  <GiftedToolsHub />
                 </ProtectedRoute>
               } />
               <Route path="/parent/tools/advocate-matching" element={

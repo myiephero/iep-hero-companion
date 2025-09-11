@@ -49,16 +49,16 @@ localPort = 8082
 externalPort = 3000
 
 [[ports]]
+localPort = 32859
+externalPort = 5000
+
+[[ports]]
 localPort = 37297
 externalPort = 3003
 
 [[ports]]
 localPort = 39131
 externalPort = 3002
-
-[[ports]]
-localPort = 39625
-externalPort = 5000
 
 [agent]
 integrations = ["javascript_log_in_with_replit==1.0.0", "javascript_database==1.0.0", "javascript_auth_all_persistance==1.0.0", "javascript_openai==1.0.0", "javascript_object_storage==1.0.0", "javascript_paypal==1.0.0", "javascript_supabase==1.0.0", "javascript_stripe==1.0.0"]

@@ -27,7 +27,9 @@ import {
   Smile,
   Heart,
   TrendingUp,
-  Brain
+  Brain,
+  Lightbulb,
+  Puzzle
 } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
@@ -74,6 +76,42 @@ interface Case {
   priority: string;
   next_action: string | null;
   next_action_date: string | null;
+}
+
+interface Accommodation {
+  id: string;
+  student_id: string;
+  accommodation_type: string;
+  description: string;
+  implementation_notes: string | null;
+  effectiveness_rating: number | null;
+  status: string;
+  created_at: string;
+}
+
+interface AutismAccommodation {
+  id: string;
+  student_id: string;
+  sensory_needs: any;
+  communication_supports: any;
+  behavioral_strategies: any;
+  social_supports: any;
+  learning_accommodations: any;
+  transition_supports: any;
+  notes: string | null;
+  created_at: string;
+}
+
+interface GiftedAssessment {
+  id: string;
+  student_id: string;
+  assessment_type: string;
+  assessment_date: string;
+  assessor_name: string;
+  strengths: any;
+  recommendations: any;
+  evaluator_notes: string | null;
+  created_at: string;
 }
 
 // Advocate Emotion Tracking Tab Component
@@ -379,6 +417,9 @@ const AdvocateStudents = () => {
   const [goals, setGoals] = useState<Goal[]>([]);
   const [services, setServices] = useState<Service[]>([]);
   const [cases, setCases] = useState<Case[]>([]);
+  const [accommodations, setAccommodations] = useState<Accommodation[]>([]);
+  const [autismAccommodations, setAutismAccommodations] = useState<AutismAccommodation[]>([]);
+  const [giftedAssessments, setGiftedAssessments] = useState<GiftedAssessment[]>([]);
   const [loading, setLoading] = useState(false);
   const [isAddStudentOpen, setIsAddStudentOpen] = useState(false);
   const [isEditStudentOpen, setIsEditStudentOpen] = useState(false);
@@ -765,12 +806,14 @@ const AdvocateStudents = () => {
                 </Card>
 
                 <Tabs defaultValue="overview" className="space-y-6">
-                  <TabsList className="grid w-full grid-cols-2 sm:grid-cols-5 premium-card">
+                  <TabsList className="grid w-full grid-cols-6 gap-1">
                     <TabsTrigger value="overview">Overview</TabsTrigger>
                     <TabsTrigger value="goals">Goals ({goals.length})</TabsTrigger>
                     <TabsTrigger value="services">Services ({services.length})</TabsTrigger>
+                    <TabsTrigger value="accommodations">Accommodations ({accommodations.length})</TabsTrigger>
                     <TabsTrigger value="emotions" className="bg-pink-600 text-white">😊 Emotions</TabsTrigger>
-                    <TabsTrigger value="advocacy">Advocacy ({cases.length})</TabsTrigger>
+                    <TabsTrigger value="autism" className="bg-blue-600 text-white">🧩 Autism</TabsTrigger>
+                    <TabsTrigger value="gifted" className="bg-purple-600 text-white">🎓 Gifted</TabsTrigger>
                   </TabsList>
 
                   <TabsContent value="overview" className="space-y-6">
@@ -896,20 +939,197 @@ const AdvocateStudents = () => {
                     </Card>
                   </TabsContent>
 
+                  <TabsContent value="accommodations" className="space-y-6">
+                    <Card className="premium-card">
+                      <CardHeader>
+                        <CardTitle className="flex items-center gap-2">
+                          <CheckCircle className="h-5 w-5" />
+                          IEP Accommodations
+                        </CardTitle>
+                        <CardDescription>
+                          Documented accommodations and modifications for this student
+                        </CardDescription>
+                      </CardHeader>
+                      <CardContent>
+                        {accommodations.length > 0 ? (
+                          <div className="space-y-4">
+                            {accommodations.map((accommodation) => (
+                              <div key={accommodation.id} className="border rounded-lg p-4">
+                                <div className="flex items-start justify-between">
+                                  <div className="flex-1">
+                                    <h4 className="font-medium">{accommodation.accommodation_type}</h4>
+                                    <p className="text-sm text-muted-foreground mt-1">
+                                      {accommodation.description}
+                                    </p>
+                                    {accommodation.implementation_notes && (
+                                      <p className="text-xs text-muted-foreground mt-2">
+                                        <strong>Implementation:</strong> {accommodation.implementation_notes}
+                                      </p>
+                                    )}
+                                  </div>
+                                  <Badge className={accommodation.status === 'active' ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800'}>
+                                    {accommodation.status}
+                                  </Badge>
+                                </div>
+                              </div>
+                            ))}
+                          </div>
+                        ) : (
+                          <div className="text-center py-8">
+                            <CheckCircle className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+                            <h3 className="text-lg font-medium mb-2">No Accommodations Documented</h3>
+                            <p className="text-sm text-muted-foreground">
+                              IEP accommodations and modifications will appear here once they are documented.
+                            </p>
+                          </div>
+                        )}
+                      </CardContent>
+                    </Card>
+                  </TabsContent>
+
                   <TabsContent value="emotions" className="space-y-6">
                     <AdvocateEmotionTrackingTab selectedStudentId={selectedStudentId} />
                   </TabsContent>
 
-                  <TabsContent value="advocacy" className="space-y-6">
-                    <Card className="premium-card">
-                      <CardHeader>
-                        <CardTitle>Advocacy Cases</CardTitle>
-                        <CardDescription>
-                          Active advocacy cases and interventions for this student
+                  <TabsContent value="autism" className="space-y-6">
+                    <Card className="premium-card border-blue-200">
+                      <CardHeader className="bg-blue-50">
+                        <CardTitle className="flex items-center gap-2 text-blue-800">
+                          <Puzzle className="h-5 w-5" />
+                          🧩 Autism Support Profile
+                        </CardTitle>
+                        <CardDescription className="text-blue-700">
+                          Specialized autism accommodations and support strategies
                         </CardDescription>
                       </CardHeader>
-                      <CardContent>
-                        <p className="text-muted-foreground">No advocacy cases have been opened for this student yet.</p>
+                      <CardContent className="mt-6">
+                        {autismAccommodations.length > 0 ? (
+                          <div className="space-y-6">
+                            {autismAccommodations.map((accommodation) => (
+                              <div key={accommodation.id} className="space-y-4">
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                  {accommodation.sensory_needs && (
+                                    <div className="p-4 bg-blue-50 rounded-lg">
+                                      <h4 className="font-medium text-blue-800 mb-2">Sensory Needs</h4>
+                                      <p className="text-sm text-blue-700">
+                                        {typeof accommodation.sensory_needs === 'object' ? 
+                                          JSON.stringify(accommodation.sensory_needs) : 
+                                          accommodation.sensory_needs}
+                                      </p>
+                                    </div>
+                                  )}
+                                  {accommodation.communication_supports && (
+                                    <div className="p-4 bg-blue-50 rounded-lg">
+                                      <h4 className="font-medium text-blue-800 mb-2">Communication Supports</h4>
+                                      <p className="text-sm text-blue-700">
+                                        {typeof accommodation.communication_supports === 'object' ? 
+                                          JSON.stringify(accommodation.communication_supports) : 
+                                          accommodation.communication_supports}
+                                      </p>
+                                    </div>
+                                  )}
+                                </div>
+                                {accommodation.notes && (
+                                  <div className="p-4 bg-muted rounded-lg">
+                                    <h4 className="font-medium mb-2">Additional Notes</h4>
+                                    <p className="text-sm text-muted-foreground">{accommodation.notes}</p>
+                                  </div>
+                                )}
+                              </div>
+                            ))}
+                          </div>
+                        ) : (
+                          <div className="text-center py-8">
+                            <Puzzle className="h-12 w-12 text-blue-400 mx-auto mb-4" />
+                            <h3 className="text-lg font-medium mb-2">No Autism Supports Yet</h3>
+                            <p className="text-sm text-muted-foreground mb-4">
+                              Specialized autism accommodations and support strategies will appear here.
+                            </p>
+                            <Button variant="outline" size="sm" className="border-blue-200 text-blue-600">
+                              <Plus className="h-4 w-4 mr-2" />
+                              Add Autism Support Profile
+                            </Button>
+                          </div>
+                        )}
+                      </CardContent>
+                    </Card>
+                  </TabsContent>
+
+                  <TabsContent value="gifted" className="space-y-6">
+                    <Card className="premium-card border-purple-200">
+                      <CardHeader className="bg-purple-50">
+                        <CardTitle className="flex items-center gap-2 text-purple-800">
+                          <Lightbulb className="h-5 w-5" />
+                          🎓 Gifted & Twice-Exceptional Profile
+                        </CardTitle>
+                        <CardDescription className="text-purple-700">
+                          Gifted education assessments, accommodations, and enrichment planning
+                        </CardDescription>
+                      </CardHeader>
+                      <CardContent className="mt-6">
+                        {giftedAssessments.length > 0 ? (
+                          <div className="space-y-4">
+                            {giftedAssessments.map((assessment) => (
+                              <Card key={assessment.id} className="border-purple-200">
+                                <CardHeader className="pb-3">
+                                  <div className="flex justify-between items-start">
+                                    <div>
+                                      <CardTitle className="text-lg text-purple-800">
+                                        {assessment.assessment_type}
+                                      </CardTitle>
+                                      <CardDescription className="text-purple-600">
+                                        Assessed by: {assessment.assessor_name} • {new Date(assessment.assessment_date).toLocaleDateString()}
+                                      </CardDescription>
+                                    </div>
+                                    <Badge className="bg-purple-100 text-purple-800">
+                                      Assessment
+                                    </Badge>
+                                  </div>
+                                </CardHeader>
+                                <CardContent className="space-y-4">
+                                  {assessment.strengths && (
+                                    <div>
+                                      <h4 className="font-medium mb-2 flex items-center gap-2 text-purple-800">
+                                        <TrendingUp className="h-4 w-4" />
+                                        Identified Strengths
+                                      </h4>
+                                      <div className="bg-purple-50 rounded-lg p-3">
+                                        <p className="text-sm text-purple-700">
+                                          {typeof assessment.strengths === 'object' ? 
+                                            assessment.strengths?.notes || JSON.stringify(assessment.strengths) : 
+                                            assessment.strengths}
+                                        </p>
+                                      </div>
+                                    </div>
+                                  )}
+                                  {assessment.evaluator_notes && (
+                                    <div>
+                                      <h4 className="font-medium mb-2 flex items-center gap-2 text-purple-800">
+                                        <FileText className="h-4 w-4" />
+                                        Evaluator Notes
+                                      </h4>
+                                      <div className="bg-muted rounded-lg p-3">
+                                        <p className="text-sm">{assessment.evaluator_notes}</p>
+                                      </div>
+                                    </div>
+                                  )}
+                                </CardContent>
+                              </Card>
+                            ))}
+                          </div>
+                        ) : (
+                          <div className="text-center py-8">
+                            <Lightbulb className="h-12 w-12 text-purple-400 mx-auto mb-4" />
+                            <h3 className="text-lg font-medium mb-2">No Gifted Assessments Yet</h3>
+                            <p className="text-sm text-muted-foreground mb-4">
+                              Gifted and twice-exceptional assessments will appear here once they are created.
+                            </p>
+                            <Button variant="outline" size="sm" className="border-purple-200 text-purple-600">
+                              <Plus className="h-4 w-4 mr-2" />
+                              Create Gifted Assessment
+                            </Button>
+                          </div>
+                        )}
                       </CardContent>
                     </Card>
                   </TabsContent>

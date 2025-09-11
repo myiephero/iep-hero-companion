@@ -1,8 +1,26 @@
 import { QueryClient } from '@tanstack/react-query';
 
+const defaultQueryFn = async ({ queryKey }: { queryKey: readonly unknown[] }) => {
+  const [url] = queryKey as [string, ...any[]];
+  
+  const response = await fetch(url, {
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${localStorage.getItem('authToken') || ''}`
+    }
+  });
+  
+  if (!response.ok) {
+    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+  }
+  
+  return response.json();
+};
+
 export const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
+      queryFn: defaultQueryFn,
       staleTime: 5 * 60 * 1000, // Data stays fresh for 5 minutes
       gcTime: 10 * 60 * 1000, // 10 minutes cache
       refetchOnWindowFocus: false, // Don't refetch on window focus

@@ -618,9 +618,14 @@ export default function AdvocateParents() {
                               <p className="text-sm text-muted-foreground">{parent.email}</p>
                             </div>
                           </div>
-                          <Badge className={getStatusColor(parent.status)}>
-                            {parent.status || 'Invited'}
-                          </Badge>
+                          <div className="flex flex-col gap-1">
+                            <Badge variant="secondary" className="text-xs">
+                              IEP Status: Active
+                            </Badge>
+                            <Badge className={`text-xs ${getStatusColor(parent.status)}`}>
+                              Case Status: {parent.status || 'Pending'}
+                            </Badge>
+                          </div>
                         </div>
                         <div className="mt-2 text-xs text-muted-foreground">
                           {parent.students_count || 0} student{parent.students_count !== 1 ? 's' : ''} • Created {formatDate(parent.created_at)}
@@ -650,9 +655,14 @@ export default function AdvocateParents() {
                         <CardDescription className="flex items-center space-x-4 mt-2">
                           <span>{selectedParent.email}</span>
                           <span>•</span>
-                          <Badge className={getStatusColor(selectedParent.status)}>
-                            {selectedParent.status || 'Invited'}
-                          </Badge>
+                          <div className="flex gap-2">
+                            <Badge variant="secondary" className="text-xs">
+                              IEP Status: Active
+                            </Badge>
+                            <Badge className={`text-xs ${getStatusColor(selectedParent.status)}`}>
+                              Case Status: {selectedParent.status || 'Pending'}
+                            </Badge>
+                          </div>
                         </CardDescription>
                       </div>
                     </div>

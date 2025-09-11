@@ -63,8 +63,33 @@ const AutismAIAnalysis = ({ selectedStudentId }: { selectedStudentId?: string })
     enabled: !!selectedStudentId
   });
 
-  // Extract the latest analysis from the response
-  const aiAnalysis = aiAnalysisData?.analyses?.[0]?.ai_analysis || null;
+  // Handle both new structured format and legacy format
+  const aiAnalysis = (() => {
+    if (!aiAnalysisData) return null;
+    
+    // New format: { analyses: [{ ai_analysis: data }] }
+    if (aiAnalysisData.analyses && Array.isArray(aiAnalysisData.analyses) && aiAnalysisData.analyses.length > 0) {
+      return aiAnalysisData.analyses[0].ai_analysis;
+    }
+    
+    // Legacy format: direct object with analysis fields
+    if (aiAnalysisData.sensory_analysis || aiAnalysisData.communication_insights || 
+        aiAnalysisData.behavioral_analysis || aiAnalysisData.social_analysis || aiAnalysisData.recommendations) {
+      return {
+        analysis_type: 'comprehensive',
+        detailed_analysis: [
+          aiAnalysisData.sensory_analysis,
+          aiAnalysisData.communication_insights,
+          aiAnalysisData.behavioral_analysis,
+          aiAnalysisData.social_analysis
+        ].filter(Boolean).join('\n\n'),
+        recommendations: aiAnalysisData.recommendations || [],
+        legacy_format: true
+      };
+    }
+    
+    return null;
+  })();
 
   const toggleSection = (section: string) => {
     setExpandedSections(prev => ({
@@ -100,9 +125,9 @@ const AutismAIAnalysis = ({ selectedStudentId }: { selectedStudentId?: string })
     return (
       <div className="text-center py-8 border rounded-lg">
         <Target className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
-        <h3 className="font-medium mb-2">No AI Analysis Yet</h3>
+        <h3 className="font-medium mb-2">No Saved Analysis Yet</h3>
         <p className="text-sm text-muted-foreground mb-4">
-          Request your first AI analysis below to get personalized autism support insights.
+          Generate your first autism AI analysis below. Once completed, your results will appear here for easy access.
         </p>
       </div>
     );
@@ -136,10 +161,17 @@ const AutismAIAnalysis = ({ selectedStudentId }: { selectedStudentId?: string })
       <div className="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-950 dark:to-indigo-950 p-6 rounded-lg">
         <h3 className="text-lg font-semibold mb-2 flex items-center">
           <span className="text-2xl mr-2">{getAnalysisIcon(aiAnalysis.analysis_type)}</span>
-          AI Autism Analysis Results
+          Saved Autism AI Analysis Results
+          {aiAnalysis.legacy_format && (
+            <Badge variant="outline" className="ml-2">Combined Analysis</Badge>
+          )}
         </h3>
         <p className="text-sm text-muted-foreground">
-          {getAnalysisTitle(aiAnalysis.analysis_type)} • Generated: {new Date().toLocaleDateString()}
+          {getAnalysisTitle(aiAnalysis.analysis_type)} • 
+          {aiAnalysisData?.analyses?.[0]?.timestamp ? 
+            new Date(aiAnalysisData.analyses[0].timestamp).toLocaleDateString() : 
+            'Previously Generated'
+          }
         </p>
       </div>
 

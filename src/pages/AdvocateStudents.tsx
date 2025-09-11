@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { useQuery } from "@tanstack/react-query";
 import { DashboardLayout } from "@/layouts/DashboardLayout";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -122,6 +123,167 @@ interface GiftedAssessment {
   created_at: string;
 }
 
+
+// Real AI Analysis Component for Advocates
+const AdvocateAutismAIAnalysis = ({ selectedStudentId }: { selectedStudentId?: string | null }) => {
+  const [expandedSections, setExpandedSections] = useState<{[key: string]: boolean}>({});
+  const { toast } = useToast();
+  
+  // Fetch existing autism AI analysis
+  const { data: aiAnalysisData, isLoading } = useQuery({
+    queryKey: ['/api/autism-ai-analysis', selectedStudentId],
+    queryFn: async () => {
+      if (!selectedStudentId) return null;
+      const response = await apiRequest('GET', `/api/autism-ai-analysis?student_id=${selectedStudentId}`);
+      return response.json();
+    },
+    enabled: !!selectedStudentId
+  });
+
+  // Handle both new structured format and legacy format
+  const aiAnalysis = (() => {
+    if (!aiAnalysisData) return null;
+    
+    // New format: { analyses: [{ ai_analysis: data }] }
+    if (aiAnalysisData.analyses && Array.isArray(aiAnalysisData.analyses) && aiAnalysisData.analyses.length > 0) {
+      return aiAnalysisData.analyses[0].ai_analysis;
+    }
+    
+    // Legacy format: direct object with analysis fields
+    if (aiAnalysisData.sensory_analysis || aiAnalysisData.communication_insights || 
+        aiAnalysisData.behavioral_analysis || aiAnalysisData.social_analysis || aiAnalysisData.recommendations) {
+      return {
+        analysis_type: 'comprehensive',
+        detailed_analysis: [
+          aiAnalysisData.sensory_analysis,
+          aiAnalysisData.communication_insights,
+          aiAnalysisData.behavioral_analysis,
+          aiAnalysisData.social_analysis
+        ].filter(Boolean).join('\n\n'),
+        recommendations: aiAnalysisData.recommendations || [],
+        legacy_format: true
+      };
+    }
+    
+    return null;
+  })();
+
+  if (!selectedStudentId) {
+    return (
+      <div className="text-center py-8">
+        <Brain className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
+        <p className="text-muted-foreground">Select a student to view saved autism analysis results.</p>
+      </div>
+    );
+  }
+
+  if (isLoading) {
+    return (
+      <div className="space-y-4">
+        {[...Array(3)].map((_, i) => (
+          <div key={i} className="bg-muted/50 p-4 rounded-lg animate-pulse">
+            <div className="h-4 bg-muted rounded w-1/4 mb-2"></div>
+            <div className="h-3 bg-muted rounded w-full mb-1"></div>
+            <div className="h-3 bg-muted rounded w-3/4"></div>
+          </div>
+        ))}
+      </div>
+    );
+  }
+
+  if (!aiAnalysis) {
+    return (
+      <div className="text-center py-8 border rounded-lg">
+        <Target className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
+        <h3 className="font-medium mb-2">No Saved Analysis Results</h3>
+        <p className="text-sm text-muted-foreground mb-4">
+          Once autism AI analysis is generated for this student, the comprehensive results will appear here for advocacy planning.
+        </p>
+      </div>
+    );
+  }
+
+  return (
+    <div className="space-y-6">
+      {/* Analysis Header */}
+      <div className="bg-gradient-to-r from-purple-50 to-pink-50 dark:from-purple-950 dark:to-pink-950 p-6 rounded-lg">
+        <h3 className="text-lg font-semibold mb-2 flex items-center">
+          <span className="text-2xl mr-2">🧩</span>
+          Saved Autism Analysis for Advocacy
+          {aiAnalysis.legacy_format && (
+            <Badge variant="outline" className="ml-2">Combined Analysis</Badge>
+          )}
+        </h3>
+        <p className="text-sm text-muted-foreground">
+          Professional autism analysis for IEP advocacy • 
+          {aiAnalysisData?.analyses?.[0]?.timestamp ? 
+            `Generated: ${new Date(aiAnalysisData.analyses[0].timestamp).toLocaleDateString()}` : 
+            'Previously Generated'
+          }
+        </p>
+      </div>
+
+      {/* Professional Analysis Display */}
+      {aiAnalysis.detailed_analysis && (
+        <Card className="premium-card">
+          <CardHeader>
+            <CardTitle className="flex items-center text-lg">
+              <Brain className="h-5 w-5 mr-2" />
+              Professional Autism Analysis
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <p className="text-muted-foreground whitespace-pre-wrap">{aiAnalysis.detailed_analysis}</p>
+          </CardContent>
+        </Card>
+      )}
+
+      {/* Recommendations for IEP Advocacy */}
+      {aiAnalysis.recommendations && Array.isArray(aiAnalysis.recommendations) && (
+        <Card className="premium-card">
+          <CardHeader>
+            <CardTitle className="flex items-center text-lg">
+              <Target className="h-5 w-5 mr-2" />
+              IEP & Advocacy Recommendations
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <ul className="space-y-2">
+              {aiAnalysis.recommendations.map((rec: string, i: number) => (
+                <li key={i} className="flex items-start">
+                  <span className="text-primary mr-2 mt-1">→</span>
+                  <span className="text-muted-foreground">{rec}</span>
+                </li>
+              ))}
+            </ul>
+          </CardContent>
+        </Card>
+      )}
+
+      {/* Key Findings */}
+      {aiAnalysis.key_findings && Array.isArray(aiAnalysis.key_findings) && (
+        <Card className="premium-card">
+          <CardHeader>
+            <CardTitle className="flex items-center text-lg">
+              <CheckCircle className="h-5 w-5 mr-2" />
+              Critical Findings for Advocacy
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <ul className="space-y-2">
+              {aiAnalysis.key_findings.map((finding: string, i: number) => (
+                <li key={i} className="flex items-start">
+                  <span className="text-primary mr-2 mt-1">•</span>
+                  <span className="text-muted-foreground">{finding}</span>
+                </li>
+              ))}
+            </ul>
+          </CardContent>
+        </Card>
+      )}
+    </div>
+  );
+};
 
 // Advocate Emotion Tracking Tab Component
 const AdvocateEmotionTrackingTab = ({ selectedStudentId }: { selectedStudentId?: string | null }) => {
@@ -2602,99 +2764,7 @@ const AdvocateStudents = () => {
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-6 py-4">
-            {!selectedStudentId ? (
-              <div className="text-center py-8">
-                <AlertCircle className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-                <p className="text-muted-foreground">Please select a student first to generate AI insights.</p>
-              </div>
-            ) : (
-              <>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <Card className="p-4">
-                    <h4 className="font-medium mb-2">🔍 Strengths Analysis</h4>
-                    <p className="text-sm text-muted-foreground mb-3">Based on student profile, here are identified strengths:</p>
-                    <ul className="text-sm space-y-1">
-                      <li>• Strong visual-spatial processing abilities</li>
-                      <li>• Exceptional attention to detail in areas of interest</li>
-                      <li>• Consistent routine and structure preferences</li>
-                      <li>• Demonstrates deep knowledge in specific subjects</li>
-                    </ul>
-                  </Card>
-
-                  <Card className="p-4">
-                    <h4 className="font-medium mb-2">⚠️ Areas for Support</h4>
-                    <p className="text-sm text-muted-foreground mb-3">Recommended areas requiring additional advocacy:</p>
-                    <ul className="text-sm space-y-1">
-                      <li>• Social communication skill development</li>
-                      <li>• Sensory regulation strategies needed</li>
-                      <li>• Transition support for schedule changes</li>
-                      <li>• Executive functioning skill building</li>
-                    </ul>
-                  </Card>
-                </div>
-
-                <Card className="p-4">
-                  <h4 className="font-medium mb-2">🎯 Priority IEP Recommendations</h4>
-                  <div className="space-y-3">
-                    <div className="bg-blue-50 dark:bg-blue-950/20 p-3 rounded">
-                      <h5 className="font-medium text-sm">High Priority: Sensory Accommodations</h5>
-                      <p className="text-xs text-muted-foreground">Student requires comprehensive sensory support plan including noise-canceling headphones, movement breaks, and flexible seating options.</p>
-                    </div>
-                    <div className="bg-green-50 dark:bg-green-950/20 p-3 rounded">
-                      <h5 className="font-medium text-sm">High Priority: Social Communication Goals</h5>
-                      <p className="text-xs text-muted-foreground">Recommend explicit social skills instruction with peer support and structured social interaction opportunities.</p>
-                    </div>
-                    <div className="bg-orange-50 dark:bg-orange-950/20 p-3 rounded">
-                      <h5 className="font-medium text-sm">Medium Priority: Executive Function Support</h5>
-                      <p className="text-xs text-muted-foreground">Visual organizers, task breakdown strategies, and transition planning should be incorporated into daily instruction.</p>
-                    </div>
-                  </div>
-                </Card>
-
-                <div className="flex gap-4">
-                  <Button 
-                    onClick={() => {
-                      setAiInsightsLoading(true);
-                      setTimeout(() => {
-                        setGeneratedInsights("Based on comprehensive analysis, this student would benefit from a multi-sensory approach to learning with emphasis on visual supports, structured predictability, and opportunities to leverage special interests in academic content. Recommend collaboration with occupational therapy for sensory profile assessment and speech-language pathology for social communication skill development.");
-                        setAiInsightsLoading(false);
-                        toast({
-                          title: "AI Analysis Complete",
-                          description: "Comprehensive autism-specific insights have been generated for advocacy use."
-                        });
-                      }, 2000);
-                    }}
-                    disabled={aiInsightsLoading}
-                    className="flex-1"
-                  >
-                    {aiInsightsLoading ? (
-                      <>
-                        <Brain className="h-4 w-4 mr-2 animate-spin" />
-                        Analyzing...
-                      </>
-                    ) : (
-                      <>
-                        <Brain className="h-4 w-4 mr-2" />
-                        Generate Complete Analysis
-                      </>
-                    )}
-                  </Button>
-                </div>
-
-                {generatedInsights && (
-                  <div>
-                    <Label htmlFor="ai-insights">Generated Professional Insights</Label>
-                    <Textarea
-                      id="ai-insights"
-                      value={generatedInsights}
-                      onChange={(e) => setGeneratedInsights(e.target.value)}
-                      rows={4}
-                      className="mt-2"
-                    />
-                  </div>
-                )}
-              </>
-            )}
+            <AdvocateAutismAIAnalysis selectedStudentId={selectedStudentId} />
           </div>
           <div className="flex justify-end space-x-2">
             <Button variant="outline" onClick={() => setIsAutismAIDialogOpen(false)}>

@@ -29,7 +29,8 @@ import {
   TrendingUp,
   Brain,
   Lightbulb,
-  Puzzle
+  Puzzle,
+  Star
 } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
@@ -421,6 +422,7 @@ const AdvocateStudents = () => {
   const [autismAccommodations, setAutismAccommodations] = useState<AutismAccommodation[]>([]);
   const [giftedAssessments, setGiftedAssessments] = useState<GiftedAssessment[]>([]);
   const [loading, setLoading] = useState(false);
+  const [selectedTab, setSelectedTab] = useState("overview");
   const [isAddStudentOpen, setIsAddStudentOpen] = useState(false);
   const [isEditStudentOpen, setIsEditStudentOpen] = useState(false);
   const [editingStudent, setEditingStudent] = useState<Student | null>(null);
@@ -805,18 +807,99 @@ const AdvocateStudents = () => {
                   </CardHeader>
                 </Card>
 
-                <Tabs defaultValue="overview" className="space-y-6">
-                  <TabsList className="grid w-full grid-cols-6 gap-1">
-                    <TabsTrigger value="overview">Overview</TabsTrigger>
-                    <TabsTrigger value="goals">Goals ({goals.length})</TabsTrigger>
-                    <TabsTrigger value="services">Services ({services.length})</TabsTrigger>
-                    <TabsTrigger value="accommodations">Accommodations ({accommodations.length})</TabsTrigger>
-                    <TabsTrigger value="emotions" className="bg-pink-600 text-white">😊 Emotions</TabsTrigger>
-                    <TabsTrigger value="autism" className="bg-blue-600 text-white">🧩 Autism</TabsTrigger>
-                    <TabsTrigger value="gifted" className="bg-purple-600 text-white">🎓 Gifted</TabsTrigger>
-                  </TabsList>
+                {/* Modern Horizontal Tab Navigation */}
+                <div className="w-full mb-8">
+                  <div className="bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 p-1 rounded-2xl shadow-lg">
+                    <div className="flex bg-white dark:bg-gray-900 rounded-xl p-2 gap-1">
+                      <button
+                        onClick={() => setSelectedTab("overview")}
+                        className={`flex items-center gap-2 px-3 py-3 rounded-lg font-medium transition-all duration-200 flex-1 justify-center ${
+                          selectedTab === "overview"
+                            ? "bg-gradient-to-r from-slate-500 to-slate-600 text-white shadow-md"
+                            : "text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800"
+                        }`}
+                      >
+                        <FileText className="h-4 w-4" />
+                        <span className="hidden lg:inline">Overview</span>
+                      </button>
+                      <button
+                        onClick={() => setSelectedTab("goals")}
+                        className={`flex items-center gap-2 px-3 py-3 rounded-lg font-medium transition-all duration-200 flex-1 justify-center ${
+                          selectedTab === "goals"
+                            ? "bg-gradient-to-r from-green-500 to-green-600 text-white shadow-md"
+                            : "text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800"
+                        }`}
+                      >
+                        <Target className="h-4 w-4" />
+                        <span className="hidden lg:inline">Goals</span>
+                        <span className="lg:hidden">({goals.length})</span>
+                        <span className="hidden lg:inline">({goals.length})</span>
+                      </button>
+                      <button
+                        onClick={() => setSelectedTab("services")}
+                        className={`flex items-center gap-2 px-3 py-3 rounded-lg font-medium transition-all duration-200 flex-1 justify-center ${
+                          selectedTab === "services"
+                            ? "bg-gradient-to-r from-teal-500 to-teal-600 text-white shadow-md"
+                            : "text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800"
+                        }`}
+                      >
+                        <Building2 className="h-4 w-4" />
+                        <span className="hidden lg:inline">Services</span>
+                        <span className="lg:hidden">({services.length})</span>
+                        <span className="hidden lg:inline">({services.length})</span>
+                      </button>
+                      <button
+                        onClick={() => setSelectedTab("accommodations")}
+                        className={`flex items-center gap-2 px-3 py-3 rounded-lg font-medium transition-all duration-200 flex-1 justify-center ${
+                          selectedTab === "accommodations"
+                            ? "bg-gradient-to-r from-orange-500 to-orange-600 text-white shadow-md"
+                            : "text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800"
+                        }`}
+                      >
+                        <Lightbulb className="h-4 w-4" />
+                        <span className="hidden lg:inline">Accommodations</span>
+                        <span className="lg:hidden">({accommodations.length})</span>
+                        <span className="hidden lg:inline">({accommodations.length})</span>
+                      </button>
+                      <button
+                        onClick={() => setSelectedTab("emotions")}
+                        className={`flex items-center gap-2 px-3 py-3 rounded-lg font-medium transition-all duration-200 flex-1 justify-center ${
+                          selectedTab === "emotions"
+                            ? "bg-gradient-to-r from-pink-500 to-pink-600 text-white shadow-md"
+                            : "text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800"
+                        }`}
+                      >
+                        <Smile className="h-4 w-4" />
+                        <span className="hidden lg:inline">Emotions</span>
+                      </button>
+                      <button
+                        onClick={() => setSelectedTab("autism")}
+                        className={`flex items-center gap-2 px-3 py-3 rounded-lg font-medium transition-all duration-200 flex-1 justify-center ${
+                          selectedTab === "autism"
+                            ? "bg-gradient-to-r from-blue-500 to-blue-600 text-white shadow-md"
+                            : "text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800"
+                        }`}
+                      >
+                        <Brain className="h-4 w-4" />
+                        <span className="hidden lg:inline">Autism</span>
+                      </button>
+                      <button
+                        onClick={() => setSelectedTab("gifted")}
+                        className={`flex items-center gap-2 px-3 py-3 rounded-lg font-medium transition-all duration-200 flex-1 justify-center ${
+                          selectedTab === "gifted"
+                            ? "bg-gradient-to-r from-purple-500 to-purple-600 text-white shadow-md"
+                            : "text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800"
+                        }`}
+                      >
+                        <Star className="h-4 w-4" />
+                        <span className="hidden lg:inline">Gifted</span>
+                      </button>
+                    </div>
+                  </div>
+                </div>
 
-                  <TabsContent value="overview" className="space-y-6">
+                {selectedTab === "overview" && (
+                  <div className="space-y-6">
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                       <Card className="premium-card">
                         <CardHeader>
@@ -886,9 +969,11 @@ const AdvocateStudents = () => {
                         </CardContent>
                       </Card>
                     </div>
-                  </TabsContent>
+                  </div>
+                )}
 
-                  <TabsContent value="goals" className="space-y-6">
+                {selectedTab === "goals" && (
+                  <div className="space-y-6">
                     <Card className="premium-card">
                       <CardHeader>
                         <CardTitle>IEP Goals</CardTitle>
@@ -923,9 +1008,11 @@ const AdvocateStudents = () => {
                         )}
                       </CardContent>
                     </Card>
-                  </TabsContent>
+                  </div>
+                )}
 
-                  <TabsContent value="services" className="space-y-6">
+                {selectedTab === "services" && (
+                  <div className="space-y-6">
                     <Card className="premium-card">
                       <CardHeader>
                         <CardTitle>Support Services</CardTitle>
@@ -937,9 +1024,11 @@ const AdvocateStudents = () => {
                         <p className="text-muted-foreground">No services have been documented yet for this student.</p>
                       </CardContent>
                     </Card>
-                  </TabsContent>
+                  </div>
+                )}
 
-                  <TabsContent value="accommodations" className="space-y-6">
+                {selectedTab === "accommodations" && (
+                  <div className="space-y-6">
                     <Card className="premium-card">
                       <CardHeader>
                         <CardTitle className="flex items-center gap-2">
@@ -985,13 +1074,17 @@ const AdvocateStudents = () => {
                         )}
                       </CardContent>
                     </Card>
-                  </TabsContent>
+                  </div>
+                )}
 
-                  <TabsContent value="emotions" className="space-y-6">
+                {selectedTab === "emotions" && (
+                  <div className="space-y-6">
                     <AdvocateEmotionTrackingTab selectedStudentId={selectedStudentId} />
-                  </TabsContent>
+                  </div>
+                )}
 
-                  <TabsContent value="autism" className="space-y-6">
+                {selectedTab === "autism" && (
+                  <div className="space-y-6">
                     <Card className="premium-card border-blue-200">
                       <CardHeader className="bg-blue-50">
                         <CardTitle className="flex items-center gap-2 text-blue-800">
@@ -1053,9 +1146,11 @@ const AdvocateStudents = () => {
                         )}
                       </CardContent>
                     </Card>
-                  </TabsContent>
+                  </div>
+                )}
 
-                  <TabsContent value="gifted" className="space-y-6">
+                {selectedTab === "gifted" && (
+                  <div className="space-y-6">
                     <Card className="premium-card border-purple-200">
                       <CardHeader className="bg-purple-50">
                         <CardTitle className="flex items-center gap-2 text-purple-800">
@@ -1132,8 +1227,8 @@ const AdvocateStudents = () => {
                         )}
                       </CardContent>
                     </Card>
-                  </TabsContent>
-                </Tabs>
+                  </div>
+                )}
               </>
             ) : (
               <Card className="premium-card">

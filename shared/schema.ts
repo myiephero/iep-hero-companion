@@ -1,6 +1,33 @@
 import { pgTable, varchar, text, timestamp, integer, boolean, json, serial } from "drizzle-orm/pg-core";
 import { sql } from "drizzle-orm";
 
+// IEP Advocacy Process Workflow Enums
+export const CLIENT_ENGAGEMENT_STAGES = {
+  PROSPECT: 'prospect',
+  INTAKE: 'intake', 
+  RECORDS_REVIEW: 'records_review',
+  ASSESSMENT: 'assessment',
+  IEP_DEVELOPMENT: 'iep_development',
+  IMPLEMENTATION: 'implementation',
+  MONITORING: 'monitoring',
+  REVIEW_RENEWAL: 'review_renewal'
+} as const;
+
+export const STUDENT_IEP_WORKFLOW_STAGES = {
+  REFERRAL: 'referral',
+  EVALUATION: 'evaluation', 
+  ELIGIBILITY: 'eligibility',
+  IEP_DEVELOPMENT: 'iep_development',
+  IEP_MEETING: 'iep_meeting',
+  IMPLEMENTATION: 'implementation',
+  PROGRESS_MONITORING: 'progress_monitoring',
+  ANNUAL_REVIEW: 'annual_review',
+  TRIENNIAL: 'triennial'
+} as const;
+
+export type ClientEngagementStage = typeof CLIENT_ENGAGEMENT_STAGES[keyof typeof CLIENT_ENGAGEMENT_STAGES];
+export type StudentIEPWorkflowStage = typeof STUDENT_IEP_WORKFLOW_STAGES[keyof typeof STUDENT_IEP_WORKFLOW_STAGES];
+
 // Session storage table - required for Replit Auth
 export const sessions = pgTable(
   "sessions",
@@ -77,7 +104,8 @@ export const students = pgTable("students", {
   case_manager_email: varchar("case_manager_email"),
   disability_category: varchar("disability_category"),
   iep_date: varchar("iep_date"),
-  iep_status: varchar("iep_status"),
+  iep_status: varchar("iep_status"), // Keep for backwards compatibility
+  iep_workflow_stage: varchar("iep_workflow_stage").$type<StudentIEPWorkflowStage>().default('referral'),
   next_review_date: varchar("next_review_date"),
   emergency_contact: varchar("emergency_contact"),
   emergency_phone: varchar("emergency_phone"),
@@ -160,7 +188,8 @@ export const advocate_clients = pgTable("advocate_clients", {
   client_last_name: varchar("client_last_name"),
   client_email: varchar("client_email"),
   relationship_type: varchar("relationship_type"),
-  status: varchar("status"),
+  status: varchar("status"), // Keep for backwards compatibility
+  engagement_stage: varchar("engagement_stage").$type<ClientEngagementStage>().default('prospect'),
   start_date: varchar("start_date"),
   end_date: varchar("end_date"),
   notes: text("notes"),

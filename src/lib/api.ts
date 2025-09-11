@@ -16,6 +16,7 @@ export interface Student {
   disability_category?: string;
   iep_date?: string;
   iep_status?: string;
+  iep_workflow_stage?: string;
   next_review_date?: string;
   emergency_contact?: string;
   emergency_phone?: string;

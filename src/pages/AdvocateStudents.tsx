@@ -41,6 +41,12 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, Di
 import { Checkbox } from "@/components/ui/checkbox";
 import { Textarea } from "@/components/ui/textarea";
 import { Link } from "react-router-dom";
+import { 
+  CLIENT_ENGAGEMENT_STAGES, 
+  STUDENT_IEP_WORKFLOW_STAGES, 
+  type ClientEngagementStage, 
+  type StudentIEPWorkflowStage 
+} from "../../shared/schema";
 
 interface Client {
   id: string;
@@ -114,6 +120,17 @@ interface GiftedAssessment {
   evaluator_notes: string | null;
   created_at: string;
 }
+
+// Utility function for IEP status color coding
+const getIEPStatusColor = (status: string | null | undefined) => {
+  if (!status) return "bg-muted text-muted-foreground";
+  switch (status.toLowerCase()) {
+    case "active": return "bg-success text-success-foreground";
+    case "review": return "bg-warning text-warning-foreground";
+    case "expired": return "bg-destructive text-destructive-foreground";
+    default: return "bg-muted text-muted-foreground";
+  }
+};
 
 // Advocate Emotion Tracking Tab Component
 const AdvocateEmotionTrackingTab = ({ selectedStudentId }: { selectedStudentId?: string | null }) => {
@@ -896,16 +913,60 @@ const AdvocateStudents = () => {
   };
 
 
-  const getIEPStatusColor = (status: string | null | undefined) => {
-    if (!status) return "bg-muted text-muted-foreground";
-    switch (status.toLowerCase()) {
-      case "active": return "bg-success text-success-foreground";
-      case "review": return "bg-warning text-warning-foreground";
-      case "expired": return "bg-destructive text-destructive-foreground";
-      default: return "bg-muted text-muted-foreground";
+  // Process-Based Tag Logic for IEP Advocacy Workflow
+  const getClientEngagementStageStyle = (stage: ClientEngagementStage | string | null | undefined) => {
+    if (!stage) return { className: "bg-muted text-muted-foreground", label: "Not Set" };
+    
+    switch (stage.toLowerCase()) {
+      case CLIENT_ENGAGEMENT_STAGES.PROSPECT:
+        return { className: "bg-blue-100 text-blue-800 dark:bg-blue-900/20 dark:text-blue-300", label: "Prospect" };
+      case CLIENT_ENGAGEMENT_STAGES.INTAKE:
+        return { className: "bg-purple-100 text-purple-800 dark:bg-purple-900/20 dark:text-purple-300", label: "Intake" };
+      case CLIENT_ENGAGEMENT_STAGES.RECORDS_REVIEW:
+        return { className: "bg-yellow-100 text-yellow-800 dark:bg-yellow-900/20 dark:text-yellow-300", label: "Records Review" };
+      case CLIENT_ENGAGEMENT_STAGES.ASSESSMENT:
+        return { className: "bg-orange-100 text-orange-800 dark:bg-orange-900/20 dark:text-orange-300", label: "Assessment" };
+      case CLIENT_ENGAGEMENT_STAGES.IEP_DEVELOPMENT:
+        return { className: "bg-cyan-100 text-cyan-800 dark:bg-cyan-900/20 dark:text-cyan-300", label: "IEP Development" };
+      case CLIENT_ENGAGEMENT_STAGES.IMPLEMENTATION:
+        return { className: "bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-300", label: "Implementation" };
+      case CLIENT_ENGAGEMENT_STAGES.MONITORING:
+        return { className: "bg-indigo-100 text-indigo-800 dark:bg-indigo-900/20 dark:text-indigo-300", label: "Monitoring" };
+      case CLIENT_ENGAGEMENT_STAGES.REVIEW_RENEWAL:
+        return { className: "bg-violet-100 text-violet-800 dark:bg-violet-900/20 dark:text-violet-300", label: "Review/Renewal" };
+      default:
+        return { className: "bg-muted text-muted-foreground", label: stage };
     }
   };
 
+  const getStudentIEPWorkflowStageStyle = (stage: StudentIEPWorkflowStage | string | null | undefined) => {
+    if (!stage) return { className: "bg-muted text-muted-foreground", label: "Not Set" };
+    
+    switch (stage.toLowerCase()) {
+      case STUDENT_IEP_WORKFLOW_STAGES.REFERRAL:
+        return { className: "bg-slate-100 text-slate-800 dark:bg-slate-900/20 dark:text-slate-300", label: "Referral" };
+      case STUDENT_IEP_WORKFLOW_STAGES.EVALUATION:
+        return { className: "bg-amber-100 text-amber-800 dark:bg-amber-900/20 dark:text-amber-300", label: "Evaluation" };
+      case STUDENT_IEP_WORKFLOW_STAGES.ELIGIBILITY:
+        return { className: "bg-lime-100 text-lime-800 dark:bg-lime-900/20 dark:text-lime-300", label: "Eligibility" };
+      case STUDENT_IEP_WORKFLOW_STAGES.IEP_DEVELOPMENT:
+        return { className: "bg-emerald-100 text-emerald-800 dark:bg-emerald-900/20 dark:text-emerald-300", label: "IEP Development" };
+      case STUDENT_IEP_WORKFLOW_STAGES.IEP_MEETING:
+        return { className: "bg-teal-100 text-teal-800 dark:bg-teal-900/20 dark:text-teal-300", label: "IEP Meeting" };
+      case STUDENT_IEP_WORKFLOW_STAGES.IMPLEMENTATION:
+        return { className: "bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-300", label: "Implementation" };
+      case STUDENT_IEP_WORKFLOW_STAGES.PROGRESS_MONITORING:
+        return { className: "bg-blue-100 text-blue-800 dark:bg-blue-900/20 dark:text-blue-300", label: "Progress Monitoring" };
+      case STUDENT_IEP_WORKFLOW_STAGES.ANNUAL_REVIEW:
+        return { className: "bg-purple-100 text-purple-800 dark:bg-purple-900/20 dark:text-purple-300", label: "Annual Review" };
+      case STUDENT_IEP_WORKFLOW_STAGES.TRIENNIAL:
+        return { className: "bg-pink-100 text-pink-800 dark:bg-pink-900/20 dark:text-pink-300", label: "Triennial" };
+      default:
+        return { className: "bg-muted text-muted-foreground", label: stage };
+    }
+  };
+
+  // Legacy function for backwards compatibility with cases
   const getCaseStatusColor = (status: string) => {
     switch (status?.toLowerCase()) {
       case "active": return "bg-success text-success-foreground";
@@ -1001,8 +1062,8 @@ const AdvocateStudents = () => {
                               </p>
                             </div>
                           </div>
-                          <Badge className={getIEPStatusColor(student.iep_status)}>
-                            {student.iep_status || 'No IEP'}
+                          <Badge className={getStudentIEPWorkflowStageStyle(student.iep_workflow_stage || student.iep_status).className}>
+                            {getStudentIEPWorkflowStageStyle(student.iep_workflow_stage || student.iep_status).label}
                           </Badge>
                         </div>
                         <div className="mt-2 text-xs text-muted-foreground">
@@ -1036,8 +1097,8 @@ const AdvocateStudents = () => {
                             <span>•</span>
                             <span>{currentStudent.school_name || 'School not specified'}</span>
                             <span>•</span>
-                            <Badge className={getIEPStatusColor(currentStudent.iep_status)}>
-                              IEP {currentStudent.iep_status || 'Not Set'}
+                            <Badge className={getStudentIEPWorkflowStageStyle(currentStudent.iep_workflow_stage || currentStudent.iep_status).className}>
+                              IEP: {getStudentIEPWorkflowStageStyle(currentStudent.iep_workflow_stage || currentStudent.iep_status).label}
                             </Badge>
                           </div>
                           {currentStudent.full_name && (

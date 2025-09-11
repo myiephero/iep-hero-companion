@@ -507,7 +507,7 @@ const AdvocateDashboard = ({ plan }: AdvocateDashboardProps) => {
                       Due: {case_.dueDate}
                     </span>
                     <Button size="sm" variant="outline" asChild>
-                      <Link to={`/advocate/cases/${case_.id}`}>
+                      <Link to="/advocate/parents">
                         View Case
                       </Link>
                     </Button>

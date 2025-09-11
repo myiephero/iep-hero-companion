@@ -3556,6 +3556,69 @@ app.get('/api/cases', isAuthenticated, async (req: any, res) => {
   }
 });
 
+// POST /api/cases - Create new case
+app.post('/api/cases', isAuthenticated, async (req: any, res) => {
+  try {
+    const userId = await getUserId(req);
+    const { student_id, title, description, status = 'active' } = req.body;
+    
+    console.log('✅ PRODUCTION: Creating case for user:', userId);
+    console.log('✅ PRODUCTION: Case data:', { student_id, title, description, status });
+    
+    // Validate required fields
+    if (!student_id || !title || !description) {
+      return res.status(400).json({ 
+        error: 'Missing required fields: student_id, title, and description are required' 
+      });
+    }
+    
+    // Get advocate profile
+    const advocate = await db.select().from(schema.advocates)
+      .where(eq(schema.advocates.user_id, userId))
+      .then(results => results[0]);
+    
+    if (!advocate) {
+      return res.status(404).json({ error: 'Advocate profile not found' });
+    }
+    
+    // Get student to find parent/client info
+    const [student] = await db.select().from(schema.students)
+      .where(eq(schema.students.id, student_id))
+      .limit(1);
+    
+    if (!student) {
+      return res.status(404).json({ error: 'Student not found' });
+    }
+    
+    // Create new case
+    const [newCase] = await db.insert(schema.cases).values({
+      advocate_id: advocate.id,
+      client_id: student.parent_id || student.user_id, // Use parent_id or user_id as client
+      student_id: student_id,
+      case_title: title,
+      description: description,
+      status: status,
+      case_type: 'iep_support',
+      priority: 'medium',
+      billing_rate: 150,
+      total_hours: 0,
+      next_action: 'Initial consultation',
+      next_action_date: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString() // 7 days from now
+    }).returning();
+    
+    console.log('✅ PRODUCTION: Case created successfully:', newCase);
+    
+    res.status(201).json({
+      success: true,
+      case: newCase
+    });
+    
+  } catch (error) {
+    console.error('❌ Error creating case:', error);
+    res.status(500).json({ error: 'Failed to create case' });
+  }
+});
+
 // Initialize server with proper authentication setup
 (async () => {
   console.log('Setting up Replit Auth...');

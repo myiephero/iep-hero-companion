@@ -3489,26 +3489,33 @@ app.get('/api/cases', isAuthenticated, async (req: any, res) => {
     
     if (userRole === 'advocate') {
       // Advocate: Get cases where they are the advocate
-      cases = await db
-        .select({
-          id: schema.cases.id,
-          advocate_id: schema.cases.advocate_id,
-          client_id: schema.cases.client_id,
-          student_id: schema.cases.student_id,
-          case_title: schema.cases.case_title,
-          description: schema.cases.description,
-          case_type: schema.cases.case_type,
-          status: schema.cases.status,
-          priority: schema.cases.priority,
-          billing_rate: schema.cases.billing_rate,
-          total_hours: schema.cases.total_hours,
-          next_action: schema.cases.next_action,
-          next_action_date: schema.cases.next_action_date,
-          created_at: schema.cases.created_at,
-          updated_at: schema.cases.updated_at
-        })
-        .from(schema.cases)
-        .where(eq(schema.cases.advocate_id, userId));
+      // First get the advocate record to find the proper advocate_id
+      const advocate = await db.select().from(schema.advocates)
+        .where(eq(schema.advocates.user_id, userId))
+        .then(results => results[0]);
+      
+      if (advocate) {
+        cases = await db
+          .select({
+            id: schema.cases.id,
+            advocate_id: schema.cases.advocate_id,
+            client_id: schema.cases.client_id,
+            student_id: schema.cases.student_id,
+            case_title: schema.cases.case_title,
+            description: schema.cases.description,
+            case_type: schema.cases.case_type,
+            status: schema.cases.status,
+            priority: schema.cases.priority,
+            billing_rate: schema.cases.billing_rate,
+            total_hours: schema.cases.total_hours,
+            next_action: schema.cases.next_action,
+            next_action_date: schema.cases.next_action_date,
+            created_at: schema.cases.created_at,
+            updated_at: schema.cases.updated_at
+          })
+          .from(schema.cases)
+          .where(eq(schema.cases.advocate_id, advocate.id));
+      }
     } else {
       // Parent: Get cases where they are the client
       cases = await db

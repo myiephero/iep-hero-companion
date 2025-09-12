@@ -8,6 +8,14 @@ Preferred communication style: Simple, everyday language.
 
 # Recent Changes
 
+**September 12, 2025**: Implemented tier-specific tools with upsell strategy for advocates
+- ALL advocates now see the same interface (Agency-tier tools) with subscription-based functionality limits
+- Created centralized tool registry system with 20+ advocate tools and comprehensive metadata
+- Implemented smart access control with upgrade prompts instead of hidden features
+- Built enhanced UI components: FeatureGate, LockedActionButton, and conversion-optimized UpgradePrompt
+- Added backend security safeguards with server-side plan validation middleware
+- Verified system working across all advocate tiers (starter, pro, agency, agency-plus) with proper access control
+
 **September 12, 2025**: Fixed critical data flow failure in gifted assessment tools
 - Replaced fake save functionality in Cognitive Assessment, Enrichment Needs, and 2E Support dialogs
 - Implemented real API calls that collect checkbox data and save to database via POST requests

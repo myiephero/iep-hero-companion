@@ -24,15 +24,15 @@ const AdvocatePricingPlan = () => {
       const annualPrice = Math.round(monthlyPrice * 12 * 0.9); // 10% discount
       const monthlyEquivalent = Math.round(annualPrice / 12);
       return {
-        price: `$${annualPrice}`,
-        period: '/year',
-        monthlyEquivalent: `$${monthlyEquivalent}/month`
+        price: `$${monthlyEquivalent}`,
+        period: '/month',
+        annualTotal: `$${annualPrice}/year`
       };
     }
     return {
       price: `$${monthlyPrice}`,
       period: '/month',
-      monthlyEquivalent: null
+      annualTotal: null
     };
   };
 
@@ -282,9 +282,9 @@ const AdvocatePricingPlan = () => {
                         <span className="text-3xl font-bold">{getPriceForPlan(tier.monthlyPrice, isAnnual).price}</span>
                         <span className="text-muted-foreground text-sm">{getPriceForPlan(tier.monthlyPrice, isAnnual).period}</span>
                       </div>
-                      {isAnnual && getPriceForPlan(tier.monthlyPrice, isAnnual).monthlyEquivalent && (
+                      {isAnnual && getPriceForPlan(tier.monthlyPrice, isAnnual).annualTotal && (
                         <div className="text-xs text-muted-foreground mt-1">
-                          {getPriceForPlan(tier.monthlyPrice, isAnnual).monthlyEquivalent} billed annually
+                          {getPriceForPlan(tier.monthlyPrice, isAnnual).annualTotal} billed annually
                         </div>
                       )}
                     </div>

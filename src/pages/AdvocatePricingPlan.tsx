@@ -148,21 +148,22 @@ const AdvocatePricingPlan = () => {
         '3 Advocate seats (+ $39/month per additional seat)',
         'Unlimited AI Credits & Analysis',
         'Team CRM access',
-        'Billing & Invoicing tools (Coming Soon)',
-        'Time tracking system (Coming Soon)',
         'Shared client management',
-        'Team collaboration features (Coming Soon)',
         'Multi-client management',
         'Performance analytics',
         'Advocacy Reports generation',
         'Professional behavioral support',
         'Legal compliance tools',
+        'Unlimited storage & premium priority support',
+        '— Additional Tools Coming Soon —',
+        'Billing & Invoicing tools (Coming Soon)',
+        'Time tracking system (Coming Soon)',
+        'Team collaboration features (Coming Soon)',
         'White-label branding options (Coming Soon)',
         'Dedicated account manager (Coming Soon)',
         'Custom integrations & API access (Coming Soon)',
         'Professional training hub access (Coming Soon)',
-        'Crisis intervention planning tools (Coming Soon)',
-        'Unlimited storage & premium priority support'
+        'Crisis intervention planning tools (Coming Soon)'
       ],
       limitations: [],
       icon: <Crown className="h-6 w-6" />,
@@ -339,13 +340,17 @@ const AdvocatePricingPlan = () => {
                   <CardContent className="space-y-6 flex-grow flex flex-col">
                     <ul className="space-y-3 flex-grow">
                       {tier.features.map((feature, index) => (
-                        <li key={index} className="flex items-start gap-3">
-                          {feature.includes('(Coming Soon)') ? (
+                        <li key={index} className={`flex items-start gap-3 ${feature.startsWith('—') ? 'mt-4 mb-2' : ''}`}>
+                          {feature.startsWith('—') ? (
+                            <span className="w-4 h-4 mt-0.5 flex-shrink-0"></span>
+                          ) : feature.includes('(Coming Soon)') ? (
                             <span className="text-amber-500 mt-0.5 flex-shrink-0">🚧</span>
                           ) : (
                             <Check className="h-4 w-4 text-success mt-0.5 flex-shrink-0" />
                           )}
-                          <span className="text-sm">{feature}</span>
+                          <span className={`text-sm ${feature.startsWith('—') ? 'font-medium text-muted-foreground italic' : ''}`}>
+                            {feature}
+                          </span>
                         </li>
                       ))}
                     </ul>

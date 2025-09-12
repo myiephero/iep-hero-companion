@@ -195,7 +195,7 @@ const ADVOCATE_PRICING = [
       'Everything in Starter',
       'AI IEP Review & Compliance',
       'Progress Analyzer with AI',
-      'Professional Unified IEP Review',
+      'IEP Master Suite',
       'Ask AI About Client Docs',
       'Client Scheduler system',
       'Professional intake forms',

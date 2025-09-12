@@ -105,11 +105,14 @@ export function UpgradePrompt({
         <div className="flex items-center justify-center mb-3">
           {getPlanIcon(requiredPlan)}
         </div>
-        <CardTitle className="text-xl mb-2">
+        <CardDescription className="text-sm text-muted-foreground mb-2">
+          Feature Locked
+        </CardDescription>
+        <CardTitle className="text-2xl font-bold mb-3 text-foreground">
           🔒 {toolName}
         </CardTitle>
         <CardDescription className="text-base">
-          This powerful tool requires <Badge className={`bg-gradient-to-r ${getPlanColor(requiredPlan)} text-white font-semibold`}>
+          This feature requires <Badge className={`bg-gradient-to-r ${getPlanColor(requiredPlan)} text-white font-semibold`}>
             {getPlanDisplayName(requiredPlan)}
           </Badge> access or higher
         </CardDescription>

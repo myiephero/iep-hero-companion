@@ -987,7 +987,7 @@ const AdvocateDashboard = ({ plan }: AdvocateDashboardProps) => {
                         </div>
                         <ArrowRight className="h-5 w-5 text-gray-400 group-hover:text-indigo-600 group-hover:translate-x-1 transition-all" />
                       </div>
-                      <h3 className="font-semibold text-lg mb-2 text-gray-900 dark:text-gray-100">Secure Client Communication</h3>
+                      <h3 className="font-semibold text-lg mb-2 text-gray-900 dark:text-gray-100">Messages</h3>
                       <p className="text-sm text-gray-600 dark:text-gray-400 mb-3">Secure client communication</p>
                       <div className="flex items-center gap-2">
                         <Badge variant="outline" className="text-indigo-700 border-indigo-300">Secure</Badge>

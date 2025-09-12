@@ -44,11 +44,11 @@ const AdvocatePricingPlan = () => {
       let annualTotal;
       
       if (tier.id === 'starter') {
-        annualMonthlyRate = 75; // $75/month when paid annually
-        annualTotal = 75 * 12; // $900/year
+        annualMonthlyRate = 39; // $39/month when paid annually
+        annualTotal = 39 * 12; // $468/year
       } else if (tier.id === 'pro') {
-        annualMonthlyRate = 149; // $149/month when paid annually
-        annualTotal = 149 * 12; // $1,788/year
+        annualMonthlyRate = 65; // $65/month when paid annually
+        annualTotal = 65 * 12; // $780/year
       } else {
         // Fallback to 10% discount for other plans
         annualTotal = Math.round(tier.monthlyPrice * 12 * 0.9);
@@ -73,7 +73,7 @@ const AdvocatePricingPlan = () => {
     {
       id: 'starter',
       name: 'Starter',
-      monthlyPrice: 99,
+      monthlyPrice: 49,
       seats: '1 Seat',
       description: 'Essential tools for solo advocates',
       toolCount: '12 Core Professional Tools',
@@ -104,7 +104,7 @@ const AdvocatePricingPlan = () => {
     {
       id: 'pro',
       name: 'Pro',
-      monthlyPrice: 199,
+      monthlyPrice: 75,
       seats: '1 Seat',
       description: 'Adds AI analysis and professional planning',
       toolCount: '20+ Tools + AI Analysis',

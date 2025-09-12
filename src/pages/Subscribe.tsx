@@ -181,7 +181,7 @@ const ADVOCATE_PRICING = [
     ],
     icon: <Zap className="h-6 w-6" />,
     gradient: 'from-blue-500 to-blue-600',
-    priceId: 'price_1Rr3gL8iKZXV0srZmfuD32yv',
+    priceId: 'price_1S6c6r8iKZXV0srZEedxCBJ7', // Updated Starter monthly pricing
     isFree: false
   },
   {
@@ -216,13 +216,13 @@ const ADVOCATE_PRICING = [
     icon: <Star className="h-6 w-6" />,
     gradient: 'from-purple-500 to-purple-600',
     popular: true,
-    priceId: 'price_1Rr3hR8iKZXV0srZ5lPscs0p',
+    priceId: 'price_1S6c6s8iKZXV0srZUQl201V9', // Updated Pro monthly pricing
     isFree: false
   },
   {
     id: 'agency',
     name: 'Agency',
-    price: 149,
+    price: 249,
     period: '/month',
     seats: '2 Seats',
     description: 'Team collaboration with billing tools',
@@ -249,13 +249,13 @@ const ADVOCATE_PRICING = [
     ],
     icon: <Crown className="h-6 w-6" />,
     gradient: 'from-green-500 to-green-600',
-    priceId: 'price_1Rr3ik8iKZXV0srZPRPByMQx',
+    priceId: 'price_1S6c6t8iKZXV0srZDefEOrXY', // Updated Agency monthly pricing
     isFree: false
   },
   {
     id: 'agency-plus',
     name: 'Agency+',
-    price: 249,
+    price: 399,
     period: '/month',
     seats: '5 Seats',
     description: 'Enterprise features with unlimited AI',
@@ -278,7 +278,7 @@ const ADVOCATE_PRICING = [
     limitations: [],
     icon: <Crown className="h-6 w-6" />,
     gradient: 'from-amber-500 to-amber-600',
-    priceId: 'price_1Rr3jz8iKZXV0srZNewPlan',
+    priceId: 'price_1S6c6u8iKZXV0srZXnPPjJp7', // Updated Agency Plus monthly pricing
     isFree: false
   }
 ];

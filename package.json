@@ -9,7 +9,7 @@
     "server": "tsx server/index.ts",
     "client": "vite",
     "build": "vite build",
-    "build:dev": "vite build --mode development",
+    "build:dev": "vite build --mode development", 
     "lint": "eslint .",
     "preview": "vite preview"
   },
@@ -61,6 +61,7 @@
     "connect-pg-simple": "^10.0.0",
     "cors": "^2.8.5",
     "date-fns": "^3.6.0",
+    "dotenv": "^17.2.2",
     "drizzle-kit": "^0.31.4",
     "drizzle-orm": "^0.44.5",
     "embla-carousel-react": "^8.6.0",

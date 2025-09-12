@@ -109,10 +109,10 @@ const AdvocatePricingPlan = () => {
         'Everything in Pro',
         '2 Advocate seats',
         'Team CRM access',
-        'Billing & Invoicing tools',
-        'Time tracking system',
+        'Billing & Invoicing tools (Coming Soon)',
+        'Time tracking system (Coming Soon)',
         'Shared client management',
-        'Team collaboration features',
+        'Team collaboration features (Coming Soon)',
         'Multi-client management',
         'Performance analytics',
         'Advocacy Reports generation',
@@ -367,23 +367,23 @@ const AdvocatePricingPlan = () => {
                         </div>
                         <div className="flex items-center gap-2 text-white">
                           <Check className="h-4 w-4 text-amber-200" />
-                          <span className="text-sm">White-label branding options</span>
+                          <span className="text-sm">White-label branding options (Coming Soon)</span>
                         </div>
                         <div className="flex items-center gap-2 text-white">
                           <Check className="h-4 w-4 text-amber-200" />
-                          <span className="text-sm">Dedicated account manager</span>
+                          <span className="text-sm">Dedicated account manager (Coming Soon)</span>
                         </div>
                         <div className="flex items-center gap-2 text-white">
                           <Check className="h-4 w-4 text-amber-200" />
-                          <span className="text-sm">Custom integrations & API access</span>
+                          <span className="text-sm">Custom integrations & API access (Coming Soon)</span>
                         </div>
                         <div className="flex items-center gap-2 text-white">
                           <Check className="h-4 w-4 text-amber-200" />
-                          <span className="text-sm">Professional training hub access</span>
+                          <span className="text-sm">Professional training hub access (Coming Soon)</span>
                         </div>
                         <div className="flex items-center gap-2 text-white">
                           <Check className="h-4 w-4 text-amber-200" />
-                          <span className="text-sm">Crisis intervention planning tools</span>
+                          <span className="text-sm">Crisis intervention planning tools (Coming Soon)</span>
                         </div>
                         <div className="flex items-center gap-2 text-white">
                           <Check className="h-4 w-4 text-amber-200" />

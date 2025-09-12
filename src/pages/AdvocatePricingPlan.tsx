@@ -263,7 +263,7 @@ const AdvocatePricingPlan = () => {
                 </span>
                 {isAnnual && (
                   <Badge className="bg-green-500/20 text-green-300 border-green-400 ml-2">
-                    Save 10%
+                    Save Up To 25%
                   </Badge>
                 )}
               </div>
@@ -323,6 +323,13 @@ const AdvocatePricingPlan = () => {
                       {getPriceForPlan(tier, isAnnual).annualTotal && (
                         <div className="text-xs text-muted-foreground mt-1">
                           {getPriceForPlan(tier, isAnnual).annualTotal}
+                        </div>
+                      )}
+                      {isAnnual && !getPriceForPlan(tier, isAnnual).setupFee && (
+                        <div className="text-xs text-green-400 font-medium mt-1">
+                          {tier.id === 'starter' && 'Save 24%'}
+                          {tier.id === 'pro' && 'Save 25%'}
+                          {tier.id === 'agency' && 'Save 20%'}
                         </div>
                       )}
                       {getPriceForPlan(tier, isAnnual).setupFee && !isAnnual && (

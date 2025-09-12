@@ -189,11 +189,8 @@ const GiftedAIInsightsTool = () => {
           <CardContent>
             <StudentSelector
               selectedStudent={selectedStudent}
-              onStudentSelect={setSelectedStudent}
-              students={students}
+              onStudentChange={setSelectedStudent}
               placeholder="Select student for AI insights"
-              className="max-w-md"
-              data-testid="select-student"
             />
           </CardContent>
         </Card>

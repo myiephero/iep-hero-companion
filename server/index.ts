@@ -3,7 +3,7 @@ import cors from 'cors';
 import { z } from 'zod';
 import { db } from './db';
 import * as schema from '../shared/schema';
-import { eq, and, gt, desc, sql, like, or, ne, inArray } from 'drizzle-orm';
+import { eq, and, gt, desc, sql, like, or, ne, inArray, isNotNull } from 'drizzle-orm';
 import matchRoutes from './routes/match';
 import expertRoutes from './routes/expert';
 import expertReviewPaymentRoutes from './routes/expertReviewPayments';
@@ -3479,6 +3479,241 @@ app.post('/api/gifted-assessments/:id/ai-analysis', async (req: any, res) => {
 
   } catch (error) {
     console.error('❌ Error generating AI analysis:', error);
+    res.status(500).json({ error: 'Failed to generate AI analysis' });
+  }
+});
+
+// GET endpoint for fetching existing gifted AI analysis
+app.get('/api/gifted_assessments/ai-insights', async (req: any, res) => {
+  try {
+    const userId = await getUserId(req);
+    const { student_id } = req.query;
+
+    if (!student_id) {
+      return res.status(400).json({ error: 'student_id is required' });
+    }
+
+    console.log(`✅ PRODUCTION: Getting gifted AI insights for student ${student_id}, user: ${userId}`);
+
+    // Check user role to determine access
+    const [user] = await db
+      .select()
+      .from(schema.users)
+      .where(eq(schema.users.id, userId))
+      .limit(1);
+
+    if (!user) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+
+    let assessments: any[] = [];
+
+    if (user.role === 'advocate') {
+      // For advocates: Get assessments for students they have access to through advocate-client relationship
+      const advocateStudents = await db
+        .select({ student_id: schema.students.id })
+        .from(schema.students)
+        .innerJoin(schema.advocate_clients, eq(schema.students.parent_id, schema.advocate_clients.client_id))
+        .innerJoin(schema.advocates, eq(schema.advocate_clients.advocate_id, schema.advocates.id))
+        .where(and(
+          eq(schema.advocates.user_id, userId),
+          eq(schema.students.id, student_id),
+          eq(schema.advocate_clients.status, 'active')
+        ));
+
+      if (advocateStudents.length > 0) {
+        // Get gifted assessments for this student from any user (parent or advocate)
+        assessments = await db
+          .select()
+          .from(schema.gifted_assessments)
+          .where(and(
+            eq(schema.gifted_assessments.student_id, student_id),
+            or(
+              isNotNull(schema.gifted_assessments.ai_analysis_parent),
+              isNotNull(schema.gifted_assessments.ai_analysis_advocate)
+            )
+          ))
+          .orderBy(desc(schema.gifted_assessments.updated_at));
+      }
+    } else {
+      // For parents: Get their own assessments
+      assessments = await db
+        .select()
+        .from(schema.gifted_assessments)
+        .where(and(
+          eq(schema.gifted_assessments.student_id, student_id),
+          eq(schema.gifted_assessments.user_id, userId),
+          or(
+            isNotNull(schema.gifted_assessments.ai_analysis_parent),
+            isNotNull(schema.gifted_assessments.ai_analysis_advocate)
+          )
+        ))
+        .orderBy(desc(schema.gifted_assessments.updated_at));
+    }
+
+    if (assessments.length === 0) {
+      return res.json({ analyses: [] });
+    }
+
+    // Format the analyses for the frontend
+    const analyses = assessments.map(assessment => ({
+      id: assessment.id,
+      assessment_type: assessment.assessment_type,
+      timestamp: assessment.ai_generated_at || assessment.updated_at,
+      ai_analysis: assessment.ai_analysis_advocate || assessment.ai_analysis_parent
+    }));
+
+    console.log(`✅ PRODUCTION: Found ${analyses.length} AI analyses for student ${student_id}`);
+    
+    res.json({ analyses });
+
+  } catch (error) {
+    console.error('❌ Error fetching gifted AI insights:', error);
+    res.status(500).json({ error: 'Failed to fetch AI insights' });
+  }
+});
+
+// POST endpoint for generating gifted AI analysis for advocates
+app.post('/api/gifted_assessments/ai-insights', async (req: any, res) => {
+  try {
+    const userId = await getUserId(req);
+    const { student_id, analysis_type = 'comprehensive' } = req.body;
+
+    if (!student_id) {
+      return res.status(400).json({ error: 'student_id is required' });
+    }
+
+    console.log(`✅ PRODUCTION: Generating gifted AI insights for student ${student_id}, user: ${userId}, analysis_type: ${analysis_type}`);
+
+    // Check if we have OpenAI API key
+    if (!process.env.OPENAI_API_KEY) {
+      return res.status(500).json({ error: 'AI analysis not available - missing API key' });
+    }
+
+    // Get user and verify they are an advocate
+    const [user] = await db
+      .select()
+      .from(schema.users)
+      .where(eq(schema.users.id, userId))
+      .limit(1);
+
+    if (!user) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+
+    if (user.role !== 'advocate') {
+      return res.status(403).json({ error: 'Only advocates can generate AI analysis through this endpoint' });
+    }
+
+    // Get advocate profile
+    const [advocate] = await db
+      .select()
+      .from(schema.advocates)
+      .where(eq(schema.advocates.user_id, userId))
+      .limit(1);
+
+    if (!advocate) {
+      return res.status(404).json({ error: 'Advocate profile not found' });
+    }
+
+    // Verify advocate has access to this student through advocate-client relationship
+    const advocateStudents = await db
+      .select({ student_id: schema.students.id, parent_id: schema.students.parent_id })
+      .from(schema.students)
+      .innerJoin(schema.advocate_clients, eq(schema.students.parent_id, schema.advocate_clients.client_id))
+      .innerJoin(schema.advocates, eq(schema.advocate_clients.advocate_id, schema.advocates.id))
+      .where(and(
+        eq(schema.advocates.user_id, userId),
+        eq(schema.students.id, student_id),
+        eq(schema.advocate_clients.status, 'active')
+      ));
+
+    if (advocateStudents.length === 0) {
+      return res.status(403).json({ error: 'You do not have access to this student' });
+    }
+
+    const studentInfo = advocateStudents[0];
+
+    // Check if there's already a gifted assessment for this student
+    let [existingAssessment] = await db
+      .select()
+      .from(schema.gifted_assessments)
+      .where(eq(schema.gifted_assessments.student_id, student_id))
+      .orderBy(desc(schema.gifted_assessments.updated_at))
+      .limit(1);
+
+    // If no assessment exists, create a minimal one for AI analysis
+    if (!existingAssessment) {
+      console.log(`✅ PRODUCTION: Creating new gifted assessment for student ${student_id}`);
+      
+      [existingAssessment] = await db
+        .insert(schema.gifted_assessments)
+        .values({
+          user_id: studentInfo.parent_id, // Use the parent's user_id as the owner
+          student_id: student_id,
+          assessment_type: 'advocate_initiated',
+          giftedness_areas: ['intellectual'], // Default minimal data
+          status: 'in_progress',
+          created_at: new Date(),
+          updated_at: new Date()
+        })
+        .returning();
+      
+      console.log(`✅ PRODUCTION: Created new assessment ${existingAssessment.id} for advocate analysis`);
+    }
+
+    // Prepare assessment data for AI analysis - handle both full and minimal assessments
+    const assessmentData = {
+      assessment_type: existingAssessment.assessment_type || 'advocate_initiated',
+      giftedness_areas: existingAssessment.giftedness_areas || ['intellectual'],
+      learning_differences: existingAssessment.learning_differences || [],
+      strengths: existingAssessment.strengths || { notes: 'Assessment data being gathered by advocate. Professional analysis in progress.' },
+      challenges: existingAssessment.challenges || { notes: 'Areas of need being identified through advocate review.' },
+      recommendations: existingAssessment.recommendations || { notes: 'Recommendations to be developed based on comprehensive review.' },
+      enrichment_activities: existingAssessment.enrichment_activities || { notes: 'Enrichment opportunities being evaluated.' },
+      acceleration_needs: existingAssessment.acceleration_needs || { notes: 'Acceleration needs assessment in progress.' },
+      social_emotional_needs: existingAssessment.social_emotional_needs || { notes: 'Social-emotional profile being developed.' },
+      evaluator_notes: existingAssessment.evaluator_notes || 'Professional advocate-initiated assessment for comprehensive gifted education planning.'
+    };
+
+    // Generate AI insights using OpenAI with advocate role
+    console.log(`✅ PRODUCTION: Generating AI analysis for assessment ${existingAssessment.id} with advocate role`);
+    const aiInsights = await generateGiftedAssessmentAI(assessmentData, 'advocate');
+
+    // Save AI analysis to database
+    const updateData = {
+      ai_analysis_advocate: aiInsights,
+      ai_generated_at: new Date(),
+      updated_at: new Date()
+    };
+
+    await db
+      .update(schema.gifted_assessments)
+      .set(updateData)
+      .where(eq(schema.gifted_assessments.id, existingAssessment.id));
+
+    console.log(`✅ PRODUCTION: Advocate AI analysis generated and saved for assessment ${existingAssessment.id}`);
+    
+    res.json({
+      success: true,
+      assessment_id: existingAssessment.id,
+      ai_analysis: aiInsights,
+      analysis_type: analysis_type,
+      generated_at: new Date().toISOString(),
+      role: 'advocate'
+    });
+
+  } catch (error) {
+    console.error('❌ Error generating advocate AI analysis:', error);
+    if (error.message.includes('Authentication required')) {
+      return res.status(401).json({ error: 'Authentication required' });
+    }
+    if (error.message.includes('Insufficient assessment data')) {
+      return res.status(400).json({ 
+        error: 'Insufficient assessment data', 
+        message: error.message 
+      });
+    }
     res.status(500).json({ error: 'Failed to generate AI analysis' });
   }
 });

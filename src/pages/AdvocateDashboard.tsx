@@ -266,6 +266,81 @@ const AdvocateDashboard = ({ plan }: AdvocateDashboardProps) => {
     return "bg-orange-100 text-orange-700 border-orange-200";
   };
 
+  // Helper function to extract student name from case data with multiple fallback strategies
+  const getStudentName = (caseData: any, studentsArray: any[] = []) => {
+    // Strategy 1: Direct student field (object or string)
+    if (caseData?.student) {
+      if (typeof caseData.student === 'object' && caseData.student.full_name) {
+        return caseData.student.full_name;
+      }
+      if (typeof caseData.student === 'string' && caseData.student.trim()) {
+        return caseData.student;
+      }
+    }
+
+    // Strategy 2: Direct student name fields
+    if (caseData?.student_full_name && caseData.student_full_name.trim()) {
+      return caseData.student_full_name;
+    }
+    if (caseData?.student_name && caseData.student_name.trim()) {
+      return caseData.student_name;
+    }
+    if (caseData?.studentName && caseData.studentName.trim()) {
+      return caseData.studentName;
+    }
+
+    // Strategy 3: Combine first and last name
+    if (caseData?.student_first_name && caseData?.student_last_name) {
+      const firstName = caseData.student_first_name.trim();
+      const lastName = caseData.student_last_name.trim();
+      if (firstName && lastName) {
+        return `${firstName} ${lastName}`;
+      }
+    }
+
+    // Strategy 4: Extract from case title (pattern: "IEP Support for [Student Name]")
+    if (caseData?.case_title && caseData.case_title.includes('IEP Support for')) {
+      const titleParts = caseData.case_title.split('IEP Support for ');
+      if (titleParts.length > 1) {
+        const extractedName = titleParts[1].trim();
+        if (extractedName && extractedName !== 'undefined' && extractedName !== 'null') {
+          return extractedName;
+        }
+      }
+    }
+    if (caseData?.case_title && caseData.case_title.includes('for ')) {
+      const titleParts = caseData.case_title.split('for ');
+      if (titleParts.length > 1) {
+        const extractedName = titleParts[titleParts.length - 1].trim();
+        if (extractedName && extractedName !== 'undefined' && extractedName !== 'null') {
+          return extractedName;
+        }
+      }
+    }
+
+    // Strategy 5: Join with students array using student_id
+    if (caseData?.student_id && Array.isArray(studentsArray) && studentsArray.length > 0) {
+      const matchingStudent = studentsArray.find(s => s?.id === caseData.student_id);
+      if (matchingStudent?.full_name && matchingStudent.full_name.trim()) {
+        return matchingStudent.full_name;
+      }
+      if (matchingStudent?.student_name && matchingStudent.student_name.trim()) {
+        return matchingStudent.student_name;
+      }
+    }
+
+    // Strategy 6: Use any title that looks like it contains a student name
+    if (caseData?.case_title && caseData.case_title.trim()) {
+      return caseData.case_title.replace(/^(Case|Support|IEP|Help)\s*(for|with)?\s*/i, '').trim();
+    }
+    if (caseData?.title && caseData.title.trim()) {
+      return caseData.title.replace(/^(Case|Support|IEP|Help)\s*(for|with)?\s*/i, '').trim();
+    }
+
+    // If all strategies fail, return a descriptive fallback
+    return 'Student (Name Pending)';
+  };
+
   // Create unified activity feed from real data
   const generateActivityFeed = () => {
     const activities: Array<{
@@ -289,14 +364,15 @@ const AdvocateDashboard = ({ plan }: AdvocateDashboardProps) => {
     if (openCasesArray.length > 0) {
       openCasesArray.forEach((case_, index) => {
         const caseDate = case_?.created_at ? new Date(case_.created_at) : new Date();
+        const studentName = getStudentName(case_, students as any[]);
         activities.push({
           id: `case-${case_?.id || index}`,
           type: 'case',
-          title: `Active case: ${case_?.student || 'Unknown Student'}`,
-          description: case_?.caseType ? `${case_.caseType} - ${case_?.nextAction || 'Ongoing advocacy'}` : `Parent: ${case_?.parent_first_name && case_?.parent_last_name ? `${case_.parent_first_name} ${case_.parent_last_name}` : case_?.parent_email || 'Unknown'}`,
+          title: `Active case: ${studentName}`,
+          description: case_?.case_type ? `${case_.case_type} - ${case_?.next_action || 'Ongoing advocacy'}` : `Parent: ${case_?.parent_first_name && case_?.parent_last_name ? `${case_.parent_first_name} ${case_.parent_last_name}` : case_?.parent_email || 'Unknown'}`,
           timestamp: caseDate,
           icon: Briefcase,
-          color: case_?.urgency === 'high' || case_?.urgency === 'urgent' ? 'bg-red-100 dark:bg-red-900 text-red-600 dark:text-red-400' : 'bg-blue-100 dark:bg-blue-900 text-blue-600 dark:text-blue-400',
+          color: case_?.priority === 'high' || case_?.priority === 'urgent' ? 'bg-red-100 dark:bg-red-900 text-red-600 dark:text-red-400' : 'bg-blue-100 dark:bg-blue-900 text-blue-600 dark:text-blue-400',
           link: '/advocate/parents'
         });
       });
@@ -381,11 +457,22 @@ const AdvocateDashboard = ({ plan }: AdvocateDashboardProps) => {
     if (completedGoalsArray.length > 0) {
       completedGoalsArray.slice(0, 2).forEach((goal, index) => {
         const goalDate = goal?.completed_at ? new Date(goal.completed_at) : goal?.updated_at ? new Date(goal.updated_at) : new Date();
+        // Try to get student name from goal data
+        let goalStudentName = 'Student';
+        if (goal?.student_name) {
+          goalStudentName = goal.student_name;
+        } else if (goal?.student_id && students) {
+          const matchingStudent = (students as any[]).find(s => s?.id === goal.student_id);
+          if (matchingStudent?.full_name) {
+            goalStudentName = matchingStudent.full_name;
+          }
+        }
+        
         activities.push({
           id: `goal-${goal?.id || index}`,
           type: 'goal',
-          title: `Goal achieved: ${goal?.title || 'Student goal'}`,
-          description: goal?.description || `Successfully completed advocacy goal`,
+          title: `Goal achieved: ${goal?.title || goalStudentName + ' goal'}`,
+          description: goal?.description || `Successfully completed advocacy goal for ${goalStudentName}`,
           timestamp: goalDate,
           icon: Target,
           color: 'bg-emerald-100 dark:bg-emerald-900 text-emerald-600 dark:text-emerald-400',

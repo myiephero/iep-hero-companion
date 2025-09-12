@@ -38,19 +38,32 @@ const AdvocatePricingPlan = () => {
       };
     }
     
-    // Standard pricing for other plans
-    const monthlyPrice = tier.monthlyPrice;
+    // Custom annual pricing for Starter and Pro plans
     if (isAnnual) {
-      const annualPrice = Math.round(monthlyPrice * 12 * 0.9); // 10% discount
-      const monthlyEquivalent = Math.round(annualPrice / 12);
+      let annualMonthlyRate;
+      let annualTotal;
+      
+      if (tier.id === 'starter') {
+        annualMonthlyRate = 75; // $75/month when paid annually
+        annualTotal = 75 * 12; // $900/year
+      } else if (tier.id === 'pro') {
+        annualMonthlyRate = 149; // $149/month when paid annually
+        annualTotal = 149 * 12; // $1,788/year
+      } else {
+        // Fallback to 10% discount for other plans
+        annualTotal = Math.round(tier.monthlyPrice * 12 * 0.9);
+        annualMonthlyRate = Math.round(annualTotal / 12);
+      }
+      
       return {
-        price: `$${monthlyEquivalent}`,
+        price: `$${annualMonthlyRate}`,
         period: '/month',
-        annualTotal: `$${annualPrice}/year`
+        annualTotal: `$${annualTotal}/year`
       };
     }
+    
     return {
-      price: `$${monthlyPrice}`,
+      price: `$${tier.monthlyPrice}`,
       period: '/month',
       annualTotal: null
     };
@@ -60,7 +73,7 @@ const AdvocatePricingPlan = () => {
     {
       id: 'starter',
       name: 'Starter',
-      monthlyPrice: 49,
+      monthlyPrice: 99,
       seats: '1 Seat',
       description: 'Essential tools for solo advocates',
       toolCount: '12 Core Professional Tools',
@@ -90,7 +103,7 @@ const AdvocatePricingPlan = () => {
     {
       id: 'pro',
       name: 'Pro',
-      monthlyPrice: 75,
+      monthlyPrice: 199,
       seats: '1 Seat',
       description: 'Adds AI analysis and professional planning',
       toolCount: '20+ Tools + AI Analysis',

@@ -3,7 +3,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Link } from "react-router-dom";
-import { UpgradePrompt } from "@/components/UpgradePrompt";
+import { UpgradeDialog } from "@/components/UpgradePrompt";
 import { useToolAccess } from "@/hooks/useToolAccess";
 import { useAuth } from "@/hooks/useAuth";
 import { PlanFeatures, SubscriptionPlan } from "@/lib/planAccess";
@@ -157,20 +157,13 @@ function ToolCard({ tool, hasAccess, currentPlan }: ToolCardProps) {
           </Button>
         </CardContent>
 
-        {showUpgrade && (
-          <div className="absolute inset-0 bg-background/95 backdrop-blur-sm flex items-center justify-center p-4 z-10">
-            <div className="max-w-sm">
-              <UpgradePrompt
-                requiredPlan={tool.requiredPlan}
-                toolName={tool.title}
-                benefits={tool.features}
-                onClose={() => setShowUpgrade(false)}
-                className="border-0 bg-transparent shadow-lg"
-                data-testid={`upgrade-prompt-${tool.id}`}
-              />
-            </div>
-          </div>
-        )}
+        <UpgradeDialog
+          open={showUpgrade}
+          onOpenChange={setShowUpgrade}
+          requiredPlan={tool.requiredPlan}
+          toolName={tool.title}
+          benefits={tool.features}
+        />
       </Card>
     );
   }

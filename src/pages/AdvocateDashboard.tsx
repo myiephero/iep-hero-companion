@@ -990,9 +990,7 @@ const AdvocateDashboard = ({ plan }: AdvocateDashboardProps) => {
                       <h3 className="font-semibold text-lg mb-2 text-gray-900 dark:text-gray-100">Secure Client Communication</h3>
                       <p className="text-sm text-gray-600 dark:text-gray-400 mb-3">Secure client communication</p>
                       <div className="flex items-center gap-2">
-                        <span className="text-2xl font-bold text-indigo-600 dark:text-indigo-400">{(conversations as any[]).length}</span>
-                        <span className="text-sm text-gray-500">messages</span>
-                        {(conversations as any[]).length > 0 && <Badge variant="destructive" className="bg-red-500">New</Badge>}
+                        <Badge variant="outline" className="text-indigo-700 border-indigo-300">Secure</Badge>
                       </div>
                     </CardContent>
                   </Link>

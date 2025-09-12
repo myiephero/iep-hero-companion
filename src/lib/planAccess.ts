@@ -54,6 +54,7 @@ export interface PlanFeatures {
   // === ADVOCATE TOOLS (for dual-role users) ===
   clientManagement: boolean;
   caseAnalytics: boolean;
+  caseMatching: boolean;
   billingTools: boolean;
   scheduleManagement: boolean;
   teamCollaboration: boolean;
@@ -132,6 +133,7 @@ export const PLAN_FEATURES: Record<SubscriptionPlan, PlanFeatures> = {
     // Advocate Tools - None
     clientManagement: false,
     caseAnalytics: false,
+    caseMatching: false,
     billingTools: false,
     scheduleManagement: false,
     teamCollaboration: false,
@@ -206,6 +208,7 @@ export const PLAN_FEATURES: Record<SubscriptionPlan, PlanFeatures> = {
     // Advocate Tools - None
     clientManagement: false,
     caseAnalytics: false,
+    caseMatching: false,
     billingTools: false,
     scheduleManagement: false,
     teamCollaboration: false,
@@ -280,6 +283,7 @@ export const PLAN_FEATURES: Record<SubscriptionPlan, PlanFeatures> = {
     // Advocate Tools - None
     clientManagement: false,
     caseAnalytics: false,
+    caseMatching: false,
     billingTools: false,
     scheduleManagement: false,
     teamCollaboration: false,
@@ -354,6 +358,7 @@ export const PLAN_FEATURES: Record<SubscriptionPlan, PlanFeatures> = {
     // Advocate Tools - Basic (for dual-role access)
     clientManagement: true,
     caseAnalytics: false,
+    caseMatching: false,
     billingTools: false,
     scheduleManagement: true,
     teamCollaboration: false,
@@ -429,6 +434,7 @@ export const PLAN_FEATURES: Record<SubscriptionPlan, PlanFeatures> = {
     // Advocate Tools - Basic
     clientManagement: true,
     caseAnalytics: false,
+    caseMatching: false,
     billingTools: false,
     scheduleManagement: true,
     teamCollaboration: false,
@@ -503,6 +509,7 @@ export const PLAN_FEATURES: Record<SubscriptionPlan, PlanFeatures> = {
     // Advocate Tools - Enhanced
     clientManagement: true,
     caseAnalytics: true,
+    caseMatching: true,
     billingTools: true,
     scheduleManagement: true,
     teamCollaboration: true,
@@ -577,6 +584,7 @@ export const PLAN_FEATURES: Record<SubscriptionPlan, PlanFeatures> = {
     // Advocate Tools - Full
     clientManagement: true,
     caseAnalytics: true,
+    caseMatching: true,
     billingTools: true,
     scheduleManagement: true,
     teamCollaboration: true,
@@ -651,6 +659,7 @@ export const PLAN_FEATURES: Record<SubscriptionPlan, PlanFeatures> = {
     // Advocate Tools - Full
     clientManagement: true,
     caseAnalytics: true,
+    caseMatching: true,
     billingTools: true,
     scheduleManagement: true,
     teamCollaboration: true,

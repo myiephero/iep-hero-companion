@@ -16,6 +16,13 @@ Preferred communication style: Simple, everyday language.
 - Added backend security safeguards with server-side plan validation middleware
 - Verified system working across all advocate tiers (starter, pro, agency, agency-plus) with proper access control
 
+**September 12, 2025**: Updated Client Lead Matching System access control per user requirements
+- Removed 'Client Lead Matching System' from Starter plan as requested
+- Updated pricing pages (Subscribe.tsx and AdvocatePricingPlan.tsx) to reflect this change
+- Added new `caseMatching` feature to plan access control system
+- Client Lead Matching now available starting from Pro plan (not Starter)
+- Access hierarchy: Starter (no matching) → Pro/Agency/Agency-Plus (full matching access)
+
 **September 12, 2025**: Completed comprehensive tier-specific access control across entire advocate platform
 - ALL advocates now see the same unified Agency-tier interface for both tool hub AND dashboard features
 - Implemented tier-based restrictions with upgrade prompts on all major dashboard functions:

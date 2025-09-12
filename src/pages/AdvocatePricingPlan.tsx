@@ -140,7 +140,7 @@ const AdvocatePricingPlan = () => {
       description: 'Complete advocacy practice solution',
       toolCount: 'ALL 40+ Professional Tools + Enterprise',
       setupFee: 495,
-      annualPrice: 195, // Monthly rate when paid annually + setup fee ($2,338/year = ~$195/month)
+      annualPrice: 199, // Monthly rate when paid annually + setup fee ($2,388/year = $199/month)
       features: [
         'Everything in Pro',
         'Priority Client Matching & Premium Leads',

@@ -47,15 +47,15 @@ export const PARENT_STRIPE_PLANS: Record<string, StripePlanConfig> = {
 export const ADVOCATE_STRIPE_PLANS: Record<string, StripePlanConfig> = {
   // Monthly Plans
   starter: {
-    priceId: 'price_1Rr3gL8iKZXV0srZmfuD32yv', // PRODUCTION: Advocate Starter $49/month
-    amount: 49,
+    priceId: 'price_1Rr3gL8iKZXV0srZmfuD32yv', // PRODUCTION: Advocate Starter $99/month
+    amount: 99,
     interval: 'month',
     description: 'Essential tools for solo advocates',
     features: ['1 advocate seat', '12 tools', 'Basic CRM', 'Email support']
   },
   pro: {
-    priceId: 'price_1Rr3hR8iKZXV0srZ5lPscs0p', // PRODUCTION: Advocate Pro $75/month
-    amount: 75,
+    priceId: 'price_1Rr3hR8iKZXV0srZ5lPscs0p', // PRODUCTION: Advocate Pro $199/month
+    amount: 199,
     interval: 'month',
     description: 'AI analysis and professional planning',
     features: ['1 advocate seat', '20+ tools', 'AI analysis', 'Priority support']
@@ -72,17 +72,17 @@ export const ADVOCATE_STRIPE_PLANS: Record<string, StripePlanConfig> = {
   // Annual Plans (10% discount)
   'starter-annual': {
     priceId: 'price_advocate_starter_annual', // TODO: Create in Stripe Dashboard
-    amount: 529, // $49 * 12 * 0.9 = $529.20 rounded down
+    amount: 900, // $75 * 12 = $900
     interval: 'year',
     description: 'Essential tools for solo advocates (Annual)',
-    features: ['1 advocate seat', '12 tools', 'Basic CRM', 'Email support', '10% savings']
+    features: ['1 advocate seat', '12 tools', 'Basic CRM', 'Email support', 'Save $288/year']
   },
   'pro-annual': {
     priceId: 'price_advocate_pro_annual', // TODO: Create in Stripe Dashboard
-    amount: 810, // $75 * 12 * 0.9 = $810
+    amount: 1788, // $149 * 12 = $1,788
     interval: 'year',
     description: 'AI analysis and professional planning (Annual)',
-    features: ['1 advocate seat', '20+ tools', 'AI analysis', 'Priority support', '10% savings']
+    features: ['1 advocate seat', '20+ tools', 'AI analysis', 'Priority support', 'Save $600/year']
   },
   'agency-annual': {
     priceId: 'price_advocate_agency_annual', // TODO: Create in Stripe Dashboard

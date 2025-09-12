@@ -86,7 +86,7 @@ export const ADVOCATE_STRIPE_PLANS: Record<string, StripePlanConfig> = {
   },
   'agency-annual': {
     priceId: 'price_advocate_agency_annual', // TODO: Create in Stripe Dashboard
-    amount: 2388, // $199 * 12 = $2,388
+    amount: 2338, // $194.83 * 12 = $2,338 (reduced from $2,388)
     interval: 'year',
     description: 'Complete advocacy practice solution (Annual)',
     features: ['3 advocate seats', 'ALL 40+ tools', 'Enterprise features', 'Unlimited AI'],

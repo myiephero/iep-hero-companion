@@ -1665,7 +1665,7 @@ const AdvocateStudents = () => {
                       </CardHeader>
                       <CardContent>
                         {/* Beautiful functional cards */}
-                          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 gap-4 mt-6">
+                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 gap-4 mt-6">
                             {(() => {
                               const giftedCategories = [
                                 {
@@ -1781,8 +1781,7 @@ const AdvocateStudents = () => {
                               );
                             })()}
                           </div>
-                        </div>
-
+                        
                         {/* Show existing assessments if any */}
                         {giftedAssessments.length > 0 && (
                           <div className="mt-8 space-y-4">

@@ -19,7 +19,27 @@ const AdvocatePricingPlan = () => {
   const [isAnnual, setIsAnnual] = useState(false);
   const { toast } = useToast();
 
-  const getPriceForPlan = (monthlyPrice: number, isAnnual: boolean) => {
+  const getPriceForPlan = (tier: any, isAnnual: boolean) => {
+    // Handle Agency plan with setup fee (like Hero Parent plan)
+    if (tier.id === 'agency') {
+      if (isAnnual) {
+        return {
+          price: `$${tier.annualPrice}`,
+          period: '/month',
+          annualTotal: `$${tier.annualPrice * 12}/year + $${tier.setupFee} setup fee`,
+          setupFee: tier.setupFee
+        };
+      }
+      return {
+        price: `$${tier.monthlyPrice}`,
+        period: '/month',
+        annualTotal: null,
+        setupFee: tier.setupFee
+      };
+    }
+    
+    // Standard pricing for other plans
+    const monthlyPrice = tier.monthlyPrice;
     if (isAnnual) {
       const annualPrice = Math.round(monthlyPrice * 12 * 0.9); // 10% discount
       const monthlyEquivalent = Math.round(annualPrice / 12);
@@ -101,13 +121,16 @@ const AdvocatePricingPlan = () => {
     {
       id: 'agency',
       name: 'Agency',
-      monthlyPrice: 149,
-      seats: '2 Seats',
-      description: 'Team collaboration with billing tools',
-      toolCount: '30+ Professional Tools + Team',
+      monthlyPrice: 249,
+      seats: '3 Seats',
+      description: 'Complete advocacy practice solution',
+      toolCount: 'ALL 40+ Professional Tools + Enterprise',
+      setupFee: 495,
+      annualPrice: 199, // Monthly rate when paid annually + setup fee
       features: [
         'Everything in Pro',
-        '2 Advocate seats',
+        '3 Advocate seats (+ $39/month per additional seat)',
+        'Unlimited AI Credits & Analysis',
         'Team CRM access',
         'Billing & Invoicing tools (Coming Soon)',
         'Time tracking system (Coming Soon)',
@@ -118,14 +141,16 @@ const AdvocatePricingPlan = () => {
         'Advocacy Reports generation',
         'Professional behavioral support',
         'Legal compliance tools',
-        'Phone support (20GB storage)'
+        'White-label branding options (Coming Soon)',
+        'Dedicated account manager (Coming Soon)',
+        'Custom integrations & API access (Coming Soon)',
+        'Professional training hub access (Coming Soon)',
+        'Crisis intervention planning tools (Coming Soon)',
+        'Unlimited storage & premium priority support'
       ],
-      limitations: [
-        'Limited to 2 advocates',
-        'No white-label options'
-      ],
+      limitations: [],
       icon: <Crown className="h-6 w-6" />,
-      gradient: 'from-green-500 to-green-600',
+      gradient: 'from-amber-500 to-orange-600',
       popular: false
     }
   ];
@@ -241,7 +266,7 @@ const AdvocatePricingPlan = () => {
               <div className="inline-flex items-center px-6 py-3 bg-muted/50 rounded-lg">
                 <Users className="h-4 w-4 mr-2 text-muted-foreground" />
                 <span className="text-sm text-muted-foreground">
-                  <strong>Agency+ Extra Seats:</strong> $39/month each - Flexible expansion for larger teams
+                  <strong>Agency Extra Seats:</strong> $39/month each - Flexible expansion for larger teams
                 </span>
               </div>
             </div>
@@ -279,12 +304,17 @@ const AdvocatePricingPlan = () => {
                     </div>
                     <div className="flex flex-col items-center justify-center mt-4">
                       <div className="flex items-baseline gap-1">
-                        <span className="text-3xl font-bold">{getPriceForPlan(tier.monthlyPrice, isAnnual).price}</span>
-                        <span className="text-muted-foreground text-sm">{getPriceForPlan(tier.monthlyPrice, isAnnual).period}</span>
+                        <span className="text-3xl font-bold">{getPriceForPlan(tier, isAnnual).price}</span>
+                        <span className="text-muted-foreground text-sm">{getPriceForPlan(tier, isAnnual).period}</span>
                       </div>
-                      {isAnnual && getPriceForPlan(tier.monthlyPrice, isAnnual).annualTotal && (
+                      {getPriceForPlan(tier, isAnnual).annualTotal && (
                         <div className="text-xs text-muted-foreground mt-1">
-                          {getPriceForPlan(tier.monthlyPrice, isAnnual).annualTotal} billed annually
+                          {getPriceForPlan(tier, isAnnual).annualTotal}
+                        </div>
+                      )}
+                      {getPriceForPlan(tier, isAnnual).setupFee && !isAnnual && (
+                        <div className="text-xs text-amber-600 font-medium mt-1">
+                          + ${getPriceForPlan(tier, isAnnual).setupFee} setup fee
                         </div>
                       )}
                     </div>
@@ -330,100 +360,6 @@ const AdvocatePricingPlan = () => {
           </div>
         </div>
 
-        {/* Agency+ - Enterprise Upsell */}
-        <div className="px-6 pb-16">
-          <div className="max-w-6xl mx-auto">
-            <Card className="bg-gradient-to-r from-amber-600 to-orange-600 border-amber-500 relative overflow-hidden min-h-[400px]">
-              <div className="absolute inset-0 bg-gradient-to-r from-amber-600/90 to-orange-600/90" />
-              <div className="relative z-10 p-8">
-                <div className="grid lg:grid-cols-2 gap-8 items-center">
-                  <div>
-                    <div className="flex items-center gap-3 mb-4">
-                      <div className="w-16 h-16 bg-white/20 rounded-2xl flex items-center justify-center">
-                        <Crown className="h-8 w-8 text-white" />
-                      </div>
-                      <div>
-                        <h3 className="text-2xl font-bold text-white">Agency+ Enterprise</h3>
-                        <p className="text-amber-100">Complete advocacy practice solution</p>
-                      </div>
-                    </div>
-                    
-                    <div className="mb-6">
-                      <div className="mb-4">
-                        <Badge variant="secondary" className="bg-white/20 text-white border-white/30 mb-3">
-                          ALL 40+ Professional Tools
-                        </Badge>
-                      </div>
-                      
-                      <h4 className="text-lg font-semibold text-white mb-3">Enterprise Features Include:</h4>
-                      <div className="grid md:grid-cols-1 gap-2 mb-4">
-                        <div className="flex items-center gap-2 text-white">
-                          <Check className="h-4 w-4 text-amber-200" />
-                          <span className="text-sm">3 Advocate seats (+ $39/month per additional seat)</span>
-                        </div>
-                        <div className="flex items-center gap-2 text-white">
-                          <Check className="h-4 w-4 text-amber-200" />
-                          <span className="text-sm">Unlimited AI Credits & Analysis</span>
-                        </div>
-                        <div className="flex items-center gap-2 text-white">
-                          <Check className="h-4 w-4 text-amber-200" />
-                          <span className="text-sm">White-label branding options (Coming Soon)</span>
-                        </div>
-                        <div className="flex items-center gap-2 text-white">
-                          <Check className="h-4 w-4 text-amber-200" />
-                          <span className="text-sm">Dedicated account manager (Coming Soon)</span>
-                        </div>
-                        <div className="flex items-center gap-2 text-white">
-                          <Check className="h-4 w-4 text-amber-200" />
-                          <span className="text-sm">Custom integrations & API access (Coming Soon)</span>
-                        </div>
-                        <div className="flex items-center gap-2 text-white">
-                          <Check className="h-4 w-4 text-amber-200" />
-                          <span className="text-sm">Professional training hub access (Coming Soon)</span>
-                        </div>
-                        <div className="flex items-center gap-2 text-white">
-                          <Check className="h-4 w-4 text-amber-200" />
-                          <span className="text-sm">Crisis intervention planning tools (Coming Soon)</span>
-                        </div>
-                        <div className="flex items-center gap-2 text-white">
-                          <Check className="h-4 w-4 text-amber-200" />
-                          <span className="text-sm">Unlimited storage & premium priority support</span>
-                        </div>
-                      </div>
-                      
-                      <div className="bg-white/10 rounded-lg p-4 mb-6">
-                        <p className="text-sm text-amber-100">
-                          <strong>Perfect for:</strong> Established advocacy practices ready to scale with enterprise-grade tools, white-label solutions, and dedicated support to grow their business.
-                        </p>
-                      </div>
-                    </div>
-                  </div>
-                  
-                  <div className="text-center lg:text-right">
-                    <div className="mb-6">
-                      <div className="text-sm text-amber-100 mb-2">Enterprise Investment</div>
-                      <div className="flex items-baseline justify-center lg:justify-end gap-2">
-                        <span className="text-4xl font-bold text-white">$249</span>
-                        <span className="text-amber-100">/month</span>
-                      </div>
-                      <div className="text-sm text-amber-200 mt-2">3 advocates included</div>
-                      <div className="text-xs text-amber-300 mt-1">Extra seats: $39/month each</div>
-                    </div>
-                    
-                    <Button 
-                      size="lg"
-                      className="bg-white text-amber-600 hover:bg-amber-50 font-semibold px-8 py-4"
-                      onClick={() => handlePlanSelection('agency-plus')}
-                      data-testid="button-select-agency-plus"
-                    >
-                      Start Agency+ Plan
-                    </Button>
-                  </div>
-                </div>
-              </div>
-            </Card>
-          </div>
-        </div>
 
       </div>
   );

@@ -79,7 +79,6 @@ const AdvocatePricingPlan = () => {
       toolCount: '12 Core Professional Tools',
       features: [
         '1 Advocate seat',
-        'Client Lead Matching System',
         'Client Management CRM',
         'Unified IEP Review',
         'Smart Letter Generator',

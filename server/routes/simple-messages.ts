@@ -42,7 +42,7 @@ router.get('/conversations', requireAuth, async (req: any, res) => {
       return res.status(404).json({ error: 'User profile not found' });
     }
     
-    let conversations = [];
+    let conversations: any[] = [];
     
     if (userProfile.role === 'advocate') {
       // Advocate: Get conversations where they are the advocate
@@ -62,8 +62,13 @@ router.get('/conversations', requireAuth, async (req: any, res) => {
             createdAt: schema.conversations.created_at,
             parentId: schema.conversations.parent_id,
             studentId: schema.conversations.student_id,
+            // Include parent name information
+            parentFirstName: schema.users.firstName,
+            parentLastName: schema.users.lastName,
+            parentEmail: schema.users.email,
           })
           .from(schema.conversations)
+          .leftJoin(schema.users, eq(schema.conversations.parent_id, schema.users.id))
           .where(eq(schema.conversations.advocate_id, advocate.id))
           .orderBy(desc(schema.conversations.last_message_at));
       }
@@ -78,8 +83,13 @@ router.get('/conversations', requireAuth, async (req: any, res) => {
           createdAt: schema.conversations.created_at,
           parentId: schema.conversations.parent_id,
           studentId: schema.conversations.student_id,
+          // Include parent name information (self in this case)
+          parentFirstName: schema.users.firstName,
+          parentLastName: schema.users.lastName,
+          parentEmail: schema.users.email,
         })
         .from(schema.conversations)
+        .leftJoin(schema.users, eq(schema.conversations.parent_id, schema.users.id))
         .where(eq(schema.conversations.parent_id, userId))
         .orderBy(desc(schema.conversations.last_message_at));
     }

@@ -751,8 +751,8 @@ const AdvocateStudents = () => {
       return response.json();
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['/api/gifted-ai-analysis'] });
-      queryClient.invalidateQueries({ queryKey: ['/api/gifted-profile'] });
+      queryClient.invalidateQueries({ queryKey: ['/api/gifted-ai-analysis', selectedStudentId] });
+      queryClient.invalidateQueries({ queryKey: ['/api/gifted-profile', selectedStudentId] });
       toast({
         title: "AI Analysis Generated",
         description: "Professional AI insights have been generated successfully.",

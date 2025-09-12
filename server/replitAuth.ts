@@ -215,49 +215,7 @@ export async function setupAuth(app: Express) {
     
     if (!user || !user.claims) {
       console.log('❌ No user or claims found in session');
-      
-      // FALLBACK: Since session isn't working, look for any valid token for current user
-      // This is a temporary solution to complete the auth fix
-      console.log('🔄 Looking for any valid tokens in database...');
-      
-      try {
-        const { db } = await import('../server/db');
-        const schema = await import('../shared/schema');
-        const { desc, eq } = await import('drizzle-orm');
-        
-        // Get the most recent valid advocate token (we know one exists)
-        const tokens = await db
-          .select()
-          .from(schema.auth_tokens)
-          .where(eq(schema.auth_tokens.user_role, 'advocate'))
-          .orderBy(desc(schema.auth_tokens.created_at))
-          .limit(1);
-        
-        console.log('🔍 Token query result:', tokens.length > 0 ? 'Found' : 'Not found');
-        
-        if (tokens.length > 0) {
-          const tokenRecord = tokens[0];
-          console.log('✅ Found valid advocate token for user:', tokenRecord.user_id);
-          const dbUser = await storage.getUser(tokenRecord.user_id);
-          
-          return res.json({
-            id: tokenRecord.user_id,
-            email: dbUser?.email,
-            firstName: dbUser?.firstName,
-            lastName: dbUser?.lastName,
-            profileImageUrl: dbUser?.profileImageUrl,
-            role: tokenRecord.user_role,
-            authToken: tokenRecord.token
-          });
-        }
-        
-        console.log('❌ No valid advocate tokens found in database');
-      } catch (error) {
-        console.log('❌ Error looking for tokens:', error);
-        console.error(error);
-      }
-      
-      return res.status(401).json({ message: "Not authenticated" });
+      return res.status(401).json({ error: 'Unauthorized - No valid session found' });
     }
     
     console.log('✅ User found in session, returning user data');

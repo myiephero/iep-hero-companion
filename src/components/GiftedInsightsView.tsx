@@ -312,150 +312,112 @@ export const GiftedInsightsView = ({
                 </CardContent>
               </Card>
 
-              {/* Key Findings */}
-              {currentAnalysis.key_findings && (
-                <Card>
-                  <CardHeader>
-                    <CardTitle className="flex items-center gap-2">
-                      <Star className="h-5 w-5 text-yellow-600" />
-                      Key Findings
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <ul className="space-y-3">
-                      {currentAnalysis.key_findings.map((finding: string, index: number) => (
-                        <li key={index} className="flex items-start gap-3">
-                          <CheckCircle className="h-5 w-5 text-green-600 mt-0.5 flex-shrink-0" />
-                          <span className="text-muted-foreground">{finding}</span>
-                        </li>
-                      ))}
-                    </ul>
-                  </CardContent>
-                </Card>
-              )}
+              {/* Dynamic AI Analysis Sections */}
+              {typeof currentAnalysis === 'object' && currentAnalysis !== null && 
+                Object.entries(currentAnalysis).map(([sectionKey, sectionValue], index) => {
+                  // Skip empty or null values
+                  if (!sectionValue) return null;
 
-              {/* Detailed Analysis */}
-              {currentAnalysis.detailed_analysis && (
-                <Card>
-                  <CardHeader>
-                    <CardTitle className="flex items-center gap-2">
-                      <Brain className="h-5 w-5 text-purple-600" />
-                      {isAdvocateView ? 'Professional Assessment Analysis' : 'Detailed Analysis'}
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="prose prose-sm max-w-none dark:prose-invert">
-                      <p className="text-muted-foreground whitespace-pre-wrap">
-                        {currentAnalysis.detailed_analysis}
+                  // Get appropriate icon and color based on section name/content
+                  const getSectionIcon = (key: string) => {
+                    const lowerKey = key.toLowerCase();
+                    if (lowerKey.includes('progress') || lowerKey.includes('monitoring')) return { icon: Target, color: 'text-purple-600' };
+                    if (lowerKey.includes('assessment') || lowerKey.includes('data')) return { icon: Brain, color: 'text-blue-600' };
+                    if (lowerKey.includes('accommodation') || lowerKey.includes('strategy')) return { icon: Lightbulb, color: 'text-yellow-600' };
+                    if (lowerKey.includes('goal') || lowerKey.includes('recommendation')) return { icon: BookOpen, color: 'text-green-600' };
+                    if (lowerKey.includes('need') || lowerKey.includes('additional')) return { icon: AlertCircle, color: 'text-orange-600' };
+                    if (lowerKey.includes('intervention') || lowerKey.includes('evidence')) return { icon: Star, color: 'text-indigo-600' };
+                    if (lowerKey.includes('social') || lowerKey.includes('emotional')) return { icon: Users, color: 'text-pink-600' };
+                    return { icon: CheckCircle, color: 'text-gray-600' };
+                  };
+
+                  const { icon: IconComponent, color } = getSectionIcon(sectionKey);
+
+                  // Format section title
+                  const formatSectionTitle = (key: string) => {
+                    return key.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
+                  };
+
+                  // Render different content types
+                  const renderSectionContent = (value: any) => {
+                    if (typeof value === 'string') {
+                      return (
+                        <div className="prose prose-sm max-w-none dark:prose-invert">
+                          <p className="text-muted-foreground whitespace-pre-wrap">{value}</p>
+                        </div>
+                      );
+                    }
+
+                    if (Array.isArray(value)) {
+                      return (
+                        <ul className="space-y-2 text-sm">
+                          {value.map((item: string, i: number) => (
+                            <li key={i} className="flex items-start gap-2">
+                              <ArrowRight className={`h-3 w-3 ${color} mt-1 flex-shrink-0`} />
+                              <span className="text-muted-foreground">{item}</span>
+                            </li>
+                          ))}
+                        </ul>
+                      );
+                    }
+
+                    if (typeof value === 'object' && value !== null) {
+                      return (
+                        <div className="space-y-3">
+                          {Object.entries(value).map(([subKey, subValue], subIndex) => (
+                            <div key={subIndex}>
+                              <h4 className="text-sm font-medium text-gray-900 dark:text-white mb-2">
+                                {formatSectionTitle(subKey)}
+                              </h4>
+                              {Array.isArray(subValue) ? (
+                                <ul className="space-y-1 text-sm ml-4">
+                                  {subValue.map((item: string, i: number) => (
+                                    <li key={i} className="flex items-start gap-2">
+                                      <ArrowRight className={`h-3 w-3 ${color} mt-1 flex-shrink-0`} />
+                                      <span className="text-muted-foreground">{item}</span>
+                                    </li>
+                                  ))}
+                                </ul>
+                              ) : (
+                                <p className="text-muted-foreground text-sm ml-4 whitespace-pre-wrap">
+                                  {String(subValue)}
+                                </p>
+                              )}
+                            </div>
+                          ))}
+                        </div>
+                      );
+                    }
+
+                    return (
+                      <p className="text-muted-foreground text-sm">
+                        {String(value)}
                       </p>
-                    </div>
-                  </CardContent>
-                </Card>
-              )}
+                    );
+                  };
 
-              {/* Recommendations Grid */}
-              <div className="grid gap-6 md:grid-cols-2">
-                {/* Educational Recommendations */}
-                {currentAnalysis.educational_recommendations && (
-                  <Card>
-                    <CardHeader>
-                      <CardTitle className="flex items-center gap-2 text-base">
-                        <BookOpen className="h-4 w-4 text-blue-600" />
-                        {isAdvocateView ? 'IEP Programming Recommendations' : 'Educational Recommendations'}
-                      </CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                      <ul className="space-y-2 text-sm">
-                        {currentAnalysis.educational_recommendations.map((rec: string, i: number) => (
-                          <li key={i} className="flex items-start gap-2">
-                            <ArrowRight className="h-3 w-3 text-blue-600 mt-1 flex-shrink-0" />
-                            <span className="text-muted-foreground">{rec}</span>
-                          </li>
-                        ))}
-                      </ul>
-                    </CardContent>
-                  </Card>
-                )}
-
-                {/* Enrichment Activities */}
-                {currentAnalysis.enrichment_activities && (
-                  <Card>
-                    <CardHeader>
-                      <CardTitle className="flex items-center gap-2 text-base">
-                        <Lightbulb className="h-4 w-4 text-yellow-600" />
-                        Enrichment Activities
-                      </CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                      <ul className="space-y-2 text-sm">
-                        {currentAnalysis.enrichment_activities.map((activity: string, i: number) => (
-                          <li key={i} className="flex items-start gap-2">
-                            <ArrowRight className="h-3 w-3 text-yellow-600 mt-1 flex-shrink-0" />
-                            <span className="text-muted-foreground">{activity}</span>
-                          </li>
-                        ))}
-                      </ul>
-                    </CardContent>
-                  </Card>
-                )}
-
-                {/* Social-Emotional Support */}
-                {currentAnalysis.social_emotional_support && (
-                  <Card>
-                    <CardHeader>
-                      <CardTitle className="flex items-center gap-2 text-base">
-                        <Users className="h-4 w-4 text-green-600" />
-                        Social-Emotional Support
-                      </CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                      <ul className="space-y-2 text-sm">
-                        {currentAnalysis.social_emotional_support.map((support: string, i: number) => (
-                          <li key={i} className="flex items-start gap-2">
-                            <ArrowRight className="h-3 w-3 text-green-600 mt-1 flex-shrink-0" />
-                            <span className="text-muted-foreground">{support}</span>
-                          </li>
-                        ))}
-                      </ul>
-                    </CardContent>
-                  </Card>
-                )}
-
-                {/* Twice-Exceptional Support */}
-                {currentAnalysis.twice_exceptional_support && (
-                  <Card>
-                    <CardHeader>
-                      <CardTitle className="flex items-center gap-2 text-base">
-                        <Target className="h-4 w-4 text-purple-600" />
-                        Twice-Exceptional Support
-                      </CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                      <ul className="space-y-2 text-sm">
-                        {currentAnalysis.twice_exceptional_support.map((support: string, i: number) => (
-                          <li key={i} className="flex items-start gap-2">
-                            <ArrowRight className="h-3 w-3 text-purple-600 mt-1 flex-shrink-0" />
-                            <span className="text-muted-foreground">{support}</span>
-                          </li>
-                        ))}
-                      </ul>
-                    </CardContent>
-                  </Card>
-                )}
-              </div>
-
-              {/* Evidence Base */}
-              {currentAnalysis.evidence_base && (
+                  return (
+                    <Card key={sectionKey} data-testid={`analysis-section-${sectionKey.toLowerCase().replace(/\s+/g, '-')}`}>
+                      <CardHeader>
+                        <CardTitle className="flex items-center gap-2">
+                          <IconComponent className={`h-5 w-5 ${color}`} />
+                          {formatSectionTitle(sectionKey)}
+                        </CardTitle>
+                      </CardHeader>
+                      <CardContent>
+                        {renderSectionContent(sectionValue)}
+                      </CardContent>
+                    </Card>
+                  );
+                })}
+              
+              {/* Fallback message if no analysis content */}
+              {(!currentAnalysis || (typeof currentAnalysis === 'object' && Object.keys(currentAnalysis).length === 0)) && (
                 <Card>
-                  <CardHeader>
-                    <CardTitle className="flex items-center gap-2">
-                      <BookOpen className="h-5 w-5 text-indigo-600" />
-                      Evidence-Based Foundation
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <p className="text-muted-foreground text-sm">
-                      {currentAnalysis.evidence_base}
+                  <CardContent className="p-8 text-center">
+                    <AlertCircle className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+                    <p className="text-muted-foreground">
+                      No analysis content available. Please try generating the AI insights again.
                     </p>
                   </CardContent>
                 </Card>

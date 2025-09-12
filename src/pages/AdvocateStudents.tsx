@@ -719,6 +719,26 @@ const AdvocateStudents = () => {
     enabled: !!selectedStudentId
   });
 
+  // Fetch accommodations for selected student - THIS WAS MISSING!
+  const { data: fetchedAccommodations } = useQuery({
+    queryKey: ['/api/accommodations', selectedStudentId],
+    queryFn: async () => {
+      if (!selectedStudentId) return [];
+      const response = await apiRequest('GET', `/api/accommodations?student_id=${selectedStudentId}`);
+      return response.json();
+    },
+    enabled: !!selectedStudentId
+  });
+
+  // Update accommodations state when data changes
+  useEffect(() => {
+    if (fetchedAccommodations) {
+      setAccommodations(fetchedAccommodations);
+    } else {
+      setAccommodations([]);
+    }
+  }, [fetchedAccommodations]);
+
   // Mutations for gifted assessments
   const createGiftedAssessmentMutation = useMutation({
     mutationFn: async (assessmentData: any) => {

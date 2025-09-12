@@ -1980,14 +1980,9 @@ const AdvocateStudents = () => {
                                     isSelectionMode 
                                       ? isSelected 
                                         ? 'border-primary bg-primary/5 shadow-sm' 
-                                        : 'border-muted hover:border-primary/50 cursor-pointer'
+                                        : 'border-muted hover:border-primary/50'
                                       : ''
                                   }`}
-                                  onClick={() => {
-                                    if (isSelectionMode) {
-                                      handleSelectAccommodation(accommodation.id, !isSelected);
-                                    }
-                                  }}
                                   data-testid={`accommodation-card-${accommodation.id}`}
                                 >
                                   <div className="flex items-start justify-between">

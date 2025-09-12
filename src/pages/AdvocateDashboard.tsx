@@ -10,6 +10,9 @@ import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/component
 import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest, queryClient } from "@/lib/queryClient";
+import { FeatureGate } from "@/components/FeatureGate";
+import { LockedActionButton } from "@/components/LockedActionButton";
+import { useToolAccess } from "@/hooks/useToolAccess";
 import { 
   Users, 
   Calendar, 
@@ -64,6 +67,7 @@ interface AdvocateDashboardProps {
 const AdvocateDashboard = ({ plan }: AdvocateDashboardProps) => {
   const { user } = useAuth();
   const { toast } = useToast();
+  const { canUse } = useToolAccess();
 
   useEffect(() => {
     // Check for pending subscription after login
@@ -619,20 +623,66 @@ const AdvocateDashboard = ({ plan }: AdvocateDashboardProps) => {
               
               {/* Quick Actions */}
               <div className="flex items-center gap-3">
-                <Button asChild variant="outline" size="sm" className="bg-white/80 backdrop-blur-sm hover:bg-white">
-                  <Link to="/advocate/messages" data-testid="quick-messages">
-                    <MessageSquare className="h-4 w-4 mr-2" />
-                    Messages
-                    {(conversations as any[]).length > 0 && <Badge className="ml-2 bg-red-500 text-white">{(conversations as any[]).length}</Badge>}
-                  </Link>
-                </Button>
+                <FeatureGate 
+                  requiredFeature="advocateMessaging"
+                  showUpgradePrompt={false}
+                  fallback={
+                    <LockedActionButton
+                      requiredFeature="advocateMessaging"
+                      variant="outline"
+                      size="sm"
+                      className="bg-white/80 backdrop-blur-sm hover:bg-white"
+                      data-testid="quick-messages-locked"
+                      upgradeBenefits={[
+                        "Direct messaging with parents and families",
+                        "Secure communication tracking",
+                        "Message templates and automation",
+                        "Professional correspondence tools"
+                      ]}
+                    >
+                      <MessageSquare className="h-4 w-4 mr-2" />
+                      Messages
+                    </LockedActionButton>
+                  }
+                >
+                  <Button asChild variant="outline" size="sm" className="bg-white/80 backdrop-blur-sm hover:bg-white">
+                    <Link to="/advocate/messages" data-testid="quick-messages">
+                      <MessageSquare className="h-4 w-4 mr-2" />
+                      Messages
+                      {(conversations as any[]).length > 0 && <Badge className="ml-2 bg-red-500 text-white">{(conversations as any[]).length}</Badge>}
+                    </Link>
+                  </Button>
+                </FeatureGate>
                 
-                <Button asChild size="sm" className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700">
-                  <Link to="/advocate/tools" data-testid="quick-tools">
-                    <Zap className="h-4 w-4 mr-2" />
-                    Access Tools
-                  </Link>
-                </Button>
+                <FeatureGate 
+                  requiredFeature="professionalAnalysis"
+                  showUpgradePrompt={false}
+                  fallback={
+                    <LockedActionButton
+                      requiredFeature="professionalAnalysis"
+                      size="sm"
+                      className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700"
+                      data-testid="quick-tools-locked"
+                      upgradeBenefits={[
+                        "Full access to 25+ professional tools",
+                        "IEP review and analysis tools",
+                        "Smart letter generation",
+                        "Meeting preparation wizards",
+                        "Professional advocacy reports"
+                      ]}
+                    >
+                      <Zap className="h-4 w-4 mr-2" />
+                      Access Tools
+                    </LockedActionButton>
+                  }
+                >
+                  <Button asChild size="sm" className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700">
+                    <Link to="/advocate/tools" data-testid="quick-tools">
+                      <Zap className="h-4 w-4 mr-2" />
+                      Access Tools
+                    </Link>
+                  </Button>
+                </FeatureGate>
               </div>
             </div>
           </div>
@@ -679,41 +729,63 @@ const AdvocateDashboard = ({ plan }: AdvocateDashboardProps) => {
             </CardContent>
           </Card>
 
-          <Card className="relative overflow-hidden group hover:shadow-lg transition-all duration-300 border-0 bg-gradient-to-br from-green-50 to-emerald-50 dark:from-green-950 dark:to-emerald-950">
-            <CardContent className="p-6">
-              <div className="flex items-center justify-between">
-                <div className="space-y-2">
-                  <p className="text-sm font-medium text-green-600 dark:text-green-400">This Week's Meetings</p>
-                  <div className="flex items-center gap-2">
-                    <p className="text-3xl font-bold text-green-900 dark:text-green-100">{upcomingMeetings.length}</p>
-                    <Badge variant="outline" className="text-green-700 border-green-300">Scheduled</Badge>
+          <FeatureGate 
+            requiredFeature="meetingScheduler"
+            upgradeBenefits={[
+              "Schedule and manage client meetings",
+              "Automated meeting reminders",
+              "Calendar integration",
+              "Meeting templates and agendas"
+            ]}
+            data-testid="stat-meetings-gate"
+          >
+            <Card className="relative overflow-hidden group hover:shadow-lg transition-all duration-300 border-0 bg-gradient-to-br from-green-50 to-emerald-50 dark:from-green-950 dark:to-emerald-950">
+              <CardContent className="p-6">
+                <div className="flex items-center justify-between">
+                  <div className="space-y-2">
+                    <p className="text-sm font-medium text-green-600 dark:text-green-400">This Week's Meetings</p>
+                    <div className="flex items-center gap-2">
+                      <p className="text-3xl font-bold text-green-900 dark:text-green-100" data-testid="stat-meetings-count">{upcomingMeetings.length}</p>
+                      <Badge variant="outline" className="text-green-700 border-green-300">Scheduled</Badge>
+                    </div>
+                    <p className="text-xs text-green-600/70 dark:text-green-400/70">Upcoming sessions</p>
                   </div>
-                  <p className="text-xs text-green-600/70 dark:text-green-400/70">Upcoming sessions</p>
+                  <div className="w-12 h-12 bg-green-100 dark:bg-green-900 rounded-lg flex items-center justify-center group-hover:scale-110 transition-transform">
+                    <CalendarIcon className="h-6 w-6 text-green-600 dark:text-green-400" />
+                  </div>
                 </div>
-                <div className="w-12 h-12 bg-green-100 dark:bg-green-900 rounded-lg flex items-center justify-center group-hover:scale-110 transition-transform">
-                  <CalendarIcon className="h-6 w-6 text-green-600 dark:text-green-400" />
-                </div>
-              </div>
-            </CardContent>
-          </Card>
+              </CardContent>
+            </Card>
+          </FeatureGate>
 
-          <Card className="relative overflow-hidden group hover:shadow-lg transition-all duration-300 border-0 bg-gradient-to-br from-purple-50 to-pink-50 dark:from-purple-950 dark:to-pink-950">
-            <CardContent className="p-6">
-              <div className="flex items-center justify-between">
-                <div className="space-y-2">
-                  <p className="text-sm font-medium text-purple-600 dark:text-purple-400">Goals Achieved</p>
-                  <div className="flex items-center gap-2">
-                    <p className="text-3xl font-bold text-purple-900 dark:text-purple-100">{completedGoals.length}</p>
-                    <Award className="h-4 w-4 text-yellow-500" />
+          <FeatureGate 
+            requiredFeature="goalManagement"
+            upgradeBenefits={[
+              "Set and track advocacy goals",
+              "Goal templates and recommendations",
+              "Progress tracking and analytics",
+              "Achievement reports and insights"
+            ]}
+            data-testid="stat-goals-gate"
+          >
+            <Card className="relative overflow-hidden group hover:shadow-lg transition-all duration-300 border-0 bg-gradient-to-br from-purple-50 to-pink-50 dark:from-purple-950 dark:to-pink-950">
+              <CardContent className="p-6">
+                <div className="flex items-center justify-between">
+                  <div className="space-y-2">
+                    <p className="text-sm font-medium text-purple-600 dark:text-purple-400">Goals Achieved</p>
+                    <div className="flex items-center gap-2">
+                      <p className="text-3xl font-bold text-purple-900 dark:text-purple-100" data-testid="stat-goals-count">{completedGoals.length}</p>
+                      <Award className="h-4 w-4 text-yellow-500" />
+                    </div>
+                    <p className="text-xs text-purple-600/70 dark:text-purple-400/70">Total completed</p>
                   </div>
-                  <p className="text-xs text-purple-600/70 dark:text-purple-400/70">Total completed</p>
+                  <div className="w-12 h-12 bg-purple-100 dark:bg-purple-900 rounded-lg flex items-center justify-center group-hover:scale-110 transition-transform">
+                    <Target className="h-6 w-6 text-purple-600 dark:text-purple-400" />
+                  </div>
                 </div>
-                <div className="w-12 h-12 bg-purple-100 dark:bg-purple-900 rounded-lg flex items-center justify-center group-hover:scale-110 transition-transform">
-                  <Target className="h-6 w-6 text-purple-600 dark:text-purple-400" />
-                </div>
-              </div>
-            </CardContent>
-          </Card>
+              </CardContent>
+            </Card>
+          </FeatureGate>
         </div>
 
         {/* Quick Access Grid - Integrated Sidebar Functions */}
@@ -803,187 +875,253 @@ const AdvocateDashboard = ({ plan }: AdvocateDashboardProps) => {
               </Card>
 
               {/* Document Vault */}
-              <Card className="group hover:shadow-xl transition-all duration-300 cursor-pointer border-0 bg-gradient-to-br from-orange-50 to-red-50 dark:from-orange-950/50 dark:to-red-950/50 hover:scale-105" data-testid="card-document-vault">
-                <Link to="/tools/document-vault" className="block">
-                  <CardContent className="p-6">
-                    <div className="flex items-center justify-between mb-4">
-                      <div className="w-12 h-12 bg-orange-100 dark:bg-orange-900 rounded-xl flex items-center justify-center group-hover:bg-orange-200 dark:group-hover:bg-orange-800 transition-colors">
-                        <Folder className="h-6 w-6 text-orange-600 dark:text-orange-400" />
+              <FeatureGate 
+                requiredFeature="documentVault"
+                upgradeBenefits={[
+                  "Secure document storage and sharing",
+                  "Client file organization",
+                  "Version control and history",
+                  "Secure parent access sharing"
+                ]}
+                data-testid="card-document-vault-gate"
+              >
+                <Card className="group hover:shadow-xl transition-all duration-300 cursor-pointer border-0 bg-gradient-to-br from-orange-50 to-red-50 dark:from-orange-950/50 dark:to-red-950/50 hover:scale-105" data-testid="card-document-vault">
+                  <Link to="/tools/document-vault" className="block">
+                    <CardContent className="p-6">
+                      <div className="flex items-center justify-between mb-4">
+                        <div className="w-12 h-12 bg-orange-100 dark:bg-orange-900 rounded-xl flex items-center justify-center group-hover:bg-orange-200 dark:group-hover:bg-orange-800 transition-colors">
+                          <Folder className="h-6 w-6 text-orange-600 dark:text-orange-400" />
+                        </div>
+                        <ArrowRight className="h-5 w-5 text-gray-400 group-hover:text-orange-600 group-hover:translate-x-1 transition-all" />
                       </div>
-                      <ArrowRight className="h-5 w-5 text-gray-400 group-hover:text-orange-600 group-hover:translate-x-1 transition-all" />
-                    </div>
-                    <h3 className="font-semibold text-lg mb-2 text-gray-900 dark:text-gray-100">Document Vault</h3>
-                    <p className="text-sm text-gray-600 dark:text-gray-400 mb-3">Secure document storage & sharing</p>
-                    <div className="flex items-center gap-2">
-                      <Badge variant="outline" className="text-orange-700 border-orange-300">Secure</Badge>
-                    </div>
-                  </CardContent>
-                </Link>
-              </Card>
+                      <h3 className="font-semibold text-lg mb-2 text-gray-900 dark:text-gray-100">Document Vault</h3>
+                      <p className="text-sm text-gray-600 dark:text-gray-400 mb-3">Secure document storage & sharing</p>
+                      <div className="flex items-center gap-2">
+                        <Badge variant="outline" className="text-orange-700 border-orange-300">Secure</Badge>
+                      </div>
+                    </CardContent>
+                  </Link>
+                </Card>
+              </FeatureGate>
 
               {/* Schedule */}
-              <Card className="group hover:shadow-xl transition-all duration-300 cursor-pointer border-0 bg-gradient-to-br from-teal-50 to-cyan-50 dark:from-teal-950/50 dark:to-cyan-950/50 hover:scale-105" data-testid="card-schedule">
-                <Link to="/advocate/schedule" className="block">
-                  <CardContent className="p-6">
-                    <div className="flex items-center justify-between mb-4">
-                      <div className="w-12 h-12 bg-teal-100 dark:bg-teal-900 rounded-xl flex items-center justify-center group-hover:bg-teal-200 dark:group-hover:bg-teal-800 transition-colors">
-                        <Calendar className="h-6 w-6 text-teal-600 dark:text-teal-400" />
+              <FeatureGate 
+                requiredFeature="meetingScheduler"
+                upgradeBenefits={[
+                  "Schedule and manage client meetings",
+                  "Automated meeting reminders",
+                  "Calendar integration and sync",
+                  "Meeting templates and agendas"
+                ]}
+                data-testid="card-schedule-gate"
+              >
+                <Card className="group hover:shadow-xl transition-all duration-300 cursor-pointer border-0 bg-gradient-to-br from-teal-50 to-cyan-50 dark:from-teal-950/50 dark:to-cyan-950/50 hover:scale-105" data-testid="card-schedule">
+                  <Link to="/advocate/schedule" className="block">
+                    <CardContent className="p-6">
+                      <div className="flex items-center justify-between mb-4">
+                        <div className="w-12 h-12 bg-teal-100 dark:bg-teal-900 rounded-xl flex items-center justify-center group-hover:bg-teal-200 dark:group-hover:bg-teal-800 transition-colors">
+                          <Calendar className="h-6 w-6 text-teal-600 dark:text-teal-400" />
+                        </div>
+                        <ArrowRight className="h-5 w-5 text-gray-400 group-hover:text-teal-600 group-hover:translate-x-1 transition-all" />
                       </div>
-                      <ArrowRight className="h-5 w-5 text-gray-400 group-hover:text-teal-600 group-hover:translate-x-1 transition-all" />
-                    </div>
-                    <h3 className="font-semibold text-lg mb-2 text-gray-900 dark:text-gray-100">Schedule</h3>
-                    <p className="text-sm text-gray-600 dark:text-gray-400 mb-3">Manage appointments and meetings</p>
-                    <div className="flex items-center gap-2">
-                      <span className="text-2xl font-bold text-teal-600 dark:text-teal-400">{upcomingMeetings.length}</span>
-                      <span className="text-sm text-gray-500">upcoming</span>
-                    </div>
-                  </CardContent>
-                </Link>
-              </Card>
+                      <h3 className="font-semibold text-lg mb-2 text-gray-900 dark:text-gray-100">Schedule</h3>
+                      <p className="text-sm text-gray-600 dark:text-gray-400 mb-3">Manage appointments and meetings</p>
+                      <div className="flex items-center gap-2">
+                        <span className="text-2xl font-bold text-teal-600 dark:text-teal-400">{upcomingMeetings.length}</span>
+                        <span className="text-sm text-gray-500">upcoming</span>
+                      </div>
+                    </CardContent>
+                  </Link>
+                </Card>
+              </FeatureGate>
 
               {/* Messages */}
-              <Card className="group hover:shadow-xl transition-all duration-300 cursor-pointer border-0 bg-gradient-to-br from-indigo-50 to-blue-50 dark:from-indigo-950/50 dark:to-blue-950/50 hover:scale-105" data-testid="card-messages">
-                <Link to="/advocate/messages" className="block">
-                  <CardContent className="p-6">
-                    <div className="flex items-center justify-between mb-4">
-                      <div className="w-12 h-12 bg-indigo-100 dark:bg-indigo-900 rounded-xl flex items-center justify-center group-hover:bg-indigo-200 dark:group-hover:bg-indigo-800 transition-colors">
-                        <Mail className="h-6 w-6 text-indigo-600 dark:text-indigo-400" />
+              <FeatureGate 
+                requiredFeature="advocateMessaging"
+                upgradeBenefits={[
+                  "Direct messaging with parents and families",
+                  "Secure communication tracking",
+                  "Message templates and automation",
+                  "Professional correspondence tools"
+                ]}
+                data-testid="card-messages-gate"
+              >
+                <Card className="group hover:shadow-xl transition-all duration-300 cursor-pointer border-0 bg-gradient-to-br from-indigo-50 to-blue-50 dark:from-indigo-950/50 dark:to-blue-950/50 hover:scale-105" data-testid="card-messages">
+                  <Link to="/advocate/messages" className="block">
+                    <CardContent className="p-6">
+                      <div className="flex items-center justify-between mb-4">
+                        <div className="w-12 h-12 bg-indigo-100 dark:bg-indigo-900 rounded-xl flex items-center justify-center group-hover:bg-indigo-200 dark:group-hover:bg-indigo-800 transition-colors">
+                          <Mail className="h-6 w-6 text-indigo-600 dark:text-indigo-400" />
+                        </div>
+                        <ArrowRight className="h-5 w-5 text-gray-400 group-hover:text-indigo-600 group-hover:translate-x-1 transition-all" />
                       </div>
-                      <ArrowRight className="h-5 w-5 text-gray-400 group-hover:text-indigo-600 group-hover:translate-x-1 transition-all" />
-                    </div>
-                    <h3 className="font-semibold text-lg mb-2 text-gray-900 dark:text-gray-100">Messages</h3>
-                    <p className="text-sm text-gray-600 dark:text-gray-400 mb-3">Communicate with parents & teams</p>
-                    <div className="flex items-center gap-2">
-                      <span className="text-2xl font-bold text-indigo-600 dark:text-indigo-400">{(conversations as any[]).length}</span>
-                      <span className="text-sm text-gray-500">conversations</span>
-                      {(conversations as any[]).length > 0 && <Badge variant="destructive" className="bg-red-500">New</Badge>}
-                    </div>
-                  </CardContent>
-                </Link>
-              </Card>
+                      <h3 className="font-semibold text-lg mb-2 text-gray-900 dark:text-gray-100">Messages</h3>
+                      <p className="text-sm text-gray-600 dark:text-gray-400 mb-3">Communicate with parents & teams</p>
+                      <div className="flex items-center gap-2">
+                        <span className="text-2xl font-bold text-indigo-600 dark:text-indigo-400">{(conversations as any[]).length}</span>
+                        <span className="text-sm text-gray-500">conversations</span>
+                        {(conversations as any[]).length > 0 && <Badge variant="destructive" className="bg-red-500">New</Badge>}
+                      </div>
+                    </CardContent>
+                  </Link>
+                </Card>
+              </FeatureGate>
 
               {/* Client Matching */}
-              <Card className="group hover:shadow-xl transition-all duration-300 cursor-pointer border-0 bg-gradient-to-br from-rose-50 to-pink-50 dark:from-rose-950/50 dark:to-pink-950/50 hover:scale-105" data-testid="card-client-matching">
-                <Link to="/advocate/matching" className="block">
-                  <CardContent className="p-6">
-                    <div className="flex items-center justify-between mb-4">
-                      <div className="w-12 h-12 bg-rose-100 dark:bg-rose-900 rounded-xl flex items-center justify-center group-hover:bg-rose-200 dark:group-hover:bg-rose-800 transition-colors">
-                        <HeartHandshake className="h-6 w-6 text-rose-600 dark:text-rose-400" />
+              <FeatureGate 
+                requiredFeature="caseMatching"
+                upgradeBenefits={[
+                  "Advanced client matching algorithms",
+                  "Case proposal management",
+                  "Client compatibility scoring",
+                  "Automated match notifications"
+                ]}
+                data-testid="card-client-matching-gate"
+              >
+                <Card className="group hover:shadow-xl transition-all duration-300 cursor-pointer border-0 bg-gradient-to-br from-rose-50 to-pink-50 dark:from-rose-950/50 dark:to-pink-950/50 hover:scale-105" data-testid="card-client-matching">
+                  <Link to="/advocate/matching" className="block">
+                    <CardContent className="p-6">
+                      <div className="flex items-center justify-between mb-4">
+                        <div className="w-12 h-12 bg-rose-100 dark:bg-rose-900 rounded-xl flex items-center justify-center group-hover:bg-rose-200 dark:group-hover:bg-rose-800 transition-colors">
+                          <HeartHandshake className="h-6 w-6 text-rose-600 dark:text-rose-400" />
+                        </div>
+                        <ArrowRight className="h-5 w-5 text-gray-400 group-hover:text-rose-600 group-hover:translate-x-1 transition-all" />
                       </div>
-                      <ArrowRight className="h-5 w-5 text-gray-400 group-hover:text-rose-600 group-hover:translate-x-1 transition-all" />
-                    </div>
-                    <h3 className="font-semibold text-lg mb-2 text-gray-900 dark:text-gray-100">Client Matching</h3>
-                    <p className="text-sm text-gray-600 dark:text-gray-400 mb-3">Review matched client requests</p>
-                    <div className="flex items-center gap-2">
-                      <span className="text-2xl font-bold text-rose-600 dark:text-rose-400">{totalPendingCount}</span>
-                      <span className="text-sm text-gray-500">pending</span>
-                      {totalPendingCount > 0 && <Badge variant="destructive" className="bg-red-500">New</Badge>}
-                    </div>
-                  </CardContent>
-                </Link>
-              </Card>
+                      <h3 className="font-semibold text-lg mb-2 text-gray-900 dark:text-gray-100">Client Matching</h3>
+                      <p className="text-sm text-gray-600 dark:text-gray-400 mb-3">Review matched client requests</p>
+                      <div className="flex items-center gap-2">
+                        <span className="text-2xl font-bold text-rose-600 dark:text-rose-400">{totalPendingCount}</span>
+                        <span className="text-sm text-gray-500">pending</span>
+                        {totalPendingCount > 0 && <Badge variant="destructive" className="bg-red-500">New</Badge>}
+                      </div>
+                    </CardContent>
+                  </Link>
+                </Card>
+              </FeatureGate>
 
               {/* Analytics/Reports */}
-              <Card className="group hover:shadow-xl transition-all duration-300 cursor-pointer border-0 bg-gradient-to-br from-amber-50 to-yellow-50 dark:from-amber-950/50 dark:to-yellow-950/50 hover:scale-105" data-testid="card-analytics">
-                <Link to="/advocate/reports" className="block">
-                  <CardContent className="p-6">
-                    <div className="flex items-center justify-between mb-4">
-                      <div className="w-12 h-12 bg-amber-100 dark:bg-amber-900 rounded-xl flex items-center justify-center group-hover:bg-amber-200 dark:group-hover:bg-amber-800 transition-colors">
-                        <BarChart3 className="h-6 w-6 text-amber-600 dark:text-amber-400" />
+              <FeatureGate 
+                requiredFeature="advocacyReports"
+                upgradeBenefits={[
+                  "Advanced analytics and reporting",
+                  "Success metrics tracking",
+                  "Client outcome analysis",
+                  "Professional report generation"
+                ]}
+                data-testid="card-analytics-gate"
+              >
+                <Card className="group hover:shadow-xl transition-all duration-300 cursor-pointer border-0 bg-gradient-to-br from-amber-50 to-yellow-50 dark:from-amber-950/50 dark:to-yellow-950/50 hover:scale-105" data-testid="card-analytics">
+                  <Link to="/advocate/reports" className="block">
+                    <CardContent className="p-6">
+                      <div className="flex items-center justify-between mb-4">
+                        <div className="w-12 h-12 bg-amber-100 dark:bg-amber-900 rounded-xl flex items-center justify-center group-hover:bg-amber-200 dark:group-hover:bg-amber-800 transition-colors">
+                          <BarChart3 className="h-6 w-6 text-amber-600 dark:text-amber-400" />
+                        </div>
+                        <ArrowRight className="h-5 w-5 text-gray-400 group-hover:text-amber-600 group-hover:translate-x-1 transition-all" />
                       </div>
-                      <ArrowRight className="h-5 w-5 text-gray-400 group-hover:text-amber-600 group-hover:translate-x-1 transition-all" />
-                    </div>
-                    <h3 className="font-semibold text-lg mb-2 text-gray-900 dark:text-gray-100">Analytics</h3>
-                    <p className="text-sm text-gray-600 dark:text-gray-400 mb-3">Track success metrics & insights</p>
-                    <div className="flex items-center gap-2">
-                      <Badge variant="outline" className="text-amber-700 border-amber-300">Coming Soon</Badge>
-                    </div>
-                  </CardContent>
-                </Link>
-              </Card>
+                      <h3 className="font-semibold text-lg mb-2 text-gray-900 dark:text-gray-100">Analytics</h3>
+                      <p className="text-sm text-gray-600 dark:text-gray-400 mb-3">Track success metrics & insights</p>
+                      <div className="flex items-center gap-2">
+                        <Badge variant="outline" className="text-amber-700 border-amber-300">Pro Features</Badge>
+                      </div>
+                    </CardContent>
+                  </Link>
+                </Card>
+              </FeatureGate>
             </div>
           )}
         </div>
 
 
         {/* Unified Activity Feed */}
-        <Card className="bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800 border-0">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Activity className="h-5 w-5" />
-              Recent Activity
-            </CardTitle>
-            <CardDescription>
-              Your latest advocacy activities and updates
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            {recentActivities.length > 0 ? (
-              <div className="space-y-3">
-                {recentActivities.map((activity) => {
-                  const IconComponent = activity.icon;
-                  return (
-                    <div 
-                      key={activity.id} 
-                      className="flex items-center gap-4 p-3 bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 hover:shadow-md transition-all duration-200 cursor-pointer"
-                      data-testid={`activity-${activity.type}-${activity.id}`}
-                      onClick={() => activity.link && (window.location.href = activity.link)}
-                    >
-                      <div className={`w-8 h-8 rounded-full flex items-center justify-center ${activity.color}`}>
-                        <IconComponent className="h-4 w-4" />
-                      </div>
-                      <div className="flex-1">
-                        <p className="text-sm font-medium text-gray-900 dark:text-gray-100" data-testid={`activity-title-${activity.id}`}>
-                          {activity.title}
-                        </p>
-                        {activity.description && (
-                          <p className="text-xs text-gray-600 dark:text-gray-400 mt-1" data-testid={`activity-description-${activity.id}`}>
-                            {activity.description}
+        <FeatureGate 
+          requiredFeature="caseAnalytics"
+          upgradeBenefits={[
+            "Advanced activity tracking and analytics",
+            "Detailed case progress monitoring",
+            "Client interaction insights",
+            "Performance metrics and trends"
+          ]}
+          data-testid="activity-feed-gate"
+        >
+          <Card className="bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800 border-0">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Activity className="h-5 w-5" />
+                Recent Activity
+              </CardTitle>
+              <CardDescription>
+                Your latest advocacy activities and updates
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              {recentActivities.length > 0 ? (
+                <div className="space-y-3">
+                  {recentActivities.map((activity) => {
+                    const IconComponent = activity.icon;
+                    return (
+                      <div 
+                        key={activity.id} 
+                        className="flex items-center gap-4 p-3 bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 hover:shadow-md transition-all duration-200 cursor-pointer"
+                        data-testid={`activity-${activity.type}-${activity.id}`}
+                        onClick={() => activity.link && (window.location.href = activity.link)}
+                      >
+                        <div className={`w-8 h-8 rounded-full flex items-center justify-center ${activity.color}`}>
+                          <IconComponent className="h-4 w-4" />
+                        </div>
+                        <div className="flex-1">
+                          <p className="text-sm font-medium text-gray-900 dark:text-gray-100" data-testid={`activity-title-${activity.id}`}>
+                            {activity.title}
                           </p>
+                          {activity.description && (
+                            <p className="text-xs text-gray-600 dark:text-gray-400 mt-1" data-testid={`activity-description-${activity.id}`}>
+                              {activity.description}
+                            </p>
+                          )}
+                          <p className="text-xs text-gray-500 mt-1" data-testid={`activity-time-${activity.id}`}>
+                            {getTimeAgo(activity.timestamp)}
+                          </p>
+                        </div>
+                        {activity.link && (
+                          <ArrowRight className="h-4 w-4 text-gray-400" />
                         )}
-                        <p className="text-xs text-gray-500 mt-1" data-testid={`activity-time-${activity.id}`}>
-                          {getTimeAgo(activity.timestamp)}
-                        </p>
                       </div>
-                      {activity.link && (
-                        <ArrowRight className="h-4 w-4 text-gray-400" />
-                      )}
-                    </div>
-                  );
-                })}
-              </div>
-            ) : (
-              <div className="text-center py-8 bg-white/50 dark:bg-gray-800/50 rounded-lg">
-                <div className="text-muted-foreground mb-4">
-                  <Activity className="h-12 w-12 mx-auto mb-2 opacity-50" />
-                  <p className="text-lg font-medium">No recent activity</p>
-                  <p className="text-sm">Your advocacy activities will appear here</p>
+                    );
+                  })}
                 </div>
-                <Button asChild variant="outline" data-testid="start-activity">
-                  <Link to="/advocate/matching">
-                    <Plus className="h-4 w-4 mr-2" />
-                    Start Your First Case
+              ) : (
+                <div className="text-center py-8 bg-white/50 dark:bg-gray-800/50 rounded-lg">
+                  <div className="text-muted-foreground mb-4">
+                    <Activity className="h-12 w-12 mx-auto mb-2 opacity-50" />
+                    <p className="text-lg font-medium">No recent activity</p>
+                    <p className="text-sm">Your advocacy activities will appear here</p>
+                  </div>
+                  <Button asChild variant="outline" data-testid="start-activity">
+                    <Link to="/advocate/matching">
+                      <Plus className="h-4 w-4 mr-2" />
+                      Start Your First Case
+                    </Link>
+                  </Button>
+                </div>
+              )}
+              
+              <div className="pt-4 border-t border-gray-200 dark:border-gray-700">
+                <Button 
+                  variant="outline" 
+                  size="sm" 
+                  className="w-full hover:bg-blue-50 dark:hover:bg-blue-900"
+                  asChild
+                  data-testid="view-all-activity"
+                >
+                  <Link to="/advocate/activity">
+                    View All Activity
+                    <ArrowRight className="h-4 w-4 ml-2" />
                   </Link>
                 </Button>
               </div>
-            )}
-            
-            <div className="pt-4 border-t border-gray-200 dark:border-gray-700">
-              <Button 
-                variant="outline" 
-                size="sm" 
-                className="w-full hover:bg-blue-50 dark:hover:bg-blue-900"
-                asChild
-                data-testid="view-all-activity"
-              >
-                <Link to="/advocate/activity">
-                  View All Activity
-                  <ArrowRight className="h-4 w-4 ml-2" />
-                </Link>
-              </Button>
-            </div>
-          </CardContent>
-        </Card>
+            </CardContent>
+          </Card>
+        </FeatureGate>
       </div>
     </DashboardLayout>
   );

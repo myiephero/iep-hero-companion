@@ -80,8 +80,7 @@ const AdvocatePricingPlan = () => {
       features: [
         '1 Advocate seat',
         'Client Management CRM',
-        'Unified IEP Review',
-        'Smart Letter Generator',
+        'Basic IEP Review (non-AI)',
         'Document Management',
         'Communication Tracker',
         'Progress Notes & Service Log',

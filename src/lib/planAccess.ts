@@ -386,20 +386,20 @@ export const PLAN_FEATURES: Record<SubscriptionPlan, PlanFeatures> = {
     // Dashboard Features - Basic
     goalManagement: true,
     meetingScheduler: true,
-    aiInsights: true,
+    aiInsights: false, // No AI insights for starter
     progressAnalytics: true,
     studentProfileManagement: true,
     subscriptionManagement: true,
     
-    // Analysis & Review Tools - Basic
-    iepReviewTool: true,
-    unifiedIEPReview: true,
-    askAIAboutDocs: true,
+    // Analysis & Review Tools - NO AI TOOLS FOR STARTER
+    iepReviewTool: true, // Basic review only, no AI
+    unifiedIEPReview: false, // AI tool - not available in starter
+    askAIAboutDocs: false, // AI tool - not available in starter
     expertAnalysis: false,
-    aiIEPReview: true,
+    aiIEPReview: false, // AI tool - not available in starter
     
-    // Communication & Documentation - Basic
-    smartLetterGenerator: true,
+    // Communication & Documentation - Basic (No AI tools)
+    smartLetterGenerator: false, // AI-powered tool not available in starter
     documentVault: true,
     parentMessages: false,
     communicationTracker: true,
@@ -438,14 +438,14 @@ export const PLAN_FEATURES: Record<SubscriptionPlan, PlanFeatures> = {
     billingTools: false,
     scheduleManagement: true,
     teamCollaboration: false,
-    professionalAnalysis: true,
+    professionalAnalysis: true, // Basic professional analysis tools available in Starter
     advocateMessaging: true,
     advocacyReports: false,
     caseManagement: true,
     professionalPlanning: true,
     professionalResources: true,
     businessManagement: false,
-    specializedProfessionalTools: true,
+    specializedProfessionalTools: false, // Enterprise-level compliance auditor tools - Agency+ only
     
     // Limits
     storageLimit: '10GB',
@@ -453,8 +453,8 @@ export const PLAN_FEATURES: Record<SubscriptionPlan, PlanFeatures> = {
     prioritySupport: false,
     maxChildren: 10,
     maxDocuments: 100,
-    aiAnalysisLimit: 25,
-    letterGenerationLimit: 50
+    aiAnalysisLimit: 0, // No AI tools available in Starter plan
+    letterGenerationLimit: 0 // No AI letter generator in Starter plan
   },
 
   pro: {

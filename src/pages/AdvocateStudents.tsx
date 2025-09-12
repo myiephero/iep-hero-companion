@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { DashboardLayout } from "@/layouts/DashboardLayout";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -1672,17 +1672,16 @@ const AdvocateStudents = () => {
                         </div>
                         
                         {/* Interactive Tool Cards */}
-                        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-2 mb-8">
+                        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3 mb-8">
                           {(() => {
                             const giftedToolCards = [
                               {
                                 id: "cognitive-assessment",
                                 title: "Cognitive Assessment",
                                 description: "Track intellectual abilities and learning patterns",
-                                icon: <Brain className="h-6 w-6" />,
-                                gradient: "from-purple-500 to-indigo-600",
-                                bgGradient: "from-purple-50 to-indigo-50 dark:from-purple-950 dark:to-indigo-950",
-                                borderColor: "border-purple-200 dark:border-purple-800",
+                                icon: <Brain className="h-5 w-5" />,
+                                iconColor: "text-pink-400",
+                                bgColor: "bg-gray-700 dark:bg-gray-700",
                                 category: "Intellectual",
                                 estimatedTime: "15-20 min"
                               },
@@ -1690,10 +1689,9 @@ const AdvocateStudents = () => {
                                 id: "enrichment-needs", 
                                 title: "Enrichment Needs",
                                 description: "Document advanced learning opportunities",
-                                icon: <Lightbulb className="h-6 w-6" />,
-                                gradient: "from-yellow-500 to-orange-600",
-                                bgGradient: "from-yellow-50 to-orange-50 dark:from-yellow-950 dark:to-orange-950", 
-                                borderColor: "border-yellow-200 dark:border-yellow-800",
+                                icon: <Lightbulb className="h-5 w-5" />,
+                                iconColor: "text-yellow-400",
+                                bgColor: "bg-gray-700 dark:bg-gray-700",
                                 category: "Academic",
                                 estimatedTime: "12-15 min"
                               },
@@ -1701,10 +1699,9 @@ const AdvocateStudents = () => {
                                 id: "2e-support",
                                 title: "2E Support", 
                                 description: "Address unique twice-exceptional needs",
-                                icon: <Target className="h-6 w-6" />,
-                                gradient: "from-green-500 to-emerald-600",
-                                bgGradient: "from-green-50 to-emerald-50 dark:from-green-950 dark:to-emerald-950",
-                                borderColor: "border-green-200 dark:border-green-800",
+                                icon: <Target className="h-5 w-5" />,
+                                iconColor: "text-red-400",
+                                bgColor: "bg-gray-700 dark:bg-gray-700",
                                 category: "2E Support", 
                                 estimatedTime: "10-15 min"
                               },
@@ -1712,13 +1709,22 @@ const AdvocateStudents = () => {
                                 id: "ai-insights",
                                 title: "AI Insights",
                                 description: "Get intelligent analysis and recommendations",
-                                icon: <Sparkles className="h-6 w-6" />,
-                                gradient: "from-orange-500 to-pink-600",
-                                bgGradient: "from-orange-50 to-pink-50 dark:from-orange-950 dark:to-pink-950",
-                                borderColor: "border-orange-200 dark:border-orange-800",
+                                icon: <Sparkles className="h-5 w-5" />,
+                                iconColor: "text-white",
+                                bgColor: "bg-gradient-to-r from-purple-600 to-pink-600",
                                 category: "AI Analysis",
                                 estimatedTime: "5 min",
                                 isNew: true
+                              },
+                              {
+                                id: "quick-assessment",
+                                title: "Quick Assessment",
+                                description: "Create a comprehensive assessment",
+                                icon: <BookOpen className="h-5 w-5" />,
+                                iconColor: "text-orange-300",
+                                bgColor: "bg-orange-800 dark:bg-orange-800",
+                                category: "Assessment",
+                                estimatedTime: "8-12 min"
                               }
                             ];
 
@@ -1770,6 +1776,9 @@ const AdvocateStudents = () => {
                                 case "ai-insights":
                                   setIsGiftedAIDialogOpen(true);
                                   break;
+                                case "quick-assessment":
+                                  setIsNewAssessmentDialogOpen(true);
+                                  break;
                                 default:
                                   break;
                               }
@@ -1781,68 +1790,30 @@ const AdvocateStudents = () => {
                               return (
                                 <Card 
                                   key={tool.id}
-                                  className="group relative overflow-hidden transition-all duration-300 hover:shadow-xl hover:-translate-y-1 cursor-pointer"
+                                  className={`${tool.bgColor} border-gray-600 hover:shadow-lg transition-all cursor-pointer text-white h-[140px] relative`}
                                   onClick={() => handleCardClick(tool.id)}
                                   data-testid={`card-${tool.id}`}
                                 >
-                                <div className={`absolute inset-0 bg-gradient-to-br ${tool.bgGradient} opacity-30`} />
-                                
-                                <CardHeader className="relative pb-4">
-                                  <div className="flex items-start justify-between mb-4">
-                                    <div className={`p-3 rounded-xl bg-gradient-to-r ${tool.gradient} text-white`}>
-                                      {tool.icon}
-                                    </div>
-                                    <div className="flex flex-col items-end gap-2">
+                                  <CardContent className="p-4 h-full flex flex-col justify-between">
+                                    <div className="flex items-start justify-between">
+                                      {React.cloneElement(tool.icon, { className: `h-5 w-5 ${tool.iconColor}` })}
                                       {tool.isNew && (
-                                        <Badge className="bg-gradient-to-r from-orange-500 to-pink-500 text-white font-bold">
-                                          <Sparkles className="h-3 w-3 mr-1" />
+                                        <Badge className="bg-orange-500 text-white text-xs font-bold px-2 py-1">
                                           NEW
                                         </Badge>
                                       )}
-                                      {isCompleted && (
-                                        <Badge className="bg-green-100 dark:bg-green-900 text-green-700 dark:text-green-300">
-                                          <CheckCircle className="h-3 w-3 mr-1" />
-                                          Complete
-                                        </Badge>
-                                      )}
                                     </div>
-                                  </div>
-                                  
-                                  <div>
-                                    <CardTitle className="text-lg font-semibold text-gray-900 dark:text-white mb-2">
-                                      {tool.title}
-                                    </CardTitle>
-                                    <CardDescription className="text-sm text-muted-foreground mb-3">
-                                      {tool.description}
-                                    </CardDescription>
-                                  </div>
-                                </CardHeader>
-
-                                <CardContent className="relative pt-0">
-                                  <div className="space-y-3 mb-4">
-                                    <div className="flex items-center justify-between text-xs">
-                                      <span className="text-muted-foreground">Estimated time:</span>
-                                      <span className="font-medium">{tool.estimatedTime}</span>
+                                    
+                                    <div>
+                                      <h3 className="font-semibold text-base mb-1">
+                                        {tool.title}
+                                      </h3>
+                                      <p className="text-gray-300 text-sm">
+                                        {tool.description}
+                                      </p>
                                     </div>
-                                    <div className="flex items-center justify-between text-xs">
-                                      <span className="text-muted-foreground">Category:</span>
-                                      <Badge variant="outline" className="text-xs">
-                                        {tool.category}
-                                      </Badge>
-                                    </div>
-                                  </div>
-
-                                  {/* Action Button */}
-                                  <div className={`flex items-center justify-between p-3 bg-gradient-to-r ${tool.bgGradient} rounded-lg border ${tool.borderColor}`}>
-                                    <span className="text-sm font-medium text-gray-900 dark:text-white">
-                                      {isCompleted ? 'Review Assessment' : 
-                                       tool.id === 'ai-insights' ? 'Generate Insights' : 
-                                       'Start Assessment'}
-                                    </span>
-                                    <ArrowRight className="h-4 w-4 text-gray-600 dark:text-gray-300 group-hover:translate-x-1 transition-transform" />
-                                  </div>
-                                </CardContent>
-                              </Card>
+                                  </CardContent>
+                                </Card>
                               );
                             });
                           })()}

@@ -69,23 +69,23 @@ export const ADVOCATE_STRIPE_PLANS: Record<string, StripePlanConfig> = {
     setupFee: 495
   },
 
-  // Annual Plans (10% discount)
+  // Annual Plans (significant savings vs monthly)
   'starter-annual': {
-    priceId: 'price_advocate_starter_annual', // TODO: Create in Stripe Dashboard
-    amount: 900, // $75 * 12 = $900
+    priceId: 'price_1S6eXk8iKZXV0srZYfDQoLE5', // Advocate Starter Annual $588/year
+    amount: 588, // $49 * 12 = $588
     interval: 'year',
     description: 'Essential tools for solo advocates (Annual)',
-    features: ['1 advocate seat', '12 tools', 'Basic CRM', 'Email support', 'Save $288/year']
+    features: ['1 advocate seat', '12 tools', 'Basic CRM', 'Email support', 'Save $600/year']
   },
   'pro-annual': {
-    priceId: 'price_advocate_pro_annual', // TODO: Create in Stripe Dashboard
-    amount: 1788, // $149 * 12 = $1,788
+    priceId: 'price_1S6eXk8iKZXV0srZk5htFfFP', // Advocate Pro Annual $900/year
+    amount: 900, // $75 * 12 = $900
     interval: 'year',
     description: 'AI analysis and professional planning (Annual)',
-    features: ['1 advocate seat', '20+ tools', 'AI analysis', 'Priority support', 'Save $600/year']
+    features: ['1 advocate seat', '20+ tools', 'AI analysis', 'Priority support', 'Save $1,488/year']
   },
   'agency-annual': {
-    priceId: 'price_advocate_agency_annual', // TODO: Create in Stripe Dashboard
+    priceId: 'price_1S6eXl8iKZXV0srZNPTt6cI1', // Advocate Agency Annual $2,388/year
     amount: 2388, // $199 * 12 = $2,388
     interval: 'year',
     description: 'Complete advocacy practice solution (Annual)',

@@ -43,7 +43,7 @@ export const PARENT_STRIPE_PLANS: Record<string, StripePlanConfig> = {
   }
 };
 
-// Advocate Plans (4 total with both monthly and annual options)
+// Advocate Plans (3 total with both monthly and annual options)
 export const ADVOCATE_STRIPE_PLANS: Record<string, StripePlanConfig> = {
   // Monthly Plans
   starter: {
@@ -61,18 +61,12 @@ export const ADVOCATE_STRIPE_PLANS: Record<string, StripePlanConfig> = {
     features: ['1 advocate seat', '20+ tools', 'AI analysis', 'Priority support']
   },
   agency: {
-    priceId: 'price_1Rr3ik8iKZXV0srZPRPByMQx', // PRODUCTION: Advocate Agency $149/month
-    amount: 149,
-    interval: 'month',
-    description: 'Team collaboration with billing tools',
-    features: ['2 advocate seats', '30+ tools', 'Team features (Coming Soon)', 'Billing tools (Coming Soon)']
-  },
-  'agency-plus': {
-    priceId: 'price_1S36QJ8iKZXV0srZsrhA6ess', // PRODUCTION: Agency+ $249/month
+    priceId: 'price_1S36QJ8iKZXV0srZsrhA6ess', // PRODUCTION: Agency $249/month
     amount: 249,
     interval: 'month',
-    description: 'Enterprise features with unlimited AI',
-    features: ['3 advocate seats', 'ALL 40+ tools', 'White-label', 'Dedicated support']
+    description: 'Complete advocacy practice solution',
+    features: ['3 advocate seats', 'ALL 40+ tools', 'Enterprise features', 'Unlimited AI'],
+    setupFee: 495
   },
 
   // Annual Plans (10% discount)
@@ -92,17 +86,11 @@ export const ADVOCATE_STRIPE_PLANS: Record<string, StripePlanConfig> = {
   },
   'agency-annual': {
     priceId: 'price_advocate_agency_annual', // TODO: Create in Stripe Dashboard
-    amount: 1608, // $149 * 12 * 0.9 = $1,608.40 rounded down
+    amount: 2388, // $199 * 12 = $2,388
     interval: 'year',
-    description: 'Team collaboration with billing tools (Annual)',
-    features: ['2 advocate seats', '30+ tools', 'Team features (Coming Soon)', 'Billing tools (Coming Soon)', '10% savings']
-  },
-  'agency-plus-annual': {
-    priceId: 'price_advocate_agency_plus_annual', // TODO: Create in Stripe Dashboard
-    amount: 2688, // $249 * 12 * 0.9 = $2,688.40 rounded down
-    interval: 'year',
-    description: 'Enterprise features with unlimited AI (Annual)',
-    features: ['3 advocate seats', 'ALL 40+ tools', 'White-label', 'Dedicated support', '10% savings']
+    description: 'Complete advocacy practice solution (Annual)',
+    features: ['3 advocate seats', 'ALL 40+ tools', 'Enterprise features', 'Unlimited AI'],
+    setupFee: 495
   }
 };
 
@@ -147,11 +135,9 @@ export function getCheckoutUrl(planId: string, role: 'parent' | 'advocate', isAn
     'starter': 'Starter',
     'pro': 'Pro',
     'agency': 'Agency',
-    'agency-plus': 'Agency Plus',
     'starter-annual': 'Starter Annual',
     'pro-annual': 'Pro Annual',
-    'agency-annual': 'Agency Annual',
-    'agency-plus-annual': 'Agency Plus Annual'
+    'agency-annual': 'Agency Annual'
   };
 
   const params = new URLSearchParams({

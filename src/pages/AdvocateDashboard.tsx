@@ -266,6 +266,164 @@ const AdvocateDashboard = ({ plan }: AdvocateDashboardProps) => {
     return "bg-orange-100 text-orange-700 border-orange-200";
   };
 
+  // Create unified activity feed from real data
+  const generateActivityFeed = () => {
+    const activities: Array<{
+      id: string;
+      type: string;
+      title: string;
+      description?: string;
+      timestamp: Date;
+      icon: any;
+      color: string;
+      link?: string;
+    }> = [];
+
+    // Add active cases as activities
+    const openCasesArray = Array.isArray(openCases) 
+      ? openCases 
+      : openCases?.cases && Array.isArray(openCases.cases) 
+        ? openCases.cases 
+        : [];
+    
+    if (openCasesArray.length > 0) {
+      openCasesArray.forEach((case_, index) => {
+        const caseDate = case_?.created_at ? new Date(case_.created_at) : new Date();
+        activities.push({
+          id: `case-${case_?.id || index}`,
+          type: 'case',
+          title: `Active case: ${case_?.student || 'Unknown Student'}`,
+          description: case_?.caseType ? `${case_.caseType} - ${case_?.nextAction || 'Ongoing advocacy'}` : `Parent: ${case_?.parent_first_name && case_?.parent_last_name ? `${case_.parent_first_name} ${case_.parent_last_name}` : case_?.parent_email || 'Unknown'}`,
+          timestamp: caseDate,
+          icon: Briefcase,
+          color: case_?.urgency === 'high' || case_?.urgency === 'urgent' ? 'bg-red-100 dark:bg-red-900 text-red-600 dark:text-red-400' : 'bg-blue-100 dark:bg-blue-900 text-blue-600 dark:text-blue-400',
+          link: '/advocate/parents'
+        });
+      });
+    }
+
+    // Add pending assignments as activities
+    const pendingAssignmentsArray = Array.isArray(pendingAssignments) 
+      ? pendingAssignments 
+      : pendingAssignments?.assignments && Array.isArray(pendingAssignments.assignments) 
+        ? pendingAssignments.assignments 
+        : [];
+    
+    if (pendingAssignmentsArray.length > 0) {
+      pendingAssignmentsArray.forEach((assignment: any, index: number) => {
+        const assignmentDate = assignment?.created_at ? new Date(assignment.created_at) : new Date();
+        activities.push({
+          id: `pending-${assignment?.id || index}`,
+          type: 'assignment',
+          title: `New client match: ${assignment?.student_name || 'Student'}`,
+          description: `Match score: ${assignment?.match_score || 'N/A'}% - Awaiting your response`,
+          timestamp: assignmentDate,
+          icon: Bell,
+          color: 'bg-orange-100 dark:bg-orange-900 text-orange-600 dark:text-orange-400',
+          link: '/advocate/matching'
+        });
+      });
+    }
+
+    // Add recent meetings as activities
+    const upcomingMeetingsArray = Array.isArray(upcomingMeetings) 
+      ? upcomingMeetings 
+      : upcomingMeetings?.meetings && Array.isArray(upcomingMeetings.meetings) 
+        ? upcomingMeetings.meetings 
+        : [];
+    
+    if (upcomingMeetingsArray.length > 0) {
+      upcomingMeetingsArray.slice(0, 3).forEach((meeting, index) => {
+        const meetingDate = meeting?.scheduled_date ? new Date(meeting.scheduled_date) : new Date();
+        activities.push({
+          id: `meeting-${meeting?.id || index}`,
+          type: 'meeting',
+          title: `Upcoming: ${meeting?.title || 'Meeting'}`,
+          description: `${meeting?.type || 'Meeting'} scheduled${meeting?.attendees ? ` (${meeting.attendees} attendees)` : ''}`,
+          timestamp: meetingDate,
+          icon: CalendarIcon,
+          color: 'bg-green-100 dark:bg-green-900 text-green-600 dark:text-green-400',
+          link: '/advocate/schedule'
+        });
+      });
+    }
+
+    // Add conversations as activities
+    const conversationsArray = Array.isArray(conversations) 
+      ? conversations 
+      : conversations?.conversations && Array.isArray(conversations.conversations) 
+        ? conversations.conversations 
+        : [];
+    
+    if (conversationsArray.length > 0) {
+      conversationsArray.slice(0, 2).forEach((conversation, index) => {
+        const convDate = conversation?.updated_at ? new Date(conversation.updated_at) : conversation?.created_at ? new Date(conversation.created_at) : new Date();
+        activities.push({
+          id: `conversation-${conversation?.id || index}`,
+          type: 'message',
+          title: `Message from ${conversation?.participant_name || 'Parent'}`,
+          description: conversation?.last_message ? (conversation.last_message.length > 60 ? `${conversation.last_message.substring(0, 60)}...` : conversation.last_message) : 'New conversation started',
+          timestamp: convDate,
+          icon: MessageSquare,
+          color: 'bg-purple-100 dark:bg-purple-900 text-purple-600 dark:text-purple-400',
+          link: '/advocate/messages'
+        });
+      });
+    }
+
+    // Add completed goals as activities
+    const completedGoalsArray = Array.isArray(completedGoals) 
+      ? completedGoals 
+      : completedGoals?.goals && Array.isArray(completedGoals.goals) 
+        ? completedGoals.goals 
+        : [];
+    
+    if (completedGoalsArray.length > 0) {
+      completedGoalsArray.slice(0, 2).forEach((goal, index) => {
+        const goalDate = goal?.completed_at ? new Date(goal.completed_at) : goal?.updated_at ? new Date(goal.updated_at) : new Date();
+        activities.push({
+          id: `goal-${goal?.id || index}`,
+          type: 'goal',
+          title: `Goal achieved: ${goal?.title || 'Student goal'}`,
+          description: goal?.description || `Successfully completed advocacy goal`,
+          timestamp: goalDate,
+          icon: Target,
+          color: 'bg-emerald-100 dark:bg-emerald-900 text-emerald-600 dark:text-emerald-400',
+          link: '/advocate/students'
+        });
+      });
+    }
+
+    // Sort activities by timestamp (newest first) and return top 8
+    return activities
+      .sort((a, b) => b.timestamp.getTime() - a.timestamp.getTime())
+      .slice(0, 8);
+  };
+
+  // Get formatted time for activity items
+  const getTimeAgo = (date: Date) => {
+    const now = new Date();
+    const diffInMinutes = Math.floor((now.getTime() - date.getTime()) / (1000 * 60));
+    
+    if (diffInMinutes < 60) {
+      return diffInMinutes <= 1 ? 'Just now' : `${diffInMinutes} minutes ago`;
+    }
+    
+    const diffInHours = Math.floor(diffInMinutes / 60);
+    if (diffInHours < 24) {
+      return `${diffInHours} hour${diffInHours > 1 ? 's' : ''} ago`;
+    }
+    
+    const diffInDays = Math.floor(diffInHours / 24);
+    if (diffInDays < 7) {
+      return `${diffInDays} day${diffInDays > 1 ? 's' : ''} ago`;
+    }
+    
+    return date.toLocaleDateString();
+  };
+
+  const recentActivities = generateActivityFeed();
+
   return (
     <DashboardLayout>
       <div className="space-y-8">
@@ -585,165 +743,8 @@ const AdvocateDashboard = ({ plan }: AdvocateDashboardProps) => {
           )}
         </div>
 
-        {/* Consolidated Active Cases */}
-        <Card className="border-0 bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-blue-950/50 dark:to-indigo-950/50">
-            <Collapsible open={activeCasesExpanded} onOpenChange={setActiveCasesExpanded}>
-              <CardHeader className="pb-4">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 bg-blue-100 dark:bg-blue-900 rounded-lg flex items-center justify-center">
-                      <Briefcase className="h-5 w-5 text-blue-600 dark:text-blue-400" />
-                    </div>
-                    <div>
-                      <CardTitle className="text-lg font-semibold text-gray-900 dark:text-gray-100">
-                        Active Cases
-                      </CardTitle>
-                      <CardDescription className="text-sm">
-                        {openCases.length === 0 
-                          ? "No active cases" 
-                          : `${openCases.length} case${openCases.length !== 1 ? 's' : ''} under advocacy`
-                        }
-                        {urgentCases.length > 0 && (
-                          <span className="ml-2">
-                            • {urgentCases.length} urgent
-                          </span>
-                        )}
-                      </CardDescription>
-                    </div>
-                  </div>
-                  
-                  <div className="flex items-center gap-3">
-                    {/* Summary stats */}
-                    <div className="flex items-center gap-2">
-                      <div className="text-right">
-                        <div className="text-2xl font-bold text-blue-600 dark:text-blue-400" data-testid="active-cases-count">
-                          {openCases.length}
-                        </div>
-                        <div className="text-xs text-gray-500">Total</div>
-                      </div>
-                      {urgentCases.length > 0 && (
-                        <div className="text-right">
-                          <div className="text-lg font-semibold text-red-600 dark:text-red-400">
-                            {urgentCases.length}
-                          </div>
-                          <div className="text-xs text-red-500">Urgent</div>
-                        </div>
-                      )}
-                    </div>
-                    
-                    {/* Expand/Collapse button */}
-                    {openCases.length > 0 && (
-                      <CollapsibleTrigger asChild>
-                        <Button 
-                          variant="ghost" 
-                          size="sm" 
-                          className="h-8 w-8 p-0 data-[state=open]:bg-blue-100 dark:data-[state=open]:bg-blue-900"
-                          data-testid="toggle-cases-list"
-                        >
-                          {activeCasesExpanded ? (
-                            <ChevronUp className="h-4 w-4" />
-                          ) : (
-                            <ChevronDown className="h-4 w-4" />
-                          )}
-                        </Button>
-                      </CollapsibleTrigger>
-                    )}
-                  </div>
-                </div>
-              </CardHeader>
-              
-              <CardContent className="pt-0">
-                {openCases.length === 0 ? (
-                  <div className="text-center py-8 bg-white/50 dark:bg-gray-800/50 rounded-lg">
-                    <div className="text-muted-foreground mb-4">
-                      <FileText className="h-12 w-12 mx-auto mb-2 opacity-50" />
-                      <p className="text-lg font-medium">No active cases yet</p>
-                      <p className="text-sm">Your advocacy cases will appear here once you start working with students</p>
-                    </div>
-                    <Button asChild variant="outline">
-                      <Link to="/advocate/students">
-                        <GraduationCap className="h-4 w-4 mr-2" />
-                        Create First Student Case
-                      </Link>
-                    </Button>
-                  </div>
-                ) : (
-                  <CollapsibleContent className="space-y-0">
-                    <div className="space-y-3 mt-4">
-                      {openCases.map((case_, index) => (
-                        <div 
-                          key={case_.id} 
-                          className="p-4 bg-white/80 dark:bg-gray-800/80 border border-gray-200/50 dark:border-gray-700/50 rounded-lg space-y-3 hover:shadow-md transition-all duration-200"
-                          data-testid={`active-case-${index}`}
-                        >
-                          <div className="flex items-center justify-between">
-                            <div className="space-y-1">
-                              <h4 className="font-semibold text-gray-900 dark:text-gray-100" data-testid={`case-student-${index}`}>
-                                {case_.student}
-                              </h4>
-                              <p className="text-sm text-gray-600 dark:text-gray-400">
-                                Parent: {case_.parent_first_name && case_.parent_last_name 
-                                  ? `${case_.parent_first_name} ${case_.parent_last_name}` 
-                                  : case_.parent_email || 'Unknown'}
-                              </p>
-                            </div>
-                            <div className="flex items-center gap-2">
-                              <Badge className={getUrgencyColor(case_.status)} data-testid={`case-status-${index}`}>
-                                {case_.status}
-                              </Badge>
-                            </div>
-                          </div>
-                          
-                          <div className="space-y-2">
-                            <p className="text-sm text-gray-700 dark:text-gray-300">
-                              <span className="font-medium">{case_.caseType}:</span> {case_.nextAction}
-                            </p>
-                            
-                            <div className="flex items-center justify-between pt-2 border-t border-gray-200/60 dark:border-gray-700/60">
-                              <span className="text-xs text-gray-500 dark:text-gray-400">
-                                Due: {case_.dueDate}
-                              </span>
-                              <Button size="sm" variant="outline" asChild data-testid={`view-case-${index}`}>
-                                <Link to="/advocate/parents" className="hover:bg-blue-50 dark:hover:bg-blue-900">
-                                  <Eye className="h-3 w-3 mr-1" />
-                                  View Case
-                                </Link>
-                              </Button>
-                            </div>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                    
-                    {/* Quick Actions Footer */}
-                    <div className="mt-4 pt-4 border-t border-gray-200/60 dark:border-gray-700/60">
-                      <div className="flex items-center justify-between">
-                        <span className="text-xs text-gray-500 dark:text-gray-400">
-                          {openCases.length} case{openCases.length !== 1 ? 's' : ''} shown
-                        </span>
-                        <div className="flex gap-2">
-                          <Button size="sm" variant="outline" asChild>
-                            <Link to="/advocate/students">
-                              <Plus className="h-3 w-3 mr-1" />
-                              Add Case
-                            </Link>
-                          </Button>
-                          <Button size="sm" variant="outline" asChild>
-                            <Link to="/advocate/parents">
-                              <ArrowRight className="h-3 w-3 mr-1" />
-                              View All
-                            </Link>
-                          </Button>
-                        </div>
-                      </div>
-                    </div>
-                  </CollapsibleContent>
-                )}
-              </CardContent>
-            </Collapsible>
-          </Card>
 
-        {/* Activity Feed */}
+        {/* Unified Activity Feed */}
         <Card className="bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800 border-0">
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
@@ -755,43 +756,68 @@ const AdvocateDashboard = ({ plan }: AdvocateDashboardProps) => {
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
-            {/* Sample activity items - replace with real data */}
-            <div className="space-y-3">
-              <div className="flex items-center gap-4 p-3 bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700">
-                <div className="w-8 h-8 bg-blue-100 dark:bg-blue-900 rounded-full flex items-center justify-center">
-                  <CheckCircle className="h-4 w-4 text-blue-600 dark:text-blue-400" />
-                </div>
-                <div className="flex-1">
-                  <p className="text-sm font-medium text-gray-900 dark:text-gray-100">Case accepted for new student</p>
-                  <p className="text-xs text-gray-500">2 hours ago</p>
-                </div>
+            {recentActivities.length > 0 ? (
+              <div className="space-y-3">
+                {recentActivities.map((activity) => {
+                  const IconComponent = activity.icon;
+                  return (
+                    <div 
+                      key={activity.id} 
+                      className="flex items-center gap-4 p-3 bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 hover:shadow-md transition-all duration-200 cursor-pointer"
+                      data-testid={`activity-${activity.type}-${activity.id}`}
+                      onClick={() => activity.link && (window.location.href = activity.link)}
+                    >
+                      <div className={`w-8 h-8 rounded-full flex items-center justify-center ${activity.color}`}>
+                        <IconComponent className="h-4 w-4" />
+                      </div>
+                      <div className="flex-1">
+                        <p className="text-sm font-medium text-gray-900 dark:text-gray-100" data-testid={`activity-title-${activity.id}`}>
+                          {activity.title}
+                        </p>
+                        {activity.description && (
+                          <p className="text-xs text-gray-600 dark:text-gray-400 mt-1" data-testid={`activity-description-${activity.id}`}>
+                            {activity.description}
+                          </p>
+                        )}
+                        <p className="text-xs text-gray-500 mt-1" data-testid={`activity-time-${activity.id}`}>
+                          {getTimeAgo(activity.timestamp)}
+                        </p>
+                      </div>
+                      {activity.link && (
+                        <ArrowRight className="h-4 w-4 text-gray-400" />
+                      )}
+                    </div>
+                  );
+                })}
               </div>
-              
-              <div className="flex items-center gap-4 p-3 bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700">
-                <div className="w-8 h-8 bg-green-100 dark:bg-green-900 rounded-full flex items-center justify-center">
-                  <MessageSquare className="h-4 w-4 text-green-600 dark:text-green-400" />
+            ) : (
+              <div className="text-center py-8 bg-white/50 dark:bg-gray-800/50 rounded-lg">
+                <div className="text-muted-foreground mb-4">
+                  <Activity className="h-12 w-12 mx-auto mb-2 opacity-50" />
+                  <p className="text-lg font-medium">No recent activity</p>
+                  <p className="text-sm">Your advocacy activities will appear here</p>
                 </div>
-                <div className="flex-1">
-                  <p className="text-sm font-medium text-gray-900 dark:text-gray-100">New message from parent client</p>
-                  <p className="text-xs text-gray-500">4 hours ago</p>
-                </div>
+                <Button asChild variant="outline" data-testid="start-activity">
+                  <Link to="/advocate/matching">
+                    <Plus className="h-4 w-4 mr-2" />
+                    Start Your First Case
+                  </Link>
+                </Button>
               </div>
-              
-              <div className="flex items-center gap-4 p-3 bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700">
-                <div className="w-8 h-8 bg-purple-100 dark:bg-purple-900 rounded-full flex items-center justify-center">
-                  <Calendar className="h-4 w-4 text-purple-600 dark:text-purple-400" />
-                </div>
-                <div className="flex-1">
-                  <p className="text-sm font-medium text-gray-900 dark:text-gray-100">IEP meeting scheduled</p>
-                  <p className="text-xs text-gray-500">1 day ago</p>
-                </div>
-              </div>
-            </div>
+            )}
             
             <div className="pt-4 border-t border-gray-200 dark:border-gray-700">
-              <Button variant="outline" size="sm" className="w-full">
-                View All Activity
-                <ArrowRight className="h-4 w-4 ml-2" />
+              <Button 
+                variant="outline" 
+                size="sm" 
+                className="w-full hover:bg-blue-50 dark:hover:bg-blue-900"
+                asChild
+                data-testid="view-all-activity"
+              >
+                <Link to="/advocate/activity">
+                  View All Activity
+                  <ArrowRight className="h-4 w-4 ml-2" />
+                </Link>
               </Button>
             </div>
           </CardContent>

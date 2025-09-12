@@ -2061,6 +2061,211 @@ app.post('/api/autism_accommodations/preview', async (req, res) => {
   }
 });
 
+// General Accommodations routes (for gifted and general use)
+app.get('/api/accommodations', async (req, res) => {
+  try {
+    const userId = await getUserId(req);
+    const { student_id, category } = req.query;
+    
+    const whereConditions = [eq(schema.accommodations.user_id, userId)];
+    
+    if (student_id) {
+      whereConditions.push(eq(schema.accommodations.student_id, student_id as string));
+    }
+    
+    if (category) {
+      whereConditions.push(eq(schema.accommodations.category, category as string));
+    }
+    
+    const accommodations = await db.select().from(schema.accommodations)
+      .where(and(...whereConditions));
+    
+    res.json(accommodations);
+  } catch (error) {
+    console.error('Error fetching accommodations:', error);
+    res.status(500).json({ error: 'Failed to fetch accommodations' });
+  }
+});
+
+app.post('/api/accommodations', async (req, res) => {
+  try {
+    const userId = await getUserId(req);
+    const accommodationData = { 
+      ...req.body, 
+      user_id: userId,
+      status: req.body.status || 'active',
+      created_at: new Date(),
+      updated_at: new Date()
+    };
+    
+    const [accommodation] = await db.insert(schema.accommodations).values(accommodationData).returning();
+    res.json(accommodation);
+  } catch (error) {
+    console.error('Error creating accommodation:', error);
+    res.status(500).json({ error: 'Failed to create accommodation' });
+  }
+});
+
+app.post('/api/accommodations/bulk', async (req, res) => {
+  try {
+    const userId = await getUserId(req);
+    const { accommodations, student_id } = req.body;
+    
+    const accommodationData = accommodations.map((acc: any) => ({
+      ...acc,
+      user_id: userId,
+      student_id: student_id || null,
+      status: 'active',
+      created_at: new Date(),
+      updated_at: new Date()
+    }));
+    
+    const createdAccommodations = await db.insert(schema.accommodations)
+      .values(accommodationData)
+      .returning();
+    
+    res.json(createdAccommodations);
+  } catch (error) {
+    console.error('Error creating bulk accommodations:', error);
+    res.status(500).json({ error: 'Failed to create accommodations' });
+  }
+});
+
+app.put('/api/accommodations/:id', async (req, res) => {
+  try {
+    const userId = await getUserId(req);
+    const { id } = req.params;
+    
+    const [accommodation] = await db.update(schema.accommodations)
+      .set({ ...req.body, updated_at: new Date() })
+      .where(and(
+        eq(schema.accommodations.id, id),
+        eq(schema.accommodations.user_id, userId)
+      ))
+      .returning();
+    
+    if (!accommodation) {
+      return res.status(404).json({ error: 'Accommodation not found' });
+    }
+    
+    res.json(accommodation);
+  } catch (error) {
+    console.error('Error updating accommodation:', error);
+    res.status(500).json({ error: 'Failed to update accommodation' });
+  }
+});
+
+app.delete('/api/accommodations/:id', async (req, res) => {
+  try {
+    const userId = await getUserId(req);
+    const { id } = req.params;
+    
+    await db.delete(schema.accommodations)
+      .where(and(
+        eq(schema.accommodations.id, id),
+        eq(schema.accommodations.user_id, userId)
+      ));
+    
+    res.json({ success: true });
+  } catch (error) {
+    console.error('Error deleting accommodation:', error);
+    res.status(500).json({ error: 'Failed to delete accommodation' });
+  }
+});
+
+// Save AI Insights accommodations manually
+app.post('/api/gifted-assessments/save-insights', async (req, res) => {
+  try {
+    const userId = await getUserId(req);
+    const { student_id } = req.body;
+
+    if (!student_id) {
+      return res.status(400).json({ error: 'student_id is required' });
+    }
+
+    console.log(`✅ PRODUCTION: Manually saving AI insights accommodations for student ${student_id}, user: ${userId}`);
+
+    // Get the latest AI analysis for this student
+    const [existingAssessment] = await db
+      .select()
+      .from(schema.gifted_assessments)
+      .where(and(
+        eq(schema.gifted_assessments.student_id, student_id),
+        or(
+          isNotNull(schema.gifted_assessments.ai_analysis_parent),
+          isNotNull(schema.gifted_assessments.ai_analysis_advocate)
+        )
+      ))
+      .orderBy(desc(schema.gifted_assessments.updated_at))
+      .limit(1);
+
+    if (!existingAssessment) {
+      return res.status(404).json({ error: 'No AI analysis found for this student' });
+    }
+
+    // Get the appropriate AI analysis based on user role
+    const [user] = await db
+      .select()
+      .from(schema.users)
+      .where(eq(schema.users.id, userId))
+      .limit(1);
+
+    const aiInsights = user?.role === 'advocate' 
+      ? existingAssessment.ai_analysis_advocate 
+      : existingAssessment.ai_analysis_parent;
+
+    if (!aiInsights) {
+      return res.status(404).json({ error: 'No AI analysis available for your role' });
+    }
+
+    let savedCount = 0;
+    
+    // Extract and save accommodations if they exist
+    const typedInsights = aiInsights as any; // Type assertion since aiInsights is JSON from database
+    if (typedInsights.accommodations && Array.isArray(typedInsights.accommodations)) {
+      console.log(`✅ PRODUCTION: Saving ${typedInsights.accommodations.length} AI-generated accommodations for student ${student_id}`);
+      
+      for (const accommodation of typedInsights.accommodations) {
+        try {
+          await db
+            .insert(schema.accommodations)
+            .values({
+              user_id: userId,
+              student_id: student_id,
+              title: accommodation.title || 'AI Generated Accommodation',
+              description: accommodation.description || 'Generated by AI analysis',
+              category: accommodation.category || 'academic',
+              implementation_notes: accommodation.implementation_notes || accommodation.description,
+              effectiveness_rating: null,
+              status: 'active',
+              created_at: new Date(),
+              updated_at: new Date()
+            });
+          savedCount++;
+        } catch (error) {
+          console.error('❌ Error saving accommodation:', error);
+          // Continue with other accommodations even if one fails
+        }
+      }
+      console.log(`✅ PRODUCTION: Successfully saved ${savedCount} accommodations to Accommodations tab`);
+    } else {
+      console.log(`⚠️ PRODUCTION: No accommodations array found in AI insights for student ${student_id}`);
+    }
+
+    res.json({
+      success: true,
+      saved_accommodations: savedCount,
+      message: savedCount > 0 
+        ? `Successfully saved ${savedCount} accommodations from AI insights` 
+        : 'No accommodations found in AI insights to save'
+    });
+
+  } catch (error) {
+    console.error('❌ Error saving AI insights:', error);
+    res.status(500).json({ error: 'Failed to save AI insights accommodations' });
+  }
+});
+
 // Documents routes
 app.get('/api/documents', async (req, res) => {
   try {
@@ -4794,13 +4999,7 @@ Respond with this exact JSON format:
     const viteProxy = createProxyMiddleware({
       target: 'http://localhost:3000',
       changeOrigin: true,
-      ws: true, // Enable WebSocket proxying for HMR
-      onError: (err, req, res) => {
-        console.log('Proxy Error:', err.message);
-        if (typeof res.status === 'function') {
-          res.status(500).send('Proxy error: Vite dev server may not be running on port 3000');
-        }
-      }
+      ws: true // Enable WebSocket proxying for HMR
     });
     
     // Apply single proxy instance to all non-API routes

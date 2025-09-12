@@ -266,6 +266,81 @@ const AdvocateDashboard = ({ plan }: AdvocateDashboardProps) => {
     return "bg-orange-100 text-orange-700 border-orange-200";
   };
 
+  // Helper function to extract parent name from conversation data with multiple fallback strategies
+  const getParentName = (conversationData: any, parentsArray: any[] = []) => {
+    // Strategy 1: Direct parent name fields from API response
+    if (conversationData?.parentFirstName && conversationData?.parentLastName) {
+      const firstName = conversationData.parentFirstName.trim();
+      const lastName = conversationData.parentLastName.trim();
+      if (firstName && lastName) {
+        return `${firstName} ${lastName}`;
+      }
+    }
+
+    // Strategy 2: Full name field if available
+    if (conversationData?.parent_full_name && conversationData.parent_full_name.trim()) {
+      return conversationData.parent_full_name;
+    }
+    if (conversationData?.parentFullName && conversationData.parentFullName.trim()) {
+      return conversationData.parentFullName;
+    }
+
+    // Strategy 3: Direct parent name field
+    if (conversationData?.parent_name && conversationData.parent_name.trim()) {
+      return conversationData.parent_name;
+    }
+    if (conversationData?.parentName && conversationData.parentName.trim()) {
+      return conversationData.parentName;
+    }
+
+    // Strategy 4: Extract from participant_name if available
+    if (conversationData?.participant_name && conversationData.participant_name.trim()) {
+      return conversationData.participant_name;
+    }
+
+    // Strategy 5: Join with parents array using parentId
+    if (conversationData?.parentId && Array.isArray(parentsArray) && parentsArray.length > 0) {
+      const matchingParent = parentsArray.find(p => p?.id === conversationData.parentId);
+      if (matchingParent?.full_name && matchingParent.full_name.trim()) {
+        return matchingParent.full_name;
+      }
+      if (matchingParent?.parent_name && matchingParent.parent_name.trim()) {
+        return matchingParent.parent_name;
+      }
+      if (matchingParent?.firstName && matchingParent?.lastName) {
+        const firstName = matchingParent.firstName.trim();
+        const lastName = matchingParent.lastName.trim();
+        if (firstName && lastName) {
+          return `${firstName} ${lastName}`;
+        }
+      }
+    }
+
+    // Strategy 6: Use email if available (before giving up)
+    if (conversationData?.parentEmail && conversationData.parentEmail.trim()) {
+      const email = conversationData.parentEmail.trim();
+      // Extract name part from email (everything before @)
+      const emailName = email.split('@')[0];
+      if (emailName && emailName !== 'undefined' && emailName !== 'null') {
+        return emailName.replace(/[._-]/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
+      }
+    }
+
+    // Strategy 7: Extract from conversation title if it contains parent info
+    if (conversationData?.title && conversationData.title.includes('with ')) {
+      const titleParts = conversationData.title.split('with ');
+      if (titleParts.length > 1) {
+        const extractedName = titleParts[titleParts.length - 1].trim();
+        if (extractedName && extractedName !== 'undefined' && extractedName !== 'null') {
+          return extractedName;
+        }
+      }
+    }
+
+    // If all strategies fail, return descriptive fallback
+    return 'Parent';
+  };
+
   // Helper function to extract student name from case data with multiple fallback strategies
   const getStudentName = (caseData: any, studentsArray: any[] = []) => {
     // Strategy 1: Direct student field (object or string)
@@ -437,7 +512,7 @@ const AdvocateDashboard = ({ plan }: AdvocateDashboardProps) => {
         activities.push({
           id: `conversation-${conversation?.id || index}`,
           type: 'message',
-          title: `Message from ${conversation?.participant_name || 'Parent'}`,
+          title: `Message from ${getParentName(conversation, parents as any[])}`,
           description: conversation?.last_message ? (conversation.last_message.length > 60 ? `${conversation.last_message.substring(0, 60)}...` : conversation.last_message) : 'New conversation started',
           timestamp: convDate,
           icon: MessageSquare,

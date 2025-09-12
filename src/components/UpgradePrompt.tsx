@@ -8,6 +8,20 @@ import { SubscriptionPlan } from "@/lib/planAccess";
 import { useNavigate } from "react-router-dom";
 import { useToolAccess } from "@/hooks/useToolAccess";
 
+const getPlanDisplayName = (plan: SubscriptionPlan) => {
+  switch (plan) {
+    case 'free': return 'Free';
+    case 'essential': return 'Essential';
+    case 'premium': return 'Premium';
+    case 'hero': return 'Hero Family Pack';
+    case 'starter': return 'Starter';
+    case 'pro': return 'Pro';
+    case 'agency': return 'Agency';
+    case 'agency-plus': return 'Agency Plus';
+    default: return 'Unknown';
+  }
+};
+
 interface UpgradePromptProps {
   requiredPlan: SubscriptionPlan;
   toolName: string;
@@ -82,19 +96,6 @@ export function UpgradePrompt({
     }
   };
 
-  const getPlanDisplayName = (plan: SubscriptionPlan) => {
-    switch (plan) {
-      case 'free': return 'Free';
-      case 'essential': return 'Essential';
-      case 'premium': return 'Premium';
-      case 'hero': return 'Hero Family Pack';
-      case 'starter': return 'Starter';
-      case 'pro': return 'Pro';
-      case 'agency': return 'Agency';
-      case 'agency-plus': return 'Agency Plus';
-      default: return 'Unknown';
-    }
-  };
 
   return (
     <Card 

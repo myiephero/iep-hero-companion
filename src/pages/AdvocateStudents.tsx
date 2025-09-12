@@ -623,6 +623,11 @@ const AdvocateStudents = () => {
   const [isGiftedAIDialogOpen, setIsGiftedAIDialogOpen] = useState(false);
   const [isNewAssessmentDialogOpen, setIsNewAssessmentDialogOpen] = useState(false);
   
+  // Loading states for assessment dialogs
+  const [isSavingCognitive, setIsSavingCognitive] = useState(false);
+  const [isSavingEnrichment, setIsSavingEnrichment] = useState(false);
+  const [isSaving2E, setIsSaving2E] = useState(false);
+  
   // AI insights and form states
   const [aiInsightsLoading, setAiInsightsLoading] = useState(false);
   const [generatedInsights, setGeneratedInsights] = useState<string>("");
@@ -766,6 +771,202 @@ const AdvocateStudents = () => {
       });
     }
   });
+
+  // Assessment-specific mutations
+  const saveCognitiveAssessmentMutation = useMutation({
+    mutationFn: async (assessmentData: any) => {
+      const response = await apiRequest('POST', '/api/gifted_assessments/cognitive', {
+        ...assessmentData,
+        student_id: selectedStudentId,
+        assessor_name: user?.email || 'Advocate',
+        assessment_date: new Date().toISOString()
+      });
+      return response.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['/api/gifted-assessments'] });
+      queryClient.invalidateQueries({ queryKey: ['/api/gifted-profile'] });
+      toast({
+        title: "Cognitive Assessment Saved",
+        description: "Intellectual profile has been documented for gifted programming consideration.",
+      });
+      setIsCognitiveDialogOpen(false);
+    },
+    onError: (error: any) => {
+      toast({
+        title: "Error",
+        description: error.message || "Failed to save cognitive assessment.",
+        variant: "destructive",
+      });
+    }
+  });
+
+  const saveEnrichmentAssessmentMutation = useMutation({
+    mutationFn: async (assessmentData: any) => {
+      const response = await apiRequest('POST', '/api/gifted_assessments/creative', {
+        ...assessmentData,
+        student_id: selectedStudentId,
+        assessor_name: user?.email || 'Advocate',
+        assessment_date: new Date().toISOString()
+      });
+      return response.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['/api/gifted-assessments'] });
+      queryClient.invalidateQueries({ queryKey: ['/api/gifted-profile'] });
+      toast({
+        title: "Enrichment Plan Saved",
+        description: "Advanced learning opportunities have been documented for gifted programming.",
+      });
+      setIsEnrichmentDialogOpen(false);
+    },
+    onError: (error: any) => {
+      toast({
+        title: "Error",
+        description: error.message || "Failed to save enrichment plan.",
+        variant: "destructive",
+      });
+    }
+  });
+
+  const save2EAssessmentMutation = useMutation({
+    mutationFn: async (assessmentData: any) => {
+      const response = await apiRequest('POST', '/api/gifted_assessments/academic', {
+        ...assessmentData,
+        student_id: selectedStudentId,
+        assessor_name: user?.email || 'Advocate',
+        assessment_date: new Date().toISOString()
+      });
+      return response.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['/api/gifted-assessments'] });
+      queryClient.invalidateQueries({ queryKey: ['/api/gifted-profile'] });
+      toast({
+        title: "2E Support Plan Saved",
+        description: "Twice-exceptional support strategies have been documented for comprehensive programming.",
+      });
+      setIs2ESupportDialogOpen(false);
+    },
+    onError: (error: any) => {
+      toast({
+        title: "Error",
+        description: error.message || "Failed to save 2E support plan.",
+        variant: "destructive",
+      });
+    }
+  });
+
+  // Helper functions to collect form data from dialogs
+  const collectCognitiveAssessmentData = () => {
+    const intellectualStrengths = [
+      'verbal-reasoning', 'mathematical-thinking', 'spatial-abilities', 'memory-skills'
+    ].filter(id => {
+      const checkbox = document.getElementById(id) as HTMLInputElement;
+      return checkbox?.checked;
+    });
+
+    const processingSkills = [
+      'processing-speed', 'sustained-attention', 'selective-attention', 'cognitive-flexibility'
+    ].filter(id => {
+      const checkbox = document.getElementById(id) as HTMLInputElement;
+      return checkbox?.checked;
+    });
+
+    const cognitiveAssessment = (document.getElementById('cognitive-assessment') as HTMLTextAreaElement)?.value || '';
+
+    return {
+      assessment_type: 'cognitive',
+      strengths: {
+        intellectual_strengths: intellectualStrengths,
+        processing_skills: processingSkills,
+        notes: cognitiveAssessment
+      },
+      giftedness_areas: ['Intellectual'],
+      evaluator_notes: cognitiveAssessment,
+      status: 'completed'
+    };
+  };
+
+  const collectEnrichmentAssessmentData = () => {
+    const academicAcceleration = [
+      'grade-skip', 'subject-acceleration', 'curriculum-compacting', 'early-entry'
+    ].filter(id => {
+      const checkbox = document.getElementById(id) as HTMLInputElement;
+      return checkbox?.checked;
+    });
+
+    const enrichmentStrategies = [
+      'independent-study', 'mentorship', 'competitions', 'dual-enrollment'
+    ].filter(id => {
+      const checkbox = document.getElementById(id) as HTMLInputElement;
+      return checkbox?.checked;
+    });
+
+    const specializedPrograms = [
+      'pull-out-program', 'cluster-grouping', 'magnet-programs', 'summer-programs'
+    ].filter(id => {
+      const checkbox = document.getElementById(id) as HTMLInputElement;
+      return checkbox?.checked;
+    });
+
+    const enrichmentPlan = (document.getElementById('enrichment-plan') as HTMLTextAreaElement)?.value || '';
+
+    return {
+      assessment_type: 'creative',
+      enrichment_activities: {
+        academic_acceleration: academicAcceleration,
+        enrichment_strategies: enrichmentStrategies,
+        specialized_programs: specializedPrograms,
+        notes: enrichmentPlan
+      },
+      giftedness_areas: ['Creative'],
+      evaluator_notes: enrichmentPlan,
+      status: 'completed'
+    };
+  };
+
+  const collect2EAssessmentData = () => {
+    const strengthBasedApproaches = [
+      'strength-focus', 'interest-integration', 'bypass-strategies', 'technology-tools'
+    ].filter(id => {
+      const checkbox = document.getElementById(id) as HTMLInputElement;
+      return checkbox?.checked;
+    });
+
+    const accommodationStrategies = [
+      'processing-time', 'alternative-assessment', 'executive-support', 'social-emotional'
+    ].filter(id => {
+      const checkbox = document.getElementById(id) as HTMLInputElement;
+      return checkbox?.checked;
+    });
+
+    const dualProgrammingNeeds = [
+      'concurrent-services', 'coordinated-team', 'individualized-pace', 'self-advocacy'
+    ].filter(id => {
+      const checkbox = document.getElementById(id) as HTMLInputElement;
+      return checkbox?.checked;
+    });
+
+    const twiceExceptionalAssessment = (document.getElementById('2e-assessment') as HTMLTextAreaElement)?.value || '';
+    const integratedGoals = (document.getElementById('2e-goals') as HTMLTextAreaElement)?.value || '';
+
+    return {
+      assessment_type: 'academic',
+      strengths: {
+        strength_based_approaches: strengthBasedApproaches,
+        accommodation_strategies: accommodationStrategies,
+        dual_programming_needs: dualProgrammingNeeds,
+        notes: twiceExceptionalAssessment
+      },
+      learning_differences: ['Twice-Exceptional'],
+      recommendations: {
+        notes: integratedGoals
+      },
+      evaluator_notes: `${twiceExceptionalAssessment}\n\nIntegrated Goals:\n${integratedGoals}`,
+      status: 'completed'
+    };
+  };
   
   // Autism accommodation categories (professional advocate version)
   const autismAccommodationCategories = [
@@ -2975,16 +3176,22 @@ const AdvocateStudents = () => {
               Cancel
             </Button>
             <Button 
-              onClick={() => {
-                toast({
-                  title: "Cognitive Assessment Saved",
-                  description: "Intellectual profile has been documented for gifted programming consideration."
-                });
-                setIsCognitiveDialogOpen(false);
+              onClick={async () => {
+                if (!selectedStudentId) {
+                  toast({
+                    title: "Error",
+                    description: "Please select a student first.",
+                    variant: "destructive"
+                  });
+                  return;
+                }
+                
+                const assessmentData = collectCognitiveAssessmentData();
+                saveCognitiveAssessmentMutation.mutate(assessmentData);
               }}
-              disabled={!selectedStudentId}
+              disabled={!selectedStudentId || saveCognitiveAssessmentMutation.isPending}
             >
-              Save Assessment
+              {saveCognitiveAssessmentMutation.isPending ? "Saving..." : "Save Assessment"}
             </Button>
           </div>
         </DialogContent>
@@ -3094,16 +3301,22 @@ const AdvocateStudents = () => {
               Cancel
             </Button>
             <Button 
-              onClick={() => {
-                toast({
-                  title: "Enrichment Plan Saved",
-                  description: "Advanced learning opportunities have been documented for gifted programming."
-                });
-                setIsEnrichmentDialogOpen(false);
+              onClick={async () => {
+                if (!selectedStudentId) {
+                  toast({
+                    title: "Error",
+                    description: "Please select a student first.",
+                    variant: "destructive"
+                  });
+                  return;
+                }
+                
+                const assessmentData = collectEnrichmentAssessmentData();
+                saveEnrichmentAssessmentMutation.mutate(assessmentData);
               }}
-              disabled={!selectedStudentId}
+              disabled={!selectedStudentId || saveEnrichmentAssessmentMutation.isPending}
             >
-              Save Plan
+              {saveEnrichmentAssessmentMutation.isPending ? "Saving..." : "Save Plan"}
             </Button>
           </div>
         </DialogContent>
@@ -3222,16 +3435,22 @@ const AdvocateStudents = () => {
               Cancel
             </Button>
             <Button 
-              onClick={() => {
-                toast({
-                  title: "2E Support Plan Saved",
-                  description: "Twice-exceptional support strategies have been documented for comprehensive programming."
-                });
-                setIs2ESupportDialogOpen(false);
+              onClick={async () => {
+                if (!selectedStudentId) {
+                  toast({
+                    title: "Error",
+                    description: "Please select a student first.",
+                    variant: "destructive"
+                  });
+                  return;
+                }
+                
+                const assessmentData = collect2EAssessmentData();
+                save2EAssessmentMutation.mutate(assessmentData);
               }}
-              disabled={!selectedStudentId}
+              disabled={!selectedStudentId || save2EAssessmentMutation.isPending}
             >
-              Save 2E Plan
+              {save2EAssessmentMutation.isPending ? "Saving..." : "Save 2E Plan"}
             </Button>
           </div>
         </DialogContent>

@@ -337,7 +337,11 @@ const AdvocatePricingPlan = () => {
                     <ul className="space-y-3 flex-grow">
                       {tier.features.map((feature, index) => (
                         <li key={index} className="flex items-start gap-3">
-                          <Check className="h-4 w-4 text-success mt-0.5 flex-shrink-0" />
+                          {feature.includes('(Coming Soon)') ? (
+                            <span className="text-amber-500 mt-0.5 flex-shrink-0">🚧</span>
+                          ) : (
+                            <Check className="h-4 w-4 text-success mt-0.5 flex-shrink-0" />
+                          )}
                           <span className="text-sm">{feature}</span>
                         </li>
                       ))}

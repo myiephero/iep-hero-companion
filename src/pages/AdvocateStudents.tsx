@@ -1664,13 +1664,7 @@ const AdvocateStudents = () => {
                         <CardDescription>Advanced learning assessments and support for gifted and 2E learners</CardDescription>
                       </CardHeader>
                       <CardContent>
-                        <div className="text-center py-8">
-                          <div className="text-4xl mb-4">✨</div>
-                          <p className="text-muted-foreground mb-6">
-                            Comprehensive gifted and twice-exceptional assessment tools are now seamlessly integrated into your student's profile.
-                          </p>
-                          
-                          {/* Beautiful functional cards */}
+                        {/* Beautiful functional cards */}
                           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 gap-4 mt-6">
                             {(() => {
                               const giftedCategories = [

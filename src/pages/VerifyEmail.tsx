@@ -19,6 +19,18 @@ export default function VerifyEmail() {
       return;
     }
 
+    // 🔒 CRITICAL SECURITY FIX: Clear ALL authentication state to prevent contamination
+    console.log('🧹 SECURITY: Clearing all authentication state before verification');
+    localStorage.removeItem('authToken');
+    localStorage.removeItem('user');
+    localStorage.removeItem('profile');
+    localStorage.removeItem('lastAuthCheck');
+    
+    // Clear any session data that might cause contamination
+    if (window.sessionStorage) {
+      window.sessionStorage.clear();
+    }
+
     // Verify the email with new secure flow
     fetch(`/api/verify-email?token=${token}`)
       .then(response => response.json())

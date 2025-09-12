@@ -75,6 +75,12 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
               localStorage.removeItem(key);
             }
           });
+          
+          // 🔒 ADDITIONAL SECURITY: Clear session storage as well
+          if (window.sessionStorage) {
+            console.log('🧹 Clearing sessionStorage to prevent session contamination');
+            window.sessionStorage.clear();
+          }
         };
 
         // Get token and make authenticated request
@@ -153,6 +159,30 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
           const userData = await response.json();
           console.log('🔍 useAuth - Received user data:', userData);
           console.log('🔍 useAuth - subscriptionPlan from server:', userData.subscriptionPlan);
+          
+          // 🔒 CRITICAL SECURITY FIX: Validate token ownership before accepting user data
+          if (token && userData.id) {
+            const tokenUserId = token.split('-')[0];
+            const actualUserId = userData.id.substring(0, 8);
+            
+            if (tokenUserId !== actualUserId) {
+              console.error('🚨 SECURITY ALERT: Token user ID mismatch!');
+              console.error(`🚨 Token belongs to: ${tokenUserId}, but received data for: ${actualUserId}`);
+              console.error('🚨 This indicates potential authentication bypass - clearing all auth data');
+              
+              clearContaminatedStorage();
+              setUser(null);
+              setProfile(null);
+              setLoading(false);
+              
+              // Redirect to login to force re-authentication
+              window.location.href = '/auth';
+              return;
+            } else {
+              console.log('✅ Token ownership validated - user ID matches');
+            }
+          }
+          
           setUser(userData);
           setProfile(userData);
           

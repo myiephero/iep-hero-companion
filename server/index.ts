@@ -3354,19 +3354,83 @@ app.get('/api/gifted-assessments', async (req: any, res) => {
     
     const { student_id } = req.query;
     
-    // Build where conditions array
-    const whereConditions = [eq(schema.gifted_assessments.user_id, userId)];
+    // Get user's role to handle advocate vs parent access
+    const [user] = await db
+      .select()
+      .from(schema.users)
+      .where(eq(schema.users.id, userId))
+      .limit(1);
     
-    if (student_id) {
-      whereConditions.push(eq(schema.gifted_assessments.student_id, student_id));
+    const userRole = user?.role || 'parent';
+    console.log('✅ PRODUCTION: User role for gifted assessments:', userRole);
+    
+    let assessments: any[] = [];
+    
+    if (userRole === 'advocate') {
+      // For advocates: get assessments for their client students
+      const [advocate] = await db
+        .select()
+        .from(schema.advocates)
+        .where(eq(schema.advocates.user_id, userId))
+        .limit(1);
+      
+      if (!advocate) {
+        console.log('❌ No advocate profile found for user:', userId);
+        return res.json([]);
+      }
+      
+      // Get all client student IDs for this advocate
+      const clientStudents = await db
+        .select({
+          student_id: schema.students.id
+        })
+        .from(schema.students)
+        .leftJoin(schema.advocate_clients, eq(schema.students.parent_id, schema.advocate_clients.client_id))
+        .where(and(
+          eq(schema.advocate_clients.advocate_id, advocate.id),
+          eq(schema.advocate_clients.status, 'active')
+        ));
+      
+      const studentIds = clientStudents.map(cs => cs.student_id);
+      console.log('✅ PRODUCTION: Advocate has access to students:', studentIds);
+      
+      if (studentIds.length > 0) {
+        // Build where conditions for advocate
+        const whereConditions = [
+          eq(schema.gifted_assessments.user_id, userId), // assessments created by this advocate
+          inArray(schema.gifted_assessments.student_id, studentIds) // for their client students
+        ];
+        
+        if (student_id) {
+          // Filter for specific student if requested
+          if (studentIds.includes(student_id)) {
+            whereConditions.push(eq(schema.gifted_assessments.student_id, student_id));
+          } else {
+            console.log('❌ Advocate does not have access to student:', student_id);
+            return res.json([]);
+          }
+        }
+        
+        assessments = await db
+          .select()
+          .from(schema.gifted_assessments)
+          .where(and(...whereConditions));
+      }
+    } else {
+      // For parents: get assessments they created
+      const whereConditions = [eq(schema.gifted_assessments.user_id, userId)];
+      
+      if (student_id) {
+        whereConditions.push(eq(schema.gifted_assessments.student_id, student_id));
+      }
+      
+      assessments = await db
+        .select()
+        .from(schema.gifted_assessments)
+        .where(and(...whereConditions));
     }
     
-    const assessments = await db
-      .select()
-      .from(schema.gifted_assessments)
-      .where(and(...whereConditions));
-    
-    console.log(`✅ PRODUCTION: Found ${assessments.length} gifted assessments for user ${userId}`);
+    console.log(`✅ PRODUCTION: Found ${assessments.length} gifted assessments for ${userRole} ${userId}`);
     res.json(assessments);
   } catch (error) {
     console.error('❌ Error getting gifted assessments:', error);
@@ -3601,38 +3665,62 @@ app.post('/api/gifted_assessments/ai-insights', async (req: any, res) => {
       return res.status(404).json({ error: 'User not found' });
     }
 
-    if (user.role !== 'advocate') {
-      return res.status(403).json({ error: 'Only advocates can generate AI analysis through this endpoint' });
+    // Allow both advocates and parents to generate AI analysis
+    const isAdvocate = user.role === 'advocate';
+    const isParent = user.role === 'parent';
+    
+    if (!isAdvocate && !isParent) {
+      return res.status(403).json({ error: 'Only advocates and parents can generate AI analysis' });
     }
 
-    // Get advocate profile
-    const [advocate] = await db
-      .select()
-      .from(schema.advocates)
-      .where(eq(schema.advocates.user_id, userId))
-      .limit(1);
+    let studentInfo: any;
+    
+    if (isAdvocate) {
+      // Get advocate profile
+      const [advocate] = await db
+        .select()
+        .from(schema.advocates)
+        .where(eq(schema.advocates.user_id, userId))
+        .limit(1);
 
-    if (!advocate) {
-      return res.status(404).json({ error: 'Advocate profile not found' });
+      if (!advocate) {
+        return res.status(404).json({ error: 'Advocate profile not found' });
+      }
+
+      // Verify advocate has access to this student through advocate-client relationship
+      const advocateStudents = await db
+        .select({ student_id: schema.students.id, parent_id: schema.students.parent_id })
+        .from(schema.students)
+        .innerJoin(schema.advocate_clients, eq(schema.students.parent_id, schema.advocate_clients.client_id))
+        .innerJoin(schema.advocates, eq(schema.advocate_clients.advocate_id, schema.advocates.id))
+        .where(and(
+          eq(schema.advocates.user_id, userId),
+          eq(schema.students.id, student_id),
+          eq(schema.advocate_clients.status, 'active')
+        ));
+
+      if (advocateStudents.length === 0) {
+        return res.status(403).json({ error: 'You do not have access to this student' });
+      }
+
+      studentInfo = advocateStudents[0];
+    } else {
+      // For parents, verify they own this student
+      const [parentStudent] = await db
+        .select({ student_id: schema.students.id, parent_id: schema.students.parent_id })
+        .from(schema.students)
+        .where(and(
+          eq(schema.students.id, student_id),
+          eq(schema.students.parent_id, userId)
+        ))
+        .limit(1);
+
+      if (!parentStudent) {
+        return res.status(403).json({ error: 'You do not have access to this student' });
+      }
+
+      studentInfo = parentStudent;
     }
-
-    // Verify advocate has access to this student through advocate-client relationship
-    const advocateStudents = await db
-      .select({ student_id: schema.students.id, parent_id: schema.students.parent_id })
-      .from(schema.students)
-      .innerJoin(schema.advocate_clients, eq(schema.students.parent_id, schema.advocate_clients.client_id))
-      .innerJoin(schema.advocates, eq(schema.advocate_clients.advocate_id, schema.advocates.id))
-      .where(and(
-        eq(schema.advocates.user_id, userId),
-        eq(schema.students.id, student_id),
-        eq(schema.advocate_clients.status, 'active')
-      ));
-
-    if (advocateStudents.length === 0) {
-      return res.status(403).json({ error: 'You do not have access to this student' });
-    }
-
-    const studentInfo = advocateStudents[0];
 
     // Check if there's already a gifted assessment for this student
     let [existingAssessment] = await db
@@ -3644,14 +3732,17 @@ app.post('/api/gifted_assessments/ai-insights', async (req: any, res) => {
 
     // If no assessment exists, create a minimal one for AI analysis
     if (!existingAssessment) {
-      console.log(`✅ PRODUCTION: Creating new gifted assessment for student ${student_id}`);
+      const assessmentType = isAdvocate ? 'advocate_initiated' : 'parent_initiated';
+      const ownerUserId = isAdvocate ? studentInfo.parent_id : userId;
+      
+      console.log(`✅ PRODUCTION: Creating new gifted assessment for student ${student_id} by ${user.role}`);
       
       [existingAssessment] = await db
         .insert(schema.gifted_assessments)
         .values({
-          user_id: studentInfo.parent_id, // Use the parent's user_id as the owner
+          user_id: ownerUserId, // Use appropriate owner based on role
           student_id: student_id,
-          assessment_type: 'advocate_initiated',
+          assessment_type: assessmentType,
           giftedness_areas: ['intellectual'], // Default minimal data
           status: 'in_progress',
           created_at: new Date(),
@@ -3659,40 +3750,50 @@ app.post('/api/gifted_assessments/ai-insights', async (req: any, res) => {
         })
         .returning();
       
-      console.log(`✅ PRODUCTION: Created new assessment ${existingAssessment.id} for advocate analysis`);
+      console.log(`✅ PRODUCTION: Created new assessment ${existingAssessment.id} for ${user.role} analysis`);
     }
 
     // Prepare assessment data for AI analysis - handle both full and minimal assessments
+    const defaultNotes = isAdvocate 
+      ? 'Assessment data being gathered by advocate. Professional analysis in progress.'
+      : 'Assessment data being gathered. Comprehensive analysis in progress.';
+    
     const assessmentData = {
-      assessment_type: existingAssessment.assessment_type || 'advocate_initiated',
+      assessment_type: existingAssessment.assessment_type || (isAdvocate ? 'advocate_initiated' : 'parent_initiated'),
       giftedness_areas: existingAssessment.giftedness_areas || ['intellectual'],
       learning_differences: existingAssessment.learning_differences || [],
-      strengths: existingAssessment.strengths || { notes: 'Assessment data being gathered by advocate. Professional analysis in progress.' },
-      challenges: existingAssessment.challenges || { notes: 'Areas of need being identified through advocate review.' },
-      recommendations: existingAssessment.recommendations || { notes: 'Recommendations to be developed based on comprehensive review.' },
+      strengths: existingAssessment.strengths || { notes: defaultNotes },
+      challenges: existingAssessment.challenges || { notes: 'Areas of need being identified through comprehensive review.' },
+      recommendations: existingAssessment.recommendations || { notes: 'Recommendations to be developed based on assessment data.' },
       enrichment_activities: existingAssessment.enrichment_activities || { notes: 'Enrichment opportunities being evaluated.' },
       acceleration_needs: existingAssessment.acceleration_needs || { notes: 'Acceleration needs assessment in progress.' },
       social_emotional_needs: existingAssessment.social_emotional_needs || { notes: 'Social-emotional profile being developed.' },
-      evaluator_notes: existingAssessment.evaluator_notes || 'Professional advocate-initiated assessment for comprehensive gifted education planning.'
+      evaluator_notes: existingAssessment.evaluator_notes || `${isAdvocate ? 'Professional advocate' : 'Parent'}-initiated assessment for comprehensive gifted education planning.`
     };
 
-    // Generate AI insights using OpenAI with advocate role
-    console.log(`✅ PRODUCTION: Generating AI analysis for assessment ${existingAssessment.id} with advocate role`);
-    const aiInsights = await generateGiftedAssessmentAI(assessmentData, 'advocate');
+    // Generate AI insights using OpenAI with appropriate role
+    const aiRole = isAdvocate ? 'advocate' : 'parent';
+    console.log(`✅ PRODUCTION: Generating AI analysis for assessment ${existingAssessment.id} with ${aiRole} role`);
+    const aiInsights = await generateGiftedAssessmentAI(assessmentData, aiRole);
 
-    // Save AI analysis to database
-    const updateData = {
-      ai_analysis_advocate: aiInsights,
+    // Save AI analysis to database in the appropriate field
+    const updateData: any = {
       ai_generated_at: new Date(),
       updated_at: new Date()
     };
+    
+    if (isAdvocate) {
+      updateData.ai_analysis_advocate = aiInsights;
+    } else {
+      updateData.ai_analysis_parent = aiInsights;
+    }
 
     await db
       .update(schema.gifted_assessments)
       .set(updateData)
       .where(eq(schema.gifted_assessments.id, existingAssessment.id));
 
-    console.log(`✅ PRODUCTION: Advocate AI analysis generated and saved for assessment ${existingAssessment.id}`);
+    console.log(`✅ PRODUCTION: ${user.role} AI analysis generated and saved for assessment ${existingAssessment.id}`);
     
     res.json({
       success: true,
@@ -3700,7 +3801,7 @@ app.post('/api/gifted_assessments/ai-insights', async (req: any, res) => {
       ai_analysis: aiInsights,
       analysis_type: analysis_type,
       generated_at: new Date().toISOString(),
-      role: 'advocate'
+      role: user.role
     });
 
   } catch (error) {
@@ -3715,6 +3816,207 @@ app.post('/api/gifted_assessments/ai-insights', async (req: any, res) => {
       });
     }
     res.status(500).json({ error: 'Failed to generate AI analysis' });
+  }
+});
+
+// GET endpoint for fetching gifted assessment profile (aggregated data)
+app.get('/api/gifted_assessments/profile', async (req: any, res) => {
+  try {
+    const userId = await getUserId(req);
+    const { student_id } = req.query;
+
+    if (!student_id) {
+      return res.status(400).json({ error: 'student_id is required' });
+    }
+
+    console.log(`✅ PRODUCTION: Getting gifted profile for student ${student_id}, user: ${userId}`);
+
+    // Check user role to determine access
+    const [user] = await db
+      .select()
+      .from(schema.users)
+      .where(eq(schema.users.id, userId))
+      .limit(1);
+
+    if (!user) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+
+    let assessments: any[] = [];
+
+    if (user.role === 'advocate') {
+      // For advocates: Get assessments for students they have access to through advocate-client relationship
+      const advocateStudents = await db
+        .select({ student_id: schema.students.id })
+        .from(schema.students)
+        .innerJoin(schema.advocate_clients, eq(schema.students.parent_id, schema.advocate_clients.client_id))
+        .innerJoin(schema.advocates, eq(schema.advocate_clients.advocate_id, schema.advocates.id))
+        .where(and(
+          eq(schema.advocates.user_id, userId),
+          eq(schema.students.id, student_id),
+          eq(schema.advocate_clients.status, 'active')
+        ));
+
+      if (advocateStudents.length > 0) {
+        // Get ALL gifted assessments for this student (not just by current user)
+        assessments = await db
+          .select()
+          .from(schema.gifted_assessments)
+          .where(eq(schema.gifted_assessments.student_id, student_id))
+          .orderBy(desc(schema.gifted_assessments.updated_at));
+      }
+    } else {
+      // For parents: Get assessments for their student
+      assessments = await db
+        .select()
+        .from(schema.gifted_assessments)
+        .where(and(
+          eq(schema.gifted_assessments.student_id, student_id),
+          eq(schema.gifted_assessments.user_id, userId)
+        ))
+        .orderBy(desc(schema.gifted_assessments.updated_at));
+    }
+
+    // Aggregate and organize the assessment data
+    const profile = {
+      student_id,
+      assessments: assessments.map(assessment => ({
+        id: assessment.id,
+        assessment_type: assessment.assessment_type,
+        giftedness_areas: assessment.giftedness_areas,
+        strengths: assessment.strengths,
+        challenges: assessment.challenges,
+        learning_differences: assessment.learning_differences,
+        recommendations: assessment.recommendations,
+        enrichment_activities: assessment.enrichment_activities,
+        acceleration_needs: assessment.acceleration_needs,
+        social_emotional_needs: assessment.social_emotional_needs,
+        evaluator_notes: assessment.evaluator_notes,
+        created_at: assessment.created_at,
+        updated_at: assessment.updated_at,
+        ai_analysis_parent: assessment.ai_analysis_parent,
+        ai_analysis_advocate: assessment.ai_analysis_advocate
+      })),
+      summary: {
+        total_assessments: assessments.length,
+        assessment_types: [...new Set(assessments.map(a => a.assessment_type))],
+        has_ai_analysis: assessments.some(a => a.ai_analysis_parent || a.ai_analysis_advocate),
+        last_updated: assessments.length > 0 ? assessments[0].updated_at : null
+      }
+    };
+
+    console.log(`✅ PRODUCTION: Found ${assessments.length} assessments for student profile ${student_id}`);
+    
+    res.json(profile);
+
+  } catch (error) {
+    console.error('❌ Error fetching gifted profile:', error);
+    res.status(500).json({ error: 'Failed to fetch gifted profile' });
+  }
+});
+
+// Individual tool save endpoints
+app.post('/api/gifted_assessments/cognitive', async (req: any, res) => {
+  try {
+    const userId = await getUserId(req);
+    console.log('✅ PRODUCTION: Creating cognitive assessment for user:', userId);
+    
+    const assessmentData = {
+      ...req.body,
+      assessment_type: 'cognitive',
+      user_id: userId,
+      created_at: new Date(),
+      updated_at: new Date()
+    };
+    
+    const [newAssessment] = await db
+      .insert(schema.gifted_assessments)
+      .values(assessmentData)
+      .returning();
+    
+    console.log('✅ PRODUCTION: Created cognitive assessment:', newAssessment.id);
+    res.status(201).json(newAssessment);
+  } catch (error) {
+    console.error('❌ Error creating cognitive assessment:', error);
+    res.status(500).json({ error: 'Failed to create cognitive assessment' });
+  }
+});
+
+app.post('/api/gifted_assessments/creative', async (req: any, res) => {
+  try {
+    const userId = await getUserId(req);
+    console.log('✅ PRODUCTION: Creating creative assessment for user:', userId);
+    
+    const assessmentData = {
+      ...req.body,
+      assessment_type: 'creative',
+      user_id: userId,
+      created_at: new Date(),
+      updated_at: new Date()
+    };
+    
+    const [newAssessment] = await db
+      .insert(schema.gifted_assessments)
+      .values(assessmentData)
+      .returning();
+    
+    console.log('✅ PRODUCTION: Created creative assessment:', newAssessment.id);
+    res.status(201).json(newAssessment);
+  } catch (error) {
+    console.error('❌ Error creating creative assessment:', error);
+    res.status(500).json({ error: 'Failed to create creative assessment' });
+  }
+});
+
+app.post('/api/gifted_assessments/academic', async (req: any, res) => {
+  try {
+    const userId = await getUserId(req);
+    console.log('✅ PRODUCTION: Creating academic assessment for user:', userId);
+    
+    const assessmentData = {
+      ...req.body,
+      assessment_type: 'academic',
+      user_id: userId,
+      created_at: new Date(),
+      updated_at: new Date()
+    };
+    
+    const [newAssessment] = await db
+      .insert(schema.gifted_assessments)
+      .values(assessmentData)
+      .returning();
+    
+    console.log('✅ PRODUCTION: Created academic assessment:', newAssessment.id);
+    res.status(201).json(newAssessment);
+  } catch (error) {
+    console.error('❌ Error creating academic assessment:', error);
+    res.status(500).json({ error: 'Failed to create academic assessment' });
+  }
+});
+
+app.post('/api/gifted_assessments/leadership', async (req: any, res) => {
+  try {
+    const userId = await getUserId(req);
+    console.log('✅ PRODUCTION: Creating leadership assessment for user:', userId);
+    
+    const assessmentData = {
+      ...req.body,
+      assessment_type: 'leadership',
+      user_id: userId,
+      created_at: new Date(),
+      updated_at: new Date()
+    };
+    
+    const [newAssessment] = await db
+      .insert(schema.gifted_assessments)
+      .values(assessmentData)
+      .returning();
+    
+    console.log('✅ PRODUCTION: Created leadership assessment:', newAssessment.id);
+    res.status(201).json(newAssessment);
+  } catch (error) {
+    console.error('❌ Error creating leadership assessment:', error);
+    res.status(500).json({ error: 'Failed to create leadership assessment' });
   }
 });
 

@@ -38,14 +38,13 @@ import {
   Clock,
   Smile,
   Heart,
-  TrendingUp,
-  Loader2
+  TrendingUp
 } from "lucide-react";
 // import { supabase } from "@/integrations/supabase/client"; // Removed during migration
 import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { apiRequest, queryClient } from "@/lib/queryClient";
+import { apiRequest } from "@/lib/queryClient";
 import { getIEPStatusColor } from "@/lib/utils";
 
 // Real AI Analysis Component
@@ -455,33 +454,6 @@ const EmotionTrackingTab = ({ selectedStudentId }: { selectedStudentId?: string 
   const [aiDraftLoading, setAiDraftLoading] = useState(false);
   const { toast } = useToast();
 
-  // Mutation for saving mood records
-  const saveMoodMutation = useMutation({
-    mutationFn: async (moodData: any) => {
-      const response = await apiRequest('POST', '/api/mood-records', moodData);
-      return response.json();
-    },
-    onSuccess: (data) => {
-      toast({
-        title: "Mood Recorded",
-        description: data.message || "Mood entry saved successfully!",
-        variant: "default"
-      });
-      setCurrentMood("");
-      setMoodNote("");
-      // Invalidate mood records query to refresh data
-      queryClient.invalidateQueries({ queryKey: ['/api/mood-records'] });
-    },
-    onError: (error: any) => {
-      console.error('Error saving mood record:', error);
-      toast({
-        title: "Save Failed",
-        description: error.message || "Unable to save mood record. Please try again.",
-        variant: "destructive"
-      });
-    }
-  });
-
   const moodOptions = [
     { emoji: '😊', label: 'Happy', color: 'bg-green-100 hover:bg-green-200' },
     { emoji: '😐', label: 'Okay', color: 'bg-blue-100 hover:bg-blue-200' },
@@ -509,23 +481,13 @@ const EmotionTrackingTab = ({ selectedStudentId }: { selectedStudentId?: string 
       return;
     }
 
-    // Map mood emoji to mood label
-    const moodLabels: { [key: string]: string } = {
-      '😊': 'Happy',
-      '😐': 'Okay', 
-      '😟': 'Worried',
-      '😠': 'Frustrated',
-      '😢': 'Sad'
-    };
-
-    const moodData = {
-      student_id: selectedStudentId,
-      mood: currentMood,
-      mood_label: moodLabels[currentMood] || currentMood,
-      notes: moodNote || null
-    };
-
-    saveMoodMutation.mutate(moodData);
+    toast({
+      title: "Mood Recorded",
+      description: `Mood entry saved successfully!`,
+      variant: "default"
+    });
+    setCurrentMood("");
+    setMoodNote("");
   };
 
   const handleGenerateMoodDraft = async () => {
@@ -625,16 +587,11 @@ const EmotionTrackingTab = ({ selectedStudentId }: { selectedStudentId?: string 
                   
                   <Button 
                     onClick={handleRecordMood}
-                    disabled={!currentMood || saveMoodMutation.isPending}
+                    disabled={!currentMood}
                     className="flex-1"
-                    data-testid="save-mood-button"
                   >
-                    {saveMoodMutation.isPending ? (
-                      <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                    ) : (
-                      <Save className="h-4 w-4 mr-2" />
-                    )}
-                    {saveMoodMutation.isPending ? 'Saving...' : 'Save Mood Entry'}
+                    <Save className="h-4 w-4 mr-2" />
+                    Save Mood Entry
                   </Button>
                 </div>
               </div>

@@ -598,56 +598,156 @@ export default function ParentDashboard({ plan }: ParentDashboardProps) {
         {/* Main Content Grid */}
         <div className="px-6 pb-16">
           <div className="max-w-7xl mx-auto">
-            {/* Simplified Stats Overview */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
-              <Card className="border-0 shadow-md">
-                <CardContent className="p-6 text-center">
-                  <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-br from-primary to-secondary rounded-2xl mb-4 shadow-lg">
-                    <Target className="h-8 w-8 text-white" />
-                  </div>
-                  <h3 className="text-3xl font-bold mb-2 text-gray-900 dark:text-white">{totalGoals}</h3>
-                  <p className="text-muted-foreground mb-3 font-medium">Active Goals</p>
-                  <Badge variant="secondary" className="text-xs">
-                    {completedGoals} completed
-                  </Badge>
-                </CardContent>
-              </Card>
-              <Card className="border-0 shadow-md">
-                <CardContent className="p-6 text-center">
-                  <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-br from-green-500 to-teal-600 rounded-2xl mb-4 shadow-lg">
-                    <Calendar className="h-8 w-8 text-white" />
-                  </div>
-                  <h3 className="text-3xl font-bold mb-2 text-gray-900 dark:text-white">{upcomingMeetings}</h3>
-                  <p className="text-muted-foreground mb-3 font-medium">Upcoming Meetings</p>
-                  <Badge variant="secondary" className="text-xs">
-                    Auto reminders on
-                  </Badge>
-                </CardContent>
-              </Card>
-              <Card className="border-0 shadow-md">
-                <CardContent className="p-6 text-center">
-                  <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-br from-purple-500 to-indigo-600 rounded-2xl mb-4 shadow-lg">
-                    <TrendingUp className="h-8 w-8 text-white" />
-                  </div>
-                  <h3 className="text-3xl font-bold mb-2 text-gray-900 dark:text-white">{completionRate}%</h3>
-                  <p className="text-muted-foreground mb-3 font-medium">Completion Rate</p>
-                  <Badge variant="secondary" className="text-xs">
-                    {completionRate > 75 ? 'Excellent!' : completionRate > 50 ? 'Great!' : 'Keep going!'}
-                  </Badge>
-                </CardContent>
-              </Card>
-              <Card className="border-0 shadow-md">
-                <CardContent className="p-6 text-center">
-                  <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-br from-orange-500 to-red-600 rounded-2xl mb-4 shadow-lg">
-                    <Sparkles className="h-8 w-8 text-white" />
-                  </div>
-                  <h3 className="text-3xl font-bold mb-2 text-gray-900 dark:text-white">{insights.length}</h3>
-                  <p className="text-muted-foreground mb-3 font-medium">AI Insights</p>
-                  <Badge variant="secondary" className="text-xs">
-                    Ready for analysis
-                  </Badge>
-                </CardContent>
-              </Card>
+            {/* Enhanced Quick Stats with Unified Design */}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-12 relative" style={{ zIndex: 10 }}>
+              {[
+                {
+                  icon: Target,
+                  title: totalGoals,
+                  subtitle: "Active Goals",
+                  badge: `${completedGoals} completed`,
+                  color: "from-primary to-secondary",
+                  index: 0
+                },
+                {
+                  icon: Calendar,
+                  title: upcomingMeetings,
+                  subtitle: "Upcoming Meetings", 
+                  badge: "Auto reminders on",
+                  color: "from-green-500 to-teal-600",
+                  index: 1
+                },
+                {
+                  icon: TrendingUp,
+                  title: `${completionRate}%`,
+                  subtitle: "Completion Rate",
+                  badge: completionRate > 75 ? 'Excellent!' : completionRate > 50 ? 'Great!' : 'Keep going!',
+                  color: "from-purple-500 to-indigo-600",
+                  index: 2
+                },
+                {
+                  icon: Sparkles,
+                  title: insights.length,
+                  subtitle: "Deep Analysis",
+                  badge: "Full IEP review",
+                  color: "from-orange-500 to-red-600",
+                  index: 3
+                }
+              ].map(({ icon: Icon, title, subtitle, badge, color, index }) => (
+                <Card 
+                  key={index}
+                  className={`group hover:shadow-xl transition-all duration-300 hover:-translate-y-1 border-0 shadow-md overflow-hidden ${isInitialized ? 'cursor-pointer' : 'cursor-wait'}`}
+                  style={{ 
+                    animationDelay: `${index * 100}ms`,
+                    animation: 'fadeInUp 0.6s ease-out forwards',
+                    opacity: isInitialized ? 1 : 0.7
+                  }}
+                  onClick={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    
+                    // Ensure handlers are initialized
+                    if (!isInitialized) {
+                      console.log('⚠️ Dashboard not initialized yet, skipping card click');
+                      return;
+                    }
+                    
+                    const actions = [
+                      () => {
+                        console.log('📊 Goals card clicked!');
+                        try {
+                          navigate('/parent/tools/goal-generator');
+                        } catch (error) {
+                          console.error('Navigation error:', error);
+                          window.location.href = '/parent/tools/goal-generator';
+                        }
+                      },
+                      () => {
+                        console.log('📅 Meetings card clicked!');
+                        try {
+                          navigate('/parent/schedule');
+                        } catch (error) {
+                          console.error('Navigation error:', error);
+                          window.location.href = '/parent/schedule';
+                        }
+                      },
+                      () => {
+                        console.log('📈 Progress card clicked!');
+                        try {
+                          // Scroll to goals section for completion rate details
+                          setTimeout(() => {
+                            const goalsSection = document.querySelector('[data-section="goals"]');
+                            goalsSection?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                          }, 100);
+                        } catch (error) {
+                          console.error('Scroll error:', error);
+                        }
+                      },
+                      () => {
+                        console.log('🔍 Deep Analysis card clicked!');
+                        try {
+                          navigate('/parent/tools/iep-master-suite');
+                        } catch (error) {
+                          console.error('Navigation error:', error);
+                          window.location.href = '/parent/tools/iep-master-suite';
+                        }
+                      }
+                    ];
+                    try {
+                      actions[index]?.();
+                    } catch (error) {
+                      console.error('Action execution error:', error);
+                    }
+                  }}
+                  data-testid={`card-stat-${index}`}
+                >
+                  <CardContent className="p-6 text-center">
+                    <div className={`inline-flex items-center justify-center w-16 h-16 bg-gradient-to-br ${color} rounded-2xl mb-4 group-hover:scale-110 transition-transform duration-300 shadow-lg`}>
+                      <Icon className="h-8 w-8 text-white" />
+                    </div>
+                    <h3 className="text-3xl font-bold mb-2 text-gray-900 dark:text-white">{title}</h3>
+                    <p className="text-muted-foreground mb-3 font-medium">{subtitle}</p>
+                    <Button 
+                      variant="secondary" 
+                      size="sm" 
+                      className="bg-blue-50 text-blue-700 border-blue-200 hover:bg-blue-100 hover:text-blue-800 cursor-pointer"
+                      onClick={(e) => {
+                        // Allow card click to work by not stopping propagation
+                        const actions = [
+                          () => {
+                            toast({
+                              title: "Goal Completion",
+                              description: `${completedGoals} goals completed out of ${totalGoals} total goals.`,
+                            });
+                          },
+                          () => {
+                            toast({
+                              title: "Auto Reminders",
+                              description: "Email reminders are automatically sent 7, 3, and 1 day before each meeting.",
+                            });
+                          },
+                          () => {
+                            toast({
+                              title: "Completion Rate",
+                              description: `Your completion rate is ${completionRate}%. ${badge}`,
+                            });
+                          },
+                          () => {
+                            toast({
+                              title: "AI Analysis",
+                              description: `${insights.length} AI insights have been generated from your data.`,
+                            });
+                          }
+                        ];
+                        actions[index]?.();
+                      }}
+                      data-testid={`button-badge-${index}`}
+                    >
+                      {badge}
+                    </Button>
+                  </CardContent>
+                </Card>
+              ))}
             </div>
             
             {/* Modern Horizontal Tab Navigation */}

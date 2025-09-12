@@ -43,8 +43,9 @@ export const PARENT_STRIPE_PLANS: Record<string, StripePlanConfig> = {
   }
 };
 
-// Advocate Plans (4 total)
+// Advocate Plans (4 total with both monthly and annual options)
 export const ADVOCATE_STRIPE_PLANS: Record<string, StripePlanConfig> = {
+  // Monthly Plans
   starter: {
     priceId: 'price_1Rr3gL8iKZXV0srZmfuD32yv', // PRODUCTION: Advocate Starter $49/month
     amount: 49,
@@ -64,7 +65,7 @@ export const ADVOCATE_STRIPE_PLANS: Record<string, StripePlanConfig> = {
     amount: 149,
     interval: 'month',
     description: 'Team collaboration with billing tools',
-    features: ['2 advocate seats', '30+ tools', 'Team features', 'Billing tools']
+    features: ['2 advocate seats', '30+ tools', 'Team features (Coming Soon)', 'Billing tools (Coming Soon)']
   },
   'agency-plus': {
     priceId: 'price_1S36QJ8iKZXV0srZsrhA6ess', // PRODUCTION: Agency+ $249/month
@@ -72,6 +73,36 @@ export const ADVOCATE_STRIPE_PLANS: Record<string, StripePlanConfig> = {
     interval: 'month',
     description: 'Enterprise features with unlimited AI',
     features: ['3 advocate seats', 'ALL 40+ tools', 'White-label', 'Dedicated support']
+  },
+
+  // Annual Plans (10% discount)
+  'starter-annual': {
+    priceId: 'price_advocate_starter_annual', // TODO: Create in Stripe Dashboard
+    amount: 529, // $49 * 12 * 0.9 = $529.20 rounded down
+    interval: 'year',
+    description: 'Essential tools for solo advocates (Annual)',
+    features: ['1 advocate seat', '12 tools', 'Basic CRM', 'Email support', '10% savings']
+  },
+  'pro-annual': {
+    priceId: 'price_advocate_pro_annual', // TODO: Create in Stripe Dashboard
+    amount: 810, // $75 * 12 * 0.9 = $810
+    interval: 'year',
+    description: 'AI analysis and professional planning (Annual)',
+    features: ['1 advocate seat', '20+ tools', 'AI analysis', 'Priority support', '10% savings']
+  },
+  'agency-annual': {
+    priceId: 'price_advocate_agency_annual', // TODO: Create in Stripe Dashboard
+    amount: 1608, // $149 * 12 * 0.9 = $1,608.40 rounded down
+    interval: 'year',
+    description: 'Team collaboration with billing tools (Annual)',
+    features: ['2 advocate seats', '30+ tools', 'Team features (Coming Soon)', 'Billing tools (Coming Soon)', '10% savings']
+  },
+  'agency-plus-annual': {
+    priceId: 'price_advocate_agency_plus_annual', // TODO: Create in Stripe Dashboard
+    amount: 2688, // $249 * 12 * 0.9 = $2,688.40 rounded down
+    interval: 'year',
+    description: 'Enterprise features with unlimited AI (Annual)',
+    features: ['3 advocate seats', 'ALL 40+ tools', 'White-label', 'Dedicated support', '10% savings']
   }
 };
 
@@ -92,8 +123,10 @@ export function requiresPayment(planId: string): boolean {
 }
 
 // Helper function to get checkout URL with plan data
-export function getCheckoutUrl(planId: string, role: 'parent' | 'advocate'): string {
-  const config = getStripePlanConfig(planId);
+export function getCheckoutUrl(planId: string, role: 'parent' | 'advocate', isAnnual: boolean = false): string {
+  // For advocate plans, append -annual if annual billing is selected
+  const actualPlanId = role === 'advocate' && isAnnual && !planId.includes('-annual') ? `${planId}-annual` : planId;
+  const config = getStripePlanConfig(actualPlanId);
   
   // Only free plan goes to dashboard
   if (planId === 'free') {
@@ -102,8 +135,8 @@ export function getCheckoutUrl(planId: string, role: 'parent' | 'advocate'): str
   
   // All other plans go to subscription setup, even without price IDs
   if (!config) {
-    console.error(`No config found for plan: ${planId}`);
-    return '/parent/pricing'; // Fallback to pricing page
+    console.error(`No config found for plan: ${actualPlanId}`);
+    return role === 'advocate' ? '/advocate/pricing' : '/parent/pricing'; // Fallback to pricing page
   }
 
   // Get proper plan names based on the plan ID
@@ -114,15 +147,19 @@ export function getCheckoutUrl(planId: string, role: 'parent' | 'advocate'): str
     'starter': 'Starter',
     'pro': 'Pro',
     'agency': 'Agency',
-    'agency-plus': 'Agency Plus'
+    'agency-plus': 'Agency Plus',
+    'starter-annual': 'Starter Annual',
+    'pro-annual': 'Pro Annual',
+    'agency-annual': 'Agency Annual',
+    'agency-plus-annual': 'Agency Plus Annual'
   };
 
   const params = new URLSearchParams({
-    plan: planId,
+    plan: actualPlanId,
     role: role,
     priceId: config.priceId || '',
     amount: config.amount.toString(),
-    planName: planNameMap[planId] || planId.charAt(0).toUpperCase() + planId.slice(1)
+    planName: planNameMap[actualPlanId] || actualPlanId.charAt(0).toUpperCase() + actualPlanId.slice(1)
   });
 
   return `/subscription-setup?${params.toString()}`;

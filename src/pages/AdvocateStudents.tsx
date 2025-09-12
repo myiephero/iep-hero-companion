@@ -3498,14 +3498,49 @@ const AdvocateStudents = () => {
               Close
             </Button>
             <Button 
-              onClick={() => {
-                toast({
-                  title: "Gifted Insights Saved",
-                  description: "AI-generated gifted education recommendations have been saved for programming decisions."
-                });
-                setIsGiftedAIDialogOpen(false);
+              onClick={async () => {
+                if (!selectedStudentId) {
+                  toast({
+                    title: "No Student Selected",
+                    description: "Please select a student to save insights for.",
+                    variant: "destructive"
+                  });
+                  return;
+                }
+
+                try {
+                  const response = await apiRequest('POST', '/api/gifted-assessments/save-insights', {
+                    student_id: selectedStudentId
+                  });
+                  
+                  const result = await response.json();
+                  
+                  if (result.success) {
+                    // Invalidate cache to refresh accommodations list
+                    queryClient.invalidateQueries({ queryKey: ['/api/accommodations'] });
+                    queryClient.invalidateQueries({ queryKey: [`/api/accommodations`, selectedStudentId] });
+                    
+                    toast({
+                      title: "AI Insights Saved Successfully! 🎉",
+                      description: result.saved_accommodations > 0 
+                        ? `${result.saved_accommodations} accommodations saved to the Accommodations tab from AI insights.`
+                        : "AI insights processed but no new accommodations found to save.",
+                    });
+                    setIsGiftedAIDialogOpen(false);
+                  } else {
+                    throw new Error(result.error || 'Failed to save insights');
+                  }
+                } catch (error) {
+                  console.error('Error saving AI insights:', error);
+                  toast({
+                    title: "Error Saving Insights",
+                    description: "Failed to save AI insights. Please ensure AI analysis has been generated and try again.",
+                    variant: "destructive"
+                  });
+                }
               }}
               disabled={!selectedStudentId}
+              data-testid="button-save-insights"
             >
               Save Insights
             </Button>

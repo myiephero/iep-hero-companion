@@ -120,3 +120,6 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
     </SidebarProvider>
   );
 }
+
+// Default export for compatibility
+export default DashboardLayout;

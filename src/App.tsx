@@ -91,6 +91,9 @@ import ProgressNotesTracker from "./pages/ProgressNotesTracker";
 import AskAIDocuments from "./pages/AskAIDocuments";
 import OTActivityRecommender from "./pages/OTActivityRecommender";
 import ParentEmotionTracker from "./pages/ParentEmotionTracker";
+import CopingStrategies from "./pages/CopingStrategies";
+import WarningSignsDetection from "./pages/WarningSignsDetection";
+import SupportSchedule from "./pages/SupportSchedule";
 import PremiumToolsDemo from "./pages/PremiumToolsDemo";
 import NotFound from "./pages/NotFound";
 import CardShowcase from "./pages/CardShowcase";
@@ -717,6 +720,21 @@ function App() {
               <Route path="/parent/tools/emotion-tracker" element={
                 <ProtectedRoute allowedRoles={['parent']}>
                   <ParentEmotionTracker />
+                </ProtectedRoute>
+              } />
+              <Route path="/parent/tools/coping-strategies" element={
+                <ProtectedRoute allowedRoles={['parent']}>
+                  <CopingStrategies />
+                </ProtectedRoute>
+              } />
+              <Route path="/parent/tools/warning-signs" element={
+                <ProtectedRoute allowedRoles={['parent']}>
+                  <WarningSignsDetection />
+                </ProtectedRoute>
+              } />
+              <Route path="/parent/tools/support-schedule" element={
+                <ProtectedRoute allowedRoles={['parent']}>
+                  <SupportSchedule />
                 </ProtectedRoute>
               } />
               

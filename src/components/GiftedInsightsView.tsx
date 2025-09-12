@@ -338,6 +338,51 @@ export const GiftedInsightsView = ({
                     return key.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
                   };
 
+                  // Helper function to render an individual item (could be string or object)
+                  const renderArrayItem = (item: any, index: number) => {
+                    if (typeof item === 'string') {
+                      return (
+                        <li key={index} className="flex items-start gap-2">
+                          <ArrowRight className={`h-3 w-3 ${color} mt-1 flex-shrink-0`} />
+                          <span className="text-muted-foreground">{item}</span>
+                        </li>
+                      );
+                    }
+
+                    if (typeof item === 'object' && item !== null) {
+                      // Handle different object structures based on their keys
+                      const keys = Object.keys(item);
+                      
+                      return (
+                        <li key={index} className="border border-muted rounded-lg p-3 space-y-2">
+                          {keys.map((key) => {
+                            const value = item[key];
+                            if (!value) return null;
+                            
+                            return (
+                              <div key={key}>
+                                <span className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
+                                  {formatSectionTitle(key)}:
+                                </span>
+                                <p className="text-sm text-foreground mt-1">
+                                  {String(value)}
+                                </p>
+                              </div>
+                            );
+                          })}
+                        </li>
+                      );
+                    }
+
+                    // Fallback for other data types
+                    return (
+                      <li key={index} className="flex items-start gap-2">
+                        <ArrowRight className={`h-3 w-3 ${color} mt-1 flex-shrink-0`} />
+                        <span className="text-muted-foreground">{String(item)}</span>
+                      </li>
+                    );
+                  };
+
                   // Render different content types
                   const renderSectionContent = (value: any) => {
                     if (typeof value === 'string') {
@@ -350,13 +395,8 @@ export const GiftedInsightsView = ({
 
                     if (Array.isArray(value)) {
                       return (
-                        <ul className="space-y-2 text-sm">
-                          {value.map((item: string, i: number) => (
-                            <li key={i} className="flex items-start gap-2">
-                              <ArrowRight className={`h-3 w-3 ${color} mt-1 flex-shrink-0`} />
-                              <span className="text-muted-foreground">{item}</span>
-                            </li>
-                          ))}
+                        <ul className="space-y-3">
+                          {value.map((item, i) => renderArrayItem(item, i))}
                         </ul>
                       );
                     }
@@ -370,18 +410,30 @@ export const GiftedInsightsView = ({
                                 {formatSectionTitle(subKey)}
                               </h4>
                               {Array.isArray(subValue) ? (
-                                <ul className="space-y-1 text-sm ml-4">
-                                  {subValue.map((item: string, i: number) => (
-                                    <li key={i} className="flex items-start gap-2">
-                                      <ArrowRight className={`h-3 w-3 ${color} mt-1 flex-shrink-0`} />
-                                      <span className="text-muted-foreground">{item}</span>
-                                    </li>
-                                  ))}
+                                <ul className="space-y-3 ml-4">
+                                  {subValue.map((item, i) => renderArrayItem(item, i))}
                                 </ul>
                               ) : (
-                                <p className="text-muted-foreground text-sm ml-4 whitespace-pre-wrap">
-                                  {String(subValue)}
-                                </p>
+                                <div className="ml-4">
+                                  {typeof subValue === 'object' && subValue !== null ? (
+                                    <div className="border border-muted rounded-lg p-3 space-y-2">
+                                      {Object.entries(subValue).map(([key, val]) => (
+                                        <div key={key}>
+                                          <span className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
+                                            {formatSectionTitle(key)}:
+                                          </span>
+                                          <p className="text-sm text-foreground mt-1">
+                                            {String(val)}
+                                          </p>
+                                        </div>
+                                      ))}
+                                    </div>
+                                  ) : (
+                                    <p className="text-muted-foreground text-sm whitespace-pre-wrap">
+                                      {String(subValue)}
+                                    </p>
+                                  )}
+                                </div>
                               )}
                             </div>
                           ))}

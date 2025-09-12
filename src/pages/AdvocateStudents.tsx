@@ -56,6 +56,7 @@ import {
   type ClientEngagementStage, 
   type StudentIEPWorkflowStage 
 } from "../../shared/schema";
+import { GiftedInsightsView } from "@/components/GiftedInsightsView";
 
 interface Client {
   id: string;
@@ -3273,157 +3274,13 @@ const AdvocateStudents = () => {
               </div>
             ) : (
               <>
-                {/* Display existing AI analysis if available */}
-                {existingGiftedAIAnalysis?.analyses?.length > 0 ? (
-                  <div className="space-y-6">
-                    {/* Analysis Header */}
-                    <div className="bg-gradient-to-r from-orange-50 to-pink-50 dark:from-orange-950 dark:to-pink-950 p-6 rounded-lg">
-                      <h3 className="text-lg font-semibold mb-2 flex items-center">
-                        <span className="text-2xl mr-2">✨</span>
-                        Saved Gifted Education Analysis for Advocacy
-                        <Badge variant="outline" className="ml-2">Professional Analysis</Badge>
-                      </h3>
-                      <p className="text-sm text-muted-foreground">
-                        AI-powered gifted education analysis for IEP advocacy • 
-                        {existingGiftedAIAnalysis.analyses[0]?.timestamp ? 
-                          `Generated: ${new Date(existingGiftedAIAnalysis.analyses[0].timestamp).toLocaleDateString()}` : 
-                          'Previously Generated'
-                        }
-                      </p>
-                    </div>
-
-                    {/* Professional Analysis Display */}
-                    {existingGiftedAIAnalysis.analyses[0]?.ai_analysis?.detailed_analysis && (
-                      <Card className="premium-card">
-                        <CardHeader>
-                          <CardTitle className="flex items-center text-lg">
-                            <Brain className="h-5 w-5 mr-2" />
-                            Professional Gifted Education Analysis
-                          </CardTitle>
-                        </CardHeader>
-                        <CardContent>
-                          <p className="text-muted-foreground whitespace-pre-wrap">
-                            {existingGiftedAIAnalysis.analyses[0].ai_analysis.detailed_analysis}
-                          </p>
-                        </CardContent>
-                      </Card>
-                    )}
-
-                    {/* Recommendations for IEP Advocacy */}
-                    {existingGiftedAIAnalysis.analyses[0]?.ai_analysis?.recommendations && Array.isArray(existingGiftedAIAnalysis.analyses[0].ai_analysis.recommendations) && (
-                      <Card className="premium-card">
-                        <CardHeader>
-                          <CardTitle className="flex items-center text-lg">
-                            <Target className="h-5 w-5 mr-2" />
-                            IEP & Gifted Program Recommendations
-                          </CardTitle>
-                        </CardHeader>
-                        <CardContent>
-                          <ul className="space-y-2">
-                            {existingGiftedAIAnalysis.analyses[0].ai_analysis.recommendations.map((rec: string, i: number) => (
-                              <li key={i} className="flex items-start">
-                                <span className="text-primary mr-2 mt-1">→</span>
-                                <span className="text-muted-foreground">{rec}</span>
-                              </li>
-                            ))}
-                          </ul>
-                        </CardContent>
-                      </Card>
-                    )}
-
-                    {/* Key Findings */}
-                    {existingGiftedAIAnalysis.analyses[0]?.ai_analysis?.key_findings && Array.isArray(existingGiftedAIAnalysis.analyses[0].ai_analysis.key_findings) && (
-                      <Card className="premium-card">
-                        <CardHeader>
-                          <CardTitle className="flex items-center text-lg">
-                            <CheckCircle className="h-5 w-5 mr-2" />
-                            Critical Findings for Advocacy
-                          </CardTitle>
-                        </CardHeader>
-                        <CardContent>
-                          <ul className="space-y-2">
-                            {existingGiftedAIAnalysis.analyses[0].ai_analysis.key_findings.map((finding: string, i: number) => (
-                              <li key={i} className="flex items-start">
-                                <span className="text-primary mr-2 mt-1">•</span>
-                                <span className="text-muted-foreground">{finding}</span>
-                              </li>
-                            ))}
-                          </ul>
-                        </CardContent>
-                      </Card>
-                    )}
-                    
-                    <div className="flex justify-center">
-                      <Button
-                        onClick={() => {
-                          if (existingGiftedAssessments && existingGiftedAssessments.length > 0) {
-                            const latestAssessment = existingGiftedAssessments[existingGiftedAssessments.length - 1];
-                            generateGiftedAIAnalysisMutation.mutate(latestAssessment.id);
-                          }
-                        }}
-                        disabled={generateGiftedAIAnalysisMutation.isPending || !existingGiftedAssessments || existingGiftedAssessments.length === 0}
-                        className="button-premium"
-                        data-testid="button-regenerate-ai-analysis"
-                      >
-                        {generateGiftedAIAnalysisMutation.isPending ? (
-                          <>
-                            <Brain className="h-4 w-4 mr-2 animate-spin" />
-                            Regenerating...
-                          </>
-                        ) : (
-                          <>
-                            <Sparkles className="h-4 w-4 mr-2" />
-                            Regenerate Analysis
-                          </>
-                        )}
-                      </Button>
-                    </div>
-                  </div>
-                ) : (
-                  /* No existing analysis - show generation interface */
-                  <div className="space-y-6">
-                    <div className="text-center py-8 border rounded-lg">
-                      <Target className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
-                      <h3 className="font-medium mb-2">No Saved Analysis Results</h3>
-                      <p className="text-sm text-muted-foreground mb-4">
-                        Generate comprehensive AI insights based on completed gifted assessments.
-                      </p>
-                      
-                      {existingGiftedAssessments && existingGiftedAssessments.length > 0 ? (
-                        <div className="space-y-4">
-                          <div className="text-sm text-muted-foreground">
-                            Found {existingGiftedAssessments.length} assessment(s) available for analysis
-                          </div>
-                          <Button
-                            onClick={() => {
-                              const latestAssessment = existingGiftedAssessments[existingGiftedAssessments.length - 1];
-                              generateGiftedAIAnalysisMutation.mutate(latestAssessment.id);
-                            }}
-                            disabled={generateGiftedAIAnalysisMutation.isPending}
-                            className="button-premium"
-                            data-testid="button-generate-ai-analysis"
-                          >
-                            {generateGiftedAIAnalysisMutation.isPending ? (
-                              <>
-                                <Brain className="h-4 w-4 mr-2 animate-spin" />
-                                Generating Analysis...
-                              </>
-                            ) : (
-                              <>
-                                <Sparkles className="h-4 w-4 mr-2" />
-                                Generate AI Insights
-                              </>
-                            )}
-                          </Button>
-                        </div>
-                      ) : (
-                        <div className="text-sm text-muted-foreground">
-                          Complete some assessments first to generate AI insights.
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                )}
+                {/* Comprehensive Gifted AI Insights */}
+                <GiftedInsightsView 
+                  selectedStudentId={selectedStudentId || undefined}
+                  students={students}
+                  isAdvocateView={true}
+                  showStudentSelector={false}
+                />
               </>
             )}
           </div>

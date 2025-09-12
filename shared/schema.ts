@@ -464,6 +464,22 @@ export const expert_analyses = pgTable("expert_analyses", {
   updated_at: timestamp("updated_at").defaultNow(),
 });
 
+// Mood Records table - for tracking student emotions and behavior
+export const mood_records = pgTable("mood_records", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  user_id: varchar("user_id").notNull(),
+  student_id: varchar("student_id").notNull(),
+  mood: varchar("mood").notNull(), // emoji or label (😊, 😐, 😟, 😠, 😢)
+  mood_label: varchar("mood_label").notNull(), // Happy, Okay, Worried, Frustrated, Sad
+  notes: text("notes"), // Additional notes from parent/caregiver
+  behavior_entry: text("behavior_entry"), // Behavioral observations
+  created_at: timestamp("created_at").defaultNow(),
+  updated_at: timestamp("updated_at").defaultNow(),
+});
+
+export type MoodRecord = typeof mood_records.$inferSelect;
+export type InsertMoodRecord = typeof mood_records.$inferInsert;
+
 export type ExpertAnalysis = typeof expert_analyses.$inferSelect;
 export type InsertExpertAnalysis = typeof expert_analyses.$inferInsert;
 

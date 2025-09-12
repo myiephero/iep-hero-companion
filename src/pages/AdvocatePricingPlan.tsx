@@ -328,13 +328,6 @@ const AdvocatePricingPlan = () => {
                           {getPriceForPlan(tier, isAnnual).annualTotal}
                         </div>
                       )}
-                      {isAnnual && (
-                        <div className="text-xs text-green-400 font-medium mt-1">
-                          {tier.id === 'starter' && 'Save 24%'}
-                          {tier.id === 'pro' && 'Save 25%'}
-                          {tier.id === 'agency' && 'Save 20%'}
-                        </div>
-                      )}
                       {getPriceForPlan(tier, isAnnual).setupFee && !isAnnual && (
                         <div className="text-xs text-amber-600 font-medium mt-1">
                           + ${getPriceForPlan(tier, isAnnual).setupFee} setup fee

@@ -6,6 +6,7 @@ import { StatCard } from "@/components/StatCard";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest, queryClient } from "@/lib/queryClient";
@@ -41,7 +42,9 @@ import {
   Mail,
   ClipboardList,
   Award,
-  Shield
+  Shield,
+  ChevronDown,
+  ChevronUp
 } from "lucide-react";
 
 interface Meeting {
@@ -192,6 +195,8 @@ const AdvocateDashboard = ({ plan }: AdvocateDashboardProps) => {
   const completedGoals = (goalsData as any[]).filter(g => g.status === 'completed' || g.status === 'achieved' || g.status === 'met');
   const [upcomingMeetings, setUpcomingMeetings] = useState<Meeting[]>([]);
   const actionLoading = acceptProposalMutation.isPending || declineProposalMutation.isPending;
+  const [activeCasesExpanded, setActiveCasesExpanded] = useState(false);
+  const urgentCases = openCases.filter(c => c.urgency === 'high' || c.urgency === 'urgent');
 
   // Fetch upcoming meetings
   useEffect(() => {
@@ -736,61 +741,162 @@ const AdvocateDashboard = ({ plan }: AdvocateDashboardProps) => {
             </CardContent>
           </Card>
 
-          {/* Open Cases */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <FileText className="h-5 w-5" />
-                Active Cases
-              </CardTitle>
-              <CardDescription>
-                Cases currently under your advocacy
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              {openCases.length === 0 ? (
-                <div className="text-center py-8">
-                  <div className="text-muted-foreground mb-4">
-                    <FileText className="h-12 w-12 mx-auto mb-2 opacity-50" />
-                    <p className="text-lg font-medium">No active cases yet</p>
-                    <p className="text-sm">Your advocacy cases will appear here once you start working with students</p>
+          {/* Consolidated Active Cases */}
+          <Card className="border-0 bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-blue-950/50 dark:to-indigo-950/50">
+            <Collapsible open={activeCasesExpanded} onOpenChange={setActiveCasesExpanded}>
+              <CardHeader className="pb-4">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 bg-blue-100 dark:bg-blue-900 rounded-lg flex items-center justify-center">
+                      <Briefcase className="h-5 w-5 text-blue-600 dark:text-blue-400" />
+                    </div>
+                    <div>
+                      <CardTitle className="text-lg font-semibold text-gray-900 dark:text-gray-100">
+                        Active Cases
+                      </CardTitle>
+                      <CardDescription className="text-sm">
+                        {openCases.length === 0 
+                          ? "No active cases" 
+                          : `${openCases.length} case${openCases.length !== 1 ? 's' : ''} under advocacy`
+                        }
+                        {urgentCases.length > 0 && (
+                          <span className="ml-2">
+                            • {urgentCases.length} urgent
+                          </span>
+                        )}
+                      </CardDescription>
+                    </div>
                   </div>
-                  <Button asChild variant="outline">
-                    <Link to="/advocate/students">
-                      <GraduationCap className="h-4 w-4 mr-2" />
-                      Create First Student Case
-                    </Link>
-                  </Button>
+                  
+                  <div className="flex items-center gap-3">
+                    {/* Summary stats */}
+                    <div className="flex items-center gap-2">
+                      <div className="text-right">
+                        <div className="text-2xl font-bold text-blue-600 dark:text-blue-400" data-testid="active-cases-count">
+                          {openCases.length}
+                        </div>
+                        <div className="text-xs text-gray-500">Total</div>
+                      </div>
+                      {urgentCases.length > 0 && (
+                        <div className="text-right">
+                          <div className="text-lg font-semibold text-red-600 dark:text-red-400">
+                            {urgentCases.length}
+                          </div>
+                          <div className="text-xs text-red-500">Urgent</div>
+                        </div>
+                      )}
+                    </div>
+                    
+                    {/* Expand/Collapse button */}
+                    {openCases.length > 0 && (
+                      <CollapsibleTrigger asChild>
+                        <Button 
+                          variant="ghost" 
+                          size="sm" 
+                          className="h-8 w-8 p-0 data-[state=open]:bg-blue-100 dark:data-[state=open]:bg-blue-900"
+                          data-testid="toggle-cases-list"
+                        >
+                          {activeCasesExpanded ? (
+                            <ChevronUp className="h-4 w-4" />
+                          ) : (
+                            <ChevronDown className="h-4 w-4" />
+                          )}
+                        </Button>
+                      </CollapsibleTrigger>
+                    )}
+                  </div>
                 </div>
-              ) : openCases.map((case_) => (
-                <div key={case_.id} className="p-4 border rounded-lg space-y-2">
-                  <div className="flex items-center justify-between">
-                    <h4 className="font-semibold">{case_.student}</h4>
-                    <Badge className={getUrgencyColor(case_.status)}>
-                      {case_.status}
-                    </Badge>
-                  </div>
-                  <p className="text-sm text-muted-foreground">
-                    Parent: {case_.parent_first_name && case_.parent_last_name 
-                      ? `${case_.parent_first_name} ${case_.parent_last_name}` 
-                      : case_.parent_email || 'Unknown'}
-                  </p>
-                  <p className="text-sm">
-                    <span className="font-medium">{case_.caseType}:</span> {case_.nextAction}
-                  </p>
-                  <div className="flex items-center justify-between pt-2">
-                    <span className="text-xs text-muted-foreground">
-                      Due: {case_.dueDate}
-                    </span>
-                    <Button size="sm" variant="outline" asChild>
-                      <Link to="/advocate/parents">
-                        View Case
+              </CardHeader>
+              
+              <CardContent className="pt-0">
+                {openCases.length === 0 ? (
+                  <div className="text-center py-8 bg-white/50 dark:bg-gray-800/50 rounded-lg">
+                    <div className="text-muted-foreground mb-4">
+                      <FileText className="h-12 w-12 mx-auto mb-2 opacity-50" />
+                      <p className="text-lg font-medium">No active cases yet</p>
+                      <p className="text-sm">Your advocacy cases will appear here once you start working with students</p>
+                    </div>
+                    <Button asChild variant="outline">
+                      <Link to="/advocate/students">
+                        <GraduationCap className="h-4 w-4 mr-2" />
+                        Create First Student Case
                       </Link>
                     </Button>
                   </div>
-                </div>
-              ))}
-            </CardContent>
+                ) : (
+                  <CollapsibleContent className="space-y-0">
+                    <div className="space-y-3 mt-4">
+                      {openCases.map((case_, index) => (
+                        <div 
+                          key={case_.id} 
+                          className="p-4 bg-white/80 dark:bg-gray-800/80 border border-gray-200/50 dark:border-gray-700/50 rounded-lg space-y-3 hover:shadow-md transition-all duration-200"
+                          data-testid={`active-case-${index}`}
+                        >
+                          <div className="flex items-center justify-between">
+                            <div className="space-y-1">
+                              <h4 className="font-semibold text-gray-900 dark:text-gray-100" data-testid={`case-student-${index}`}>
+                                {case_.student}
+                              </h4>
+                              <p className="text-sm text-gray-600 dark:text-gray-400">
+                                Parent: {case_.parent_first_name && case_.parent_last_name 
+                                  ? `${case_.parent_first_name} ${case_.parent_last_name}` 
+                                  : case_.parent_email || 'Unknown'}
+                              </p>
+                            </div>
+                            <div className="flex items-center gap-2">
+                              <Badge className={getUrgencyColor(case_.status)} data-testid={`case-status-${index}`}>
+                                {case_.status}
+                              </Badge>
+                            </div>
+                          </div>
+                          
+                          <div className="space-y-2">
+                            <p className="text-sm text-gray-700 dark:text-gray-300">
+                              <span className="font-medium">{case_.caseType}:</span> {case_.nextAction}
+                            </p>
+                            
+                            <div className="flex items-center justify-between pt-2 border-t border-gray-200/60 dark:border-gray-700/60">
+                              <span className="text-xs text-gray-500 dark:text-gray-400">
+                                Due: {case_.dueDate}
+                              </span>
+                              <Button size="sm" variant="outline" asChild data-testid={`view-case-${index}`}>
+                                <Link to="/advocate/parents" className="hover:bg-blue-50 dark:hover:bg-blue-900">
+                                  <Eye className="h-3 w-3 mr-1" />
+                                  View Case
+                                </Link>
+                              </Button>
+                            </div>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                    
+                    {/* Quick Actions Footer */}
+                    <div className="mt-4 pt-4 border-t border-gray-200/60 dark:border-gray-700/60">
+                      <div className="flex items-center justify-between">
+                        <span className="text-xs text-gray-500 dark:text-gray-400">
+                          {openCases.length} case{openCases.length !== 1 ? 's' : ''} shown
+                        </span>
+                        <div className="flex gap-2">
+                          <Button size="sm" variant="outline" asChild>
+                            <Link to="/advocate/students">
+                              <Plus className="h-3 w-3 mr-1" />
+                              Add Case
+                            </Link>
+                          </Button>
+                          <Button size="sm" variant="outline" asChild>
+                            <Link to="/advocate/parents">
+                              <ArrowRight className="h-3 w-3 mr-1" />
+                              View All
+                            </Link>
+                          </Button>
+                        </div>
+                      </div>
+                    </div>
+                  </CollapsibleContent>
+                )}
+              </CardContent>
+            </Collapsible>
           </Card>
         </div>
 

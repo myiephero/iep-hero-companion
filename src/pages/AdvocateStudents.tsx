@@ -1671,152 +1671,131 @@ const AdvocateStudents = () => {
                           </p>
                         </div>
                         
-                        {/* Interactive Tool Cards */}
-                        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3 mb-8">
-                          {(() => {
-                            const giftedToolCards = [
-                              {
-                                id: "cognitive-assessment",
-                                title: "Cognitive Assessment",
-                                description: "Track intellectual abilities and learning patterns",
-                                icon: <Brain className="h-5 w-5" />,
-                                iconColor: "text-pink-400",
-                                bgColor: "bg-gray-700 dark:bg-gray-700",
-                                category: "Intellectual",
-                                estimatedTime: "15-20 min"
-                              },
-                              {
-                                id: "enrichment-needs", 
-                                title: "Enrichment Needs",
-                                description: "Document advanced learning opportunities",
-                                icon: <Lightbulb className="h-5 w-5" />,
-                                iconColor: "text-yellow-400",
-                                bgColor: "bg-gray-700 dark:bg-gray-700",
-                                category: "Academic",
-                                estimatedTime: "12-15 min"
-                              },
-                              {
-                                id: "2e-support",
-                                title: "2E Support", 
-                                description: "Address unique twice-exceptional needs",
-                                icon: <Target className="h-5 w-5" />,
-                                iconColor: "text-red-400",
-                                bgColor: "bg-gray-700 dark:bg-gray-700",
-                                category: "2E Support", 
-                                estimatedTime: "10-15 min"
-                              },
-                              {
-                                id: "ai-insights",
+                        {/* Match Parent Implementation Exactly */}
+                        <div className="text-center py-8">
+                          <div className="text-4xl mb-4">✨</div>
+                          <h3 className="text-lg font-semibold mb-2">Integrated Gifted Support</h3>
+                          <p className="text-muted-foreground mb-6">
+                            Comprehensive gifted and twice-exceptional assessment tools are now seamlessly integrated into your student's profile.
+                          </p>
+                          
+                          {/* Beautiful functional cards */}
+                          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 gap-4 mt-6">
+                            {(() => {
+                              const giftedCategories = [
+                                {
+                                  id: "cognitive", 
+                                  title: "Cognitive Assessment",
+                                  description: "Track intellectual abilities and learning patterns",
+                                  icon: "🧠",
+                                  color: "text-blue-600",
+                                  view: "cognitive" as const
+                                },
+                                {
+                                  id: "enrichment",
+                                  title: "Enrichment Needs", 
+                                  description: "Document advanced learning opportunities",
+                                  icon: "⚡",
+                                  color: "text-green-600",
+                                  view: "enrichment" as const
+                                },
+                                {
+                                  id: "twice_exceptional",
+                                  title: "2E Support",
+                                  description: "Address unique twice-exceptional needs", 
+                                  icon: "🎯",
+                                  color: "text-purple-600",
+                                  view: "2e_support" as const
+                                }
+                              ];
+                              
+                              const aiInsightsCategory = {
+                                id: "ai_insights",
                                 title: "AI Insights",
                                 description: "Get intelligent analysis and recommendations",
-                                icon: <Sparkles className="h-5 w-5" />,
-                                iconColor: "text-white",
-                                bgColor: "bg-gradient-to-r from-purple-600 to-pink-600",
-                                category: "AI Analysis",
-                                estimatedTime: "5 min",
-                                isNew: true
-                              },
-                              {
-                                id: "quick-assessment",
-                                title: "Quick Assessment",
-                                description: "Create a comprehensive assessment",
-                                icon: <BookOpen className="h-5 w-5" />,
-                                iconColor: "text-orange-300",
-                                bgColor: "bg-orange-800 dark:bg-orange-800",
-                                category: "Assessment",
-                                estimatedTime: "8-12 min"
-                              }
-                            ];
+                                icon: "🤖",
+                                color: "text-indigo-600",
+                                view: "ai_insights" as const
+                              };
 
-                            // Get completion status for progress indicators using real data
-                            const getToolCompletionStatus = (toolId: string) => {
-                              if (!existingGiftedAssessments) return false;
-                              
-                              switch (toolId) {
-                                case "cognitive-assessment":
-                                  return existingGiftedAssessments.some((assessment: any) => 
-                                    assessment.assessment_type === 'cognitive' && assessment.status === 'completed'
-                                  );
-                                case "enrichment-needs":
-                                  return existingGiftedAssessments.some((assessment: any) => 
-                                    assessment.assessment_type === 'enrichment' && assessment.status === 'completed'
-                                  );
-                                case "2e-support":
-                                  return existingGiftedAssessments.some((assessment: any) => 
-                                    assessment.assessment_type === 'twice_exceptional' && assessment.status === 'completed'
-                                  );
-                                case "ai-insights":
-                                  return (existingGiftedAIAnalysis?.analyses?.length || 0) > 0;
-                                default:
-                                  return false;
-                              }
-                            };
+                              const handleCardClick = (viewId: string) => {
+                                if (!selectedStudentId) {
+                                  toast({
+                                    title: "Student Required",
+                                    description: "Please select a student first.",
+                                    variant: "destructive"
+                                  });
+                                  return;
+                                }
 
-                            // Handle card clicks to open appropriate dialogs
-                            const handleCardClick = (toolId: string) => {
-                              if (!selectedStudentId) {
-                                toast({
-                                  title: "Student Required",
-                                  description: "Please select a student first.",
-                                  variant: "destructive"
-                                });
-                                return;
-                              }
+                                switch (viewId) {
+                                  case "cognitive":
+                                    setIsCognitiveDialogOpen(true);
+                                    break;
+                                  case "enrichment":
+                                    setIsEnrichmentDialogOpen(true);
+                                    break;
+                                  case "2e_support":
+                                    setIs2ESupportDialogOpen(true);
+                                    break;
+                                  case "ai_insights":
+                                    setIsGiftedAIDialogOpen(true);
+                                    break;
+                                  case "create":
+                                    setIsNewAssessmentDialogOpen(true);
+                                    break;
+                                  default:
+                                    break;
+                                }
+                              };
 
-                              switch (toolId) {
-                                case "cognitive-assessment":
-                                  setIsCognitiveDialogOpen(true);
-                                  break;
-                                case "enrichment-needs":
-                                  setIsEnrichmentDialogOpen(true);
-                                  break;
-                                case "2e-support":
-                                  setIs2ESupportDialogOpen(true);
-                                  break;
-                                case "ai-insights":
-                                  setIsGiftedAIDialogOpen(true);
-                                  break;
-                                case "quick-assessment":
-                                  setIsNewAssessmentDialogOpen(true);
-                                  break;
-                                default:
-                                  break;
-                              }
-                            };
-
-                            return giftedToolCards.map((tool) => {
-                              const isCompleted = getToolCompletionStatus(tool.id);
-                              
                               return (
-                                <Card 
-                                  key={tool.id}
-                                  className={`${tool.bgColor} border-gray-600 hover:shadow-lg transition-all cursor-pointer text-white h-[140px] relative`}
-                                  onClick={() => handleCardClick(tool.id)}
-                                  data-testid={`card-${tool.id}`}
-                                >
-                                  <CardContent className="p-4 h-full flex flex-col justify-between">
-                                    <div className="flex items-start justify-between">
-                                      {React.cloneElement(tool.icon, { className: `h-5 w-5 ${tool.iconColor}` })}
-                                      {tool.isNew && (
-                                        <Badge className="bg-orange-500 text-white text-xs font-bold px-2 py-1">
-                                          NEW
-                                        </Badge>
-                                      )}
+                                <>
+                                  {giftedCategories.map((category) => (
+                                    <button
+                                      key={category.id}
+                                      onClick={() => handleCardClick(category.view)}
+                                      className="bg-muted/30 p-4 rounded-lg border hover:bg-muted/50 transition-colors text-left group cursor-pointer"
+                                      data-testid={`button-gifted-${category.id}`}
+                                    >
+                                      <div className={`${category.color} mb-2 text-xl group-hover:scale-110 transition-transform`}>
+                                        {category.icon}
+                                      </div>
+                                      <h4 className="font-medium mb-1">{category.title}</h4>
+                                      <p className="text-sm text-muted-foreground">{category.description}</p>
+                                    </button>
+                                  ))}
+                                  
+                                  {/* AI Insights Card */}
+                                  <button
+                                    onClick={() => handleCardClick(aiInsightsCategory.view)}
+                                    className="bg-gradient-to-r from-indigo-100 to-purple-100 dark:from-indigo-900 dark:to-purple-900 p-4 rounded-lg border hover:from-indigo-200 hover:to-purple-200 dark:hover:from-indigo-800 dark:hover:to-purple-800 transition-colors text-left group cursor-pointer"
+                                    data-testid="button-gifted-ai-insights"
+                                  >
+                                    <div className={`${aiInsightsCategory.color} mb-2 text-xl group-hover:scale-110 transition-transform`}>
+                                      {aiInsightsCategory.icon}
                                     </div>
-                                    
-                                    <div>
-                                      <h3 className="font-semibold text-base mb-1">
-                                        {tool.title}
-                                      </h3>
-                                      <p className="text-gray-300 text-sm">
-                                        {tool.description}
-                                      </p>
+                                    <h4 className="font-medium mb-1">{aiInsightsCategory.title}</h4>
+                                    <p className="text-sm text-muted-foreground">{aiInsightsCategory.description}</p>
+                                    <Badge variant="secondary" className="mt-2 text-xs">NEW</Badge>
+                                  </button>
+                                  
+                                  {/* Quick Assessment Card */}
+                                  <button
+                                    onClick={() => handleCardClick('create')}
+                                    className="bg-orange-50 dark:bg-orange-950 p-4 rounded-lg border hover:bg-orange-100 dark:hover:bg-orange-900 transition-colors text-left group cursor-pointer"
+                                    data-testid="button-gifted-create-assessment"
+                                  >
+                                    <div className="text-orange-600 mb-2 text-xl group-hover:scale-110 transition-transform">
+                                      📝
                                     </div>
-                                  </CardContent>
-                                </Card>
+                                    <h4 className="font-medium mb-1">Quick Assessment</h4>
+                                    <p className="text-sm text-muted-foreground">Create a comprehensive assessment</p>
+                                  </button>
+                                </>
                               );
-                            });
-                          })()}
+                            })()}
+                          </div>
                         </div>
 
                         {/* Show existing assessments if any */}

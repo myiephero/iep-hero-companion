@@ -914,6 +914,12 @@ const AdvocateStudents = () => {
 
     return {
       assessment_type: 'creative',
+      strengths: {
+        academic_acceleration: academicAcceleration,
+        enrichment_strategies: enrichmentStrategies,
+        specialized_programs: specializedPrograms,
+        notes: enrichmentPlan
+      },
       enrichment_activities: {
         academic_acceleration: academicAcceleration,
         enrichment_strategies: enrichmentStrategies,
@@ -953,6 +959,7 @@ const AdvocateStudents = () => {
 
     return {
       assessment_type: 'academic',
+      giftedness_areas: ['Twice-Exceptional'],
       strengths: {
         strength_based_approaches: strengthBasedApproaches,
         accommodation_strategies: accommodationStrategies,

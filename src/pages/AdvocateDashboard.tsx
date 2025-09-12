@@ -280,7 +280,7 @@ const AdvocateDashboard = ({ plan }: AdvocateDashboardProps) => {
                   </div>
                   <div>
                     <h1 className="text-3xl font-bold bg-gradient-to-r from-gray-900 to-gray-700 dark:from-gray-100 dark:to-gray-300 bg-clip-text text-transparent">
-                      Welcome back, {user?.email?.split('@')[0] || 'Advocate'}
+                      Welcome back, {user?.firstName && user?.lastName ? `${user.firstName} ${user.lastName}` : (user?.firstName || user?.email?.split('@')[0] || 'Advocate')}
                     </h1>
                     <p className="text-gray-600 dark:text-gray-400 text-lg">Your advocacy command center</p>
                   </div>

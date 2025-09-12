@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { Switch } from "@/components/ui/switch";
 import { 
   Check, 
   Crown, 
@@ -15,14 +16,31 @@ import { getCheckoutUrl, requiresPayment } from '@/lib/stripePricing';
 
 const AdvocatePricingPlan = () => {
   const [selectedPlan, setSelectedPlan] = useState<string | null>(null);
+  const [isAnnual, setIsAnnual] = useState(false);
   const { toast } = useToast();
+
+  const getPriceForPlan = (monthlyPrice: number, isAnnual: boolean) => {
+    if (isAnnual) {
+      const annualPrice = Math.round(monthlyPrice * 12 * 0.9); // 10% discount
+      const monthlyEquivalent = Math.round(annualPrice / 12);
+      return {
+        price: `$${annualPrice}`,
+        period: '/year',
+        monthlyEquivalent: `$${monthlyEquivalent}/month`
+      };
+    }
+    return {
+      price: `$${monthlyPrice}`,
+      period: '/month',
+      monthlyEquivalent: null
+    };
+  };
 
   const pricingTiers = [
     {
       id: 'starter',
       name: 'Starter',
-      price: '$49',
-      period: '/month',
+      monthlyPrice: 49,
       seats: '1 Seat',
       description: 'Essential tools for solo advocates',
       toolCount: '12 Core Professional Tools',
@@ -52,8 +70,7 @@ const AdvocatePricingPlan = () => {
     {
       id: 'pro',
       name: 'Pro',
-      price: '$75',
-      period: '/month',
+      monthlyPrice: 75,
       seats: '1 Seat',
       description: 'Adds AI analysis and professional planning',
       toolCount: '20+ Tools + AI Analysis',
@@ -84,8 +101,7 @@ const AdvocatePricingPlan = () => {
     {
       id: 'agency',
       name: 'Agency',
-      price: '$149',
-      period: '/month',
+      monthlyPrice: 149,
       seats: '2 Seats',
       description: 'Team collaboration with billing tools',
       toolCount: '30+ Professional Tools + Team',
@@ -190,6 +206,32 @@ const AdvocatePricingPlan = () => {
           </div>
         </div>
 
+        {/* Pricing Toggle */}
+        <div className="px-6 pb-8">
+          <div className="max-w-7xl mx-auto">
+            <div className="text-center mb-8">
+              <div className="inline-flex items-center space-x-4 p-2 bg-muted/50 rounded-lg">
+                <span className={`text-sm font-medium transition-colors ${!isAnnual ? 'text-primary' : 'text-muted-foreground'}`}>
+                  Monthly
+                </span>
+                <Switch 
+                  checked={isAnnual}
+                  onCheckedChange={setIsAnnual}
+                  data-testid="billing-toggle"
+                />
+                <span className={`text-sm font-medium transition-colors ${isAnnual ? 'text-primary' : 'text-muted-foreground'}`}>
+                  Annual
+                </span>
+                {isAnnual && (
+                  <Badge className="bg-green-500/20 text-green-300 border-green-400 ml-2">
+                    Save 10%
+                  </Badge>
+                )}
+              </div>
+            </div>
+          </div>
+        </div>
+
         {/* Pricing Cards */}
         <div className="px-6 pb-16">
           <div className="max-w-7xl mx-auto">
@@ -234,9 +276,16 @@ const AdvocatePricingPlan = () => {
                         {tier.toolCount}
                       </Badge>
                     </div>
-                    <div className="flex items-baseline justify-center gap-1 mt-4">
-                      <span className="text-3xl font-bold">{tier.price}</span>
-                      <span className="text-muted-foreground text-sm">{tier.period}</span>
+                    <div className="flex flex-col items-center justify-center mt-4">
+                      <div className="flex items-baseline gap-1">
+                        <span className="text-3xl font-bold">{getPriceForPlan(tier.monthlyPrice, isAnnual).price}</span>
+                        <span className="text-muted-foreground text-sm">{getPriceForPlan(tier.monthlyPrice, isAnnual).period}</span>
+                      </div>
+                      {isAnnual && getPriceForPlan(tier.monthlyPrice, isAnnual).monthlyEquivalent && (
+                        <div className="text-xs text-muted-foreground mt-1">
+                          {getPriceForPlan(tier.monthlyPrice, isAnnual).monthlyEquivalent} billed annually
+                        </div>
+                      )}
                     </div>
                   </CardHeader>
                   

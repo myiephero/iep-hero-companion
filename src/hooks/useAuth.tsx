@@ -65,15 +65,45 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
           return;
         }
 
+        // 🔒 SECURITY FIX: Clear any potentially contaminated localStorage data first
+        const clearContaminatedStorage = () => {
+          // Clear all auth-related localStorage items to prevent contamination
+          const authKeys = ['authToken', 'user', 'profile', 'lastAuthCheck'];
+          authKeys.forEach(key => {
+            if (localStorage.getItem(key)) {
+              console.log(`🧹 Cleared potentially contaminated localStorage key: ${key}`);
+              localStorage.removeItem(key);
+            }
+          });
+        };
+
         // Get token and make authenticated request
         let token = localStorage.getItem('authToken');
+        
+        // 🔒 SECURITY FIX: Validate token format before using
+        if (token) {
+          // Check if token format is valid (should contain user ID prefix)
+          const tokenParts = token.split('-');
+          if (tokenParts.length < 3 || tokenParts[0].length < 8) {
+            console.log('⚠️ useAuth: Invalid token format detected - clearing localStorage');
+            clearContaminatedStorage();
+            token = null;
+          } else {
+            console.log('✅ useAuth: Found valid token format in localStorage:', `${token.substring(0,20)}...`);
+          }
+        }
         
         // If no stored token, check for Replit Auth session
         if (!token) {
           console.log('🔍 useAuth: No stored token, checking Replit Auth session...');
           try {
             const authResponse = await fetch('/api/auth/me', {
-              credentials: 'include'
+              credentials: 'include',
+              headers: {
+                // 🔒 SECURITY FIX: Add cache-busting to prevent stale responses
+                'Cache-Control': 'no-cache, no-store, must-revalidate',
+                'Pragma': 'no-cache'
+              }
             });
             
             console.log('🔍 useAuth: Auth response status:', authResponse.status);
@@ -82,13 +112,20 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
               const authData = await authResponse.json();
               console.log('✅ useAuth: Replit Auth session found, response data:', authData);
               
-              // Store the auth token for API calls
-              if (authData.authToken) {
-                localStorage.setItem('authToken', authData.authToken);
-                token = authData.authToken;
-                console.log('✅ useAuth: Auth token stored in localStorage:', `${authData.authToken.substring(0,20)}...`);
+              // 🔒 SECURITY FIX: Validate auth token before storing
+              if (authData.authToken && authData.user && authData.user.id) {
+                // Verify token format matches expected pattern
+                const tokenParts = authData.authToken.split('-');
+                if (tokenParts.length >= 3 && tokenParts[0] === authData.user.id.substring(0, 8)) {
+                  localStorage.setItem('authToken', authData.authToken);
+                  token = authData.authToken;
+                  console.log('✅ useAuth: Validated and stored auth token:', `${authData.authToken.substring(0,20)}...`);
+                } else {
+                  console.log('⚠️ useAuth: Token validation failed - token does not match user ID');
+                  clearContaminatedStorage();
+                }
               } else {
-                console.log('⚠️ useAuth: No authToken in response data');
+                console.log('⚠️ useAuth: No valid authToken or user data in response');
               }
             } else {
               console.log('❌ useAuth: No Replit Auth session found, status:', authResponse.status);
@@ -96,8 +133,6 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
           } catch (error) {
             console.log('❌ useAuth: Error checking Replit Auth session:', error);
           }
-        } else {
-          console.log('✅ useAuth: Found existing token in localStorage:', `${token.substring(0,20)}...`);
         }
         
         if (!token) {

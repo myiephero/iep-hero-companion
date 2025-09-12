@@ -61,8 +61,8 @@ localPort = 39731
 externalPort = 5000
 
 [[ports]]
-localPort = 46765
-externalPort = 6000
+localPort = 41813
+externalPort = 5173
 
 [agent]
 integrations = ["javascript_log_in_with_replit==1.0.0", "javascript_database==1.0.0", "javascript_auth_all_persistance==1.0.0", "javascript_openai==1.0.0", "javascript_object_storage==1.0.0", "javascript_paypal==1.0.0", "javascript_supabase==1.0.0", "javascript_stripe==1.0.0"]

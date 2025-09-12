@@ -1,12 +1,12 @@
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Crown, Sparkles, ArrowRight, X, Check } from "lucide-react";
+import { Crown, Sparkles, ArrowRight, X, Check, Zap, Building, Users } from "lucide-react";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { useState } from "react";
-import { SubscriptionPlan } from "@shared/schema";
-import { getPlanDisplayName } from "@/lib/planAccess";
+import { SubscriptionPlan } from "@/lib/planAccess";
 import { useNavigate } from "react-router-dom";
+import { useToolAccess } from "@/hooks/useToolAccess";
 
 interface UpgradePromptProps {
   requiredPlan: SubscriptionPlan;
@@ -15,6 +15,8 @@ interface UpgradePromptProps {
   currentValue?: string;
   onClose?: () => void;
   className?: string;
+  showPlanComparison?: boolean;
+  'data-testid'?: string;
 }
 
 export function UpgradePrompt({
@@ -23,13 +25,21 @@ export function UpgradePrompt({
   benefits,
   currentValue,
   onClose,
-  className = ""
+  className = "",
+  showPlanComparison = false,
+  'data-testid': dataTestId = `upgrade-prompt-${toolName.replace(/\s+/g, '-').toLowerCase()}`
 }: UpgradePromptProps) {
   const navigate = useNavigate();
+  const { currentPlan, user } = useToolAccess();
+  const [showComparison, setShowComparison] = useState(showPlanComparison);
 
   const handleUpgradeClick = () => {
-    // Navigate to pricing with the required plan highlighted
-    navigate(`/parent/pricing?highlight=${requiredPlan}`);
+    // Navigate to appropriate pricing page based on user role
+    if (user?.role === 'advocate') {
+      navigate(`/advocate/pricing?highlight=${requiredPlan}`);
+    } else {
+      navigate(`/parent/pricing?highlight=${requiredPlan}`);
+    }
   };
 
   const getPlanIcon = (plan: SubscriptionPlan) => {
@@ -38,6 +48,14 @@ export function UpgradePrompt({
         return <Crown className="h-6 w-6 text-orange-500" />;
       case 'premium':
         return <Sparkles className="h-6 w-6 text-purple-500" />;
+      case 'agency-plus':
+        return <Crown className="h-6 w-6 text-orange-500" />;
+      case 'agency':
+        return <Building className="h-6 w-6 text-purple-500" />;
+      case 'pro':
+        return <Zap className="h-6 w-6 text-blue-500" />;
+      case 'starter':
+        return <Users className="h-6 w-6 text-green-500" />;
       default:
         return <ArrowRight className="h-6 w-6 text-blue-500" />;
     }
@@ -49,15 +67,40 @@ export function UpgradePrompt({
         return 'from-orange-500 to-pink-500';
       case 'premium':
         return 'from-purple-500 to-indigo-500';
-      case 'plus':
+      case 'agency-plus':
+        return 'from-orange-500 to-pink-500';
+      case 'agency':
+        return 'from-purple-500 to-indigo-500';
+      case 'pro':
+        return 'from-blue-500 to-cyan-500';
+      case 'starter':
+        return 'from-green-500 to-blue-500';
+      case 'essential':
         return 'from-blue-500 to-cyan-500';
       default:
         return 'from-gray-500 to-gray-600';
     }
   };
 
+  const getPlanDisplayName = (plan: SubscriptionPlan) => {
+    switch (plan) {
+      case 'free': return 'Free';
+      case 'essential': return 'Essential';
+      case 'premium': return 'Premium';
+      case 'hero': return 'Hero Family Pack';
+      case 'starter': return 'Starter';
+      case 'pro': return 'Pro';
+      case 'agency': return 'Agency';
+      case 'agency-plus': return 'Agency Plus';
+      default: return 'Unknown';
+    }
+  };
+
   return (
-    <Card className={`border-2 border-dashed border-muted-foreground/30 bg-gradient-to-br from-muted/20 to-muted/10 ${className}`}>
+    <Card 
+      data-testid={dataTestId}
+      className={`border-2 border-dashed border-muted-foreground/30 bg-gradient-to-br from-muted/20 to-muted/10 ${className}`}
+    >
       <CardHeader className="text-center pb-4">
         <div className="flex items-center justify-center mb-3">
           {getPlanIcon(requiredPlan)}
@@ -68,8 +111,13 @@ export function UpgradePrompt({
         <CardDescription className="text-base">
           This powerful tool requires <Badge className={`bg-gradient-to-r ${getPlanColor(requiredPlan)} text-white font-semibold`}>
             {getPlanDisplayName(requiredPlan)}
-          </Badge> access
+          </Badge> access or higher
         </CardDescription>
+        <div className="flex items-center justify-center gap-4 mt-3">
+          <div className="text-sm text-muted-foreground">
+            Current plan: <span className="font-medium text-foreground">{getPlanDisplayName(currentPlan)}</span>
+          </div>
+        </div>
         {currentValue && (
           <div className="text-sm text-muted-foreground mt-2 italic">
             Current plan value: {currentValue}

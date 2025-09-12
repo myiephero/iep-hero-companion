@@ -161,6 +161,7 @@ const ADVOCATE_PRICING = [
     toolCount: '12 Core Professional Tools',
     features: [
       '1 Advocate seat',
+      'Client Lead Matching System',
       'Client Management CRM',
       'Smart Letter Generator',
       'Document Management',
@@ -193,6 +194,7 @@ const ADVOCATE_PRICING = [
     toolCount: '20+ Tools + AI Analysis',
     features: [
       'Everything in Starter',
+      'Enhanced Client Matching & Referrals',
       'AI IEP Review & Compliance',
       'Progress Analyzer with AI',
       'IEP Master Suite',
@@ -227,6 +229,7 @@ const ADVOCATE_PRICING = [
     toolCount: '30+ Professional Tools + Team',
     features: [
       'Everything in Pro',
+      'Priority Client Matching & Premium Leads',
       '2 Advocate seats',
       'Team CRM access',
       'Billing & Invoicing tools',

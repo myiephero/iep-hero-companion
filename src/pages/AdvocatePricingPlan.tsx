@@ -79,6 +79,7 @@ const AdvocatePricingPlan = () => {
       toolCount: '12 Core Professional Tools',
       features: [
         '1 Advocate seat',
+        'Client Lead Matching System',
         'Client Management CRM',
         'Smart Letter Generator',
         'Document Management',
@@ -109,6 +110,7 @@ const AdvocatePricingPlan = () => {
       toolCount: '20+ Tools + AI Analysis',
       features: [
         'Everything in Starter',
+        'Enhanced Client Matching & Referrals',
         'AI IEP Review & Compliance',
         'Progress Analyzer with AI',
         'IEP Master Suite',
@@ -142,6 +144,7 @@ const AdvocatePricingPlan = () => {
       annualPrice: 199, // Monthly rate when paid annually + setup fee
       features: [
         'Everything in Pro',
+        'Priority Client Matching & Premium Leads',
         '3 Advocate seats (+ $39/month per additional seat)',
         'Unlimited AI Credits & Analysis',
         'Team CRM access',

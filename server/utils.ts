@@ -10,6 +10,13 @@ export async function getUserId(req: express.Request): Promise<string> {
   
   if (token && token.trim()) {
     try {
+      // 🔒 CRITICAL SECURITY FIX: Validate token format before database lookup
+      const tokenParts = token.split('-');
+      if (tokenParts.length < 3 || tokenParts[0].length < 8) {
+        console.warn('🚨 SECURITY: Invalid token format detected in getUserId - rejecting authentication');
+        return 'anonymous-user';
+      }
+      
       const [tokenRecord] = await db.select()
         .from(schema.auth_tokens)
         .where(and(
@@ -19,6 +26,18 @@ export async function getUserId(req: express.Request): Promise<string> {
         .limit(1);
       
       if (tokenRecord) {
+        // 🔒 CRITICAL SECURITY FIX: Validate token ownership matches database
+        const tokenUserId = tokenParts[0];
+        const dbUserId = tokenRecord.user_id.substring(0, 8);
+        
+        if (tokenUserId !== dbUserId) {
+          console.error('🚨 SECURITY ALERT: Token ownership mismatch in getUserId!');
+          console.error(`🚨 Token claims user: ${tokenUserId}, but DB shows: ${dbUserId}`);
+          console.error('🚨 This indicates authentication bypass attempt - rejecting');
+          return 'anonymous-user';
+        }
+        
+        console.log(`✅ Server-side token ownership validated: ${tokenUserId} matches ${dbUserId}`);
         return tokenRecord.user_id;
       }
     } catch (error) {

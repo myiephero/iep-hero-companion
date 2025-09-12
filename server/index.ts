@@ -271,6 +271,81 @@ function generateIEPLanguage(accommodations: any[], format: string = 'formal') {
   return iepLanguage;
 }
 
+// Helper function to parse accommodation text and extract structured accommodations
+function parseAccommodationText(text: string, defaultCategory: string = 'academic'): Array<{title: string, description: string, category: string, implementation_notes: string}> {
+  if (!text || typeof text !== 'string' || text.length < 20) {
+    return [];
+  }
+
+  const accommodations: Array<{title: string, description: string, category: string, implementation_notes: string}> = [];
+  
+  // Look for numbered lists (1., 2., etc.) or bullet points (•, -, *)
+  const listItems = text.match(/(?:^\d+\.|^[\•\-\*]\s|^-\s)(.+?)(?=\n\d+\.|\n[\•\-\*]\s|\n-\s|$)/gm);
+  
+  if (listItems && listItems.length > 0) {
+    listItems.forEach((item, index) => {
+      const cleanItem = item.replace(/^\d+\.|^[\•\-\*]\s|^-\s/, '').trim();
+      if (cleanItem.length > 10) {
+        // Extract title (first part) and description
+        const parts = cleanItem.split(/[:\-](.+)/);
+        const title = parts[0] ? parts[0].trim() : `AI Recommendation ${index + 1}`;
+        const description = parts[1] ? parts[1].trim() : cleanItem;
+        
+        // Determine category based on keywords
+        const category = determineCategoryFromText(cleanItem);
+        
+        accommodations.push({
+          title: title.length > 100 ? title.substring(0, 100) + '...' : title,
+          description: description.length > 500 ? description.substring(0, 500) + '...' : description,
+          category: category || defaultCategory,
+          implementation_notes: description.length > 200 ? description.substring(0, 200) + '...' : description
+        });
+      }
+    });
+  } else {
+    // If no clear list format, try to extract sentences
+    const sentences = text.split(/[.!]/).filter(sentence => sentence.trim().length > 20);
+    sentences.slice(0, 3).forEach((sentence, index) => { // Limit to 3 accommodations per section
+      const cleanSentence = sentence.trim();
+      if (cleanSentence.length > 10) {
+        const category = determineCategoryFromText(cleanSentence);
+        accommodations.push({
+          title: `AI Recommendation ${index + 1}`,
+          description: cleanSentence.length > 500 ? cleanSentence.substring(0, 500) + '...' : cleanSentence,
+          category: category || defaultCategory,
+          implementation_notes: cleanSentence.length > 200 ? cleanSentence.substring(0, 200) + '...' : cleanSentence
+        });
+      }
+    });
+  }
+  
+  return accommodations;
+}
+
+// Helper function to determine category from text content
+function determineCategoryFromText(text: string): string {
+  const lowerText = text.toLowerCase();
+  
+  if (lowerText.includes('sensory') || lowerText.includes('noise') || lowerText.includes('headphones') || lowerText.includes('fidget')) {
+    return 'sensory';
+  }
+  if (lowerText.includes('behavior') || lowerText.includes('break') || lowerText.includes('calm') || lowerText.includes('self-regulation')) {
+    return 'behavioral';
+  }
+  if (lowerText.includes('environment') || lowerText.includes('seating') || lowerText.includes('lighting') || lowerText.includes('quiet')) {
+    return 'environmental';
+  }
+  if (lowerText.includes('social') || lowerText.includes('peer') || lowerText.includes('communication') || lowerText.includes('interaction')) {
+    return 'social';
+  }
+  if (lowerText.includes('assessment') || lowerText.includes('test') || lowerText.includes('evaluation')) {
+    return 'assessment';
+  }
+  
+  // Default to academic for learning-related content
+  return 'academic';
+}
+
 // Helper function to generate accommodation preview
 function generateAccommodationPreview(accommodations: any[], student: any, templateType: string = 'iep') {
   const studentName = student?.full_name || 'Student';
@@ -2220,10 +2295,14 @@ app.post('/api/gifted-assessments/save-insights', async (req, res) => {
 
     let savedCount = 0;
     
-    // Extract and save accommodations if they exist
+    // Extract accommodations from AI insights (they might be in text sections or structured array)
     const typedInsights = aiInsights as any; // Type assertion since aiInsights is JSON from database
+    
+    console.log(`🔍 PRODUCTION: Analyzing AI insights structure for student ${student_id}`, Object.keys(typedInsights));
+    
+    // First check if there's a direct accommodations array
     if (typedInsights.accommodations && Array.isArray(typedInsights.accommodations)) {
-      console.log(`✅ PRODUCTION: Saving ${typedInsights.accommodations.length} AI-generated accommodations for student ${student_id}`);
+      console.log(`✅ PRODUCTION: Found structured accommodations array with ${typedInsights.accommodations.length} items for student ${student_id}`);
       
       for (const accommodation of typedInsights.accommodations) {
         try {
@@ -2243,14 +2322,87 @@ app.post('/api/gifted-assessments/save-insights', async (req, res) => {
             });
           savedCount++;
         } catch (error) {
-          console.error('❌ Error saving accommodation:', error);
+          console.error('❌ Error saving structured accommodation:', error);
           // Continue with other accommodations even if one fails
         }
       }
-      console.log(`✅ PRODUCTION: Successfully saved ${savedCount} accommodations to Accommodations tab`);
     } else {
-      console.log(`⚠️ PRODUCTION: No accommodations array found in AI insights for student ${student_id}`);
+      // If no structured accommodations array, extract from text sections
+      console.log(`🔍 PRODUCTION: No structured accommodations array found, parsing from text sections for student ${student_id}`);
+      
+      const extractedAccommodations: Array<{title: string, description: string, category: string, implementation_notes: string}> = [];
+      
+      // Extract from "Accommodation Strategies" section
+      const accommodationStrategies = typedInsights['Accommodation Strategies'] || typedInsights['accommodationStrategies'];
+      if (accommodationStrategies && typeof accommodationStrategies === 'string') {
+        console.log(`🔍 PRODUCTION: Found Accommodation Strategies section (${accommodationStrategies.length} chars)`);
+        const accommodations = parseAccommodationText(accommodationStrategies, 'environmental');
+        extractedAccommodations.push(...accommodations);
+      }
+      
+      // Extract from "IEP Goal Recommendations" section
+      const iepGoals = typedInsights['IEP Goal Recommendations'] || typedInsights['iepGoalRecommendations'];
+      if (iepGoals && typeof iepGoals === 'string') {
+        console.log(`🔍 PRODUCTION: Found IEP Goal Recommendations section (${iepGoals.length} chars)`);
+        const accommodations = parseAccommodationText(iepGoals, 'academic');
+        extractedAccommodations.push(...accommodations);
+      }
+      
+      // Extract from "Evidence-Based Interventions" section if it exists
+      const evidenceBasedInterventions = typedInsights['Evidence-Based Interventions'] || typedInsights['evidenceBasedInterventions'];
+      if (evidenceBasedInterventions && typeof evidenceBasedInterventions === 'string') {
+        console.log(`🔍 PRODUCTION: Found Evidence-Based Interventions section (${evidenceBasedInterventions.length} chars)`);
+        const accommodations = parseAccommodationText(evidenceBasedInterventions, 'behavioral');
+        extractedAccommodations.push(...accommodations);
+      }
+      
+      // Extract from nested objects that might contain text recommendations
+      Object.keys(typedInsights).forEach(key => {
+        const section = typedInsights[key];
+        if (typeof section === 'object' && section !== null) {
+          Object.keys(section).forEach(subKey => {
+            const subSection = section[subKey];
+            if (typeof subSection === 'string' && subSection.length > 50) {
+              console.log(`🔍 PRODUCTION: Found nested text section: ${key}.${subKey} (${subSection.length} chars)`);
+              const accommodations = parseAccommodationText(subSection, 'social');
+              extractedAccommodations.push(...accommodations);
+            }
+          });
+        }
+      });
+      
+      // Save extracted accommodations
+      if (extractedAccommodations.length > 0) {
+        console.log(`✅ PRODUCTION: Extracted ${extractedAccommodations.length} accommodations from text sections for student ${student_id}`);
+        
+        for (const accommodation of extractedAccommodations) {
+          try {
+            await db
+              .insert(schema.accommodations)
+              .values({
+                user_id: userId,
+                student_id: student_id,
+                title: accommodation.title,
+                description: accommodation.description,
+                category: accommodation.category,
+                implementation_notes: accommodation.implementation_notes,
+                effectiveness_rating: null,
+                status: 'active',
+                created_at: new Date(),
+                updated_at: new Date()
+              });
+            savedCount++;
+          } catch (error) {
+            console.error(`❌ Failed to save extracted accommodation: ${accommodation.title}`, error);
+          }
+        }
+      } else {
+        console.log(`⚠️ PRODUCTION: No accommodations could be extracted from AI insights for student ${student_id}`);
+        console.log(`🔍 PRODUCTION: Available sections:`, Object.keys(typedInsights));
+      }
     }
+    
+    console.log(`✅ PRODUCTION: Successfully saved ${savedCount} accommodations to Accommodations tab for student ${student_id}`);
 
     res.json({
       success: true,

@@ -117,6 +117,7 @@ function App() {
               <Route path="/pricing" element={<PricingSelection />} />
               <Route path="/auth" element={<Auth />} />
               <Route path="/setup-password" element={<SetupPassword />} />
+              <Route path="/subscription-setup" element={<SubscriptionSetup />} />
               <Route path="/onboarding" element={<Onboarding />} />
               
               {/* Parent Routes - Protected */}

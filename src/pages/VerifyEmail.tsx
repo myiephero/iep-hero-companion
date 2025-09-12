@@ -9,6 +9,7 @@ export default function VerifyEmail() {
   const navigate = useNavigate();
   const [status, setStatus] = useState<'loading' | 'success' | 'error'>('loading');
   const [message, setMessage] = useState('');
+  const [redirectInfo, setRedirectInfo] = useState<{requiresPasswordSetup?: boolean; hasPassword?: boolean; redirectTo?: string}>({});
   const token = searchParams.get('token');
 
   useEffect(() => {
@@ -18,17 +19,39 @@ export default function VerifyEmail() {
       return;
     }
 
-    // Verify the email
+    // Verify the email with new secure flow
     fetch(`/api/verify-email?token=${token}`)
       .then(response => response.json())
       .then(data => {
         if (data.success) {
           setStatus('success');
           setMessage(data.message);
-          // Redirect to homepage after 3 seconds, auth system will route to correct dashboard
-          setTimeout(() => {
-            navigate('/');
-          }, 3000);
+          setRedirectInfo({
+            requiresPasswordSetup: data.requiresPasswordSetup,
+            hasPassword: data.hasPassword,
+            redirectTo: data.redirectTo
+          });
+          
+          // 🔒 SECURITY FIX: Handle new secure response format
+          if (data.requiresPasswordSetup) {
+            // New user needs to set up password - redirect to password setup
+            console.log('🔒 New user verified - redirecting to password setup');
+            setTimeout(() => {
+              navigate(data.redirectTo);
+            }, 2000);
+          } else if (data.hasPassword) {
+            // Existing user with password - redirect to login
+            console.log('🔒 Existing user verified - redirecting to login');
+            setTimeout(() => {
+              navigate(data.redirectTo);
+            }, 2000);
+          } else {
+            // Fallback - should not happen with new security fixes
+            console.log('🔒 Fallback redirect - this should not happen');
+            setTimeout(() => {
+              navigate('/auth');
+            }, 3000);
+          }
         } else {
           setStatus('error');
           setMessage(data.message || 'Verification failed');
@@ -73,34 +96,57 @@ export default function VerifyEmail() {
               Email Verified Successfully! 🎉
             </h1>
             <p className="text-lg text-gray-600">
-              Welcome to My IEP Hero! Your account is now active.
+              {redirectInfo.requiresPasswordSetup 
+                ? 'Now let\'s set up your password to secure your account.' 
+                : redirectInfo.hasPassword 
+                  ? 'Please sign in with your existing password.' 
+                  : 'Welcome to My IEP Hero! Your account is now active.'}
             </p>
           </div>
 
           <Card>
             <CardHeader className="text-center">
-              <CardTitle className="text-xl">You're All Set!</CardTitle>
+              <CardTitle className="text-xl">
+                {redirectInfo.requiresPasswordSetup 
+                  ? 'Password Setup Required' 
+                  : redirectInfo.hasPassword 
+                    ? 'Ready to Sign In' 
+                    : 'You\'re All Set!'}
+              </CardTitle>
               <CardDescription>
-                Your email has been verified and your account is ready to use.
+                {redirectInfo.requiresPasswordSetup 
+                  ? 'Your email is verified. Please create a secure password to complete your account setup.' 
+                  : redirectInfo.hasPassword 
+                    ? 'Your email is verified. You can now sign in with your existing password.' 
+                    : 'Your email has been verified and your account is ready to use.'}
               </CardDescription>
             </CardHeader>
             <CardContent className="text-center space-y-6">
               <p className="text-muted-foreground">
-                You'll be automatically redirected to your dashboard in a few seconds, or you can click the button below.
+                {redirectInfo.requiresPasswordSetup 
+                  ? 'You\'ll be automatically redirected to password setup in a few seconds, or click below to continue.' 
+                  : redirectInfo.hasPassword 
+                    ? 'You\'ll be automatically redirected to sign in in a few seconds, or click below to continue.' 
+                    : 'You\'ll be automatically redirected in a few seconds, or click below to continue.'}
               </p>
               
               <Button 
                 size="lg"
-                onClick={() => navigate('/')}
-                data-testid="button-go-to-dashboard"
+                onClick={() => navigate(redirectInfo.redirectTo || '/auth')}
+                data-testid="button-continue"
               >
-                Access Your Dashboard
+                {redirectInfo.requiresPasswordSetup 
+                  ? 'Set Up Password' 
+                  : redirectInfo.hasPassword 
+                    ? 'Sign In' 
+                    : 'Continue'}
               </Button>
 
               <div className="border-t pt-6">
                 <p className="text-sm text-muted-foreground">
-                  You now have access to all your subscription features including AI-powered IEP analysis, 
-                  meeting preparation tools, and advocate matching services.
+                  {redirectInfo.requiresPasswordSetup 
+                    ? 'After setting up your password, you\'ll have full access to your My IEP Hero features.' 
+                    : 'You now have access to all your subscription features including AI-powered IEP analysis, meeting preparation tools, and advocate matching services.'}
                 </p>
               </div>
             </CardContent>

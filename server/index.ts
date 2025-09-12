@@ -1022,7 +1022,7 @@ app.post('/api/create-account-with-payment', async (req: any, res) => {
   }
 });
 
-// Email verification endpoint
+// Email verification endpoint - SECURITY FIXED
 app.get('/api/verify-email', async (req: any, res) => {
   try {
     const { token } = req.query;
@@ -1051,11 +1051,36 @@ app.get('/api/verify-email', async (req: any, res) => {
       });
     }
 
-    // Verify the email and clear the token
+    // 🔒 SECURITY FIX: Check if user already has a password
+    if (user.password) {
+      // User already has password - mark as verified and redirect to login
+      await db.update(schema.users)
+        .set({ 
+          emailVerified: true,
+          verificationToken: null,
+          updatedAt: new Date()
+        })
+        .where(eq(schema.users.id, user.id));
+
+      console.log(`Email verified for existing password user: ${user.email}`);
+      
+      res.json({ 
+        success: true, 
+        message: 'Email verified successfully. Please sign in with your password.',
+        redirectTo: '/auth',
+        hasPassword: true
+      });
+      return;
+    }
+
+    // 🔒 SECURITY FIX: For users without passwords, generate a SETUP token instead of clearing verification token
+    const setupToken = generateVerificationToken();
+    
+    // Mark email as verified but set a NEW setup token for password creation
     await db.update(schema.users)
       .set({ 
         emailVerified: true,
-        verificationToken: null,
+        verificationToken: setupToken, // Use NEW token for password setup
         updatedAt: new Date()
       })
       .where(eq(schema.users.id, user.id));
@@ -1063,56 +1088,16 @@ app.get('/api/verify-email', async (req: any, res) => {
     // Send welcome email
     await sendWelcomeEmail(user.email || '', user.firstName || 'User', user.role || 'parent');
 
-    console.log(`Email verified successfully for ${user.email}`);
+    console.log(`Email verified for new user: ${user.email} - redirecting to password setup`);
 
-    // Redirect to appropriate dashboard based on role and subscription plan, or homepage if no plan
-    let dashboardUrl;
-    
-    if (user.role === 'parent') {
-      // Parent role - check if they have a subscription plan
-      if (user.subscriptionPlan && user.subscriptionPlan !== 'Free Plan') {
-        // Map subscription plans to dashboard routes
-        const planMapping = {
-          'basic': 'basic',
-          'plus': 'plus', 
-          'premium': 'premium',
-          'hero family pack': 'hero',
-          'explorer': 'explorer'
-        };
-        const planKey = user.subscriptionPlan.toLowerCase();
-        const planSlug = planMapping[planKey] || 'free';
-        dashboardUrl = `/parent/dashboard-${planSlug}`;
-      } else {
-        // No paid plan - redirect to homepage
-        dashboardUrl = '/';
-      }
-    } else if (user.role === 'advocate') {
-      // Advocate role - check if they have a subscription plan
-      if (user.subscriptionPlan && user.subscriptionPlan !== 'Free Plan') {
-        // Map advocate subscription plans to dashboard routes
-        const advocatePlanMapping = {
-          'starter': 'starter',
-          'pro': 'pro',
-          'agency': 'agency', 
-          'agency plus': 'agency-plus',
-          'agencyplus': 'agency-plus'
-        };
-        const planKey = user.subscriptionPlan.toLowerCase();
-        const planSlug = advocatePlanMapping[planKey] || 'starter';
-        dashboardUrl = `/advocate/dashboard-${planSlug}`;
-      } else {
-        // No paid plan - redirect to homepage  
-        dashboardUrl = '/';
-      }
-    } else {
-      // Unknown role - redirect to homepage
-      dashboardUrl = '/';
-    }
-    
+    // 🔒 SECURITY FIX: NEVER redirect to dashboards without authentication
+    // Always redirect to password setup for new users
     res.json({ 
       success: true, 
-      message: 'Email verified successfully',
-      redirectTo: dashboardUrl
+      message: 'Email verified successfully. Please create your password to complete setup.',
+      redirectTo: `/setup-password?token=${setupToken}`,
+      requiresPasswordSetup: true,
+      hasPassword: false
     });
   } catch (error) {
     console.error('Error verifying email:', error);

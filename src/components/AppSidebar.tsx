@@ -17,8 +17,12 @@ import {
   GraduationCap,
   UserPlus,
   UserCheck,
-  ClipboardCheck
+  ClipboardCheck,
+  Lock,
+  Sparkles
 } from "lucide-react";
+import { allAdvocateTools, getToolsByCategory } from "@/lib/advocateToolsRegistry";
+import { useToolAccess } from "@/hooks/useToolAccess";
 
 import {
   Sidebar,
@@ -44,6 +48,9 @@ interface SidebarItem {
   icon: React.ComponentType<{ className?: string }>;
   badge?: string;
   notificationCount?: number;
+  isLocked?: boolean;
+  requiredPlan?: string;
+  'data-testid'?: string;
 }
 
 interface SidebarSection {
@@ -72,26 +79,51 @@ const getParentNavigation = (dashboardUrl: string, userPlan: string, isAdvocate:
   ];
 };
 
-const getAdvocateNavigation = (dashboardUrl: string, pendingCount?: number): SidebarSection[] => [
-  {
-    title: "Advocate Portal", 
-    items: [
-      { title: "My Cases", url: dashboardUrl, icon: LayoutDashboard, notificationCount: pendingCount },
-      { title: "Parent Clients", url: "/advocate/parents", icon: Users },
-      { title: "Client Students", url: "/advocate/students", icon: GraduationCap },
-      { title: "Tools Hub", url: "/advocate/tools", icon: FileSearch },
-      { title: "Document Vault", url: "/tools/document-vault", icon: FileText },
-      { title: "Schedule", url: "/advocate/schedule", icon: Calendar },
-      { title: "Messages", url: "/advocate/messages", icon: MessageSquare },
-    ]
-  },
-  {
-    title: "Quick Tools",
-    items: [
-      { title: "Client Matching", url: "/advocate/matching", icon: UserCheck },
-    ]
-  }
-];
+const getAdvocateNavigation = (dashboardUrl: string, pendingCount?: number, canUse?: any): SidebarSection[] => {
+  // Core navigation items (always available)
+  const coreItems: SidebarItem[] = [
+    { title: "My Cases", url: dashboardUrl, icon: LayoutDashboard, notificationCount: pendingCount, 'data-testid': 'nav-dashboard' },
+    { title: "Parent Clients", url: "/advocate/parents", icon: Users, 'data-testid': 'nav-parents' },
+    { title: "Client Students", url: "/advocate/students", icon: GraduationCap, 'data-testid': 'nav-students' },
+    { title: "Tools Hub", url: "/advocate/tools", icon: FileSearch, badge: "All Tools", 'data-testid': 'nav-tools-hub' },
+    { title: "Messages", url: "/advocate/messages", icon: MessageSquare, 'data-testid': 'nav-messages' },
+  ];
+
+  // Quick Tools from registry - show popular/frequently used tools
+  const popularTools = allAdvocateTools
+    .filter(tool => tool.isPopular)
+    .slice(0, 4)
+    .map(tool => {
+      const hasAccess = canUse ? canUse(tool.requiredFeature) : false;
+      return {
+        title: tool.title,
+        url: tool.route,
+        icon: tool.icon,
+        badge: hasAccess ? undefined : tool.badge,
+        isLocked: !hasAccess,
+        requiredPlan: hasAccess ? undefined : tool.requiredPlan,
+        'data-testid': `nav-tool-${tool.id}`
+      };
+    });
+
+  // Additional tools from registry for quick access
+  const quickAccessTools: SidebarItem[] = [
+    { title: "Client Matching", url: "/advocate/matching", icon: UserCheck, 'data-testid': 'nav-matching' },
+    { title: "Schedule", url: "/advocate/schedule", icon: Calendar, 'data-testid': 'nav-schedule' },
+    ...popularTools
+  ];
+
+  return [
+    {
+      title: "Advocate Portal", 
+      items: coreItems
+    },
+    {
+      title: "Quick Tools",
+      items: quickAccessTools
+    }
+  ];
+};
 
 // Account items moved to top right dropdown
 
@@ -134,7 +166,8 @@ export function AppSidebar() {
   
   const pendingAssignmentsCount = (pendingData as any)?.total_pending || 0;
   
-  const navigation = isAdvocate ? getAdvocateNavigation(dashboardUrl, pendingAssignmentsCount) : getParentNavigation(dashboardUrl, userPlan, isAdvocate);
+  const { canUse, requiredPlanFor } = useToolAccess();
+  const navigation = isAdvocate ? getAdvocateNavigation(dashboardUrl, pendingAssignmentsCount, canUse) : getParentNavigation(dashboardUrl, userPlan, isAdvocate);
   
   const isActive = (path: string) => currentPath === path;
   
@@ -171,37 +204,68 @@ export function AppSidebar() {
             )}
             <SidebarGroupContent>
               <SidebarMenu className="space-y-1">
-                {section.items.map((item) => (
-                  <SidebarMenuItem key={item.title}>
-                    <SidebarMenuButton 
-                      asChild
-                      className={`w-full justify-start gap-3 px-3 py-2 rounded-lg transition-all ${
-                        isActive(item.url)
-                          ? 'bg-sidebar-primary text-sidebar-primary-foreground shadow-sm'
-                          : 'text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground'
-                      }`}
-                    >
-                      <Link to={item.url}>
-                        <item.icon className={`h-4 w-4 ${collapsed ? 'mx-auto' : ''}`} />
-                        {!collapsed && (
-                          <>
-                            <span className="flex-1">{item.title}</span>
-                            {item.badge && (
-                              <Badge variant="secondary" className="text-xs px-2 py-0">
-                                {item.badge}
-                              </Badge>
+                {section.items.map((item) => {
+                  const ItemComponent = item.isLocked ? 'div' : Link;
+                  const isItemActive = isActive(item.url);
+                  const itemClass = `w-full justify-start gap-3 px-3 py-2 rounded-lg transition-all ${
+                    isItemActive
+                      ? 'bg-sidebar-primary text-sidebar-primary-foreground shadow-sm'
+                      : item.isLocked 
+                        ? 'text-muted-foreground hover:bg-muted/20 cursor-not-allowed opacity-70'
+                        : 'text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground'
+                  }`;
+
+                  return (
+                    <SidebarMenuItem key={item.title}>
+                      <SidebarMenuButton 
+                        asChild={!item.isLocked}
+                        className={itemClass}
+                        data-testid={item['data-testid']}
+                      >
+                        {item.isLocked ? (
+                          <div className="flex items-center gap-3 w-full">
+                            <div className="relative">
+                              <item.icon className={`h-4 w-4 ${collapsed ? 'mx-auto' : ''}`} />
+                              <Lock className="h-2 w-2 absolute -top-1 -right-1 text-muted-foreground" />
+                            </div>
+                            {!collapsed && (
+                              <>
+                                <span className="flex-1">{item.title}</span>
+                                <Badge variant="outline" className="text-xs px-2 py-0 border-dashed">
+                                  {item.requiredPlan}
+                                </Badge>
+                                {item.notificationCount && item.notificationCount > 0 && (
+                                  <Badge variant="destructive" className="text-xs px-2 py-0 ml-auto bg-red-500 text-white" data-testid="notification-badge">
+                                    {item.notificationCount}
+                                  </Badge>
+                                )}
+                              </>
                             )}
-                            {item.notificationCount && item.notificationCount > 0 && (
-                              <Badge variant="destructive" className="text-xs px-2 py-0 ml-auto bg-red-500 text-white" data-testid="notification-badge">
-                                {item.notificationCount}
-                              </Badge>
+                          </div>
+                        ) : (
+                          <Link to={item.url}>
+                            <item.icon className={`h-4 w-4 ${collapsed ? 'mx-auto' : ''}`} />
+                            {!collapsed && (
+                              <>
+                                <span className="flex-1">{item.title}</span>
+                                {item.badge && (
+                                  <Badge variant="secondary" className="text-xs px-2 py-0">
+                                    {item.badge}
+                                  </Badge>
+                                )}
+                                {item.notificationCount && item.notificationCount > 0 && (
+                                  <Badge variant="destructive" className="text-xs px-2 py-0 ml-auto bg-red-500 text-white" data-testid="notification-badge">
+                                    {item.notificationCount}
+                                  </Badge>
+                                )}
+                              </>
                             )}
-                          </>
+                          </Link>
                         )}
-                      </Link>
-                    </SidebarMenuButton>
-                  </SidebarMenuItem>
-                ))}
+                      </SidebarMenuButton>
+                    </SidebarMenuItem>
+                  );
+                })}
               </SidebarMenu>
             </SidebarGroupContent>
           </SidebarGroup>

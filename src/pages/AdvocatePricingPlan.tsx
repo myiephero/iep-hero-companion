@@ -81,6 +81,7 @@ const AdvocatePricingPlan = () => {
         '1 Advocate seat',
         'Client Lead Matching System',
         'Client Management CRM',
+        'Unified IEP Review',
         'Smart Letter Generator',
         'Document Management',
         'Communication Tracker',

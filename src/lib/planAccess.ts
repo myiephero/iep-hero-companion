@@ -506,21 +506,21 @@ export const PLAN_FEATURES: Record<SubscriptionPlan, PlanFeatures> = {
     advocateMatchingTool: true,
     expertSupport: true,
     
-    // Advocate Tools - Enhanced
+    // Advocate Tools - Enhanced (Pro level)
     clientManagement: true,
     caseAnalytics: true,
     caseMatching: true,
-    billingTools: true,
+    billingTools: false, // Agency feature
     scheduleManagement: true,
-    teamCollaboration: true,
+    teamCollaboration: false, // Agency feature
     professionalAnalysis: true,
     advocateMessaging: true,
     advocacyReports: true,
     caseManagement: true,
     professionalPlanning: true,
     professionalResources: true,
-    businessManagement: true,
-    specializedProfessionalTools: true,
+    businessManagement: false, // Agency feature
+    specializedProfessionalTools: false, // Agency+ feature
     
     // Limits
     storageLimit: '50GB',

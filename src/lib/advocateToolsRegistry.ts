@@ -206,10 +206,10 @@ export const coreAdvocateTools: AdvocateTool[] = [
     route: "/advocate/tools/billing",
     icon: DollarSign,
     category: "Business Management",
-    badge: "Pro",
+    badge: "Agency",
     features: ["Time Tracking", "Invoice Generation", "Payment Processing", "Financial Reports"],
     requiredFeature: "billingTools",
-    requiredPlan: "pro",
+    requiredPlan: "agency",
     isNew: true
   },
   {

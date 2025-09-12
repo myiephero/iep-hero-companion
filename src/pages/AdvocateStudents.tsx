@@ -601,6 +601,11 @@ const AdvocateStudents = () => {
   const [cases, setCases] = useState<Case[]>([]);
   const [accommodations, setAccommodations] = useState<Accommodation[]>([]);
   const [autismAccommodations, setAutismAccommodations] = useState<AutismAccommodation[]>([]);
+  
+  // Bulk selection state
+  const [isSelectionMode, setIsSelectionMode] = useState(false);
+  const [selectedAccommodations, setSelectedAccommodations] = useState<string[]>([]);
+  const [isBulkDeleting, setIsBulkDeleting] = useState(false);
   const [giftedAssessments, setGiftedAssessments] = useState<GiftedAssessment[]>([]);
   const [loading, setLoading] = useState(false);
   const [selectedTab, setSelectedTab] = useState("overview");
@@ -685,6 +690,68 @@ const AdvocateStudents = () => {
   
   const { user } = useAuth();
   const { toast } = useToast();
+
+  // Bulk selection helper functions
+  const handleToggleSelectionMode = () => {
+    setIsSelectionMode(!isSelectionMode);
+    setSelectedAccommodations([]);
+  };
+
+  const handleSelectAccommodation = (accommodationId: string, isSelected: boolean) => {
+    if (isSelected) {
+      setSelectedAccommodations(prev => [...prev, accommodationId]);
+    } else {
+      setSelectedAccommodations(prev => prev.filter(id => id !== accommodationId));
+    }
+  };
+
+  const handleSelectAll = () => {
+    setSelectedAccommodations(accommodations.map(acc => acc.id));
+  };
+
+  const handleDeselectAll = () => {
+    setSelectedAccommodations([]);
+  };
+
+  const handleBulkDelete = async () => {
+    if (selectedAccommodations.length === 0) return;
+    
+    const confirmed = confirm(`Are you sure you want to delete ${selectedAccommodations.length} accommodation(s)? This action cannot be undone.`);
+    if (!confirmed) return;
+
+    setIsBulkDeleting(true);
+    try {
+      // Delete each selected accommodation
+      const deletePromises = selectedAccommodations.map(id => 
+        apiRequest('DELETE', `/api/accommodations/${id}`)
+      );
+      
+      await Promise.all(deletePromises);
+      
+      // Update state
+      setAccommodations(prev => prev.filter(acc => !selectedAccommodations.includes(acc.id)));
+      setSelectedAccommodations([]);
+      setIsSelectionMode(false);
+      
+      // Invalidate cache
+      queryClient.invalidateQueries({ queryKey: ['/api/accommodations'] });
+      queryClient.invalidateQueries({ queryKey: ['/api/accommodations', selectedStudentId] });
+      
+      toast({
+        title: "Success",
+        description: `${selectedAccommodations.length} accommodation(s) deleted successfully.`,
+      });
+    } catch (error) {
+      console.error('Error deleting accommodations:', error);
+      toast({
+        title: "Error",
+        description: "Failed to delete some accommodations. Please try again.",
+        variant: "destructive"
+      });
+    } finally {
+      setIsBulkDeleting(false);
+    }
+  };
 
   // API Queries for Gifted Assessments
   const { data: giftedProfileData, isLoading: giftedProfileLoading } = useQuery({
@@ -1827,37 +1894,135 @@ const AdvocateStudents = () => {
                   <div className="space-y-6">
                     <Card className="premium-card">
                       <CardHeader>
-                        <CardTitle className="flex items-center gap-2">
-                          <CheckCircle className="h-5 w-5" />
-                          IEP Accommodations
+                        <CardTitle className="flex items-center justify-between">
+                          <div className="flex items-center gap-2">
+                            <CheckCircle className="h-5 w-5" />
+                            IEP Accommodations
+                            {accommodations.length > 0 && (
+                              <Badge variant="secondary" className="text-xs">
+                                {accommodations.length}
+                              </Badge>
+                            )}
+                          </div>
+                          {accommodations.length > 0 && (
+                            <div className="flex items-center gap-2">
+                              {isSelectionMode && (
+                                <div className="flex items-center gap-2 mr-2">
+                                  <Button
+                                    onClick={handleSelectAll}
+                                    variant="outline"
+                                    size="sm"
+                                    disabled={selectedAccommodations.length === accommodations.length}
+                                    data-testid="button-select-all-accommodations"
+                                  >
+                                    Select All
+                                  </Button>
+                                  <Button
+                                    onClick={handleDeselectAll}
+                                    variant="outline"
+                                    size="sm"
+                                    disabled={selectedAccommodations.length === 0}
+                                    data-testid="button-deselect-all-accommodations"
+                                  >
+                                    Deselect All
+                                  </Button>
+                                  <Button
+                                    onClick={handleBulkDelete}
+                                    variant="destructive"
+                                    size="sm"
+                                    disabled={selectedAccommodations.length === 0 || isBulkDeleting}
+                                    data-testid="button-delete-selected-accommodations"
+                                  >
+                                    {isBulkDeleting ? (
+                                      <>Deleting...</>
+                                    ) : (
+                                      <>
+                                        <Trash2 className="h-4 w-4 mr-1" />
+                                        Delete ({selectedAccommodations.length})
+                                      </>
+                                    )}
+                                  </Button>
+                                </div>
+                              )}
+                              <Button
+                                onClick={handleToggleSelectionMode}
+                                variant={isSelectionMode ? "secondary" : "outline"}
+                                size="sm"
+                                data-testid="button-toggle-selection-mode"
+                              >
+                                {isSelectionMode ? (
+                                  <>Cancel</>
+                                ) : (
+                                  <>Select</>  
+                                )}
+                              </Button>
+                            </div>
+                          )}
                         </CardTitle>
                         <CardDescription>
                           Documented accommodations and modifications for this student
+                          {isSelectionMode && selectedAccommodations.length > 0 && (
+                            <span className="ml-2 text-primary font-medium">
+                              • {selectedAccommodations.length} selected
+                            </span>
+                          )}
                         </CardDescription>
                       </CardHeader>
                       <CardContent>
                         {accommodations.length > 0 ? (
                           <div className="space-y-4">
-                            {accommodations.map((accommodation) => (
-                              <div key={accommodation.id} className="border rounded-lg p-4">
-                                <div className="flex items-start justify-between">
-                                  <div className="flex-1">
-                                    <h4 className="font-medium">{accommodation.accommodation_type}</h4>
-                                    <p className="text-sm text-muted-foreground mt-1">
-                                      {accommodation.description}
-                                    </p>
-                                    {accommodation.implementation_notes && (
-                                      <p className="text-xs text-muted-foreground mt-2">
-                                        <strong>Implementation:</strong> {accommodation.implementation_notes}
-                                      </p>
+                            {accommodations.map((accommodation) => {
+                              const isSelected = selectedAccommodations.includes(accommodation.id);
+                              return (
+                                <div 
+                                  key={accommodation.id} 
+                                  className={`border rounded-lg p-4 transition-all ${
+                                    isSelectionMode 
+                                      ? isSelected 
+                                        ? 'border-primary bg-primary/5 shadow-sm' 
+                                        : 'border-muted hover:border-primary/50 cursor-pointer'
+                                      : ''
+                                  }`}
+                                  onClick={() => {
+                                    if (isSelectionMode) {
+                                      handleSelectAccommodation(accommodation.id, !isSelected);
+                                    }
+                                  }}
+                                  data-testid={`accommodation-card-${accommodation.id}`}
+                                >
+                                  <div className="flex items-start justify-between">
+                                    {isSelectionMode && (
+                                      <div className="mr-3 mt-1">
+                                        <Checkbox
+                                          checked={isSelected}
+                                          onCheckedChange={(checked) => 
+                                            handleSelectAccommodation(accommodation.id, checked as boolean)
+                                          }
+                                          data-testid={`checkbox-accommodation-${accommodation.id}`}
+                                        />
+                                      </div>
                                     )}
+                                    <div className="flex-1">
+                                      <h4 className="font-medium">{accommodation.accommodation_type}</h4>
+                                      <p className="text-sm text-muted-foreground mt-1">
+                                        {accommodation.description}
+                                      </p>
+                                      {accommodation.implementation_notes && (
+                                        <p className="text-xs text-muted-foreground mt-2">
+                                          <strong>Implementation:</strong> {accommodation.implementation_notes}
+                                        </p>
+                                      )}
+                                    </div>
+                                    <Badge 
+                                      className={accommodation.status === 'active' ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800'}
+                                      data-testid={`status-${accommodation.id}`}
+                                    >
+                                      {accommodation.status}
+                                    </Badge>
                                   </div>
-                                  <Badge className={accommodation.status === 'active' ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800'}>
-                                    {accommodation.status}
-                                  </Badge>
                                 </div>
-                              </div>
-                            ))}
+                              );
+                            })}
                           </div>
                         ) : (
                           <div className="text-center py-8">

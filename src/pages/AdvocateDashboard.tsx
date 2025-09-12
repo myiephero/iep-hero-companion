@@ -929,7 +929,7 @@ const AdvocateDashboard = ({ plan }: AdvocateDashboardProps) => {
                       <ArrowRight className="h-5 w-5 text-gray-400 group-hover:text-purple-600 group-hover:translate-x-1 transition-all" />
                     </div>
                     <h3 className="font-semibold text-lg mb-2 text-gray-900 dark:text-gray-100">Tools Hub</h3>
-                    <p className="text-sm text-gray-600 dark:text-gray-400 mb-3">Access advocacy tools and resources</p>
+                    <p className="text-sm text-gray-600 dark:text-gray-400 mb-3">Advocacy tools & resources</p>
                     <div className="flex items-center gap-2">
                       <Badge variant="outline" className="text-purple-700 border-purple-300">25+ Tools</Badge>
                     </div>

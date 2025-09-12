@@ -101,6 +101,7 @@ const GiftedAIInsightsTool = () => {
     }
   });
 
+
   const handleGenerateInsights = () => {
     if (!selectedStudent) {
       toast({
@@ -124,20 +125,19 @@ const GiftedAIInsightsTool = () => {
   };
 
   const hasRequiredData = () => {
-    return studentProfile?.cognitive_assessments?.length > 0 || 
-           studentProfile?.academic_assessments?.length > 0 || 
-           studentProfile?.creative_assessments?.length > 0 ||
-           studentProfile?.leadership_assessments?.length > 0;
+    if (!studentProfile?.assessments) return false;
+    return studentProfile.assessments.length > 0;
   };
 
   const getCompletionStatus = () => {
-    if (!studentProfile) return { completed: 0, total: 4, tools: [] };
+    if (!studentProfile?.assessments) return { completed: 0, total: 4, tools: [] };
     
+    const assessmentTypes = studentProfile.assessments.map(a => a.assessment_type);
     const tools = [
-      { name: "Cognitive", completed: (studentProfile.cognitive_assessments?.length || 0) > 0, icon: Brain, color: "text-purple-600" },
-      { name: "Academic", completed: (studentProfile.academic_assessments?.length || 0) > 0, icon: BookOpen, color: "text-blue-600" },
-      { name: "Creative", completed: (studentProfile.creative_assessments?.length || 0) > 0, icon: Palette, color: "text-pink-600" },
-      { name: "Leadership", completed: (studentProfile.leadership_assessments?.length || 0) > 0, icon: Users, color: "text-green-600" }
+      { name: "Cognitive", completed: assessmentTypes.includes('cognitive'), icon: Brain, color: "text-purple-600" },
+      { name: "Academic", completed: assessmentTypes.includes('academic'), icon: BookOpen, color: "text-blue-600" },
+      { name: "Creative", completed: assessmentTypes.includes('creative'), icon: Palette, color: "text-pink-600" },
+      { name: "Leadership", completed: assessmentTypes.includes('leadership'), icon: Users, color: "text-green-600" }
     ];
     
     const completed = tools.filter(t => t.completed).length;
@@ -467,6 +467,7 @@ const GiftedAIInsightsTool = () => {
                 </CardContent>
               </Card>
             )}
+
           </div>
         )}
 

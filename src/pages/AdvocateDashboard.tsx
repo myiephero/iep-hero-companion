@@ -900,53 +900,6 @@ const AdvocateDashboard = ({ plan }: AdvocateDashboardProps) => {
           </Card>
         </div>
 
-        {/* Upcoming Meetings */}
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Calendar className="h-5 w-5" />
-              Upcoming Meetings
-            </CardTitle>
-            <CardDescription>
-              Your scheduled meetings and consultations
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            {upcomingMeetings.length === 0 ? (
-              <div className="text-center py-8">
-                <div className="text-muted-foreground mb-4">
-                  <Calendar className="h-12 w-12 mx-auto mb-2 opacity-50" />
-                  <p className="text-lg font-medium">No meetings scheduled</p>
-                  <p className="text-sm">Schedule meetings with your parent clients as you take on cases</p>
-                </div>
-                <Button asChild variant="outline">
-                  <Link to="/advocate/schedule">
-                    <Calendar className="h-4 w-4 mr-2" />
-                    View Calendar
-                  </Link>
-                </Button>
-              </div>
-            ) : (
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                {upcomingMeetings.map((meeting) => (
-                <div key={meeting.id} className="p-4 border rounded-lg space-y-2">
-                  <h4 className="font-semibold text-sm">{meeting.title}</h4>
-                  <p className="text-sm text-muted-foreground">{meeting.date}</p>
-                  <div className="flex items-center justify-between">
-                    <Badge variant="outline">{meeting.type}</Badge>
-                    <span className="text-xs text-muted-foreground">
-                      {meeting.attendees} attendees
-                    </span>
-                  </div>
-                  <Button size="sm" variant="outline" className="w-full">
-                    Join Meeting
-                  </Button>
-                </div>
-                ))}
-              </div>
-            )}
-          </CardContent>
-        </Card>
 
         {/* Activity Feed */}
         <Card className="bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800 border-0">

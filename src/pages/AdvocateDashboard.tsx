@@ -855,6 +855,69 @@ const AdvocateDashboard = ({ plan }: AdvocateDashboardProps) => {
                 </Link>
               </Card>
 
+              {/* Schedule */}
+              <FeatureGate 
+                requiredFeature="meetingScheduler"
+                upgradeBenefits={[
+                  "Schedule and manage client meetings",
+                  "Automated meeting reminders",
+                  "Calendar integration and sync",
+                  "Meeting templates and agendas"
+                ]}
+                data-testid="card-schedule-gate"
+              >
+                <Card className="group hover:shadow-xl transition-all duration-300 cursor-pointer border-0 bg-gradient-to-br from-teal-50 to-cyan-50 dark:from-teal-950/50 dark:to-cyan-950/50 hover:scale-105" data-testid="card-schedule">
+                  <Link to="/advocate/schedule" className="block">
+                    <CardContent className="p-6">
+                      <div className="flex items-center justify-between mb-4">
+                        <div className="w-12 h-12 bg-teal-100 dark:bg-teal-900 rounded-xl flex items-center justify-center group-hover:bg-teal-200 dark:group-hover:bg-teal-800 transition-colors">
+                          <Calendar className="h-6 w-6 text-teal-600 dark:text-teal-400" />
+                        </div>
+                        <ArrowRight className="h-5 w-5 text-gray-400 group-hover:text-teal-600 group-hover:translate-x-1 transition-all" />
+                      </div>
+                      <h3 className="font-semibold text-lg mb-2 text-gray-900 dark:text-gray-100">Schedule</h3>
+                      <p className="text-sm text-gray-600 dark:text-gray-400 mb-3">Manage appointments and meetings</p>
+                      <div className="flex items-center gap-2">
+                        <span className="text-2xl font-bold text-teal-600 dark:text-teal-400">{upcomingMeetings.length}</span>
+                        <span className="text-sm text-gray-500">upcoming</span>
+                      </div>
+                    </CardContent>
+                  </Link>
+                </Card>
+              </FeatureGate>
+
+              {/* Client Matching */}
+              <FeatureGate 
+                requiredFeature="caseMatching"
+                upgradeBenefits={[
+                  "Advanced client matching algorithms",
+                  "Case proposal management",
+                  "Client compatibility scoring",
+                  "Automated match notifications"
+                ]}
+                data-testid="card-client-matching-gate"
+              >
+                <Card className="group hover:shadow-xl transition-all duration-300 cursor-pointer border-0 bg-gradient-to-br from-rose-50 to-pink-50 dark:from-rose-950/50 dark:to-pink-950/50 hover:scale-105" data-testid="card-client-matching">
+                  <Link to="/advocate/matching" className="block">
+                    <CardContent className="p-6">
+                      <div className="flex items-center justify-between mb-4">
+                        <div className="w-12 h-12 bg-rose-100 dark:bg-rose-900 rounded-xl flex items-center justify-center group-hover:bg-rose-200 dark:group-hover:bg-rose-800 transition-colors">
+                          <HeartHandshake className="h-6 w-6 text-rose-600 dark:text-rose-400" />
+                        </div>
+                        <ArrowRight className="h-5 w-5 text-gray-400 group-hover:text-rose-600 group-hover:translate-x-1 transition-all" />
+                      </div>
+                      <h3 className="font-semibold text-lg mb-2 text-gray-900 dark:text-gray-100">Client Matching</h3>
+                      <p className="text-sm text-gray-600 dark:text-gray-400 mb-3">Review matched client requests</p>
+                      <div className="flex items-center gap-2">
+                        <span className="text-2xl font-bold text-rose-600 dark:text-rose-400">{totalPendingCount}</span>
+                        <span className="text-sm text-gray-500">pending</span>
+                        {totalPendingCount > 0 && <Badge variant="destructive" className="bg-red-500">New</Badge>}
+                      </div>
+                    </CardContent>
+                  </Link>
+                </Card>
+              </FeatureGate>
+
               {/* Tools Hub */}
               <Card className="group hover:shadow-xl transition-all duration-300 cursor-pointer border-0 bg-gradient-to-br from-purple-50 to-pink-50 dark:from-purple-950/50 dark:to-pink-950/50 hover:scale-105" data-testid="card-tools-hub">
                 <Link to="/advocate/tools" className="block">
@@ -904,37 +967,6 @@ const AdvocateDashboard = ({ plan }: AdvocateDashboardProps) => {
                 </Card>
               </FeatureGate>
 
-              {/* Schedule */}
-              <FeatureGate 
-                requiredFeature="meetingScheduler"
-                upgradeBenefits={[
-                  "Schedule and manage client meetings",
-                  "Automated meeting reminders",
-                  "Calendar integration and sync",
-                  "Meeting templates and agendas"
-                ]}
-                data-testid="card-schedule-gate"
-              >
-                <Card className="group hover:shadow-xl transition-all duration-300 cursor-pointer border-0 bg-gradient-to-br from-teal-50 to-cyan-50 dark:from-teal-950/50 dark:to-cyan-950/50 hover:scale-105" data-testid="card-schedule">
-                  <Link to="/advocate/schedule" className="block">
-                    <CardContent className="p-6">
-                      <div className="flex items-center justify-between mb-4">
-                        <div className="w-12 h-12 bg-teal-100 dark:bg-teal-900 rounded-xl flex items-center justify-center group-hover:bg-teal-200 dark:group-hover:bg-teal-800 transition-colors">
-                          <Calendar className="h-6 w-6 text-teal-600 dark:text-teal-400" />
-                        </div>
-                        <ArrowRight className="h-5 w-5 text-gray-400 group-hover:text-teal-600 group-hover:translate-x-1 transition-all" />
-                      </div>
-                      <h3 className="font-semibold text-lg mb-2 text-gray-900 dark:text-gray-100">Schedule</h3>
-                      <p className="text-sm text-gray-600 dark:text-gray-400 mb-3">Manage appointments and meetings</p>
-                      <div className="flex items-center gap-2">
-                        <span className="text-2xl font-bold text-teal-600 dark:text-teal-400">{upcomingMeetings.length}</span>
-                        <span className="text-sm text-gray-500">upcoming</span>
-                      </div>
-                    </CardContent>
-                  </Link>
-                </Card>
-              </FeatureGate>
-
               {/* Messages */}
               <FeatureGate 
                 requiredFeature="advocateMessaging"
@@ -961,38 +993,6 @@ const AdvocateDashboard = ({ plan }: AdvocateDashboardProps) => {
                         <span className="text-2xl font-bold text-indigo-600 dark:text-indigo-400">{(conversations as any[]).length}</span>
                         <span className="text-sm text-gray-500">conversations</span>
                         {(conversations as any[]).length > 0 && <Badge variant="destructive" className="bg-red-500">New</Badge>}
-                      </div>
-                    </CardContent>
-                  </Link>
-                </Card>
-              </FeatureGate>
-
-              {/* Client Matching */}
-              <FeatureGate 
-                requiredFeature="caseMatching"
-                upgradeBenefits={[
-                  "Advanced client matching algorithms",
-                  "Case proposal management",
-                  "Client compatibility scoring",
-                  "Automated match notifications"
-                ]}
-                data-testid="card-client-matching-gate"
-              >
-                <Card className="group hover:shadow-xl transition-all duration-300 cursor-pointer border-0 bg-gradient-to-br from-rose-50 to-pink-50 dark:from-rose-950/50 dark:to-pink-950/50 hover:scale-105" data-testid="card-client-matching">
-                  <Link to="/advocate/matching" className="block">
-                    <CardContent className="p-6">
-                      <div className="flex items-center justify-between mb-4">
-                        <div className="w-12 h-12 bg-rose-100 dark:bg-rose-900 rounded-xl flex items-center justify-center group-hover:bg-rose-200 dark:group-hover:bg-rose-800 transition-colors">
-                          <HeartHandshake className="h-6 w-6 text-rose-600 dark:text-rose-400" />
-                        </div>
-                        <ArrowRight className="h-5 w-5 text-gray-400 group-hover:text-rose-600 group-hover:translate-x-1 transition-all" />
-                      </div>
-                      <h3 className="font-semibold text-lg mb-2 text-gray-900 dark:text-gray-100">Client Matching</h3>
-                      <p className="text-sm text-gray-600 dark:text-gray-400 mb-3">Review matched client requests</p>
-                      <div className="flex items-center gap-2">
-                        <span className="text-2xl font-bold text-rose-600 dark:text-rose-400">{totalPendingCount}</span>
-                        <span className="text-sm text-gray-500">pending</span>
-                        {totalPendingCount > 0 && <Badge variant="destructive" className="bg-red-500">New</Badge>}
                       </div>
                     </CardContent>
                   </Link>

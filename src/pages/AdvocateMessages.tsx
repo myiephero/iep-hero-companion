@@ -4,10 +4,12 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
-import { Search, Send, Paperclip, MessageSquare, Loader2, FileText, Clock, Users } from "lucide-react";
+import { Search, Send, Paperclip, MessageSquare, Loader2, FileText, Clock, Users, X } from "lucide-react";
 import { useLocation } from "react-router-dom";
 import { useState, useEffect } from "react";
 import { useConversations, useMessages, useSendMessage, useCreateConversation, useProposalContacts } from "@/hooks/useMessaging";
+import { MessageFileUpload, type MessageFile } from "@/components/MessageFileUpload";
+import { MessageAttachmentDisplay, type MessageAttachment } from "@/components/MessageAttachmentDisplay";
 import type { Conversation } from "@/lib/messaging";
 
 // Professional message templates for different scenarios
@@ -63,6 +65,8 @@ export default function AdvocateMessages() {
   const [newMessageText, setNewMessageText] = useState('');
   const [selectedTemplate, setSelectedTemplate] = useState<string | null>(null);
   const [showTemplateSelector, setShowTemplateSelector] = useState(false);
+  const [attachmentFiles, setAttachmentFiles] = useState<MessageFile[]>([]);
+  const [showFileUpload, setShowFileUpload] = useState(false);
   
   // API hooks
   const { conversations, loading: conversationsLoading, error: conversationsError, refetch: refetchConversations } = useConversations();
@@ -143,6 +147,52 @@ export default function AdvocateMessages() {
     } catch (error) {
       console.error('Error creating conversation:', error);
       // Could add toast notification here for error handling
+    }
+  };
+
+  // Handle sending message with optional attachments
+  const handleSendMessage = async () => {
+    if (!selectedConversation || sending) return;
+    
+    const hasContent = newMessageText.trim();
+    const hasAttachments = attachmentFiles.some(f => f.status === 'completed' && f.documentId);
+    
+    if (!hasContent && !hasAttachments) return;
+
+    // Check if any files are still uploading
+    const hasUploadingFiles = attachmentFiles.some(f => f.status === 'uploading');
+    if (hasUploadingFiles) {
+      console.warn('Some files are still uploading. Please wait for uploads to complete.');
+      return;
+    }
+
+    // Prepare attachment document IDs (no longer using base64)
+    const documentIds = attachmentFiles
+      .filter(f => f.status === 'completed' && f.documentId)
+      .map(f => f.documentId!);
+
+    try {
+      const message = await sendMessage(
+        selectedConversation.id, 
+        newMessageText.trim() || undefined,
+        documentIds.length > 0 ? documentIds : undefined
+      );
+      
+      if (message) {
+        // Clear form
+        setNewMessageText('');
+        setAttachmentFiles([]);
+        setShowFileUpload(false);
+        setSelectedTemplate(null);
+        setShowTemplateSelector(false);
+        
+        // Refresh data
+        refetchMessages();
+        refetchConversations();
+      }
+    } catch (error) {
+      console.error('Error sending message:', error);
+      // Error handling could be improved with toast notifications
     }
   };
 
@@ -324,7 +374,13 @@ export default function AdvocateMessages() {
                           ? 'bg-primary text-primary-foreground ml-12' 
                           : 'bg-muted mr-12'
                       }`}>
-                        <p className="text-sm">{message.content}</p>
+                        {message.content && <p className="text-sm">{message.content}</p>}
+                        {message.attachments && message.attachments.length > 0 && (
+                          <MessageAttachmentDisplay 
+                            attachments={message.attachments as MessageAttachment[]} 
+                            compact={true}
+                          />
+                        )}
                         <span className="text-xs opacity-75 block mt-1">
                           {new Date(message.created_at).toLocaleTimeString([], { 
                             hour: '2-digit', 
@@ -392,50 +448,70 @@ export default function AdvocateMessages() {
                   </div>
                 )}
                 
+                {/* File Upload Section */}
+                {showFileUpload && (
+                  <div className="p-4 bg-muted/20 border-b">
+                    <div className="flex items-center justify-between mb-3">
+                      <h3 className="text-sm font-medium">Attach Files</h3>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => {
+                          setShowFileUpload(false);
+                          setAttachmentFiles([]);
+                        }}
+                        className="h-6 w-6 p-0"
+                      >
+                        <X className="h-4 w-4" />
+                      </Button>
+                    </div>
+                    <MessageFileUpload
+                      files={attachmentFiles}
+                      onFilesChange={setAttachmentFiles}
+                      maxFiles={5}
+                      disabled={sending}
+                    />
+                  </div>
+                )}
+
                 {/* Message Input */}
                 <div className="p-4">
                   <div className="flex items-end gap-2">
-                    <Button variant="ghost" size="icon" className="mb-1">
+                    <Button 
+                      variant="ghost" 
+                      size="icon"
+                      onClick={() => setShowFileUpload(!showFileUpload)}
+                      className={`mb-1 ${showFileUpload ? 'bg-muted' : ''}`}
+                      data-testid="button-attach-files"
+                    >
                       <Paperclip className="h-4 w-4" />
                     </Button>
-                    <div className="flex-1">
+                    <div className="flex-1 space-y-2">
                       <textarea 
                         placeholder="Type your message..." 
                         className="w-full min-h-[60px] max-h-[200px] p-3 border rounded-md resize-none focus:outline-none focus:ring-2 focus:ring-ring bg-background"
                         value={newMessageText}
                         onChange={(e) => setNewMessageText(e.target.value)}
-                        onKeyDown={(e) => {
+                        onKeyDown={async (e) => {
                           if (e.key === 'Enter' && !e.shiftKey) {
                             e.preventDefault();
-                            if (newMessageText.trim() && selectedConversation) {
-                              sendMessage(selectedConversation.id, newMessageText).then((message) => {
-                                if (message) {
-                                  setNewMessageText('');
-                                  setShowTemplateSelector(false); // Hide templates after sending
-                                  refetchMessages();
-                                  refetchConversations();
-                                }
-                              });
+                            if ((newMessageText.trim() || attachmentFiles.some(f => f.status === 'completed')) && selectedConversation && !sending) {
+                              await handleSendMessage();
                             }
                           }
                         }}
                         data-testid="input-message"
                       />
+                      {attachmentFiles.length > 0 && (
+                        <div className="text-xs text-muted-foreground">
+                          {attachmentFiles.filter(f => f.status === 'completed').length} of {attachmentFiles.length} files ready
+                        </div>
+                      )}
                     </div>
                     <Button 
                       size="icon" 
-                      disabled={sending || !newMessageText.trim()}
-                      onClick={async () => {
-                        if (newMessageText.trim() && selectedConversation) {
-                          const message = await sendMessage(selectedConversation.id, newMessageText);
-                          if (message) {
-                            setNewMessageText('');
-                            setShowTemplateSelector(false); // Hide templates after sending
-                            refetchMessages(); // Refresh messages
-                            refetchConversations(); // Refresh conversation list to update last message
-                          }
-                        }
-                      }}
+                      disabled={sending || (!newMessageText.trim() && !attachmentFiles.some(f => f.status === 'completed'))}
+                      onClick={handleSendMessage}
                       data-testid="button-send-message"
                       className="mb-1"
                     >

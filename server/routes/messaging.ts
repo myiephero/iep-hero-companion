@@ -1,11 +1,45 @@
 import { Router, Request, Response } from 'express';
 import { z } from 'zod';
+import multer from 'multer';
 import { db } from '../db';
-import { conversations, messages, advocates, students, match_proposals, users } from '../../shared/schema';
+import { conversations, messages, advocates, students, match_proposals, users, documents, message_attachments } from '../../shared/schema';
 import { eq, and, or, desc, asc, ne, isNull } from 'drizzle-orm';
 import { getUserId } from '../utils';
+import {
+  validateFilesUpload,
+  sanitizeFileName,
+  generateSecureFilePath,
+  getFileCategory,
+  canPreviewFile,
+  ALLOWED_FILE_TYPES,
+  MAX_FILE_SIZE,
+  MAX_FILES_PER_MESSAGE
+} from '../fileUpload';
+import {
+  uploadFileToStorage,
+  generatePresignedUpload,
+  getDownloadUrl,
+  getFileFromStorage,
+  deleteFileFromStorage
+} from '../objectStorage';
 
 const router = Router();
+
+// Configure multer for file uploads
+const upload = multer({
+  storage: multer.memoryStorage(),
+  limits: {
+    fileSize: MAX_FILE_SIZE,
+    files: MAX_FILES_PER_MESSAGE
+  },
+  fileFilter: (req, file, cb) => {
+    if (Object.keys(ALLOWED_FILE_TYPES).includes(file.mimetype)) {
+      cb(null, true);
+    } else {
+      cb(new Error(`File type ${file.mimetype} not allowed`));
+    }
+  }
+});
 
 // Validation schemas
 const createConversationSchema = z.object({
@@ -18,7 +52,18 @@ const createConversationSchema = z.object({
 
 const sendMessageSchema = z.object({
   conversation_id: z.string(),
-  content: z.string().min(1),
+  content: z.string().optional(),
+  attachment_ids: z.array(z.string()).optional(), // References to already uploaded files
+}).refine((data) => data.content || (data.attachment_ids && data.attachment_ids.length > 0), {
+  message: "Either content or attachments must be provided",
+});
+
+const presignedUploadSchema = z.object({
+  files: z.array(z.object({
+    name: z.string().min(1).max(255),
+    type: z.string(),
+    size: z.number().max(MAX_FILE_SIZE)
+  })).max(MAX_FILES_PER_MESSAGE)
 });
 
 // POST /api/messaging/conversations - Create a new conversation
@@ -236,18 +281,53 @@ router.get('/conversations/:id', async (req: Request, res: Response) => {
       return res.status(404).json({ error: 'Conversation not found' });
     }
 
-    // Get all messages for this conversation
+    // Get all messages for this conversation with their attachments
     const conversationMessages = await db.select({
       id: messages.id,
       conversation_id: messages.conversation_id,
       sender_id: messages.sender_id,
       content: messages.content,
+      attachment_count: messages.attachment_count,
       created_at: messages.created_at,
       read_at: messages.read_at
     })
       .from(messages)
       .where(eq(messages.conversation_id, id))
       .orderBy(asc(messages.created_at));
+
+    // Get attachments for all messages in this conversation
+    const messageIds = conversationMessages.map(msg => msg.id);
+    const attachments = messageIds.length > 0 ? await db.select({
+      attachment: message_attachments,
+      document: documents
+    })
+      .from(message_attachments)
+      .leftJoin(documents, eq(message_attachments.document_id, documents.id))
+      .where(or(...messageIds.map(id => eq(message_attachments.message_id, id))))
+      : [];
+
+    // Group attachments by message_id and add download URLs
+    const attachmentsByMessage = attachments.reduce((acc: any, { attachment, document }) => {
+      if (!acc[attachment.message_id]) {
+        acc[attachment.message_id] = [];
+      }
+      
+      if (document) {
+        acc[attachment.message_id].push({
+          ...document,
+          downloadUrl: getDownloadUrl(document.file_path),
+          previewUrl: canPreviewFile(document.file_type || '') ? getDownloadUrl(document.file_path) : null
+        });
+      }
+      
+      return acc;
+    }, {});
+
+    // Add attachments to messages
+    const messagesWithAttachments = conversationMessages.map(message => ({
+      ...message,
+      attachments: attachmentsByMessage[message.id] || []
+    }));
 
     // Mark messages as read (messages sent by the other party)
     await db.update(messages)
@@ -269,7 +349,7 @@ router.get('/conversations/:id', async (req: Request, res: Response) => {
         ...conversation.student,
         name: conversation.student.full_name // Map full_name to name for client compatibility
       } : null,
-      messages: conversationMessages,
+      messages: messagesWithAttachments,
     });
   } catch (error) {
     console.error('Error fetching conversation:', error);
@@ -280,22 +360,306 @@ router.get('/conversations/:id', async (req: Request, res: Response) => {
   }
 });
 
-// POST /api/messaging/messages - Send a message
-router.post('/messages', async (req: Request, res: Response) => {
+// POST /api/messaging/presigned-upload - Get presigned URLs for file uploads
+router.post('/presigned-upload', async (req: Request, res: Response) => {
   try {
     const userId = await getUserId(req);
-    const data = sendMessageSchema.parse(req.body);
+    const data = presignedUploadSchema.parse(req.body);
 
-    // Verify user has access to this conversation
-    const conversation = await db.select({
-      conversation: conversations,
-      advocate: advocates,
+    // Validate all files
+    const validation = validateFilesUpload(data.files);
+    if (!validation.isValid) {
+      return res.status(400).json({ error: validation.error });
+    }
+
+    // Generate presigned uploads for each file
+    const uploads = await Promise.all(
+      data.files.map(async (file) => {
+        const sanitizedName = sanitizeFileName(file.name);
+        const filePath = generateSecureFilePath(sanitizedName, userId);
+        
+        const presignedData = await generatePresignedUpload(
+          filePath,
+          file.type,
+          file.size
+        );
+
+        return {
+          ...presignedData,
+          originalName: file.name,
+          sanitizedName,
+          fileSize: file.size,
+          fileType: file.type
+        };
+      })
+    );
+
+    res.json({ uploads });
+  } catch (error) {
+    console.error('Error generating presigned uploads:', error);
+    if (error instanceof z.ZodError) {
+      return res.status(400).json({ error: 'Invalid data', details: error.errors });
+    }
+    if (error instanceof Error && error.message.includes('Authentication required')) {
+      return res.status(401).json({ error: 'Authentication required' });
+    }
+    res.status(500).json({ error: 'Failed to generate upload URLs' });
+  }
+});
+
+// POST /api/messaging/upload/:uploadId - Direct file upload endpoint
+router.post('/upload/:uploadId', upload.array('files', MAX_FILES_PER_MESSAGE), async (req: Request, res: Response) => {
+  try {
+    const userId = await getUserId(req);
+    const { uploadId } = req.params;
+    const files = req.files as Express.Multer.File[];
+
+    if (!files || files.length === 0) {
+      return res.status(400).json({ error: 'No files provided' });
+    }
+
+    // Validate files
+    const fileValidation = validateFilesUpload(files.map(f => ({
+      name: f.originalname,
+      type: f.mimetype,
+      size: f.size
+    })));
+
+    if (!fileValidation.isValid) {
+      return res.status(400).json({ error: fileValidation.error });
+    }
+
+    // Upload files and create document records
+    const uploadedFiles = [];
+    
+    for (const file of files) {
+      try {
+        const sanitizedName = sanitizeFileName(file.originalname);
+        const filePath = generateSecureFilePath(sanitizedName, userId);
+        
+        // Upload to object storage
+        const uploadResult = await uploadFileToStorage(
+          file.buffer,
+          filePath,
+          file.mimetype
+        );
+
+        // Create document record
+        const [document] = await db.insert(documents)
+          .values({
+            user_id: userId,
+            title: sanitizedName,
+            file_name: sanitizedName,
+            file_path: uploadResult.filePath,
+            file_type: file.mimetype,
+            file_size: file.size,
+            category: 'message_attachment',
+            uploaded_by: userId,
+          })
+          .returning();
+
+        uploadedFiles.push({
+          documentId: document.id,
+          fileName: sanitizedName,
+          fileType: file.mimetype,
+          fileSize: file.size,
+          downloadUrl: uploadResult.downloadUrl,
+          previewUrl: uploadResult.previewUrl
+        });
+      } catch (fileError) {
+        console.error('Error uploading file:', file.originalname, fileError);
+        return res.status(500).json({ 
+          error: `Failed to upload file: ${file.originalname}` 
+        });
+      }
+    }
+
+    res.json({ files: uploadedFiles });
+  } catch (error) {
+    console.error('Error in file upload:', error);
+    if (error instanceof Error && error.message.includes('Authentication required')) {
+      return res.status(401).json({ error: 'Authentication required' });
+    }
+    res.status(500).json({ error: 'Failed to upload files' });
+  }
+});
+
+// POST /api/messaging/messages - Send a message (TRANSACTIONAL)
+router.post('/messages', async (req: Request, res: Response) => {
+  const transaction = await db.transaction(async (tx) => {
+    try {
+      const userId = await getUserId(req);
+      const data = sendMessageSchema.parse(req.body);
+
+      // Verify user has access to this conversation
+      const conversation = await tx.select({
+        conversation: conversations,
+        advocate: advocates,
+      })
+        .from(conversations)
+        .leftJoin(advocates, eq(conversations.advocate_id, advocates.id))
+        .where(
+          and(
+            eq(conversations.id, data.conversation_id),
+            or(
+              eq(conversations.parent_id, userId),
+              eq(advocates.user_id, userId)
+            )
+          )
+        )
+        .then(results => results[0]);
+
+      if (!conversation) {
+        throw new Error('Conversation not found');
+      }
+
+      // Verify attachment ownership if provided
+      if (data.attachment_ids && data.attachment_ids.length > 0) {
+        const attachmentDocs = await tx.select({
+          id: documents.id,
+          user_id: documents.user_id,
+        })
+          .from(documents)
+          .where(or(...data.attachment_ids.map(id => eq(documents.id, id))));
+
+        if (attachmentDocs.length !== data.attachment_ids.length) {
+          throw new Error('Some attachment documents not found');
+        }
+
+        // Check ownership
+        const unauthorizedDocs = attachmentDocs.filter(doc => doc.user_id !== userId);
+        if (unauthorizedDocs.length > 0) {
+          throw new Error('Not authorized to attach some documents');
+        }
+      }
+
+      // Create the message
+      const [message] = await tx.insert(messages)
+        .values({
+          conversation_id: data.conversation_id,
+          sender_id: userId,
+          content: data.content || null,
+          attachment_count: data.attachment_ids?.length || 0,
+        })
+        .returning();
+
+      // Link attachments to message if provided
+      if (data.attachment_ids && data.attachment_ids.length > 0) {
+        await tx.insert(message_attachments)
+          .values(
+            data.attachment_ids.map(documentId => ({
+              message_id: message.id,
+              document_id: documentId,
+            }))
+          );
+      }
+
+      // Update conversation's last_message_at
+      await tx.update(conversations)
+        .set({ 
+          last_message_at: new Date(),
+          updated_at: new Date(),
+        })
+        .where(eq(conversations.id, data.conversation_id));
+
+      return message;
+    } catch (error) {
+      console.error('Transaction error:', error);
+      throw error;
+    }
+  });
+
+  try {
+    res.status(201).json({ message: transaction });
+  } catch (error) {
+    console.error('Error sending message:', error);
+    if (error instanceof z.ZodError) {
+      return res.status(400).json({ error: 'Invalid data', details: error.errors });
+    }
+    if (error instanceof Error) {
+      if (error.message.includes('Authentication required')) {
+        return res.status(401).json({ error: 'Authentication required' });
+      }
+      if (error.message.includes('Conversation not found')) {
+        return res.status(404).json({ error: 'Conversation not found' });
+      }
+      if (error.message.includes('not authorized')) {
+        return res.status(403).json({ error: error.message });
+      }
+      if (error.message.includes('not found')) {
+        return res.status(404).json({ error: error.message });
+      }
+    }
+    res.status(500).json({ error: 'Failed to send message' });
+  }
+});
+
+// GET /api/messaging/download/:filePath - Download file from object storage
+router.get('/download/:filePath', async (req: Request, res: Response) => {
+  try {
+    const userId = await getUserId(req);
+    const filePath = decodeURIComponent(req.params.filePath);
+
+    // Get document record to verify access
+    const document = await db.select({
+      id: documents.id,
+      user_id: documents.user_id,
+      file_name: documents.file_name,
+      file_type: documents.file_type,
+      file_path: documents.file_path
     })
-      .from(conversations)
+      .from(documents)
+      .where(eq(documents.file_path, filePath))
+      .then(results => results[0]);
+
+    if (!document) {
+      return res.status(404).json({ error: 'File not found' });
+    }
+
+    // Check if user has access (they uploaded it or are part of the conversation)
+    const hasAccess = document.user_id === userId || await checkMessageAccess(document.id, userId);
+    
+    if (!hasAccess) {
+      return res.status(403).json({ error: 'Access denied' });
+    }
+
+    // Get file from storage
+    const fileData = await getFileFromStorage(filePath);
+    if (!fileData) {
+      return res.status(404).json({ error: 'File not found in storage' });
+    }
+
+    // Set appropriate headers
+    res.set({
+      'Content-Type': fileData.contentType,
+      'Content-Disposition': `attachment; filename="${fileData.fileName}"`,
+      'Content-Length': fileData.buffer.length.toString()
+    });
+
+    res.send(fileData.buffer);
+  } catch (error) {
+    console.error('Error downloading file:', error);
+    if (error instanceof Error && error.message.includes('Authentication required')) {
+      return res.status(401).json({ error: 'Authentication required' });
+    }
+    res.status(500).json({ error: 'Failed to download file' });
+  }
+});
+
+// Helper function to check if user has access to a message attachment
+async function checkMessageAccess(documentId: string, userId: string): Promise<boolean> {
+  try {
+    const messageAccess = await db.select({
+      conversation: conversations,
+      advocate: advocates
+    })
+      .from(message_attachments)
+      .leftJoin(messages, eq(message_attachments.message_id, messages.id))
+      .leftJoin(conversations, eq(messages.conversation_id, conversations.id))
       .leftJoin(advocates, eq(conversations.advocate_id, advocates.id))
       .where(
         and(
-          eq(conversations.id, data.conversation_id),
+          eq(message_attachments.document_id, documentId),
           or(
             eq(conversations.parent_id, userId),
             eq(advocates.user_id, userId)
@@ -304,39 +668,12 @@ router.post('/messages', async (req: Request, res: Response) => {
       )
       .then(results => results[0]);
 
-    if (!conversation) {
-      return res.status(404).json({ error: 'Conversation not found' });
-    }
-
-    // Create the message
-    const [message] = await db.insert(messages)
-      .values({
-        conversation_id: data.conversation_id,
-        sender_id: userId,
-        content: data.content,
-      })
-      .returning();
-
-    // Update conversation's last_message_at
-    await db.update(conversations)
-      .set({ 
-        last_message_at: new Date(),
-        updated_at: new Date(),
-      })
-      .where(eq(conversations.id, data.conversation_id));
-
-    res.status(201).json({ message });
+    return !!messageAccess;
   } catch (error) {
-    console.error('Error sending message:', error);
-    if (error instanceof z.ZodError) {
-      return res.status(400).json({ error: 'Invalid data', details: error.errors });
-    }
-    if (error instanceof Error && error.message.includes('Authentication required')) {
-      return res.status(401).json({ error: 'Authentication required' });
-    }
-    res.status(500).json({ error: 'Failed to send message' });
+    console.error('Error checking message access:', error);
+    return false;
   }
-});
+}
 
 // POST /api/messaging/conversations/:id/mark-read - Mark all messages in conversation as read
 router.post('/conversations/:id/mark-read', async (req: Request, res: Response) => {

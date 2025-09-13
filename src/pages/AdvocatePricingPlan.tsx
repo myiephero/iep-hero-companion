@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -17,7 +17,24 @@ import { getCheckoutUrl, requiresPayment } from '@/lib/stripePricing';
 const AdvocatePricingPlan = () => {
   const [selectedPlan, setSelectedPlan] = useState<string | null>(null);
   const [isAnnual, setIsAnnual] = useState(false);
+  const [highlightedPlan, setHighlightedPlan] = useState<string | null>(null);
   const { toast } = useToast();
+
+  // Check for highlight parameter on component mount
+  useEffect(() => {
+    const urlParams = new URLSearchParams(window.location.search);
+    const highlightParam = urlParams.get('highlight');
+    if (highlightParam) {
+      setHighlightedPlan(highlightParam);
+      // Auto-scroll to highlighted plan after a short delay
+      setTimeout(() => {
+        const planElement = document.querySelector(`[data-plan-id="${highlightParam}"]`);
+        if (planElement) {
+          planElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+      }, 500);
+    }
+  }, []);
 
   const getPriceForPlan = (tier: any, isAnnual: boolean) => {
     // Handle Agency plan with setup fee (like Hero Parent plan)
@@ -292,8 +309,11 @@ const AdvocatePricingPlan = () => {
               {pricingTiers.map((tier) => (
                 <Card 
                   key={tier.id}
-                  className={`premium-card card-hover relative ${
+                  data-plan-id={tier.id}
+                  className={`premium-card card-hover relative transition-all duration-500 ${
                     tier.popular ? 'ring-2 ring-primary' : ''
+                  } ${
+                    highlightedPlan === tier.id ? 'ring-4 ring-orange-400 shadow-2xl scale-105 bg-gradient-to-br from-orange-50/10 to-pink-50/10' : ''
                   }`}
                 >
                   {tier.popular && (

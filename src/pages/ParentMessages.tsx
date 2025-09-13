@@ -5,10 +5,13 @@ import { Input } from "@/components/ui/input";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Search, Send, Paperclip, MessageSquare, Loader2, X } from "lucide-react";
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useConversations, useMessages, useSendMessage, useMarkAsRead } from "@/hooks/useMessaging";
 import { MessageFileUpload, type MessageFile } from "@/components/MessageFileUpload";
 import { MessageAttachmentDisplay, type MessageAttachment } from "@/components/MessageAttachmentDisplay";
+import { MessageSearch } from "@/components/MessageSearch";
+import { MessageHighlight } from "@/components/MessageHighlight";
+import { useMessageSearch } from "@/hooks/useMessageSearch";
 import type { Conversation } from "@/lib/messaging";
 
 export default function ParentMessages() {
@@ -23,10 +26,44 @@ export default function ParentMessages() {
   const { send: sendMessage, sending } = useSendMessage();
   const { markMessagesRead } = useMarkAsRead();
   
+  // Message search functionality
+  const {
+    searchTerm,
+    setSearchTerm,
+    currentResultIndex,
+    totalResults,
+    goToNext,
+    goToPrevious,
+    clearSearch,
+    isCurrentResult,
+    hasActiveSearch,
+    hasResults,
+    currentSearchResult
+  } = useMessageSearch(messageHistory?.messages || []);
+  
+  // Ref for auto-scroll to current search result
+  const messagesContainerRef = useRef<HTMLDivElement>(null);
+  
   // Auto-select first conversation when loaded
   if (conversations.length > 0 && !selectedConversation) {
     setSelectedConversation(conversations[0]);
   }
+  
+  // Auto-scroll to current search result
+  useEffect(() => {
+    if (currentSearchResult && messagesContainerRef.current) {
+      const messageElement = messagesContainerRef.current.querySelector(
+        `[data-message-id="${currentSearchResult.message.id}"]`
+      );
+      if (messageElement) {
+        messageElement.scrollIntoView({
+          behavior: 'smooth',
+          block: 'center',
+          inline: 'nearest'
+        });
+      }
+    }
+  }, [currentSearchResult]);
 
   // Handle sending message with optional attachments
   const handleSendMessage = async () => {
@@ -186,7 +223,21 @@ export default function ParentMessages() {
               </div>
             )}
             
-            <div className="flex-1 p-4 overflow-y-auto space-y-4">
+            {/* Message Search */}
+            {selectedConversation && messageHistory?.messages && messageHistory.messages.length > 0 && (
+              <MessageSearch
+                searchTerm={searchTerm}
+                onSearchChange={setSearchTerm}
+                currentResult={currentResultIndex}
+                totalResults={totalResults}
+                onNext={goToNext}
+                onPrevious={goToPrevious}
+                onClear={clearSearch}
+                placeholder="Search conversation messages..."
+              />
+            )}
+            
+            <div className="flex-1 p-4 overflow-y-auto space-y-4" ref={messagesContainerRef}>
               {selectedConversation ? (
                 messagesLoading ? (
                   <div className="flex items-center justify-center h-full">
@@ -198,13 +249,23 @@ export default function ParentMessages() {
                       key={message.id}
                       className={`flex ${message.sender_id === selectedConversation.parent_id ? 'justify-end' : 'justify-start'}`}
                       data-testid={`message-${message.id}`}
+                      data-message-id={message.id}
                     >
                       <div className={`max-w-lg p-3 rounded-lg ${
                         message.sender_id === selectedConversation.parent_id 
                           ? 'bg-primary text-primary-foreground ml-12' 
                           : 'bg-muted mr-12'
                       }`}>
-                        {message.content && <p className="text-sm">{message.content}</p>}
+                        {message.content && (
+                          <p className="text-sm">
+                            <MessageHighlight
+                              text={message.content}
+                              searchTerm={searchTerm}
+                              isCurrentResult={isCurrentResult(message.id)}
+                              className="break-words"
+                            />
+                          </p>
+                        )}
                         {message.attachments && message.attachments.length > 0 && (
                           <MessageAttachmentDisplay 
                             attachments={message.attachments as MessageAttachment[]} 

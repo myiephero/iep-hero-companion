@@ -194,7 +194,7 @@ router.get('/conversations/:id', async (req: Request, res: Response) => {
         eq(conversations.id, id),
         or(
           eq(conversations.parent_id, userId),
-          eq(conversations.advocate_id, userId)
+          eq(advocates.user_id, userId)
         )
       )
     )
@@ -241,14 +241,18 @@ router.post('/messages', async (req: Request, res: Response) => {
     const data = sendMessageSchema.parse(req.body);
 
     // Verify user has access to this conversation
-    const conversation = await db.select()
+    const conversation = await db.select({
+      conversation: conversations,
+      advocate: advocates,
+    })
       .from(conversations)
+      .leftJoin(advocates, eq(conversations.advocate_id, advocates.id))
       .where(
         and(
           eq(conversations.id, data.conversation_id),
           or(
             eq(conversations.parent_id, userId),
-            eq(conversations.advocate_id, userId)
+            eq(advocates.user_id, userId)
           )
         )
       )
@@ -259,7 +263,7 @@ router.post('/messages', async (req: Request, res: Response) => {
     }
 
     // Determine sender type
-    const senderType = userId === conversation.parent_id ? 'parent' : 'advocate';
+    const senderType = userId === conversation.conversation.parent_id ? 'parent' : 'advocate';
 
     // Create the message
     const [message] = await db.insert(messages)
@@ -301,14 +305,18 @@ router.post('/conversations/:id/mark-read', async (req: Request, res: Response) 
     const { id } = req.params;
 
     // Verify user has access to this conversation
-    const conversation = await db.select()
+    const conversation = await db.select({
+      conversation: conversations,
+      advocate: advocates,
+    })
       .from(conversations)
+      .leftJoin(advocates, eq(conversations.advocate_id, advocates.id))
       .where(
         and(
           eq(conversations.id, id),
           or(
             eq(conversations.parent_id, userId),
-            eq(conversations.advocate_id, userId)
+            eq(advocates.user_id, userId)
           )
         )
       )

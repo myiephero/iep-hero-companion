@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback, useMemo, useRef } from 'react';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import {
   getConversations,
   getMessages,
@@ -15,89 +16,92 @@ import {
 import { apiRequest } from '@/lib/queryClient'; // FIXED: Import authenticated API client
 
 export function useConversations(filters: ConversationFilters = {}) {
-  const [conversations, setConversations] = useState<Conversation[]>([]);
-  const [pagination, setPagination] = useState<ConversationPagination | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  // Create stable filtersKey using useMemo to prevent unnecessary re-renders
+  const filtersKey = useMemo(() => filters, [JSON.stringify(filters)]);
   
-  // Use ref to track previous filters and prevent unnecessary re-fetches
-  const previousFiltersRef = useRef<string>('');
-  const hasInitiallyFetchedRef = useRef(false);
+  // Use React Query with specific configuration to prevent infinite loops
+  const {
+    data,
+    isLoading: loading,
+    error: queryError,
+    refetch
+  } = useQuery({
+    queryKey: ['/api/messaging/conversations', filtersKey],
+    queryFn: () => getConversations(filtersKey),
+    staleTime: 30000, // 30 seconds
+    refetchOnWindowFocus: false,
+    retry: 1
+  });
 
-  const fetchConversations = useCallback(async (filtersToUse?: ConversationFilters) => {
-    try {
-      setLoading(true);
-      setError(null);
-      const response = await getConversations(filtersToUse || {});
-      setConversations(response.conversations);
-      setPagination(response.pagination);
-    } catch (err) {
-      console.error('Error fetching conversations:', err);
-      setError(err instanceof Error ? err.message : 'Failed to fetch conversations');
-    } finally {
-      setLoading(false);
-    }
-  }, []);
-
-  useEffect(() => {
-    // Create a stable string representation of filters
-    const filtersString = JSON.stringify(filters);
-    
-    // Only fetch if filters have actually changed or this is the initial fetch
-    if (!hasInitiallyFetchedRef.current || previousFiltersRef.current !== filtersString) {
-      previousFiltersRef.current = filtersString;
-      hasInitiallyFetchedRef.current = true;
-      fetchConversations(filters);
-    }
-  }, [fetchConversations]); // Remove filters from dependency array to prevent infinite loop
+  // Transform error to match existing interface
+  const error = queryError ? (queryError instanceof Error ? queryError.message : 'Failed to fetch conversations') : null;
 
   return {
-    conversations,
-    pagination,
+    conversations: data?.conversations || [],
+    pagination: data?.pagination || null,
     loading,
     error,
-    refetch: fetchConversations
+    refetch: () => refetch()
   };
 }
 
 export function useMessages(conversationId: string | null) {
-  const [messageHistory, setMessageHistory] = useState<MessageHistory | null>(null);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  // Use React Query for messages
+  const {
+    data: messageHistory,
+    isLoading: loading,
+    error: queryError,
+    refetch
+  } = useQuery({
+    queryKey: ['/api/messaging/conversations', conversationId],
+    queryFn: () => getMessages(conversationId!),
+    enabled: !!conversationId, // Only run query when conversationId exists
+    staleTime: 15000, // 15 seconds for messages
+    refetchOnWindowFocus: false,
+    retry: 1
+  });
 
-  const fetchMessages = async () => {
-    if (!conversationId) return;
-    
-    try {
-      setLoading(true);
-      setError(null);
-      const data = await getMessages(conversationId);
-      setMessageHistory(data);
-    } catch (err) {
-      console.error('Error fetching messages:', err);
-      setError(err instanceof Error ? err.message : 'Failed to fetch messages');
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    if (conversationId) {
-      fetchMessages();
-    }
-  }, [conversationId]);
+  // Transform error to match existing interface
+  const error = queryError ? (queryError instanceof Error ? queryError.message : 'Failed to fetch messages') : null;
 
   return {
-    messageHistory,
+    messageHistory: messageHistory || null,
     loading,
     error,
-    refetch: fetchMessages
+    refetch: () => refetch()
   };
 }
 
 export function useSendMessage() {
-  const [sending, setSending] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const queryClient = useQueryClient();
+  
+  const mutation = useMutation({
+    mutationFn: async (data: {
+      conversationId: string;
+      content?: string;
+      documentIds?: string[];
+    }) => {
+      const messageData: any = { conversation_id: data.conversationId };
+      
+      if (data.content) {
+        messageData.content = data.content;
+      }
+      
+      if (data.documentIds && data.documentIds.length > 0) {
+        messageData.documentIds = data.documentIds;
+      }
+      
+      return sendMessage(messageData);
+    },
+    onSuccess: (_, variables) => {
+      // Invalidate conversations list to update last message
+      queryClient.invalidateQueries({ queryKey: ['/api/messaging/conversations'] });
+      // Invalidate specific conversation messages
+      queryClient.invalidateQueries({ 
+        queryKey: ['/api/messaging/conversations', variables.conversationId] 
+      });
+    }
+  });
 
   const send = async (
     conversationId: string, 
@@ -105,70 +109,72 @@ export function useSendMessage() {
     documentIds?: string[]
   ): Promise<Message | null> => {
     try {
-      setSending(true);
-      setError(null);
-      const messageData: any = { conversation_id: conversationId };
-      
-      if (content) {
-        messageData.content = content;
-      }
-      
-      if (documentIds && documentIds.length > 0) {
-        messageData.documentIds = documentIds;
-      }
-      
-      const message = await sendMessage(messageData);
+      const message = await mutation.mutateAsync({ conversationId, content, documentIds });
       return message;
     } catch (err) {
       console.error('Error sending message:', err);
-      setError(err instanceof Error ? err.message : 'Failed to send message');
       return null;
-    } finally {
-      setSending(false);
     }
   };
 
   return {
     send,
-    sending,
-    error
+    sending: mutation.isPending,
+    error: mutation.error ? (mutation.error instanceof Error ? mutation.error.message : 'Failed to send message') : null
   };
 }
 
 export function useCreateConversation() {
-  const [creating, setCreating] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const queryClient = useQueryClient();
+  
+  const mutation = useMutation({
+    mutationFn: (data: { advocateId: string; studentId: string; parentId: string }) => 
+      createConversation({
+        advocate_id: data.advocateId,
+        student_id: data.studentId,
+        parent_id: data.parentId
+      }),
+    onSuccess: () => {
+      // Invalidate conversations list to show new conversation
+      queryClient.invalidateQueries({ queryKey: ['/api/messaging/conversations'] });
+    }
+  });
 
   const create = async (advocateId: string, studentId: string, parentId: string): Promise<Conversation | null> => {
     try {
-      setCreating(true);
-      setError(null);
-      const conversation = await createConversation({
-        advocate_id: advocateId,
-        student_id: studentId,
-        parent_id: parentId
-      });
+      const conversation = await mutation.mutateAsync({ advocateId, studentId, parentId });
       return conversation;
     } catch (err) {
       console.error('Error creating conversation:', err);
-      setError(err instanceof Error ? err.message : 'Failed to create conversation');
       return null;
-    } finally {
-      setCreating(false);
     }
   };
 
   return {
     create,
-    creating,
-    error
+    creating: mutation.isPending,
+    error: mutation.error ? (mutation.error instanceof Error ? mutation.error.message : 'Failed to create conversation') : null
   };
 }
 
 export function useMarkAsRead() {
+  const queryClient = useQueryClient();
+  
+  const mutation = useMutation({
+    mutationFn: markAsRead,
+    onSuccess: (_, conversationId) => {
+      // Invalidate queries to update read status
+      queryClient.invalidateQueries({ queryKey: ['/api/messaging/conversations'] });
+      queryClient.invalidateQueries({ 
+        queryKey: ['/api/messaging/conversations', conversationId] 
+      });
+      queryClient.invalidateQueries({ queryKey: ['/api/messaging/unread-count'] });
+    }
+  });
+
   const markMessagesRead = async (conversationId: string) => {
     try {
-      await markAsRead(conversationId);
+      await mutation.mutateAsync(conversationId);
     } catch (err) {
       console.error('Error marking messages as read:', err);
     }
@@ -178,68 +184,54 @@ export function useMarkAsRead() {
 }
 
 export function useUnreadCount() {
-  const [count, setCount] = useState(0);
-  const [loading, setLoading] = useState(false);
-
-  const fetchUnreadCount = async () => {
-    try {
-      setLoading(true);
-      const data = await getUnreadCount();
-      setCount(data.count);
-    } catch (err) {
-      console.error('Error fetching unread count:', err);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    fetchUnreadCount();
-  }, []);
+  const {
+    data,
+    isLoading: loading,
+    refetch
+  } = useQuery({
+    queryKey: ['/api/messaging/unread-count'],
+    queryFn: getUnreadCount,
+    staleTime: 10000, // 10 seconds
+    refetchOnWindowFocus: false,
+    retry: 1
+  });
 
   return {
-    count,
+    count: data?.count || 0,
     loading,
-    refetch: fetchUnreadCount
+    refetch: () => refetch()
   };
 }
 
 // Hook for getting incoming proposals as potential messaging contacts  
 export function useProposalContacts() {
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-  const [contacts, setContacts] = useState<any[]>([]);
-
-  const fetchContacts = useCallback(async () => {
-    try {
-      setLoading(true);
-      setError(null);
-      
-      // FIXED: Use authenticated apiRequest instead of direct fetch
+  const {
+    data,
+    isLoading: loading,
+    error: queryError,
+    refetch
+  } = useQuery({
+    queryKey: ['/api/messaging/proposal-contacts'],
+    queryFn: async () => {
       const response = await apiRequest('GET', '/api/messaging/proposal-contacts');
-
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
-
       const data = await response.json();
-      setContacts(data.contacts || []);
-    } catch (err) {
-      console.error('Error fetching proposal contacts:', err);
-      setError(err instanceof Error ? err.message : 'Failed to fetch proposal contacts');
-      setContacts([]);
-    } finally {
-      setLoading(false);
-    }
-  }, []);
+      return data.contacts || [];
+    },
+    staleTime: 30000, // 30 seconds
+    refetchOnWindowFocus: false,
+    retry: 1
+  });
 
-  useEffect(() => {
-    fetchContacts();
-  }, [fetchContacts]);
+  // Transform error to match existing interface
+  const error = queryError ? (queryError instanceof Error ? queryError.message : 'Failed to fetch proposal contacts') : null;
 
-  const refetch = useCallback(() => {
-    fetchContacts();
-  }, [fetchContacts]);
-
-  return { contacts, loading, error, refetch };
+  return { 
+    contacts: data || [], 
+    loading, 
+    error, 
+    refetch: () => refetch() 
+  };
 }

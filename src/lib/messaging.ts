@@ -24,6 +24,13 @@ export interface Conversation {
     first_name: string;
     last_name: string;
   };
+  parent: {
+    id: string;
+    firstName: string;
+    lastName: string;
+    email: string;
+    name: string;
+  };
   lastMessage?: {
     content: string;
     created_at: string;

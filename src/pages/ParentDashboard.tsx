@@ -17,7 +17,7 @@ import { DashboardLayout } from "@/layouts/DashboardLayout";
 import { useAuth } from "@/hooks/useAuth";
 import { useNavigate } from "react-router-dom";
 import { SubscriptionPlan, hasFeatureAccess, getPlanFeatures, normalizeSubscriptionPlan, getPlanDisplayName } from "@/lib/planAccess";
-import { FeedbackChat } from "@/components/FeedbackChat";
+// import { FeedbackChat } from "@/components/FeedbackChat"; // TEMPORARILY REMOVED
 
 interface Goal {
   id: string;
@@ -1813,8 +1813,8 @@ export default function ParentDashboard({ plan }: ParentDashboardProps) {
         </div>
       </div>
       
-      {/* Feedback Chat Component */}
-      <FeedbackChat />
+      {/* Feedback Chat Component - TEMPORARILY REMOVED */}
+      {/* <FeedbackChat /> */}
     </DashboardLayout>
   );
 }

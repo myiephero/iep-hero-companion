@@ -1,9 +1,9 @@
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/AppSidebar";
 import { Button } from "@/components/ui/button";
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { Link, useNavigate } from "react-router-dom";
-import { Crown, User, LogOut, Settings } from "lucide-react";
+import { Crown, User, LogOut, Settings, CreditCard } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
 import { normalizeSubscriptionPlan } from "@/lib/planAccess";
@@ -106,7 +106,7 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
                       const currentPath = window.location.pathname;
                       const isAdvocateRoute = currentPath.startsWith('/advocate');
                       navigate(isAdvocateRoute ? '/advocate/profile' : '/parent/profile');
-                    }}>
+                    }} data-testid="dropdown-profile">
                       <User className="h-4 w-4 mr-2" />
                       Profile
                     </DropdownMenuItem>
@@ -114,11 +114,53 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
                       const currentPath = window.location.pathname;
                       const isAdvocateRoute = currentPath.startsWith('/advocate');
                       navigate(isAdvocateRoute ? '/advocate/settings' : '/parent/settings');
-                    }}>
+                    }} data-testid="dropdown-settings">
                       <Settings className="h-4 w-4 mr-2" />
                       Settings
                     </DropdownMenuItem>
-                    <DropdownMenuItem onClick={handleSignOut}>
+                    
+                    <DropdownMenuSeparator />
+                    
+                    {/* Plan Information */}
+                    <div className="px-2 py-1.5 text-xs text-muted-foreground border-b border-border">
+                      Current Plan: <span className="font-medium capitalize text-foreground">{userPlan}</span>
+                    </div>
+                    
+                    {/* Manage Plan - Always show for paid users */}
+                    {isPaidUser && (
+                      <DropdownMenuItem onClick={() => {
+                        const currentPath = window.location.pathname;
+                        const isAdvocateRoute = currentPath.startsWith('/advocate');
+                        // Route to pricing pages with manage parameter for now
+                        navigate(isAdvocateRoute ? '/advocate/pricing?manage=true' : '/parent/pricing?manage=true');
+                      }} data-testid="dropdown-manage-plan">
+                        <CreditCard className="h-4 w-4 mr-2" />
+                        Manage Plan
+                      </DropdownMenuItem>
+                    )}
+                    
+                    {/* Upgrade Plan - Same logic as header buttons */}
+                    {user?.role === 'parent' && userPlan !== 'hero' && (
+                      <DropdownMenuItem onClick={() => {
+                        navigate('/parent/pricing');
+                      }} data-testid="dropdown-upgrade-plan-parent">
+                        <Crown className="h-4 w-4 mr-2" />
+                        Upgrade Plan
+                      </DropdownMenuItem>
+                    )}
+                    
+                    {user?.role === 'advocate' && userPlan !== 'agency-plus' && (
+                      <DropdownMenuItem onClick={() => {
+                        navigate('/advocate/pricing');
+                      }} data-testid="dropdown-upgrade-plan-advocate">
+                        <Crown className="h-4 w-4 mr-2" />
+                        Upgrade Plan
+                      </DropdownMenuItem>
+                    )}
+                    
+                    <DropdownMenuSeparator />
+                    
+                    <DropdownMenuItem onClick={handleSignOut} data-testid="dropdown-sign-out">
                       <LogOut className="h-4 w-4 mr-2" />
                       Sign Out
                     </DropdownMenuItem>

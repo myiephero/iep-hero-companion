@@ -32,7 +32,11 @@ router.post('/conversations', async (req: Request, res: Response) => {
     // For advocates, we need to check if they own the advocate profile being used
     let authorizedAsAdvocate = false;
     if (data.advocate_id) {
-      const advocate = await db.select().from(advocates)
+      const advocate = await db.select({
+        id: advocates.id,
+        user_id: advocates.user_id,
+        full_name: advocates.full_name
+      }).from(advocates)
         .where(eq(advocates.id, data.advocate_id))
         .then(results => results[0]);
       
@@ -48,7 +52,17 @@ router.post('/conversations', async (req: Request, res: Response) => {
     }
 
     // Check if conversation already exists between these users
-    const existingConversation = await db.select().from(conversations)
+    const existingConversation = await db.select({
+      id: conversations.id,
+      advocate_id: conversations.advocate_id,
+      parent_id: conversations.parent_id,
+      student_id: conversations.student_id,
+      match_proposal_id: conversations.match_proposal_id,
+      title: conversations.title,
+      status: conversations.status,
+      last_message_at: conversations.last_message_at,
+      created_at: conversations.created_at
+    }).from(conversations)
       .where(and(
         eq(conversations.advocate_id, data.advocate_id),
         eq(conversations.parent_id, data.parent_id),
@@ -91,7 +105,11 @@ router.get('/conversations', async (req: Request, res: Response) => {
     // First, check if user is an advocate and get their advocate profile
     let advocateProfile;
     try {
-      const advocateResults = await db.select().from(advocates)
+      const advocateResults = await db.select({
+        id: advocates.id,
+        user_id: advocates.user_id,
+        full_name: advocates.full_name
+      }).from(advocates)
         .where(eq(advocates.user_id, userId));
       advocateProfile = advocateResults[0] || null;
       console.log('Found advocate profile:', advocateProfile?.id);
@@ -210,7 +228,14 @@ router.get('/conversations/:id', async (req: Request, res: Response) => {
     }
 
     // Get all messages for this conversation
-    const conversationMessages = await db.select()
+    const conversationMessages = await db.select({
+      id: messages.id,
+      conversation_id: messages.conversation_id,
+      sender_id: messages.sender_id,
+      content: messages.content,
+      created_at: messages.created_at,
+      read_at: messages.read_at
+    })
       .from(messages)
       .where(eq(messages.conversation_id, id))
       .orderBy(asc(messages.created_at));
@@ -358,7 +383,11 @@ router.get('/proposal-contacts', async (req: Request, res: Response) => {
     console.log('Fetching proposal contacts for user:', userId);
     
     // Get advocate record for current user
-    const advocate = await db.select().from(advocates)
+    const advocate = await db.select({
+      id: advocates.id,
+      user_id: advocates.user_id,
+      full_name: advocates.full_name
+    }).from(advocates)
       .where(eq(advocates.user_id, userId))
       .then(results => results[0]);
     
@@ -391,7 +420,13 @@ router.get('/proposal-contacts', async (req: Request, res: Response) => {
     // Check if conversations already exist for each proposal
     const contactsWithConversationStatus = await Promise.all(
       proposalContacts.map(async ({ proposal, student, parent }) => {
-        const existingConversation = await db.select()
+        const existingConversation = await db.select({
+          id: conversations.id,
+          advocate_id: conversations.advocate_id,
+          parent_id: conversations.parent_id,
+          student_id: conversations.student_id,
+          status: conversations.status
+        })
           .from(conversations)
           .where(and(
             eq(conversations.advocate_id, advocate.id),

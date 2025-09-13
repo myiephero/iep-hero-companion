@@ -163,7 +163,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
           // 🔒 CRITICAL SECURITY FIX: Validate token ownership before accepting user data
           if (token && userData.id) {
             const tokenUserId = token.split('-')[0];
-            const actualUserId = userData.id.substring(0, 8);
+            const actualUserId = userData.id; // 🔒 FIXED: Use full user ID, no truncation
             
             if (tokenUserId !== actualUserId) {
               console.error('🚨 SECURITY ALERT: Token user ID mismatch!');

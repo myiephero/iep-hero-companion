@@ -83,7 +83,8 @@ const AdvocateDashboard = ({ plan }: AdvocateDashboardProps) => {
           plan: subscriptionData.planId,
           role: subscriptionData.role,
           priceId: subscriptionData.priceId,
-          planName: subscriptionData.planName
+          planName: subscriptionData.planName,
+          amount: subscriptionData.amount || '0'
         });
         
         toast({

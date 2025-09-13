@@ -114,6 +114,7 @@ export default function SubscriptionSetup() {
       planId,
       role,
       priceId,
+      amount: searchParams.get('amount'),
       allParams: Object.fromEntries(searchParams.entries())
     });
     
@@ -245,6 +246,8 @@ export default function SubscriptionSetup() {
         ...(setupFee && { setupFee }),
         mode: priceId ? 'subscription' : 'payment'
       };
+
+      console.log('🔍 CHECKOUT REQUEST BODY:', requestBody);
 
       const response = await fetch(endpoint, {
         method: 'POST',

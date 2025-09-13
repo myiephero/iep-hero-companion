@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -28,14 +28,16 @@ export function ConversationLabelSelector({
   const { labels: currentLabels, loading: currentLabelsLoading, refetch: refetchCurrentLabels } = useConversationLabelsForConversation(conversationId);
   const { assign: assignLabels, assigning } = useAssignLabels();
 
-  // Update selected labels when current labels change
+  // Create stable label IDs array that only changes when actual content changes
+  const currentLabelIds = useMemo(() => {
+    return currentLabels ? currentLabels.map(label => label.id).sort() : [];
+  }, [JSON.stringify(currentLabels?.map(label => label.id).sort() || [])]);
+
+  // Update selected labels when current label IDs actually change
   useEffect(() => {
-    if (currentLabels) {
-      const labelIds = currentLabels.map(label => label.id);
-      setSelectedLabels(labelIds);
-      setInitialLabels(labelIds);
-    }
-  }, [currentLabels]);
+    setSelectedLabels(currentLabelIds);
+    setInitialLabels(currentLabelIds);
+  }, [currentLabelIds]);
 
   const handleLabelToggle = (labelId: string, checked: boolean) => {
     setSelectedLabels(prev => {

@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useMemo, useRef } from 'react';
 import {
   getConversations,
   getMessages,
@@ -19,13 +19,16 @@ export function useConversations(filters: ConversationFilters = {}) {
   const [pagination, setPagination] = useState<ConversationPagination | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  
+  // Use ref to track previous filters and prevent unnecessary re-fetches
+  const previousFiltersRef = useRef<string>('');
+  const hasInitiallyFetchedRef = useRef(false);
 
-  const fetchConversations = useCallback(async (newFilters?: ConversationFilters) => {
+  const fetchConversations = useCallback(async (filtersToUse?: ConversationFilters) => {
     try {
       setLoading(true);
       setError(null);
-      const filtersToUse = newFilters || filters;
-      const response = await getConversations(filtersToUse);
+      const response = await getConversations(filtersToUse || {});
       setConversations(response.conversations);
       setPagination(response.pagination);
     } catch (err) {
@@ -34,11 +37,19 @@ export function useConversations(filters: ConversationFilters = {}) {
     } finally {
       setLoading(false);
     }
-  }, [filters]);
+  }, []);
 
   useEffect(() => {
-    fetchConversations();
-  }, [fetchConversations]);
+    // Create a stable string representation of filters
+    const filtersString = JSON.stringify(filters);
+    
+    // Only fetch if filters have actually changed or this is the initial fetch
+    if (!hasInitiallyFetchedRef.current || previousFiltersRef.current !== filtersString) {
+      previousFiltersRef.current = filtersString;
+      hasInitiallyFetchedRef.current = true;
+      fetchConversations(filters);
+    }
+  }, [fetchConversations]); // Remove filters from dependency array to prevent infinite loop
 
   return {
     conversations,

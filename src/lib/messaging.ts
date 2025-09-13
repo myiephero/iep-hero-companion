@@ -1,27 +1,11 @@
-const API_BASE = '/api';
+import { apiRequest } from '@/lib/queryClient';
 
-// Simple API request function for messaging
-async function request(endpoint: string, options: RequestInit = {}): Promise<Response> {
-  try {
-    const token = localStorage.getItem('authToken');
-    const response = await fetch(`${API_BASE}${endpoint}`, {
-      headers: {
-        'Content-Type': 'application/json',
-        ...(token && { Authorization: `Bearer ${token}` }),
-        ...options.headers,
-      },
-      ...options,
-    });
-
-    if (!response.ok) {
-      throw new Error(`API request failed: ${response.statusText}`);
-    }
-
-    return response;
-  } catch (error) {
-    console.error('API request error:', error);
-    throw error;
+// Helper function to handle API responses consistently
+async function handleApiResponse<T>(response: Response): Promise<T> {
+  if (!response.ok) {
+    throw new Error(`API request failed: ${response.statusText}`);
   }
+  return response.json();
 }
 
 export interface Conversation {
@@ -73,8 +57,19 @@ export interface MessageHistory {
 
 // Get all conversations for the current user
 export async function getConversations(): Promise<Conversation[]> {
-  const response = await request('/messaging/conversations');
-  return response.json();
+  const response = await apiRequest('GET', '/api/messaging/conversations');
+  const data = await handleApiResponse<{ conversations: any[] }>(response);
+  
+  // Map server fields to client expected field names
+  return data.conversations.map(conversation => ({
+    ...conversation,
+    lastMessage: conversation.latest_message ? {
+      content: conversation.latest_message.content,
+      created_at: conversation.latest_message.created_at,
+      sender_id: conversation.latest_message.sender_id
+    } : undefined,
+    unreadCount: conversation.unread_count || 0
+  }));
 }
 
 // Create a new conversation
@@ -83,17 +78,15 @@ export async function createConversation(data: {
   student_id: string;
   parent_id: string;
 }): Promise<Conversation> {
-  const response = await request('/messaging/conversations', {
-    method: 'POST',
-    body: JSON.stringify(data),
-  });
-  return response.json();
+  const response = await apiRequest('POST', '/api/messaging/conversations', data);
+  const result = await handleApiResponse<{ conversation: Conversation }>(response);
+  return result.conversation;
 }
 
 // Get messages for a conversation
 export async function getMessages(conversationId: string): Promise<MessageHistory> {
-  const response = await request(`/messaging/conversations/${conversationId}/messages`);
-  return response.json();
+  const response = await apiRequest('GET', `/api/messaging/conversations/${conversationId}`);
+  return handleApiResponse<MessageHistory>(response);
 }
 
 // Send a message
@@ -101,22 +94,19 @@ export async function sendMessage(data: {
   conversation_id: string;
   content: string;
 }): Promise<Message> {
-  const response = await request('/messaging/messages', {
-    method: 'POST',
-    body: JSON.stringify(data),
-  });
-  return response.json();
+  const response = await apiRequest('POST', '/api/messaging/messages', data);
+  const result = await handleApiResponse<{ message: Message }>(response);
+  return result.message;
 }
 
 // Mark messages as read
 export async function markAsRead(conversationId: string): Promise<void> {
-  await request(`/messaging/conversations/${conversationId}/read`, {
-    method: 'PUT',
-  });
+  const response = await apiRequest('POST', `/api/messaging/conversations/${conversationId}/mark-read`);
+  await handleApiResponse<{ success: boolean }>(response);
 }
 
 // Get unread message count
 export async function getUnreadCount(): Promise<{ count: number }> {
-  const response = await request('/messaging/unread-count');
-  return response.json();
+  const response = await apiRequest('GET', '/api/messaging/unread-count');
+  return handleApiResponse<{ count: number }>(response);
 }

@@ -57,7 +57,8 @@ export function ProtectedRoute({ children, allowedRoles, redirectTo = "/auth", r
     // FAIL-SAFE: Redirect to correct plan-specific dashboard
     const userPlan = user.subscriptionPlan?.toLowerCase().replace(/\s+/g, '') || 'free';
     const planMapping = {
-      'starter': 'starter', 'pro': 'pro', 'agency': 'agency', 'agencyplus': 'agency-plus'
+      'starter': 'starter', 'pro': 'pro', 'agency': 'agency', 'agencyplus': 'agency-plus',
+      'agency-annual': 'agency', 'pro-annual': 'pro', 'starter-annual': 'starter'
     };
     const normalizedPlan = planMapping[userPlan] || userPlan;
     
@@ -71,7 +72,8 @@ export function ProtectedRoute({ children, allowedRoles, redirectTo = "/auth", r
   if (requiredPlan || allowedPlans) {
     const userPlan = user.subscriptionPlan?.toLowerCase().replace(/\s+/g, '') || 'free';
     const planMapping = {
-      'starter': 'starter', 'pro': 'pro', 'agency': 'agency', 'agencyplus': 'agency-plus'
+      'starter': 'starter', 'pro': 'pro', 'agency': 'agency', 'agencyplus': 'agency-plus',
+      'agency-annual': 'agency', 'pro-annual': 'pro', 'starter-annual': 'starter'
     };
     const normalizedUserPlan = planMapping[userPlan] || userPlan;
     

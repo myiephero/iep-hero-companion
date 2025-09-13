@@ -1214,7 +1214,10 @@ app.post('/api/custom-login', async (req: any, res) => {
               'pro': 'pro',
               'agency': 'agency', 
               'agency plus': 'agency-plus',
-              'agencyplus': 'agency-plus'
+              'agencyplus': 'agency-plus',
+              'agency-annual': 'agency',
+              'pro-annual': 'pro',
+              'starter-annual': 'starter'
             };
             const planSlug = advocatePlanMapping[user.subscriptionPlan?.toLowerCase() || ''] || 'starter';
             return `/advocate/dashboard-${planSlug}`;

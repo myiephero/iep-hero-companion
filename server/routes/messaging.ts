@@ -539,7 +539,8 @@ router.post('/upload/:uploadId', upload.array('files', MAX_FILES_PER_MESSAGE), a
         const uploadResult = await uploadFileToStorage(
           file.buffer,
           filePath,
-          file.mimetype
+          file.mimetype,
+          userId // Pass userId for ACL policy
         );
 
         // Create document record
@@ -692,11 +693,19 @@ router.post('/messages', async (req: Request, res: Response) => {
   }
 });
 
-// GET /api/messaging/download/:filePath - Download file from object storage
+// GET /api/messaging/download/:filePath - Download file from object storage (legacy)
 router.get('/download/:filePath', async (req: Request, res: Response) => {
   try {
     const userId = await getUserId(req);
     const filePath = decodeURIComponent(req.params.filePath);
+
+    // Check if this is a new object storage path
+    if (filePath.startsWith('/objects/')) {
+      return router.handle(Object.assign(req, { 
+        url: filePath,
+        params: { objectPath: filePath.slice(1) } // Remove leading slash
+      }), res, () => {});
+    }
 
     // Get document record to verify access
     const document = await db.select({
@@ -737,6 +746,59 @@ router.get('/download/:filePath', async (req: Request, res: Response) => {
     res.send(fileData.buffer);
   } catch (error) {
     console.error('Error downloading file:', error);
+    if (error instanceof Error && error.message.includes('Authentication required')) {
+      return res.status(401).json({ error: 'Authentication required' });
+    }
+    res.status(500).json({ error: 'Failed to download file' });
+  }
+});
+
+// Add route to serve /objects/ files - this handles the new object storage paths
+router.get('/objects/:objectId', async (req: Request, res: Response) => {
+  try {
+    const userId = await getUserId(req);
+    const objectId = req.params.objectId;
+    const objectPath = `/objects/${objectId}`;
+
+    // Get document record to verify access and get metadata
+    const document = await db.select({
+      id: documents.id,
+      user_id: documents.user_id,
+      file_name: documents.file_name,
+      file_type: documents.file_type,
+      file_path: documents.file_path
+    })
+      .from(documents)
+      .where(eq(documents.file_path, objectPath))
+      .then(results => results[0]);
+
+    if (!document) {
+      return res.status(404).json({ error: 'File not found' });
+    }
+
+    // Check if user has access (they uploaded it or are part of the conversation)
+    const hasAccess = document.user_id === userId || await checkMessageAccess(document.id, userId);
+    
+    if (!hasAccess) {
+      return res.status(403).json({ error: 'Access denied' });
+    }
+
+    // Use the new ObjectStorageService to get and serve the file
+    const { ObjectStorageService, ObjectNotFoundError } = await import('../objectStorage');
+    const objectStorageService = new ObjectStorageService();
+    
+    try {
+      const objectFile = await objectStorageService.getObjectEntityFile(objectPath);
+      await objectStorageService.downloadObject(objectFile, res);
+    } catch (error) {
+      console.error('Error accessing object storage file:', error);
+      if (error instanceof ObjectNotFoundError) {
+        return res.status(404).json({ error: 'File not found in storage' });
+      }
+      return res.status(500).json({ error: 'Failed to access file' });
+    }
+  } catch (error) {
+    console.error('Error downloading file from objects:', error);
     if (error instanceof Error && error.message.includes('Authentication required')) {
       return res.status(401).json({ error: 'Authentication required' });
     }

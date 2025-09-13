@@ -14,7 +14,7 @@ export async function getUserId(req: express.Request): Promise<string> {
       const tokenParts = token.split('-');
       if (tokenParts.length < 3 || tokenParts[0].length < 8) {
         console.warn('🚨 SECURITY: Invalid token format detected in getUserId - rejecting authentication');
-        return 'anonymous-user';
+        throw new Error('Authentication required');
       }
       
       const [tokenRecord] = await db.select()
@@ -34,13 +34,16 @@ export async function getUserId(req: express.Request): Promise<string> {
           console.error('🚨 SECURITY ALERT: Token ownership mismatch in getUserId!');
           console.error(`🚨 Token claims user: ${tokenUserId}, but DB shows: ${dbUserId}`);
           console.error('🚨 This indicates authentication bypass attempt - rejecting');
-          return 'anonymous-user';
+          throw new Error('Authentication required');
         }
         
         console.log(`✅ Server-side token ownership validated: ${tokenUserId} matches ${dbUserId}`);
         return tokenRecord.user_id;
       }
     } catch (error) {
+      if (error instanceof Error && error.message === 'Authentication required') {
+        throw error; // Re-throw authentication errors
+      }
       console.warn('Error checking auth token in database:', error);
     }
   }
@@ -60,9 +63,9 @@ export async function getUserId(req: express.Request): Promise<string> {
     return session.passport.user.claims?.sub;
   }
   
-  // No authenticated user found
+  // No authenticated user found - SECURITY FIX: Throw error instead of returning anonymous
   console.log('❌ No authenticated user found');
-  return 'anonymous-user';
+  throw new Error('Authentication required');
 }
 
 // Synchronous version for backward compatibility (tries token check without database)
@@ -73,6 +76,6 @@ export function getUserIdSync(req: express.Request): string {
     return user.claims.sub;
   }
   
-  // Return anonymous for token-based auth since we can't do async DB check
-  return 'anonymous-user';
+  // SECURITY FIX: Throw error for token-based auth since we can't do async DB check
+  throw new Error('Authentication required');
 }

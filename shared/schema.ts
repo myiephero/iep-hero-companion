@@ -261,9 +261,32 @@ export const conversations = pgTable("conversations", {
   match_proposal_id: varchar("match_proposal_id").references(() => match_proposals.id, { onDelete: "set null" }), // Link to the match proposal that created this
   title: varchar("title"), // Optional conversation title
   status: varchar("status").default('active'), // active, archived, closed
+  priority: varchar("priority").default('normal'), // low, normal, high, urgent
+  archived: boolean("archived").default(false), // Explicit archive flag for easier filtering
   last_message_at: timestamp("last_message_at"),
   created_at: timestamp("created_at").defaultNow(),
   updated_at: timestamp("updated_at").defaultNow(),
+});
+
+// Conversation labels table - predefined labels for organizing conversations
+export const conversation_labels = pgTable("conversation_labels", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  user_id: varchar("user_id").notNull().references(() => users.id, { onDelete: "cascade" }), // Labels are user-specific
+  name: varchar("name").notNull(), // Label name like "Urgent", "Follow-up", "IEP Meeting"
+  color: varchar("color").notNull(), // Hex color code for visual distinction
+  description: text("description"), // Optional description of when to use this label
+  is_default: boolean("is_default").default(false), // System-provided default labels
+  created_at: timestamp("created_at").defaultNow(),
+  updated_at: timestamp("updated_at").defaultNow(),
+});
+
+// Conversation label assignments table - many-to-many relationship
+export const conversation_label_assignments = pgTable("conversation_label_assignments", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  conversation_id: varchar("conversation_id").notNull().references(() => conversations.id, { onDelete: "cascade" }),
+  label_id: varchar("label_id").notNull().references(() => conversation_labels.id, { onDelete: "cascade" }),
+  assigned_by: varchar("assigned_by").notNull().references(() => users.id, { onDelete: "cascade" }), // Who assigned this label
+  created_at: timestamp("created_at").defaultNow(),
 });
 
 // Messages table - individual messages within conversations

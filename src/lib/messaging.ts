@@ -13,30 +13,63 @@ export interface Conversation {
   advocate_id: string;
   parent_id: string;
   student_id: string;
+  status: string;
+  priority: string;
+  archived: boolean;
+  title?: string;
+  match_proposal_id?: string;
+  last_message_at: string;
   created_at: string;
   updated_at: string;
   advocate: {
     id: string;
     name: string;
     specialty: string;
-  };
+  } | null;
   student: {
-    first_name: string;
-    last_name: string;
-  };
+    id: string;
+    name: string;
+    full_name: string;
+  } | null;
   parent: {
     id: string;
     firstName: string;
     lastName: string;
     email: string;
     name: string;
-  };
-  lastMessage?: {
+  } | null;
+  latest_message?: {
+    id: string;
     content: string;
     created_at: string;
     sender_id: string;
+    read_at: string | null;
   };
-  unreadCount: number;
+  unread_count: number;
+}
+
+export interface ConversationFilters {
+  archived?: boolean;
+  priority?: 'low' | 'normal' | 'high' | 'urgent';
+  status?: 'active' | 'closed';
+  label_ids?: string[];
+  search?: string;
+  page?: number;
+  limit?: number;
+}
+
+export interface ConversationPagination {
+  page: number;
+  limit: number;
+  total: number;
+  totalPages: number;
+  hasNext: boolean;
+  hasPrev: boolean;
+}
+
+export interface ConversationsResponse {
+  conversations: Conversation[];
+  pagination: ConversationPagination;
 }
 
 export interface Message {
@@ -62,21 +95,41 @@ export interface MessageHistory {
   messages: Message[];
 }
 
-// Get all conversations for the current user
-export async function getConversations(): Promise<Conversation[]> {
-  const response = await apiRequest('GET', '/api/messaging/conversations');
-  const data = await handleApiResponse<{ conversations: any[] }>(response);
+// Get conversations with optional filtering and pagination
+export async function getConversations(filters: ConversationFilters = {}): Promise<ConversationsResponse> {
+  // Build query parameters
+  const params = new URLSearchParams();
   
-  // Map server fields to client expected field names
-  return data.conversations.map(conversation => ({
-    ...conversation,
-    lastMessage: conversation.latest_message ? {
-      content: conversation.latest_message.content,
-      created_at: conversation.latest_message.created_at,
-      sender_id: conversation.latest_message.sender_id
-    } : undefined,
-    unreadCount: conversation.unread_count || 0
-  }));
+  if (filters.archived !== undefined) {
+    params.append('archived', String(filters.archived));
+  }
+  if (filters.priority) {
+    params.append('priority', filters.priority);
+  }
+  if (filters.status) {
+    params.append('status', filters.status);
+  }
+  if (filters.label_ids && filters.label_ids.length > 0) {
+    params.append('label_ids', filters.label_ids.join(','));
+  }
+  if (filters.search) {
+    params.append('search', filters.search);
+  }
+  if (filters.page) {
+    params.append('page', String(filters.page));
+  }
+  if (filters.limit) {
+    params.append('limit', String(filters.limit));
+  }
+  
+  const url = `/api/messaging/conversations${params.toString() ? `?${params.toString()}` : ''}`;
+  const response = await apiRequest('GET', url);
+  const data = await handleApiResponse<ConversationsResponse>(response);
+  
+  return {
+    conversations: data.conversations,
+    pagination: data.pagination
+  };
 }
 
 // Create a new conversation

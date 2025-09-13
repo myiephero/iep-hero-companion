@@ -51,19 +51,38 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
                 <div className="font-semibold text-base md:text-lg">My IEP Hero</div>
               </div>
               <div className="flex items-center gap-1 md:gap-3">
-                {/* Only show HERO Plan buttons for parent users who don't have paid plan */}
-                {!isPaidUser && user?.role === 'parent' && (
+                {/* Role-aware upgrade buttons */}
+                {user?.role === 'parent' && userPlan !== 'hero' && (
                   <>
-                    <Button asChild variant="hero" size="sm" className="hidden sm:flex">
-                      <Link to="/upsell/hero-plan">
+                    <Button asChild variant="hero" size="sm" className="hidden sm:flex" data-testid="button-parent-upgrade-header">
+                      <Link to="/parent/pricing">
                         <Crown className="h-4 w-4 mr-1" />
-                        HERO Plan
+                        {userPlan === 'free' ? 'HERO Plan' : 'Upgrade'}
                       </Link>
                     </Button>
                     
-                    {/* Mobile Hero Plan Button */}
-                    <Button asChild variant="hero" size="sm" className="sm:hidden">
-                      <Link to="/upsell/hero-plan">
+                    {/* Mobile Parent Upgrade Button */}
+                    <Button asChild variant="hero" size="sm" className="sm:hidden" data-testid="button-parent-upgrade-header-mobile">
+                      <Link to="/parent/pricing">
+                        <Crown className="h-4 w-4" />
+                      </Link>
+                    </Button>
+                  </>
+                )}
+                
+                {/* Advocate upgrade buttons */}
+                {user?.role === 'advocate' && userPlan !== 'agency-plus' && (
+                  <>
+                    <Button asChild variant="outline" size="sm" className="hidden sm:flex border-blue-200 text-blue-700 hover:bg-blue-50" data-testid="button-advocate-upgrade-header">
+                      <Link to="/advocate/pricing">
+                        <Crown className="h-4 w-4 mr-1" />
+                        Upgrade Plan
+                      </Link>
+                    </Button>
+                    
+                    {/* Mobile Advocate Upgrade Button */}
+                    <Button asChild variant="outline" size="sm" className="sm:hidden border-blue-200 text-blue-700 hover:bg-blue-50" data-testid="button-advocate-upgrade-header-mobile">
+                      <Link to="/advocate/pricing">
                         <Crown className="h-4 w-4" />
                       </Link>
                     </Button>

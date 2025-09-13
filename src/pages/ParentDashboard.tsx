@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Calendar, Target, TrendingUp, Clock, Plus, BookOpen, AlertCircle, AlertTriangle, Star, Trophy, Sparkles, ChevronRight, Users, CheckCircle2, ArrowUpRight, Rocket, FileText, GraduationCap, Smile, Brain, Save, Loader2 } from "lucide-react";
+import { Calendar, Target, TrendingUp, Clock, Plus, BookOpen, AlertCircle, AlertTriangle, Star, Trophy, Sparkles, ChevronRight, Users, CheckCircle2, ArrowUpRight, Rocket, FileText, GraduationCap, Smile, Brain, Save, Loader2, Crown } from "lucide-react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -574,18 +574,18 @@ export default function ParentDashboard({ plan }: ParentDashboardProps) {
                           e.preventDefault();
                           e.stopPropagation();
                           try {
-                            navigate('/parent/subscribe');
+                            navigate('/parent/pricing');
                           } catch (error) {
                             console.error('Navigation error:', error);
-                            window.location.href = '/parent/subscribe';
+                            window.location.href = '/parent/pricing';
                           }
                         }}
                         size="lg"
                         className="bg-white text-purple-600 hover:bg-white/90 font-bold text-lg py-4 px-8 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300"
-                        data-testid="button-view-all-plans"
+                        data-testid="button-parent-upgrade"
                       >
-                        <Star className="h-5 w-5 mr-2" />
-                        View All Plans
+                        <Crown className="h-5 w-5 mr-2" />
+                        Upgrade Now
                       </Button>
                     </div>
                   </div>

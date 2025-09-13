@@ -203,7 +203,7 @@ export default function AdvocateMessages() {
                                   <p className="font-medium truncate">{studentName}'s Family</p>
                                   <span className="text-xs text-muted-foreground">{lastMessageTime}</span>
                                 </div>
-                                <p className="text-sm text-muted-foreground mb-1">{conversation.advocate.name}</p>
+                                <p className="text-sm text-muted-foreground mb-1">{conversation.parent?.name || 'Parent'}</p>
                                 <p className="text-sm truncate">
                                   {conversation.lastMessage?.content || 'No messages yet'}
                                 </p>

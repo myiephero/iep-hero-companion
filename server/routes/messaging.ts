@@ -135,10 +135,12 @@ router.get('/conversations', async (req: Request, res: Response) => {
       conversation: conversations,
       advocate: advocates,
       student: students,
+      parent: users,
     })
     .from(conversations)
     .leftJoin(advocates, eq(conversations.advocate_id, advocates.id))
     .leftJoin(students, eq(conversations.student_id, students.id))
+    .leftJoin(users, eq(conversations.parent_id, users.id))
     .where(whereClause)
     .orderBy(desc(conversations.last_message_at));
     
@@ -146,7 +148,7 @@ router.get('/conversations', async (req: Request, res: Response) => {
 
     // Get the latest message for each conversation
     const conversationsWithMessages = await Promise.all(
-      userConversations.map(async ({ conversation, advocate, student }) => {
+      userConversations.map(async ({ conversation, advocate, student, parent }) => {
         const latestMessage = await db.select({
             id: messages.id,
             conversation_id: messages.conversation_id,
@@ -180,6 +182,13 @@ router.get('/conversations', async (req: Request, res: Response) => {
           student: student ? {
             ...student,
             name: student.full_name // Map full_name to name for client compatibility
+          } : null,
+          parent: parent ? {
+            id: parent.id,
+            firstName: parent.firstName,
+            lastName: parent.lastName,
+            email: parent.email,
+            name: `${parent.firstName || ''} ${parent.lastName || ''}`.trim() || parent.email
           } : null,
           latest_message: latestMessage,
           unread_count: unreadCount,

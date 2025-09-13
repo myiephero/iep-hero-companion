@@ -16,7 +16,7 @@ import { useToast } from "@/hooks/use-toast";
 import { FileText, Target, CheckCircle, Brain, Upload, Lightbulb, BarChart3, X, BookOpen, Users, Star, Gavel, Clock, Shield, Award, DollarSign, Calendar } from "lucide-react";
 import { SimpleFileUpload } from "@/components/SimpleFileUpload";
 import { StudentSelector } from "@/components/StudentSelector";
-import { FloatingAIAssistant } from "@/components/FloatingAIAssistant";
+// import { FloatingAIAssistant } from "@/components/FloatingAIAssistant"; // TEMPORARILY REMOVED
 import { EXPERT_REVIEW_PRODUCTS, getExpertReviewCheckoutUrl } from "@/lib/expertReviewPricing";
 
 // Parent-friendly sample IEP goals for understanding
@@ -1253,11 +1253,7 @@ export default function ParentIEPMasterSuite() {
       </div>
       
       {/* Floating AI Assistant */}
-      <FloatingAIAssistant
-        uploadedDocument={uploadedDocument}
-        analysisResult={analysisResult}
-        selectedStudent={selectedStudent}
-      />
+{/* TEMPORARILY REMOVED FOR TESTING - FloatingAIAssistant component */}
     </DashboardLayout>
   );
 }

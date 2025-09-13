@@ -90,12 +90,15 @@ export default function AdvocateMessages() {
       setSelectedTemplate('introduction');
       
       // Create a new conversation
-      createConversation(advocateId, studentId, location.state.newMessage.parentId).then((conversation) => {
+      const parentId = location.state.newMessage.parentId;
+      if (parentId) {
+        createConversation(advocateId, studentId, parentId).then((conversation) => {
         if (conversation) {
           setSelectedConversation(conversation);
           refetchConversations(); // Refresh the conversations list
         }
-      });
+        });
+      }
     }
   }, [location.state, createConversation, creating, refetchConversations]);
   
@@ -284,15 +287,19 @@ export default function AdvocateMessages() {
                   <Avatar className="h-10 w-10">
                     <AvatarImage src="/placeholder-1.jpg" />
                     <AvatarFallback>
-                      {selectedConversation?.avatar}
+                      {selectedConversation?.student?.first_name 
+                        ? `${selectedConversation.student.first_name[0]}${selectedConversation.student.last_name?.[0] || ''}` 
+                        : 'S'}
                     </AvatarFallback>
                   </Avatar>
                   <div>
                     <p className="font-medium">
-                      {selectedConversation?.name}
+                      {selectedConversation?.student?.first_name 
+                        ? `${selectedConversation.student.first_name} ${selectedConversation.student.last_name}'s Family` 
+                        : "Student's Family"}
                     </p>
                     <p className="text-sm text-muted-foreground">
-                      {selectedConversation?.student}
+                      Advocate: {selectedConversation?.advocate?.name || 'Unknown Advocate'}
                     </p>
                   </div>
                 </div>

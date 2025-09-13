@@ -156,8 +156,15 @@ router.get('/conversations', async (req: Request, res: Response) => {
 
         return {
           ...conversation,
-          advocate,
-          student,
+          advocate: advocate ? {
+            ...advocate,
+            name: advocate.full_name, // Map full_name to name for client compatibility
+            specialty: advocate.specializations?.[0] || 'General Advocacy' // Map first specialization as specialty
+          } : null,
+          student: student ? {
+            ...student,
+            name: student.full_name // Map full_name to name for client compatibility
+          } : null,
           latest_message: latestMessage,
           unread_count: unreadCount,
         };
@@ -221,8 +228,15 @@ router.get('/conversations/:id', async (req: Request, res: Response) => {
 
     res.json({
       conversation: conversation.conversation,
-      advocate: conversation.advocate,
-      student: conversation.student,
+      advocate: conversation.advocate ? {
+        ...conversation.advocate,
+        name: conversation.advocate.full_name, // Map full_name to name for client compatibility
+        specialty: conversation.advocate.specializations?.[0] || 'General Advocacy' // Map first specialization as specialty
+      } : null,
+      student: conversation.student ? {
+        ...conversation.student,
+        name: conversation.student.full_name // Map full_name to name for client compatibility
+      } : null,
       messages: conversationMessages,
     });
   } catch (error) {

@@ -271,13 +271,9 @@ export const messages = pgTable("messages", {
   id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
   conversation_id: varchar("conversation_id").notNull(),
   sender_id: varchar("sender_id").notNull(), // User ID of the sender
-  sender_type: varchar("sender_type").notNull(), // 'parent' or 'advocate'
   content: text("content").notNull(),
-  message_type: varchar("message_type").default('text'), // text, file, system
-  file_url: varchar("file_url"), // For file attachments
   read_at: timestamp("read_at"), // When the message was read by recipient
   created_at: timestamp("created_at").defaultNow(),
-  updated_at: timestamp("updated_at").defaultNow(),
 });
 
 // Documents table

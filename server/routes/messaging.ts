@@ -19,8 +19,6 @@ const createConversationSchema = z.object({
 const sendMessageSchema = z.object({
   conversation_id: z.string(),
   content: z.string().min(1),
-  message_type: z.enum(['text', 'file', 'system']).default('text'),
-  file_url: z.string().optional(),
 });
 
 // POST /api/messaging/conversations - Create a new conversation
@@ -276,18 +274,12 @@ router.post('/messages', async (req: Request, res: Response) => {
       return res.status(404).json({ error: 'Conversation not found' });
     }
 
-    // Determine sender type
-    const senderType = userId === conversation.conversation.parent_id ? 'parent' : 'advocate';
-
     // Create the message
     const [message] = await db.insert(messages)
       .values({
         conversation_id: data.conversation_id,
         sender_id: userId,
-        sender_type: senderType,
         content: data.content,
-        message_type: data.message_type,
-        file_url: data.file_url,
       })
       .returning();
 

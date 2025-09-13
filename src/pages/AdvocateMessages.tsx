@@ -6,10 +6,13 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Search, Send, Paperclip, MessageSquare, Loader2, FileText, Clock, Users, X } from "lucide-react";
 import { useLocation } from "react-router-dom";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useConversations, useMessages, useSendMessage, useCreateConversation, useProposalContacts } from "@/hooks/useMessaging";
 import { MessageFileUpload, type MessageFile } from "@/components/MessageFileUpload";
 import { MessageAttachmentDisplay, type MessageAttachment } from "@/components/MessageAttachmentDisplay";
+import { MessageSearch } from "@/components/MessageSearch";
+import { MessageHighlight } from "@/components/MessageHighlight";
+import { useMessageSearch } from "@/hooks/useMessageSearch";
 import type { Conversation } from "@/lib/messaging";
 
 // Professional message templates for different scenarios
@@ -75,6 +78,24 @@ export default function AdvocateMessages() {
   const { send: sendMessage, sending } = useSendMessage();
   const { create: createConversation, creating } = useCreateConversation();
   
+  // Message search functionality
+  const {
+    searchTerm,
+    setSearchTerm,
+    currentResultIndex,
+    totalResults,
+    goToNext,
+    goToPrevious,
+    clearSearch,
+    isCurrentResult,
+    hasActiveSearch,
+    hasResults,
+    currentSearchResult
+  } = useMessageSearch(messageHistory?.messages || []);
+  
+  // Ref for auto-scroll to current search result
+  const messagesContainerRef = useRef<HTMLDivElement>(null);
+  
   // Handle creating a new conversation from match proposal
   useEffect(() => {
     if (location.state?.newMessage && !creating) {
@@ -105,6 +126,22 @@ export default function AdvocateMessages() {
       }
     }
   }, [location.state, createConversation, creating, refetchConversations]);
+  
+  // Auto-scroll to current search result
+  useEffect(() => {
+    if (currentSearchResult && messagesContainerRef.current) {
+      const messageElement = messagesContainerRef.current.querySelector(
+        `[data-message-id="${currentSearchResult.message.id}"]`
+      );
+      if (messageElement) {
+        messageElement.scrollIntoView({
+          behavior: 'smooth',
+          block: 'center',
+          inline: 'nearest'
+        });
+      }
+    }
+  }, [currentSearchResult]);
   
   // Function to apply a template
   const applyTemplate = (templateKey: string) => {
@@ -356,7 +393,21 @@ export default function AdvocateMessages() {
               </div>
             )}
             
-            <div className="flex-1 p-4 overflow-y-auto space-y-4">
+            {/* Message Search */}
+            {selectedConversation && messageHistory?.messages && messageHistory.messages.length > 0 && (
+              <MessageSearch
+                searchTerm={searchTerm}
+                onSearchChange={setSearchTerm}
+                currentResult={currentResultIndex}
+                totalResults={totalResults}
+                onNext={goToNext}
+                onPrevious={goToPrevious}
+                onClear={clearSearch}
+                placeholder="Search conversation messages..."
+              />
+            )}
+            
+            <div className="flex-1 p-4 overflow-y-auto space-y-4" ref={messagesContainerRef}>
               {selectedConversation ? (
                 messagesLoading ? (
                   <div className="flex items-center justify-center h-full">
@@ -368,13 +419,23 @@ export default function AdvocateMessages() {
                       key={message.id}
                       className={`flex ${message.sender_id === selectedConversation.advocate_id ? 'justify-end' : 'justify-start'}`}
                       data-testid={`message-${message.id}`}
+                      data-message-id={message.id}
                     >
                       <div className={`max-w-lg p-3 rounded-lg ${
                         message.sender_id === selectedConversation.advocate_id 
                           ? 'bg-primary text-primary-foreground ml-12' 
                           : 'bg-muted mr-12'
                       }`}>
-                        {message.content && <p className="text-sm">{message.content}</p>}
+                        {message.content && (
+                          <p className="text-sm">
+                            <MessageHighlight
+                              text={message.content}
+                              searchTerm={searchTerm}
+                              isCurrentResult={isCurrentResult(message.id)}
+                              className="break-words"
+                            />
+                          </p>
+                        )}
                         {message.attachments && message.attachments.length > 0 && (
                           <MessageAttachmentDisplay 
                             attachments={message.attachments as MessageAttachment[]} 

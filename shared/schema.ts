@@ -255,10 +255,10 @@ export const match_proposals = pgTable("match_proposals", {
 // Conversations table - for messaging between advocates and parents
 export const conversations = pgTable("conversations", {
   id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
-  advocate_id: varchar("advocate_id").notNull(),
-  parent_id: varchar("parent_id").notNull(),
-  student_id: varchar("student_id"), // Which student this conversation is about
-  match_proposal_id: varchar("match_proposal_id"), // Link to the match proposal that created this
+  advocate_id: varchar("advocate_id").notNull().references(() => advocates.id, { onDelete: "cascade" }),
+  parent_id: varchar("parent_id").notNull().references(() => users.id, { onDelete: "cascade" }),
+  student_id: varchar("student_id").references(() => students.id, { onDelete: "set null" }), // Which student this conversation is about
+  match_proposal_id: varchar("match_proposal_id").references(() => match_proposals.id, { onDelete: "set null" }), // Link to the match proposal that created this
   title: varchar("title"), // Optional conversation title
   status: varchar("status").default('active'), // active, archived, closed
   last_message_at: timestamp("last_message_at"),
@@ -269,18 +269,27 @@ export const conversations = pgTable("conversations", {
 // Messages table - individual messages within conversations
 export const messages = pgTable("messages", {
   id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
-  conversation_id: varchar("conversation_id").notNull(),
-  sender_id: varchar("sender_id").notNull(), // User ID of the sender
-  content: text("content").notNull(),
+  conversation_id: varchar("conversation_id").notNull().references(() => conversations.id, { onDelete: "cascade" }),
+  sender_id: varchar("sender_id").notNull().references(() => users.id, { onDelete: "cascade" }),
+  content: text("content"), // Made optional to allow messages with only attachments
+  attachment_count: integer("attachment_count").default(0), // Number of attachments
   read_at: timestamp("read_at"), // When the message was read by recipient
+  created_at: timestamp("created_at").defaultNow(),
+});
+
+// Message attachments table - links messages to documents
+export const message_attachments = pgTable("message_attachments", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  message_id: varchar("message_id").notNull().references(() => messages.id, { onDelete: "cascade" }),
+  document_id: varchar("document_id").notNull().references(() => documents.id, { onDelete: "cascade" }),
   created_at: timestamp("created_at").defaultNow(),
 });
 
 // Documents table
 export const documents = pgTable("documents", {
   id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
-  user_id: varchar("user_id").notNull(),
-  student_id: varchar("student_id"),
+  user_id: varchar("user_id").notNull().references(() => users.id, { onDelete: "cascade" }),
+  student_id: varchar("student_id").references(() => students.id, { onDelete: "set null" }),
   title: varchar("title").notNull(),
   description: text("description"),
   file_name: varchar("file_name").notNull(),
@@ -291,7 +300,7 @@ export const documents = pgTable("documents", {
   tags: json("tags"),
   content: text("content"), // Add content field for AI analysis results
   confidential: boolean("confidential"),
-  uploaded_by: varchar("uploaded_by"),
+  uploaded_by: varchar("uploaded_by").references(() => users.id, { onDelete: "set null" }),
   created_at: timestamp("created_at").defaultNow(),
   updated_at: timestamp("updated_at").defaultNow(),
 });
@@ -474,6 +483,9 @@ export type InsertConversation = typeof conversations.$inferInsert;
 
 export type Message = typeof messages.$inferSelect;
 export type InsertMessage = typeof messages.$inferInsert;
+
+export type MessageAttachment = typeof message_attachments.$inferSelect;
+export type InsertMessageAttachment = typeof message_attachments.$inferInsert;
 
 export type Student = typeof students.$inferSelect;
 export type InsertStudent = typeof students.$inferInsert;

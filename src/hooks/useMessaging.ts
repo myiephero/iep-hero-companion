@@ -82,11 +82,25 @@ export function useSendMessage() {
   const [sending, setSending] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const send = async (conversationId: string, content: string): Promise<Message | null> => {
+  const send = async (
+    conversationId: string, 
+    content?: string, 
+    documentIds?: string[]
+  ): Promise<Message | null> => {
     try {
       setSending(true);
       setError(null);
-      const message = await sendMessage({ conversation_id: conversationId, content });
+      const messageData: any = { conversation_id: conversationId };
+      
+      if (content) {
+        messageData.content = content;
+      }
+      
+      if (documentIds && documentIds.length > 0) {
+        messageData.documentIds = documentIds;
+      }
+      
+      const message = await sendMessage(messageData);
       return message;
     } catch (err) {
       console.error('Error sending message:', err);

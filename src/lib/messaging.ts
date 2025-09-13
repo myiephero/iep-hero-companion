@@ -99,7 +99,13 @@ export async function getMessages(conversationId: string): Promise<MessageHistor
 // Send a message
 export async function sendMessage(data: {
   conversation_id: string;
-  content: string;
+  content?: string;
+  attachments?: Array<{
+    file_name: string;
+    file_type: string;
+    file_size: number;
+    file_content: string;
+  }>;
 }): Promise<Message> {
   const response = await apiRequest('POST', '/api/messaging/messages', data);
   const result = await handleApiResponse<{ message: Message }>(response);

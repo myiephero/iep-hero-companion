@@ -4,14 +4,18 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
-import { Search, Send, Paperclip, MessageSquare, Loader2 } from "lucide-react";
+import { Search, Send, Paperclip, MessageSquare, Loader2, X } from "lucide-react";
 import { useState } from "react";
 import { useConversations, useMessages, useSendMessage, useMarkAsRead } from "@/hooks/useMessaging";
+import { MessageFileUpload, type MessageFile } from "@/components/MessageFileUpload";
+import { MessageAttachmentDisplay, type MessageAttachment } from "@/components/MessageAttachmentDisplay";
 import type { Conversation } from "@/lib/messaging";
 
 export default function ParentMessages() {
   const [selectedConversation, setSelectedConversation] = useState<Conversation | null>(null);
   const [newMessageText, setNewMessageText] = useState('');
+  const [attachmentFiles, setAttachmentFiles] = useState<MessageFile[]>([]);
+  const [showFileUpload, setShowFileUpload] = useState(false);
   
   // API hooks
   const { conversations, loading: conversationsLoading, error: conversationsError, refetch: refetchConversations } = useConversations();
@@ -23,6 +27,59 @@ export default function ParentMessages() {
   if (conversations.length > 0 && !selectedConversation) {
     setSelectedConversation(conversations[0]);
   }
+
+  // Handle sending message with optional attachments
+  const handleSendMessage = async () => {
+    if (!selectedConversation || sending) return;
+    
+    const hasContent = newMessageText.trim();
+    const hasAttachments = attachmentFiles.some(f => f.status === 'completed');
+    
+    if (!hasContent && !hasAttachments) return;
+
+    // Prepare attachments data
+    const attachments = attachmentFiles
+      .filter(f => f.status === 'completed')
+      .map(async (fileData) => {
+        // Read file as base64 for sending
+        const reader = new FileReader();
+        const base64Content = await new Promise<string>((resolve) => {
+          reader.onload = () => resolve(reader.result as string);
+          reader.readAsDataURL(fileData.file);
+        });
+
+        return {
+          file_name: fileData.file.name,
+          file_type: fileData.file.type,
+          file_size: fileData.file.size,
+          file_content: base64Content
+        };
+      });
+
+    try {
+      const attachmentData = await Promise.all(attachments);
+      
+      const message = await sendMessage(
+        selectedConversation.id, 
+        newMessageText.trim() || undefined,
+        attachmentData.length > 0 ? attachmentData : undefined
+      );
+      
+      if (message) {
+        // Clear form
+        setNewMessageText('');
+        setAttachmentFiles([]);
+        setShowFileUpload(false);
+        
+        // Refresh data
+        refetchMessages();
+        refetchConversations();
+      }
+    } catch (error) {
+      console.error('Error sending message:', error);
+      // Error handling could be improved with toast notifications
+    }
+  };
 
   return (
     <DashboardLayout>
@@ -147,7 +204,13 @@ export default function ParentMessages() {
                           ? 'bg-primary text-primary-foreground ml-12' 
                           : 'bg-muted mr-12'
                       }`}>
-                        <p className="text-sm">{message.content}</p>
+                        {message.content && <p className="text-sm">{message.content}</p>}
+                        {message.attachments && message.attachments.length > 0 && (
+                          <MessageAttachmentDisplay 
+                            attachments={message.attachments as MessageAttachment[]} 
+                            compact={true}
+                          />
+                        )}
                         <span className="text-xs opacity-75 block mt-1">
                           {new Date(message.created_at).toLocaleTimeString([], { 
                             hour: '2-digit', 
@@ -178,35 +241,75 @@ export default function ParentMessages() {
             </div>
             
             {selectedConversation && (
-              <div className="p-4 border-t">
-                <div className="flex items-center gap-2">
-                  <Button variant="ghost" size="icon">
-                    <Paperclip className="h-4 w-4" />
-                  </Button>
-                  <Input 
-                    placeholder="Type your reply..." 
-                    className="flex-1" 
-                    value={newMessageText}
-                    onChange={(e) => setNewMessageText(e.target.value)}
-                    data-testid="input-message"
-                  />
-                  <Button 
-                    size="icon" 
-                    disabled={sending || !newMessageText.trim()}
-                    onClick={async () => {
-                      if (newMessageText.trim() && selectedConversation) {
-                        const message = await sendMessage(selectedConversation.id, newMessageText);
-                        if (message) {
-                          setNewMessageText('');
-                          refetchMessages(); // Refresh messages
-                          refetchConversations(); // Refresh conversation list to update last message
-                        }
-                      }
-                    }}
-                    data-testid="button-send-message"
-                  >
-                    <Send className="h-4 w-4" />
-                  </Button>
+              <div className="border-t">
+                {/* File Upload Section */}
+                {showFileUpload && (
+                  <div className="p-4 bg-muted/20 border-b">
+                    <div className="flex items-center justify-between mb-3">
+                      <h3 className="text-sm font-medium">Attach Files</h3>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => {
+                          setShowFileUpload(false);
+                          setAttachmentFiles([]);
+                        }}
+                        className="h-6 w-6 p-0"
+                      >
+                        <X className="h-4 w-4" />
+                      </Button>
+                    </div>
+                    <MessageFileUpload
+                      files={attachmentFiles}
+                      onFilesChange={setAttachmentFiles}
+                      maxFiles={5}
+                      disabled={sending}
+                    />
+                  </div>
+                )}
+                
+                {/* Message Input */}
+                <div className="p-4">
+                  <div className="flex items-end gap-2">
+                    <Button 
+                      variant="ghost" 
+                      size="icon"
+                      onClick={() => setShowFileUpload(!showFileUpload)}
+                      className={showFileUpload ? 'bg-muted' : ''}
+                      data-testid="button-attach-files"
+                    >
+                      <Paperclip className="h-4 w-4" />
+                    </Button>
+                    <div className="flex-1 space-y-2">
+                      <Input 
+                        placeholder="Type your message..." 
+                        value={newMessageText}
+                        onChange={(e) => setNewMessageText(e.target.value)}
+                        onKeyDown={async (e) => {
+                          if (e.key === 'Enter' && !e.shiftKey) {
+                            e.preventDefault();
+                            if ((newMessageText.trim() || attachmentFiles.some(f => f.status === 'completed')) && selectedConversation && !sending) {
+                              await handleSendMessage();
+                            }
+                          }
+                        }}
+                        data-testid="input-message"
+                      />
+                      {attachmentFiles.length > 0 && (
+                        <div className="text-xs text-muted-foreground">
+                          {attachmentFiles.filter(f => f.status === 'completed').length} of {attachmentFiles.length} files ready
+                        </div>
+                      )}
+                    </div>
+                    <Button 
+                      size="icon" 
+                      disabled={sending || (!newMessageText.trim() && !attachmentFiles.some(f => f.status === 'completed'))}
+                      onClick={handleSendMessage}
+                      data-testid="button-send-message"
+                    >
+                      {sending ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />}
+                    </Button>
+                  </div>
                 </div>
               </div>
             )}

@@ -528,7 +528,14 @@ router.post('/upload/:uploadId', upload.array('files', MAX_FILES_PER_MESSAGE), a
     }
 
     // Upload files and create document records
-    const uploadedFiles = [];
+    const uploadedFiles: Array<{
+      documentId: string;
+      fileName: string;
+      fileType: string;
+      fileSize: number;
+      downloadUrl: string;
+      previewUrl: string | undefined;
+    }> = [];
     
     for (const file of files) {
       try {
@@ -701,10 +708,9 @@ router.get('/download/:filePath', async (req: Request, res: Response) => {
 
     // Check if this is a new object storage path
     if (filePath.startsWith('/objects/')) {
-      return router.handle(Object.assign(req, { 
-        url: filePath,
-        params: { objectPath: filePath.slice(1) } // Remove leading slash
-      }), res, () => {});
+      // Redirect to the objects handler
+      const objectId = filePath.slice(9); // Remove '/objects/' prefix
+      return res.redirect(`/api/messaging/objects/${objectId}`);
     }
 
     // Get document record to verify access

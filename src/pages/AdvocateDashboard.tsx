@@ -13,6 +13,8 @@ import { apiRequest, queryClient } from "@/lib/queryClient";
 import { FeatureGate } from "@/components/FeatureGate";
 import { LockedActionButton } from "@/components/LockedActionButton";
 import { useToolAccess } from "@/hooks/useToolAccess";
+import { useNavigate } from "react-router-dom";
+import { normalizeSubscriptionPlan } from "@/lib/planAccess";
 import { 
   Users, 
   Calendar, 
@@ -47,7 +49,9 @@ import {
   Award,
   Shield,
   ChevronDown,
-  ChevronUp
+  ChevronUp,
+  Crown,
+  Rocket
 } from "lucide-react";
 
 interface Meeting {
@@ -68,6 +72,11 @@ const AdvocateDashboard = ({ plan }: AdvocateDashboardProps) => {
   const { user } = useAuth();
   const { toast } = useToast();
   const { canUse } = useToolAccess();
+  const navigate = useNavigate();
+  
+  // Determine the user's subscription plan for upgrade logic
+  const userPlan = normalizeSubscriptionPlan(user?.subscriptionPlan);
+  const shouldShowUpgrade = userPlan !== 'agency-plus'; // Show upgrade for all plans except highest tier
 
   useEffect(() => {
     // Check for pending subscription after login
@@ -437,9 +446,7 @@ const AdvocateDashboard = ({ plan }: AdvocateDashboardProps) => {
     // Add active cases as activities
     const openCasesArray = Array.isArray(openCases) 
       ? openCases 
-      : openCases?.cases && Array.isArray(openCases.cases) 
-        ? openCases.cases 
-        : [];
+      : [];
     
     if (openCasesArray.length > 0) {
       openCasesArray.forEach((case_, index) => {
@@ -484,9 +491,7 @@ const AdvocateDashboard = ({ plan }: AdvocateDashboardProps) => {
     // Add recent meetings as activities
     const upcomingMeetingsArray = Array.isArray(upcomingMeetings) 
       ? upcomingMeetings 
-      : upcomingMeetings?.meetings && Array.isArray(upcomingMeetings.meetings) 
-        ? upcomingMeetings.meetings 
-        : [];
+      : [];
     
     if (upcomingMeetingsArray.length > 0) {
       upcomingMeetingsArray.slice(0, 3).forEach((meeting, index) => {
@@ -507,9 +512,7 @@ const AdvocateDashboard = ({ plan }: AdvocateDashboardProps) => {
     // Add conversations as activities
     const conversationsArray = Array.isArray(conversations) 
       ? conversations 
-      : conversations?.conversations && Array.isArray(conversations.conversations) 
-        ? conversations.conversations 
-        : [];
+      : [];
     
     if (conversationsArray.length > 0) {
       conversationsArray.slice(0, 2).forEach((conversation, index) => {
@@ -530,9 +533,7 @@ const AdvocateDashboard = ({ plan }: AdvocateDashboardProps) => {
     // Add completed goals as activities
     const completedGoalsArray = Array.isArray(completedGoals) 
       ? completedGoals 
-      : completedGoals?.goals && Array.isArray(completedGoals.goals) 
-        ? completedGoals.goals 
-        : [];
+      : [];
     
     if (completedGoalsArray.length > 0) {
       completedGoalsArray.slice(0, 2).forEach((goal, index) => {
@@ -788,6 +789,66 @@ const AdvocateDashboard = ({ plan }: AdvocateDashboardProps) => {
             </Card>
           </FeatureGate>
         </div>
+
+        {/* Advocate Upgrade Section */}
+        {shouldShowUpgrade && (
+          <div className="space-y-6">
+            <Card className="border-0 shadow-xl bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 text-white overflow-hidden">
+              <CardContent className="p-8">
+                <div className="flex flex-col lg:flex-row items-center justify-between gap-8">
+                  <div className="flex-1 text-center lg:text-left">
+                    <div className="flex items-center justify-center lg:justify-start gap-3 mb-4">
+                      <div className="p-2 bg-white/20 rounded-xl">
+                        <Rocket className="h-6 w-6 text-white" />
+                      </div>
+                      <Badge variant="secondary" className="bg-white/20 text-white border-white/30 font-semibold">
+                        {userPlan === 'starter' ? 'Starter Plan' : `${userPlan.charAt(0).toUpperCase() + userPlan.slice(1)} Plan`} Active
+                      </Badge>
+                    </div>
+                    <h2 className="text-3xl font-bold mb-3">🚀 Unlock Advanced Advocacy Tools</h2>
+                    <p className="text-white/90 mb-6 text-lg">
+                      Scale your practice with AI-powered analytics, premium client management, and advanced reporting tools.
+                    </p>
+                    <div className="flex flex-wrap justify-center lg:justify-start gap-6 text-sm">
+                      <div className="flex items-center gap-2">
+                        <CheckCircle className="h-5 w-5 text-green-300" />
+                        <span className="font-medium">Advanced Case Analytics</span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <CheckCircle className="h-5 w-5 text-green-300" />
+                        <span className="font-medium">Team Collaboration Tools</span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <CheckCircle className="h-5 w-5 text-green-300" />
+                        <span className="font-medium">Professional Reporting Suite</span>
+                      </div>
+                    </div>
+                  </div>
+                  <div className="flex flex-col gap-4 min-w-[280px]">
+                    <Button 
+                      onClick={(e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        try {
+                          navigate('/advocate/pricing');
+                        } catch (error) {
+                          console.error('Navigation error:', error);
+                          window.location.href = '/advocate/pricing';
+                        }
+                      }}
+                      size="lg"
+                      className="bg-white text-indigo-600 hover:bg-white/90 font-bold text-lg py-4 px-8 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300"
+                      data-testid="button-advocate-upgrade"
+                    >
+                      <Crown className="h-5 w-5 mr-2" />
+                      Upgrade Plan
+                    </Button>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+        )}
 
         {/* Quick Access Grid - Integrated Sidebar Functions */}
         <div className="space-y-6">

@@ -28,9 +28,9 @@ export async function getUserId(req: express.Request): Promise<string> {
       if (tokenRecord) {
         // 🔒 CRITICAL SECURITY FIX: Validate token ownership matches database
         const tokenUserId = tokenParts[0];
-        const dbUserId = tokenRecord.user_id.substring(0, 8);
+        const dbUserId = tokenRecord.user_id; // Remove substring - use full user ID
         
-        if (tokenUserId !== dbUserId) {
+        if (tokenUserId !== dbUserId || !token.startsWith(dbUserId + '-')) {
           console.error('🚨 SECURITY ALERT: Token ownership mismatch in getUserId!');
           console.error(`🚨 Token claims user: ${tokenUserId}, but DB shows: ${dbUserId}`);
           console.error('🚨 This indicates authentication bypass attempt - rejecting');

@@ -4,21 +4,151 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
-import { Search, Send, Paperclip, MessageSquare, Loader2, X } from "lucide-react";
-import { useState, useEffect, useRef } from "react";
+import { Search, Send, Paperclip, MessageSquare, Loader2, X, Archive, ArchiveRestore, AlertTriangle, ChevronUp, MoreHorizontal } from "lucide-react";
+import { useState, useEffect, useRef, useMemo } from "react";
 import { useConversations, useMessages, useSendMessage, useMarkAsRead } from "@/hooks/useMessaging";
 import { MessageFileUpload, type MessageFile } from "@/components/MessageFileUpload";
 import { MessageAttachmentDisplay, type MessageAttachment } from "@/components/MessageAttachmentDisplay";
 import { MessageSearch } from "@/components/MessageSearch";
 import { MessageHighlight } from "@/components/MessageHighlight";
 import { useMessageSearch } from "@/hooks/useMessageSearch";
+import { ConversationLabelManager } from "@/components/ConversationLabelManager";
+import { ConversationFilters } from "@/components/ConversationFilters";
+import { ConversationLabelSelector } from "@/components/ConversationLabelSelector";
+import { useConversationLabelsForConversation, useUpdateConversationStatus } from "@/hooks/useConversationLabels";
+import { useToast } from "@/hooks/use-toast";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import type { Conversation } from "@/lib/messaging";
+
+// Conversation Actions Menu Component
+function ConversationActionsMenu({ conversation }: { conversation: Conversation }) {
+  const { updateStatus } = useUpdateConversationStatus();
+  const { toast } = useToast();
+  
+  const handleArchiveToggle = async () => {
+    try {
+      await updateStatus(conversation.id, { archived: !conversation.archived });
+      toast({
+        title: conversation.archived ? "Conversation unarchived" : "Conversation archived",
+        description: conversation.archived 
+          ? "Conversation moved back to active conversations." 
+          : "Conversation moved to archived conversations."
+      });
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to update conversation status.",
+        variant: "destructive"
+      });
+    }
+  };
+  
+  const handlePriorityChange = async (priority: 'low' | 'normal' | 'high' | 'urgent') => {
+    try {
+      await updateStatus(conversation.id, { priority });
+      toast({
+        title: "Priority updated",
+        description: `Conversation priority set to ${priority}.`
+      });
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to update conversation priority.",
+        variant: "destructive"
+      });
+    }
+  };
+  
+  return (
+    <DropdownMenu>
+      <DropdownMenuTrigger asChild>
+        <Button variant="ghost" size="sm" className="h-8 w-8 p-0" data-testid={`conversation-menu-${conversation.id}`}>
+          <MoreHorizontal className="h-4 w-4" />
+        </Button>
+      </DropdownMenuTrigger>
+      <DropdownMenuContent align="end">
+        <DropdownMenuItem onClick={handleArchiveToggle} data-testid={`conversation-${conversation.archived ? 'unarchive' : 'archive'}-${conversation.id}`}>
+          {conversation.archived ? (
+            <>
+              <ArchiveRestore className="mr-2 h-4 w-4" />
+              Unarchive
+            </>
+          ) : (
+            <>
+              <Archive className="mr-2 h-4 w-4" />
+              Archive
+            </>
+          )}
+        </DropdownMenuItem>
+        <DropdownMenuSeparator />
+        <DropdownMenuItem onClick={() => handlePriorityChange('urgent')} data-testid={`conversation-priority-urgent-${conversation.id}`}>
+          <AlertTriangle className="mr-2 h-4 w-4 text-red-500" />
+          Mark as Urgent
+        </DropdownMenuItem>
+        <DropdownMenuItem onClick={() => handlePriorityChange('high')} data-testid={`conversation-priority-high-${conversation.id}`}>
+          <ChevronUp className="mr-2 h-4 w-4 text-orange-500" />
+          Mark as High Priority
+        </DropdownMenuItem>
+        <DropdownMenuItem onClick={() => handlePriorityChange('normal')} data-testid={`conversation-priority-normal-${conversation.id}`}>
+          <MessageSquare className="mr-2 h-4 w-4" />
+          Mark as Normal
+        </DropdownMenuItem>
+        <DropdownMenuItem onClick={() => handlePriorityChange('low')} data-testid={`conversation-priority-low-${conversation.id}`}>
+          <ChevronUp className="mr-2 h-4 w-4 text-gray-500 rotate-180" />
+          Mark as Low Priority
+        </DropdownMenuItem>
+      </DropdownMenuContent>
+    </DropdownMenu>
+  );
+}
+
+// Conversation Labels Display Component
+function ConversationLabelsDisplay({ conversationId }: { conversationId: string }) {
+  const { labels, loading } = useConversationLabelsForConversation(conversationId);
+  
+  if (loading || !labels || labels.length === 0) return null;
+  
+  return (
+    <div className="flex flex-wrap gap-1">
+      {labels.slice(0, 3).map((label) => (
+        <Badge
+          key={label.id}
+          style={{
+            backgroundColor: label.color,
+            color: '#ffffff',
+            borderColor: label.color
+          }}
+          className="text-xs px-1 py-0 h-5"
+          data-testid={`conversation-label-${conversationId}-${label.id}`}
+        >
+          {label.name}
+        </Badge>
+      ))}
+      {labels.length > 3 && (
+        <Badge variant="outline" className="text-xs px-1 py-0 h-5">
+          +{labels.length - 3}
+        </Badge>
+      )}
+    </div>
+  );
+}
 
 export default function ParentMessages() {
   const [selectedConversation, setSelectedConversation] = useState<Conversation | null>(null);
   const [newMessageText, setNewMessageText] = useState('');
   const [attachmentFiles, setAttachmentFiles] = useState<MessageFile[]>([]);
   const [showFileUpload, setShowFileUpload] = useState(false);
+  
+  // Conversation management state
+  const [filters, setFilters] = useState({
+    status: [] as string[],
+    priority: [] as string[],
+    archived: null as boolean | null,
+    labels: [] as string[]
+  });
+  
+  const { toast } = useToast();
+  const { updateStatus: updateConversationStatus } = useUpdateConversationStatus();
   
   // API hooks
   const { conversations, loading: conversationsLoading, error: conversationsError, refetch: refetchConversations } = useConversations();
@@ -43,6 +173,31 @@ export default function ParentMessages() {
   
   // Ref for auto-scroll to current search result
   const messagesContainerRef = useRef<HTMLDivElement>(null);
+  
+  // Filtered conversations based on active filters
+  const filteredConversations = useMemo(() => {
+    if (!conversations.length) return [];
+    
+    return conversations.filter(conversation => {
+      // Filter by archive status
+      if (filters.archived !== null) {
+        if (filters.archived && !conversation.archived) return false;
+        if (!filters.archived && conversation.archived) return false;
+      }
+      
+      // Filter by status
+      if (filters.status.length > 0) {
+        if (!filters.status.includes(conversation.status || 'active')) return false;
+      }
+      
+      // Filter by priority
+      if (filters.priority.length > 0) {
+        if (!filters.priority.includes(conversation.priority || 'normal')) return false;
+      }
+      
+      return true;
+    });
+  }, [conversations, filters]);
   
   // Auto-select first conversation when loaded
   if (conversations.length > 0 && !selectedConversation) {

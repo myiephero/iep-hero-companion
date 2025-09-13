@@ -2,8 +2,8 @@ import { Router, Request, Response } from 'express';
 import { z } from 'zod';
 import multer from 'multer';
 import { db } from '../db';
-import { conversations, messages, advocates, students, match_proposals, users, documents, message_attachments } from '../../shared/schema';
-import { eq, and, or, desc, asc, ne, isNull } from 'drizzle-orm';
+import { conversations, messages, advocates, students, match_proposals, users, documents, message_attachments, conversation_labels, conversation_label_assignments } from '../../shared/schema';
+import { eq, and, or, desc, asc, ne, isNull, inArray, exists } from 'drizzle-orm';
 import { getUserId } from '../utils';
 import {
   validateFilesUpload,
@@ -141,11 +141,24 @@ router.post('/conversations', async (req: Request, res: Response) => {
   }
 });
 
-// GET /api/messaging/conversations - Get user's conversations
+// Validation schema for conversation filters
+const conversationFiltersSchema = z.object({
+  archived: z.enum(['true', 'false']).optional(),
+  priority: z.enum(['low', 'normal', 'high', 'urgent']).optional(),
+  status: z.enum(['active', 'closed']).optional(),
+  label_ids: z.string().optional(), // Comma-separated label IDs
+  page: z.coerce.number().min(1).default(1),
+  limit: z.coerce.number().min(1).max(100).default(20),
+  search: z.string().optional()
+});
+
+// GET /api/messaging/conversations - Get user's conversations with server-side filtering and pagination
 router.get('/conversations', async (req: Request, res: Response) => {
   try {
     const userId = await getUserId(req);
-    console.log('Fetching conversations for user:', userId);
+    const filters = conversationFiltersSchema.parse(req.query);
+    
+    console.log('Fetching conversations for user:', userId, 'with filters:', filters);
     
     // First, check if user is an advocate and get their advocate profile
     let advocateProfile;
@@ -157,25 +170,63 @@ router.get('/conversations', async (req: Request, res: Response) => {
       }).from(advocates)
         .where(eq(advocates.user_id, userId));
       advocateProfile = advocateResults[0] || null;
-      console.log('Found advocate profile:', advocateProfile?.id);
     } catch (error) {
       console.log('User is not an advocate or error finding advocate profile');
       advocateProfile = null;
     }
     
-    // Get conversations where user is either parent or advocate
-    let whereClause;
+    // Build base where clause for user access
+    let baseWhereClause;
     if (advocateProfile) {
       // For advocates, use their advocate profile ID
-      whereClause = or(
+      baseWhereClause = or(
         eq(conversations.parent_id, userId),
         eq(conversations.advocate_id, advocateProfile.id)
       );
     } else {
       // For parents, only check parent_id
-      whereClause = eq(conversations.parent_id, userId);
+      baseWhereClause = eq(conversations.parent_id, userId);
     }
     
+    // Build additional filter conditions
+    const filterConditions = [baseWhereClause];
+    
+    // Archive filter
+    if (filters.archived !== undefined) {
+      filterConditions.push(eq(conversations.archived, filters.archived === 'true'));
+    }
+    
+    // Priority filter
+    if (filters.priority) {
+      filterConditions.push(eq(conversations.priority, filters.priority));
+    }
+    
+    // Status filter  
+    if (filters.status) {
+      filterConditions.push(eq(conversations.status, filters.status));
+    }
+    
+    // Handle label filtering if specified - CRITICAL: Must happen BEFORE query construction
+    if (filters.label_ids) {
+      const labelIds = filters.label_ids.split(',').filter(id => id.trim());
+      if (labelIds.length > 0) {
+        // Use EXISTS subquery instead of JOIN + GROUP BY to avoid SQL errors
+        const labelExistsSubquery = db.select({ id: conversation_label_assignments.conversation_id })
+          .from(conversation_label_assignments)
+          .where(and(
+            eq(conversation_label_assignments.conversation_id, conversations.id),
+            inArray(conversation_label_assignments.label_id, labelIds)
+          ));
+
+        // Add EXISTS condition to filter conditions
+        filterConditions.push(exists(labelExistsSubquery));
+      }
+    }
+    
+    // Calculate pagination
+    const offset = (filters.page - 1) * filters.limit;
+    
+    // Get conversations with joins and filters - ALL conditions now included
     const userConversations = await db.select({
       conversation: conversations,
       advocate: advocates,
@@ -186,62 +237,109 @@ router.get('/conversations', async (req: Request, res: Response) => {
     .leftJoin(advocates, eq(conversations.advocate_id, advocates.id))
     .leftJoin(students, eq(conversations.student_id, students.id))
     .leftJoin(users, eq(conversations.parent_id, users.id))
-    .where(whereClause)
-    .orderBy(desc(conversations.last_message_at));
+    .where(and(...filterConditions))
+    .orderBy(desc(conversations.last_message_at))
+    .limit(filters.limit)
+    .offset(offset);
     
-    console.log('Found conversations:', userConversations.length);
+    // Get total count for pagination using proper SQL count(*)
+    const countResults = await db.select({ 
+      count: conversations.id 
+    })
+      .from(conversations)
+      .leftJoin(advocates, eq(conversations.advocate_id, advocates.id))
+      .where(and(...filterConditions));
+    
+    const totalCount = countResults.length;
+    
+    console.log(`Found ${userConversations.length} conversations (page ${filters.page}, total: ${totalCount})`);
 
-    // Get the latest message for each conversation
-    const conversationsWithMessages = await Promise.all(
-      userConversations.map(async ({ conversation, advocate, student, parent }) => {
-        const latestMessage = await db.select({
-            id: messages.id,
-            conversation_id: messages.conversation_id,
-            sender_id: messages.sender_id,
-            content: messages.content,
-            created_at: messages.created_at,
-            read_at: messages.read_at
-          })
-          .from(messages)
-          .where(eq(messages.conversation_id, conversation.id))
-          .orderBy(desc(messages.created_at))
-          .limit(1)
-          .then(results => results[0]);
+    // Efficiently get latest messages and unread counts for all conversations
+    const conversationIds = userConversations.map(c => c.conversation.id);
+    
+    // Get latest messages for all conversations in one query
+    const latestMessages = await db.select({
+      conversation_id: messages.conversation_id,
+      id: messages.id,
+      sender_id: messages.sender_id,
+      content: messages.content,
+      created_at: messages.created_at,
+      read_at: messages.read_at
+    })
+    .from(messages)
+    .where(inArray(messages.conversation_id, conversationIds))
+    .orderBy(desc(messages.created_at))
+    .then(results => {
+      // Group by conversation_id and take the first (latest) message for each
+      const latestByConversation = new Map();
+      results.forEach(msg => {
+        if (!latestByConversation.has(msg.conversation_id)) {
+          latestByConversation.set(msg.conversation_id, msg);
+        }
+      });
+      return latestByConversation;
+    });
+    
+    // Get unread counts for all conversations in one query
+    const unreadCounts = await db.select({
+      conversation_id: messages.conversation_id,
+      count: messages.id
+    })
+    .from(messages)
+    .where(and(
+      inArray(messages.conversation_id, conversationIds),
+      ne(messages.sender_id, userId), // Messages not sent by current user
+      isNull(messages.read_at) // That haven't been read
+    ))
+    .then(results => {
+      // Group by conversation_id and count
+      const countsByConversation = new Map();
+      results.forEach(result => {
+        const currentCount = countsByConversation.get(result.conversation_id) || 0;
+        countsByConversation.set(result.conversation_id, currentCount + 1);
+      });
+      return countsByConversation;
+    });
 
-        const unreadCount = await db.select({ count: messages.id })
-          .from(messages)
-          .where(and(
-            eq(messages.conversation_id, conversation.id),
-            ne(messages.sender_id, userId), // Messages not sent by current user
-            isNull(messages.read_at) // That haven't been read
-          ))
-          .then(results => results.length);
+    // Map conversations with their associated data
+    const conversationsWithMessages = userConversations.map(({ conversation, advocate, student, parent }) => {
+      const latestMessage = latestMessages.get(conversation.id);
+      const unreadCount = unreadCounts.get(conversation.id) || 0;
 
-        return {
-          ...conversation,
-          advocate: advocate ? {
-            ...advocate,
-            name: advocate.full_name, // Map full_name to name for client compatibility
-            specialty: advocate.specializations?.[0] || 'General Advocacy' // Map first specialization as specialty
-          } : null,
-          student: student ? {
-            ...student,
-            name: student.full_name // Map full_name to name for client compatibility
-          } : null,
-          parent: parent ? {
-            id: parent.id,
-            firstName: parent.firstName,
-            lastName: parent.lastName,
-            email: parent.email,
-            name: `${parent.firstName || ''} ${parent.lastName || ''}`.trim() || parent.email
-          } : null,
-          latest_message: latestMessage,
-          unread_count: unreadCount,
-        };
-      })
-    );
+      return {
+        ...conversation,
+        advocate: advocate ? {
+          ...advocate,
+          name: advocate.full_name, // Map full_name to name for client compatibility
+          specialty: advocate.specializations?.[0] || 'General Advocacy' // Map first specialization as specialty
+        } : null,
+        student: student ? {
+          ...student,
+          name: student.full_name // Map full_name to name for client compatibility
+        } : null,
+        parent: parent ? {
+          id: parent.id,
+          firstName: parent.firstName,
+          lastName: parent.lastName,
+          email: parent.email,
+          name: `${parent.firstName || ''} ${parent.lastName || ''}`.trim() || parent.email
+        } : null,
+        latest_message: latestMessage,
+        unread_count: unreadCount,
+      };
+    });
 
-    res.json({ conversations: conversationsWithMessages });
+    res.json({ 
+      conversations: conversationsWithMessages,
+      pagination: {
+        page: filters.page,
+        limit: filters.limit,
+        total: totalCount,
+        totalPages: Math.ceil(totalCount / filters.limit),
+        hasNext: filters.page < Math.ceil(totalCount / filters.limit),
+        hasPrev: filters.page > 1
+      }
+    });
   } catch (error) {
     console.error('Error fetching conversations:', error);
     if (error instanceof Error && error.message.includes('Authentication required')) {
@@ -800,6 +898,336 @@ router.get('/proposal-contacts', async (req: Request, res: Response) => {
       return res.status(401).json({ error: 'Authentication required' });
     }
     res.status(500).json({ error: 'Failed to fetch proposal contacts' });
+  }
+});
+
+// Additional validation schemas for conversation management
+const labelSchema = z.object({
+  name: z.string().min(1).max(50),
+  color: z.string().regex(/^#[0-9A-F]{6}$/i, "Color must be a valid hex code"),
+  description: z.string().optional()
+});
+
+const updateConversationStatusSchema = z.object({
+  archived: z.boolean().optional(),
+  priority: z.enum(['low', 'normal', 'high', 'urgent']).optional(),
+  status: z.enum(['active', 'archived', 'closed']).optional()
+});
+
+const assignLabelsSchema = z.object({
+  label_ids: z.array(z.string())
+});
+
+// CONVERSATION MANAGEMENT ENDPOINTS
+
+// POST /api/messaging/labels - Create a new conversation label
+router.post('/labels', async (req: Request, res: Response) => {
+  try {
+    const userId = await getUserId(req);
+    const data = labelSchema.parse(req.body);
+    
+    const [label] = await db.insert(conversation_labels)
+      .values({
+        ...data,
+        user_id: userId
+      })
+      .returning();
+    
+    res.status(201).json({ label });
+  } catch (error) {
+    console.error('Error creating label:', error);
+    if (error instanceof z.ZodError) {
+      return res.status(400).json({ error: 'Invalid data', details: error.errors });
+    }
+    if (error instanceof Error && error.message.includes('Authentication required')) {
+      return res.status(401).json({ error: 'Authentication required' });
+    }
+    res.status(500).json({ error: 'Failed to create label' });
+  }
+});
+
+// GET /api/messaging/labels - Get user's conversation labels
+router.get('/labels', async (req: Request, res: Response) => {
+  try {
+    const userId = await getUserId(req);
+    
+    const labels = await db.select({
+      id: conversation_labels.id,
+      name: conversation_labels.name,
+      color: conversation_labels.color,
+      description: conversation_labels.description,
+      is_default: conversation_labels.is_default,
+      created_at: conversation_labels.created_at
+    })
+    .from(conversation_labels)
+    .where(or(
+      eq(conversation_labels.user_id, userId),
+      eq(conversation_labels.is_default, true)
+    ))
+    .orderBy(conversation_labels.name);
+    
+    res.json({ labels });
+  } catch (error) {
+    console.error('Error fetching labels:', error);
+    if (error instanceof Error && error.message.includes('Authentication required')) {
+      return res.status(401).json({ error: 'Authentication required' });
+    }
+    res.status(500).json({ error: 'Failed to fetch labels' });
+  }
+});
+
+// PUT /api/messaging/labels/:id - Update a conversation label
+router.put('/labels/:id', async (req: Request, res: Response) => {
+  try {
+    const userId = await getUserId(req);
+    const labelId = req.params.id;
+    const data = labelSchema.partial().parse(req.body);
+    
+    // Verify ownership
+    const existingLabel = await db.select({
+      id: conversation_labels.id,
+      user_id: conversation_labels.user_id,
+      is_default: conversation_labels.is_default
+    })
+    .from(conversation_labels)
+    .where(eq(conversation_labels.id, labelId))
+    .then(results => results[0]);
+    
+    if (!existingLabel) {
+      return res.status(404).json({ error: 'Label not found' });
+    }
+    
+    if (existingLabel.is_default) {
+      return res.status(403).json({ error: 'Cannot modify default labels' });
+    }
+    
+    if (existingLabel.user_id !== userId) {
+      return res.status(403).json({ error: 'Not authorized to modify this label' });
+    }
+    
+    const [updatedLabel] = await db.update(conversation_labels)
+      .set(data)
+      .where(eq(conversation_labels.id, labelId))
+      .returning();
+    
+    res.json({ label: updatedLabel });
+  } catch (error) {
+    console.error('Error updating label:', error);
+    if (error instanceof z.ZodError) {
+      return res.status(400).json({ error: 'Invalid data', details: error.errors });
+    }
+    if (error instanceof Error && error.message.includes('Authentication required')) {
+      return res.status(401).json({ error: 'Authentication required' });
+    }
+    res.status(500).json({ error: 'Failed to update label' });
+  }
+});
+
+// DELETE /api/messaging/labels/:id - Delete a conversation label
+router.delete('/labels/:id', async (req: Request, res: Response) => {
+  try {
+    const userId = await getUserId(req);
+    const labelId = req.params.id;
+    
+    // Verify ownership
+    const existingLabel = await db.select({
+      id: conversation_labels.id,
+      user_id: conversation_labels.user_id,
+      is_default: conversation_labels.is_default
+    })
+    .from(conversation_labels)
+    .where(eq(conversation_labels.id, labelId))
+    .then(results => results[0]);
+    
+    if (!existingLabel) {
+      return res.status(404).json({ error: 'Label not found' });
+    }
+    
+    if (existingLabel.is_default) {
+      return res.status(403).json({ error: 'Cannot delete default labels' });
+    }
+    
+    if (existingLabel.user_id !== userId) {
+      return res.status(403).json({ error: 'Not authorized to delete this label' });
+    }
+    
+    // Delete all label assignments first (cascade should handle this, but being explicit)
+    await db.delete(conversation_label_assignments)
+      .where(eq(conversation_label_assignments.label_id, labelId));
+    
+    // Delete the label
+    await db.delete(conversation_labels)
+      .where(eq(conversation_labels.id, labelId));
+    
+    res.json({ success: true });
+  } catch (error) {
+    console.error('Error deleting label:', error);
+    if (error instanceof Error && error.message.includes('Authentication required')) {
+      return res.status(401).json({ error: 'Authentication required' });
+    }
+    res.status(500).json({ error: 'Failed to delete label' });
+  }
+});
+
+// PATCH /api/messaging/conversations/:id - Update conversation status (archive, priority, etc.)
+router.patch('/conversations/:id', async (req: Request, res: Response) => {
+  try {
+    const userId = await getUserId(req);
+    const conversationId = req.params.id;
+    const data = updateConversationStatusSchema.parse(req.body);
+    
+    // Verify user has access to this conversation
+    const conversation = await db.select({
+      id: conversations.id,
+      parent_id: conversations.parent_id,
+      advocate_id: conversations.advocate_id
+    })
+    .from(conversations)
+    .where(eq(conversations.id, conversationId))
+    .then(results => results[0]);
+    
+    if (!conversation) {
+      return res.status(404).json({ error: 'Conversation not found' });
+    }
+    
+    // Check if user is either the parent or owns the advocate profile
+    let hasAccess = conversation.parent_id === userId;
+    
+    if (!hasAccess) {
+      const advocate = await db.select({
+        id: advocates.id,
+        user_id: advocates.user_id
+      })
+      .from(advocates)
+      .where(and(
+        eq(advocates.id, conversation.advocate_id),
+        eq(advocates.user_id, userId)
+      ))
+      .then(results => results[0]);
+      
+      hasAccess = !!advocate;
+    }
+    
+    if (!hasAccess) {
+      return res.status(403).json({ error: 'Not authorized to modify this conversation' });
+    }
+    
+    const [updatedConversation] = await db.update(conversations)
+      .set({
+        ...data,
+        updated_at: new Date()
+      })
+      .where(eq(conversations.id, conversationId))
+      .returning();
+    
+    res.json({ conversation: updatedConversation });
+  } catch (error) {
+    console.error('Error updating conversation:', error);
+    if (error instanceof z.ZodError) {
+      return res.status(400).json({ error: 'Invalid data', details: error.errors });
+    }
+    if (error instanceof Error && error.message.includes('Authentication required')) {
+      return res.status(401).json({ error: 'Authentication required' });
+    }
+    res.status(500).json({ error: 'Failed to update conversation' });
+  }
+});
+
+// POST /api/messaging/conversations/:id/labels - Assign labels to a conversation
+router.post('/conversations/:id/labels', async (req: Request, res: Response) => {
+  try {
+    const userId = await getUserId(req);
+    const conversationId = req.params.id;
+    const { label_ids } = assignLabelsSchema.parse(req.body);
+    
+    // Verify user has access to this conversation (same logic as above)
+    const conversation = await db.select({
+      id: conversations.id,
+      parent_id: conversations.parent_id,
+      advocate_id: conversations.advocate_id
+    })
+    .from(conversations)
+    .where(eq(conversations.id, conversationId))
+    .then(results => results[0]);
+    
+    if (!conversation) {
+      return res.status(404).json({ error: 'Conversation not found' });
+    }
+    
+    let hasAccess = conversation.parent_id === userId;
+    
+    if (!hasAccess) {
+      const advocate = await db.select({
+        id: advocates.id,
+        user_id: advocates.user_id
+      })
+      .from(advocates)
+      .where(and(
+        eq(advocates.id, conversation.advocate_id),
+        eq(advocates.user_id, userId)
+      ))
+      .then(results => results[0]);
+      
+      hasAccess = !!advocate;
+    }
+    
+    if (!hasAccess) {
+      return res.status(403).json({ error: 'Not authorized to modify this conversation' });
+    }
+    
+    // Remove existing label assignments
+    await db.delete(conversation_label_assignments)
+      .where(eq(conversation_label_assignments.conversation_id, conversationId));
+    
+    // Add new label assignments
+    if (label_ids.length > 0) {
+      const assignments = label_ids.map(labelId => ({
+        conversation_id: conversationId,
+        label_id: labelId,
+        assigned_by: userId
+      }));
+      
+      await db.insert(conversation_label_assignments)
+        .values(assignments);
+    }
+    
+    res.json({ success: true, assigned_labels: label_ids.length });
+  } catch (error) {
+    console.error('Error assigning labels:', error);
+    if (error instanceof z.ZodError) {
+      return res.status(400).json({ error: 'Invalid data', details: error.errors });
+    }
+    if (error instanceof Error && error.message.includes('Authentication required')) {
+      return res.status(401).json({ error: 'Authentication required' });
+    }
+    res.status(500).json({ error: 'Failed to assign labels' });
+  }
+});
+
+// GET /api/messaging/conversations/:id/labels - Get labels for a conversation
+router.get('/conversations/:id/labels', async (req: Request, res: Response) => {
+  try {
+    const userId = await getUserId(req);
+    const conversationId = req.params.id;
+    
+    // Get labels assigned to this conversation
+    const assignedLabels = await db.select({
+      label: conversation_labels,
+      assignment: conversation_label_assignments
+    })
+    .from(conversation_label_assignments)
+    .leftJoin(conversation_labels, eq(conversation_label_assignments.label_id, conversation_labels.id))
+    .where(eq(conversation_label_assignments.conversation_id, conversationId));
+    
+    const labels = assignedLabels.map(({ label }) => label);
+    
+    res.json({ labels });
+  } catch (error) {
+    console.error('Error fetching conversation labels:', error);
+    if (error instanceof Error && error.message.includes('Authentication required')) {
+      return res.status(401).json({ error: 'Authentication required' });
+    }
+    res.status(500).json({ error: 'Failed to fetch conversation labels' });
   }
 });
 

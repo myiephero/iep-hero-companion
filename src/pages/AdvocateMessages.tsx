@@ -4,15 +4,21 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
-import { Search, Send, Paperclip, MessageSquare, Loader2, FileText, Clock, Users, X } from "lucide-react";
+import { Search, Send, Paperclip, MessageSquare, Loader2, FileText, Clock, Users, X, Archive, ArchiveRestore, AlertTriangle, ChevronUp, MoreHorizontal } from "lucide-react";
 import { useLocation } from "react-router-dom";
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useMemo } from "react";
 import { useConversations, useMessages, useSendMessage, useCreateConversation, useProposalContacts } from "@/hooks/useMessaging";
 import { MessageFileUpload, type MessageFile } from "@/components/MessageFileUpload";
 import { MessageAttachmentDisplay, type MessageAttachment } from "@/components/MessageAttachmentDisplay";
 import { MessageSearch } from "@/components/MessageSearch";
 import { MessageHighlight } from "@/components/MessageHighlight";
 import { useMessageSearch } from "@/hooks/useMessageSearch";
+import { ConversationLabelManager } from "@/components/ConversationLabelManager";
+import { ConversationFilters } from "@/components/ConversationFilters";
+import { ConversationLabelSelector } from "@/components/ConversationLabelSelector";
+import { useConversationLabelsForConversation, useUpdateConversationStatus } from "@/hooks/useConversationLabels";
+import { useToast } from "@/hooks/use-toast";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import type { Conversation } from "@/lib/messaging";
 
 // Professional message templates for different scenarios
@@ -62,6 +68,119 @@ Professional Advocate`
   }
 };
 
+// Conversation Actions Menu Component
+function ConversationActionsMenu({ conversation }: { conversation: Conversation }) {
+  const { updateStatus } = useUpdateConversationStatus();
+  const { toast } = useToast();
+  
+  const handleArchiveToggle = async () => {
+    try {
+      await updateStatus(conversation.id, { archived: !conversation.archived });
+      toast({
+        title: conversation.archived ? "Conversation unarchived" : "Conversation archived",
+        description: conversation.archived 
+          ? "Conversation moved back to active conversations." 
+          : "Conversation moved to archived conversations."
+      });
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to update conversation status.",
+        variant: "destructive"
+      });
+    }
+  };
+  
+  const handlePriorityChange = async (priority: 'low' | 'normal' | 'high' | 'urgent') => {
+    try {
+      await updateStatus(conversation.id, { priority });
+      toast({
+        title: "Priority updated",
+        description: `Conversation priority set to ${priority}.`
+      });
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to update conversation priority.",
+        variant: "destructive"
+      });
+    }
+  };
+  
+  return (
+    <DropdownMenu>
+      <DropdownMenuTrigger asChild>
+        <Button variant="ghost" size="sm" className="h-8 w-8 p-0" data-testid={`conversation-menu-${conversation.id}`}>
+          <MoreHorizontal className="h-4 w-4" />
+        </Button>
+      </DropdownMenuTrigger>
+      <DropdownMenuContent align="end">
+        <DropdownMenuItem onClick={handleArchiveToggle} data-testid={`conversation-${conversation.archived ? 'unarchive' : 'archive'}-${conversation.id}`}>
+          {conversation.archived ? (
+            <>
+              <ArchiveRestore className="mr-2 h-4 w-4" />
+              Unarchive
+            </>
+          ) : (
+            <>
+              <Archive className="mr-2 h-4 w-4" />
+              Archive
+            </>
+          )}
+        </DropdownMenuItem>
+        <DropdownMenuSeparator />
+        <DropdownMenuItem onClick={() => handlePriorityChange('urgent')} data-testid={`conversation-priority-urgent-${conversation.id}`}>
+          <AlertTriangle className="mr-2 h-4 w-4 text-red-500" />
+          Mark as Urgent
+        </DropdownMenuItem>
+        <DropdownMenuItem onClick={() => handlePriorityChange('high')} data-testid={`conversation-priority-high-${conversation.id}`}>
+          <ChevronUp className="mr-2 h-4 w-4 text-orange-500" />
+          Mark as High Priority
+        </DropdownMenuItem>
+        <DropdownMenuItem onClick={() => handlePriorityChange('normal')} data-testid={`conversation-priority-normal-${conversation.id}`}>
+          <MessageSquare className="mr-2 h-4 w-4" />
+          Mark as Normal
+        </DropdownMenuItem>
+        <DropdownMenuItem onClick={() => handlePriorityChange('low')} data-testid={`conversation-priority-low-${conversation.id}`}>
+          <ChevronUp className="mr-2 h-4 w-4 text-gray-500 rotate-180" />
+          Mark as Low Priority
+        </DropdownMenuItem>
+      </DropdownMenuContent>
+    </DropdownMenu>
+  );
+}
+
+// Conversation Labels Display Component
+function ConversationLabelsDisplay({ conversationId }: { conversationId: string }) {
+  const { labels, loading } = useConversationLabelsForConversation(conversationId);
+  
+  if (loading || !labels || labels.length === 0) return null;
+  
+  return (
+    <div className="flex flex-wrap gap-1">
+      {labels.slice(0, 3).map((label) => (
+        <Badge
+          key={label.id}
+          style={{
+            backgroundColor: label.color,
+            color: '#ffffff',
+            borderColor: label.color
+          }}
+          className="text-xs px-1 py-0 h-5"
+          data-testid={`conversation-label-${conversationId}-${label.id}`}
+        >
+          {label.name}
+        </Badge>
+      ))}
+      {labels.length > 3 && (
+        <Badge variant="outline" className="text-xs px-1 py-0 h-5">
+          +{labels.length - 3}
+        </Badge>
+      )}
+    </div>
+  );
+}
+
 export default function AdvocateMessages() {
   const location = useLocation();
   const [selectedConversation, setSelectedConversation] = useState<Conversation | null>(null);
@@ -70,6 +189,17 @@ export default function AdvocateMessages() {
   const [showTemplateSelector, setShowTemplateSelector] = useState(false);
   const [attachmentFiles, setAttachmentFiles] = useState<MessageFile[]>([]);
   const [showFileUpload, setShowFileUpload] = useState(false);
+  
+  // Conversation management state
+  const [filters, setFilters] = useState({
+    status: [] as string[],
+    priority: [] as string[],
+    archived: null as boolean | null,
+    labels: [] as string[]
+  });
+  
+  const { toast } = useToast();
+  const { updateStatus: updateConversationStatus } = useUpdateConversationStatus();
   
   // API hooks
   const { conversations, loading: conversationsLoading, error: conversationsError, refetch: refetchConversations } = useConversations();
@@ -95,6 +225,34 @@ export default function AdvocateMessages() {
   
   // Ref for auto-scroll to current search result
   const messagesContainerRef = useRef<HTMLDivElement>(null);
+  
+  // Filtered conversations based on active filters
+  const filteredConversations = useMemo(() => {
+    if (!conversations.length) return [];
+    
+    return conversations.filter(conversation => {
+      // Filter by archive status
+      if (filters.archived !== null) {
+        if (filters.archived && !conversation.archived) return false;
+        if (!filters.archived && conversation.archived) return false;
+      }
+      
+      // Filter by status
+      if (filters.status.length > 0) {
+        if (!filters.status.includes(conversation.status || 'active')) return false;
+      }
+      
+      // Filter by priority
+      if (filters.priority.length > 0) {
+        if (!filters.priority.includes(conversation.priority || 'normal')) return false;
+      }
+      
+      // Filter by labels (would need to fetch conversation labels - simplified for now)
+      // This would require additional API calls or including labels in conversations response
+      
+      return true;
+    });
+  }, [conversations, filters]);
   
   // Handle creating a new conversation from match proposal
   useEffect(() => {
@@ -257,13 +415,28 @@ export default function AdvocateMessages() {
                 </div>
               ) : (
                 <>
+                  {/* Conversation Management Controls */}
+                  <div className="p-4 border-b bg-muted/5">
+                    <div className="flex items-center justify-between mb-3">
+                      <ConversationLabelManager />
+                      <div className="text-sm text-muted-foreground">
+                        {filteredConversations.length} conversation{filteredConversations.length !== 1 ? 's' : ''}
+                      </div>
+                    </div>
+                    <ConversationFilters
+                      filters={filters}
+                      onFiltersChange={setFilters}
+                      conversationCount={filteredConversations.length}
+                    />
+                  </div>
+                  
                   {/* Existing Conversations */}
-                  {conversations.length > 0 && (
+                  {filteredConversations.length > 0 && (
                     <div>
                       <div className="px-4 py-2 bg-muted/20 border-b">
                         <h3 className="text-xs font-medium text-muted-foreground uppercase tracking-wider">Active Conversations</h3>
                       </div>
-                      {conversations.map((conversation) => {
+                      {filteredConversations.map((conversation) => {
                         const studentName = conversation.student?.first_name 
                           ? `${conversation.student.first_name} ${conversation.student.last_name}` 
                           : 'Student';
@@ -287,18 +460,44 @@ export default function AdvocateMessages() {
                               </Avatar>
                               <div className="flex-1 min-w-0">
                                 <div className="flex items-center justify-between">
-                                  <p className="font-medium truncate">{studentName}'s Family</p>
-                                  <span className="text-xs text-muted-foreground">{lastMessageTime}</span>
+                                  <div className="flex items-center gap-2">
+                                    <p className="font-medium truncate">{studentName}'s Family</p>
+                                    {conversation.archived && (
+                                      <Badge variant="secondary" className="text-xs">
+                                        <Archive className="w-3 h-3 mr-1" />
+                                        Archived
+                                      </Badge>
+                                    )}
+                                    {conversation.priority === 'urgent' && (
+                                      <Badge variant="destructive" className="text-xs">
+                                        <AlertTriangle className="w-3 h-3 mr-1" />
+                                        Urgent
+                                      </Badge>
+                                    )}
+                                    {conversation.priority === 'high' && (
+                                      <Badge variant="outline" className="text-xs border-orange-500 text-orange-600">
+                                        <ChevronUp className="w-3 h-3 mr-1" />
+                                        High
+                                      </Badge>
+                                    )}
+                                  </div>
+                                  <div className="flex items-center gap-2">
+                                    <span className="text-xs text-muted-foreground">{lastMessageTime}</span>
+                                    <ConversationActionsMenu conversation={conversation} />
+                                  </div>
                                 </div>
                                 <p className="text-sm text-muted-foreground mb-1">{conversation.parent?.name || 'Parent'}</p>
                                 <p className="text-sm truncate">
                                   {conversation.lastMessage?.content || 'No messages yet'}
                                 </p>
-                                {conversation.unreadCount > 0 && (
-                                  <Badge variant="default" className="mt-2 text-xs">
-                                    {conversation.unreadCount} new
-                                  </Badge>
-                                )}
+                                <div className="flex items-center gap-2 mt-2">
+                                  {conversation.unreadCount > 0 && (
+                                    <Badge variant="default" className="text-xs">
+                                      {conversation.unreadCount} new
+                                    </Badge>
+                                  )}
+                                  <ConversationLabelsDisplay conversationId={conversation.id} />
+                                </div>
                               </div>
                             </div>
                           </div>
@@ -349,6 +548,17 @@ export default function AdvocateMessages() {
                     </div>
                   )}
 
+                  {/* No Results State */}
+                  {filteredConversations.length === 0 && conversations.length > 0 && (
+                    <div className="flex items-center justify-center h-32 p-8">
+                      <div className="text-center text-muted-foreground">
+                        <MessageSquare className="h-8 w-8 mx-auto mb-2 opacity-50" />
+                        <p className="text-sm font-medium mb-1">No conversations match your filters</p>
+                        <p className="text-xs">Try adjusting your filter criteria</p>
+                      </div>
+                    </div>
+                  )}
+                  
                   {/* Empty State */}
                   {conversations.length === 0 && (!proposalContacts || proposalContacts.length === 0) && (
                     <div className="flex items-center justify-center h-full p-8">
@@ -370,24 +580,61 @@ export default function AdvocateMessages() {
           <Card className="h-full flex flex-col">
             {selectedConversation && (
               <div className="p-4 border-b">
-                <div className="flex items-center gap-3">
-                  <Avatar className="h-10 w-10">
-                    <AvatarImage src="/placeholder-1.jpg" />
-                    <AvatarFallback>
-                      {selectedConversation?.student?.first_name 
-                        ? `${selectedConversation.student.first_name[0]}${selectedConversation.student.last_name?.[0] || ''}` 
-                        : 'S'}
-                    </AvatarFallback>
-                  </Avatar>
-                  <div>
-                    <p className="font-medium">
-                      {selectedConversation?.student?.first_name 
-                        ? `${selectedConversation.student.first_name} ${selectedConversation.student.last_name}'s Family` 
-                        : "Student's Family"}
-                    </p>
-                    <p className="text-sm text-muted-foreground">
-                      Advocate: {selectedConversation?.advocate?.name || 'Unknown Advocate'}
-                    </p>
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <Avatar className="h-10 w-10">
+                      <AvatarImage src="/placeholder-1.jpg" />
+                      <AvatarFallback>
+                        {selectedConversation?.student?.first_name 
+                          ? `${selectedConversation.student.first_name[0]}${selectedConversation.student.last_name?.[0] || ''}` 
+                          : 'S'}
+                      </AvatarFallback>
+                    </Avatar>
+                    <div>
+                      <div className="flex items-center gap-2">
+                        <p className="font-medium">
+                          {selectedConversation?.student?.first_name 
+                            ? `${selectedConversation.student.first_name} ${selectedConversation.student.last_name}'s Family` 
+                            : "Student's Family"}
+                        </p>
+                        {selectedConversation.archived && (
+                          <Badge variant="secondary" className="text-xs">
+                            <Archive className="w-3 h-3 mr-1" />
+                            Archived
+                          </Badge>
+                        )}
+                        {selectedConversation.priority === 'urgent' && (
+                          <Badge variant="destructive" className="text-xs">
+                            <AlertTriangle className="w-3 h-3 mr-1" />
+                            Urgent
+                          </Badge>
+                        )}
+                        {selectedConversation.priority === 'high' && (
+                          <Badge variant="outline" className="text-xs border-orange-500 text-orange-600">
+                            <ChevronUp className="w-3 h-3 mr-1" />
+                            High
+                          </Badge>
+                        )}
+                      </div>
+                      <div className="flex items-center gap-2 mt-1">
+                        <p className="text-sm text-muted-foreground">
+                          Advocate: {selectedConversation?.advocate?.name || 'Unknown Advocate'}
+                        </p>
+                        <ConversationLabelsDisplay conversationId={selectedConversation.id} />
+                      </div>
+                    </div>
+                  </div>
+                  
+                  {/* Conversation Management Controls */}
+                  <div className="flex items-center gap-2">
+                    <ConversationLabelSelector 
+                      conversationId={selectedConversation.id}
+                      onLabelsChanged={() => {
+                        // Refresh conversations to update label display
+                        refetchConversations();
+                      }}
+                    />
+                    <ConversationActionsMenu conversation={selectedConversation} />
                   </div>
                 </div>
               </div>

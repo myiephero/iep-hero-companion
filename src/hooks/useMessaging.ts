@@ -8,35 +8,41 @@ import {
   createConversation,
   type Conversation,
   type MessageHistory,
-  type Message
+  type Message,
+  type ConversationFilters,
+  type ConversationPagination
 } from '../lib/messaging';
 import { apiRequest } from '@/lib/queryClient'; // FIXED: Import authenticated API client
 
-export function useConversations() {
+export function useConversations(filters: ConversationFilters = {}) {
   const [conversations, setConversations] = useState<Conversation[]>([]);
+  const [pagination, setPagination] = useState<ConversationPagination | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  const fetchConversations = async () => {
+  const fetchConversations = useCallback(async (newFilters?: ConversationFilters) => {
     try {
       setLoading(true);
       setError(null);
-      const data = await getConversations();
-      setConversations(data);
+      const filtersToUse = newFilters || filters;
+      const response = await getConversations(filtersToUse);
+      setConversations(response.conversations);
+      setPagination(response.pagination);
     } catch (err) {
       console.error('Error fetching conversations:', err);
       setError(err instanceof Error ? err.message : 'Failed to fetch conversations');
     } finally {
       setLoading(false);
     }
-  };
+  }, [filters]);
 
   useEffect(() => {
     fetchConversations();
-  }, []);
+  }, [fetchConversations]);
 
   return {
     conversations,
+    pagination,
     loading,
     error,
     refetch: fetchConversations

@@ -9,7 +9,6 @@ import expertRoutes from './routes/expert';
 import expertReviewPaymentRoutes from './routes/expertReviewPayments';
 import feedbackRoutes from './routes/feedback';
 import messagingRoutes from './routes/messaging';
-import simpleMessagingRoutes from './routes/simple-messages';
 // Removed non-existent main routes import
 import { createRequire } from 'module';
 const require = createRequire(import.meta.url);
@@ -3443,7 +3442,6 @@ app.use('/api/create-expert-review-payment', expertReviewPaymentRoutes);
 app.use('/api/expert-review-payment-success', expertReviewPaymentRoutes);
 app.use('/api/feedback', feedbackRoutes);
 app.use('/api/messaging', messagingRoutes);
-app.use('/api/simple-messages', simpleMessagingRoutes);
 // app.use('/api', mainRoutes); // Temporarily disabled - session context issue
 
 // Serve static files from the dist directory - IMPORTANT: This must come AFTER all API routes

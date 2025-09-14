@@ -98,7 +98,6 @@ import PremiumToolsDemo from "./pages/PremiumToolsDemo";
 import NotFound from "./pages/NotFound";
 import CardShowcase from "./pages/CardShowcase";
 import PricingSelection from "./pages/PricingSelection";
-import MessagesTest from "./pages/MessagesTest";
 import SetupPassword from "./pages/SetupPassword";
 
 import { queryClient } from "./lib/queryClient";
@@ -740,7 +739,6 @@ function App() {
               } />
               
               {/* Debug/Testing Tools */}
-              <Route path="/messages-test" element={<MessagesTest />} />
               <Route path="/all-pages" element={<AllPagesView />} />
               <Route path="/premium-tools-demo" element={<PremiumToolsDemo />} />
               

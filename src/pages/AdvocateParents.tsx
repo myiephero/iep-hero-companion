@@ -415,7 +415,7 @@ function StudentListForParent({ parentId }: { parentId: string }) {
   const selectedStudent = selectedStudentId ? students.find(s => String(s.id) === String(selectedStudentId)) : null;
 
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+    <div className="grid grid-cols-1 lg:grid-cols-5 gap-6">
       {/* Left Panel - Student List */}
       <div className="lg:col-span-1">
         <div className="space-y-2">
@@ -449,7 +449,7 @@ function StudentListForParent({ parentId }: { parentId: string }) {
       </div>
 
       {/* Right Panel - Full Student Details with Tabs (integrated from Client Students) */}
-      <div className="lg:col-span-2">
+      <div className="lg:col-span-4">
         {selectedStudent ? (
           <>
             {/* Student Header Card */}
@@ -1261,7 +1261,7 @@ export default function AdvocateParents() {
           </Dialog>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 lg:grid-cols-5 gap-6">
           {/* Left Sidebar - Parent List */}
           <div className="lg:col-span-1">
             <Card className="premium-card">
@@ -1333,7 +1333,7 @@ export default function AdvocateParents() {
           </div>
           
           {/* Right Side - Parent Details */}
-          <div className="lg:col-span-2">
+          <div className="lg:col-span-4">
             {selectedParent ? (
               <>
                 <Card className="premium-card">

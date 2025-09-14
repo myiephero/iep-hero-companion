@@ -128,10 +128,10 @@ export function useCreateConversation() {
   const queryClient = useQueryClient();
   
   const mutation = useMutation({
-    mutationFn: (data: { advocateId: string; studentId: string; parentId: string }) => 
+    mutationFn: (data: { advocateId: string; studentId?: string; parentId: string }) => 
       createConversation({
         advocate_id: data.advocateId,
-        student_id: data.studentId,
+        student_id: data.studentId || '',
         parent_id: data.parentId
       }),
     onSuccess: () => {
@@ -140,7 +140,7 @@ export function useCreateConversation() {
     }
   });
 
-  const create = async (advocateId: string, studentId: string, parentId: string): Promise<Conversation | null> => {
+  const create = async (advocateId: string, parentId: string, studentId?: string): Promise<Conversation | null> => {
     try {
       const conversation = await mutation.mutateAsync({ advocateId, studentId, parentId });
       return conversation;

@@ -324,12 +324,17 @@ function StudentListForParent({ parentId }: { parentId: string }) {
         console.log('🔍 All students:', allStudents);
         
         // Filter students that belong to this parent
+        // Filter students for this specific parent
         const parentStudents = Array.isArray(allStudents) ? 
-          allStudents.filter((student: any) => student.user_id === parentId || student.parent_id === parentId) : 
+          allStudents.filter((student: any) => student.parent_id === parentId) : 
           [];
         
-        console.log(`✅ Found ${parentStudents.length} students for parent ${parentId}:`, parentStudents);
         setStudents(parentStudents);
+        
+        // Auto-select the first student if none selected
+        if (parentStudents.length > 0 && !selectedStudentId) {
+          setSelectedStudentId(parentStudents[0].id);
+        }
       } catch (error) {
         console.error('❌ Error fetching students for parent:', error);
         setStudents([]);
@@ -407,7 +412,7 @@ function StudentListForParent({ parentId }: { parentId: string }) {
     );
   }
 
-  const selectedStudent = selectedStudentId ? students.find(s => s.id === selectedStudentId) : null;
+  const selectedStudent = selectedStudentId ? students.find(s => String(s.id) === String(selectedStudentId)) : null;
 
   return (
     <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -418,9 +423,9 @@ function StudentListForParent({ parentId }: { parentId: string }) {
             <div
               key={student.id}
               className={`p-3 rounded-lg border cursor-pointer transition-all hover:bg-muted/50 ${
-                selectedStudentId === student.id ? 'bg-primary/5 border-primary' : 'border-border'
+                String(selectedStudentId) === String(student.id) ? 'bg-primary/5 border-primary' : 'border-border'
               }`}
-              onClick={() => setSelectedStudentId(student.id)}
+              onClick={() => setSelectedStudentId(String(student.id))}
             >
               <div className="flex items-center gap-3">
                 <Avatar className="h-10 w-10">

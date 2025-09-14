@@ -268,7 +268,8 @@ export default function AdvocateMessages() {
       setShowTemplateSelector(true);
       
       // Pre-populate with introduction template by default
-      const introTemplate = MESSAGE_TEMPLATES.introduction.template(studentName, contextText);
+      const displayName = studentName || 'your child';
+      const introTemplate = MESSAGE_TEMPLATES.introduction.template(displayName, contextText);
       setNewMessageText(introTemplate);
       setSelectedTemplate('introduction');
       
@@ -311,7 +312,8 @@ export default function AdvocateMessages() {
       
       const template = MESSAGE_TEMPLATES[templateKey as keyof typeof MESSAGE_TEMPLATES];
       if (template) {
-        setNewMessageText(template.template(studentName, contextText));
+        const displayName = studentName || 'your child';
+        setNewMessageText(template.template(displayName, contextText));
         setSelectedTemplate(templateKey);
       }
     }

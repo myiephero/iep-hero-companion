@@ -40,17 +40,20 @@ const AdvocatePricingPlan = () => {
     // Handle Agency plan with setup fee (like Hero Parent plan)
     if (tier.id === 'agency') {
       if (isAnnual) {
+        const monthlyTotal = tier.monthlyPrice * 12; // $249 * 12 = $2988
+        const annualTotal = tier.annualPrice * 12; // $199 * 12 = $2388
+        const annualSavings = monthlyTotal - annualTotal; // $2988 - $2388 = $600
         return {
           price: `$${tier.annualPrice}`,
           period: '/month',
-          annualTotal: `$${tier.annualPrice * 12}/year + $${tier.setupFee} setup fee`,
+          annualSavings: `Save $${annualSavings}/year`,
           setupFee: tier.setupFee
         };
       }
       return {
         price: `$${tier.monthlyPrice}`,
         period: '/month',
-        annualTotal: null,
+        annualSavings: null,
         setupFee: tier.setupFee
       };
     }
@@ -58,31 +61,37 @@ const AdvocatePricingPlan = () => {
     // Custom annual pricing for Starter and Pro plans
     if (isAnnual) {
       let annualMonthlyRate;
-      let annualTotal;
+      let annualSavings;
       
       if (tier.id === 'starter') {
         annualMonthlyRate = 39; // $39/month when paid annually
-        annualTotal = 39 * 12; // $468/year
+        const monthlyTotal = tier.monthlyPrice * 12; // $49 * 12 = $588
+        const annualTotal = 39 * 12; // $468/year
+        annualSavings = monthlyTotal - annualTotal; // $588 - $468 = $120
       } else if (tier.id === 'pro') {
-        annualMonthlyRate = 65; // $65/month when paid annually
-        annualTotal = 65 * 12; // $780/year
+        annualMonthlyRate = 75; // $75/month when paid annually
+        const monthlyTotal = tier.monthlyPrice * 12; // $99 * 12 = $1188
+        const annualTotal = 75 * 12; // $900/year
+        annualSavings = monthlyTotal - annualTotal; // $1188 - $900 = $288
       } else {
         // Fallback to 10% discount for other plans
-        annualTotal = Math.round(tier.monthlyPrice * 12 * 0.9);
+        const monthlyTotal = tier.monthlyPrice * 12;
+        const annualTotal = Math.round(tier.monthlyPrice * 12 * 0.9);
         annualMonthlyRate = Math.round(annualTotal / 12);
+        annualSavings = monthlyTotal - annualTotal;
       }
       
       return {
         price: `$${annualMonthlyRate}`,
         period: '/month',
-        annualTotal: `$${annualTotal}/year`
+        annualSavings: `Save $${annualSavings}/year`
       };
     }
     
     return {
       price: `$${tier.monthlyPrice}`,
       period: '/month',
-      annualTotal: null
+      annualSavings: null
     };
   };
 
@@ -120,7 +129,7 @@ const AdvocatePricingPlan = () => {
     {
       id: 'pro',
       name: 'Pro',
-      monthlyPrice: 75,
+      monthlyPrice: 99,
       seats: '1 Seat',
       description: 'Adds AI analysis and professional planning',
       toolCount: '20+ Tools + AI Analysis',
@@ -343,9 +352,9 @@ const AdvocatePricingPlan = () => {
                         <span className="text-3xl font-bold">{getPriceForPlan(tier, isAnnual).price}</span>
                         <span className="text-muted-foreground text-sm">{getPriceForPlan(tier, isAnnual).period}</span>
                       </div>
-                      {getPriceForPlan(tier, isAnnual).annualTotal && (
-                        <div className="text-xs text-muted-foreground mt-1">
-                          {getPriceForPlan(tier, isAnnual).annualTotal}
+                      {getPriceForPlan(tier, isAnnual).annualSavings && (
+                        <div className="inline-flex items-center justify-center px-2 py-1 bg-red-500 text-white text-xs font-semibold rounded-full mt-2">
+                          {getPriceForPlan(tier, isAnnual).annualSavings}
                         </div>
                       )}
                       {getPriceForPlan(tier, isAnnual).setupFee && !isAnnual && (

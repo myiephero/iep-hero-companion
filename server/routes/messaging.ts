@@ -5,6 +5,7 @@ import { db } from '../db';
 import { conversations, messages, advocates, students, match_proposals, users, documents, message_attachments, conversation_labels, conversation_label_assignments } from '../../shared/schema';
 import { eq, and, or, desc, asc, ne, isNull, inArray, exists } from 'drizzle-orm';
 import { getUserId } from '../utils';
+import { isAuthenticated } from '../replitAuth';
 import {
   validateFilesUpload,
   sanitizeFileName,
@@ -43,7 +44,7 @@ const upload = multer({
 
 // Validation schemas
 const createConversationSchema = z.object({
-  advocate_id: z.string(),
+  advocate_id: z.string().optional(),
   parent_id: z.string(),
   student_id: z.string().optional(),
   match_proposal_id: z.string().optional(),
@@ -67,36 +68,60 @@ const presignedUploadSchema = z.object({
 });
 
 // POST /api/messaging/conversations - Create a new conversation
-router.post('/conversations', async (req: Request, res: Response) => {
+router.post('/conversations', isAuthenticated, async (req: Request, res: Response) => {
   try {
     const userId = await getUserId(req);
     const data = createConversationSchema.parse(req.body);
     
     console.log('Creating conversation:', { userId, data });
     
-    // For advocates, we need to check if they own the advocate profile being used
-    let authorizedAsAdvocate = false;
-    if (data.advocate_id) {
-      const advocate = await db.select({
-        id: advocates.id,
-        user_id: advocates.user_id,
-        full_name: advocates.full_name
+    // Handle both advocate and parent flows
+    const advocateProfile = await db.select({
+      id: advocates.id,
+      user_id: advocates.user_id,
+      full_name: advocates.full_name
+    }).from(advocates)
+      .where(eq(advocates.user_id, userId))
+      .then(results => results[0]);
+    
+    if (advocateProfile) {
+      // User is an advocate - derive advocate_id from their profile (ignore client value)
+      data.advocate_id = advocateProfile.id;
+    } else {
+      // User is a parent - must match parent_id and provide valid advocate_id
+      if (userId !== data.parent_id) {
+        console.log('Authorization failed: Parent user ID mismatch', { userId, parent_id: data.parent_id });
+        return res.status(403).json({ error: 'Not authorized to create this conversation' });
+      }
+      
+      if (!data.advocate_id) {
+        console.log('Authorization failed: Parent must specify advocate_id');
+        return res.status(400).json({ error: 'advocate_id required for parent-initiated conversations' });
+      }
+      
+      // Validate advocate_id exists
+      const targetAdvocate = await db.select({
+        id: advocates.id
       }).from(advocates)
         .where(eq(advocates.id, data.advocate_id))
         .then(results => results[0]);
       
-      if (advocate && advocate.user_id === userId) {
-        authorizedAsAdvocate = true;
+      if (!targetAdvocate) {
+        console.log('Authorization failed: Invalid advocate_id', { advocate_id: data.advocate_id });
+        return res.status(400).json({ error: 'Invalid advocate specified' });
       }
-    }
-    
-    // Verify the user is either the parent or owns the advocate profile
-    if (userId !== data.parent_id && !authorizedAsAdvocate) {
-      console.log('Authorization failed:', { userId, parent_id: data.parent_id, authorizedAsAdvocate });
-      return res.status(403).json({ error: 'Not authorized to create this conversation' });
     }
 
     // Check if conversation already exists between these users
+    const existingConversationConditions = [
+      eq(conversations.advocate_id, data.advocate_id!),
+      eq(conversations.parent_id, data.parent_id)
+    ];
+    
+    if (data.student_id) {
+      existingConversationConditions.push(eq(conversations.student_id, data.student_id));
+    }
+    
     const existingConversation = await db.select({
       id: conversations.id,
       advocate_id: conversations.advocate_id,
@@ -108,11 +133,7 @@ router.post('/conversations', async (req: Request, res: Response) => {
       last_message_at: conversations.last_message_at,
       created_at: conversations.created_at
     }).from(conversations)
-      .where(and(
-        eq(conversations.advocate_id, data.advocate_id),
-        eq(conversations.parent_id, data.parent_id),
-        data.student_id ? eq(conversations.student_id, data.student_id) : undefined
-      ))
+      .where(and(...existingConversationConditions))
       .then(results => results[0]);
 
     if (existingConversation) {
@@ -122,7 +143,11 @@ router.post('/conversations', async (req: Request, res: Response) => {
     // Create new conversation
     const [conversation] = await db.insert(conversations)
       .values({
-        ...data,
+        advocate_id: data.advocate_id!, // Guaranteed to be set by authorization logic
+        parent_id: data.parent_id,
+        student_id: data.student_id || null,
+        match_proposal_id: data.match_proposal_id || null,
+        title: data.title || null,
         status: 'active',
         last_message_at: new Date(),
       })

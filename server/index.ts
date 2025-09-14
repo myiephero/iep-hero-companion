@@ -2235,6 +2235,96 @@ app.delete('/api/accommodations/:id', async (req, res) => {
   }
 });
 
+// Services routes
+app.get('/api/services', async (req, res) => {
+  try {
+    const userId = await getUserId(req);
+    const { student_id, service_type } = req.query;
+    
+    const whereConditions = [eq(schema.services.user_id, userId)];
+    
+    if (student_id) {
+      whereConditions.push(eq(schema.services.student_id, student_id as string));
+    }
+    
+    if (service_type) {
+      whereConditions.push(eq(schema.services.service_type, service_type as string));
+    }
+    
+    const services = await db.select().from(schema.services)
+      .where(and(...whereConditions))
+      .orderBy(desc(schema.services.created_at));
+    
+    res.json(services);
+  } catch (error) {
+    console.error('Error fetching services:', error);
+    res.status(500).json({ error: 'Failed to fetch services' });
+  }
+});
+
+app.post('/api/services', async (req, res) => {
+  try {
+    const userId = await getUserId(req);
+    const serviceData = { 
+      ...req.body, 
+      user_id: userId,
+      created_at: new Date(),
+      updated_at: new Date()
+    };
+    
+    const [service] = await db.insert(schema.services)
+      .values(serviceData)
+      .returning();
+    
+    res.json(service);
+  } catch (error) {
+    console.error('Error creating service:', error);
+    res.status(500).json({ error: 'Failed to create service' });
+  }
+});
+
+app.put('/api/services/:id', async (req, res) => {
+  try {
+    const userId = await getUserId(req);
+    const { id } = req.params;
+    
+    const [service] = await db.update(schema.services)
+      .set({ ...req.body, updated_at: new Date() })
+      .where(and(
+        eq(schema.services.id, id),
+        eq(schema.services.user_id, userId)
+      ))
+      .returning();
+    
+    if (!service) {
+      return res.status(404).json({ error: 'Service not found' });
+    }
+    
+    res.json(service);
+  } catch (error) {
+    console.error('Error updating service:', error);
+    res.status(500).json({ error: 'Failed to update service' });
+  }
+});
+
+app.delete('/api/services/:id', async (req, res) => {
+  try {
+    const userId = await getUserId(req);
+    const { id } = req.params;
+    
+    await db.delete(schema.services)
+      .where(and(
+        eq(schema.services.id, id),
+        eq(schema.services.user_id, userId)
+      ));
+    
+    res.json({ success: true });
+  } catch (error) {
+    console.error('Error deleting service:', error);
+    res.status(500).json({ error: 'Failed to delete service' });
+  }
+});
+
 // Save AI Insights accommodations manually
 app.post('/api/gifted-assessments/save-insights', async (req, res) => {
   try {

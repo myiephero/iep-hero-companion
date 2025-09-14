@@ -24,15 +24,14 @@ export function BottomNavigation() {
   const isAdvocate = user?.role === 'advocate';
   const userPlan = normalizeSubscriptionPlan(user?.subscriptionPlan);
   
-  // Generate plan-specific dashboard URL
+  // Generate plan-specific dashboard URL using already normalized plan
   const advocatePlanMapping = {
     'starter': 'starter',
     'pro': 'pro', 
     'agency': 'agency',
-    'agencyplus': 'agency-plus',
-    'agency plus': 'agency-plus'
+    'agency-plus': 'agency-plus'
   };
-  const advocatePlanSlug = advocatePlanMapping[user?.subscriptionPlan?.toLowerCase()] || 'starter';
+  const advocatePlanSlug = advocatePlanMapping[userPlan] || 'starter';
   const dashboardUrl = isAdvocate ? `/advocate/dashboard-${advocatePlanSlug}` : `/parent/dashboard-${userPlan}`;
 
   // Define navigation items based on user role
@@ -67,7 +66,7 @@ export function BottomNavigation() {
 
   return (
     <nav className="fixed bottom-0 left-0 right-0 z-50 bg-background/95 backdrop-blur border-t border-border safe-area-pb md:hidden">
-      <div className="flex items-center justify-around px-2 py-2">
+      <div className="flex items-center justify-around px-2 py-1">
         {navigationItems.map((item) => {
           const isItemActive = isActive(item.url);
           
@@ -75,7 +74,7 @@ export function BottomNavigation() {
             <Link
               key={item.title}
               to={item.url}
-              className={`flex flex-col items-center gap-1 px-3 py-2 rounded-lg transition-all min-w-0 flex-1 ${
+              className={`flex flex-col items-center gap-1 px-2 py-2 rounded-lg transition-all min-w-0 flex-1 min-h-[44px] ${
                 isItemActive
                   ? 'text-primary bg-primary/10'
                   : 'text-muted-foreground hover:text-foreground'

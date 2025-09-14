@@ -456,6 +456,23 @@
     @apply flex flex-col space-y-2 sm:flex-row sm:space-y-0 sm:space-x-2;
   }
   
+  /* Safe Area Utilities for iOS devices */
+  .safe-area-pb {
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+  
+  .safe-area-pt {
+    padding-top: env(safe-area-inset-top);
+  }
+  
+  .safe-area-pl {
+    padding-left: env(safe-area-inset-left);
+  }
+  
+  .safe-area-pr {
+    padding-right: env(safe-area-inset-right);
+  }
+  
   /* Animation Classes */
   .animate-fade-in {
     animation: fadeIn 0.6s ease-out forwards;

@@ -62,7 +62,7 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
                 {/* Role-aware upgrade buttons */}
                 {user?.role === 'parent' && userPlan !== 'hero' && (
                   <>
-                    <Button asChild variant="hero" size="sm" className="hidden sm:flex" data-testid="button-parent-upgrade-header">
+                    <Button asChild variant="hero" className="hidden sm:flex min-h-[44px]" data-testid="button-parent-upgrade-header">
                       <Link to="/parent/pricing">
                         <Crown className="h-4 w-4 mr-1" />
                         {userPlan === 'free' ? 'HERO Plan' : 'Upgrade'}
@@ -70,7 +70,7 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
                     </Button>
                     
                     {/* Mobile Parent Upgrade Button */}
-                    <Button asChild variant="hero" size="sm" className="sm:hidden" data-testid="button-parent-upgrade-header-mobile">
+                    <Button asChild variant="hero" className="sm:hidden min-h-[44px] min-w-[44px]" data-testid="button-parent-upgrade-header-mobile">
                       <Link to="/parent/pricing">
                         <Crown className="h-4 w-4" />
                       </Link>
@@ -81,7 +81,7 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
                 {/* Advocate upgrade buttons */}
                 {user?.role === 'advocate' && userPlan !== 'agency-plus' && (
                   <>
-                    <Button asChild variant="outline" size="sm" className="hidden sm:flex border-blue-200 text-blue-700 hover:bg-blue-50" data-testid="button-advocate-upgrade-header">
+                    <Button asChild variant="outline" className="hidden sm:flex border-blue-200 text-blue-700 hover:bg-blue-50 min-h-[44px]" data-testid="button-advocate-upgrade-header">
                       <Link to="/advocate/pricing">
                         <Crown className="h-4 w-4 mr-1" />
                         Upgrade Plan
@@ -89,7 +89,7 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
                     </Button>
                     
                     {/* Mobile Advocate Upgrade Button */}
-                    <Button asChild variant="outline" size="sm" className="sm:hidden border-blue-200 text-blue-700 hover:bg-blue-50" data-testid="button-advocate-upgrade-header-mobile">
+                    <Button asChild variant="outline" className="sm:hidden border-blue-200 text-blue-700 hover:bg-blue-50 min-h-[44px] min-w-[44px]" data-testid="button-advocate-upgrade-header-mobile">
                       <Link to="/advocate/pricing">
                         <Crown className="h-4 w-4" />
                       </Link>
@@ -100,7 +100,7 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
                 {/* User Dropdown */}
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
-                    <Button variant="ghost" className="flex items-center gap-2 px-3">
+                    <Button variant="ghost" className="flex items-center gap-2 px-3 min-h-[44px]">
                       <User className="h-4 w-4" />
                       {(profile?.full_name || user?.email) && (
                         <span className="text-sm text-muted-foreground hidden lg:block">

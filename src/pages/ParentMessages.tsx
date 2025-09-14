@@ -324,10 +324,9 @@ export default function ParentMessages() {
                         </Avatar>
                         <div className="flex-1 min-w-0">
                           <div className="flex items-center justify-between">
-                            <p className="font-bold truncate">{advocateName}</p>
+                            <p className="font-medium truncate">{advocateName}</p>
                             <span className="text-xs text-muted-foreground">{lastMessageTime}</span>
                           </div>
-                          <p className="text-xs text-muted-foreground mb-1">{conversation.student?.full_name || 'Student'}</p>
                           {conversation.latest_message?.content && (
                             <p className="text-sm truncate">
                               {conversation.latest_message.content}

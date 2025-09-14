@@ -1297,32 +1297,34 @@ export default function AdvocateParents() {
                     {parents.map((parent) => (
                       <div
                         key={parent.id}
-                        className={`p-3 hover:bg-muted/50 cursor-pointer border-b last:border-b-0 transition-colors ${selectedParentId === parent.id ? 'bg-muted/50 border-l-4 border-l-primary' : ''}`}
+                        className={`p-2 hover:bg-muted/50 cursor-pointer border-b last:border-b-0 transition-colors ${selectedParentId === parent.id ? 'bg-muted/50 border-l-4 border-l-primary' : ''}`}
                         onClick={() => setSelectedParentId(parent.id)}
                       >
-                        <div className="flex items-center justify-between">
-                          <div className="flex items-center gap-3">
-                            <Avatar className="h-10 w-10">
-                              <AvatarFallback className="bg-primary/10 text-primary font-semibold">
-                                {parent.full_name?.split(' ').map(n => n[0]).join('').toUpperCase() || 'NA'}
-                              </AvatarFallback>
-                            </Avatar>
-                            <div>
-                              <p className="font-medium">{parent.full_name}</p>
-                              <p className="text-sm text-muted-foreground">{parent.email}</p>
+                        <div className="flex items-center gap-2">
+                          <Avatar className="h-8 w-8">
+                            <AvatarFallback className="bg-primary/10 text-primary font-semibold text-xs">
+                              {parent.full_name?.split(' ').map(n => n[0]).join('').toUpperCase() || 'NA'}
+                            </AvatarFallback>
+                          </Avatar>
+                          <div className="flex-1 min-w-0">
+                            <div className="flex items-center justify-between">
+                              <p className="font-medium text-sm truncate">{parent.full_name}</p>
+                              <div className="flex gap-1 ml-2 flex-shrink-0">
+                                <Badge variant="outline" className={`text-[10px] px-1 py-0 h-4 ${getIEPStatusColor(getParentIEPStatus(parent))}`}>
+                                  {getParentIEPStatus(parent).charAt(0).toUpperCase() + getParentIEPStatus(parent).slice(1)}
+                                </Badge>
+                                <Badge variant="outline" className={`text-[10px] px-1 py-0 h-4 ${getStatusColor(parent.status)}`}>
+                                  {(parent.status || 'Pending').charAt(0).toUpperCase() + (parent.status || 'Pending').slice(1)}
+                                </Badge>
+                              </div>
+                            </div>
+                            <div className="flex items-center justify-between mt-1">
+                              <p className="text-xs text-muted-foreground truncate">{parent.email}</p>
+                              <p className="text-[10px] text-muted-foreground flex-shrink-0 ml-2">
+                                {parent.students_count || 0} student{parent.students_count !== 1 ? 's' : ''}
+                              </p>
                             </div>
                           </div>
-                          <div className="flex flex-col gap-1">
-                            <Badge className={`text-xs ${getIEPStatusColor(getParentIEPStatus(parent))}`}>
-                              IEP: {getParentIEPStatus(parent).charAt(0).toUpperCase() + getParentIEPStatus(parent).slice(1)}
-                            </Badge>
-                            <Badge className={`text-xs ${getStatusColor(parent.status)}`}>
-                              Case Status: {parent.status || 'Pending'}
-                            </Badge>
-                          </div>
-                        </div>
-                        <div className="mt-2 text-xs text-muted-foreground">
-                          {parent.students_count || 0} student{parent.students_count !== 1 ? 's' : ''} • Created {formatDate(parent.created_at)}
                         </div>
                       </div>
                     ))}

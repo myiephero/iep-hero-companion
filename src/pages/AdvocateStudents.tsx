@@ -1718,6 +1718,17 @@ const AdvocateStudents = () => {
                         <span className="hidden lg:inline">Autism</span>
                       </button>
                       <button
+                        onClick={() => setSelectedTab("gifted")}
+                        className={`flex items-center gap-2 px-3 py-3 rounded-lg font-medium transition-all duration-200 flex-1 justify-center ${
+                          selectedTab === "gifted"
+                            ? "bg-gradient-to-r from-purple-500 to-purple-600 text-white shadow-md"
+                            : "text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800"
+                        }`}
+                      >
+                        <Star className="h-4 w-4" />
+                        <span className="hidden lg:inline">Gifted</span>
+                      </button>
+                      <button
                         onClick={() => setSelectedTab("communication")}
                         className={`flex items-center gap-2 px-3 py-3 rounded-lg font-medium transition-all duration-200 flex-1 justify-center ${
                           selectedTab === "communication"
@@ -1728,17 +1739,6 @@ const AdvocateStudents = () => {
                       >
                         <MessageCircle className="h-4 w-4" />
                         <span className="hidden lg:inline">Communication</span>
-                      </button>
-                      <button
-                        onClick={() => setSelectedTab("gifted")}
-                        className={`flex items-center gap-2 px-3 py-3 rounded-lg font-medium transition-all duration-200 flex-1 justify-center ${
-                          selectedTab === "gifted"
-                            ? "bg-gradient-to-r from-purple-500 to-purple-600 text-white shadow-md"
-                            : "text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800"
-                        }`}
-                      >
-                        <Star className="h-4 w-4" />
-                        <span className="hidden lg:inline">Gifted</span>
                       </button>
                     </div>
                   </div>

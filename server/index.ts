@@ -2895,9 +2895,18 @@ app.get('/api/advocates/for-parent', isAuthenticated, async (req, res) => {
     
     console.log(`✅ Found ${advocateRelationships.length} advocates with active relationships for parent`);
     
-    // Filter out any null advocates and format response
+    // Filter out any null advocates and remove duplicates by advocate ID
+    const seenAdvocateIds = new Set();
     const advocates = advocateRelationships
       .filter(ar => ar.advocate) // Only include records where advocate data exists
+      .filter(ar => {
+        if (!ar.advocate) return false; // Additional null check for TypeScript
+        if (seenAdvocateIds.has(ar.advocate.id)) {
+          return false; // Skip duplicate advocate
+        }
+        seenAdvocateIds.add(ar.advocate.id);
+        return true;
+      })
       .map(({ advocate, relationship }) => ({
         ...advocate,
         relationship_status: relationship.status,

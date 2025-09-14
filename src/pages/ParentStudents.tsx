@@ -1915,12 +1915,36 @@ const CommunicationTab = ({
       return;
     }
 
+    console.log('DEBUG: currentStudent object:', currentStudent);
+    console.log('DEBUG: currentStudent.parent_id:', currentStudent.parent_id);
+    console.log('DEBUG: selectedStudentId:', selectedStudentId);
+    console.log('DEBUG: user.id:', user.id);
+    console.log('DEBUG: user role:', user.role);
+
+    // Determine the correct parent ID
+    let parentId = currentStudent.parent_id;
+    
+    // If parent_id is missing and the current user is a parent, use their ID
+    if (!parentId && user.role === 'parent') {
+      parentId = user.id;
+      console.log('DEBUG: Using user.id as parentId for parent user');
+    }
+    
+    if (!parentId) {
+      toast({
+        title: "Error",
+        description: "Unable to determine parent for this student. Please contact support.",
+        variant: "destructive"
+      });
+      return;
+    }
+
     try {
       // Create conversation in the main messaging system
       const conversation = await createConversation(
-        user.id, // advocateId  
-        selectedStudentId, // studentId
-        user.id // parentId - using user.id as the parent for this demo
+        user.id, // advocateId
+        parentId, // parentId - actual parent of the student
+        selectedStudentId // studentId - the student this conversation is about
       );
 
       if (conversation) {
@@ -1933,8 +1957,9 @@ const CommunicationTab = ({
         navigate('/advocate/messages', { 
           state: { 
             newMessage: { 
-              parentId: user.id,
+              parentId: currentStudent.parent_id,
               studentId: selectedStudentId,
+              studentName: currentStudent.full_name,
               content: messageText 
             } 
           } 

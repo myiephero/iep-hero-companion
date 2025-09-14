@@ -131,7 +131,7 @@ export function useCreateConversation() {
     mutationFn: (data: { advocateId: string; studentId?: string; parentId: string }) => 
       createConversation({
         advocate_id: data.advocateId,
-        student_id: data.studentId || '',
+        student_id: data.studentId,
         parent_id: data.parentId
       }),
     onSuccess: () => {

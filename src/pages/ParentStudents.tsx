@@ -1904,46 +1904,45 @@ const CommunicationTab = ({
   toast: any;
 }) => {
   const [messageText, setMessageText] = useState('');
+  const [selectedAdvocateId, setSelectedAdvocateId] = useState<string>('');
+  const [advocates, setAdvocates] = useState<any[]>([]);
+
+  // Fetch advocates for the dropdown
+  useEffect(() => {
+    const fetchAdvocates = async () => {
+      try {
+        const response = await apiRequest('GET', '/api/advocates');
+        const data = await response.json();
+        setAdvocates(data || []);
+      } catch (error) {
+        console.error('Error fetching advocates:', error);
+      }
+    };
+
+    fetchAdvocates();
+  }, []);
 
   const handleSendMessage = async () => {
-    if (!selectedStudentId || !currentStudent || !messageText.trim()) {
+    if (!selectedStudentId || !currentStudent || !messageText.trim() || !selectedAdvocateId) {
       toast({
         title: "Error",
-        description: "Please enter a message first.",
+        description: "Please select an advocate and enter a message.",
         variant: "destructive"
       });
       return;
     }
 
-    console.log('DEBUG: currentStudent object:', currentStudent);
-    console.log('DEBUG: currentStudent.parent_id:', currentStudent.parent_id);
-    console.log('DEBUG: selectedStudentId:', selectedStudentId);
-    console.log('DEBUG: user.id:', user.id);
-    console.log('DEBUG: user role:', user.role);
-
-    // Determine the correct parent ID
-    let parentId = currentStudent.parent_id;
-    
-    // If parent_id is missing and the current user is a parent, use their ID
-    if (!parentId && user.role === 'parent') {
-      parentId = user.id;
-      console.log('DEBUG: Using user.id as parentId for parent user');
-    }
-    
-    if (!parentId) {
-      toast({
-        title: "Error",
-        description: "Unable to determine parent for this student. Please contact support.",
-        variant: "destructive"
-      });
-      return;
-    }
+    console.log('DEBUG: Parent messaging - currentStudent object:', currentStudent);
+    console.log('DEBUG: Parent messaging - selectedStudentId:', selectedStudentId);
+    console.log('DEBUG: Parent messaging - user.id (parent):', user.id);
+    console.log('DEBUG: Parent messaging - selectedAdvocateId:', selectedAdvocateId);
+    console.log('DEBUG: Parent messaging - user role:', user.role);
 
     try {
-      // Create conversation in the main messaging system
+      // Create conversation in the main messaging system - PARENT TO ADVOCATE
       const conversation = await createConversation(
-        user.id, // advocateId
-        parentId, // parentId - actual parent of the student
+        selectedAdvocateId, // advocateId - the selected advocate
+        user.id, // parentId - current user (parent)
         selectedStudentId // studentId - the student this conversation is about
       );
 
@@ -1953,11 +1952,11 @@ const CommunicationTab = ({
           description: "Conversation created successfully. Redirecting to Messages...",
         });
         
-        // Redirect to messages page with the new conversation
-        navigate('/advocate/messages', { 
+        // Redirect to parent messages page with the new conversation
+        navigate('/parent/messages', { 
           state: { 
             newMessage: { 
-              parentId: currentStudent.parent_id,
+              advocateId: selectedAdvocateId,
               studentId: selectedStudentId,
               studentName: currentStudent.full_name,
               content: messageText 
@@ -1996,13 +1995,34 @@ const CommunicationTab = ({
       <CardHeader>
         <CardTitle className="flex items-center">
           <MessageCircle className="h-5 w-5 mr-2" />
-          Send Message to Parent
+          Send Message to Advocate
         </CardTitle>
         <CardDescription>
           Start a conversation about {currentStudent.full_name}
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-4">
+        <div className="space-y-2">
+          <Label htmlFor="advocate">Select Advocate</Label>
+          <Select value={selectedAdvocateId} onValueChange={setSelectedAdvocateId}>
+            <SelectTrigger className="bg-background border-border">
+              <SelectValue placeholder="Choose an advocate..." />
+            </SelectTrigger>
+            <SelectContent className="bg-background border-border z-50">
+              {advocates.map((advocate) => (
+                <SelectItem key={advocate.id} value={advocate.id}>
+                  <div className="flex items-center gap-2">
+                    <div className="flex flex-col">
+                      <span className="font-medium">{advocate.full_name}</span>
+                      <span className="text-xs text-muted-foreground">{advocate.specialization || 'General Advocacy'}</span>
+                    </div>
+                  </div>
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+        
         <div className="space-y-2">
           <Label htmlFor="message">Message</Label>
           <Textarea
@@ -2018,7 +2038,7 @@ const CommunicationTab = ({
         
         <Button 
           onClick={handleSendMessage}
-          disabled={!messageText.trim() || creating}
+          disabled={!messageText.trim() || !selectedAdvocateId || creating}
           className="w-full"
           data-testid="button-send-message"
         >
@@ -2028,7 +2048,7 @@ const CommunicationTab = ({
 
         <div className="text-sm text-muted-foreground bg-muted/50 p-3 rounded-lg">
           <p className="font-medium mb-1">💡 Tip:</p>
-          <p>This will create a new conversation that will appear in your Messages page, where you can continue the discussion with the parent.</p>
+          <p>This will create a new conversation that will appear in your Messages page, where you can continue the discussion with your advocate.</p>
         </div>
       </CardContent>
     </Card>

@@ -594,37 +594,37 @@ const AdvocateDashboard = ({ plan }: AdvocateDashboardProps) => {
 
   return (
     <DashboardLayout>
-      <div className="space-y-8">
+      <div className="space-y-6 sm:space-y-8">
         {/* Hero Section */}
-        <div className="relative overflow-hidden rounded-xl bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 dark:from-blue-950 dark:via-indigo-950 dark:to-purple-950 p-8">
+        <div className="relative overflow-hidden rounded-xl bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 dark:from-blue-950 dark:via-indigo-950 dark:to-purple-950 p-4 sm:p-6 md:p-8">
           <div className="relative z-10">
-            <div className="flex items-center justify-between">
-              <div className="space-y-2">
+            <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 lg:gap-0">
+              <div className="space-y-2 sm:space-y-3">
                 <div className="flex items-center gap-3">
-                  <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-xl flex items-center justify-center">
-                    <Shield className="h-6 w-6 text-white" />
+                  <div className="w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-xl flex items-center justify-center">
+                    <Shield className="h-5 w-5 sm:h-6 sm:w-6 text-white" />
                   </div>
                   <div>
-                    <h1 className="text-3xl font-bold bg-gradient-to-r from-gray-900 to-gray-700 dark:from-gray-100 dark:to-gray-300 bg-clip-text text-transparent">
+                    <h1 className="text-xl sm:text-2xl md:text-3xl font-bold bg-gradient-to-r from-gray-900 to-gray-700 dark:from-gray-100 dark:to-gray-300 bg-clip-text text-transparent">
                       Welcome back, {user?.firstName && user?.lastName ? `${user.firstName} ${user.lastName}` : (user?.firstName || user?.email?.split('@')[0] || 'Advocate')}
                     </h1>
-                    <p className="text-gray-600 dark:text-gray-400 text-lg">Your advocacy command center</p>
+                    <p className="text-gray-600 dark:text-gray-400 text-sm sm:text-base md:text-lg">Your advocacy command center</p>
                   </div>
                 </div>
-                <div className="flex items-center gap-4 mt-4">
-                  <div className="flex items-center gap-2 px-4 py-2 bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200 rounded-full text-sm font-medium">
-                    <Flag className="h-4 w-4" />
+                <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4 mt-3 sm:mt-4">
+                  <div className="flex items-center gap-2 px-3 sm:px-4 py-2 bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200 rounded-full text-xs sm:text-sm font-medium">
+                    <Flag className="h-3 w-3 sm:h-4 sm:w-4" />
                     {plan ? `${plan.charAt(0).toUpperCase() + plan.slice(1)} Plan` : 'Active Plan'}
                   </div>
-                  <div className="flex items-center gap-2 px-4 py-2 bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200 rounded-full text-sm font-medium">
-                    <Activity className="h-4 w-4" />
+                  <div className="flex items-center gap-2 px-3 sm:px-4 py-2 bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200 rounded-full text-xs sm:text-sm font-medium">
+                    <Activity className="h-3 w-3 sm:h-4 sm:w-4" />
                     Active Today
                   </div>
                 </div>
               </div>
               
               {/* Quick Actions */}
-              <div className="flex items-center gap-3">
+              <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 sm:gap-3">
                 <FeatureGate 
                   requiredFeature="advocateMessaging"
                   showUpgradePrompt={false}
@@ -633,7 +633,7 @@ const AdvocateDashboard = ({ plan }: AdvocateDashboardProps) => {
                       requiredFeature="advocateMessaging"
                       variant="outline"
                       size="sm"
-                      className="bg-white/80 backdrop-blur-sm hover:bg-white"
+                      className="bg-white/80 backdrop-blur-sm hover:bg-white min-h-[44px] text-sm sm:text-base w-full sm:w-auto"
                       data-testid="quick-messages-locked"
                       upgradeBenefits={[
                         "Direct messaging with parents and families",
@@ -647,7 +647,7 @@ const AdvocateDashboard = ({ plan }: AdvocateDashboardProps) => {
                     </LockedActionButton>
                   }
                 >
-                  <Button asChild variant="outline" size="sm" className="bg-white/80 backdrop-blur-sm hover:bg-white">
+                  <Button asChild variant="outline" size="sm" className="bg-white/80 backdrop-blur-sm hover:bg-white min-h-[44px] text-sm sm:text-base w-full sm:w-auto">
                     <Link to="/advocate/messages" data-testid="quick-messages">
                       <MessageSquare className="h-4 w-4 mr-2" />
                       Messages
@@ -663,7 +663,7 @@ const AdvocateDashboard = ({ plan }: AdvocateDashboardProps) => {
                     <LockedActionButton
                       requiredFeature="professionalAnalysis"
                       size="sm"
-                      className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700"
+                      className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 min-h-[44px] text-sm sm:text-base w-full sm:w-auto"
                       data-testid="quick-tools-locked"
                       upgradeBenefits={[
                         "Full access to 25+ professional tools",
@@ -678,7 +678,7 @@ const AdvocateDashboard = ({ plan }: AdvocateDashboardProps) => {
                     </LockedActionButton>
                   }
                 >
-                  <Button asChild size="sm" className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700">
+                  <Button asChild size="sm" className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 min-h-[44px] text-sm sm:text-base w-full sm:w-auto">
                     <Link to="/advocate/tools" data-testid="quick-tools">
                       <Zap className="h-4 w-4 mr-2" />
                       Access Tools
@@ -694,38 +694,38 @@ const AdvocateDashboard = ({ plan }: AdvocateDashboardProps) => {
         </div>
 
         {/* Enhanced Stats Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
           <Card className="relative overflow-hidden group hover:shadow-lg transition-all duration-300 border-0 bg-gradient-to-br from-orange-50 to-red-50 dark:from-orange-950 dark:to-red-950">
-            <CardContent className="p-6">
+            <CardContent className="p-3 sm:p-4 md:p-6">
               <div className="flex items-center justify-between">
-                <div className="space-y-2">
-                  <p className="text-sm font-medium text-orange-600 dark:text-orange-400">Pending Assignments</p>
+                <div className="space-y-1 sm:space-y-2">
+                  <p className="text-xs sm:text-sm font-medium text-orange-600 dark:text-orange-400">Pending Assignments</p>
                   <div className="flex items-center gap-2">
-                    <p className="text-3xl font-bold text-orange-900 dark:text-orange-100" data-testid="stat-pending-assignments">{totalPendingCount}</p>
-                    {totalPendingCount > 0 && <Badge variant="outline" className="text-orange-700 border-orange-300">Urgent</Badge>}
+                    <p className="text-xl sm:text-2xl md:text-3xl font-bold text-orange-900 dark:text-orange-100" data-testid="stat-pending-assignments">{totalPendingCount}</p>
+                    {totalPendingCount > 0 && <Badge variant="outline" className="text-orange-700 border-orange-300 text-xs sm:text-sm">Urgent</Badge>}
                   </div>
                   <p className="text-xs text-orange-600/70 dark:text-orange-400/70">Awaiting your response</p>
                 </div>
-                <div className="w-12 h-12 bg-orange-100 dark:bg-orange-900 rounded-lg flex items-center justify-center group-hover:scale-110 transition-transform">
-                  <Bell className="h-6 w-6 text-orange-600 dark:text-orange-400" />
+                <div className="w-10 h-10 sm:w-12 sm:h-12 bg-orange-100 dark:bg-orange-900 rounded-lg flex items-center justify-center group-hover:scale-110 transition-transform">
+                  <Bell className="h-5 w-5 sm:h-6 sm:w-6 text-orange-600 dark:text-orange-400" />
                 </div>
               </div>
             </CardContent>
           </Card>
 
           <Card className="relative overflow-hidden group hover:shadow-lg transition-all duration-300 border-0 bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-blue-950 dark:to-indigo-950">
-            <CardContent className="p-6">
+            <CardContent className="p-3 sm:p-4 md:p-6">
               <div className="flex items-center justify-between">
-                <div className="space-y-2">
-                  <p className="text-sm font-medium text-blue-600 dark:text-blue-400">Active Cases</p>
+                <div className="space-y-1 sm:space-y-2">
+                  <p className="text-xs sm:text-sm font-medium text-blue-600 dark:text-blue-400">Active Cases</p>
                   <div className="flex items-center gap-2">
-                    <p className="text-3xl font-bold text-blue-900 dark:text-blue-100">{openCases.length}</p>
-                    <TrendingUp className="h-4 w-4 text-green-500" />
+                    <p className="text-xl sm:text-2xl md:text-3xl font-bold text-blue-900 dark:text-blue-100">{openCases.length}</p>
+                    <TrendingUp className="h-3 w-3 sm:h-4 sm:w-4 text-green-500" />
                   </div>
                   <p className="text-xs text-blue-600/70 dark:text-blue-400/70">Currently advocating</p>
                 </div>
-                <div className="w-12 h-12 bg-blue-100 dark:bg-blue-900 rounded-lg flex items-center justify-center group-hover:scale-110 transition-transform">
-                  <Briefcase className="h-6 w-6 text-blue-600 dark:text-blue-400" />
+                <div className="w-10 h-10 sm:w-12 sm:h-12 bg-blue-100 dark:bg-blue-900 rounded-lg flex items-center justify-center group-hover:scale-110 transition-transform">
+                  <Briefcase className="h-5 w-5 sm:h-6 sm:w-6 text-blue-600 dark:text-blue-400" />
                 </div>
               </div>
             </CardContent>
@@ -742,18 +742,18 @@ const AdvocateDashboard = ({ plan }: AdvocateDashboardProps) => {
             data-testid="stat-meetings-gate"
           >
             <Card className="relative overflow-hidden group hover:shadow-lg transition-all duration-300 border-0 bg-gradient-to-br from-green-50 to-emerald-50 dark:from-green-950 dark:to-emerald-950">
-              <CardContent className="p-6">
+              <CardContent className="p-3 sm:p-4 md:p-6">
                 <div className="flex items-center justify-between">
-                  <div className="space-y-2">
-                    <p className="text-sm font-medium text-green-600 dark:text-green-400">This Week's Meetings</p>
+                  <div className="space-y-1 sm:space-y-2">
+                    <p className="text-xs sm:text-sm font-medium text-green-600 dark:text-green-400">This Week's Meetings</p>
                     <div className="flex items-center gap-2">
-                      <p className="text-3xl font-bold text-green-900 dark:text-green-100" data-testid="stat-meetings-count">{upcomingMeetings.length}</p>
-                      <Badge variant="outline" className="text-green-700 border-green-300">Scheduled</Badge>
+                      <p className="text-xl sm:text-2xl md:text-3xl font-bold text-green-900 dark:text-green-100" data-testid="stat-meetings-count">{upcomingMeetings.length}</p>
+                      <Badge variant="outline" className="text-green-700 border-green-300 text-xs sm:text-sm">Scheduled</Badge>
                     </div>
                     <p className="text-xs text-green-600/70 dark:text-green-400/70">Upcoming sessions</p>
                   </div>
-                  <div className="w-12 h-12 bg-green-100 dark:bg-green-900 rounded-lg flex items-center justify-center group-hover:scale-110 transition-transform">
-                    <CalendarIcon className="h-6 w-6 text-green-600 dark:text-green-400" />
+                  <div className="w-10 h-10 sm:w-12 sm:h-12 bg-green-100 dark:bg-green-900 rounded-lg flex items-center justify-center group-hover:scale-110 transition-transform">
+                    <CalendarIcon className="h-5 w-5 sm:h-6 sm:w-6 text-green-600 dark:text-green-400" />
                   </div>
                 </div>
               </CardContent>
@@ -771,18 +771,18 @@ const AdvocateDashboard = ({ plan }: AdvocateDashboardProps) => {
             data-testid="stat-goals-gate"
           >
             <Card className="relative overflow-hidden group hover:shadow-lg transition-all duration-300 border-0 bg-gradient-to-br from-purple-50 to-pink-50 dark:from-purple-950 dark:to-pink-950">
-              <CardContent className="p-6">
+              <CardContent className="p-3 sm:p-4 md:p-6">
                 <div className="flex items-center justify-between">
-                  <div className="space-y-2">
-                    <p className="text-sm font-medium text-purple-600 dark:text-purple-400">Goals Achieved</p>
+                  <div className="space-y-1 sm:space-y-2">
+                    <p className="text-xs sm:text-sm font-medium text-purple-600 dark:text-purple-400">Goals Achieved</p>
                     <div className="flex items-center gap-2">
-                      <p className="text-3xl font-bold text-purple-900 dark:text-purple-100" data-testid="stat-goals-count">{completedGoals.length}</p>
-                      <Award className="h-4 w-4 text-yellow-500" />
+                      <p className="text-xl sm:text-2xl md:text-3xl font-bold text-purple-900 dark:text-purple-100" data-testid="stat-goals-count">{completedGoals.length}</p>
+                      <Award className="h-3 w-3 sm:h-4 sm:w-4 text-yellow-500" />
                     </div>
                     <p className="text-xs text-purple-600/70 dark:text-purple-400/70">Total completed</p>
                   </div>
-                  <div className="w-12 h-12 bg-purple-100 dark:bg-purple-900 rounded-lg flex items-center justify-center group-hover:scale-110 transition-transform">
-                    <Target className="h-6 w-6 text-purple-600 dark:text-purple-400" />
+                  <div className="w-10 h-10 sm:w-12 sm:h-12 bg-purple-100 dark:bg-purple-900 rounded-lg flex items-center justify-center group-hover:scale-110 transition-transform">
+                    <Target className="h-5 w-5 sm:h-6 sm:w-6 text-purple-600 dark:text-purple-400" />
                   </div>
                 </div>
               </CardContent>
@@ -792,39 +792,39 @@ const AdvocateDashboard = ({ plan }: AdvocateDashboardProps) => {
 
         {/* Advocate Upgrade Section */}
         {shouldShowUpgrade && (
-          <div className="space-y-6">
+          <div className="space-y-4 sm:space-y-6">
             <Card className="border-0 shadow-xl bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 text-white overflow-hidden">
-              <CardContent className="p-8">
-                <div className="flex flex-col lg:flex-row items-center justify-between gap-8">
+              <CardContent className="p-4 sm:p-6 md:p-8">
+                <div className="flex flex-col lg:flex-row items-center justify-between gap-6 sm:gap-8">
                   <div className="flex-1 text-center lg:text-left">
-                    <div className="flex items-center justify-center lg:justify-start gap-3 mb-4">
+                    <div className="flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-3 mb-4">
                       <div className="p-2 bg-white/20 rounded-xl">
-                        <Rocket className="h-6 w-6 text-white" />
+                        <Rocket className="h-5 w-5 sm:h-6 sm:w-6 text-white" />
                       </div>
-                      <Badge variant="secondary" className="bg-white/20 text-white border-white/30 font-semibold">
+                      <Badge variant="secondary" className="bg-white/20 text-white border-white/30 font-semibold text-xs sm:text-sm">
                         {userPlan === 'starter' ? 'Starter Plan' : `${userPlan.charAt(0).toUpperCase() + userPlan.slice(1)} Plan`} Active
                       </Badge>
                     </div>
-                    <h2 className="text-3xl font-bold mb-3">🚀 Unlock Advanced Advocacy Tools</h2>
-                    <p className="text-white/90 mb-6 text-lg">
+                    <h2 className="text-xl sm:text-2xl md:text-3xl font-bold mb-3">🚀 Unlock Advanced Advocacy Tools</h2>
+                    <p className="text-white/90 mb-4 sm:mb-6 text-sm sm:text-base md:text-lg">
                       Scale your practice with AI-powered analytics, premium client management, and advanced reporting tools.
                     </p>
-                    <div className="flex flex-wrap justify-center lg:justify-start gap-6 text-sm">
+                    <div className="flex flex-col sm:flex-row sm:flex-wrap justify-center lg:justify-start gap-3 sm:gap-6 text-sm">
                       <div className="flex items-center gap-2">
-                        <CheckCircle className="h-5 w-5 text-green-300" />
+                        <CheckCircle className="h-4 w-4 sm:h-5 sm:w-5 text-green-300" />
                         <span className="font-medium">Advanced Case Analytics</span>
                       </div>
                       <div className="flex items-center gap-2">
-                        <CheckCircle className="h-5 w-5 text-green-300" />
+                        <CheckCircle className="h-4 w-4 sm:h-5 sm:w-5 text-green-300" />
                         <span className="font-medium">Team Collaboration Tools</span>
                       </div>
                       <div className="flex items-center gap-2">
-                        <CheckCircle className="h-5 w-5 text-green-300" />
+                        <CheckCircle className="h-4 w-4 sm:h-5 sm:w-5 text-green-300" />
                         <span className="font-medium">Professional Reporting Suite</span>
                       </div>
                     </div>
                   </div>
-                  <div className="flex flex-col gap-4 min-w-[280px]">
+                  <div className="flex flex-col gap-4 w-full sm:min-w-[280px] lg:w-auto">
                     <Button 
                       onClick={(e) => {
                         e.preventDefault();
@@ -837,10 +837,10 @@ const AdvocateDashboard = ({ plan }: AdvocateDashboardProps) => {
                         }
                       }}
                       size="lg"
-                      className="bg-white text-indigo-600 hover:bg-white/90 font-bold text-lg py-4 px-8 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300"
+                      className="bg-white text-indigo-600 hover:bg-white/90 font-bold text-base sm:text-lg py-4 px-6 sm:px-8 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 min-h-[48px] w-full"
                       data-testid="button-advocate-upgrade"
                     >
-                      <Crown className="h-5 w-5 mr-2" />
+                      <Crown className="h-4 w-4 sm:h-5 sm:w-5 mr-2" />
                       Upgrade Plan
                     </Button>
                   </div>
@@ -851,32 +851,32 @@ const AdvocateDashboard = ({ plan }: AdvocateDashboardProps) => {
         )}
 
         {/* Quick Access Grid - Integrated Sidebar Functions */}
-        <div className="space-y-6">
-          <div className="flex items-center justify-between">
-            <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100">Quick Access</h2>
-            <p className="text-gray-600 dark:text-gray-400">Access all your advocacy tools and workflows</p>
+        <div className="space-y-4 sm:space-y-6">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 sm:gap-4">
+            <h2 className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-gray-100">Quick Access</h2>
+            <p className="text-sm sm:text-base text-gray-600 dark:text-gray-400">Access all your advocacy tools and workflows</p>
           </div>
           
           {loading ? (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6">
               {[...Array(8)].map((_, i) => (
                 <Card key={i} className="animate-pulse border-0">
-                  <CardContent className="p-6">
+                  <CardContent className="p-4 sm:p-6">
                     <div className="flex items-center justify-between mb-4">
-                      <div className="w-12 h-12 bg-gray-200 dark:bg-gray-700 rounded-xl"></div>
-                      <div className="w-5 h-5 bg-gray-200 dark:bg-gray-700 rounded"></div>
+                      <div className="w-10 h-10 sm:w-12 sm:h-12 bg-gray-200 dark:bg-gray-700 rounded-xl"></div>
+                      <div className="w-4 h-4 sm:w-5 sm:h-5 bg-gray-200 dark:bg-gray-700 rounded"></div>
                     </div>
                     <div className="space-y-2">
-                      <div className="h-5 bg-gray-200 dark:bg-gray-700 rounded w-32"></div>
-                      <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-24"></div>
-                      <div className="h-6 bg-gray-200 dark:bg-gray-700 rounded w-16"></div>
+                      <div className="h-4 sm:h-5 bg-gray-200 dark:bg-gray-700 rounded w-32"></div>
+                      <div className="h-3 sm:h-4 bg-gray-200 dark:bg-gray-700 rounded w-24"></div>
+                      <div className="h-5 sm:h-6 bg-gray-200 dark:bg-gray-700 rounded w-16"></div>
                     </div>
                   </CardContent>
                 </Card>
               ))}
             </div>
           ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6">
               {/* Parent Clients */}
               <Card className="group hover:shadow-xl transition-all duration-300 cursor-pointer border-0 bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-blue-950/50 dark:to-indigo-950/50 hover:scale-105" data-testid="card-parent-clients">
                 <Link to="/advocate/parents" className="block">

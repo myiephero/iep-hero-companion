@@ -2945,23 +2945,23 @@ const ParentStudents = () => {
         />
 
         {currentStudent && (
-          <div className="grid gap-6">
+          <div className="grid gap-4 sm:gap-6">
             <Card className="premium-card">
-              <CardHeader>
-                <div className="flex items-center space-x-4">
-                  <Avatar className="h-16 w-16">
-                    <AvatarFallback className="text-lg bg-gradient-primary text-primary-foreground">
+              <CardHeader className="p-4 sm:p-6">
+                <div className="flex flex-col sm:flex-row items-start sm:items-center space-y-3 sm:space-y-0 sm:space-x-4">
+                  <Avatar className="h-12 w-12 sm:h-16 sm:w-16 self-center sm:self-auto">
+                    <AvatarFallback className="text-sm sm:text-lg bg-gradient-primary text-primary-foreground">
                       {currentStudent.full_name.split(' ').map(n => n[0]).join('')}
                     </AvatarFallback>
                   </Avatar>
-                  <div className="flex-1">
-                    <CardTitle className="text-2xl text-gradient">{currentStudent.full_name}</CardTitle>
-                    <CardDescription className="flex items-center space-x-4 mt-2">
+                  <div className="flex-1 text-center sm:text-left">
+                    <CardTitle className="text-lg sm:text-xl md:text-2xl text-gradient">{currentStudent.full_name}</CardTitle>
+                    <CardDescription className="flex flex-col sm:flex-row sm:items-center space-y-1 sm:space-y-0 sm:space-x-4 mt-2 text-sm sm:text-base">
                       <span>{currentStudent.grade_level ? `Grade ${currentStudent.grade_level}` : 'Grade not specified'}</span>
-                      <span>•</span>
+                      <span className="hidden sm:inline">•</span>
                       <span>{currentStudent.school_name || 'School not specified'}</span>
-                      <span>•</span>
-                      <Badge className={getIEPStatusColor(currentStudent.iep_status)}>
+                      <span className="hidden sm:inline">•</span>
+                      <Badge className={`${getIEPStatusColor(currentStudent.iep_status)} text-xs sm:text-sm self-center sm:self-auto`}>
                         IEP {currentStudent.iep_status}
                       </Badge>
                     </CardDescription>
@@ -2970,131 +2970,136 @@ const ParentStudents = () => {
               </CardHeader>
             </Card>
 
-            <div className="space-y-6">
+            <div className="space-y-4 sm:space-y-6">
               {/* Modern Horizontal Tab Navigation */}
-              <div className="w-full mb-8">
-                <div className="bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 p-1 rounded-2xl shadow-lg">
-                  <div className="flex bg-white dark:bg-gray-900 rounded-xl p-2 gap-1">
+              <div className="w-full mb-6 sm:mb-8">
+                <div className="bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 p-0.5 sm:p-1 rounded-xl sm:rounded-2xl shadow-lg">
+                  <div className="flex bg-white dark:bg-gray-900 rounded-lg sm:rounded-xl p-1 sm:p-2 gap-0.5 sm:gap-1 overflow-x-auto scrollbar-hide">
                     <button
                       onClick={() => setSelectedTab("overview")}
-                      className={`flex items-center gap-2 px-3 py-3 rounded-lg font-medium transition-all duration-200 flex-1 justify-center ${
+                      className={`flex items-center gap-1 sm:gap-2 px-2 sm:px-3 py-2 sm:py-3 rounded-md sm:rounded-lg font-medium transition-all duration-200 flex-1 justify-center min-h-[44px] text-xs sm:text-sm md:text-base whitespace-nowrap ${
                         selectedTab === "overview"
                           ? "bg-gradient-to-r from-slate-500 to-slate-600 text-white shadow-md"
                           : "text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800"
                       }`}
                     >
-                      <FileText className="h-4 w-4" />
-                      <span className="hidden lg:inline">Overview</span>
+                      <FileText className="h-3 w-3 sm:h-4 sm:w-4" />
+                      <span className="hidden sm:inline">Overview</span>
+                      <span className="sm:hidden">Info</span>
                     </button>
                     <button
                       onClick={() => setSelectedTab("goals")}
-                      className={`flex items-center gap-2 px-3 py-3 rounded-lg font-medium transition-all duration-200 flex-1 justify-center ${
+                      className={`flex items-center gap-1 sm:gap-2 px-2 sm:px-3 py-2 sm:py-3 rounded-md sm:rounded-lg font-medium transition-all duration-200 flex-1 justify-center min-h-[44px] text-xs sm:text-sm md:text-base whitespace-nowrap ${
                         selectedTab === "goals"
                           ? "bg-gradient-to-r from-green-500 to-green-600 text-white shadow-md"
                           : "text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800"
                       }`}
                     >
-                      <Target className="h-4 w-4" />
-                      <span className="hidden lg:inline">Goals</span>
-                      <span className="lg:hidden">({goals.length})</span>
-                      <span className="hidden lg:inline">({goals.length})</span>
+                      <Target className="h-3 w-3 sm:h-4 sm:w-4" />
+                      <span className="hidden sm:inline">Goals</span>
+                      <span className="sm:hidden">({goals.length})</span>
+                      <span className="hidden sm:inline">({goals.length})</span>
                     </button>
                     <button
                       onClick={() => setSelectedTab("services")}
-                      className={`flex items-center gap-2 px-3 py-3 rounded-lg font-medium transition-all duration-200 flex-1 justify-center ${
+                      className={`flex items-center gap-1 sm:gap-2 px-2 sm:px-3 py-2 sm:py-3 rounded-md sm:rounded-lg font-medium transition-all duration-200 flex-1 justify-center min-h-[44px] text-xs sm:text-sm md:text-base whitespace-nowrap ${
                         selectedTab === "services"
                           ? "bg-gradient-to-r from-teal-500 to-teal-600 text-white shadow-md"
                           : "text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800"
                       }`}
                     >
-                      <Building2 className="h-4 w-4" />
-                      <span className="hidden lg:inline">Services</span>
-                      <span className="lg:hidden">({services.length})</span>
-                      <span className="hidden lg:inline">({services.length})</span>
+                      <Building2 className="h-3 w-3 sm:h-4 sm:w-4" />
+                      <span className="hidden sm:inline">Services</span>
+                      <span className="sm:hidden">({services.length})</span>
+                      <span className="hidden sm:inline">({services.length})</span>
                     </button>
                     <button
                       onClick={() => setSelectedTab("accommodations")}
-                      className={`flex items-center gap-2 px-3 py-3 rounded-lg font-medium transition-all duration-200 flex-1 justify-center ${
+                      className={`flex items-center gap-1 sm:gap-2 px-2 sm:px-3 py-2 sm:py-3 rounded-md sm:rounded-lg font-medium transition-all duration-200 flex-1 justify-center min-h-[44px] text-xs sm:text-sm md:text-base whitespace-nowrap ${
                         selectedTab === "accommodations"
                           ? "bg-gradient-to-r from-orange-500 to-orange-600 text-white shadow-md"
                           : "text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800"
                       }`}
                     >
-                      <Lightbulb className="h-4 w-4" />
-                      <span className="hidden lg:inline">Accommodations</span>
-                      <span className="lg:hidden">({accommodations.length})</span>
-                      <span className="hidden lg:inline">({accommodations.length})</span>
+                      <Lightbulb className="h-3 w-3 sm:h-4 sm:w-4" />
+                      <span className="hidden sm:inline">Accommodations</span>
+                      <span className="sm:hidden">({accommodations.length})</span>
+                      <span className="hidden sm:inline">({accommodations.length})</span>
                     </button>
                     <button
                       onClick={() => setSelectedTab("emotions")}
-                      className={`flex items-center gap-2 px-3 py-3 rounded-lg font-medium transition-all duration-200 flex-1 justify-center ${
+                      className={`flex items-center gap-1 sm:gap-2 px-2 sm:px-3 py-2 sm:py-3 rounded-md sm:rounded-lg font-medium transition-all duration-200 flex-1 justify-center min-h-[44px] text-xs sm:text-sm md:text-base whitespace-nowrap ${
                         selectedTab === "emotions"
                           ? "bg-gradient-to-r from-pink-500 to-pink-600 text-white shadow-md"
                           : "text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800"
                       }`}
                     >
-                      <Smile className="h-4 w-4" />
-                      <span className="hidden lg:inline">Emotions</span>
+                      <Smile className="h-3 w-3 sm:h-4 sm:w-4" />
+                      <span className="hidden sm:inline">Emotions</span>
+                      <span className="sm:hidden">Mood</span>
                     </button>
                     <button
                       onClick={() => setSelectedTab("autism")}
-                      className={`flex items-center gap-2 px-3 py-3 rounded-lg font-medium transition-all duration-200 flex-1 justify-center ${
+                      className={`flex items-center gap-1 sm:gap-2 px-2 sm:px-3 py-2 sm:py-3 rounded-md sm:rounded-lg font-medium transition-all duration-200 flex-1 justify-center min-h-[44px] text-xs sm:text-sm md:text-base whitespace-nowrap ${
                         selectedTab === "autism"
                           ? "bg-gradient-to-r from-blue-500 to-blue-600 text-white shadow-md"
                           : "text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800"
                       }`}
                     >
-                      <Brain className="h-4 w-4" />
-                      <span className="hidden lg:inline">Autism</span>
+                      <Brain className="h-3 w-3 sm:h-4 sm:w-4" />
+                      <span className="hidden sm:inline">Autism</span>
+                      <span className="sm:hidden">AI</span>
                     </button>
                     <button
                       onClick={() => setSelectedTab("gifted")}
-                      className={`flex items-center gap-2 px-3 py-3 rounded-lg font-medium transition-all duration-200 flex-1 justify-center ${
+                      className={`flex items-center gap-1 sm:gap-2 px-2 sm:px-3 py-2 sm:py-3 rounded-md sm:rounded-lg font-medium transition-all duration-200 flex-1 justify-center min-h-[44px] text-xs sm:text-sm md:text-base whitespace-nowrap ${
                         selectedTab === "gifted"
                           ? "bg-gradient-to-r from-purple-500 to-purple-600 text-white shadow-md"
                           : "text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800"
                       }`}
                     >
-                      <Star className="h-4 w-4" />
-                      <span className="hidden lg:inline">Gifted</span>
+                      <Star className="h-3 w-3 sm:h-4 sm:w-4" />
+                      <span className="hidden sm:inline">Gifted</span>
+                      <span className="sm:hidden">GT</span>
                     </button>
                     <button
                       onClick={() => setSelectedTab("communication")}
-                      className={`flex items-center gap-2 px-3 py-3 rounded-lg font-medium transition-all duration-200 flex-1 justify-center ${
+                      className={`flex items-center gap-1 sm:gap-2 px-2 sm:px-3 py-2 sm:py-3 rounded-md sm:rounded-lg font-medium transition-all duration-200 flex-1 justify-center min-h-[44px] text-xs sm:text-sm md:text-base whitespace-nowrap ${
                         selectedTab === "communication"
                           ? "bg-gradient-to-r from-blue-500 to-blue-600 text-white shadow-md"
                           : "text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800"
                       }`}
                     >
-                      <MessageCircle className="h-4 w-4" />
-                      <span className="hidden lg:inline">Communication</span>
+                      <MessageCircle className="h-3 w-3 sm:h-4 sm:w-4" />
+                      <span className="hidden sm:inline">Communication</span>
+                      <span className="sm:hidden">Chat</span>
                     </button>
                   </div>
                 </div>
               </div>
 
               {selectedTab === "overview" && (
-                <div className="space-y-6">
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <div className="space-y-4 sm:space-y-6">
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
                   <Card className="premium-card">
-                    <CardHeader>
-                      <CardTitle className="flex items-center">
-                        <FileText className="h-5 w-5 mr-2" />
+                    <CardHeader className="p-3 sm:p-4 md:p-6">
+                      <CardTitle className="flex items-center text-sm sm:text-base md:text-lg">
+                        <FileText className="h-4 w-4 sm:h-5 sm:w-5 mr-2" />
                         IEP Status
                       </CardTitle>
                     </CardHeader>
-                    <CardContent>
+                    <CardContent className="p-3 sm:p-4 md:p-6 pt-0">
                       <div className="space-y-2">
-                        <Badge className={getIEPStatusColor(currentStudent.iep_status)}>
+                        <Badge className={`${getIEPStatusColor(currentStudent.iep_status)} text-xs sm:text-sm`}>
                           {currentStudent.iep_status}
                         </Badge>
                         {currentStudent.iep_date && (
-                          <p className="text-sm text-muted-foreground">
+                          <p className="text-xs sm:text-sm text-muted-foreground">
                             IEP Date: {new Date(currentStudent.iep_date).toLocaleDateString()}
                           </p>
                         )}
                         {currentStudent.next_review_date && (
-                          <p className="text-sm text-muted-foreground">
+                          <p className="text-xs sm:text-sm text-muted-foreground">
                             Next Review: {new Date(currentStudent.next_review_date).toLocaleDateString()}
                           </p>
                         )}
@@ -3103,42 +3108,42 @@ const ParentStudents = () => {
                   </Card>
 
                   <Card className="premium-card">
-                    <CardHeader>
-                      <CardTitle className="flex items-center">
-                        <Target className="h-5 w-5 mr-2" />
+                    <CardHeader className="p-3 sm:p-4 md:p-6">
+                      <CardTitle className="flex items-center text-sm sm:text-base md:text-lg">
+                        <Target className="h-4 w-4 sm:h-5 sm:w-5 mr-2" />
                         Goals Progress
                       </CardTitle>
                     </CardHeader>
-                    <CardContent>
+                    <CardContent className="p-3 sm:p-4 md:p-6 pt-0">
                       <div className="space-y-2">
-                        <div className="flex justify-between text-sm">
+                        <div className="flex justify-between text-xs sm:text-sm">
                           <span>Completed Goals</span>
                           <span>{goals.filter(g => g.status === 'completed').length}/{goals.length}</span>
                         </div>
                         <Progress 
                           value={goals.length > 0 ? (goals.filter(g => g.status === 'completed').length / goals.length) * 100 : 0} 
-                          className="h-2"
+                          className="h-2 sm:h-3"
                         />
                       </div>
                     </CardContent>
                   </Card>
 
                   <Card className="premium-card">
-                    <CardHeader>
-                      <CardTitle className="flex items-center">
-                        <Users className="h-5 w-5 mr-2" />
+                    <CardHeader className="p-3 sm:p-4 md:p-6">
+                      <CardTitle className="flex items-center text-sm sm:text-base md:text-lg">
+                        <Users className="h-4 w-4 sm:h-5 sm:w-5 mr-2" />
                         Support Team
                       </CardTitle>
                     </CardHeader>
-                    <CardContent>
+                    <CardContent className="p-3 sm:p-4 md:p-6 pt-0">
                       <div className="space-y-2">
                         {currentStudent.case_manager && (
                           <div>
-                            <p className="font-medium">{currentStudent.case_manager}</p>
-                            <p className="text-sm text-muted-foreground">Case Manager</p>
+                            <p className="font-medium text-sm sm:text-base">{currentStudent.case_manager}</p>
+                            <p className="text-xs sm:text-sm text-muted-foreground">Case Manager</p>
                           </div>
                         )}
-                        <p className="text-sm text-muted-foreground">
+                        <p className="text-xs sm:text-sm text-muted-foreground">
                           Services: {services.filter(s => s.status === 'active').length} active
                         </p>
                       </div>
@@ -3148,31 +3153,31 @@ const ParentStudents = () => {
 
                 {/* Student Information Section */}
                 <Card className="premium-card">
-                  <CardHeader>
-                    <CardTitle>Student Information</CardTitle>
+                  <CardHeader className="p-3 sm:p-4 md:p-6">
+                    <CardTitle className="text-sm sm:text-base md:text-lg">Student Information</CardTitle>
                   </CardHeader>
-                  <CardContent>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <CardContent className="p-3 sm:p-4 md:p-6 pt-0">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
                       <div>
-                        <Label>School Information</Label>
+                        <Label className="text-sm sm:text-base font-medium">School Information</Label>
                         <div className="mt-2 space-y-1">
-                          <p><strong>School:</strong> {currentStudent.school_name || 'Not specified'}</p>
-                          <p><strong>District:</strong> {currentStudent.district || 'Not specified'}</p>
-                          <p><strong>Grade:</strong> {currentStudent.grade_level || 'Not specified'}</p>
+                          <p className="text-xs sm:text-sm"><strong>School:</strong> {currentStudent.school_name || 'Not specified'}</p>
+                          <p className="text-xs sm:text-sm"><strong>District:</strong> {currentStudent.district || 'Not specified'}</p>
+                          <p className="text-xs sm:text-sm"><strong>Grade:</strong> {currentStudent.grade_level || 'Not specified'}</p>
                         </div>
                       </div>
                       <div>
-                        <Label>Personal Information</Label>
+                        <Label className="text-sm sm:text-base font-medium">Personal Information</Label>
                         <div className="mt-2 space-y-1">
-                          <p><strong>Date of Birth:</strong> {currentStudent.date_of_birth ? new Date(currentStudent.date_of_birth).toLocaleDateString() : 'Not specified'}</p>
-                          <p><strong>Disability Category:</strong> {currentStudent.disability_category || 'Not specified'}</p>
+                          <p className="text-xs sm:text-sm"><strong>Date of Birth:</strong> {currentStudent.date_of_birth ? new Date(currentStudent.date_of_birth).toLocaleDateString() : 'Not specified'}</p>
+                          <p className="text-xs sm:text-sm"><strong>Disability Category:</strong> {currentStudent.disability_category || 'Not specified'}</p>
                         </div>
                       </div>
                     </div>
                     {currentStudent.notes && (
                       <div className="mt-4">
-                        <Label>Notes</Label>
-                        <p className="mt-2 text-sm text-muted-foreground">{currentStudent.notes}</p>
+                        <Label className="text-sm sm:text-base font-medium">Notes</Label>
+                        <p className="mt-2 text-xs sm:text-sm text-muted-foreground">{currentStudent.notes}</p>
                       </div>
                     )}
                   </CardContent>

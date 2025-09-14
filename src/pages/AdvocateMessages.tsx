@@ -254,6 +254,26 @@ export default function AdvocateMessages() {
     });
   }, [conversations, filters]);
   
+  // Handle URL query parameters for direct parent-specific conversations
+  useEffect(() => {
+    if (conversations.length > 0) {
+      const searchParams = new URLSearchParams(location.search);
+      const parentParam = searchParams.get('parent');
+      const studentParam = searchParams.get('student');
+      
+      if (parentParam && studentParam) {
+        // Find conversation with matching parent and student
+        const targetConversation = conversations.find(conv => 
+          conv.parent_id === parentParam && conv.student_id === studentParam
+        );
+        
+        if (targetConversation && selectedConversation?.id !== targetConversation.id) {
+          setSelectedConversation(targetConversation);
+        }
+      }
+    }
+  }, [conversations, location.search, selectedConversation?.id]);
+
   // Handle creating a new conversation from match proposal
   useEffect(() => {
     if (location.state?.newMessage && !creating) {

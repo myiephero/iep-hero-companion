@@ -1756,7 +1756,7 @@ const AdvocateStudents = () => {
                         }`}
                       >
                         <Puzzle className="h-4 w-4" />
-                        <span className="hidden lg:inline">Autism Tools</span>
+                        <span className="hidden lg:inline">Autism</span>
                       </button>
                       <button
                         onClick={() => setSelectedTab("gifted")}

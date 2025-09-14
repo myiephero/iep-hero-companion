@@ -459,7 +459,7 @@ export default function AdvocateMessages() {
                               <div className="flex-1 min-w-0">
                                 <div className="flex items-center justify-between">
                                   <div className="flex items-center gap-2">
-                                    <p className="font-medium truncate">{studentName}'s Family</p>
+                                    <p className="font-medium truncate">{conversation.parent?.name || 'Parent'}</p>
                                     {conversation.archived && (
                                       <Badge variant="secondary" className="text-xs">
                                         <Archive className="w-3 h-3 mr-1" />
@@ -484,8 +484,7 @@ export default function AdvocateMessages() {
                                     <ConversationActionsMenu conversation={conversation} />
                                   </div>
                                 </div>
-                                <p className="text-sm font-bold mb-1">{conversation.parent?.name || 'Parent'}</p>
-                                <p className="text-xs text-muted-foreground mb-1">{studentName}</p>
+                                <p className="text-sm text-muted-foreground mb-1">{studentName}</p>
                                 {conversation.latest_message?.content && (
                                   <p className="text-sm truncate">
                                     {conversation.latest_message.content}

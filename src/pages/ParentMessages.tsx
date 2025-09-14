@@ -254,7 +254,7 @@ export default function ParentMessages() {
       const message = await sendMessage(
         selectedConversation.id, 
         newMessageText.trim() || undefined,
-        attachmentData.length > 0 ? attachmentData : undefined
+        attachmentData.length > 0 ? attachmentData as any : undefined
       );
       
       if (message) {
@@ -297,10 +297,10 @@ export default function ParentMessages() {
                 </div>
               ) : conversations.length > 0 ? (
                 conversations.map((conversation) => {
-                  const advocateName = conversation.advocate.name;
-                  const avatar = advocateName.split(' ').map(n => n[0]).join('');
-                  const lastMessageTime = conversation.lastMessage?.created_at ? 
-                    new Date(conversation.lastMessage.created_at).toLocaleDateString() : 'New';
+                  const advocateName = conversation.advocate?.name || 'Advocate';
+                  const avatar = (advocateName || 'A').split(' ').map(n => n[0]).join('');
+                  const lastMessageTime = conversation.latest_message?.created_at ? 
+                    new Date(conversation.latest_message.created_at).toLocaleDateString() : 'New';
                     
                   return (
                     <div
@@ -310,7 +310,7 @@ export default function ParentMessages() {
                       }`}
                       onClick={async () => {
                         setSelectedConversation(conversation);
-                        if (conversation.unreadCount > 0) {
+                        if (conversation.unread_count > 0) {
                           await markMessagesRead(conversation.id);
                           refetchConversations();
                         }
@@ -324,16 +324,18 @@ export default function ParentMessages() {
                         </Avatar>
                         <div className="flex-1 min-w-0">
                           <div className="flex items-center justify-between">
-                            <p className="font-medium truncate">{advocateName}</p>
+                            <p className="font-bold truncate">{advocateName}</p>
                             <span className="text-xs text-muted-foreground">{lastMessageTime}</span>
                           </div>
-                          <p className="text-xs text-muted-foreground mb-1">{conversation.advocate.specialty}</p>
-                          <p className="text-sm truncate">
-                            {conversation.lastMessage?.content || 'No messages yet'}
-                          </p>
-                          {conversation.unreadCount > 0 && (
+                          <p className="text-xs text-muted-foreground mb-1">{conversation.student?.full_name || 'Student'}</p>
+                          {conversation.latest_message?.content && (
+                            <p className="text-sm truncate">
+                              {conversation.latest_message.content}
+                            </p>
+                          )}
+                          {conversation.unread_count > 0 && (
                             <Badge variant="default" className="mt-2 text-xs">
-                              {conversation.unreadCount} new
+                              {conversation.unread_count} new
                             </Badge>
                           )}
                         </div>
@@ -421,9 +423,9 @@ export default function ParentMessages() {
                             />
                           </p>
                         )}
-                        {message.attachments && message.attachments.length > 0 && (
+                        {(message as any).attachments && (message as any).attachments.length > 0 && (
                           <MessageAttachmentDisplay 
-                            attachments={message.attachments as MessageAttachment[]} 
+                            attachments={(message as any).attachments as MessageAttachment[]} 
                             compact={true}
                           />
                         )}

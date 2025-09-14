@@ -12,11 +12,12 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Users, Mail, Phone, Plus, UserCheck, UserPlus, GraduationCap, Calendar, MapPin, Briefcase, FileText, Target, Building2, Heart, User, ChevronDown, CheckCircle, Clock, XCircle, Pause } from "lucide-react";
-import { Link } from "react-router-dom";
+import { Users, Mail, Phone, Plus, UserCheck, UserPlus, GraduationCap, Calendar, MapPin, Briefcase, FileText, Target, Building2, Heart, User, ChevronDown, CheckCircle, Clock, XCircle, Pause, Send } from "lucide-react";
+import { Link, useNavigate } from "react-router-dom";
 import { api } from "@/lib/api";
 import { apiRequest } from "@/lib/queryClient";
 import { getIEPStatusColor } from "@/lib/utils";
+import { useCreateConversation } from "@/hooks/useMessaging";
 
 interface Parent {
   id: string;
@@ -582,7 +583,58 @@ export default function AdvocateParents() {
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
   const { user } = useAuth();
   const { toast } = useToast();
+  const navigate = useNavigate();
+  const { create: createConversation, creating } = useCreateConversation();
   
+  // Handler for Send Message button
+  const handleSendMessage = async (parent: Parent) => {
+    try {
+      if (!user?.id) {
+        toast({
+          title: "Error",
+          description: "You must be logged in to send messages.",
+          variant: "destructive"
+        });
+        return;
+      }
+
+      // Create conversation in the main messaging system
+      const conversation = await createConversation(
+        user.id, // advocateId  
+        parent.id, // parentId
+        undefined // studentId - undefined for direct parent conversations
+      );
+
+      if (conversation) {
+        toast({
+          title: "Conversation Created!",
+          description: `Ready to message ${parent.full_name}. Redirecting to Messages...`,
+        });
+        
+        // Redirect to messages page with the new conversation
+        navigate('/advocate/messages', { 
+          state: { 
+            conversationId: conversation.id,
+            newMessage: { 
+              advocateId: user.id,
+              parentId: parent.id,
+              parentName: parent.full_name
+            } 
+          } 
+        });
+      } else {
+        throw new Error('Failed to create conversation');
+      }
+    } catch (error) {
+      console.error('Error creating conversation:', error);
+      toast({
+        title: "Error",
+        description: "Failed to create conversation. Please try again.",
+        variant: "destructive"
+      });
+    }
+  };
+
   const [formData, setFormData] = useState({
     email: '',
     firstName: '',
@@ -1060,10 +1112,14 @@ export default function AdvocateParents() {
                                 Open Messages
                               </Link>
                             </Button>
-                            <Button variant="outline" asChild>
-                              <Link to={`/advocate/messages?parent=${selectedParent.id}&new=true`}>
-                                Send Message
-                              </Link>
+                            <Button 
+                              variant="outline" 
+                              onClick={() => handleSendMessage(selectedParent)}
+                              disabled={creating}
+                              data-testid="button-send-message"
+                            >
+                              <Send className="h-4 w-4 mr-2" />
+                              {creating ? "Creating..." : "Send Message"}
                             </Button>
                           </div>
                           <div className="text-sm text-muted-foreground">

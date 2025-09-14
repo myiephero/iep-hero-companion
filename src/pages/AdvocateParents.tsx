@@ -304,9 +304,13 @@ function CreateCaseButton({ parentId, parentName }: { parentId: string; parentNa
 function StudentListForParent({ parentId }: { parentId: string }) {
   const [students, setStudents] = useState<Student[]>([]);
   const [selectedStudentId, setSelectedStudentId] = useState<string | null>(null);
+  const [selectedTab, setSelectedTab] = useState<string>("overview");
   const [goals, setGoals] = useState<any[]>([]);
+  const [services, setServices] = useState<any[]>([]);
+  const [accommodations, setAccommodations] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const { user } = useAuth();
+  const { toast } = useToast();
 
   useEffect(() => {
     const fetchStudentsForParent = async () => {
@@ -339,24 +343,43 @@ function StudentListForParent({ parentId }: { parentId: string }) {
     }
   }, [parentId, user]);
 
-  // Fetch goals data when a student is selected
+  // Fetch goals, services, and accommodations data when a student is selected
   useEffect(() => {
-    const fetchGoalsData = async () => {
+    const fetchStudentData = async () => {
       if (!selectedStudentId) return;
       try {
-        const response = await apiRequest('GET', '/api/goals');
-        const data = await response.json();
-        const studentGoals = Array.isArray(data) ? 
-          data.filter((goal: any) => goal.student_id === selectedStudentId) : 
+        // Fetch goals
+        const goalsResponse = await apiRequest('GET', '/api/goals');
+        const goalsData = await goalsResponse.json();
+        const studentGoals = Array.isArray(goalsData) ? 
+          goalsData.filter((goal: any) => goal.student_id === selectedStudentId) : 
           [];
         setGoals(studentGoals);
+
+        // Fetch services
+        const servicesResponse = await apiRequest('GET', '/api/services');
+        const servicesData = await servicesResponse.json();
+        const studentServices = Array.isArray(servicesData) ? 
+          servicesData.filter((service: any) => service.student_id === selectedStudentId) : 
+          [];
+        setServices(studentServices);
+
+        // Fetch accommodations
+        const accommodationsResponse = await apiRequest('GET', '/api/accommodations');
+        const accommodationsData = await accommodationsResponse.json();
+        const studentAccommodations = Array.isArray(accommodationsData) ? 
+          accommodationsData.filter((accommodation: any) => accommodation.student_id === selectedStudentId) : 
+          [];
+        setAccommodations(studentAccommodations);
       } catch (error) {
-        console.error('Error fetching goals:', error);
+        console.error('Error fetching student data:', error);
         setGoals([]);
+        setServices([]);
+        setAccommodations([]);
       }
     };
 
-    fetchGoalsData();
+    fetchStudentData();
   }, [selectedStudentId]);
 
   // Helper function for IEP status colors - same as Client Students page
@@ -420,147 +443,465 @@ function StudentListForParent({ parentId }: { parentId: string }) {
         </div>
       </div>
 
-      {/* Right Panel - Student Details (Tools from Client Students page) */}
+      {/* Right Panel - Full Student Details with Tabs (integrated from Client Students) */}
       <div className="lg:col-span-2">
         {selectedStudent ? (
-          <div className="space-y-6">
-            {/* Header with student info */}
-            <div className="flex items-center gap-4 pb-4 border-b">
-              <Avatar className="h-16 w-16">
-                <AvatarFallback className="text-lg bg-primary/10 text-primary font-semibold">
-                  {selectedStudent.full_name.split(' ').map(n => n[0]).join('').toUpperCase()}
-                </AvatarFallback>
-              </Avatar>
-              <div>
-                <h3 className="text-2xl font-bold">{selectedStudent.full_name}</h3>
-                <div className="flex items-center gap-4 text-sm text-muted-foreground">
-                  <span>Grade {selectedStudent.grade_level || 'Not specified'}</span>
-                  <span>•</span>
-                  <span>{selectedStudent.school_name || 'School not specified'}</span>
-                  <Badge className={getStudentIEPStatusColor(selectedStudent.iep_status)}>
-                    {selectedStudent.iep_status || 'Not Set'}
-                  </Badge>
+          <>
+            {/* Student Header Card */}
+            <Card className="premium-card mb-6">
+              <CardHeader>
+                <div className="flex items-center space-x-4">
+                  <Avatar className="h-16 w-16">
+                    <AvatarFallback className="text-lg bg-gradient-primary text-primary-foreground">
+                      {selectedStudent.full_name.split(' ').map(n => n[0]).join('')}
+                    </AvatarFallback>
+                  </Avatar>
+                  <div className="flex-1">
+                    <CardTitle className="text-2xl text-gradient">{selectedStudent.full_name}</CardTitle>
+                    <CardDescription>
+                      <div className="flex items-center space-x-4 mt-2">
+                        <span>{selectedStudent.grade_level ? `Grade ${selectedStudent.grade_level}` : 'Grade not specified'}</span>
+                        <span>•</span>
+                        <span>{selectedStudent.school_name || 'School not specified'}</span>
+                        <span>•</span>
+                        <Badge className={getStudentIEPStatusColor(selectedStudent.iep_status)}>
+                          IEP: {selectedStudent.iep_status || 'Not Set'}
+                        </Badge>
+                      </div>
+                      <div className="flex items-center space-x-2 mt-2">
+                        <span className="text-sm">Student: {selectedStudent.full_name}</span>
+                        <Button asChild variant="outline" size="sm">
+                          <Link to={`/advocate/messages?student=${selectedStudent.id}`}>
+                            <Mail className="h-3 w-3 mr-1" />
+                            Message Parent
+                          </Link>
+                        </Button>
+                      </div>
+                    </CardDescription>
+                  </div>
+                </div>
+              </CardHeader>
+            </Card>
+
+            {/* Modern Horizontal Tab Navigation */}
+            <div className="w-full mb-8">
+              <div className="bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 p-1 rounded-2xl shadow-lg">
+                <div className="flex bg-white dark:bg-gray-900 rounded-xl p-2 gap-1">
+                  <button
+                    onClick={() => setSelectedTab("overview")}
+                    className={`flex items-center gap-2 px-3 py-3 rounded-lg font-medium transition-all duration-200 flex-1 justify-center ${
+                      selectedTab === "overview"
+                        ? "bg-gradient-to-r from-slate-500 to-slate-600 text-white shadow-md"
+                        : "text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800"
+                    }`}
+                  >
+                    <FileText className="h-4 w-4" />
+                    <span className="hidden lg:inline">Overview</span>
+                  </button>
+                  <button
+                    onClick={() => setSelectedTab("goals")}
+                    className={`flex items-center gap-2 px-3 py-3 rounded-lg font-medium transition-all duration-200 flex-1 justify-center ${
+                      selectedTab === "goals"
+                        ? "bg-gradient-to-r from-green-500 to-green-600 text-white shadow-md"
+                        : "text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800"
+                    }`}
+                  >
+                    <Target className="h-4 w-4" />
+                    <span className="hidden lg:inline">Goals</span>
+                    <span className="lg:hidden">({goals.length})</span>
+                    <span className="hidden lg:inline">({goals.length})</span>
+                  </button>
+                  <button
+                    onClick={() => setSelectedTab("services")}
+                    className={`flex items-center gap-2 px-3 py-3 rounded-lg font-medium transition-all duration-200 flex-1 justify-center ${
+                      selectedTab === "services"
+                        ? "bg-gradient-to-r from-teal-500 to-teal-600 text-white shadow-md"
+                        : "text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800"
+                    }`}
+                  >
+                    <Building2 className="h-4 w-4" />
+                    <span className="hidden lg:inline">Services</span>
+                    <span className="lg:hidden">({services.length})</span>
+                    <span className="hidden lg:inline">({services.length})</span>
+                  </button>
+                  <button
+                    onClick={() => setSelectedTab("accommodations")}
+                    className={`flex items-center gap-2 px-3 py-3 rounded-lg font-medium transition-all duration-200 flex-1 justify-center ${
+                      selectedTab === "accommodations"
+                        ? "bg-gradient-to-r from-purple-500 to-purple-600 text-white shadow-md"
+                        : "text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800"
+                    }`}
+                  >
+                    <CheckCircle className="h-4 w-4" />
+                    <span className="hidden lg:inline">Accommodations</span>
+                    <span className="lg:hidden">({accommodations.length})</span>
+                    <span className="hidden lg:inline">({accommodations.length})</span>
+                  </button>
+                  <button
+                    onClick={() => setSelectedTab("emotions")}
+                    className={`flex items-center gap-2 px-3 py-3 rounded-lg font-medium transition-all duration-200 flex-1 justify-center ${
+                      selectedTab === "emotions"
+                        ? "bg-gradient-to-r from-pink-500 to-pink-600 text-white shadow-md"
+                        : "text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800"
+                    }`}
+                  >
+                    <Heart className="h-4 w-4" />
+                    <span className="hidden lg:inline">Emotions</span>
+                  </button>
+                  <button
+                    onClick={() => setSelectedTab("gifted")}
+                    className={`flex items-center gap-2 px-3 py-3 rounded-lg font-medium transition-all duration-200 flex-1 justify-center ${
+                      selectedTab === "gifted"
+                        ? "bg-gradient-to-r from-yellow-500 to-yellow-600 text-white shadow-md"
+                        : "text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800"
+                    }`}
+                  >
+                    <span className="text-lg">🎓</span>
+                    <span className="hidden lg:inline">Gifted</span>
+                  </button>
                 </div>
               </div>
             </div>
 
-            {/* Tool Cards - Copied from Client Students page */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {/* IEP Status Card */}
-              <Card className="premium-card">
-                <CardHeader>
-                  <CardTitle className="flex items-center">
-                    <FileText className="h-5 w-5 mr-2" />
-                    IEP Status
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-2">
-                    <Badge className={getStudentIEPStatusColor(selectedStudent.iep_status)}>
-                      {selectedStudent.iep_status || 'Not Set'}
-                    </Badge>
-                    {selectedStudent.iep_date && (
-                      <p className="text-sm text-muted-foreground">
-                        IEP Date: {new Date(selectedStudent.iep_date).toLocaleDateString()}
-                      </p>
+            {/* Tab Content */}
+            {selectedTab === "overview" && (
+              <div className="space-y-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                  {/* IEP Status Card */}
+                  <Card className="premium-card">
+                    <CardHeader>
+                      <CardTitle className="flex items-center">
+                        <FileText className="h-5 w-5 mr-2" />
+                        IEP Status
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="space-y-2">
+                        <Badge className={getStudentIEPStatusColor(selectedStudent.iep_status)}>
+                          {selectedStudent.iep_status || 'Not Set'}
+                        </Badge>
+                        {selectedStudent.iep_date && (
+                          <p className="text-sm text-muted-foreground">
+                            IEP Date: {new Date(selectedStudent.iep_date).toLocaleDateString()}
+                          </p>
+                        )}
+                        {selectedStudent.next_review_date && (
+                          <p className="text-sm text-muted-foreground">
+                            Next Review: {new Date(selectedStudent.next_review_date).toLocaleDateString()}
+                          </p>
+                        )}
+                      </div>
+                    </CardContent>
+                  </Card>
+
+                  {/* Goals Progress Card */}
+                  <Card className="premium-card">
+                    <CardHeader>
+                      <CardTitle className="flex items-center">
+                        <Target className="h-5 w-5 mr-2" />
+                        Goals Progress
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="space-y-2">
+                        <div className="flex justify-between text-sm">
+                          <span>Completed Goals</span>
+                          <span>{goals.filter(g => g.status === 'completed').length}/{goals.length}</span>
+                        </div>
+                        <Progress 
+                          value={goals.length > 0 ? (goals.filter(g => g.status === 'completed').length / goals.length) * 100 : 0} 
+                          className="h-2"
+                        />
+                      </div>
+                    </CardContent>
+                  </Card>
+
+                  {/* School Info Card */}
+                  <Card className="premium-card">
+                    <CardHeader>
+                      <CardTitle className="flex items-center">
+                        <Building2 className="h-5 w-5 mr-2" />
+                        School Info
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="space-y-2">
+                        <div>
+                          <p className="font-medium">{selectedStudent.school_name || 'Not specified'}</p>
+                          <p className="text-sm text-muted-foreground">School</p>
+                        </div>
+                        <div>
+                          <p className="text-sm">{selectedStudent.district || 'Not specified'}</p>
+                          <p className="text-xs text-muted-foreground">District</p>
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+                </div>
+              </div>
+            )}
+
+            {selectedTab === "goals" && (
+              <div className="space-y-6">
+                <Card className="premium-card">
+                  <CardHeader>
+                    <CardTitle>IEP Goals</CardTitle>
+                    <CardDescription>
+                      Track progress on individualized education program goals
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    {goals.length === 0 ? (
+                      <p className="text-muted-foreground">No goals have been set for this student yet.</p>
+                    ) : (
+                      <div className="space-y-4">
+                        {goals.map((goal) => (
+                          <div key={goal.id} className="border rounded-lg p-4">
+                            <div className="flex items-center justify-between mb-2">
+                              <h4 className="font-semibold">{goal.title}</h4>
+                              <Badge className={getStudentIEPStatusColor(goal.status)}>
+                                {goal.status}
+                              </Badge>
+                            </div>
+                            <p className="text-sm text-muted-foreground mb-3">{goal.description}</p>
+                            <div className="space-y-2">
+                              <div className="flex justify-between text-sm">
+                                <span>Progress</span>
+                                <span>{goal.current_progress}%</span>
+                              </div>
+                              <Progress value={goal.current_progress} className="h-2" />
+                            </div>
+                          </div>
+                        ))}
+                      </div>
                     )}
-                    {selectedStudent.next_review_date && (
-                      <p className="text-sm text-muted-foreground">
-                        Next Review: {new Date(selectedStudent.next_review_date).toLocaleDateString()}
-                      </p>
+                  </CardContent>
+                </Card>
+              </div>
+            )}
+
+            {selectedTab === "services" && (
+              <div className="space-y-6">
+                <Card className="premium-card">
+                  <CardHeader>
+                    <CardTitle>Support Services</CardTitle>
+                    <CardDescription>
+                      Special education and related services provided to the student
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    {services.length === 0 ? (
+                      <div className="text-center py-8">
+                        <Building2 className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+                        <h3 className="text-lg font-medium mb-2">No Services Documented</h3>
+                        <p className="text-sm text-muted-foreground">
+                          IEP services and support will appear here once they are documented.
+                        </p>
+                      </div>
+                    ) : (
+                      <div className="space-y-4">
+                        {services.map((service) => (
+                          <div key={service.id} className="border rounded-lg p-4">
+                            <div className="flex items-center justify-between mb-2">
+                              <h4 className="font-semibold">{service.service_type}</h4>
+                              <Badge className={getStudentIEPStatusColor(service.status)}>
+                                {service.status}
+                              </Badge>
+                            </div>
+                            <p className="text-sm text-muted-foreground mb-2">{service.description}</p>
+                            <div className="grid grid-cols-2 gap-4 text-sm">
+                              <div>
+                                <span className="font-medium">Frequency:</span> {service.frequency || 'Not specified'}
+                              </div>
+                              <div>
+                                <span className="font-medium">Duration:</span> {service.duration ? `${service.duration} minutes` : 'Not specified'}
+                              </div>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
                     )}
-                  </div>
-                </CardContent>
-              </Card>
+                  </CardContent>
+                </Card>
+              </div>
+            )}
 
-              {/* Goals Progress Card */}
-              <Card className="premium-card">
-                <CardHeader>
-                  <CardTitle className="flex items-center">
-                    <Target className="h-5 w-5 mr-2" />
-                    Goals Progress
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-2">
-                    <div className="flex justify-between text-sm">
-                      <span>Completed Goals</span>
-                      <span>{goals.filter(g => g.status === 'completed').length}/{goals.length}</span>
-                    </div>
-                    <Progress 
-                      value={goals.length > 0 ? (goals.filter(g => g.status === 'completed').length / goals.length) * 100 : 0} 
-                      className="h-2"
-                    />
-                  </div>
-                </CardContent>
-              </Card>
+            {selectedTab === "accommodations" && (
+              <div className="space-y-6">
+                <Card className="premium-card">
+                  <CardHeader>
+                    <CardTitle>IEP Accommodations</CardTitle>
+                    <CardDescription>
+                      Documented accommodations and modifications for this student
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    {accommodations.length === 0 ? (
+                      <div className="text-center py-8">
+                        <CheckCircle className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+                        <h3 className="text-lg font-medium mb-2">No Accommodations Documented</h3>
+                        <p className="text-sm text-muted-foreground">
+                          IEP accommodations and modifications will appear here once they are documented.
+                        </p>
+                      </div>
+                    ) : (
+                      <div className="space-y-4">
+                        {accommodations.map((accommodation) => (
+                          <div key={accommodation.id} className="border rounded-lg p-4">
+                            <div className="flex items-start justify-between">
+                              <div className="flex-1">
+                                <div className="flex items-center gap-2 mb-2">
+                                  <span className="text-xs px-2 py-1 bg-blue-100 text-blue-800 rounded">
+                                    {accommodation.category}
+                                  </span>
+                                </div>
+                                <h4 className="font-semibold mb-1">{accommodation.title}</h4>
+                                <p className="text-sm text-muted-foreground">{accommodation.description}</p>
+                                {accommodation.implementation_notes && (
+                                  <p className="text-xs text-muted-foreground mt-2">
+                                    <strong>Implementation:</strong> {accommodation.implementation_notes}
+                                  </p>
+                                )}
+                              </div>
+                              <Badge 
+                                className={accommodation.status === 'active' ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800'}
+                              >
+                                {accommodation.status}
+                              </Badge>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </CardContent>
+                </Card>
+              </div>
+            )}
 
-              {/* School Info Card */}
-              <Card className="premium-card">
-                <CardHeader>
-                  <CardTitle className="flex items-center">
-                    <Building2 className="h-5 w-5 mr-2" />
-                    School Info
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-2">
-                    <div>
-                      <p className="font-medium">{selectedStudent.school_name || 'Not specified'}</p>
-                      <p className="text-sm text-muted-foreground">School</p>
+            {selectedTab === "emotions" && (
+              <div className="space-y-6">
+                <Card className="premium-card">
+                  <CardHeader>
+                    <CardTitle className="flex items-center">
+                      <Heart className="h-5 w-5 mr-2 text-pink-500" />
+                      Emotional Tracking
+                    </CardTitle>
+                    <CardDescription>
+                      Track and record emotional observations for this student
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="space-y-4">
+                      <div>
+                        <Label className="text-sm font-medium">Current Emotional State</Label>
+                        <div className="grid grid-cols-5 gap-2 mt-2">
+                          {[
+                            { emoji: '😊', label: 'Happy', color: 'bg-green-100 hover:bg-green-200' },
+                            { emoji: '😐', label: 'Neutral', color: 'bg-blue-100 hover:bg-blue-200' },
+                            { emoji: '😟', label: 'Anxious', color: 'bg-yellow-100 hover:bg-yellow-200' },
+                            { emoji: '😠', label: 'Frustrated', color: 'bg-orange-100 hover:bg-orange-200' },
+                            { emoji: '😢', label: 'Distressed', color: 'bg-red-100 hover:bg-red-200' }
+                          ].map((mood) => (
+                            <Button
+                              key={mood.label}
+                              variant="outline"
+                              className={`h-12 flex-col gap-1 ${mood.color}`}
+                              onClick={() => {}}
+                            >
+                              <span className="text-lg">{mood.emoji}</span>
+                              <span className="text-xs">{mood.label}</span>
+                            </Button>
+                          ))}
+                        </div>
+                      </div>
+                      <Button className="w-full bg-pink-500 hover:bg-pink-600">
+                        <Heart className="h-4 w-4 mr-2" />
+                        Record Emotional Observation
+                      </Button>
                     </div>
-                    <div>
-                      <p className="text-sm">{selectedStudent.district || 'Not specified'}</p>
-                      <p className="text-xs text-muted-foreground">District</p>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            </div>
+                  </CardContent>
+                </Card>
+              </div>
+            )}
 
-            {/* Emotions Tracking Section */}
-            <Card className="premium-card">
-              <CardHeader>
-                <CardTitle className="flex items-center">
-                  <Heart className="h-5 w-5 mr-2 text-pink-500" />
-                  Emotions
-                </CardTitle>
-                <CardDescription>
-                  Track and record emotional observations for this student
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-4">
-                  <div>
-                    <Label className="text-sm font-medium">Current Emotional State</Label>
-                    <div className="grid grid-cols-5 gap-2 mt-2">
+            {selectedTab === "gifted" && (
+              <div className="space-y-6">
+                <Card className="premium-card">
+                  <CardHeader>
+                    <CardTitle className="flex items-center justify-between">
+                      <div className="flex items-center">
+                        <span className="text-2xl mr-2">🎓</span>
+                        Gifted & Twice-Exceptional Support
+                      </div>
+                    </CardTitle>
+                    <CardDescription>Advanced learning assessments and support for gifted and 2E learners</CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 gap-4 mt-6">
                       {[
-                        { emoji: '😊', label: 'Happy', color: 'bg-green-100 hover:bg-green-200' },
-                        { emoji: '😐', label: 'Neutral', color: 'bg-blue-100 hover:bg-blue-200' },
-                        { emoji: '😟', label: 'Anxious', color: 'bg-yellow-100 hover:bg-yellow-200' },
-                        { emoji: '😠', label: 'Frustrated', color: 'bg-orange-100 hover:bg-orange-200' },
-                        { emoji: '😢', label: 'Distressed', color: 'bg-red-100 hover:bg-red-200' }
-                      ].map((mood) => (
-                        <Button
-                          key={mood.label}
-                          variant="outline"
-                          className={`h-12 flex-col gap-1 ${mood.color}`}
-                          onClick={() => {}}
+                        {
+                          id: "cognitive", 
+                          title: "Cognitive Assessment",
+                          description: "Track intellectual abilities and learning patterns",
+                          icon: "🧠",
+                          color: "text-blue-600"
+                        },
+                        {
+                          id: "enrichment",
+                          title: "Enrichment Needs", 
+                          description: "Document advanced learning opportunities",
+                          icon: "⚡",
+                          color: "text-green-600"
+                        },
+                        {
+                          id: "twice_exceptional",
+                          title: "2E Support",
+                          description: "Address unique twice-exceptional needs", 
+                          icon: "🎯",
+                          color: "text-purple-600"
+                        },
+                        {
+                          id: "ai_insights",
+                          title: "AI Insights",
+                          description: "Get intelligent analysis and recommendations",
+                          icon: "🤖",
+                          color: "text-indigo-600"
+                        }
+                      ].map((category) => (
+                        <button
+                          key={category.id}
+                          onClick={() => {
+                            if (!selectedStudentId) {
+                              toast({
+                                title: "Student Required",
+                                description: "Please select a student first.",
+                                variant: "destructive"
+                              });
+                              return;
+                            }
+                            toast({
+                              title: "Feature Coming Soon",
+                              description: `${category.title} tools will be available soon.`,
+                            });
+                          }}
+                          className={`${category.id === 'ai_insights' ? 'bg-gradient-to-r from-indigo-100 to-purple-100 dark:from-indigo-900 dark:to-purple-900' : 'bg-muted/30'} p-4 rounded-lg border hover:bg-muted/50 transition-colors text-left group cursor-pointer`}
                         >
-                          <span className="text-lg">{mood.emoji}</span>
-                          <span className="text-xs">{mood.label}</span>
-                        </Button>
+                          <div className={`${category.color} mb-2 text-xl group-hover:scale-110 transition-transform`}>
+                            {category.icon}
+                          </div>
+                          <h4 className="font-medium mb-1">{category.title}</h4>
+                          <p className="text-sm text-muted-foreground">{category.description}</p>
+                          {category.id === 'ai_insights' && (
+                            <Badge variant="secondary" className="mt-2 text-xs">NEW</Badge>
+                          )}
+                        </button>
                       ))}
                     </div>
-                  </div>
-                  <Button className="w-full bg-pink-500 hover:bg-pink-600">
-                    <Heart className="h-4 w-4 mr-2" />
-                    Record Emotional Observation
-                  </Button>
-                </div>
-              </CardContent>
-            </Card>
-          </div>
+                  </CardContent>
+                </Card>
+              </div>
+            )}
+          </>
         ) : (
           <div className="flex items-center justify-center h-64 text-center">
             <div>

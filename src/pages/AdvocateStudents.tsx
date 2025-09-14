@@ -1718,6 +1718,18 @@ const AdvocateStudents = () => {
                         <span className="hidden lg:inline">Autism</span>
                       </button>
                       <button
+                        onClick={() => setSelectedTab("communication")}
+                        className={`flex items-center gap-2 px-3 py-3 rounded-lg font-medium transition-all duration-200 flex-1 justify-center ${
+                          selectedTab === "communication"
+                            ? "bg-gradient-to-r from-cyan-500 to-cyan-600 text-white shadow-md"
+                            : "text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800"
+                        }`}
+                        data-testid="tab-communication"
+                      >
+                        <MessageCircle className="h-4 w-4" />
+                        <span className="hidden lg:inline">Communication</span>
+                      </button>
+                      <button
                         onClick={() => setSelectedTab("gifted")}
                         className={`flex items-center gap-2 px-3 py-3 rounded-lg font-medium transition-all duration-200 flex-1 justify-center ${
                           selectedTab === "gifted"
@@ -2154,6 +2166,90 @@ const AdvocateStudents = () => {
                             <Badge variant="outline" className="text-xs">AI Analysis</Badge>
                             <Badge variant="outline" className="text-xs">IEP Documentation</Badge>
                           </div>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  </div>
+                )}
+
+                {selectedTab === "communication" && (
+                  <div className="space-y-6">
+                    <Card className="premium-card">
+                      <CardHeader>
+                        <CardTitle className="flex items-center">
+                          <MessageCircle className="h-5 w-5 mr-2" />
+                          Communication & Messaging
+                        </CardTitle>
+                        <CardDescription>
+                          Connect with parents and track communication history for this student
+                        </CardDescription>
+                      </CardHeader>
+                      <CardContent>
+                        <div className="space-y-4">
+                          {currentStudent ? (
+                            <div className="space-y-4">
+                              <div className="flex items-center justify-between p-4 bg-blue-50 dark:bg-blue-950 rounded-lg">
+                                <div className="flex items-center space-x-3">
+                                  <div className="p-2 bg-blue-100 dark:bg-blue-900 rounded-full">
+                                    <MessageCircle className="h-5 w-5 text-blue-600" />
+                                  </div>
+                                  <div>
+                                    <h3 className="font-medium">Parent Communication</h3>
+                                    <p className="text-sm text-muted-foreground">
+                                      Send messages and track conversations with {currentStudent.full_name}'s parent
+                                    </p>
+                                  </div>
+                                </div>
+                                <Button asChild>
+                                  <Link to={`/advocate/messages?parent=${currentStudent.parent_id || currentStudent.user_id}&student=${currentStudent.id}`}>
+                                    <MessageCircle className="h-4 w-4 mr-2" />
+                                    Open Messages
+                                  </Link>
+                                </Button>
+                              </div>
+                              
+                              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <Card>
+                                  <CardHeader className="pb-3">
+                                    <CardTitle className="text-sm">Quick Actions</CardTitle>
+                                  </CardHeader>
+                                  <CardContent className="space-y-2">
+                                    <Button asChild variant="outline" size="sm" className="w-full justify-start">
+                                      <Link to={`/advocate/messages?parent=${currentStudent.parent_id || currentStudent.user_id}&student=${currentStudent.id}`}>
+                                        <Mail className="h-4 w-4 mr-2" />
+                                        Message Parent
+                                      </Link>
+                                    </Button>
+                                    <Button asChild variant="outline" size="sm" className="w-full justify-start">
+                                      <Link to="/advocate/messages">
+                                        <MessageCircle className="h-4 w-4 mr-2" />
+                                        View All Messages
+                                      </Link>
+                                    </Button>
+                                  </CardContent>
+                                </Card>
+                                
+                                <Card>
+                                  <CardHeader className="pb-3">
+                                    <CardTitle className="text-sm">Communication Tips</CardTitle>
+                                  </CardHeader>
+                                  <CardContent>
+                                    <ul className="text-xs text-muted-foreground space-y-1">
+                                      <li>• Schedule regular check-ins with parents</li>
+                                      <li>• Share progress updates and concerns</li>
+                                      <li>• Document important conversations</li>
+                                      <li>• Maintain professional communication</li>
+                                    </ul>
+                                  </CardContent>
+                                </Card>
+                              </div>
+                            </div>
+                          ) : (
+                            <div className="text-center py-8">
+                              <MessageCircle className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
+                              <p className="text-muted-foreground">Select a student to access communication tools</p>
+                            </div>
+                          )}
                         </div>
                       </CardContent>
                     </Card>

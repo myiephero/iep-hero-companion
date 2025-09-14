@@ -38,7 +38,8 @@ import {
   ArrowRight,
   Clock,
   BookOpen,
-  Calculator
+  Calculator,
+  Volume2
 } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
@@ -1747,6 +1748,17 @@ const AdvocateStudents = () => {
                         <span className="hidden lg:inline">Emotions</span>
                       </button>
                       <button
+                        onClick={() => setSelectedTab("autism")}
+                        className={`flex items-center gap-2 px-3 py-3 rounded-lg font-medium transition-all duration-200 flex-1 justify-center ${
+                          selectedTab === "autism"
+                            ? "bg-gradient-to-r from-blue-500 to-indigo-600 text-white shadow-md"
+                            : "text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800"
+                        }`}
+                      >
+                        <Puzzle className="h-4 w-4" />
+                        <span className="hidden lg:inline">Autism Tools</span>
+                      </button>
+                      <button
                         onClick={() => setSelectedTab("gifted")}
                         className={`flex items-center gap-2 px-3 py-3 rounded-lg font-medium transition-all duration-200 flex-1 justify-center ${
                           selectedTab === "gifted"
@@ -2036,6 +2048,156 @@ const AdvocateStudents = () => {
                 {selectedTab === "emotions" && (
                   <div className="space-y-6">
                     <AdvocateEmotionTrackingTab selectedStudentId={selectedStudentId} />
+                  </div>
+                )}
+
+                {selectedTab === "autism" && (
+                  <div className="space-y-6">
+                    <Card className="premium-card">
+                      <CardHeader>
+                        <CardTitle className="flex items-center justify-between">
+                          <div className="flex items-center">
+                            <span className="text-2xl mr-2">🧩</span>
+                            Autism Support Tools & Accommodations
+                          </div>
+                          <Badge variant="secondary" className="bg-blue-500/20 text-blue-300 border-blue-400">
+                            Professional Tools
+                          </Badge>
+                        </CardTitle>
+                        <CardDescription>
+                          Comprehensive autism support tools for professional advocacy and IEP planning
+                        </CardDescription>
+                      </CardHeader>
+                      <CardContent>
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                          {/* Sensory Assessment Tool */}
+                          <Card className="hover:shadow-lg transition-shadow cursor-pointer" onClick={() => setIsSensoryDialogOpen(true)}>
+                            <CardHeader className="pb-3">
+                              <div className="flex items-center justify-between">
+                                <div className="flex items-center">
+                                  <div className="p-2 bg-gradient-to-r from-green-500 to-teal-600 rounded-lg mr-3">
+                                    <Volume2 className="h-5 w-5 text-white" />
+                                  </div>
+                                  <div>
+                                    <CardTitle className="text-sm">Sensory Assessment</CardTitle>
+                                    <CardDescription className="text-xs">Processing & regulation support</CardDescription>
+                                  </div>
+                                </div>
+                                <ArrowRight className="h-4 w-4 text-muted-foreground" />
+                              </div>
+                            </CardHeader>
+                          </Card>
+
+                          {/* Communication Support Tool */}
+                          <Card className="hover:shadow-lg transition-shadow cursor-pointer" onClick={() => setIsCommunicationDialogOpen(true)}>
+                            <CardHeader className="pb-3">
+                              <div className="flex items-center justify-between">
+                                <div className="flex items-center">
+                                  <div className="p-2 bg-gradient-to-r from-blue-500 to-indigo-600 rounded-lg mr-3">
+                                    <Users className="h-5 w-5 text-white" />
+                                  </div>
+                                  <div>
+                                    <CardTitle className="text-sm">Communication Support</CardTitle>
+                                    <CardDescription className="text-xs">AAC & social communication</CardDescription>
+                                  </div>
+                                </div>
+                                <ArrowRight className="h-4 w-4 text-muted-foreground" />
+                              </div>
+                            </CardHeader>
+                          </Card>
+
+                          {/* Behavioral Strategies Tool */}
+                          <Card className="hover:shadow-lg transition-shadow cursor-pointer" onClick={() => setIsBehavioralDialogOpen(true)}>
+                            <CardHeader className="pb-3">
+                              <div className="flex items-center justify-between">
+                                <div className="flex items-center">
+                                  <div className="p-2 bg-gradient-to-r from-purple-500 to-pink-600 rounded-lg mr-3">
+                                    <Brain className="h-5 w-5 text-white" />
+                                  </div>
+                                  <div>
+                                    <CardTitle className="text-sm">Behavioral Strategies</CardTitle>
+                                    <CardDescription className="text-xs">Self-regulation & intervention</CardDescription>
+                                  </div>
+                                </div>
+                                <ArrowRight className="h-4 w-4 text-muted-foreground" />
+                              </div>
+                            </CardHeader>
+                          </Card>
+
+                          {/* AI Autism Insights Tool */}
+                          <Card className="hover:shadow-lg transition-shadow cursor-pointer" onClick={() => setIsAutismAIDialogOpen(true)}>
+                            <CardHeader className="pb-3">
+                              <div className="flex items-center justify-between">
+                                <div className="flex items-center">
+                                  <div className="p-2 bg-gradient-to-r from-orange-500 to-red-600 rounded-lg mr-3">
+                                    <Sparkles className="h-5 w-5 text-white" />
+                                  </div>
+                                  <div>
+                                    <CardTitle className="text-sm">AI Autism Insights</CardTitle>
+                                    <CardDescription className="text-xs">Professional analysis & recommendations</CardDescription>
+                                  </div>
+                                </div>
+                                <ArrowRight className="h-4 w-4 text-muted-foreground" />
+                              </div>
+                            </CardHeader>
+                          </Card>
+
+                          {/* Quick Access to Full Autism Accommodations */}
+                          <Card className="hover:shadow-lg transition-shadow cursor-pointer border-2 border-blue-200 dark:border-blue-800">
+                            <CardHeader className="pb-3">
+                              <div className="flex items-center justify-between">
+                                <div className="flex items-center">
+                                  <div className="p-2 bg-gradient-to-r from-cyan-500 to-blue-600 rounded-lg mr-3">
+                                    <Lightbulb className="h-5 w-5 text-white" />
+                                  </div>
+                                  <div>
+                                    <CardTitle className="text-sm">View Full Suite</CardTitle>
+                                    <CardDescription className="text-xs">Complete autism accommodations</CardDescription>
+                                  </div>
+                                </div>
+                                <ArrowRight className="h-4 w-4 text-muted-foreground" />
+                              </div>
+                            </CardHeader>
+                          </Card>
+
+                          {/* Professional Documentation */}
+                          <Card className="hover:shadow-lg transition-shadow cursor-pointer">
+                            <CardHeader className="pb-3">
+                              <div className="flex items-center justify-between">
+                                <div className="flex items-center">
+                                  <div className="p-2 bg-gradient-to-r from-slate-500 to-gray-600 rounded-lg mr-3">
+                                    <FileText className="h-5 w-5 text-white" />
+                                  </div>
+                                  <div>
+                                    <CardTitle className="text-sm">Documentation Hub</CardTitle>
+                                    <CardDescription className="text-xs">Reports & advocacy materials</CardDescription>
+                                  </div>
+                                </div>
+                                <ArrowRight className="h-4 w-4 text-muted-foreground" />
+                              </div>
+                            </CardHeader>
+                          </Card>
+                        </div>
+
+                        {/* Professional Summary Section */}
+                        <div className="mt-6 p-4 bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-950 dark:to-indigo-950 rounded-lg">
+                          <h3 className="font-semibold text-sm mb-2 flex items-center">
+                            <CheckCircle className="h-4 w-4 mr-2 text-blue-600" />
+                            Professional Autism Support Summary
+                          </h3>
+                          <p className="text-xs text-muted-foreground mb-3">
+                            Access evidence-based autism support tools designed for advocates. These professional-grade assessments help document sensory needs, communication requirements, and behavioral supports for comprehensive IEP advocacy.
+                          </p>
+                          <div className="flex flex-wrap gap-2">
+                            <Badge variant="outline" className="text-xs">Sensory Processing</Badge>
+                            <Badge variant="outline" className="text-xs">Communication AAC</Badge>
+                            <Badge variant="outline" className="text-xs">Behavioral Plans</Badge>
+                            <Badge variant="outline" className="text-xs">AI Analysis</Badge>
+                            <Badge variant="outline" className="text-xs">IEP Documentation</Badge>
+                          </div>
+                        </div>
+                      </CardContent>
+                    </Card>
                   </div>
                 )}
 

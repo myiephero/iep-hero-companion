@@ -437,12 +437,10 @@ export default function AdvocateMessages() {
                         <h3 className="text-xs font-medium text-muted-foreground uppercase tracking-wider">Active Conversations</h3>
                       </div>
                       {filteredConversations.map((conversation) => {
-                        const studentName = conversation.student?.first_name 
-                          ? `${conversation.student.first_name} ${conversation.student.last_name}` 
-                          : 'Student';
+                        const studentName = conversation.student?.full_name || 'Student';
                         const avatar = studentName.split(' ').map(n => n[0]).join('');
-                        const lastMessageTime = conversation.lastMessage?.created_at ? 
-                          new Date(conversation.lastMessage.created_at).toLocaleDateString() : 'New';
+                        const lastMessageTime = conversation.latest_message?.created_at ? 
+                          new Date(conversation.latest_message.created_at).toLocaleDateString() : 'New';
                           
                         return (
                           <div
@@ -486,14 +484,17 @@ export default function AdvocateMessages() {
                                     <ConversationActionsMenu conversation={conversation} />
                                   </div>
                                 </div>
-                                <p className="text-sm text-muted-foreground mb-1">{conversation.parent?.name || 'Parent'}</p>
-                                <p className="text-sm truncate">
-                                  {conversation.lastMessage?.content || 'No messages yet'}
-                                </p>
+                                <p className="text-sm font-bold mb-1">{conversation.parent?.name || 'Parent'}</p>
+                                <p className="text-xs text-muted-foreground mb-1">{studentName}</p>
+                                {conversation.latest_message?.content && (
+                                  <p className="text-sm truncate">
+                                    {conversation.latest_message.content}
+                                  </p>
+                                )}
                                 <div className="flex items-center gap-2 mt-2">
-                                  {conversation.unreadCount > 0 && (
+                                  {conversation.unread_count > 0 && (
                                     <Badge variant="default" className="text-xs">
-                                      {conversation.unreadCount} new
+                                      {conversation.unread_count} new
                                     </Badge>
                                   )}
                                   <ConversationLabelsDisplay conversationId={conversation.id} />
@@ -585,16 +586,16 @@ export default function AdvocateMessages() {
                     <Avatar className="h-10 w-10">
                       <AvatarImage src="/placeholder-1.jpg" />
                       <AvatarFallback>
-                        {selectedConversation?.student?.first_name 
-                          ? `${selectedConversation.student.first_name[0]}${selectedConversation.student.last_name?.[0] || ''}` 
+                        {selectedConversation?.student?.full_name 
+                          ? selectedConversation.student.full_name.split(' ').map(n => n[0]).join('') 
                           : 'S'}
                       </AvatarFallback>
                     </Avatar>
                     <div>
                       <div className="flex items-center gap-2">
                         <p className="font-medium">
-                          {selectedConversation?.student?.first_name 
-                            ? `${selectedConversation.student.first_name} ${selectedConversation.student.last_name}'s Family` 
+                          {selectedConversation?.student?.full_name 
+                            ? `${selectedConversation.student.full_name}'s Family` 
                             : "Student's Family"}
                         </p>
                         {selectedConversation.archived && (
@@ -683,9 +684,9 @@ export default function AdvocateMessages() {
                             />
                           </p>
                         )}
-                        {message.attachments && message.attachments.length > 0 && (
+                        {(message as any).attachments && (message as any).attachments.length > 0 && (
                           <MessageAttachmentDisplay 
-                            attachments={message.attachments as MessageAttachment[]} 
+                            attachments={(message as any).attachments as MessageAttachment[]} 
                             compact={true}
                           />
                         )}
@@ -703,7 +704,7 @@ export default function AdvocateMessages() {
                     <div className="text-center text-muted-foreground">
                       <MessageSquare className="h-12 w-12 mx-auto mb-4 opacity-50" />
                       <p className="text-lg font-medium mb-2">No Messages Yet</p>
-                      <p className="text-sm">Start a conversation with {selectedConversation.student?.first_name || 'the student'}'s family</p>
+                      <p className="text-sm">Start a conversation with {selectedConversation.student?.full_name || 'the student'}'s family</p>
                     </div>
                   </div>
                 )

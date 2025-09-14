@@ -38,7 +38,9 @@ import {
   Clock,
   Smile,
   Heart,
-  TrendingUp
+  TrendingUp,
+  MessageCircle,
+  Send
 } from "lucide-react";
 // import { supabase } from "@/integrations/supabase/client"; // Removed during migration
 import { useAuth } from "@/hooks/useAuth";
@@ -46,6 +48,8 @@ import { useToast } from "@/hooks/use-toast";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
 import { getIEPStatusColor } from "@/lib/utils";
+import { useCreateConversation } from "@/hooks/useMessaging";
+import { useNavigate } from 'react-router-dom';
 
 // Real AI Analysis Component
 const AutismAIAnalysis = ({ selectedStudentId }: { selectedStudentId?: string }) => {
@@ -1881,6 +1885,131 @@ interface Accommodation {
   status: string;
 }
 
+// Communication Tab Component
+const CommunicationTab = ({ 
+  selectedStudentId, 
+  currentStudent, 
+  user, 
+  createConversation, 
+  creating, 
+  navigate, 
+  toast 
+}: { 
+  selectedStudentId?: string; 
+  currentStudent: any; 
+  user: any; 
+  createConversation: any; 
+  creating: boolean; 
+  navigate: any; 
+  toast: any;
+}) => {
+  const [messageText, setMessageText] = useState('');
+
+  const handleSendMessage = async () => {
+    if (!selectedStudentId || !currentStudent || !messageText.trim()) {
+      toast({
+        title: "Error",
+        description: "Please enter a message first.",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    try {
+      // Create conversation in the main messaging system
+      const conversation = await createConversation(
+        user.id, // advocateId  
+        selectedStudentId, // studentId
+        user.id // parentId - using user.id as the parent for this demo
+      );
+
+      if (conversation) {
+        toast({
+          title: "Message Sent!",
+          description: "Conversation created successfully. Redirecting to Messages...",
+        });
+        
+        // Redirect to messages page with the new conversation
+        navigate('/advocate/messages', { 
+          state: { 
+            newMessage: { 
+              parentId: user.id,
+              studentId: selectedStudentId,
+              content: messageText 
+            } 
+          } 
+        });
+      } else {
+        throw new Error('Failed to create conversation');
+      }
+    } catch (error) {
+      console.error('Error sending message:', error);
+      toast({
+        title: "Error",
+        description: "Failed to send message. Please try again.",
+        variant: "destructive"
+      });
+    }
+  };
+
+  if (!selectedStudentId || !currentStudent) {
+    return (
+      <Card className="premium-card">
+        <CardContent className="text-center py-8">
+          <MessageCircle className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
+          <h3 className="text-lg font-semibold mb-2">No Student Selected</h3>
+          <p className="text-muted-foreground">
+            Please select a student to start a conversation.
+          </p>
+        </CardContent>
+      </Card>
+    );
+  }
+
+  return (
+    <Card className="premium-card">
+      <CardHeader>
+        <CardTitle className="flex items-center">
+          <MessageCircle className="h-5 w-5 mr-2" />
+          Send Message to Parent
+        </CardTitle>
+        <CardDescription>
+          Start a conversation about {currentStudent.full_name}
+        </CardDescription>
+      </CardHeader>
+      <CardContent className="space-y-4">
+        <div className="space-y-2">
+          <Label htmlFor="message">Message</Label>
+          <Textarea
+            id="message"
+            placeholder="Type your message here..."
+            value={messageText}
+            onChange={(e) => setMessageText(e.target.value)}
+            rows={6}
+            className="resize-none"
+            data-testid="input-message"
+          />
+        </div>
+        
+        <Button 
+          onClick={handleSendMessage}
+          disabled={!messageText.trim() || creating}
+          className="w-full"
+          data-testid="button-send-message"
+        >
+          <Send className="h-4 w-4 mr-2" />
+          {creating ? "Sending..." : "Send Message"}
+        </Button>
+
+        <div className="text-sm text-muted-foreground bg-muted/50 p-3 rounded-lg">
+          <p className="font-medium mb-1">💡 Tip:</p>
+          <p>This will create a new conversation that will appear in your Messages page, where you can continue the discussion with the parent.</p>
+        </div>
+      </CardContent>
+    </Card>
+  );
+};
+
 const ParentStudents = () => {
   const [selectedStudentId, setSelectedStudentId] = useState<string | null>(null);
   const [selectedTab, setSelectedTab] = useState<string>("overview");
@@ -1914,6 +2043,8 @@ const ParentStudents = () => {
   
   const { user } = useAuth();
   const { toast } = useToast();
+  const navigate = useNavigate();
+  const { create: createConversation, creating } = useCreateConversation();
 
   const handleAddStudent = async () => {
     if (!newStudent.first_name || !newStudent.last_name) return;
@@ -2870,6 +3001,17 @@ const ParentStudents = () => {
                       <Star className="h-4 w-4" />
                       <span className="hidden lg:inline">Gifted</span>
                     </button>
+                    <button
+                      onClick={() => setSelectedTab("communication")}
+                      className={`flex items-center gap-2 px-3 py-3 rounded-lg font-medium transition-all duration-200 flex-1 justify-center ${
+                        selectedTab === "communication"
+                          ? "bg-gradient-to-r from-blue-500 to-blue-600 text-white shadow-md"
+                          : "text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800"
+                      }`}
+                    >
+                      <MessageCircle className="h-4 w-4" />
+                      <span className="hidden lg:inline">Communication</span>
+                    </button>
                   </div>
                 </div>
               </div>
@@ -3106,6 +3248,18 @@ const ParentStudents = () => {
                 <div className="space-y-6">
                   <GiftedAssessmentsTab selectedStudentId={selectedStudentId} />
                 </div>
+              )}
+
+              {selectedTab === "communication" && (
+                <CommunicationTab 
+                  selectedStudentId={selectedStudentId} 
+                  currentStudent={currentStudent}
+                  user={user}
+                  createConversation={createConversation}
+                  creating={creating}
+                  navigate={navigate}
+                  toast={toast}
+                />
               )}
             </div>
           </div>

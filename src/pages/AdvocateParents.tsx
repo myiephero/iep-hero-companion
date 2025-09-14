@@ -1294,9 +1294,9 @@ export default function AdvocateParents() {
                   </div>
                 ) : (
                   <div className="space-y-2">
-                    {parents.map((parent) => (
+                    {parents.map((parent, index) => (
                       <div
-                        key={parent.id}
+                        key={`${parent.id}-${parent.created_at}-${index}`}
                         className={`p-2 hover:bg-muted/50 cursor-pointer border-b last:border-b-0 transition-colors ${selectedParentId === parent.id ? 'bg-muted/50 border-l-4 border-l-primary' : ''}`}
                         onClick={() => setSelectedParentId(parent.id)}
                       >

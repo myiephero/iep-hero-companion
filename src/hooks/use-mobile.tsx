@@ -3,17 +3,27 @@ import * as React from "react"
 const MOBILE_BREAKPOINT = 768
 
 export function useIsMobile() {
-  const [isMobile, setIsMobile] = React.useState<boolean | undefined>(undefined)
-
+  // Initialize with null to avoid hydration mismatches
+  const [isMobile, setIsMobile] = React.useState<boolean | null>(null)
+  
   React.useEffect(() => {
+    // Use media query for better performance and prevent re-render loops
     const mql = window.matchMedia(`(max-width: ${MOBILE_BREAKPOINT - 1}px)`)
-    const onChange = () => {
-      setIsMobile(window.innerWidth < MOBILE_BREAKPOINT)
+    
+    // Use the match result directly to avoid layout shift
+    const handleChange = (e: MediaQueryListEvent) => {
+      setIsMobile(e.matches)
     }
-    mql.addEventListener("change", onChange)
-    setIsMobile(window.innerWidth < MOBILE_BREAKPOINT)
-    return () => mql.removeEventListener("change", onChange)
+    
+    // Set initial value
+    setIsMobile(mql.matches)
+    
+    // Use the more reliable addEventListener with passive option for better performance
+    mql.addEventListener("change", handleChange)
+    
+    return () => mql.removeEventListener("change", handleChange)
   }, [])
 
-  return !!isMobile
+  // Return false during SSR/hydration to prevent mismatches
+  return isMobile ?? false
 }

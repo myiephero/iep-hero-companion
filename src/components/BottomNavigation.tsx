@@ -65,8 +65,8 @@ export function BottomNavigation() {
   };
 
   return (
-    <nav className="fixed bottom-0 left-0 right-0 z-50 bg-background/95 backdrop-blur border-t border-border safe-area-pb md:hidden">
-      <div className="flex items-center justify-around px-2 py-1">
+    <nav className="fixed bottom-0 left-0 right-0 z-50 bg-background/95 backdrop-blur border-t border-border md:hidden safe-area-inset">
+      <div className="flex items-center justify-around px-2 py-1 pb-safe">
         {navigationItems.map((item) => {
           const isItemActive = isActive(item.url);
           

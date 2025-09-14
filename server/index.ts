@@ -2865,6 +2865,57 @@ app.get('/api/advocates', async (req, res) => {
   }
 });
 
+// Get advocates with accepted relationships for current parent user
+app.get('/api/advocates/for-parent', isAuthenticated, async (req, res) => {
+  try {
+    const userId = await getUserId(req);
+    console.log(`✅ PRODUCTION: Getting advocates for parent user: ${userId}`);
+    
+    // Get advocates who have active relationships with this parent
+    const advocateRelationships = await db.select({
+      advocate: schema.advocates,
+      relationship: schema.advocate_clients
+    })
+    .from(schema.advocate_clients)
+    .leftJoin(schema.advocates, eq(schema.advocate_clients.advocate_id, schema.advocates.id))
+    .where(
+      and(
+        eq(schema.advocate_clients.client_id, userId),
+        or(
+          eq(schema.advocate_clients.status, 'active'),
+          eq(schema.advocate_clients.engagement_stage, 'intake'),
+          eq(schema.advocate_clients.engagement_stage, 'assessment'),
+          eq(schema.advocate_clients.engagement_stage, 'iep_development'),
+          eq(schema.advocate_clients.engagement_stage, 'implementation'),
+          eq(schema.advocate_clients.engagement_stage, 'monitoring'),
+          eq(schema.advocate_clients.engagement_stage, 'review_renewal')
+        )
+      )
+    );
+    
+    console.log(`✅ Found ${advocateRelationships.length} advocates with active relationships for parent`);
+    
+    // Filter out any null advocates and format response
+    const advocates = advocateRelationships
+      .filter(ar => ar.advocate) // Only include records where advocate data exists
+      .map(({ advocate, relationship }) => ({
+        ...advocate,
+        relationship_status: relationship.status,
+        engagement_stage: relationship.engagement_stage
+      }));
+    
+    console.log(`✅ Returning ${advocates.length} advocates for parent: ${advocates.map(a => a?.full_name).join(', ')}`);
+    res.json(advocates);
+    
+  } catch (error) {
+    console.error('❌ Error fetching advocates for parent:', error);
+    if (error.message && error.message.includes('Authentication required')) {
+      return res.status(401).json({ error: 'Authentication required' });
+    }
+    res.status(500).json({ error: 'Failed to fetch advocates for parent' });
+  }
+});
+
 app.post('/api/advocates', async (req, res) => {
   try {
     const userId = await getUserId(req);

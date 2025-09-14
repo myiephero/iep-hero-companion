@@ -1907,19 +1907,22 @@ const CommunicationTab = ({
   const [selectedAdvocateId, setSelectedAdvocateId] = useState<string>('');
   const [advocates, setAdvocates] = useState<any[]>([]);
 
-  // Fetch advocates for the dropdown
+  // Fetch advocates with accepted relationships for this parent
   useEffect(() => {
-    const fetchAdvocates = async () => {
+    const fetchAdvocatesForParent = async () => {
       try {
-        const response = await apiRequest('GET', '/api/advocates');
+        const response = await apiRequest('GET', '/api/advocates/for-parent');
         const data = await response.json();
         setAdvocates(data || []);
+        console.log('✅ Parent can message these advocates:', data?.map(a => a.full_name).join(', ') || 'None');
       } catch (error) {
-        console.error('Error fetching advocates:', error);
+        console.error('Error fetching advocates for parent:', error);
+        // If no relationships found, show empty list
+        setAdvocates([]);
       }
     };
 
-    fetchAdvocates();
+    fetchAdvocatesForParent();
   }, []);
 
   const handleSendMessage = async () => {
@@ -2009,16 +2012,25 @@ const CommunicationTab = ({
               <SelectValue placeholder="Choose an advocate..." />
             </SelectTrigger>
             <SelectContent className="bg-background border-border z-50">
-              {advocates.map((advocate) => (
-                <SelectItem key={advocate.id} value={advocate.id}>
-                  <div className="flex items-center gap-2">
-                    <div className="flex flex-col">
-                      <span className="font-medium">{advocate.full_name}</span>
-                      <span className="text-xs text-muted-foreground">{advocate.specialization || 'General Advocacy'}</span>
+              {advocates.length === 0 ? (
+                <div className="p-3 text-center text-muted-foreground text-sm">
+                  <p>No advocates available</p>
+                  <p className="text-xs mt-1">You need an accepted advocate relationship to send messages</p>
+                </div>
+              ) : (
+                advocates.map((advocate) => (
+                  <SelectItem key={advocate.id} value={advocate.id}>
+                    <div className="flex items-center gap-2">
+                      <div className="flex flex-col">
+                        <span className="font-medium">{advocate.full_name}</span>
+                        <span className="text-xs text-muted-foreground">
+                          {advocate.specialization || 'General Advocacy'} • {advocate.engagement_stage || 'Active'}
+                        </span>
+                      </div>
                     </div>
-                  </div>
-                </SelectItem>
-              ))}
+                  </SelectItem>
+                ))
+              )}
             </SelectContent>
           </Select>
         </div>

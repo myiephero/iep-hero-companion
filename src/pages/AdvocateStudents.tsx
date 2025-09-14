@@ -39,7 +39,8 @@ import {
   Clock,
   BookOpen,
   Calculator,
-  Volume2
+  Volume2,
+  MessageCircle
 } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
@@ -1555,31 +1556,41 @@ const AdvocateStudents = () => {
               Manage your clients' children and track their educational progress
             </p>
           </div>
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button className="button-premium">
-                <User className="h-4 w-4 mr-2" />
-                Student
-                <Plus className="h-4 w-4 ml-2" />
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="w-48">
-              <DropdownMenuItem onClick={() => {
-                resetForm();
-                setIsAddStudentOpen(true);
-              }}>
-                <Plus className="h-4 w-4 mr-2" />
-                Add New Student
-              </DropdownMenuItem>
-              <DropdownMenuItem 
-                onClick={() => currentStudent ? openEditDialog(currentStudent) : null}
-                disabled={!currentStudent}
-              >
-                <Edit className="h-4 w-4 mr-2" />
-                Edit Current Student
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
+          <div className="flex items-center gap-2">
+            <Button 
+              variant="outline" 
+              onClick={() => window.location.href = '/advocate/messages'}
+              data-testid="button-communication"
+            >
+              <MessageCircle className="h-4 w-4 mr-2" />
+              Messages
+            </Button>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button className="button-premium">
+                  <User className="h-4 w-4 mr-2" />
+                  Student
+                  <Plus className="h-4 w-4 ml-2" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-48">
+                <DropdownMenuItem onClick={() => {
+                  resetForm();
+                  setIsAddStudentOpen(true);
+                }}>
+                  <Plus className="h-4 w-4 mr-2" />
+                  Add New Student
+                </DropdownMenuItem>
+                <DropdownMenuItem 
+                  onClick={() => currentStudent ? openEditDialog(currentStudent) : null}
+                  disabled={!currentStudent}
+                >
+                  <Edit className="h-4 w-4 mr-2" />
+                  Edit Current Student
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </div>
         </div>
 
         <StudentSelector

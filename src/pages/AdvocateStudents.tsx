@@ -58,6 +58,7 @@ import {
   type StudentIEPWorkflowStage 
 } from "../../shared/schema";
 import { GiftedInsightsView } from "@/components/GiftedInsightsView";
+import { StudentSelector } from "@/components/StudentSelector";
 
 interface Client {
   id: string;
@@ -1581,68 +1582,15 @@ const AdvocateStudents = () => {
           </DropdownMenu>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          {/* Left Sidebar - Student List */}
-          <div className="lg:col-span-1">
-            <Card className="premium-card">
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <GraduationCap className="h-5 w-5" />
-                  Client Students ({students.length})
-                </CardTitle>
-                <CardDescription>
-                  Select a student to view details
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="p-0">
-                {students.length === 0 ? (
-                  <div className="p-6 text-center">
-                    <GraduationCap className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-                    <h3 className="text-lg font-semibold mb-2">No Students Yet</h3>
-                    <p className="text-muted-foreground mb-4">
-                      You haven't added any students yet. Get started by adding your first client's student.
-                    </p>
-                    {/* Add Student feature removed */}
-                  </div>
-                ) : (
-                  <div className="space-y-2">
-                    {students.map((student) => (
-                      <div
-                        key={student.id}
-                        className={`p-3 hover:bg-muted/50 cursor-pointer border-b last:border-b-0 transition-colors ${selectedStudentId === student.id ? 'bg-muted/50 border-l-4 border-l-primary' : ''}`}
-                        onClick={() => setSelectedStudentId(student.id)}
-                      >
-                        <div className="flex items-center justify-between">
-                          <div className="flex items-center gap-3">
-                            <Avatar className="h-10 w-10">
-                              <AvatarFallback className="bg-primary/10 text-primary font-semibold">
-                                {student.full_name.split(' ').map(n => n[0]).join('').toUpperCase()}
-                              </AvatarFallback>
-                            </Avatar>
-                            <div>
-                              <p className="font-medium">{student.full_name}</p>
-                              <p className="text-sm text-muted-foreground">
-                                {student.grade_level ? `Grade ${student.grade_level}` : 'Grade not specified'}
-                              </p>
-                            </div>
-                          </div>
-                          <Badge className={getIEPStatusColor(student.iep_status)}>
-                            IEP: {student.iep_status || 'Not Set'}
-                          </Badge>
-                        </div>
-                        <div className="mt-2 text-xs text-muted-foreground">
-                          {student.school_name || 'School not specified'} • {student.district || 'District not specified'}
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                )}
-              </CardContent>
-            </Card>
-          </div>
+        <StudentSelector
+          selectedStudent={selectedStudentId || ""}
+          onStudentChange={setSelectedStudentId}
+          placeholder="Select a student to view details and tools..."
+          allowEmpty={true}
+          data-testid="selector-student"
+        />
 
-          {/* Right Side - Student Details */}
-          <div className="lg:col-span-2">
+        <div className="grid gap-6">
             {currentStudent ? (
               <>
                 <Card className="premium-card">
@@ -2378,13 +2326,26 @@ const AdvocateStudents = () => {
                 <CardContent className="p-8 text-center">
                   <GraduationCap className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
                   <h3 className="text-lg font-semibold mb-2">Select a Student</h3>
-                  <p className="text-muted-foreground">
-                    Choose a student from the list to view their details, goals, and advocacy progress.
+                  <p className="text-muted-foreground mb-6 max-w-md mx-auto">
+                    Choose a student from the dropdown above to access their IEP details, advocacy tools, and comprehensive resources.
                   </p>
+                  <div className="flex items-center justify-center space-x-6 text-sm text-muted-foreground">
+                    <div className="flex items-center space-x-2">
+                      <Heart className="h-4 w-4" />
+                      <span>Emotion Tracking</span>
+                    </div>
+                    <div className="flex items-center space-x-2">
+                      <Brain className="h-4 w-4" />
+                      <span>Autism Tools</span>
+                    </div>
+                    <div className="flex items-center space-x-2">
+                      <Star className="h-4 w-4" />
+                      <span>Gifted Assessments</span>
+                    </div>
+                  </div>
                 </CardContent>
               </Card>
             )}
-          </div>
         </div>
       </div>
 

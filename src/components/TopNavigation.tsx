@@ -11,6 +11,7 @@ import {
 } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
+import iepHeroIcon from "@/assets/iep-hero-icon.png";
 
 export function TopNavigation() {
   const location = useLocation();
@@ -52,8 +53,8 @@ export function TopNavigation() {
       <div className="container mx-auto flex h-16 items-center justify-between px-4">
         <div className="flex items-center gap-4">
           <Link to="/" className="flex items-center gap-2">
-            <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center">
-              <User className="h-4 w-4 text-primary-foreground" />
+            <div className="w-8 h-8 rounded-lg flex items-center justify-center overflow-hidden">
+              <img src={iepHeroIcon} alt="IEP Hero" className="w-8 h-8 object-contain" />
             </div>
             <span className="font-bold text-lg">My IEP Hero</span>
           </Link>

@@ -21,6 +21,7 @@ import {
   Lock,
   Sparkles
 } from "lucide-react";
+import iepHeroIcon from "@/assets/iep-hero-icon.png";
 import { allAdvocateTools, getToolsByCategory } from "@/lib/advocateToolsRegistry";
 import { useToolAccess } from "@/hooks/useToolAccess";
 
@@ -177,8 +178,8 @@ export function AppSidebar() {
         {/* Brand */}
         <div className="mb-8">
           <Link to="/" className="flex items-center gap-3">
-            <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center">
-              <Users className="h-5 w-5 text-primary-foreground" />
+            <div className="w-8 h-8 rounded-lg flex items-center justify-center overflow-hidden">
+              <img src={iepHeroIcon} alt="IEP Hero" className="w-8 h-8 object-contain" />
             </div>
             {!collapsed && (
               <div>

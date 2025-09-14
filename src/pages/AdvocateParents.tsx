@@ -600,9 +600,9 @@ export default function AdvocateParents() {
 
       // Create conversation in the main messaging system
       const conversation = await createConversation(
-        user.id, // advocateId  
+        user.id, // advocateId
         parent.id, // parentId
-        undefined // studentId - undefined for direct parent conversations
+        undefined // studentId - optional for direct parent conversations
       );
 
       if (conversation) {

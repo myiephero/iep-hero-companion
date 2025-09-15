@@ -57,6 +57,15 @@ Preferred communication style: Simple, everyday language.
 - Configured complete iOS TestFlight distribution setup with automated build scripts, entitlements, and beta testing documentation
 - Established complete Android Play Console configuration with App Bundle builds, FCM integration, and internal testing setup
 - All platform configurations verified and ready for app store submission with comprehensive build automation and documentation
+
+**September 15, 2025**: Implemented Apple-compliant Netflix monetization model for mobile apps
+- Successfully converted all upgrade buttons to Apple-compliant external browser redirects (Netflix model)
+- Mobile apps now redirect users to website for subscription purchases, avoiding Apple's 30% fee entirely
+- Web version maintains existing Stripe checkout flow with full functionality
+- Implemented @capacitor/browser integration for seamless external website opening on mobile platforms
+- All upgrade components (UpgradePrompt, LockedActionButton, FeatureGate) now use dynamic button text and redirect logic
+- Tested and verified upgrade flow works correctly across all components and user roles (parent/advocate)
+- System now 100% Apple App Store compliant with zero monetization policy violations
 - Implemented comprehensive iOS entitlements including push notifications, background modes, and data protection
 - Updated Capacitor configuration with iOS-specific optimizations for production builds
 - Created automated build scripts (`build-testflight.sh`) with complete CI/CD integration capability

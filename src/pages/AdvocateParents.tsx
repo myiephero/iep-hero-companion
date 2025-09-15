@@ -13,6 +13,7 @@ import { Label } from "@/components/ui/label";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Users, Mail, Phone, Plus, UserCheck, UserPlus, GraduationCap, Calendar, MapPin, Briefcase, FileText, Target, Building2, Heart, User, ChevronDown, CheckCircle, Clock, XCircle, Pause, Send } from "lucide-react";
+import { ParentTable } from "@/components/ui/responsive-table-examples";
 import { Link, useNavigate } from "react-router-dom";
 import { api } from "@/lib/api";
 import { apiRequest } from "@/lib/queryClient";
@@ -1274,13 +1275,15 @@ export default function AdvocateParents() {
                   Select a parent to view details
                 </CardDescription>
               </CardHeader>
-              <CardContent className="p-0">
-                {loading ? (
-                  <div className="p-6 text-center">
-                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto"></div>
-                    <p className="mt-4 text-muted-foreground">Loading parent clients...</p>
-                  </div>
-                ) : parents.length === 0 ? (
+              <CardContent className="p-4">
+                <ParentTable
+                  parents={parents}
+                  loading={loading}
+                  onMessage={handleSendMessage}
+                  onEdit={(parent) => setSelectedParentId(parent.id)}
+                  onViewStudents={(parent) => setSelectedParentId(parent.id)}
+                />
+                {!loading && parents.length === 0 && (
                   <div className="p-6 text-center">
                     <Users className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
                     <h3 className="text-lg font-semibold mb-2">No Parent Clients Yet</h3>
@@ -1291,43 +1294,6 @@ export default function AdvocateParents() {
                       <UserCheck className="h-4 w-4 mr-2" />
                       Create Your First Parent Client
                     </Button>
-                  </div>
-                ) : (
-                  <div className="space-y-2">
-                    {parents.map((parent, index) => (
-                      <div
-                        key={`${parent.id}-${parent.created_at}-${index}`}
-                        className={`p-2 hover:bg-muted/50 cursor-pointer border-b last:border-b-0 transition-colors ${selectedParentId === parent.id ? 'bg-muted/50 border-l-4 border-l-primary' : ''}`}
-                        onClick={() => setSelectedParentId(parent.id)}
-                      >
-                        <div className="flex items-center gap-2">
-                          <Avatar className="h-8 w-8">
-                            <AvatarFallback className="bg-primary/10 text-primary font-semibold text-xs">
-                              {parent.full_name?.split(' ').map(n => n[0]).join('').toUpperCase() || 'NA'}
-                            </AvatarFallback>
-                          </Avatar>
-                          <div className="flex-1 min-w-0">
-                            <div className="flex items-center justify-between">
-                              <p className="font-medium text-sm truncate">{parent.full_name}</p>
-                              <div className="flex gap-1 ml-2 flex-shrink-0">
-                                <Badge variant="outline" className={`text-[10px] px-1 py-0 h-4 ${getIEPStatusColor(getParentIEPStatus(parent))}`}>
-                                  {getParentIEPStatus(parent).charAt(0).toUpperCase() + getParentIEPStatus(parent).slice(1)}
-                                </Badge>
-                                <Badge variant="outline" className={`text-[10px] px-1 py-0 h-4 ${getStatusColor(parent.status)}`}>
-                                  {(parent.status || 'Pending').charAt(0).toUpperCase() + (parent.status || 'Pending').slice(1)}
-                                </Badge>
-                              </div>
-                            </div>
-                            <div className="flex items-center justify-between mt-1">
-                              <p className="text-xs text-muted-foreground truncate">{parent.email}</p>
-                              <p className="text-[10px] text-muted-foreground flex-shrink-0 ml-2">
-                                {parent.students_count || 0} student{parent.students_count !== 1 ? 's' : ''}
-                              </p>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    ))}
                   </div>
                 )}
               </CardContent>

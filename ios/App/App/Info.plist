@@ -51,5 +51,11 @@
         <string>This app needs access to photo library to select images for documents and profiles.</string>
         <key>NSPhotoLibraryAddUsageDescription</key>
         <string>This app needs access to save captured photos to your photo library.</string>
+        <key>UIBackgroundModes</key>
+        <array>
+                <string>remote-notification</string>
+        </array>
+        <key>NSUserNotificationsUsageDescription</key>
+        <string>This app uses notifications to alert you about important IEP updates, meeting reminders, and messages from your advocacy team.</string>
 </dict>
 </plist>

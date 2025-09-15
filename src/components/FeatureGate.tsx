@@ -91,7 +91,7 @@ export function FeatureGate({
   const handleUpgradeClick = async () => {
     // Open external browser with pricing page for Apple compliance
     const baseUrl = Capacitor.isNativePlatform() 
-      ? 'https://myiephero.com' // Your actual website URL
+      ? 'https://afd4ab41-fa60-4e78-9742-69bb4e3004d6-00-6i79wn87wfhu.janeway.replit.dev'
       : window.location.origin;
     
     const pricingUrl = user?.role === 'advocate' 

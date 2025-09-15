@@ -31,6 +31,7 @@ import NotFound from "./pages/NotFound";
 
 // Development/Testing Routes
 const MobileTestingPage = lazy(() => import("./pages/MobileTestingPage"));
+const UpgradeFlowTest = lazy(() => import("./pages/UpgradeFlowTest"));
 
 // Lazy load route groups for code splitting
 // Auth & Onboarding Routes
@@ -1121,6 +1122,11 @@ function App() {
               <Route path="/mobile-testing" element={
                 <Suspense fallback={<LoadingFallback />}>
                   <MobileTestingPage />
+                </Suspense>
+              } />
+              <Route path="/upgrade-flow-test" element={
+                <Suspense fallback={<LoadingFallback />}>
+                  <UpgradeFlowTest />
                 </Suspense>
               } />
               

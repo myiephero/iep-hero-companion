@@ -550,7 +550,7 @@ const DocumentVault: React.FC = () => {
                     </div>
                   </div>
                 ) : (
-                  <div className={viewMode === 'grid' ? "grid gap-6 md:grid-cols-2 xl:grid-cols-3" : "space-y-4"}>
+                  <div className={viewMode === 'grid' ? "grid gap-4 sm:gap-6 sm:grid-cols-2 xl:grid-cols-3" : "space-y-4"}>
                 {filteredDocuments?.map((doc: Document) => {
                   // Special rendering for AI Analysis documents
                   if (doc.category === 'AI Analysis') {
@@ -565,7 +565,7 @@ const DocumentVault: React.FC = () => {
                       <Card key={doc.id} className="overflow-hidden transition-all duration-200 border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900">
                         <CardContent className="p-6">
                           <div className="flex items-center justify-between mb-6">
-                            <div className="flex items-center gap-2 md:gap-4">
+                            <div className="flex items-center gap-2 sm:gap-4">
                               {isSelectMode && (
                                 <button
                                   onClick={() => toggleDocumentSelection(doc.id)}
@@ -590,7 +590,7 @@ const DocumentVault: React.FC = () => {
                             </div>
                           </div>
 
-                          <div className="flex flex-col sm:flex-row sm:items-center gap-2 mb-6">
+                          <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:gap-2 mb-6">
                             <div className="flex flex-wrap items-center gap-2">
                               <Badge className="bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-100 text-xs">
                                 IEP

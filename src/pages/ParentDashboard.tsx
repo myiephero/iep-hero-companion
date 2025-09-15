@@ -601,7 +601,7 @@ export default function ParentDashboard({ plan }: ParentDashboardProps) {
         <div className="px-4 sm:px-6 pb-16">
           <div className="max-w-7xl mx-auto">
             {/* Enhanced Quick Stats with Unified Design */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 mb-8 sm:mb-12 relative" style={{ zIndex: 10 }}>
+            <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4 sm:gap-6 mb-8 sm:mb-12 relative" style={{ zIndex: 10 }}>
               {[
                 {
                   icon: Target,
@@ -833,7 +833,7 @@ export default function ParentDashboard({ plan }: ParentDashboardProps) {
                   </Button>
                   <Dialog open={showGoalDialog} onOpenChange={setShowGoalDialog}>
                     <DialogContent className="max-w-md border-0 shadow-2xl bg-white/95 backdrop-blur-sm max-h-[90vh] overflow-y-auto">
-                      <DialogHeader>
+                      <DialogHeader className="px-1">
                         <DialogTitle className="text-lg sm:text-xl font-semibold text-gray-900">Create New Goal</DialogTitle>
                         <DialogDescription className="text-sm sm:text-base text-gray-600">
                           Set up a new IEP goal to track your child's progress.
@@ -979,7 +979,7 @@ export default function ParentDashboard({ plan }: ParentDashboardProps) {
                             <h4 className="text-xl font-semibold text-gray-900 mb-2">Common IEP Goal Categories</h4>
                             <p className="text-gray-600">Choose the type that best matches your child's current focus areas</p>
                           </div>
-                          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-3 sm:gap-4">
+                          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3 sm:gap-4">
                             <div className="text-center p-3 sm:p-4 bg-white rounded-xl shadow-sm hover:shadow-md transition-all duration-200 cursor-pointer group min-h-[100px] sm:min-h-[120px] flex flex-col justify-center" onClick={() => setGoalForm({...goalForm, goal_type: 'academic'})}>
                               <div className="text-xl sm:text-2xl mb-2 group-hover:scale-110 transition-transform duration-200">📚</div>
                               <div className="text-xs sm:text-sm font-medium text-gray-900">Academic</div>

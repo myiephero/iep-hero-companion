@@ -694,7 +694,7 @@ const AdvocateDashboard = ({ plan }: AdvocateDashboardProps) => {
         </div>
 
         {/* Enhanced Stats Cards */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4 sm:gap-6">
           <Card className="relative overflow-hidden group hover:shadow-lg transition-all duration-300 border-0 bg-gradient-to-br from-orange-50 to-red-50 dark:from-orange-950 dark:to-red-950">
             <CardContent className="p-3 sm:p-4 md:p-6">
               <div className="flex items-center justify-between">
@@ -858,7 +858,7 @@ const AdvocateDashboard = ({ plan }: AdvocateDashboardProps) => {
           </div>
           
           {loading ? (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
               {[...Array(8)].map((_, i) => (
                 <Card key={i} className="animate-pulse border-0">
                   <CardContent className="p-4 sm:p-6">
@@ -876,7 +876,7 @@ const AdvocateDashboard = ({ plan }: AdvocateDashboardProps) => {
               ))}
             </div>
           ) : (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
               {/* Parent Clients */}
               <Card className="group hover:shadow-xl transition-all duration-300 cursor-pointer border-0 bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-blue-950/50 dark:to-indigo-950/50 hover:scale-105" data-testid="card-parent-clients">
                 <Link to="/advocate/parents" className="block">

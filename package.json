@@ -19,7 +19,11 @@
     "cap:sync:ios": "npx cap sync ios",
     "cap:sync:android": "npx cap sync android",
     "cap:open:ios": "npx cap open ios",
-    "cap:open:android": "npx cap open android"
+    "cap:open:android": "npx cap open android",
+    "ios:build:testflight": "./ios/build-scripts/build-testflight.sh",
+    "ios:build:dev": "npm run build && npx cap sync ios",
+    "ios:build:prod": "npm run build && npx cap sync ios && npm run ios:build:testflight",
+    "ios:prepare": "npx cap sync ios && cd ios/App && pod install"
   },
   "dependencies": {
     "@capacitor/android": "^7.4.3",

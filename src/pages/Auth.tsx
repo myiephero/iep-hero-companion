@@ -117,8 +117,8 @@ const Auth = () => {
               <CardDescription>Enter your credentials</CardDescription>
             </CardHeader>
             <CardContent>
-              <form onSubmit={handleCustomLogin} className="space-y-4">
-                <div>
+              <form onSubmit={handleCustomLogin} className="space-y-6">
+                <div className="space-y-2">
                   <Label htmlFor="email">Email</Label>
                   <Input
                     id="email"
@@ -127,10 +127,11 @@ const Auth = () => {
                     onChange={(e) => setEmail(e.target.value)}
                     required
                     disabled={loading}
+                    data-testid="input-email"
                   />
                 </div>
                 
-                <div>
+                <div className="space-y-2">
                   <Label htmlFor="password">Password</Label>
                   <div className="relative">
                     <Input
@@ -140,21 +141,23 @@ const Auth = () => {
                       onChange={(e) => setPassword(e.target.value)}
                       required
                       disabled={loading}
-                      className="pr-10"
+                      className="pr-12"
+                      data-testid="input-password"
                     />
                     <Button
                       type="button"
                       variant="ghost"
-                      size="sm"
-                      className="absolute right-0 top-0 h-full px-3"
+                      size="icon"
+                      className="absolute right-1 top-1/2 -translate-y-1/2 h-9 w-9"
                       onClick={() => setShowPassword(!showPassword)}
+                      data-testid="button-toggle-password"
                     >
                       {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                     </Button>
                   </div>
                 </div>
 
-                <Button type="submit" className="w-full" disabled={loading}>
+                <Button type="submit" className="w-full mt-8" disabled={loading} data-testid="button-submit">
                   {loading ? (
                     <>
                       <Loader2 className="mr-2 h-4 w-4 animate-spin" />
@@ -165,12 +168,13 @@ const Auth = () => {
                   )}
                 </Button>
                 
-                <div className="text-center">
+                <div className="text-center mt-6">
                   <Button
                     type="button"
                     variant="link"
-                    className="text-sm text-muted-foreground"
+                    className="text-sm text-muted-foreground min-h-[44px]"
                     onClick={() => setLoginMode('forgot')}
+                    data-testid="button-forgot-password"
                   >
                     Forgot your password?
                   </Button>
@@ -192,7 +196,8 @@ const Auth = () => {
             <Button
               variant="ghost" 
               onClick={() => setLoginMode('signin')}
-              className="text-sm text-muted-foreground hover:text-primary transition-colors"
+              className="text-sm text-muted-foreground hover:text-primary transition-colors min-h-[44px] px-4"
+              data-testid="button-back-signin"
             >
               <ArrowLeft className="h-4 w-4 mr-2" />
               Back to Sign In
@@ -206,8 +211,8 @@ const Auth = () => {
               <CardDescription>Enter your email and we'll send you a reset link</CardDescription>
             </CardHeader>
             <CardContent>
-              <form onSubmit={handleForgotPassword} className="space-y-4">
-                <div>
+              <form onSubmit={handleForgotPassword} className="space-y-6">
+                <div className="space-y-2">
                   <Label htmlFor="email">Email</Label>
                   <Input
                     id="email"
@@ -216,10 +221,11 @@ const Auth = () => {
                     onChange={(e) => setEmail(e.target.value)}
                     required
                     disabled={loading}
+                    data-testid="input-email-reset"
                   />
                 </div>
 
-                <Button type="submit" className="w-full" disabled={loading}>
+                <Button type="submit" className="w-full mt-8" disabled={loading} data-testid="button-send-reset">
                   {loading ? (
                     <>
                       <Loader2 className="mr-2 h-4 w-4 animate-spin" />

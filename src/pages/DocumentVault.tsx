@@ -14,7 +14,7 @@ import { Shield, Folder, Search, Filter, Download, Upload, Eye, Edit, Trash2, Ch
 import { format } from 'date-fns';
 import { apiRequest } from '@/lib/queryClient';
 import { useToast } from '@/hooks/use-toast';
-import type { Document, Student } from '@shared/schema';
+import type { Document, Student } from '@/lib/api';
 import DocumentUpload from '@/components/DocumentUpload';
 
 interface ViewDialogState {
@@ -350,22 +350,22 @@ const DocumentVault: React.FC = () => {
         <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
             <TabsList className="grid w-full sm:w-auto grid-cols-3 sm:grid-cols-6 h-auto bg-gradient-to-r from-gray-50 to-gray-100 dark:from-gray-800 dark:to-gray-900 p-1 rounded-xl">
-              <TabsTrigger value="all" className="data-[state=active]:bg-white data-[state=active]:text-blue-600 data-[state=active]:shadow-sm text-xs sm:text-sm px-2 py-2">
+              <TabsTrigger value="all" className="data-[state=active]:bg-white data-[state=active]:text-blue-600 data-[state=active]:shadow-sm text-xs sm:text-sm px-3 py-3 min-h-[44px]">
                 All ({documentCounts.all})
               </TabsTrigger>
-              <TabsTrigger value="iep" className="data-[state=active]:bg-white data-[state=active]:text-blue-600 data-[state=active]:shadow-sm text-xs sm:text-sm px-2 py-2">
+              <TabsTrigger value="iep" className="data-[state=active]:bg-white data-[state=active]:text-blue-600 data-[state=active]:shadow-sm text-xs sm:text-sm px-3 py-3 min-h-[44px]">
                 IEPs ({documentCounts.iep})
               </TabsTrigger>
-              <TabsTrigger value="evaluations" className="data-[state=active]:bg-white data-[state=active]:text-blue-600 data-[state=active]:shadow-sm text-xs sm:text-sm px-2 py-2">
+              <TabsTrigger value="evaluations" className="data-[state=active]:bg-white data-[state=active]:text-blue-600 data-[state=active]:shadow-sm text-xs sm:text-sm px-3 py-3 min-h-[44px]">
                 Evaluations ({documentCounts.evaluations})
               </TabsTrigger>
-              <TabsTrigger value="ai-analysis" className="data-[state=active]:bg-white data-[state=active]:text-blue-600 data-[state=active]:shadow-sm text-xs sm:text-sm px-2 py-2">
+              <TabsTrigger value="ai-analysis" className="data-[state=active]:bg-white data-[state=active]:text-blue-600 data-[state=active]:shadow-sm text-xs sm:text-sm px-3 py-3 min-h-[44px]">
                 AI Analysis ({documentCounts.aiAnalysis})
               </TabsTrigger>
-              <TabsTrigger value="reports" className="data-[state=active]:bg-white data-[state=active]:text-blue-600 data-[state=active]:shadow-sm text-xs sm:text-sm px-2 py-2">
+              <TabsTrigger value="reports" className="data-[state=active]:bg-white data-[state=active]:text-blue-600 data-[state=active]:shadow-sm text-xs sm:text-sm px-3 py-3 min-h-[44px]">
                 Reports ({documentCounts.reports})
               </TabsTrigger>
-              <TabsTrigger value="meeting-notes" className="data-[state=active]:bg-white data-[state=active]:text-blue-600 data-[state=active]:shadow-sm text-xs sm:text-sm px-2 py-2">
+              <TabsTrigger value="meeting-notes" className="data-[state=active]:bg-white data-[state=active]:text-blue-600 data-[state=active]:shadow-sm text-xs sm:text-sm px-3 py-3 min-h-[44px]">
                 Meetings ({documentCounts.meetingNotes})
               </TabsTrigger>
             </TabsList>

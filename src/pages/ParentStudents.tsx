@@ -14,6 +14,7 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigge
 import { Checkbox } from "@/components/ui/checkbox";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { StudentSelector } from "@/components/StudentSelector";
+import { ReadMoreText, AIAnalysisReadMore, RecommendationReadMore } from "@/components/ui/read-more";
 import { 
   User, 
   Plus, 
@@ -189,7 +190,12 @@ const AutismAIAnalysis = ({ selectedStudentId }: { selectedStudentId?: string })
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <p className="text-muted-foreground">{aiAnalysis.student_summary}</p>
+            <ReadMoreText
+              text={aiAnalysis.student_summary}
+              maxLength={300}
+              className="text-muted-foreground"
+              testId="student-summary-read-more"
+            />
           </CardContent>
         </Card>
       )}
@@ -204,7 +210,10 @@ const AutismAIAnalysis = ({ selectedStudentId }: { selectedStudentId?: string })
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <p className="text-muted-foreground whitespace-pre-wrap">{aiAnalysis.detailed_analysis}</p>
+            <AIAnalysisReadMore 
+              text={aiAnalysis.detailed_analysis}
+              testId="detailed-analysis-read-more"
+            />
           </CardContent>
         </Card>
       )}
@@ -430,16 +439,24 @@ const AutismAIAnalysis = ({ selectedStudentId }: { selectedStudentId?: string })
               <CardContent>
                 <div className="text-sm text-muted-foreground">
                   {Array.isArray(aiAnalysis.recommendations) ? (
-                    <ul className="space-y-1">
+                    <ul className="space-y-3">
                       {aiAnalysis.recommendations.map((rec: string, i: number) => (
                         <li key={i} className="flex items-start">
-                          <span className="text-primary mr-2">•</span>
-                          {rec}
+                          <span className="text-primary mr-2 mt-1">•</span>
+                          <div className="flex-1">
+                            <RecommendationReadMore
+                              text={rec}
+                              testId={`recommendation-${i}-read-more`}
+                            />
+                          </div>
                         </li>
                       ))}
                     </ul>
                   ) : (
-                    <p>{aiAnalysis.recommendations}</p>
+                    <RecommendationReadMore
+                      text={aiAnalysis.recommendations}
+                      testId="recommendations-read-more"
+                    />
                   )}
                 </div>
               </CardContent>

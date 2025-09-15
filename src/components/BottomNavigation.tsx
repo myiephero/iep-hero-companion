@@ -66,7 +66,7 @@ export function BottomNavigation() {
 
   return (
     <nav className="fixed bottom-0 left-0 right-0 z-50 bg-background/95 backdrop-blur border-t border-border md:hidden safe-area-inset">
-      <div className="flex items-center justify-around px-2 py-1 pb-safe">
+      <div className="flex items-center justify-around px-2 py-2 pb-safe">
         {navigationItems.map((item) => {
           const isItemActive = isActive(item.url);
           
@@ -74,16 +74,30 @@ export function BottomNavigation() {
             <Link
               key={item.title}
               to={item.url}
-              className={`flex flex-col items-center gap-1 px-2 py-2 rounded-lg transition-all min-w-0 flex-1 min-h-[44px] ${
+              className={`group relative flex flex-col items-center gap-1.5 px-3 py-2.5 rounded-xl transition-all duration-200 min-w-0 flex-1 min-h-[56px] active:scale-95 ${
                 isItemActive
-                  ? 'text-primary bg-primary/10'
-                  : 'text-muted-foreground hover:text-foreground'
+                  ? 'text-primary bg-primary/15 shadow-sm'
+                  : 'text-muted-foreground active:bg-accent/50'
               }`}
               data-testid={item['data-testid']}
             >
-              <item.icon className={`h-5 w-5 flex-shrink-0 ${isItemActive ? 'text-primary' : ''}`} />
-              <span className={`text-xs font-medium truncate w-full text-center ${
-                isItemActive ? 'text-primary' : ''
+              {/* Active indicator dot */}
+              {isItemActive && (
+                <div className="absolute -top-1 left-1/2 transform -translate-x-1/2 w-1 h-1 bg-primary rounded-full" />
+              )}
+              
+              <div className={`p-1 rounded-lg transition-all duration-200 ${
+                isItemActive 
+                  ? 'bg-primary/20 scale-110' 
+                  : 'group-active:bg-primary/10'
+              }`}>
+                <item.icon className={`h-5 w-5 flex-shrink-0 transition-colors duration-200 ${
+                  isItemActive ? 'text-primary' : 'text-muted-foreground group-active:text-foreground'
+                }`} />
+              </div>
+              
+              <span className={`text-xs font-medium truncate w-full text-center transition-all duration-200 ${
+                isItemActive ? 'text-primary font-semibold' : 'text-muted-foreground group-active:text-foreground'
               }`}>
                 {item.title}
               </span>

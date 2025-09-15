@@ -1,0 +1,254 @@
+Last login: Mon Sep 15 17:14:29 on ttys000
+s.levinehomefolder@Ss-MacBook-Air ~ % cd ~/Desktop/My\ IEP\ Hero/my-iep-hero-companion/ios/App
+pod install
+zsh: command not found: pod
+s.levinehomefolder@Ss-MacBook-Air App % sudo gem install cocoapods
+Password:
+cd ~/Desktop/My\ IEP\ Hero/my-iep-hero-companion/ios/App
+pod install
+Fetching nap-1.1.0.gem
+Fetching gh_inspector-1.1.3.gem
+Fetching escape-0.0.4.gem
+Fetching addressable-2.8.7.gem
+Fetching colored2-3.1.2.gem
+Fetching ruby-macho-2.5.1.gem
+Fetching fourflusher-2.3.1.gem
+Fetching public_suffix-4.0.7.gem
+Fetching rexml-3.4.4.gem
+Fetching nanaimo-0.4.0.gem
+Fetching claide-1.1.0.gem
+Fetching atomos-0.1.3.gem
+Fetching xcodeproj-1.27.0.gem
+Fetching molinillo-0.8.0.gem
+Fetching cocoapods-try-1.2.0.gem
+Fetching netrc-0.11.0.gem
+Fetching cocoapods-trunk-1.6.0.gem
+Fetching cocoapods-search-1.0.1.gem
+Fetching cocoapods-plugins-1.0.0.gem
+Fetching cocoapods-downloader-2.1.gem
+Fetching cocoapods-deintegrate-1.0.5.gem
+Fetching ffi-1.17.2-arm64-darwin.gem
+Fetching ethon-0.15.0.gem
+Fetching typhoeus-1.5.0.gem
+Fetching concurrent-ruby-1.3.5.gem
+Fetching httpclient-2.9.0.gem
+Fetching algoliasearch-1.27.5.gem
+Fetching fuzzy_match-2.0.4.gem
+Fetching benchmark-0.4.1.gem
+Fetching securerandom-0.4.1.gem
+Fetching logger-1.7.0.gem
+Fetching drb-2.2.3.gem
+Fetching base64-0.3.0.gem
+Fetching connection_pool-2.5.4.gem
+Fetching tzinfo-2.0.6.gem
+Fetching i18n-1.14.7.gem
+Fetching activesupport-7.2.2.2.gem
+Fetching cocoapods-core-1.16.2.gem
+Fetching cocoapods-1.16.2.gem
+Successfully installed public_suffix-4.0.7
+Successfully installed addressable-2.8.7
+Successfully installed ruby-macho-2.5.1
+Successfully installed nap-1.1.0
+Successfully installed gh_inspector-1.1.3
+Successfully installed fourflusher-2.3.1
+Successfully installed escape-0.0.4
+Successfully installed colored2-3.1.2
+Successfully installed rexml-3.4.4
+Successfully installed nanaimo-0.4.0
+Successfully installed claide-1.1.0
+Successfully installed atomos-0.1.3
+Successfully installed xcodeproj-1.27.0
+Successfully installed molinillo-0.8.0
+Successfully installed cocoapods-try-1.2.0
+Successfully installed netrc-0.11.0
+Successfully installed cocoapods-trunk-1.6.0
+Successfully installed cocoapods-search-1.0.1
+Successfully installed cocoapods-plugins-1.0.0
+Successfully installed cocoapods-downloader-2.1
+Successfully installed cocoapods-deintegrate-1.0.5
+Successfully installed ffi-1.17.2-arm64-darwin
+Successfully installed ethon-0.15.0
+Successfully installed typhoeus-1.5.0
+Successfully installed concurrent-ruby-1.3.5
+Successfully installed httpclient-2.9.0
+A new major version is available for Algolia! Please now use the https://rubygems.org/gems/algolia gem to get the latest features.
+Successfully installed algoliasearch-1.27.5
+Successfully installed fuzzy_match-2.0.4
+Successfully installed benchmark-0.4.1
+ERROR:  Error installing cocoapods:
+	The last version of securerandom (>= 0.3) to support your Ruby & RubyGems was 0.3.2. Try installing it with `gem install securerandom -v 0.3.2` and then running the current command again
+	securerandom requires Ruby version >= 3.1.0. The current ruby version is 2.6.10.210.
+s.levinehomefolder@Ss-MacBook-Air App % cd ~/Desktop/My\ IEP\ Hero/my-iep-hero-companion/ios/App
+s.levinehomefolder@Ss-MacBook-Air App % pod install
+zsh: command not found: pod
+s.levinehomefolder@Ss-MacBook-Air App % cd ~/Desktop/My\ IEP\ Hero/my-iep-hero-companion
+npm install
+npm run build
+npx cap sync ios
+
+up to date, audited 898 packages in 1s
+
+120 packages are looking for funding
+  run `npm fund` for details
+
+6 vulnerabilities (5 moderate, 1 high)
+
+To address issues that do not require attention, run:
+  npm audit fix
+
+To address all issues (including breaking changes), run:
+  npm audit fix --force
+
+Run `npm audit` for details.
+
+> vite_react_shadcn_ts@0.0.0 build
+> vite build
+
+vite v5.4.19 building for production...
+✓ 2328 modules transformed.
+dist/index.html                                         3.10 kB │ gzip:  1.07 kB
+dist/assets/hero-image-CWnKYqXH.jpg                   102.22 kB
+dist/assets/iep-hero-icon-DLy48_6q.png                209.52 kB
+dist/assets/index-Bo1fKF8R.css                        197.90 kB │ gzip: 27.39 kB
+dist/js/chunk-CRqtZwGl.js                               0.03 kB │ gzip:  0.05 kB
+dist/js/chunk-oU3rKp6r.js                               0.06 kB │ gzip:  0.08 kB
+dist/js/chunk-CDPQtip3.js                               0.45 kB │ gzip:  0.29 kB
+dist/js/web.js-ureaI6gH.js                              0.50 kB │ gzip:  0.31 kB
+dist/js/chunk-DryL7vwz.js                               0.56 kB │ gzip:  0.36 kB
+dist/js/chunk-Kb9xkkYq.js                               0.74 kB │ gzip:  0.43 kB
+dist/js/chunk-BcNhSwME.js                               0.75 kB │ gzip:  0.40 kB
+dist/js/chunk-C6no4wfT.js                               0.76 kB │ gzip:  0.42 kB
+dist/js/chunk-CIaW9vmR.js                               0.76 kB │ gzip:  0.49 kB
+dist/js/chunk-CCuUqfxw.js                               0.97 kB │ gzip:  0.50 kB
+dist/js/chunk-IS4MNpu0.js                               1.18 kB │ gzip:  0.51 kB
+dist/js/chunk-Dv8JZYzB.js                               1.83 kB │ gzip:  0.90 kB
+dist/js/chunk-BnTy1LX4.js                               1.94 kB │ gzip:  0.98 kB
+dist/js/chunk-DWBb_KeD.js                               2.18 kB │ gzip:  0.97 kB
+dist/js/chunk-C6jo1ypW.js                               2.23 kB │ gzip:  0.88 kB
+dist/js/chunk-BPD4eYDq.js                               2.47 kB │ gzip:  1.06 kB
+dist/js/chunk-CBpFlNr5.js                               2.52 kB │ gzip:  1.25 kB
+dist/js/chunk-B4R6Sx5z.js                               2.91 kB │ gzip:  1.08 kB
+dist/js/chunk-bGPUe4ak.js                               2.97 kB │ gzip:  1.33 kB
+dist/js/chunk-B4-AGOjb.js                               3.01 kB │ gzip:  1.11 kB
+dist/js/chunk-DQlbwgTf.js                               3.06 kB │ gzip:  1.13 kB
+dist/js/AccountCreated.tsx-XPPSZFPH.js                  3.20 kB │ gzip:  1.06 kB
+dist/js/chunk-K2nnv6Fn.js                               3.72 kB │ gzip:  1.17 kB
+dist/js/chunk-Dfqwm9xL.js                               3.91 kB │ gzip:  1.29 kB
+dist/js/chunk-DbIdO4Y9.js                               3.92 kB │ gzip:  1.71 kB
+dist/js/ProgressAnalyzer.tsx-CrCD0b-R.js                4.00 kB │ gzip:  1.07 kB
+dist/js/AdvocateGiftedToolsHub.tsx-BR6hybsu.js          4.38 kB │ gzip:  1.62 kB
+dist/js/chunk-CHBSkDPq.js                               4.56 kB │ gzip:  1.73 kB
+dist/js/ParentSettings.tsx-Debohy5U.js                  4.72 kB │ gzip:  1.31 kB
+dist/js/PricingSelection.tsx-BOtqT2Nz.js                4.75 kB │ gzip:  1.23 kB
+dist/js/CopingStrategies.tsx-CL5ukvVi.js                4.80 kB │ gzip:  1.72 kB
+dist/js/AskAIDocs.tsx-BY1UqaWh.js                       4.90 kB │ gzip:  1.43 kB
+dist/js/AdvocateSchedule.tsx-Ce9BWRpj.js                5.01 kB │ gzip:  1.57 kB
+dist/js/ScheduleMeeting.tsx-DQo0PHRK.js                 5.11 kB │ gzip:  1.75 kB
+dist/js/VerifyEmail.tsx-CbKzTaho.js                     5.41 kB │ gzip:  1.84 kB
+dist/js/ParentSchedule.tsx-C6BIFeGv.js                  5.79 kB │ gzip:  1.72 kB
+dist/js/ProgressNotes.tsx-nLfNdI6H.js                   6.02 kB │ gzip:  1.41 kB
+dist/js/Onboarding.tsx-ZKgNnlja.js                      6.21 kB │ gzip:  1.92 kB
+dist/js/Auth.tsx-6SHp_76q.js                            6.48 kB │ gzip:  1.64 kB
+dist/js/SupportSchedule.tsx-Dff07zuV.js                 6.52 kB │ gzip:  2.25 kB
+dist/js/AdvocacyReports.tsx-ClEZA84P.js                 6.57 kB │ gzip:  1.21 kB
+dist/js/chunk-jGZ0orxe.js                               6.80 kB │ gzip:  2.67 kB
+dist/js/RequestMeeting.tsx-CHANUEE0.js                  6.88 kB │ gzip:  2.25 kB
+dist/js/CommunicationTracker.tsx-D4WFjNhM.js            7.05 kB │ gzip:  1.65 kB
+dist/js/AskAIDocuments.tsx-DsGDS1Qo.js                  7.27 kB │ gzip:  2.67 kB
+dist/js/ParentMessages.tsx-Btcf_aKq.js                  7.28 kB │ gzip:  2.68 kB
+dist/js/ProgressNotesTracker.tsx-Di3HzOo5.js            7.40 kB │ gzip:  2.07 kB
+dist/js/WarningSignsDetection.tsx-CqML1y3S.js           7.41 kB │ gzip:  2.20 kB
+dist/js/ToolsHub.tsx-Czv395gE.js                        7.66 kB │ gzip:  2.40 kB
+dist/js/Profile.tsx-BIyAM-w_.js                         7.71 kB │ gzip:  2.61 kB
+dist/js/SubscriptionSuccess.tsx-B57g5c4g.js             8.16 kB │ gzip:  2.44 kB
+dist/js/chunk-DuCEi903.js                               8.21 kB │ gzip:  2.72 kB
+dist/js/Plan504Builder.tsx-O_zSjP8z.js                  8.21 kB │ gzip:  1.66 kB
+dist/js/ExpertAnalysis.tsx-910VLzo_.js                  8.27 kB │ gzip:  2.54 kB
+dist/js/ParentEmotionTracker.tsx-DxlGUQ8E.js            8.59 kB │ gzip:  2.01 kB
+dist/js/HeroPlan.tsx-CufXCfts.js                        8.63 kB │ gzip:  2.77 kB
+dist/js/SetupPassword.tsx-_VycTlHD.js                   8.71 kB │ gzip:  2.74 kB
+dist/js/EmergentToolsHubNew.tsx-DG3u5snX.js             8.74 kB │ gzip:  3.01 kB
+dist/js/PremiumToolsDemo.tsx-CNHh87Ww.js                9.34 kB │ gzip:  3.28 kB
+dist/js/AutismToolsHub.tsx-B47Jtvi0.js                  9.54 kB │ gzip:  3.07 kB
+dist/js/OTRecommender.tsx-Db7r9yOv.js                   9.67 kB │ gzip:  1.76 kB
+dist/js/CardShowcase.tsx-CZs_acxd.js                    9.91 kB │ gzip:  2.35 kB
+dist/js/ParentMeetingPrep.tsx-DBfu1CYF.js               9.91 kB │ gzip:  2.65 kB
+dist/js/Settings.tsx-cUCX4jLz.js                       10.05 kB │ gzip:  2.71 kB
+dist/js/AdvocatePricingPlan.tsx-D7GEkPfC.js            10.16 kB │ gzip:  3.71 kB
+dist/js/TimelineCalculator.tsx-v45Zw-D_.js             10.33 kB │ gzip:  2.93 kB
+dist/js/EmergentToolsHub.tsx-DvU8ZSfb.js               10.44 kB │ gzip:  3.46 kB
+dist/js/ParentHeroPlan.tsx-BhdsF_vK.js                 10.65 kB │ gzip:  3.11 kB
+dist/js/AutismSensoryTool.tsx-Cuq3KsfS.js              10.76 kB │ gzip:  3.58 kB
+dist/js/AutismCommunicationTool.tsx-CCSvoRT8.js        11.07 kB │ gzip:  3.56 kB
+dist/js/AutismBehavioralTool.tsx-C5Dq6BqS.js           11.10 kB │ gzip:  3.74 kB
+dist/js/FERPAOverview.tsx-BFudILyz.js                  11.25 kB │ gzip:  3.25 kB
+dist/js/OTActivityRecommender.tsx-CTrDzniV.js          11.30 kB │ gzip:  3.51 kB
+dist/js/chunk-CcatCiqD.js                              11.99 kB │ gzip:  3.40 kB
+dist/js/GiftedCognitiveTool.tsx-3hQXXVGR.js            12.01 kB │ gzip:  3.83 kB
+dist/js/Plan504Guide.tsx-c7FMwOJp.js                   12.07 kB │ gzip:  3.52 kB
+dist/js/ParentHeroUpsell.tsx-CG0FqT39.js               12.10 kB │ gzip:  3.80 kB
+dist/js/AdvocateToolsHub.tsx-CUKKqmos.js               12.10 kB │ gzip:  3.16 kB
+dist/js/GiftedAcademicTool.tsx-CJ4x6Ss6.js             12.68 kB │ gzip:  4.02 kB
+dist/js/AIIEPReview.tsx-CHIlOYyk.js                    12.70 kB │ gzip:  3.90 kB
+dist/js/AutismAIInsightsTool.tsx-C3M8y_HZ.js           12.82 kB │ gzip:  3.55 kB
+dist/js/GiftedAIInsightsTool.tsx-DKOwjPvz.js           13.12 kB │ gzip:  3.60 kB
+dist/js/GiftedCreativeTool.tsx-sMAD2c_V.js             13.13 kB │ gzip:  4.11 kB
+dist/js/AllPagesView.tsx-CAch1zsY.js                   13.29 kB │ gzip:  2.94 kB
+dist/js/GiftedToolsHub.tsx-DiE9Aqev.js                 13.34 kB │ gzip:  3.76 kB
+dist/js/GiftedLeadershipTool.tsx-DbYCh6-C.js           13.48 kB │ gzip:  4.33 kB
+dist/js/UnifiedScheduleHub.tsx-B136Ruwf.js             14.61 kB │ gzip:  4.01 kB
+dist/js/AutismAccommodationBuilder.tsx-CX4ZPzO1.js     15.66 kB │ gzip:  4.69 kB
+dist/js/AutismAccommodations.tsx-JBEwfReN.js           15.69 kB │ gzip:  4.70 kB
+dist/js/IEPReview.tsx-BBCJ2-25.js                      15.78 kB │ gzip:  4.42 kB
+dist/js/MatchingDashboard.tsx-D4r1Ebjj.js              16.26 kB │ gzip:  4.11 kB
+dist/js/ParentAutismAccommodations.tsx-BGnXlhz7.js     16.65 kB │ gzip:  5.25 kB
+dist/js/FABDemo.tsx-93Rg-BE_.js                        16.83 kB │ gzip:  4.19 kB
+dist/js/AdvocateSettings.tsx-C22NyU0V.js               17.28 kB │ gzip:  4.08 kB
+dist/js/ParentPricingPlan.tsx-D_mP0Ude.js              17.42 kB │ gzip:  4.95 kB
+dist/js/SmartLetterGeneratorNew.tsx-BCFFEhDh.js        17.47 kB │ gzip:  5.32 kB
+dist/js/chunk-DkklS5RV.js                              17.48 kB │ gzip:  5.54 kB
+dist/js/SubscriptionSetup.tsx-DCro0xuA.js              18.13 kB │ gzip:  6.22 kB
+dist/js/UnifiedIEPReview.tsx-B1-hbKs7.js               18.20 kB │ gzip:  5.64 kB
+dist/js/GiftedTwoeLearners.tsx-DcmID7Oa.js             19.41 kB │ gzip:  4.92 kB
+dist/js/AdvocateAutismAccommodations.tsx-qfTzKXg1.js   20.15 kB │ gzip:  6.03 kB
+dist/js/MeetingPrepWizard.tsx-F9iNIgCW.js              20.37 kB │ gzip:  5.73 kB
+dist/js/SmartMatching.tsx-Chfm4qTW.js                  23.13 kB │ gzip:  5.81 kB
+dist/js/chunk-DDuKQmU4.js                              23.48 kB │ gzip:  5.26 kB
+dist/js/chunk-DTwQtgQv.js                              23.74 kB │ gzip:  6.26 kB
+dist/js/ParentGoalGenerator.tsx-CJX9OiZb.js            25.30 kB │ gzip:  6.92 kB
+dist/js/EmotionTracker.tsx-Dcc7wnWN.js                 25.90 kB │ gzip:  6.13 kB
+dist/js/StudentProfiles.tsx-DZYRGdk-.js                26.70 kB │ gzip:  5.26 kB
+dist/js/MobileTestingPage.tsx-D4oiJ9XY.js              30.00 kB │ gzip:  8.25 kB
+dist/js/AdvocateMessages.tsx-eCj1f7X4.js               32.46 kB │ gzip:  8.72 kB
+dist/js/DocumentVault.tsx-Cf9bnNbs.js                  32.48 kB │ gzip:  7.06 kB
+dist/js/chunk-Dem1wknh.js                              34.10 kB │ gzip:  8.43 kB
+dist/js/AdvocateParents.tsx-jjSXDBbq.js                34.35 kB │ gzip:  8.14 kB
+dist/js/IDEARightsGuide.tsx-zbP-zyTJ.js                36.51 kB │ gzip:  7.33 kB
+dist/js/chunk-DUySGDnK.js                              37.56 kB │ gzip: 10.86 kB
+dist/js/ParentIEPMasterSuite.tsx-Ce57h0Nt.js           39.97 kB │ gzip:  8.46 kB
+dist/js/IEPMasterSuite.tsx-B08HGw58.js                 41.30 kB │ gzip:  9.58 kB
+dist/js/AdvocateDashboard.tsx-DoI4FD0e.js              43.64 kB │ gzip:  9.20 kB
+dist/js/GoalGenerator.tsx-0ZBK5-tO.js                  46.19 kB │ gzip: 10.80 kB
+dist/js/ParentDashboard.tsx-Dro15Zo9.js                58.22 kB │ gzip: 12.03 kB
+dist/js/chunk-gj9xlWpk.js                              59.00 kB │ gzip: 16.08 kB
+dist/js/ParentIDEARightsGuide.tsx-ueCcKs0z.js          60.98 kB │ gzip: 11.98 kB
+dist/js/chunk-Qzq4qBHb.js                              72.77 kB │ gzip: 22.84 kB
+dist/js/ParentStudents.tsx-BNJhDCYZ.js                 87.96 kB │ gzip: 16.45 kB
+dist/js/chunk-BgZM1Fj0.js                             100.93 kB │ gzip: 32.10 kB
+dist/assets/index-BsJ5vhvH.js                         148.63 kB │ gzip: 40.16 kB
+dist/js/chunk-VW0r7f26.js                             161.33 kB │ gzip: 52.45 kB
+dist/js/AdvocateStudents.tsx-B8q7klUV.js              168.79 kB │ gzip: 33.93 kB
+✓ built in 4.43s
+✔ Copying web assets from dist to ios/App/App/public in 14.90ms
+✔ Creating capacitor.config.json in ios/App/App in 365.33μs
+✔ copy ios in 49.22ms
+✔ Updating iOS plugins in 6.89ms
+[warn] Skipping pod install because CocoaPods is not installed
+✖ Updating iOS native dependencies with pod install - failed!
+✖ update ios - failed!
+[error] xcode-select: error: tool 'xcodebuild' requires Xcode, but active developer directory
+        '/Library/Developer/CommandLineTools' is a command line tools instance
+        
+s.levinehomefolder@Ss-MacBook-Air my-iep-hero-companion % sudo xcode-select --switch /Applications/Xcode.app/Contents/Developer
+Password:
+s.levinehomefolder@Ss-MacBook-Air my-iep-hero-companion % 

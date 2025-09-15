@@ -60,34 +60,37 @@ export function TopNavigation() {
           </Link>
         </div>
 
-        <nav className="hidden md:flex items-center gap-6">
+        <nav className="hidden md:flex items-center gap-8">
           <Link 
             to="/" 
-            className={`text-sm font-medium transition-colors hover:text-primary ${
+            className={`text-sm font-medium transition-colors hover:text-primary px-3 py-2 min-h-[44px] flex items-center ${
               location.pathname === '/' ? 'text-primary' : 'text-muted-foreground'
             }`}
+            data-testid="nav-home"
           >
             Home
           </Link>
           <Link 
             to="/parent/dashboard" 
-            className={`text-sm font-medium transition-colors hover:text-primary ${
+            className={`text-sm font-medium transition-colors hover:text-primary px-3 py-2 min-h-[44px] flex items-center ${
               location.pathname.startsWith('/parent') ? 'text-primary' : 'text-muted-foreground'
             }`}
+            data-testid="nav-parent-portal"
           >
             Parent Portal
           </Link>
           <Link 
             to="#" // Will redirect to plan-specific dashboard 
-            className={`text-sm font-medium transition-colors hover:text-primary ${
+            className={`text-sm font-medium transition-colors hover:text-primary px-3 py-2 min-h-[44px] flex items-center ${
               location.pathname.startsWith('/advocate') ? 'text-primary' : 'text-muted-foreground'
             }`}
+            data-testid="nav-advocate-portal"
           >
             Advocate Portal
           </Link>
         </nav>
 
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-4">
           <Button variant="ghost" size="icon" className="hidden md:flex">
             <Search className="h-4 w-4" />
           </Button>

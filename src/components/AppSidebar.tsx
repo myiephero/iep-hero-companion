@@ -197,18 +197,18 @@ export function AppSidebar() {
 
         {/* Main Navigation */}
         {navigation.map((section, sectionIndex) => (
-          <SidebarGroup key={sectionIndex} className="mb-6">
+          <SidebarGroup key={sectionIndex} className="mb-8">
             {!collapsed && (
               <SidebarGroupLabel className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-2">
                 {section.title}
               </SidebarGroupLabel>
             )}
             <SidebarGroupContent>
-              <SidebarMenu className="space-y-1">
+              <SidebarMenu className="space-y-2">
                 {section.items.map((item) => {
                   const ItemComponent = item.isLocked ? 'div' : Link;
                   const isItemActive = isActive(item.url);
-                  const itemClass = `w-full justify-start gap-3 px-3 py-2 rounded-lg transition-all ${
+                  const itemClass = `w-full justify-start gap-3 px-3 py-3 min-h-[44px] rounded-lg transition-all ${
                     isItemActive
                       ? 'bg-sidebar-primary text-sidebar-primary-foreground shadow-sm'
                       : item.isLocked 

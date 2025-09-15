@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<full-backup-content>
+    <!-- My IEP Hero Backup Configuration -->
+    <!-- Defines what data should be backed up to Google Drive -->
+    
+    <!-- Include user documents and settings -->
+    <include domain="file" path="documents/" />
+    <include domain="file" path="settings/" />
+    <include domain="file" path="reports/" />
+    
+    <!-- Include shared preferences (user settings) -->
+    <include domain="sharedpref" path="user_preferences" />
+    <include domain="sharedpref" path="app_settings" />
+    
+    <!-- Include databases (anonymized user data only) -->
+    <include domain="database" path="user_data.db" />
+    
+    <!-- EXCLUDE sensitive data from backup -->
+    <exclude domain="file" path="cache/" />
+    <exclude domain="file" path="temp/" />
+    <exclude domain="file" path="keys/" />
+    <exclude domain="file" path="tokens/" />
+    <exclude domain="file" path="credentials/" />
+    
+    <!-- Exclude cache directories -->
+    <exclude domain="cache" />
+    <exclude domain="external" path="cache/" />
+    
+    <!-- Exclude shared preferences with sensitive data -->
+    <exclude domain="sharedpref" path="auth_tokens" />
+    <exclude domain="sharedpref" path="user_credentials" />
+    <exclude domain="sharedpref" path="security_keys" />
+    
+    <!-- COPPA Compliance: Exclude any personal identifiable information -->
+    <exclude domain="database" path="personal_info.db" />
+    <exclude domain="file" path="student_photos/" />
+    <exclude domain="file" path="personal_documents/" />
+</full-backup-content>

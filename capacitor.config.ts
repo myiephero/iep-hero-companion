@@ -6,29 +6,56 @@ const config: CapacitorConfig = {
   webDir: 'dist',
   server: {
     androidScheme: 'https',
-    // Enable offline support
-    allowNavigation: ["*"],
-    cleartext: true
+    // Production: Restrict navigation for security
+    allowNavigation: [
+      "https://api.myiephero.com",
+      "https://myiephero.com",
+      "https://firebaseapp.com",
+      "https://googleapis.com"
+    ],
+    // Production: Disable cleartext for security
+    cleartext: false,
+    // Production: Error page for offline
+    errorPath: "error.html"
   },
   plugins: {
     SplashScreen: {
-      launchShowDuration: 2500,
+      launchShowDuration: 2000,
       launchAutoHide: true,
       backgroundColor: "#0066CC",
       androidSplashResourceName: "splash",
       androidScaleType: "CENTER_CROP",
       showSpinner: false,
+      androidSpinnerStyle: "large",
       iosLaunchImageName: "Splash",
       iosSpinnerStyle: "small",
       spinnerColor: "#FFFFFF",
       splashFullScreen: true,
-      splashImmersive: true
+      splashImmersive: true,
+      // Educational app branding
+      splashFadeOutDuration: 300
     },
     Camera: {
-      permissions: ['camera', 'photos']
+      permissions: ['camera', 'photos'],
+      // Educational app: Document scanning optimization
+      quality: 90,
+      allowEditing: false,
+      resultType: 'uri',
+      saveToGallery: false,
+      // Privacy: Prompt for permissions each time
+      promptLabelHeader: 'Camera Access',
+      promptLabelCancel: 'Cancel',
+      promptLabelPhoto: 'From Photos',
+      promptLabelPicture: 'Take Picture'
     },
     PushNotifications: {
-      presentationOptions: ["badge", "sound", "alert"]
+      presentationOptions: ["badge", "sound", "alert"],
+      // Educational app: Respectful notifications
+      defaultChannelId: "iep-hero-notifications",
+      defaultChannelName: "IEP Hero Notifications",
+      defaultChannelDescription: "Important updates about your IEP and educational advocacy",
+      defaultChannelImportance: 3,  // Default importance
+      requestPermissions: true
     },
     // Network status monitoring
     Network: {
@@ -42,11 +69,14 @@ const config: CapacitorConfig = {
     App: {
       enabled: true
     },
-    // Local Notifications
+    // Local Notifications for educational reminders
     LocalNotifications: {
-      smallIcon: "ic_stat_icon_config_sample",
+      smallIcon: "ic_notification",
       iconColor: "#0066CC",
-      sound: "beep.wav"
+      sound: "default",
+      channelId: "iep-reminders",
+      channelName: "IEP Reminders",
+      channelDescription: "Important reminders about IEP meetings and deadlines"
     },
     // Keyboard configuration
     Keyboard: {
@@ -60,18 +90,24 @@ const config: CapacitorConfig = {
     scheme: 'MyIEPHero',
     path: 'ios'
   },
-  // Android specific configuration for offline support
+  // Android specific configuration for production
   android: {
     buildOptions: {
-      keystorePath: undefined,
-      keystorePassword: undefined,
-      keystoreAlias: undefined,
-      keystoreAliasPassword: undefined,
-      releaseType: 'APK'
+      keystorePath: undefined,  // Handled by gradle
+      keystorePassword: undefined,  // Handled by gradle
+      keystoreAlias: undefined,  // Handled by gradle
+      keystoreAliasPassword: undefined,  // Handled by gradle
+      releaseType: 'AAB'  // Android App Bundle for Play Console
     },
-    allowMixedContent: true,
-    captureInput: true,
-    webContentsDebuggingEnabled: true
+    allowMixedContent: false,  // Production: Enhanced security
+    captureInput: true,  // Educational app: Capture form inputs
+    webContentsDebuggingEnabled: false,  // Production: Disable debugging
+    // Educational app optimizations
+    loggingBehavior: 'production',
+    // Network security
+    appendUserAgent: 'MyIEPHero/1.0',
+    // Performance optimizations
+    hideLogs: true
   }
 };
 

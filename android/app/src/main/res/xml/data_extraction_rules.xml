@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<data-extraction-rules>
+    <!-- My IEP Hero Data Extraction Rules (Android 12+) -->
+    <!-- Controls what data can be extracted during device transfers -->
+    
+    <cloud-backup>
+        <!-- Include non-sensitive app data in cloud backup -->
+        <include domain="file" path="documents/templates/" />
+        <include domain="file" path="settings/app_preferences/" />
+        <include domain="sharedpref" path="user_settings" />
+        
+        <!-- EXCLUDE all sensitive data from cloud backup -->
+        <exclude domain="file" path="documents/personal/" />
+        <exclude domain="file" path="student_data/" />
+        <exclude domain="file" path="iep_documents/" />
+        <exclude domain="database" />
+        <exclude domain="sharedpref" path="auth" />
+    </cloud-backup>
+    
+    <device-transfer>
+        <!-- Allow basic app settings during device transfer -->
+        <include domain="sharedpref" path="app_preferences" />
+        <include domain="file" path="settings/" />
+        
+        <!-- EXCLUDE all user data during device transfer -->
+        <exclude domain="database" />
+        <exclude domain="file" path="documents/" />
+        <exclude domain="file" path="student_data/" />
+        <exclude domain="file" path="personal/" />
+        
+        <!-- COPPA Compliance: No personal data in device transfers -->
+        <exclude domain="file" path="student_photos/" />
+        <exclude domain="file" path="personal_info/" />
+        <exclude domain="sharedpref" path="user_data" />
+    </device-transfer>
+</data-extraction-rules>

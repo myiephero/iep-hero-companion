@@ -824,7 +824,6 @@ export default function ParentDashboard({ plan }: ParentDashboardProps) {
                   <Button 
                     className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white shadow-lg hover:shadow-xl transition-all duration-200 rounded-xl px-4 sm:px-6 py-3 min-h-[44px] text-sm sm:text-base font-medium w-full sm:w-auto"
                     onClick={() => {
-                      console.log('➕ Add New Goal clicked!');
                       setShowGoalDialog(true);
                     }}
                     data-testid="button-add-new-goal"

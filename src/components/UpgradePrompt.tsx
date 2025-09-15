@@ -5,8 +5,9 @@ import { Crown, Sparkles, ArrowRight, X, Check, Zap, Building, Users } from "luc
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { useState } from "react";
 import { SubscriptionPlan } from "@/lib/planAccess";
-import { useNavigate } from "react-router-dom";
 import { useToolAccess } from "@/hooks/useToolAccess";
+import { Browser } from "@capacitor/browser";
+import { Capacitor } from "@capacitor/core";
 
 const getPlanDisplayName = (plan: SubscriptionPlan) => {
   switch (plan) {
@@ -43,16 +44,25 @@ export function UpgradePrompt({
   showPlanComparison = false,
   'data-testid': dataTestId = `upgrade-prompt-${toolName.replace(/\s+/g, '-').toLowerCase()}`
 }: UpgradePromptProps) {
-  const navigate = useNavigate();
   const { currentPlan, user } = useToolAccess();
   const [showComparison, setShowComparison] = useState(showPlanComparison);
 
-  const handleUpgradeClick = () => {
-    // Navigate to appropriate pricing page based on user role
-    if (user?.role === 'advocate') {
-      navigate(`/advocate/pricing?highlight=${requiredPlan}`);
+  const handleUpgradeClick = async () => {
+    // Open external browser with pricing page for Apple compliance
+    const baseUrl = Capacitor.isNativePlatform() 
+      ? 'https://myiephero.com' // Your actual website URL
+      : window.location.origin;
+    
+    const pricingUrl = user?.role === 'advocate' 
+      ? `${baseUrl}/advocate/pricing?highlight=${requiredPlan}`
+      : `${baseUrl}/parent/pricing?highlight=${requiredPlan}`;
+    
+    if (Capacitor.isNativePlatform()) {
+      // Open in external browser on mobile (Netflix model)
+      await Browser.open({ url: pricingUrl });
     } else {
-      navigate(`/parent/pricing?highlight=${requiredPlan}`);
+      // Open in new tab on web
+      window.open(pricingUrl, '_blank');
     }
   };
 
@@ -154,7 +164,7 @@ export function UpgradePrompt({
               data-testid={`button-upgrade-${requiredPlan}`}
             >
               <Crown className="h-4 w-4 mr-2" />
-              Upgrade to {getPlanDisplayName(requiredPlan)}
+              {Capacitor.isNativePlatform() ? 'Visit Website to Upgrade' : `Upgrade to ${getPlanDisplayName(requiredPlan)}`}
             </Button>
             
             {onClose && (

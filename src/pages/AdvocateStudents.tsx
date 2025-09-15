@@ -51,6 +51,7 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigge
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Textarea } from "@/components/ui/textarea";
+import { ReadMoreText, AIAnalysisReadMore, RecommendationReadMore } from "@/components/ui/read-more";
 import { Link } from "react-router-dom";
 import { 
   CLIENT_ENGAGEMENT_STAGES, 
@@ -247,7 +248,10 @@ const AdvocateAutismAIAnalysis = ({ selectedStudentId }: { selectedStudentId?: s
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <p className="text-muted-foreground whitespace-pre-wrap">{aiAnalysis.detailed_analysis}</p>
+            <AIAnalysisReadMore 
+              text={aiAnalysis.detailed_analysis}
+              testId="advocate-detailed-analysis-read-more"
+            />
           </CardContent>
         </Card>
       )}
@@ -262,11 +266,16 @@ const AdvocateAutismAIAnalysis = ({ selectedStudentId }: { selectedStudentId?: s
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <ul className="space-y-2">
+            <ul className="space-y-3">
               {aiAnalysis.recommendations.map((rec: string, i: number) => (
                 <li key={i} className="flex items-start">
                   <span className="text-primary mr-2 mt-1">→</span>
-                  <span className="text-muted-foreground">{rec}</span>
+                  <div className="flex-1">
+                    <RecommendationReadMore
+                      text={rec}
+                      testId={`advocate-recommendation-${i}-read-more`}
+                    />
+                  </div>
                 </li>
               ))}
             </ul>

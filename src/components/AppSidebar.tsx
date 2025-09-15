@@ -224,19 +224,25 @@ export function AppSidebar() {
                         data-testid={item['data-testid']}
                       >
                         {item.isLocked ? (
-                          <div className="flex items-center gap-3 w-full">
+                          <div 
+                            className="flex items-center gap-3 w-full" 
+                            role="button" 
+                            aria-disabled="true"
+                            aria-label={`${item.title} - Requires ${item.requiredPlan} plan to access`}
+                            tabIndex={0}
+                          >
                             <div className="relative">
-                              <item.icon className={`h-4 w-4 ${collapsed ? 'mx-auto' : ''}`} />
-                              <Lock className="h-2 w-2 absolute -top-1 -right-1 text-muted-foreground" />
+                              <item.icon className={`h-5 w-5 ${collapsed ? 'mx-auto' : ''}`} />
+                              <Lock className="h-3 w-3 absolute -top-1 -right-1 text-muted-foreground" />
                             </div>
                             {!collapsed && (
                               <>
                                 <span className="flex-1">{item.title}</span>
-                                <Badge variant="outline" className="text-xs px-2 py-0 border-dashed">
+                                <Badge variant="outline" className="text-xs px-2 py-0 border-dashed" aria-label={`Requires ${item.requiredPlan} plan`}>
                                   {item.requiredPlan}
                                 </Badge>
                                 {item.notificationCount && item.notificationCount > 0 && (
-                                  <Badge variant="destructive" className="text-xs px-2 py-0 ml-auto bg-red-500 text-white" data-testid="notification-badge">
+                                  <Badge variant="destructive" className="text-xs px-2 py-0 ml-auto bg-red-500 text-white" data-testid="notification-badge" aria-label={`${item.notificationCount} pending notifications`}>
                                     {item.notificationCount}
                                   </Badge>
                                 )}
@@ -244,18 +250,18 @@ export function AppSidebar() {
                             )}
                           </div>
                         ) : (
-                          <Link to={item.url}>
-                            <item.icon className={`h-4 w-4 ${collapsed ? 'mx-auto' : ''}`} />
+                          <Link to={item.url} aria-label={`Navigate to ${item.title}${item.notificationCount ? ` (${item.notificationCount} pending)` : ''}`}>
+                            <item.icon className={`h-5 w-5 ${collapsed ? 'mx-auto' : ''}`} />
                             {!collapsed && (
                               <>
                                 <span className="flex-1">{item.title}</span>
                                 {item.badge && (
-                                  <Badge variant="secondary" className="text-xs px-2 py-0">
+                                  <Badge variant="secondary" className="text-xs px-2 py-0" aria-label={`Badge: ${item.badge}`}>
                                     {item.badge}
                                   </Badge>
                                 )}
                                 {item.notificationCount && item.notificationCount > 0 && (
-                                  <Badge variant="destructive" className="text-xs px-2 py-0 ml-auto bg-red-500 text-white" data-testid="notification-badge">
+                                  <Badge variant="destructive" className="text-xs px-2 py-0 ml-auto bg-red-500 text-white" data-testid="notification-badge" aria-label={`${item.notificationCount} pending notifications`}>
                                     {item.notificationCount}
                                   </Badge>
                                 )}

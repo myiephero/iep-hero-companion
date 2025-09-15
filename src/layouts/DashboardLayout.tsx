@@ -1,10 +1,11 @@
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/AppSidebar";
 import { BottomNavigation } from "@/components/BottomNavigation";
+import { Breadcrumb } from "@/components/Breadcrumb";
 import { Button } from "@/components/ui/button";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
-import { Link, useNavigate } from "react-router-dom";
-import { Crown, User, LogOut, Settings, CreditCard } from "lucide-react";
+import { Link, useNavigate, useLocation } from "react-router-dom";
+import { Crown, User, LogOut, Settings, CreditCard, Menu, ArrowLeft } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
 import { normalizeSubscriptionPlan } from "@/lib/planAccess";
@@ -15,12 +16,22 @@ interface DashboardLayoutProps {
 
 export function DashboardLayout({ children }: DashboardLayoutProps) {
   const navigate = useNavigate();
+  const location = useLocation();
   const { user, profile, signOut } = useAuth();
   const { toast } = useToast();
   
   // Determine user's subscription plan to conditionally show upgrade buttons
   const userPlan = normalizeSubscriptionPlan(user?.subscriptionPlan);
   const isPaidUser = userPlan !== 'free';
+  
+  // Check if we should show back button on mobile (not on dashboard/main pages)
+  const currentPath = location.pathname;
+  const isDashboardPage = currentPath.includes('/dashboard') || 
+                         currentPath === '/parent/matching' || 
+                         currentPath === '/advocate/parents' || 
+                         currentPath === '/parent/messages' || 
+                         currentPath === '/advocate/messages';
+  const showMobileBackButton = !isDashboardPage;
 
   const handleSignOut = async () => {
     try {
@@ -42,20 +53,37 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
   return (
     <SidebarProvider>
       <div className="min-h-screen flex w-full bg-background relative overflow-x-hidden">
-        {/* Desktop Sidebar - Hidden on mobile */}
-        <div className="hidden md:block">
-          <AppSidebar />
-        </div>
+        {/* Sidebar - Responsive */}
+        <AppSidebar />
         
         <div className="flex-1 flex flex-col">
           {/* Dashboard Header */}
           <header className="sticky top-0 z-40 w-full border-b border-border bg-background/95 backdrop-blur">
             <div className="flex h-16 items-center justify-between px-4 md:px-6">
               <div className="flex items-center gap-2 md:gap-4">
-                {/* Show sidebar trigger only on desktop where sidebar exists */}
+                {/* Mobile Back Button or Sidebar Trigger */}
+                {showMobileBackButton ? (
+                  <Button 
+                    variant="ghost" 
+                    size="icon"
+                    className="md:hidden min-h-[44px] min-w-[44px] p-2"
+                    onClick={() => navigate(-1)}
+                    data-testid="button-mobile-back"
+                  >
+                    <ArrowLeft className="h-5 w-5" />
+                    <span className="sr-only">Go back</span>
+                  </Button>
+                ) : (
+                  <div className="md:hidden">
+                    <SidebarTrigger className="min-h-[44px] min-w-[44px] p-2" />
+                  </div>
+                )}
+                
+                {/* Desktop sidebar trigger */}
                 <div className="hidden md:block">
                   <SidebarTrigger />
                 </div>
+                
                 <div className="font-semibold text-base md:text-lg">My IEP Hero</div>
               </div>
               <div className="flex items-center gap-1 md:gap-3">
@@ -100,10 +128,14 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
                 {/* User Dropdown */}
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
-                    <Button variant="ghost" className="flex items-center gap-2 px-3 min-h-[44px]">
-                      <User className="h-4 w-4" />
+                    <Button 
+                      variant="ghost" 
+                      className="flex items-center gap-2 px-3 min-h-[44px] min-w-[44px] active:scale-95 transition-transform duration-150"
+                      aria-label="User menu"
+                    >
+                      <User className="h-5 w-5" />
                       {(profile?.full_name || user?.email) && (
-                        <span className="text-sm text-muted-foreground hidden lg:block">
+                        <span className="text-sm text-muted-foreground hidden lg:block truncate max-w-[120px]">
                           {profile?.full_name || user?.email}
                         </span>
                       )}
@@ -111,72 +143,97 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
                   </DropdownMenuTrigger>
                   <DropdownMenuContent 
                     align="end" 
-                    className="w-56 max-w-[calc(100vw-2rem)] mr-4 md:mr-0"
-                    sideOffset={8}
+                    className="w-64 max-w-[calc(100vw-1rem)] mr-2 md:mr-0 md:w-56 shadow-lg border-2 md:border"
+                    sideOffset={12}
                     alignOffset={0}
-                    collisionPadding={16}
+                    collisionPadding={8}
+                    avoidCollisions={true}
                   >
-                    <DropdownMenuItem onClick={() => {
-                      const currentPath = window.location.pathname;
-                      const isAdvocateRoute = currentPath.startsWith('/advocate');
-                      navigate(isAdvocateRoute ? '/advocate/profile' : '/parent/profile');
-                    }} data-testid="dropdown-profile">
-                      <User className="h-4 w-4 mr-2" />
-                      Profile
+                    <DropdownMenuItem 
+                      onClick={() => {
+                        const currentPath = window.location.pathname;
+                        const isAdvocateRoute = currentPath.startsWith('/advocate');
+                        navigate(isAdvocateRoute ? '/advocate/profile' : '/parent/profile');
+                      }} 
+                      className="min-h-[48px] px-4 py-3 active:bg-accent/80 transition-colors cursor-pointer"
+                      data-testid="dropdown-profile"
+                    >
+                      <User className="h-5 w-5 mr-3" />
+                      <span className="font-medium">Profile</span>
                     </DropdownMenuItem>
-                    <DropdownMenuItem onClick={() => {
-                      const currentPath = window.location.pathname;
-                      const isAdvocateRoute = currentPath.startsWith('/advocate');
-                      navigate(isAdvocateRoute ? '/advocate/settings' : '/parent/settings');
-                    }} data-testid="dropdown-settings">
-                      <Settings className="h-4 w-4 mr-2" />
-                      Settings
+                    <DropdownMenuItem 
+                      onClick={() => {
+                        const currentPath = window.location.pathname;
+                        const isAdvocateRoute = currentPath.startsWith('/advocate');
+                        navigate(isAdvocateRoute ? '/advocate/settings' : '/parent/settings');
+                      }} 
+                      className="min-h-[48px] px-4 py-3 active:bg-accent/80 transition-colors cursor-pointer"
+                      data-testid="dropdown-settings"
+                    >
+                      <Settings className="h-5 w-5 mr-3" />
+                      <span className="font-medium">Settings</span>
                     </DropdownMenuItem>
                     
                     <DropdownMenuSeparator />
                     
                     {/* Plan Information */}
-                    <div className="px-2 py-1.5 text-xs text-muted-foreground border-b border-border">
-                      Current Plan: <span className="font-medium capitalize text-foreground">{userPlan}</span>
+                    <div className="px-4 py-3 text-sm text-muted-foreground border-b border-border bg-muted/20">
+                      Current Plan: <span className="font-semibold capitalize text-foreground">{userPlan}</span>
                     </div>
                     
                     {/* Manage Plan - Always show for paid users */}
                     {isPaidUser && (
-                      <DropdownMenuItem onClick={() => {
-                        const currentPath = window.location.pathname;
-                        const isAdvocateRoute = currentPath.startsWith('/advocate');
-                        // Route to pricing pages with manage parameter for now
-                        navigate(isAdvocateRoute ? '/advocate/pricing?manage=true' : '/parent/pricing?manage=true');
-                      }} data-testid="dropdown-manage-plan">
-                        <CreditCard className="h-4 w-4 mr-2" />
-                        Manage Plan
+                      <DropdownMenuItem 
+                        onClick={() => {
+                          const currentPath = window.location.pathname;
+                          const isAdvocateRoute = currentPath.startsWith('/advocate');
+                          // Route to pricing pages with manage parameter for now
+                          navigate(isAdvocateRoute ? '/advocate/pricing?manage=true' : '/parent/pricing?manage=true');
+                        }} 
+                        className="min-h-[48px] px-4 py-3 active:bg-accent/80 transition-colors cursor-pointer"
+                        data-testid="dropdown-manage-plan"
+                      >
+                        <CreditCard className="h-5 w-5 mr-3" />
+                        <span className="font-medium">Manage Plan</span>
                       </DropdownMenuItem>
                     )}
                     
                     {/* Upgrade Plan - Same logic as header buttons */}
                     {user?.role === 'parent' && userPlan !== 'hero' && (
-                      <DropdownMenuItem onClick={() => {
-                        navigate('/parent/pricing');
-                      }} data-testid="dropdown-upgrade-plan-parent">
-                        <Crown className="h-4 w-4 mr-2" />
-                        Upgrade Plan
+                      <DropdownMenuItem 
+                        onClick={() => {
+                          navigate('/parent/pricing');
+                        }} 
+                        className="min-h-[48px] px-4 py-3 active:bg-accent/80 transition-colors cursor-pointer"
+                        data-testid="dropdown-upgrade-plan-parent"
+                      >
+                        <Crown className="h-5 w-5 mr-3 text-yellow-500" />
+                        <span className="font-medium">Upgrade Plan</span>
                       </DropdownMenuItem>
                     )}
                     
                     {user?.role === 'advocate' && userPlan !== 'agency-plus' && (
-                      <DropdownMenuItem onClick={() => {
-                        navigate('/advocate/pricing');
-                      }} data-testid="dropdown-upgrade-plan-advocate">
-                        <Crown className="h-4 w-4 mr-2" />
-                        Upgrade Plan
+                      <DropdownMenuItem 
+                        onClick={() => {
+                          navigate('/advocate/pricing');
+                        }} 
+                        className="min-h-[48px] px-4 py-3 active:bg-accent/80 transition-colors cursor-pointer"
+                        data-testid="dropdown-upgrade-plan-advocate"
+                      >
+                        <Crown className="h-5 w-5 mr-3 text-blue-500" />
+                        <span className="font-medium">Upgrade Plan</span>
                       </DropdownMenuItem>
                     )}
                     
                     <DropdownMenuSeparator />
                     
-                    <DropdownMenuItem onClick={handleSignOut} data-testid="dropdown-sign-out">
-                      <LogOut className="h-4 w-4 mr-2" />
-                      Sign Out
+                    <DropdownMenuItem 
+                      onClick={handleSignOut} 
+                      className="min-h-[48px] px-4 py-3 active:bg-accent/80 transition-colors cursor-pointer text-destructive focus:text-destructive"
+                      data-testid="dropdown-sign-out"
+                    >
+                      <LogOut className="h-5 w-5 mr-3" />
+                      <span className="font-medium">Sign Out</span>
                     </DropdownMenuItem>
                   </DropdownMenuContent>
                 </DropdownMenu>
@@ -187,6 +244,11 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
           {/* Main Content */}
           <main className="flex-1 overflow-auto">
             <div className="container mx-auto p-4 md:p-6 max-w-full pb-20 md:pb-6 min-h-0">
+              {/* Breadcrumb Navigation */}
+              <div className="mb-4 md:mb-6">
+                <Breadcrumb showBackButton={false} className="md:mb-0" />
+              </div>
+              
               {children}
             </div>
           </main>

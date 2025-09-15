@@ -12,15 +12,17 @@ const config: CapacitorConfig = {
   },
   plugins: {
     SplashScreen: {
-      launchShowDuration: 2000,
+      launchShowDuration: 2500,
       launchAutoHide: true,
-      backgroundColor: "#ffffff",
+      backgroundColor: "#0066CC",
       androidSplashResourceName: "splash",
       androidScaleType: "CENTER_CROP",
-      showSpinner: true,
-      androidSpinnerStyle: "large",
+      showSpinner: false,
+      iosLaunchImageName: "Splash",
       iosSpinnerStyle: "small",
-      spinnerColor: "#999999"
+      spinnerColor: "#FFFFFF",
+      splashFullScreen: true,
+      splashImmersive: true
     },
     Camera: {
       permissions: ['camera', 'photos']
@@ -40,16 +42,7 @@ const config: CapacitorConfig = {
   },
   // iOS specific configuration for offline support
   ios: {
-    scheme: 'My IEP Hero',
-    allowsBackupToiCloud: true,
-    preferences: {
-      'DisallowOverscroll': 'true',
-      'WebKitDisallowOverscroll': 'true',
-      'UIWebViewBounce': 'false',
-      'ScrollEnabled': 'false',
-      'BackupWebStorage': 'local',
-      'KeyboardDisplayRequiresUserAction': 'false'
-    }
+    scheme: 'My IEP Hero'
   },
   // Android specific configuration for offline support
   android: {
@@ -62,11 +55,7 @@ const config: CapacitorConfig = {
     },
     allowMixedContent: true,
     captureInput: true,
-    webContentsDebuggingEnabled: true,
-    preferences: {
-      'android-allow-backup': 'true',
-      'android-installLocation': 'auto'
-    }
+    webContentsDebuggingEnabled: true
   }
 };
 

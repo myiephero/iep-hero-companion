@@ -821,20 +821,18 @@ export default function ParentDashboard({ plan }: ParentDashboardProps) {
                     <h2 className="text-lg sm:text-xl md:text-2xl font-bold text-gray-900">IEP Goals</h2>
                     <p className="text-sm sm:text-base text-gray-600 mt-1">Track and celebrate your child's progress</p>
                   </div>
+                  <Button 
+                    className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white shadow-lg hover:shadow-xl transition-all duration-200 rounded-xl px-4 sm:px-6 py-3 min-h-[44px] text-sm sm:text-base font-medium w-full sm:w-auto"
+                    onClick={() => {
+                      console.log('➕ Add New Goal clicked!');
+                      setShowGoalDialog(true);
+                    }}
+                    data-testid="button-add-new-goal"
+                  >
+                    <Plus className="h-4 w-4 mr-2" />
+                    Add New Goal
+                  </Button>
                   <Dialog open={showGoalDialog} onOpenChange={setShowGoalDialog}>
-                    <DialogTrigger asChild>
-                      <Button 
-                        className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white shadow-lg hover:shadow-xl transition-all duration-200 rounded-xl px-4 sm:px-6 py-3 min-h-[44px] text-sm sm:text-base font-medium w-full sm:w-auto"
-                        onClick={() => {
-                          console.log('➕ Add New Goal clicked!');
-                          setShowGoalDialog(true);
-                        }}
-                        data-testid="button-add-new-goal"
-                      >
-                        <Plus className="h-4 w-4 mr-2" />
-                        Add New Goal
-                      </Button>
-                    </DialogTrigger>
                     <DialogContent className="max-w-md border-0 shadow-2xl bg-white/95 backdrop-blur-sm max-h-[90vh] overflow-y-auto">
                       <DialogHeader>
                         <DialogTitle className="text-lg sm:text-xl font-semibold text-gray-900">Create New Goal</DialogTitle>

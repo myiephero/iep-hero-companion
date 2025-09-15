@@ -1,5 +1,22 @@
 <?xml version="1.0" encoding="utf-8"?>
 <paths xmlns:android="http://schemas.android.com/apk/res/android">
-    <external-path name="my_images" path="." />
-    <cache-path name="my_cache_images" path="." />
+    <!-- IEP Hero App - Secure File Provider Configuration -->
+    
+    <!-- App-specific external storage for documents and images -->
+    <external-path name="iep_documents" path="Documents/MyIEPHero/" />
+    <external-path name="iep_images" path="Pictures/MyIEPHero/" />
+    
+    <!-- Cache directory for temporary files -->
+    <cache-path name="iep_cache" path="camera/" />
+    <cache-path name="iep_temp" path="temp/" />
+    
+    <!-- Internal app storage for sensitive data -->
+    <files-path name="iep_files" path="documents/" />
+    <files-path name="iep_reports" path="reports/" />
+    
+    <!-- External cache for non-sensitive temporary files -->
+    <external-cache-path name="iep_external_cache" path="." />
+    
+    <!-- Root external storage (limited access) -->
+    <external-path name="external_storage_root" path="." />
 </paths>

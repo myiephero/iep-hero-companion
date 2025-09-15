@@ -5,6 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Search, Send, Paperclip, MessageSquare, Loader2, FileText, Clock, Users, X, Archive, ArchiveRestore, AlertTriangle, ChevronUp, MoreHorizontal } from "lucide-react";
+import { ConversationTable } from "@/components/ui/responsive-table-examples";
 import { useLocation } from "react-router-dom";
 import { useState, useEffect, useRef, useMemo } from "react";
 import { useConversations, useMessages, useSendMessage, useCreateConversation, useProposalContacts } from "@/hooks/useMessaging";
@@ -458,73 +459,17 @@ export default function AdvocateMessages() {
                       <div className="px-4 py-2 bg-muted/20 border-b">
                         <h3 className="text-xs font-medium text-muted-foreground uppercase tracking-wider">Active Conversations</h3>
                       </div>
-                      {filteredConversations.map((conversation) => {
-                        const studentName = conversation.student?.full_name || 'Student';
-                        const avatar = studentName.split(' ').map(n => n[0]).join('');
-                        const lastMessageTime = conversation.latest_message?.created_at ? 
-                          new Date(conversation.latest_message.created_at).toLocaleDateString() : 'New';
-                          
-                        return (
-                          <div
-                            key={conversation.id}
-                            className={`p-4 border-b hover:bg-muted/50 cursor-pointer transition-colors ${
-                              selectedConversation?.id === conversation.id ? 'bg-muted/50' : ''
-                            }`}
-                            onClick={() => setSelectedConversation(conversation)}
-                            data-testid={`conversation-${conversation.id}`}
-                          >
-                            <div className="flex items-start gap-3">
-                              <Avatar className="h-10 w-10">
-                                <AvatarImage src={`/placeholder-${conversation.id}.jpg`} />
-                                <AvatarFallback>{avatar}</AvatarFallback>
-                              </Avatar>
-                              <div className="flex-1 min-w-0">
-                                <div className="flex items-center justify-between">
-                                  <div className="flex items-center gap-2">
-                                    <p className="font-medium truncate">{conversation.parent?.name || 'Parent'}</p>
-                                    {conversation.archived && (
-                                      <Badge variant="secondary" className="text-xs">
-                                        <Archive className="w-3 h-3 mr-1" />
-                                        Archived
-                                      </Badge>
-                                    )}
-                                    {conversation.priority === 'urgent' && (
-                                      <Badge variant="destructive" className="text-xs">
-                                        <AlertTriangle className="w-3 h-3 mr-1" />
-                                        Urgent
-                                      </Badge>
-                                    )}
-                                    {conversation.priority === 'high' && (
-                                      <Badge variant="outline" className="text-xs border-orange-500 text-orange-600">
-                                        <ChevronUp className="w-3 h-3 mr-1" />
-                                        High
-                                      </Badge>
-                                    )}
-                                  </div>
-                                  <div className="flex items-center gap-2">
-                                    <span className="text-xs text-muted-foreground">{lastMessageTime}</span>
-                                    <ConversationActionsMenu conversation={conversation} />
-                                  </div>
-                                </div>
-                                <p className="text-sm text-muted-foreground mb-1">{studentName}</p>
-                                {conversation.latest_message?.content && (
-                                  <p className="text-sm truncate">
-                                    {conversation.latest_message.content}
-                                  </p>
-                                )}
-                                <div className="flex items-center gap-2 mt-2">
-                                  {conversation.unread_count > 0 && (
-                                    <Badge variant="default" className="text-xs">
-                                      {conversation.unread_count} new
-                                    </Badge>
-                                  )}
-                                  <ConversationLabelsDisplay conversationId={conversation.id} />
-                                </div>
-                              </div>
-                            </div>
-                          </div>
-                        );
-                      })}
+                      <ConversationTable
+                        conversations={filteredConversations}
+                        loading={conversationsLoading}
+                        onOpenConversation={(conversation) => setSelectedConversation(conversation)}
+                        onArchive={async (conversation) => {
+                          // Handle archiving here if needed
+                        }}
+                        onMarkUrgent={async (conversation) => {
+                          // Handle marking urgent here if needed  
+                        }}
+                      />
                     </div>
                   )}
 

@@ -107,11 +107,11 @@ export const usePushNotifications = (): PushNotificationHook => {
     });
 
     // Cleanup listeners
-    return async () => {
-      (await registrationListener).remove();
-      (await registrationErrorListener).remove();
-      (await notificationListener).remove();
-      (await actionListener).remove();
+    return () => {
+      registrationListener.then(listener => listener.remove());
+      registrationErrorListener.then(listener => listener.remove());
+      notificationListener.then(listener => listener.remove());
+      actionListener.then(listener => listener.remove());
     };
   }, [isSupported, toast]);
 

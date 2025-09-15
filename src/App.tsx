@@ -29,6 +29,9 @@ import {
 import Index from "./pages/Index";
 import NotFound from "./pages/NotFound";
 
+// Development/Testing Routes
+const MobileTestingPage = lazy(() => import("./pages/MobileTestingPage"));
+
 // Lazy load route groups for code splitting
 // Auth & Onboarding Routes
 const Auth = lazy(() => import("./pages/Auth"));
@@ -156,6 +159,7 @@ const CardShowcase = lazy(() => import("./pages/CardShowcase"));
 const FABDemo = lazy(() => import("./pages/FABDemo"));
 
 import { queryClient } from "./lib/queryClient";
+import PerformanceMonitor from "./components/PerformanceMonitor";
 
 // Helper components for specific route types with optimized loading
 function AuthRoute({ children }: { children: React.ReactNode }) {
@@ -214,6 +218,7 @@ function App() {
       <TooltipProvider>
         <Toaster />
         <Sonner />
+        <PerformanceMonitor />
         <ThemeProvider>
           <AuthProvider>
             <PushNotificationProvider />
@@ -1113,6 +1118,11 @@ function App() {
               <Route path="/all-pages" element={<AllPagesView />} />
               <Route path="/premium-tools-demo" element={<PremiumToolsDemo />} />
               <Route path="/demo/fab" element={<FABDemo />} />
+              <Route path="/mobile-testing" element={
+                <Suspense fallback={<LoadingFallback />}>
+                  <MobileTestingPage />
+                </Suspense>
+              } />
               
               {/* 404 */}
               <Route path="*" element={<NotFound />} />

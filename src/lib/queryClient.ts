@@ -42,16 +42,40 @@ export const queryClient = new QueryClient({
       gcTime: 10 * 60 * 1000, // 10 minutes cache
       refetchOnWindowFocus: false, // Don't refetch on window focus
       refetchOnMount: false, // Don't always refetch on mount
+      retry: (failureCount, error: any) => {
+        // Don't retry on 4xx errors except 408 (timeout)
+        if (error?.message?.includes('40') && !error?.message?.includes('408')) {
+          return false;
+        }
+        // Retry up to 2 times for network issues
+        return failureCount < 2;
+      },
+      retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 30000),
+    },
+    mutations: {
+      retry: 1,
+      retryDelay: 1000,
     },
   },
 });
 
-// Secure API request helper with production-safe logging
+// Enhanced API request with request cancellation
+const requestCache = new Map<string, AbortController>();
+
+export function cancelRequest(key: string) {
+  const controller = requestCache.get(key);
+  if (controller) {
+    controller.abort();
+    requestCache.delete(key);
+  }
+}
+
+// Secure API request helper with production-safe logging and cancellation
 export async function apiRequest(
   method: 'GET' | 'POST' | 'PUT' | 'DELETE',
   url: string,
   body?: any,
-  options?: RequestInit
+  options?: RequestInit & { requestKey?: string }
 ): Promise<Response> {
   debugLog('API Request:', method, url);
   
@@ -122,10 +146,21 @@ export async function apiRequest(
   }
   
   try {
+    // Handle request cancellation
+    const requestKey = options?.requestKey || `${method}-${url}`;
+    
+    // Cancel any existing request with the same key
+    cancelRequest(requestKey);
+    
+    // Create new abort controller
+    const abortController = new AbortController();
+    requestCache.set(requestKey, abortController);
+    
     const fetchOptions: RequestInit = {
       method,
       headers: finalHeaders,
       credentials: 'include',
+      signal: abortController.signal,
     };
     
     if (body && (method === 'POST' || method === 'PUT')) {
@@ -135,6 +170,9 @@ export async function apiRequest(
     const resolvedUrl = resolveApiUrl(url);
     debugLog('Making request to resolved URL');
     const response = await fetch(resolvedUrl, fetchOptions);
+    
+    // Clean up successful request
+    requestCache.delete(requestKey);
     
     debugLog('Response status:', response.status, 'for', url);
     

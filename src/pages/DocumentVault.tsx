@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, memo, useCallback, useMemo } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { DashboardLayout } from '@/layouts/DashboardLayout';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -14,6 +14,9 @@ import { Shield, Folder, Search, Filter, Download, Upload, Eye, Edit, Trash2, Ch
 import { format } from 'date-fns';
 import { apiRequest } from '@/lib/queryClient';
 import { useToast } from '@/hooks/use-toast';
+import { useDebounce } from '@/hooks/useDebounce';
+import { VirtualizedList } from '@/components/VirtualizedList';
+import OptimizedDocumentCard from '@/components/OptimizedDocumentCard';
 import type { Document, Student } from '@/lib/api';
 import DocumentUpload from '@/components/DocumentUpload';
 
@@ -39,6 +42,9 @@ const DocumentVault: React.FC = () => {
   const [activeSection, setActiveSection] = useState<{[key: string]: string}>({});
   const [selectedDocuments, setSelectedDocuments] = useState<Set<string>>(new Set());
   const [isSelectMode, setIsSelectMode] = useState(false);
+
+  // Debounced search for performance
+  const debouncedSearchTerm = useDebounce(searchTerm, 300);
 
   // Queries  
   const { data: documents, isLoading, refetch } = useQuery({
@@ -86,13 +92,13 @@ const DocumentVault: React.FC = () => {
     },
   });
 
-  // Handlers
-  const handleEditFileName = (id: string, currentTitle: string) => {
+  // Optimized memoized handlers
+  const handleEditFileName = useCallback((id: string, currentTitle: string) => {
     setEditingDocument({ id, title: currentTitle });
     setNewFileName(currentTitle);
-  };
+  }, []);
 
-  const handleUpdateFileName = () => {
+  const handleUpdateFileName = useCallback(() => {
     if (editingDocument && newFileName.trim()) {
       updateDocumentMutation.mutate({
         id: editingDocument.id,
@@ -101,7 +107,7 @@ const DocumentVault: React.FC = () => {
       setEditingDocument(null);
       setNewFileName('');
     }
-  };
+  }, [editingDocument, newFileName, updateDocumentMutation]);
 
   const handleCancelEdit = () => {
     setEditingDocument(null);

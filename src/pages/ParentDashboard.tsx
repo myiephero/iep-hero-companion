@@ -815,7 +815,7 @@ export default function ParentDashboard({ plan }: ParentDashboardProps) {
                 </div>
 
               {/* Enhanced Goals Tab */}
-              <TabsContent value="goals" className="p-3 sm:p-4 md:p-6 space-y-4 sm:space-y-6 relative" style={{ zIndex: 1 }}>
+              <TabsContent value="goals" className="p-3 sm:p-4 md:p-6 space-y-4 sm:space-y-6 relative" style={{ zIndex: 20 }}>
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4">
                   <div>
                     <h2 className="text-lg sm:text-xl md:text-2xl font-bold text-gray-900">IEP Goals</h2>

@@ -29,6 +29,12 @@ export default function CustomLogin() {
       const data = await response.json();
 
       if (response.ok) {
+        // 📱 MOBILE FIX: Store auth token for mobile environments
+        if (data.authToken) {
+          localStorage.setItem('authToken', data.authToken);
+          console.log('✅ Mobile Login: Auth token stored successfully');
+        }
+        
         toast({
           title: "Welcome back!",
           description: "You've been signed in successfully.",

@@ -63,12 +63,21 @@
       max-width: calc(100vw - 1rem) !important;
     }
     
-    /* Ensure minimum touch target sizes */
+    /* Ensure minimum touch target sizes and improved touch response */
     button, 
     [role="button"],
     a {
       min-height: 44px;
       min-width: 44px;
+      /* 📱 MOBILE FIX: Enhanced touch interaction */
+      touch-action: manipulation;
+      -webkit-user-select: none;
+      user-select: none;
+      /* Ensure buttons are above other elements */
+      position: relative;
+      z-index: 1;
+      /* Improve touch feedback */
+      -webkit-tap-highlight-color: rgba(0, 0, 0, 0.1);
     }
     
     /* Optimize mobile layouts */

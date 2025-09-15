@@ -57,5 +57,101 @@
         </array>
         <key>NSUserNotificationsUsageDescription</key>
         <string>This app uses notifications to alert you about important IEP updates, meeting reminders, and messages from your advocacy team.</string>
+        
+        <!-- App Transport Security -->
+        <key>NSAppTransportSecurity</key>
+        <dict>
+                <key>NSAllowsArbitraryLoads</key>
+                <false/>
+                <key>NSExceptionDomains</key>
+                <dict>
+                        <key>localhost</key>
+                        <dict>
+                                <key>NSExceptionAllowsInsecureHTTPLoads</key>
+                                <true/>
+                                <key>NSExceptionMinimumTLSVersion</key>
+                                <string>1.0</string>
+                        </dict>
+                </dict>
+        </dict>
+        
+        <!-- Background Modes -->
+        <key>UIBackgroundModes</key>
+        <array>
+                <string>remote-notification</string>
+                <string>background-fetch</string>
+                <string>background-processing</string>
+        </array>
+        
+        <!-- App Category for App Store -->
+        <key>LSApplicationCategoryType</key>
+        <string>public.app-category.education</string>
+        
+        <!-- Supported URLs -->
+        <key>CFBundleURLTypes</key>
+        <array>
+                <dict>
+                        <key>CFBundleURLName</key>
+                        <string>com.myiephero.app</string>
+                        <key>CFBundleURLSchemes</key>
+                        <array>
+                                <string>myiephero</string>
+                        </array>
+                </dict>
+        </array>
+        
+        <!-- App Icon -->
+        <key>CFBundleIcons</key>
+        <dict>
+                <key>CFBundlePrimaryIcon</key>
+                <dict>
+                        <key>CFBundleIconFiles</key>
+                        <array>
+                                <string>AppIcon</string>
+                        </array>
+                        <key>UIPrerenderedIcon</key>
+                        <false/>
+                </dict>
+        </dict>
+        
+        <!-- File Sharing -->
+        <key>UIFileSharingEnabled</key>
+        <true/>
+        <key>LSSupportsOpeningDocumentsInPlace</key>
+        <true/>
+        
+        <!-- Status Bar -->
+        <key>UIStatusBarStyle</key>
+        <string>UIStatusBarStyleDefault</string>
+        
+        <!-- Minimum OS Version -->
+        <key>MinimumOSVersion</key>
+        <string>13.0</string>
+        
+        <!-- Privacy Description -->
+        <key>NSMicrophoneUsageDescription</key>
+        <string>This app may use the microphone for voice notes and accessibility features.</string>
+        <key>NSContactsUsageDescription</key>
+        <string>This app may access contacts to help connect with advocates and support teams.</string>
+        <key>NSCalendarsUsageDescription</key>
+        <string>This app accesses your calendar to schedule IEP meetings and important appointments.</string>
+        <key>NSRemindersUsageDescription</key>
+        <string>This app can create reminders for IEP deadlines and important tasks.</string>
+        
+        <!-- Document Types -->
+        <key>CFBundleDocumentTypes</key>
+        <array>
+                <dict>
+                        <key>CFBundleTypeName</key>
+                        <string>PDF Document</string>
+                        <key>CFBundleTypeRole</key>
+                        <string>Viewer</string>
+                        <key>LSItemContentTypes</key>
+                        <array>
+                                <string>com.adobe.pdf</string>
+                        </array>
+                </dict>
+        </array>
+        
 </dict>
 </plist>

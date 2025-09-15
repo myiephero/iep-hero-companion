@@ -27,6 +27,9 @@ const config: CapacitorConfig = {
     Camera: {
       permissions: ['camera', 'photos']
     },
+    PushNotifications: {
+      presentationOptions: ["badge", "sound", "alert"]
+    },
     // Network status monitoring
     Network: {
       enabled: true
@@ -38,11 +41,24 @@ const config: CapacitorConfig = {
     // App state management
     App: {
       enabled: true
+    },
+    // Local Notifications
+    LocalNotifications: {
+      smallIcon: "ic_stat_icon_config_sample",
+      iconColor: "#0066CC",
+      sound: "beep.wav"
+    },
+    // Keyboard configuration
+    Keyboard: {
+      resize: "body",
+      style: "dark",
+      resizeOnFullScreen: true
     }
   },
-  // iOS specific configuration for offline support
+  // iOS specific configuration for TestFlight and production
   ios: {
-    scheme: 'My IEP Hero'
+    scheme: 'MyIEPHero',
+    path: 'ios'
   },
   // Android specific configuration for offline support
   android: {

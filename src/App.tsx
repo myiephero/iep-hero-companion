@@ -7,6 +7,7 @@ import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { AuthProvider } from "@/hooks/useAuth";
 import { ThemeProvider } from "@/contexts/ThemeContext";
 import { ProtectedRoute, RoleBasedRedirect } from "@/components/ProtectedRoute";
+import { PushNotificationProvider } from "@/components/PushNotificationProvider";
 // import { FeedbackChat } from "@/components/FeedbackChat"; // TEMPORARILY REMOVED
 
 // Loading components and error boundaries
@@ -215,6 +216,7 @@ function App() {
         <Sonner />
         <ThemeProvider>
           <AuthProvider>
+            <PushNotificationProvider />
             <BrowserRouter>
             <Routes>
               <Route path="/" element={<Index />} />

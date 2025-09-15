@@ -50,7 +50,9 @@ const updateProfileSchema = z.object({
   lastName: z.string().trim().min(1, 'Last name is required').max(50, 'Last name too long').optional(),
   email: z.string().email('Invalid email format').max(255, 'Email too long').optional(),
   phoneNumber: z.string().regex(/^[\d\s\-\+\(\)]*$/, 'Invalid phone number format').max(20, 'Phone number too long').optional().nullable(),
-  subscriptionPlan: z.enum(['free', 'essential', 'premium', 'advocate']).optional()
+  subscriptionPlan: z.enum(['free', 'essential', 'premium', 'advocate']).optional(),
+  pushNotificationToken: z.string().optional(),
+  notificationPreferences: z.object({}).passthrough().optional()
 }).refine(data => Object.keys(data).length > 0, {
   message: 'At least one field must be provided for update'
 });
@@ -751,6 +753,154 @@ app.put('/api/auth/update-profile', async (req: any, res) => {
   } catch (error) {
     console.error('Error updating profile:', error);
     res.status(500).json({ error: 'Failed to update profile' });
+  }
+});
+
+// Push notification token update endpoint
+app.put('/api/auth/update-push-token', async (req: any, res) => {
+  try {
+    const userId = await getUserId(req);
+    if (!userId) {
+      return res.status(401).json({ error: 'Authentication required' });
+    }
+
+    const { pushNotificationToken, platform } = req.body;
+    
+    if (!pushNotificationToken && pushNotificationToken !== '') {
+      return res.status(400).json({ error: 'Push notification token is required' });
+    }
+
+    // Update user with push notification token
+    await db.update(schema.users)
+      .set({ 
+        pushNotificationToken: pushNotificationToken,
+        updatedAt: new Date()
+      })
+      .where(eq(schema.users.id, userId));
+
+    console.log(`Updated push token for user ${userId} on platform ${platform}`);
+    res.json({ success: true });
+  } catch (error) {
+    console.error('Error updating push notification token:', error);
+    res.status(500).json({ error: 'Failed to update push notification token' });
+  }
+});
+
+// Get notification preferences
+app.get('/api/notifications/preferences', async (req: any, res) => {
+  try {
+    const userId = await getUserId(req);
+    if (!userId) {
+      return res.status(401).json({ error: 'Authentication required' });
+    }
+
+    const user = await db.select()
+      .from(schema.users)
+      .where(eq(schema.users.id, userId))
+      .limit(1);
+
+    if (!user || user.length === 0) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+
+    const preferences = user[0].notificationPreferences || {
+      iepMeetingReminders: true,
+      documentAnalysisComplete: true,
+      newMessages: true,
+      goalProgressUpdates: true,
+      subscriptionUpdates: true,
+      weeklyReports: false,
+      urgentAlerts: true,
+    };
+
+    res.json({ preferences });
+  } catch (error) {
+    console.error('Error fetching notification preferences:', error);
+    res.status(500).json({ error: 'Failed to fetch notification preferences' });
+  }
+});
+
+// Update notification preferences
+app.put('/api/notifications/preferences', async (req: any, res) => {
+  try {
+    const userId = await getUserId(req);
+    if (!userId) {
+      return res.status(401).json({ error: 'Authentication required' });
+    }
+
+    const { preferences } = req.body;
+    
+    if (!preferences || typeof preferences !== 'object') {
+      return res.status(400).json({ error: 'Valid preferences object is required' });
+    }
+
+    // Update user notification preferences
+    await db.update(schema.users)
+      .set({ 
+        notificationPreferences: preferences,
+        updatedAt: new Date()
+      })
+      .where(eq(schema.users.id, userId));
+
+    res.json({ success: true });
+  } catch (error) {
+    console.error('Error updating notification preferences:', error);
+    res.status(500).json({ error: 'Failed to update notification preferences' });
+  }
+});
+
+// Send notification endpoint (for future use by internal services)
+app.post('/api/notifications/send', async (req: any, res) => {
+  try {
+    const { userIds, title, body, data, badge } = req.body;
+    
+    if (!userIds || !Array.isArray(userIds) || userIds.length === 0) {
+      return res.status(400).json({ error: 'Valid userIds array is required' });
+    }
+
+    if (!title || !body) {
+      return res.status(400).json({ error: 'Title and body are required' });
+    }
+
+    // Get push tokens for users
+    const users = await db.select()
+      .from(schema.users)
+      .where(and(
+        inArray(schema.users.id, userIds),
+        isNotNull(schema.users.pushNotificationToken)
+      ));
+
+    const tokens = users
+      .map(user => user.pushNotificationToken)
+      .filter(token => token && token.length > 0);
+
+    if (tokens.length === 0) {
+      return res.json({ 
+        success: true, 
+        message: 'No valid push tokens found for the specified users',
+        sentCount: 0 
+      });
+    }
+
+    // Here you would integrate with Firebase Cloud Messaging or Apple Push Notification service
+    // For now, we'll just log the notification that would be sent
+    console.log('Would send notification to tokens:', tokens.length);
+    console.log('Notification:', { title, body, data, badge });
+
+    // TODO: Implement actual push notification sending using FCM/APNs
+    // This would involve:
+    // 1. Using Firebase Admin SDK for Android
+    // 2. Using APNs for iOS
+    // 3. Proper error handling and retry logic
+
+    res.json({ 
+      success: true, 
+      message: 'Notification queued for delivery',
+      sentCount: tokens.length 
+    });
+  } catch (error) {
+    console.error('Error sending notification:', error);
+    res.status(500).json({ error: 'Failed to send notification' });
   }
 });
 

@@ -55,6 +55,8 @@ export const users = pgTable("users", {
   subscriptionPlan: varchar("subscription_plan"),
   stripeCustomerId: varchar("stripe_customer_id"),
   stripeSubscriptionId: varchar("stripe_subscription_id"),
+  pushNotificationToken: varchar("push_notification_token"),
+  notificationPreferences: json("notification_preferences"),
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
 });

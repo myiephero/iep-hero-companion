@@ -1,14 +1,35 @@
-<svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
-  <!-- Background circle -->
-  <circle cx="16" cy="16" r="16" fill="#2563EB"/>
+<svg width="32" height="32" viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="heroGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#1E40AF"/>
+      <stop offset="50%" style="stop-color:#3B82F6"/>
+      <stop offset="100%" style="stop-color:#60A5FA"/>
+    </linearGradient>
+  </defs>
   
-  <!-- Hero figure (person) -->
-  <circle cx="16" cy="11" r="3" fill="white"/>
-  <path d="M11 23V20C11 18.3431 12.3431 17 14 17H18C19.6569 17 21 18.3431 21 20V23" stroke="white" stroke-width="2" stroke-linecap="round"/>
+  <!-- Background -->
+  <rect width="512" height="512" rx="128" fill="#F8FAFC"/>
   
-  <!-- Shield/protection symbol -->
-  <path d="M16 6L19 8V12C19 14 17.5 15.5 16 16C14.5 15.5 13 14 13 12V8L16 6Z" fill="white" fill-opacity="0.8"/>
+  <!-- Hero figure body -->
+  <ellipse cx="256" cy="380" rx="60" ry="90" fill="url(#heroGradient)"/>
   
-  <!-- Small star for "hero" element -->
-  <path d="M23 8L24 10L26 10L24.5 11.5L25 14L23 13L21 14L21.5 11.5L20 10L22 10L23 8Z" fill="#FFD700"/>
+  <!-- Hero figure head -->
+  <circle cx="256" cy="200" r="80" fill="#E2E8F0"/>
+  
+  <!-- Hero cape -->
+  <path d="M180 280 Q150 320 120 400 Q140 420 180 400 L200 300 Z" fill="#DC2626"/>
+  <path d="M332 280 Q362 320 392 400 Q372 420 332 400 L312 300 Z" fill="#DC2626"/>
+  
+  <!-- Hero mask -->
+  <ellipse cx="256" cy="180" rx="90" ry="40" fill="#1E40AF"/>
+  
+  <!-- Hero eyes -->
+  <circle cx="235" cy="175" r="8" fill="white"/>
+  <circle cx="277" cy="175" r="8" fill="white"/>
+  <circle cx="235" cy="175" r="4" fill="#1E40AF"/>
+  <circle cx="277" cy="175" r="4" fill="#1E40AF"/>
+  
+  <!-- Hero emblem -->
+  <circle cx="256" cy="320" r="25" fill="#FEF3C7"/>
+  <text x="256" y="330" text-anchor="middle" fill="#1E40AF" font-family="Arial Black" font-size="20" font-weight="bold">H</text>
 </svg>

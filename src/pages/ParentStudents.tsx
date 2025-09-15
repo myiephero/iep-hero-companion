@@ -49,7 +49,7 @@ import { useToast } from "@/hooks/use-toast";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
 import { getIEPStatusColor } from "@/lib/utils";
-import { useCreateConversation } from "@/hooks/useMessaging";
+import { useCreateConversation, useSendMessage } from "@/hooks/useMessaging";
 import { useNavigate } from 'react-router-dom';
 
 // Real AI Analysis Component
@@ -1909,6 +1909,8 @@ const CommunicationTab = ({
   user, 
   createConversation, 
   creating, 
+  sendMessage,
+  sending,
   navigate, 
   toast 
 }: { 
@@ -1917,6 +1919,8 @@ const CommunicationTab = ({
   user: any; 
   createConversation: any; 
   creating: boolean; 
+  sendMessage: any;
+  sending: boolean;
   navigate: any; 
   toast: any;
 }) => {
@@ -1959,7 +1963,7 @@ const CommunicationTab = ({
     console.log('DEBUG: Parent messaging - user role:', user.role);
 
     try {
-      // Create conversation in the main messaging system - PARENT TO ADVOCATE
+      // Step 1: Create conversation in the main messaging system - PARENT TO ADVOCATE
       const conversation = await createConversation(
         selectedAdvocateId, // advocateId - the selected advocate
         user.id, // parentId - current user (parent)
@@ -1967,22 +1971,30 @@ const CommunicationTab = ({
       );
 
       if (conversation) {
-        toast({
-          title: "Message Sent!",
-          description: "Conversation created successfully. Redirecting to Messages...",
-        });
+        console.log('✅ Conversation created:', conversation.id);
         
-        // Redirect to parent messages page with the new conversation
-        navigate('/parent/messages', { 
-          state: { 
-            newMessage: { 
-              advocateId: selectedAdvocateId,
-              studentId: selectedStudentId,
-              studentName: currentStudent.full_name,
-              content: messageText 
-            } 
-          } 
-        });
+        // Step 2: Send the actual message content to the conversation
+        const message = await sendMessage(conversation.id, messageText);
+        
+        if (message) {
+          console.log('✅ Message sent:', message);
+          
+          // Clear the message text
+          setMessageText('');
+          setSelectedAdvocateId('');
+          
+          toast({
+            title: "Message Sent!",
+            description: "Your message has been sent to the advocate successfully.",
+          });
+          
+          // Redirect to parent messages page
+          setTimeout(() => {
+            navigate('/parent/messages');
+          }, 1500);
+        } else {
+          throw new Error('Failed to send message content');
+        }
       } else {
         throw new Error('Failed to create conversation');
       }
@@ -2067,12 +2079,12 @@ const CommunicationTab = ({
         
         <Button 
           onClick={handleSendMessage}
-          disabled={!messageText.trim() || !selectedAdvocateId || creating}
+          disabled={!messageText.trim() || !selectedAdvocateId || creating || sending}
           className="w-full"
           data-testid="button-send-message"
         >
           <Send className="h-4 w-4 mr-2" />
-          {creating ? "Sending..." : "Send Message"}
+          {creating || sending ? "Sending..." : "Send Message"}
         </Button>
 
         <div className="text-sm text-muted-foreground bg-muted/50 p-3 rounded-lg">
@@ -2119,6 +2131,7 @@ const ParentStudents = () => {
   const { toast } = useToast();
   const navigate = useNavigate();
   const { create: createConversation, creating } = useCreateConversation();
+  const { send: sendMessage, sending } = useSendMessage();
 
   const handleAddStudent = async () => {
     if (!newStudent.first_name || !newStudent.last_name) return;
@@ -3336,6 +3349,8 @@ const ParentStudents = () => {
                   user={user}
                   createConversation={createConversation}
                   creating={creating}
+                  sendMessage={sendMessage}
+                  sending={sending}
                   navigate={navigate}
                   toast={toast}
                 />

@@ -1,9 +1,26 @@
 import { QueryClient } from '@tanstack/react-query';
+import { resolveApiUrl } from './apiConfig';
+
+// Safe logging utility that respects production environment
+const isDevelopment = typeof import.meta !== 'undefined' && import.meta.env?.DEV;
+
+function debugLog(message: string, ...args: any[]) {
+  if (isDevelopment) {
+    console.log(message, ...args);
+  }
+}
+
+function debugWarn(message: string, ...args: any[]) {
+  if (isDevelopment) {
+    console.warn(message, ...args);
+  }
+}
 
 const defaultQueryFn = async ({ queryKey }: { queryKey: readonly unknown[] }) => {
   const [url] = queryKey as [string, ...any[]];
+  const resolvedUrl = resolveApiUrl(url);
   
-  const response = await fetch(url, {
+  const response = await fetch(resolvedUrl, {
     headers: {
       'Content-Type': 'application/json',
       'Authorization': `Bearer ${localStorage.getItem('authToken') || ''}`
@@ -29,25 +46,25 @@ export const queryClient = new QueryClient({
   },
 });
 
-// BULLETPROOF API request helper with guaranteed auth headers
+// Secure API request helper with production-safe logging
 export async function apiRequest(
   method: 'GET' | 'POST' | 'PUT' | 'DELETE',
   url: string,
   body?: any,
   options?: RequestInit
 ): Promise<Response> {
-  // FORCE console output to always appear (using console.log for better visibility in Replit)
-  console.log('🚨 APIQUEST DEBUG - URL:', url, 'METHOD:', method);
+  debugLog('API Request:', method, url);
   
-  // Get token with additional validation and better error handling
+  // Get token with validation
   const token = localStorage.getItem('authToken');
-  console.log('🚨 APIQUEST TOKEN CHECK:', token ? `FOUND: ${token.substring(0,20)}...` : 'MISSING - No token in localStorage');
+  debugLog('Token status:', token ? 'FOUND' : 'MISSING');
   
   // If no token, try to get fresh token from auth endpoint
   if (!token) {
-    console.log('🚨 APIQUEST: No token found, attempting to retrieve from auth session...');
+    debugLog('Attempting to retrieve fresh token from auth session...');
     try {
-      const authResponse = await fetch('/api/auth/me', {
+      const authUrl = resolveApiUrl('/api/auth/me');
+      const authResponse = await fetch(authUrl, {
         credentials: 'include'
       });
       
@@ -55,17 +72,17 @@ export async function apiRequest(
         const authData = await authResponse.json();
         if (authData.authToken) {
           localStorage.setItem('authToken', authData.authToken);
-          console.log('🚨 APIQUEST: Fresh token retrieved and stored');
+          debugLog('Fresh token retrieved and stored');
         }
       }
     } catch (authError) {
-      console.log('🚨 APIQUEST: Failed to get fresh token:', authError);
+      debugWarn('Failed to get fresh token:', authError.message);
     }
   }
   
   // Re-check token after potential refresh
   const finalToken = localStorage.getItem('authToken');
-  console.log('🚨 APIQUEST FINAL TOKEN:', finalToken ? `USING: ${finalToken.substring(0,20)}...` : 'STILL MISSING');
+  debugLog('Final token status:', finalToken ? 'AVAILABLE' : 'MISSING');
   
   // Build headers with guaranteed type safety
   const finalHeaders = new Headers();
@@ -86,21 +103,23 @@ export async function apiRequest(
     }
   }
   
-  // CRITICAL: Force add auth header if token exists
+  // Add auth header if token exists
   if (finalToken && finalToken.trim().length > 0) {
     const authValue = `Bearer ${finalToken}`;
     finalHeaders.set('Authorization', authValue);
-    console.log('🚨 APIQUEST AUTH HEADER SET:', `Bearer ${finalToken.substring(0,20)}...`);
+    debugLog('Authorization header set');
   } else {
-    console.log('🚨 APIQUEST AUTH MISSING - NO VALID TOKEN TO SEND');
+    debugWarn('No valid authentication token available');
   }
   
-  // Debug final headers (without exposing full token)
-  const headersObj: Record<string, string> = {};
-  finalHeaders.forEach((value, key) => {
-    headersObj[key] = key === 'Authorization' ? `Bearer ${value.substring(7, 27)}...` : value;
-  });
-  console.log('🚨 APIQUEST FINAL HEADERS:', JSON.stringify(headersObj));
+  // Debug headers without exposing sensitive data
+  if (isDevelopment) {
+    const sanitizedHeaders: Record<string, string> = {};
+    finalHeaders.forEach((value, key) => {
+      sanitizedHeaders[key] = key === 'Authorization' ? '[REDACTED]' : value;
+    });
+    debugLog('Request headers:', sanitizedHeaders);
+  }
   
   try {
     const fetchOptions: RequestInit = {
@@ -113,20 +132,21 @@ export async function apiRequest(
       fetchOptions.body = JSON.stringify(body);
     }
     
-    console.log('🚨 APIQUEST MAKING FETCH CALL TO:', url);
-    const response = await fetch(url, fetchOptions);
+    const resolvedUrl = resolveApiUrl(url);
+    debugLog('Making request to resolved URL');
+    const response = await fetch(resolvedUrl, fetchOptions);
     
-    console.log('🚨 APIQUEST RESPONSE STATUS:', response.status, 'for', url);
+    debugLog('Response status:', response.status, 'for', url);
     
     if (!response.ok) {
-      console.log('🚨 APIQUEST FAILED - STATUS:', response.status, 'TEXT:', response.statusText);
+      console.error('API request failed:', response.status, response.statusText, 'for', url);
       
       if (response.status === 401) {
-        console.log('🚨 APIQUEST 401 - CLEARING EXPIRED TOKEN');
+        debugLog('Authentication failed - clearing expired token');
         localStorage.removeItem('authToken');
         // Try to redirect to auth if this is an authentication failure
         if (typeof window !== 'undefined' && !window.location.pathname.includes('/auth')) {
-          console.log('🚨 APIQUEST 401 - REDIRECTING TO AUTH');
+          debugLog('Redirecting to authentication page');
           window.location.href = '/auth';
         }
       }
@@ -134,11 +154,11 @@ export async function apiRequest(
       throw new Error(`HTTP ${response.status}: ${response.statusText || 'Request failed'}`);
     }
     
-    console.log('🚨 APIQUEST SUCCESS:', url);
+    debugLog('API request successful for:', url);
     return response;
     
   } catch (error) {
-    console.log('🚨 APIQUEST CATCH ERROR:', error);
+    console.error('API request error for', url, ':', error.message);
     throw error;
   }
 }

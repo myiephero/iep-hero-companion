@@ -1,11 +1,11 @@
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Calendar, Mail, Phone, MapPin, Clock } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { useNavigate } from "react-router-dom";
 import { DashboardLayout } from "@/layouts/DashboardLayout";
+import { AvatarUpload } from "@/components/AvatarUpload";
 
 export default function Profile() {
   const { user } = useAuth();
@@ -49,12 +49,19 @@ export default function Profile() {
         <div className="grid gap-6 lg:grid-cols-3">
           <div className="lg:col-span-1">
             <Card className="p-6 text-center">
-              <Avatar className="h-24 w-24 mx-auto mb-4">
-                <AvatarImage src={user.profileImageUrl || ''} />
-                <AvatarFallback className="text-lg bg-blue-500 text-white">
-                  {getInitials(user.firstName || '', user.lastName || '')}
-                </AvatarFallback>
-              </Avatar>
+              <div className="flex justify-center mb-4">
+                <AvatarUpload
+                  currentImageUrl={user.profileImageUrl || ''}
+                  fallbackText={getInitials(user.firstName || '', user.lastName || '')}
+                  size="lg"
+                  onImageUpdate={(imageUrl) => {
+                    // In a real app, this would update the user profile
+                    // For now, we'll just show a success message
+                    console.log('Profile image updated:', imageUrl);
+                  }}
+                  className="mx-auto"
+                />
+              </div>
               <h2 className="text-xl font-semibold">
                 {user.firstName && user.lastName 
                   ? `${user.firstName} ${user.lastName}` 

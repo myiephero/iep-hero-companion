@@ -12,6 +12,7 @@ import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
 import { api } from "@/lib/api";
 import { useAuth } from "@/hooks/useAuth";
+import { useCameraCapture } from "@/hooks/useCameraCapture";
 import { 
   Upload, 
   FileText, 
@@ -36,7 +37,9 @@ import {
   MoreVertical,
   Eye,
   Download,
-  UserPlus
+  UserPlus,
+  Camera,
+  Image as ImageIcon
 } from "lucide-react";
 
 // Helper function to read file as text
@@ -457,6 +460,16 @@ export function DocumentUpload({ onAnalysisComplete, selectedAnalysisType = 'iep
   const [selectedStudentId, setSelectedStudentId] = useState<string>("");
   const { toast } = useToast();
   const { user } = useAuth();
+  
+  // Camera capture functionality
+  const {
+    captureFromCamera,
+    captureFromGallery,
+    captureWithPrompt,
+    convertToFile,
+    isCapturing,
+    isNative
+  } = useCameraCapture();
 
   // Fetch students on component mount
   useEffect(() => {
@@ -506,6 +519,67 @@ export function DocumentUpload({ onAnalysisComplete, selectedAnalysisType = 'iep
       }
     }
   }, [user, toast]);
+
+  // Camera capture handlers
+  const handleCameraCapture = async () => {
+    if (!user) {
+      toast({
+        title: "Authentication required",
+        description: "Please sign in to capture documents.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    const capturedImage = await captureFromCamera();
+    if (capturedImage) {
+      const file = convertToFile(capturedImage);
+      const newFile: UploadedFile = {
+        file,
+        id: crypto.randomUUID(),
+        progress: 0,
+        status: 'uploading' as const,
+      };
+
+      setFiles(prev => [...prev, newFile]);
+      
+      try {
+        await uploadFile(newFile);
+      } catch (error) {
+        updateFileStatus(newFile.id, 'error');
+      }
+    }
+  };
+
+  const handleGalleryCapture = async () => {
+    if (!user) {
+      toast({
+        title: "Authentication required",
+        description: "Please sign in to select documents.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    const capturedImage = await captureFromGallery();
+    if (capturedImage) {
+      const file = convertToFile(capturedImage);
+      const newFile: UploadedFile = {
+        file,
+        id: crypto.randomUUID(),
+        progress: 0,
+        status: 'uploading' as const,
+      };
+
+      setFiles(prev => [...prev, newFile]);
+      
+      try {
+        await uploadFile(newFile);
+      } catch (error) {
+        updateFileStatus(newFile.id, 'error');
+      }
+    }
+  };
 
   const uploadFile = async (fileData: UploadedFile) => {
     // Update progress
@@ -816,9 +890,61 @@ export function DocumentUpload({ onAnalysisComplete, selectedAnalysisType = 'iep
                 <p className="text-lg font-medium mb-2">
                   Drag & drop files here, or click to select
                 </p>
-                <p className="text-sm text-muted-foreground">
+                <p className="text-sm text-muted-foreground mb-4">
                   Supports: TXT, PDF, DOC, DOCX (max 10MB) • PDF extraction fully supported!
                 </p>
+                
+                {/* Camera Capture Buttons */}
+                <div className="flex flex-col sm:flex-row gap-2 justify-center items-center">
+                  <span className="text-sm text-muted-foreground">Or capture directly:</span>
+                  <div className="flex gap-2">
+                    <Button 
+                      type="button"
+                      variant="outline" 
+                      size="sm"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleCameraCapture();
+                      }}
+                      disabled={isCapturing}
+                      className="gap-2"
+                      data-testid="button-camera-capture"
+                    >
+                      {isCapturing ? (
+                        <Loader2 className="h-4 w-4 animate-spin" />
+                      ) : (
+                        <Camera className="h-4 w-4" />
+                      )}
+                      {isNative ? 'Camera' : 'Camera*'}
+                    </Button>
+                    
+                    <Button 
+                      type="button"
+                      variant="outline" 
+                      size="sm"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleGalleryCapture();
+                      }}
+                      disabled={isCapturing}
+                      className="gap-2"
+                      data-testid="button-gallery-capture"
+                    >
+                      {isCapturing ? (
+                        <Loader2 className="h-4 w-4 animate-spin" />
+                      ) : (
+                        <ImageIcon className="h-4 w-4" />
+                      )}
+                      {isNative ? 'Gallery' : 'Browse*'}
+                    </Button>
+                  </div>
+                </div>
+                
+                {!isNative && (
+                  <p className="text-xs text-muted-foreground mt-2">
+                    * Full camera support available in mobile app
+                  </p>
+                )}
               </div>
             )}
           </div>
@@ -1096,7 +1222,7 @@ export function DocumentUpload({ onAnalysisComplete, selectedAnalysisType = 'iep
                     }}
                     onMeetingPrep={() => {
                       // Route based on user role
-                      if (user?.user_metadata?.role === 'advocate') {
+                      if (user?.role === 'advocate') {
                         window.location.href = '/advocate/schedule';
                       } else {
                         window.location.href = '/parent/meeting-prep';

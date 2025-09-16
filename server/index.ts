@@ -4854,11 +4854,11 @@ app.post('/api/cases',  async (req: any, res) => {
   }
 });
 
-// Initialize server with proper authentication setup
+// Initialize server with token-only authentication
 (async () => {
-  console.log('Setting up Replit Auth...');
-  await // Removed setupAuth - using token-only authentication
-  console.log('Replit Auth setup completed successfully');
+  console.log('🔧 Starting server with token-based authentication...');
+  // Replit Auth completely disabled - using token-only authentication
+  console.log('✅ Token-based authentication active');
   
   // Setup complete
 

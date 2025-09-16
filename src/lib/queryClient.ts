@@ -83,29 +83,13 @@ export async function apiRequest(
   const token = localStorage.getItem('authToken');
   debugLog('Token status:', token ? 'FOUND' : 'MISSING');
   
-  // If no token, try to get fresh token from auth endpoint
+  // 🔧 TOKEN-ONLY AUTH: No token means user is not authenticated
   if (!token) {
-    debugLog('Attempting to retrieve fresh token from auth session...');
-    try {
-      const authUrl = resolveApiUrl('/api/auth/me');
-      const authResponse = await fetch(authUrl, {
-        credentials: 'include'
-      });
-      
-      if (authResponse.ok) {
-        const authData = await authResponse.json();
-        if (authData.authToken) {
-          localStorage.setItem('authToken', authData.authToken);
-          debugLog('Fresh token retrieved and stored');
-        }
-      }
-    } catch (authError) {
-      debugWarn('Failed to get fresh token:', authError.message);
-    }
+    debugLog('❌ No auth token found - user must login');
   }
   
-  // Re-check token after potential refresh
-  const finalToken = localStorage.getItem('authToken');
+  // Use the token we have (no refresh attempt)
+  const finalToken = token;
   debugLog('Final token status:', finalToken ? 'AVAILABLE' : 'MISSING');
   
   // Build headers with guaranteed type safety

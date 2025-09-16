@@ -111,7 +111,8 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
         const response = await fetch('/api/auth/user', {
           credentials: 'include',
           headers: {
-            Authorization: `Bearer ${token}`,
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
           }
         });
         

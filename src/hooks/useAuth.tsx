@@ -99,56 +99,9 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
           }
         }
         
-        // If no stored token, check for Replit Auth session
+        // 🔧 TOKEN-ONLY AUTH: Skip Replit Auth entirely, use only tokens
         if (!token) {
-          console.log('🔍 useAuth: No stored token, checking Replit Auth session...');
-          try {
-            const authResponse = await fetch('/api/auth/me', {
-              credentials: 'include',
-              headers: {
-                // 🔒 SECURITY FIX: Add cache-busting to prevent stale responses
-                'Cache-Control': 'no-cache, no-store, must-revalidate',
-                'Pragma': 'no-cache'
-              }
-            });
-            
-            console.log('🔍 useAuth: Auth response status:', authResponse.status);
-            
-            if (authResponse.ok) {
-              try {
-                const authData = await authResponse.json();
-                console.log('✅ useAuth: Replit Auth session found, response data:', authData);
-                
-                // 📱 MOBILE FIX: Check if response contains error (401 disguised as 200)
-                if (authData.error) {
-                  console.log('❌ useAuth: Auth endpoint returned error:', authData.error);
-                  // This is expected - no valid session
-                } else if (authData.authToken && authData.user && authData.user.id) {
-                  // Verify token format matches expected pattern
-                  const tokenParts = authData.authToken.split('-');
-                  if (tokenParts.length >= 3 && tokenParts[0] === authData.user.id.substring(0, 8)) {
-                    localStorage.setItem('authToken', authData.authToken);
-                    token = authData.authToken;
-                    console.log('✅ useAuth: Validated and stored auth token:', `${authData.authToken.substring(0,20)}...`);
-                  } else {
-                    console.log('⚠️ useAuth: Token validation failed - token does not match user ID');
-                    clearContaminatedStorage();
-                  }
-                } else {
-                  console.log('⚠️ useAuth: No valid authToken or user data in response');
-                }
-              } catch (jsonError) {
-                console.log('❌ useAuth: Error parsing auth response JSON:', jsonError);
-              }
-            } else {
-              console.log('❌ useAuth: No Replit Auth session found, status:', authResponse.status);
-            }
-          } catch (error) {
-            console.log('❌ useAuth: Error checking Replit Auth session:', error);
-          }
-        }
-        
-        if (!token) {
+          console.log('❌ useAuth: No auth token found - user not authenticated');
           setUser(null);
           setProfile(null);
           setLoading(false);

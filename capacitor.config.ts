@@ -6,16 +6,20 @@ const config: CapacitorConfig = {
   webDir: 'dist',
   server: {
     androidScheme: 'https',
-    // Production: Restrict navigation for security
+    // Development: Allow localhost and production URLs
     allowNavigation: [
+      "http://localhost:3000",
+      "http://localhost:5000", 
+      "http://127.0.0.1:3000",
+      "http://127.0.0.1:5000",
       "https://api.myiephero.com",
       "https://myiephero.com",
       "https://firebaseapp.com",
       "https://googleapis.com"
     ],
-    // Production: Disable cleartext for security
-    cleartext: false,
-    // Production: Error page for offline
+    // Development: Enable cleartext for local server
+    cleartext: true,
+    // Development: Allow offline functionality
     errorPath: "error.html"
   },
   plugins: {
@@ -106,8 +110,8 @@ const config: CapacitorConfig = {
     loggingBehavior: 'production',
     // Network security
     appendUserAgent: 'MyIEPHero/1.0',
-    // Performance optimizations
-    hideLogs: true
+    // Performance optimizations for production
+    // hideLogs: true // Not a valid Capacitor config property
   }
 };
 

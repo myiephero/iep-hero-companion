@@ -13,7 +13,7 @@ import messagingRoutes from './routes/messaging';
 import { createRequire } from 'module';
 const require = createRequire(import.meta.url);
 const pdf = require('pdf-parse');
-import { setupAuth, isAuthenticated } from './replitAuth';
+// Removed Replit Auth - using token-only authentication
 import { storage } from './storage';
 import Stripe from 'stripe';
 import { sendVerificationEmail, sendWelcomeEmail } from './emailService';
@@ -905,7 +905,8 @@ app.post('/api/notifications/send', async (req: any, res) => {
 });
 
 // Legacy Replit Auth endpoint (kept for compatibility)
-app.get('/api/auth/replit-user', isAuthenticated, async (req: any, res) => {
+// Removed Replit Auth endpoint - using token-only authentication
+app.get('/api/auth/replit-user-disabled', async (req: any, res) => {
   try {
     const userId = req.user.claims.sub;
     const user = await storage.getUser(userId);
@@ -917,7 +918,7 @@ app.get('/api/auth/replit-user', isAuthenticated, async (req: any, res) => {
 });
 
 // Onboarding setup route
-app.post('/api/onboarding/setup', isAuthenticated, async (req: any, res) => {
+app.post('/api/onboarding/setup',  async (req: any, res) => {
   try {
     const userId = req.user.claims.sub;
     const { role, subscriptionPlan } = req.body;
@@ -979,7 +980,7 @@ app.post('/api/onboarding/setup', isAuthenticated, async (req: any, res) => {
 });
 
 // Test Stripe connection
-app.get('/api/stripe/test', isAuthenticated, async (req: any, res) => {
+app.get('/api/stripe/test',  async (req: any, res) => {
   try {
     // Simple test to verify Stripe connection
     const customers = await stripe.customers.list({ limit: 1 });
@@ -1029,7 +1030,7 @@ app.put('/api/test/update-plan', async (req: any, res) => {
 });
 
 // Simple payment intent for testing (works without predefined price IDs)
-app.post('/api/create-payment-intent', isAuthenticated, async (req: any, res) => {
+app.post('/api/create-payment-intent',  async (req: any, res) => {
   try {
     const userId = req.user.claims.sub;
     const { amount, planName } = req.body;
@@ -1826,7 +1827,7 @@ app.post('/api/process-checkout-success', async (req, res) => {
 });
 
 // Stripe subscription routes (keeping for reference but using payment intent for testing)
-app.post('/api/create-subscription', isAuthenticated, async (req: any, res) => {
+app.post('/api/create-subscription',  async (req: any, res) => {
   try {
     const userId = req.user.claims.sub;
     const { priceId, billingPeriod, amount, planName, planId } = req.body;
@@ -2001,7 +2002,7 @@ app.post('/api/create-subscription', isAuthenticated, async (req: any, res) => {
   }
 });
 
-app.get('/api/subscription-status', isAuthenticated, async (req: any, res) => {
+app.get('/api/subscription-status',  async (req: any, res) => {
   try {
     const userId = req.user.claims.sub;
     const user = await storage.getUser(userId);
@@ -2040,7 +2041,7 @@ app.get('/api/profiles/:userId', async (req, res) => {
 // Parents/Clients routes moved to AFTER auth setup for proper session context
 
 // Cases routes - for advocates to see their active cases
-app.get('/api/cases-old-disabled', isAuthenticated, async (req: any, res) => {
+app.get('/api/cases-old-disabled',  async (req: any, res) => {
   try {
     const userId = await getUserId(req);
     if (userId === 'anonymous-user') {
@@ -2859,7 +2860,7 @@ app.post('/api/meetings', async (req, res) => {
 });
 
 // Parents routes - Get advocate's parent clients
-app.get('/api/parents', isAuthenticated, async (req, res) => {
+app.get('/api/parents',  async (req, res) => {
   try {
     const userId = await getUserId(req);
     console.log('✅ PRODUCTION: Fetching parent clients for advocate user:', userId);
@@ -2931,7 +2932,7 @@ app.get('/api/parents', isAuthenticated, async (req, res) => {
   }
 });
 
-app.post('/api/parents', isAuthenticated, async (req, res) => {
+app.post('/api/parents',  async (req, res) => {
   try {
     const userId = await getUserId(req);
     console.log('✅ PRODUCTION: Creating parent account by user:', userId);
@@ -3016,7 +3017,7 @@ app.get('/api/advocates', async (req, res) => {
 });
 
 // Get advocates with accepted relationships for current parent user
-app.get('/api/advocates/for-parent', isAuthenticated, async (req, res) => {
+app.get('/api/advocates/for-parent',  async (req, res) => {
   try {
     const userId = await getUserId(req);
     console.log(`✅ PRODUCTION: Getting advocates for parent user: ${userId}`);
@@ -3303,7 +3304,7 @@ app.post('/api/iep-action-draft', async (req, res) => {
 });
 
 // Invite parent endpoint (replaces invite-parent edge function)
-app.post('/api/invite-parent', isAuthenticated, async (req, res) => {
+app.post('/api/invite-parent',  async (req, res) => {
   try {
     const { email, firstName, lastName } = req.body;
     
@@ -3754,7 +3755,7 @@ app.get('/health', (req, res) => {
 });
 
 
-app.get('/api/students', isAuthenticated, async (req: any, res) => {
+app.get('/api/students',  async (req: any, res) => {
   try {
     const userId = await getUserId(req);
     console.log('✅ PRODUCTION: Getting students for authenticated user:', userId);
@@ -4699,7 +4700,7 @@ app.post('/api/gifted_assessments/leadership', async (req: any, res) => {
   }
 });
 
-app.get('/api/cases', isAuthenticated, async (req: any, res) => {
+app.get('/api/cases',  async (req: any, res) => {
   try {
     const userId = await getUserId(req);
     console.log('✅ PRODUCTION: Getting cases for authenticated user:', userId);
@@ -4791,7 +4792,7 @@ app.get('/api/cases', isAuthenticated, async (req: any, res) => {
 });
 
 // POST /api/cases - Create new case
-app.post('/api/cases', isAuthenticated, async (req: any, res) => {
+app.post('/api/cases',  async (req: any, res) => {
   try {
     const userId = await getUserId(req);
     const { student_id, title, description, status = 'active' } = req.body;
@@ -4856,7 +4857,7 @@ app.post('/api/cases', isAuthenticated, async (req: any, res) => {
 // Initialize server with proper authentication setup
 (async () => {
   console.log('Setting up Replit Auth...');
-  await setupAuth(app);
+  await // Removed setupAuth - using token-only authentication
   console.log('Replit Auth setup completed successfully');
   
   // Setup complete

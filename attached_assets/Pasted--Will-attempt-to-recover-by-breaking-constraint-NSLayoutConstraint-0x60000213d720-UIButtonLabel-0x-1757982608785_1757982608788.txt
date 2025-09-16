@@ -1,0 +1,26 @@
+
+Will attempt to recover by breaking constraint 
+<NSLayoutConstraint:0x60000213d720 UIButtonLabel:0x105623c10.centerY == _UIModernBarButton:0x105544eb0.centerY + 1.5   (active)>
+
+Make a symbolic breakpoint at UIViewAlertForUnsatisfiableConstraints to catch this in the debugger.
+The methods in the UIConstraintBasedLayoutDebugging category on UIView listed in <UIKitCore/UIView.h> may also be helpful.
+-[RTIInputSystemClient remoteTextInputSessionWithID:textSuggestionsChanged:]  Can only set suggestions for an active session. sessionID = 6B0B1F39-0CCA-4D2B-9928-110CE01C15E8
+Unable to simultaneously satisfy constraints.
+	Probably at least one of the constraints in the following list is one you don't want. 
+	Try this: 
+		(1) look at each constraint and try to figure out which you don't expect; 
+		(2) find the code that added the unwanted constraint or constraints and fix it. 
+(
+    "<NSLayoutConstraint:0x6000021356d0 'accessoryView.bottom' _UIRemoteKeyboardPlaceholderView:0x10560b5e0.bottom == _UIKBCompatInputView:0x10571d230.top   (active)>",
+    "<NSLayoutConstraint:0x60000213f7a0 'assistantHeight' SystemInputAssistantView.height == 72   (active, names: SystemInputAssistantView:0x10552fd90 )>",
+    "<NSLayoutConstraint:0x600002135360 'assistantView.bottom' SystemInputAssistantView.bottom == _UIKBCompatInputView:0x10571d230.top   (active, names: SystemInputAssistantView:0x10552fd90 )>",
+    "<NSLayoutConstraint:0x600002135040 'assistantView.top' V:[_UIRemoteKeyboardPlaceholderView:0x10560b5e0]-(0)-[SystemInputAssistantView]   (active, names: SystemInputAssistantView:0x10552fd90 )>"
+)
+
+Will attempt to recover by breaking constraint 
+<NSLayoutConstraint:0x60000213f7a0 'assistantHeight' SystemInputAssistantView.height == 72   (active, names: SystemInputAssistantView:0x10552fd90 )>
+
+Make a symbolic breakpoint at UIViewAlertForUnsatisfiableConstraints to catch this in the debugger.
+The methods in the UIConstraintBasedLayoutDebugging category on UIView listed in <UIKitCore/UIView.h> may also be helpful.
+⚡️  [error] - Login error: {}
+-[RTIInputSystemClient remoteTextInputSessionWithID:performInputOperation:]  perform input operation requires a valid sessionID. inputModality = Keyboard, inputOperation = <null selector>, customInfoType = UIEmojiSearchOperations

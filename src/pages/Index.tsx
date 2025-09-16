@@ -96,6 +96,19 @@ const Index = () => {
                 </p>
               </div>
 
+              {/* TEST BUTTON - Remove after verification */}
+              <div className="mb-4">
+                <Button 
+                  onClick={() => alert('✅ TEST SUCCESS! You are viewing the correct file. This button was added to verify we are working on the same codebase.')}
+                  variant="destructive"
+                  size="lg"
+                  className="w-full bg-red-500 hover:bg-red-600 text-white font-bold"
+                  data-testid="button-test-verification"
+                >
+                  🧪 TEST BUTTON - Click to verify you see changes!
+                </Button>
+              </div>
+
               {/* Auth Section */}
               <div className="space-y-6">
                 {user ? (

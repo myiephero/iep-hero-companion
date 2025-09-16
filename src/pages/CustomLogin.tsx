@@ -6,6 +6,7 @@ import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
 import { Loader2, Eye, EyeOff, ArrowLeft } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import { resolveApiUrl } from '@/lib/apiConfig';
 
 export default function CustomLogin() {
   const [email, setEmail] = useState('');
@@ -19,7 +20,7 @@ export default function CustomLogin() {
     setIsLoading(true);
 
     try {
-      const response = await fetch('/api/custom-login', {
+      const response = await fetch(resolveApiUrl('/api/custom-login'), {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         credentials: 'include', // Important for session cookies

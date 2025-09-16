@@ -20,7 +20,17 @@ export default function CustomLogin() {
     setIsLoading(true);
 
     try {
-      const response = await fetch(resolveApiUrl('/api/custom-login'), {
+      // 🔧 MOBILE DEBUG: Simple approach for mobile API calls
+      const isMobile = typeof window !== 'undefined' && 
+        (window.location.protocol === 'capacitor:' || window.location.protocol === 'file:');
+      
+      const apiUrl = isMobile 
+        ? 'https://afd4ab41-fa60-4e78-9742-69bb4e3004d6-00-6i79wn87wfhu.janeway.replit.dev/api/custom-login'
+        : '/api/custom-login';
+      
+      console.log('🔍 Login attempt - Mobile:', isMobile, 'URL:', apiUrl);
+      
+      const response = await fetch(apiUrl, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         credentials: 'include', // Important for session cookies

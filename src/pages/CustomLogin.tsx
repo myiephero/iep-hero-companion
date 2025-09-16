@@ -30,8 +30,8 @@ export default function CustomLogin() {
 
       if (response.ok) {
         // 📱 MOBILE FIX: Store auth token for mobile environments
-        if (data.authToken) {
-          localStorage.setItem('authToken', data.authToken);
+        if (data.token) {
+          localStorage.setItem('authToken', data.token);
           console.log('✅ Mobile Login: Auth token stored successfully');
         }
         

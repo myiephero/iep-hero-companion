@@ -88,7 +88,7 @@ const Index = () => {
             <div className="space-y-8">
               <div className="space-y-4">
                 <h1 className="text-4xl lg:text-6xl font-bold leading-tight">
-                  Empower Your Child's{" "}
+                  🧪 TEST: Empower Your Child's{" "}
                   <span className="text-primary">IEP Journey</span>
                 </h1>
                 <p className="text-xl text-muted-foreground leading-relaxed">
@@ -96,17 +96,19 @@ const Index = () => {
                 </p>
               </div>
 
-              {/* TEST BUTTON - Remove after verification */}
-              <div className="mb-4">
+              {/* MASSIVE TEST SECTION - Cannot be missed */}
+              <div className="bg-red-500 p-8 mb-4 rounded-lg">
+                <h2 className="text-white text-2xl font-bold mb-4">🚨 MASSIVE TEST SECTION 🚨</h2>
                 <Button 
                   onClick={() => alert('✅ TEST SUCCESS! You are viewing the correct file. This button was added to verify we are working on the same codebase.')}
-                  variant="destructive"
+                  variant="secondary"
                   size="lg"
-                  className="w-full bg-red-500 hover:bg-red-600 text-white font-bold"
+                  className="w-full bg-yellow-400 hover:bg-yellow-500 text-black font-bold text-xl py-4"
                   data-testid="button-test-verification"
                 >
-                  🧪 TEST BUTTON - Click to verify you see changes!
+                  🧪 GIANT TEST BUTTON - Click to verify you see changes!
                 </Button>
+                <p className="text-white mt-4 text-lg">If you see this, the cache is cleared!</p>
               </div>
 
               {/* Auth Section */}

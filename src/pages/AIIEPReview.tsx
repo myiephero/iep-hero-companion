@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { DashboardLayout } from "@/layouts/DashboardLayout";
+// DashboardLayout removed - provided by ToolsRoute wrapper
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -301,7 +301,6 @@ export default function AIIEPReview() {
   };
 
   return (
-    <DashboardLayout>
       <div className="space-y-6">
         {/* Header */}
         <div>
@@ -604,6 +603,5 @@ export default function AIIEPReview() {
           </div>
         </div>
       </div>
-    </DashboardLayout>
   );
 }

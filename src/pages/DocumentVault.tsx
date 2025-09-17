@@ -620,9 +620,7 @@ const DocumentVault: React.FC = () => {
                         )}
                       </div>
                     </div>
-                  </div>
-                </div>
-              </PremiumCard>
+                  </PremiumCard>
                 )}
 
                 {/* Premium Documents Display */}

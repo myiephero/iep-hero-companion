@@ -1,4 +1,4 @@
-import { DashboardLayout } from "@/layouts/DashboardLayout";
+// DashboardLayout removed - provided by ToolsRoute wrapper
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -837,7 +837,6 @@ export default function ParentGoalGenerator() {
   );
 
   return (
-    <DashboardLayout>
       <div className="max-w-4xl mx-auto space-y-6">
         <div className="space-y-2">
           <h1 className="text-3xl font-bold tracking-tight">IEP Goal Helper for Parents</h1>
@@ -895,6 +894,5 @@ export default function ParentGoalGenerator() {
         {activeTab === 'generate' && renderGenerateTab()}
         {activeTab === 'check' && renderCheckTab()}
       </div>
-    </DashboardLayout>
   );
 }

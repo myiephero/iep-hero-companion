@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { DashboardLayout } from "@/layouts/DashboardLayout";
+// DashboardLayout removed - provided by ToolsRoute wrapper
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -133,12 +133,11 @@ export default function TimelineCalculator() {
   };
 
   return (
-    <DashboardLayout>
       <div className="space-y-6">
         {/* Header */}
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-4">
-            <Link href="/parent/tools/smart-letter-generator">
+            <Link to="/parent/tools/smart-letter-generator">
               <Button variant="outline" size="sm">
                 <ArrowLeft className="h-4 w-4 mr-2" />
                 Back to Tools
@@ -390,17 +389,17 @@ export default function TimelineCalculator() {
                 <CardTitle>Related Tools</CardTitle>
               </CardHeader>
               <CardContent className="space-y-2">
-                <Link href="/parent/tools/smart-letter-generator">
+                <Link to="/parent/tools/smart-letter-generator">
                   <Button variant="ghost" size="sm" className="w-full justify-start">
                     Generate Follow-up Letter
                   </Button>
                 </Link>
-                <Link href="/idea-rights-guide">
+                <Link to="/idea-rights-guide">
                   <Button variant="ghost" size="sm" className="w-full justify-start">
                     IDEA Rights Guide
                   </Button>
                 </Link>
-                <Link href="/ferpa-overview">
+                <Link to="/ferpa-overview">
                   <Button variant="ghost" size="sm" className="w-full justify-start">
                     FERPA Overview
                   </Button>
@@ -410,6 +409,5 @@ export default function TimelineCalculator() {
           </div>
         </div>
       </div>
-    </DashboardLayout>
   );
 }

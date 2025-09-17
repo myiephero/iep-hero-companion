@@ -483,6 +483,8 @@ const DocumentVault: React.FC = () => {
                   </TabsList>
                 </div>
               </div>
+            </Tabs>
+          </PremiumCard>
 
           <TabsContent value={activeTab} className="space-y-6">
             {/* Enhanced Search and Filter */}

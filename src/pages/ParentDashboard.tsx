@@ -475,10 +475,10 @@ export default function ParentDashboard({ plan }: ParentDashboardProps) {
                   e.stopPropagation();
                   console.log('🚀 Explore Premium Tools clicked!');
                   try {
-                    navigate('/parent/tools/emergent');
+                    navigate('/parent/tools');
                   } catch (error) {
                     console.error('Navigation error:', error);
-                    window.location.href = '/parent/tools/emergent';
+                    window.location.href = '/parent/tools';
                   }
                 }}
                 data-testid="button-explore-premium-tools"

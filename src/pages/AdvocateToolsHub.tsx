@@ -1,8 +1,7 @@
 import { DashboardLayout } from "@/layouts/DashboardLayout";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import { UpgradeDialog } from "@/components/UpgradePrompt";
 import { useToolAccess } from "@/hooks/useToolAccess";
 import { useAuth } from "@/hooks/useAuth";
@@ -17,6 +16,21 @@ import {
   getNewTools,
   type AdvocateTool
 } from "@/lib/advocateToolsRegistry";
+import {
+  ContainerMobile,
+  MobileCard,
+  MobileCardInteractive,
+  MobileH1,
+  MobileH2,
+  MobileH3,
+  MobileBody,
+  MobileBodySmall,
+  MobileCaption,
+  SafeAreaFull,
+  ActionBar,
+  BottomSheet,
+  BottomSheetControlled
+} from "@/components/mobile";
 import { 
   Brain, 
   FileText, 
@@ -42,7 +56,10 @@ import {
   Lock,
   ArrowRight,
   Check,
-  DollarSign
+  DollarSign,
+  Search,
+  Filter,
+  Settings
 } from "lucide-react";
 import { useState } from "react";
 
@@ -97,130 +114,375 @@ interface ToolCardProps {
   tool: AdvocateTool;
   hasAccess: boolean;
   currentPlan: SubscriptionPlan;
+  onUpgradeClick?: () => void;
 }
 
-function ToolCard({ tool, hasAccess, currentPlan }: ToolCardProps) {
+// Mobile-Native General Upgrade Bottom Sheet Component
+function MobileGeneralUpgradeBottomSheet({ 
+  isOpen, 
+  onClose, 
+  currentPlan 
+}: { 
+  isOpen: boolean; 
+  onClose: () => void; 
+  currentPlan: SubscriptionPlan;
+}) {
+  const planOptions = [
+    {
+      plan: 'pro' as SubscriptionPlan,
+      name: 'Pro',
+      price: '$29/month',
+      features: ['All Pro tools', 'Priority support', 'Advanced analytics', 'Goal tracking'],
+      highlight: false
+    },
+    {
+      plan: 'agency' as SubscriptionPlan,
+      name: 'Agency',
+      price: '$99/month',
+      features: ['All Agency tools', 'Team collaboration', 'Custom templates', 'Client management'],
+      highlight: true
+    },
+    {
+      plan: 'agency-plus' as SubscriptionPlan,
+      name: 'Agency Plus',
+      price: '$199/month',
+      features: ['Everything included', 'White-label options', 'API access', 'Custom integrations'],
+      highlight: false
+    }
+  ];
+
+  const availablePlans = planOptions.filter(p => p.plan !== currentPlan);
+
+  return (
+    <BottomSheetControlled
+      isOpen={isOpen}
+      onClose={onClose}
+      title="Upgrade Your Plan"
+      description="Unlock all professional advocacy tools and features"
+    >
+      <div className="space-y-6">
+        {/* Current Plan */}
+        <MobileCard variant="outline" padding="md" className="bg-muted/20">
+          <div className="text-center space-y-2">
+            <MobileCaption>Your Current Plan</MobileCaption>
+            <div className="flex items-center justify-center gap-2">
+              <Badge className={getPlanBadgeColor(currentPlan)}>
+                {getPlanDisplayName(currentPlan)}
+              </Badge>
+            </div>
+          </div>
+        </MobileCard>
+
+        {/* Upgrade Options */}
+        <div className="space-y-4">
+          <MobileH3>Choose Your Upgrade</MobileH3>
+          <div className="space-y-3">
+            {availablePlans.map((planOption) => (
+              <MobileCard 
+                key={planOption.plan}
+                variant={planOption.highlight ? "elevated" : "outline"}
+                padding="md" 
+                className={`cursor-pointer transition-all duration-200 active:scale-[0.98] ${
+                  planOption.highlight 
+                    ? 'bg-gradient-to-r from-primary/5 to-accent/5 border-primary/20' 
+                    : 'hover:bg-muted/10'
+                }`}
+              >
+                <div className="space-y-4">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <div className="flex items-center gap-2">
+                        <MobileH3>{planOption.name}</MobileH3>
+                        {planOption.highlight && (
+                          <Badge className="bg-gradient-to-r from-orange-100 to-pink-100 text-orange-800 border-orange-200 text-xs">
+                            Recommended
+                          </Badge>
+                        )}
+                      </div>
+                      <div className="text-2xl font-bold text-primary mt-1">
+                        {planOption.price}
+                      </div>
+                    </div>
+                  </div>
+                  
+                  <div className="space-y-2">
+                    {planOption.features.map((feature, index) => (
+                      <div key={index} className="flex items-center gap-3">
+                        <div className="w-5 h-5 rounded-full bg-green-100 dark:bg-green-900 flex items-center justify-center">
+                          <Check className="h-3 w-3 text-green-600 dark:text-green-400" />
+                        </div>
+                        <MobileBody className="text-sm">{feature}</MobileBody>
+                      </div>
+                    ))}
+                  </div>
+
+                  <Button 
+                    className={`w-full min-h-[44px] ${
+                      planOption.highlight 
+                        ? 'bg-gradient-to-r from-primary to-primary/90' 
+                        : 'bg-primary'
+                    }`}
+                    data-testid={`button-upgrade-to-${planOption.plan}`}
+                  >
+                    <Crown className="h-4 w-4 mr-2" />
+                    Upgrade to {planOption.name}
+                  </Button>
+                </div>
+              </MobileCard>
+            ))}
+          </div>
+        </div>
+
+        {/* Action Buttons */}
+        <div className="pt-4">
+          <Button 
+            variant="outline" 
+            className="w-full min-h-[44px]"
+            onClick={onClose}
+            data-testid="button-maybe-later-main"
+          >
+            Maybe Later
+          </Button>
+        </div>
+      </div>
+    </BottomSheetControlled>
+  );
+}
+
+// Mobile-Native Tool-Specific Upgrade Bottom Sheet Component
+function MobileUpgradeBottomSheet({ 
+  isOpen, 
+  onClose, 
+  tool, 
+  currentPlan 
+}: { 
+  isOpen: boolean; 
+  onClose: () => void; 
+  tool: AdvocateTool;
+  currentPlan: SubscriptionPlan;
+}) {
+  const planPrices = {
+    'starter': '$9/month',
+    'pro': '$29/month', 
+    'agency': '$99/month',
+    'agency-plus': '$199/month'
+  };
+
+  const planFeatures = {
+    'starter': ['Basic tools', 'Email support'],
+    'pro': ['All Pro tools', 'Priority support', 'Advanced analytics'],
+    'agency': ['All Agency tools', 'Team collaboration', 'Custom templates'],
+    'agency-plus': ['Everything included', 'White-label options', 'API access']
+  };
+
+  return (
+    <BottomSheetControlled
+      isOpen={isOpen}
+      onClose={onClose}
+      title={`Upgrade to ${getPlanDisplayName(tool.requiredPlan)}`}
+      description={`Unlock ${tool.title} and all premium features`}
+    >
+      <div className="space-y-6">
+        {/* Tool Preview */}
+        <MobileCard variant="outline" padding="md" className="bg-gradient-to-r from-primary/5 to-primary/10">
+          <div className="flex items-center gap-4">
+            <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-primary/10 to-accent/10 flex items-center justify-center">
+              <tool.icon className="h-6 w-6 text-primary" />
+            </div>
+            <div className="flex-1">
+              <MobileH3>{tool.title}</MobileH3>
+              <MobileBodySmall className="text-muted-foreground">
+                {tool.description}
+              </MobileBodySmall>
+            </div>
+          </div>
+        </MobileCard>
+
+        {/* Plan Benefits */}
+        <div className="space-y-4">
+          <MobileH3>What's Included in {getPlanDisplayName(tool.requiredPlan)}</MobileH3>
+          <div className="space-y-3">
+            {(planFeatures[tool.requiredPlan] || planFeatures.pro).map((feature, index) => (
+              <div key={index} className="flex items-center gap-3">
+                <div className="w-6 h-6 rounded-full bg-green-100 dark:bg-green-900 flex items-center justify-center">
+                  <Check className="h-4 w-4 text-green-600 dark:text-green-400" />
+                </div>
+                <MobileBody>{feature}</MobileBody>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Pricing */}
+        <MobileCard variant="elevated" padding="md" className="bg-gradient-to-r from-primary/5 to-accent/5">
+          <div className="text-center space-y-2">
+            <div className="text-3xl font-bold text-primary">
+              {planPrices[tool.requiredPlan] || planPrices.pro}
+            </div>
+            <MobileCaption>Billed monthly, cancel anytime</MobileCaption>
+          </div>
+        </MobileCard>
+
+        {/* Action Buttons */}
+        <div className="space-y-3 pt-4">
+          <Button 
+            className="w-full min-h-[52px] text-lg bg-gradient-to-r from-primary to-primary/90"
+            data-testid="button-upgrade-plan"
+          >
+            <Crown className="h-5 w-5 mr-2" />
+            Upgrade to {getPlanDisplayName(tool.requiredPlan)}
+          </Button>
+          <Button 
+            variant="outline" 
+            className="w-full min-h-[44px]"
+            onClick={onClose}
+            data-testid="button-maybe-later"
+          >
+            Maybe Later
+          </Button>
+        </div>
+      </div>
+    </BottomSheetControlled>
+  );
+}
+
+function ToolCard({ tool, hasAccess, currentPlan, onUpgradeClick }: ToolCardProps) {
   const [showUpgrade, setShowUpgrade] = useState(false);
 
   if (!hasAccess) {
     return (
-      <Card 
-        data-testid={`tool-card-locked-${tool.id}`}
-        className="relative overflow-hidden border-2 border-dashed border-muted-foreground/30 bg-gradient-to-br from-muted/10 to-muted/5 hover:from-muted/20 hover:to-muted/10 transition-all duration-300"
-      >
-        <CardHeader className="pb-3 pt-4 px-4">
-          <div className="flex flex-col items-center text-center space-y-3">
-            <div className="relative w-14 h-14 rounded-xl bg-gradient-to-br from-muted/20 to-muted/40 flex items-center justify-center text-muted-foreground">
-              <tool.icon className="h-7 w-7" />
-              <div className="absolute -top-1 -right-1 w-6 h-6 bg-muted-foreground/80 rounded-full flex items-center justify-center">
-                <Lock className="h-3 w-3 text-background" />
+      <>
+        <MobileCard 
+          data-testid={`tool-card-locked-${tool.id}`}
+          variant="outline"
+          className="border-2 border-dashed border-muted-foreground/30 bg-gradient-to-br from-muted/10 to-muted/5 active:from-muted/20 active:to-muted/10 transition-all duration-200 cursor-pointer"
+          padding="md"
+          onClick={() => setShowUpgrade(true)}
+        >
+          <div className="flex items-center gap-4 p-2">
+            {/* Icon Section */}
+            <div className="flex-shrink-0">
+              <div className="relative w-16 h-16 rounded-xl bg-gradient-to-br from-muted/20 to-muted/40 flex items-center justify-center text-muted-foreground">
+                <tool.icon className="h-8 w-8" />
+                <div className="absolute -top-1 -right-1 w-7 h-7 bg-muted-foreground/80 rounded-full flex items-center justify-center">
+                  <Lock className="h-4 w-4 text-background" />
+                </div>
               </div>
             </div>
-            <div className="space-y-2">
-              <div className="flex items-center gap-2 flex-wrap justify-center">
-                <Badge className={`text-xs px-2 py-1 font-medium ${getBadgeVariant(tool.badge)}`}>
-                  {tool.badge}
-                </Badge>
-                <Badge className={`text-xs px-2 py-1 font-medium ${getPlanBadgeColor(tool.requiredPlan)}`}>
-                  {getPlanDisplayName(tool.requiredPlan)} Required
-                </Badge>
+
+            {/* Content Section */}
+            <div className="flex-1 min-w-0 space-y-3">
+              <div className="space-y-2">
+                <div className="flex items-center gap-2 flex-wrap">
+                  <Badge className={`text-sm px-2 py-1 font-medium ${getBadgeVariant(tool.badge)}`}>
+                    {tool.badge}
+                  </Badge>
+                  <Badge className={`text-xs px-2 py-1 ${getPlanBadgeColor(tool.requiredPlan)}`}>
+                    {getPlanDisplayName(tool.requiredPlan)} Required
+                  </Badge>
+                </div>
+                <MobileH3 className="text-muted-foreground leading-tight">
+                  {tool.title}
+                </MobileH3>
               </div>
-              <CardTitle className="text-sm font-semibold text-muted-foreground leading-tight">
-                {tool.title}
-              </CardTitle>
-            </div>
-          </div>
-        </CardHeader>
-        
-        <CardContent className="pt-0 px-4 pb-4 flex-1 flex flex-col justify-between">
-          <div className="space-y-3 flex-1">
-            <p className="text-xs text-muted-foreground text-center leading-relaxed">
-              {tool.description}
-            </p>
-            <div className="text-xs text-center">
-              <div className="flex items-center justify-center gap-1 text-muted-foreground/70">
-                <Crown className="h-3 w-3" />
-                <span>Unlock with {getPlanDisplayName(tool.requiredPlan)}</span>
+              
+              <MobileBodySmall className="leading-relaxed">
+                {tool.description}
+              </MobileBodySmall>
+              
+              <div className="flex items-center gap-1 text-muted-foreground/70">
+                <Crown className="h-4 w-4" />
+                <MobileCaption>Tap to unlock with {getPlanDisplayName(tool.requiredPlan)}</MobileCaption>
               </div>
             </div>
           </div>
           
           <Button 
             variant="outline"
-            size="sm" 
-            className="w-full text-xs py-2 border-dashed border-muted-foreground/50 bg-muted/10 text-muted-foreground hover:bg-muted/20 hover:text-muted-foreground hover:border-muted-foreground/70"
-            onClick={() => setShowUpgrade(true)}
+            className="w-full mt-4 min-h-[44px] text-base border-dashed border-muted-foreground/50 bg-muted/10 text-muted-foreground active:bg-muted/20 active:scale-95 transition-all duration-150"
+            onClick={(e) => {
+              e.stopPropagation();
+              setShowUpgrade(true);
+            }}
             data-testid={`button-upgrade-${tool.id}`}
           >
-            <Lock className="h-3 w-3 mr-1" />
+            <Lock className="h-4 w-4 mr-2" />
             Upgrade to Access
           </Button>
-        </CardContent>
+        </MobileCard>
 
-        <UpgradeDialog
-          open={showUpgrade}
-          onOpenChange={setShowUpgrade}
-          requiredPlan={tool.requiredPlan}
-          toolName={tool.title}
-          benefits={tool.features}
+        <MobileUpgradeBottomSheet
+          isOpen={showUpgrade}
+          onClose={() => setShowUpgrade(false)}
+          tool={tool}
+          currentPlan={currentPlan}
         />
-      </Card>
+      </>
     );
   }
 
   return (
-    <Card 
-      data-testid={`tool-card-unlocked-${tool.id}`}
-      className="card-elevated group cursor-pointer transform hover:scale-[1.02] transition-all duration-300 hover:shadow-xl hover:shadow-primary/10 flex flex-col"
-    >
-      <CardHeader className="pb-3 pt-4 px-4 flex-shrink-0">
-        <div className="flex flex-col items-center text-center space-y-3">
-          <div className="w-14 h-14 rounded-xl bg-gradient-to-br from-primary/10 to-accent/10 flex items-center justify-center text-primary group-hover:from-primary group-hover:to-accent group-hover:text-primary-foreground transition-all duration-300 shadow-lg group-hover:shadow-xl">
-            <tool.icon className="h-7 w-7" />
-          </div>
-          <div className="space-y-2">
-            <div className="flex items-center gap-2 flex-wrap justify-center">
-              <Badge className={`text-xs px-2 py-1 font-medium shadow-sm ${getBadgeVariant(tool.badge)}`}>
-                {tool.badge}
-              </Badge>
-              {tool.isPopular && (
-                <Badge className="text-xs px-2 py-1 font-medium bg-gradient-to-r from-yellow-100 to-orange-100 text-orange-800 border-orange-200">
-                  <Star className="h-3 w-3 mr-1" />
-                  Popular
-                </Badge>
-              )}
-              {tool.isNew && (
-                <Badge className="text-xs px-2 py-1 font-medium bg-gradient-to-r from-green-100 to-emerald-100 text-green-800 border-green-200">
-                  New
-                </Badge>
-              )}
+    <Link to={tool.route} className="block" data-testid={`tool-card-link-${tool.id}`}>
+      <MobileCardInteractive 
+        data-testid={`tool-card-unlocked-${tool.id}`}
+        className="group active:scale-[0.98] transition-all duration-150 cursor-pointer"
+        padding="md"
+      >
+        <div className="flex items-center gap-4 p-2">
+          {/* Icon Section */}
+          <div className="flex-shrink-0">
+            <div className="w-16 h-16 rounded-xl bg-gradient-to-br from-primary/10 to-accent/10 flex items-center justify-center text-primary group-active:from-primary group-active:to-accent group-active:text-primary-foreground transition-all duration-200 shadow-md">
+              <tool.icon className="h-8 w-8" />
             </div>
-            <CardTitle className="text-sm font-semibold group-hover:text-primary transition-colors leading-tight dark:text-gray-100">
-              {tool.title}
-            </CardTitle>
           </div>
-        </div>
-      </CardHeader>
-      
-      <CardContent className="pt-0 px-4 pb-4 flex-1 flex flex-col justify-between">
-        <div className="space-y-3 flex-1 flex items-center">
-          <p className="text-xs text-gray-600 dark:text-gray-300 text-center leading-relaxed">
-            {tool.description}
-          </p>
+
+          {/* Content Section */}
+          <div className="flex-1 min-w-0 space-y-3">
+            <div className="space-y-2">
+              <div className="flex items-center gap-2 flex-wrap">
+                <Badge className={`text-sm px-2 py-1 font-medium shadow-sm ${getBadgeVariant(tool.badge)}`}>
+                  {tool.badge}
+                </Badge>
+                {tool.isPopular && (
+                  <Badge className="text-sm px-2 py-1 font-medium bg-gradient-to-r from-yellow-100 to-orange-100 text-orange-800 border-orange-200">
+                    <Star className="h-3 w-3 mr-1" />
+                    Popular
+                  </Badge>
+                )}
+                {tool.isNew && (
+                  <Badge className="text-sm px-2 py-1 font-medium bg-gradient-to-r from-green-100 to-emerald-100 text-green-800 border-green-200">
+                    New
+                  </Badge>
+                )}
+              </div>
+              <MobileH3 className="group-active:text-primary transition-colors leading-tight">
+                {tool.title}
+              </MobileH3>
+            </div>
+            
+            <MobileBody className="leading-relaxed">
+              {tool.description}
+            </MobileBody>
+            
+            <div className="flex items-center gap-1 text-muted-foreground/70">
+              <ArrowRight className="h-4 w-4" />
+              <MobileCaption>Tap to open tool</MobileCaption>
+            </div>
+          </div>
         </div>
         
         <Button 
           asChild 
-          size="sm" 
-          className="w-full text-xs py-2 bg-gradient-to-r from-primary to-primary/90 hover:from-primary/90 hover:to-primary dark:from-primary dark:to-primary/90 shadow-sm"
+          className="w-full mt-4 min-h-[44px] text-base bg-gradient-to-r from-primary to-primary/90 active:from-primary/90 active:to-primary active:scale-95 transition-all duration-150 shadow-sm pointer-events-none"
           data-testid={`button-open-${tool.id}`}
         >
-          <Link to={tool.route}>
+          <div>
+            <ArrowRight className="h-4 w-4 mr-2" />
             Open Tool
-          </Link>
+          </div>
         </Button>
-      </CardContent>
-    </Card>
+      </MobileCardInteractive>
+    </Link>
   );
 }
 
@@ -228,6 +490,9 @@ export default function AdvocateToolsHub() {
   const { user } = useAuth();
   const { canUse, currentPlan } = useToolAccess();
   const [selectedCategory, setSelectedCategory] = useState<string>('All');
+  const [searchTerm, setSearchTerm] = useState('');
+  const [showFilters, setShowFilters] = useState(false);
+  const [showMainUpgrade, setShowMainUpgrade] = useState(false);
 
   const categories = getCategoriesWithCounts();
   const popularTools = getPopularTools();
@@ -237,149 +502,331 @@ export default function AdvocateToolsHub() {
     ? allAdvocateTools 
     : getToolsByCategory(selectedCategory);
 
+  const searchedTools = searchTerm 
+    ? filteredTools.filter(tool => 
+        tool.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        tool.description.toLowerCase().includes(searchTerm.toLowerCase())
+      )
+    : filteredTools;
+
   return (
     <DashboardLayout>
-      <div className="space-y-8">
-        {/* Hero Section */}
-        <div className="text-center space-y-4">
-          <div className="flex items-center justify-center gap-2 mb-4">
-            <Users className="h-8 w-8 text-primary" />
-            <h1 className="text-4xl font-bold">Professional Advocate Tools</h1>
-          </div>
-          <p className="text-xl text-muted-foreground max-w-3xl mx-auto">
-            Complete professional toolkit for special education advocacy. 
-            Access tools based on your subscription tier with seamless upgrade options.
-          </p>
-          <div className="flex items-center justify-center gap-4 pt-4">
-            <Badge variant="outline" className="bg-purple-50 text-purple-700 border-purple-200">
-              <TrendingUp className="h-3 w-3 mr-1" />
-              {allAdvocateTools.length} Professional Tools
-            </Badge>
-            <Badge variant="outline" className="bg-blue-50 text-blue-700 border-blue-200">
-              <Brain className="h-3 w-3 mr-1" />
-              AI-Powered
-            </Badge>
-            <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200">
-              <Scale className="h-3 w-3 mr-1" />
-              Legal Compliance
-            </Badge>
-            <Badge variant="outline" className={`${getPlanBadgeColor(currentPlan)}`}>
-              Your Plan: {getPlanDisplayName(currentPlan)}
-            </Badge>
-          </div>
+      <SafeAreaFull>
+        {/* Sticky Category Filter Bar */}
+        <div className="sticky top-0 z-40 bg-background/95 backdrop-blur border-b border-border">
+          <ContainerMobile padding="sm">
+            <div className="py-3">
+              <div className="flex gap-2 overflow-x-auto scrollbar-hide">
+                <Button
+                  variant={selectedCategory === 'All' ? 'default' : 'outline'}
+                  size="sm"
+                  className="whitespace-nowrap"
+                  onClick={() => setSelectedCategory('All')}
+                  data-testid="filter-all"
+                >
+                  All ({allAdvocateTools.length})
+                </Button>
+                {categories.map((cat) => (
+                  <Button
+                    key={cat.category}
+                    variant={selectedCategory === cat.category ? 'default' : 'outline'}
+                    size="sm"
+                    className="whitespace-nowrap"
+                    onClick={() => setSelectedCategory(cat.category)}
+                    data-testid={`filter-${cat.category.replace(/\s+/g, '-').toLowerCase()}`}
+                  >
+                    {cat.category} ({cat.count})
+                  </Button>
+                ))}
+              </div>
+            </div>
+          </ContainerMobile>
         </div>
 
-        {/* Quick Stats & Popular Tools */}
-        {popularTools.length > 0 && (
-          <Card className="bg-gradient-to-r from-primary/5 to-primary/10">
-            <CardContent className="p-6">
-              <div className="flex items-center justify-between mb-4">
-                <h3 className="text-lg font-semibold flex items-center gap-2">
-                  <Star className="h-5 w-5 text-yellow-500" />
-                  Popular Tools
-                </h3>
-                {newTools.length > 0 && (
-                  <Badge className="bg-green-100 text-green-800 border-green-200">
-                    {newTools.length} New Tools
-                  </Badge>
-                )}
+        <ContainerMobile padding="md" className="space-y-6 pb-32">
+          {/* Hero Section */}
+          <div className="text-center space-y-4 pt-4">
+            <div className="flex items-center justify-center gap-3 mb-4">
+              <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-primary/10 to-accent/10 flex items-center justify-center">
+                <Users className="h-7 w-7 text-primary" />
               </div>
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-2 sm:gap-3">
-                {popularTools.map((tool) => {
-                  const hasAccess = canUse(tool.requiredFeature);
-                  return (
-                    <div key={tool.id} className="flex items-center gap-2 p-2 rounded bg-white/50 dark:bg-gray-800/50">
-                      <div className={`p-2 rounded-lg ${hasAccess ? 'bg-primary/10 text-primary' : 'bg-muted/20 text-muted-foreground'}`}>
-                        <tool.icon className="h-4 w-4" />
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <div className="text-sm font-medium truncate">{tool.title}</div>
-                        <div className="text-xs text-muted-foreground">
-                          {hasAccess ? 'Available' : `Requires ${getPlanDisplayName(tool.requiredPlan)}`}
+            </div>
+            <MobileH1 className="text-center">
+              Professional Advocate Tools
+            </MobileH1>
+            <MobileBody className="text-muted-foreground leading-relaxed">
+              Complete professional toolkit for special education advocacy. 
+              Access tools based on your subscription tier with seamless upgrade options.
+            </MobileBody>
+            <div className="flex flex-wrap items-center justify-center gap-2 pt-4">
+              <Badge className="bg-purple-50 text-purple-700 border-purple-200 text-sm px-3 py-1">
+                <TrendingUp className="h-3 w-3 mr-1" />
+                {allAdvocateTools.length} Tools
+              </Badge>
+              <Badge className="bg-blue-50 text-blue-700 border-blue-200 text-sm px-3 py-1">
+                <Brain className="h-3 w-3 mr-1" />
+                AI-Powered
+              </Badge>
+              <Badge className="bg-green-50 text-green-700 border-green-200 text-sm px-3 py-1">
+                <Scale className="h-3 w-3 mr-1" />
+                Legal
+              </Badge>
+              <Badge className={`${getPlanBadgeColor(currentPlan)} text-sm px-3 py-1`}>
+                Plan: {getPlanDisplayName(currentPlan)}
+              </Badge>
+            </div>
+          </div>
+
+          {/* Popular Tools - Mobile Native */}
+          {popularTools.length > 0 && (
+            <MobileCard 
+              variant="elevated"
+              className="bg-gradient-to-r from-primary/5 to-primary/10"
+              padding="md"
+            >
+              <div className="space-y-4">
+                <div className="flex items-center justify-between">
+                  <MobileH3 className="flex items-center gap-2">
+                    <Star className="h-5 w-5 text-yellow-500" />
+                    Popular Tools
+                  </MobileH3>
+                  {newTools.length > 0 && (
+                    <Badge className="bg-green-100 text-green-800 border-green-200 text-sm px-2 py-1">
+                      {newTools.length} New
+                    </Badge>
+                  )}
+                </div>
+                <div className="space-y-3">
+                  {popularTools.map((tool) => {
+                    const hasAccess = canUse(tool.requiredFeature);
+                    return (
+                      <div key={tool.id} className="flex items-center gap-3 p-3 rounded-lg bg-background/50 dark:bg-gray-800/50">
+                        <div className={`flex-shrink-0 p-3 rounded-xl ${hasAccess ? 'bg-primary/10 text-primary' : 'bg-muted/20 text-muted-foreground'}`}>
+                          <tool.icon className="h-5 w-5" />
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <MobileBody className="font-medium truncate">{tool.title}</MobileBody>
+                          <MobileCaption>
+                            {hasAccess ? 'Available' : `Requires ${getPlanDisplayName(tool.requiredPlan)}`}
+                          </MobileCaption>
                         </div>
                       </div>
-                    </div>
-                  );
-                })}
+                    );
+                  })}
+                </div>
               </div>
-            </CardContent>
-          </Card>
-        )}
+            </MobileCard>
+          )}
 
-        {/* Category Filter */}
-        <div className="flex flex-wrap gap-2 justify-center">
-          <Button
-            variant={selectedCategory === 'All' ? 'default' : 'outline'}
-            size="sm"
-            onClick={() => setSelectedCategory('All')}
-            data-testid="filter-all"
-          >
-            All Tools ({allAdvocateTools.length})
-          </Button>
-          {categories.map((cat) => (
-            <Button
-              key={cat.category}
-              variant={selectedCategory === cat.category ? 'default' : 'outline'}
-              size="sm"
-              onClick={() => setSelectedCategory(cat.category)}
-              data-testid={`filter-${cat.category.replace(/\s+/g, '-').toLowerCase()}`}
-            >
-              {cat.category} ({cat.count})
-            </Button>
-          ))}
-        </div>
+          {/* Tools List - Single Column Mobile Layout */}
+          <div className="space-y-4">
+            <MobileH2 className="text-center">
+              {selectedCategory === 'All' ? 'Complete Professional Toolbox' : selectedCategory}
+              {searchTerm && (
+                <MobileCaption className="block mt-2 text-muted-foreground">
+                  {searchedTools.length} results for "{searchTerm}"
+                </MobileCaption>
+              )}
+            </MobileH2>
+            
+            <div className="space-y-4">
+              {searchedTools.map((tool) => {
+                const hasAccess = canUse(tool.requiredFeature);
+                return (
+                  <ToolCard
+                    key={tool.id}
+                    tool={tool}
+                    hasAccess={hasAccess}
+                    currentPlan={currentPlan}
+                  />
+                );
+              })}
+            </div>
 
-        {/* Tools Grid */}
-        <div className="space-y-6">
-          <h2 className="text-2xl font-semibold text-center">
-            {selectedCategory === 'All' ? 'Complete Professional Toolbox' : selectedCategory}
-          </h2>
-          
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-3 sm:gap-4">
-            {filteredTools.map((tool) => {
-              const hasAccess = canUse(tool.requiredFeature);
-              return (
-                <ToolCard
-                  key={tool.id}
-                  tool={tool}
-                  hasAccess={hasAccess}
-                  currentPlan={currentPlan}
-                />
-              );
-            })}
+            {searchedTools.length === 0 && searchTerm && (
+              <MobileCard variant="outline" padding="lg" className="text-center">
+                <div className="space-y-4">
+                  <div className="w-16 h-16 rounded-xl bg-muted/20 flex items-center justify-center mx-auto">
+                    <Search className="h-8 w-8 text-muted-foreground" />
+                  </div>
+                  <div className="space-y-2">
+                    <MobileH3>No tools found</MobileH3>
+                    <MobileBody className="text-muted-foreground">
+                      Try adjusting your search or browse all tools
+                    </MobileBody>
+                  </div>
+                  <Button
+                    variant="outline"
+                    onClick={() => setSearchTerm('')}
+                    data-testid="button-clear-search"
+                  >
+                    Clear Search
+                  </Button>
+                </div>
+              </MobileCard>
+            )}
           </div>
-        </div>
 
-        {/* Summary Stats */}
-        <Card className="bg-gradient-to-r from-primary/5 to-primary/10">
-          <CardContent className="p-8">
-            <div className="text-center space-y-4">
-              <h3 className="text-2xl font-semibold">Professional Special Education Advocacy</h3>
-              <p className="text-muted-foreground max-w-2xl mx-auto">
+          {/* Summary Stats - Mobile Optimized */}
+          <MobileCard 
+            variant="elevated"
+            className="bg-gradient-to-r from-primary/5 to-primary/10"
+            padding="lg"
+          >
+            <div className="text-center space-y-6">
+              <MobileH2>Professional Special Education Advocacy</MobileH2>
+              <MobileBody className="text-muted-foreground leading-relaxed">
                 Our professional tools leverage advanced technology and legal expertise to provide 
                 comprehensive advocacy support. Each tool is designed to streamline your workflow 
                 and improve client outcomes through evidence-based practices.
-              </p>
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-6">
+              </MobileBody>
+              <div className="grid grid-cols-3 gap-4 mt-6">
                 <div className="text-center">
-                  <div className="text-3xl font-bold text-primary">{allAdvocateTools.length}</div>
-                  <div className="text-sm text-muted-foreground">Professional Tools</div>
+                  <div className="text-2xl sm:text-3xl font-bold text-primary">{allAdvocateTools.length}</div>
+                  <MobileCaption>Professional Tools</MobileCaption>
                 </div>
                 <div className="text-center">
-                  <div className="text-3xl font-bold text-primary">{categories.length}</div>
-                  <div className="text-sm text-muted-foreground">Tool Categories</div>
+                  <div className="text-2xl sm:text-3xl font-bold text-primary">{categories.length}</div>
+                  <MobileCaption>Tool Categories</MobileCaption>
                 </div>
                 <div className="text-center">
-                  <div className="text-3xl font-bold text-primary">
+                  <div className="text-2xl sm:text-3xl font-bold text-primary">
                     {allAdvocateTools.filter(t => canUse(t.requiredFeature)).length}
                   </div>
-                  <div className="text-sm text-muted-foreground">Available to You</div>
+                  <MobileCaption>Available to You</MobileCaption>
                 </div>
               </div>
             </div>
-          </CardContent>
-        </Card>
-      </div>
+          </MobileCard>
+        </ContainerMobile>
+
+        {/* Sticky Action Bar - Mobile Native */}
+        <ActionBar variant="elevated" className="bg-background/95 backdrop-blur">
+          <div className="flex items-center gap-3 w-full">
+            <Button
+              variant="outline"
+              size="lg"
+              className="flex-1 min-h-[52px]"
+              onClick={() => setShowFilters(!showFilters)}
+              data-testid="button-toggle-search"
+            >
+              <Search className="h-5 w-5 mr-2" />
+              Search Tools
+            </Button>
+            <Button
+              variant="outline"
+              size="lg"
+              className="min-h-[52px] px-4"
+              onClick={() => setShowFilters(!showFilters)}
+              data-testid="button-toggle-filters"
+            >
+              <Filter className="h-5 w-5" />
+            </Button>
+            <Button
+              size="lg"
+              className="min-h-[52px] px-6 bg-gradient-to-r from-primary to-primary/90"
+              onClick={() => setShowMainUpgrade(true)}
+              data-testid="button-upgrade-main"
+            >
+              <Crown className="h-5 w-5 mr-2" />
+              Upgrade
+            </Button>
+          </div>
+        </ActionBar>
+
+        {/* Search/Filter Bottom Sheet */}
+        <BottomSheetControlled
+          isOpen={showFilters}
+          onClose={() => setShowFilters(false)}
+          title="Search & Filter Tools"
+          description="Find the perfect tool for your needs"
+        >
+          <div className="space-y-6">
+            {/* Search Input */}
+            <div className="space-y-2">
+              <MobileH3>Search Tools</MobileH3>
+              <input
+                type="text"
+                placeholder="Search by name or description..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="w-full min-h-[52px] px-4 py-3 rounded-lg border border-border bg-background text-lg placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/20"
+                data-testid="input-search"
+              />
+            </div>
+
+            {/* Quick Category Filters */}
+            <div className="space-y-3">
+              <MobileH3>Quick Filters</MobileH3>
+              <div className="grid grid-cols-2 gap-3">
+                <Button
+                  variant={selectedCategory === 'All' ? 'default' : 'outline'}
+                  className="min-h-[48px] justify-start"
+                  onClick={() => setSelectedCategory('All')}
+                >
+                  All Tools ({allAdvocateTools.length})
+                </Button>
+                {categories.slice(0, 5).map((cat) => (
+                  <Button
+                    key={cat.category}
+                    variant={selectedCategory === cat.category ? 'default' : 'outline'}
+                    className="min-h-[48px] justify-start"
+                    onClick={() => setSelectedCategory(cat.category)}
+                  >
+                    {cat.category} ({cat.count})
+                  </Button>
+                ))}
+              </div>
+            </div>
+
+            {/* Plan Access Filter */}
+            <div className="space-y-3">
+              <MobileH3>Access Level</MobileH3>
+              <div className="space-y-2">
+                <div className="flex items-center justify-between p-3 rounded-lg bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800">
+                  <div className="flex items-center gap-2">
+                    <Check className="h-5 w-5 text-green-600" />
+                    <MobileBody>Available Now</MobileBody>
+                  </div>
+                  <Badge className="bg-green-100 text-green-800 border-green-200">
+                    {allAdvocateTools.filter(t => canUse(t.requiredFeature)).length}
+                  </Badge>
+                </div>
+                <div className="flex items-center justify-between p-3 rounded-lg bg-orange-50 dark:bg-orange-900/20 border border-orange-200 dark:border-orange-800">
+                  <div className="flex items-center gap-2">
+                    <Lock className="h-5 w-5 text-orange-600" />
+                    <MobileBody>Requires Upgrade</MobileBody>
+                  </div>
+                  <Badge className="bg-orange-100 text-orange-800 border-orange-200">
+                    {allAdvocateTools.filter(t => !canUse(t.requiredFeature)).length}
+                  </Badge>
+                </div>
+              </div>
+            </div>
+
+            {/* Clear All */}
+            <Button
+              variant="outline"
+              className="w-full min-h-[52px]"
+              onClick={() => {
+                setSearchTerm('');
+                setSelectedCategory('All');
+                setShowFilters(false);
+              }}
+              data-testid="button-clear-all"
+            >
+              Clear All Filters
+            </Button>
+          </div>
+        </BottomSheetControlled>
+
+        {/* Main Upgrade Bottom Sheet */}
+        <MobileGeneralUpgradeBottomSheet
+          isOpen={showMainUpgrade}
+          onClose={() => setShowMainUpgrade(false)}
+          currentPlan={currentPlan}
+        />
+      </SafeAreaFull>
     </DashboardLayout>
   );
 }

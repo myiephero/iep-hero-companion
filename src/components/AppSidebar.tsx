@@ -19,7 +19,14 @@ import {
   UserCheck,
   ClipboardCheck,
   Lock,
-  Sparkles
+  Sparkles,
+  Target,
+  TrendingUp,
+  Brain,
+  Lightbulb,
+  PenTool,
+  Archive,
+  FileBarChart
 } from "lucide-react";
 import iepHeroIcon from "@/assets/iep-hero-icon.png";
 import { allAdvocateTools, getToolsByCategory } from "@/lib/advocateToolsRegistry";
@@ -59,24 +66,89 @@ interface SidebarSection {
   items: SidebarItem[];
 }
 
-const getParentNavigation = (dashboardUrl: string, userPlan: string, isAdvocate: boolean): SidebarSection[] => {
-  const baseItems: SidebarItem[] = [
-    { title: "Dashboard", url: dashboardUrl, icon: LayoutDashboard, 'data-testid': 'nav-dashboard' },
+const getParentNavigation = (dashboardUrl: string, userPlan: string, canUse?: any): SidebarSection[] => {
+  // Helper function to create navigation item with proper feature gating
+  const createNavItem = (title: string, url: string, icon: any, testId: string, feature?: keyof any): SidebarItem => {
+    if (!feature || !canUse) {
+      return { title, url, icon, 'data-testid': testId };
+    }
+    
+    const hasAccess = canUse(feature);
+    return {
+      title,
+      url,
+      icon,
+      'data-testid': testId,
+      isLocked: !hasAccess,
+      requiredPlan: hasAccess ? undefined : (userPlan === 'free' ? 'Essential' : 'Premium'),
+    };
+  };
+
+  // Dashboard Section
+  const dashboardItems: SidebarItem[] = [
+    { title: "My Dashboard", url: dashboardUrl, icon: LayoutDashboard, 'data-testid': 'nav-dashboard' },
+    { title: "My Students", url: "/parent/students", icon: GraduationCap, 'data-testid': 'nav-students' },
   ];
 
-  const quickToolsItems: SidebarItem[] = [
-    { title: "Find Advocates", url: "/parent/matching", icon: UserCheck, 'data-testid': 'nav-find-advocates' },
-    { title: "Messages", url: "/parent/messages", icon: MessageSquare, 'data-testid': 'nav-messages' },
+  // IEP Tools Section  
+  const iepToolsItems: SidebarItem[] = [
+    createNavItem("IEP Review", "/parent/tools/iep-review", FileText, 'nav-iep-review', 'iepReviewTool'),
+    createNavItem("Goal Generator", "/parent/tools/goal-generator", Target, 'nav-goal-generator', 'goalGenerator'),
+    createNavItem("Progress Notes", "/parent/tools/progress-notes", FileBarChart, 'nav-progress-notes', 'progressNotes'),
+    createNavItem("Meeting Prep", "/parent/meeting-prep", ClipboardCheck, 'nav-meeting-prep', 'parentMeetingPrep'),
+  ];
+
+  // Assessment Tools Section
+  const assessmentToolsItems: SidebarItem[] = [
+    { title: "Autism Tools", url: "/parent/autism-tools", icon: Brain, 'data-testid': 'nav-autism-tools' },
+    { title: "Gifted Tools", url: "/parent/gifted-tools", icon: Lightbulb, 'data-testid': 'nav-gifted-tools' },
+    createNavItem("Emotion Tracker", "/parent/tools/emotion-tracker", User, 'nav-emotion-tracker', 'parentEmotionTracker'),
+  ];
+
+  // Communication Section
+  const communicationItems: SidebarItem[] = [
+    createNavItem("Messages", "/parent/messages", MessageSquare, 'nav-messages', 'parentMessages'),
+    createNavItem("Find Advocates", "/parent/matching", UserCheck, 'nav-find-advocates', 'advocateMatchingTool'),
+    createNavItem("Letter Generator", "/parent/tools/smart-letter-generator", PenTool, 'nav-letter-generator', 'smartLetterGenerator'),
+  ];
+
+  // Digital Binder Section
+  const digitalBinderItems: SidebarItem[] = [
+    createNavItem("Document Vault", "/parent/tools/document-vault", Archive, 'nav-document-vault', 'documentVault'),
+    { title: "Schedule", url: "/parent/schedule", icon: Calendar, 'data-testid': 'nav-schedule' },
+  ];
+
+  // Account Section
+  const accountItems: SidebarItem[] = [
+    { title: "Profile", url: "/parent/profile", icon: User, 'data-testid': 'nav-profile' },
+    { title: "Settings", url: "/parent/settings", icon: Settings, 'data-testid': 'nav-settings' },
+    ...(userPlan !== 'hero' ? [{ title: "Upgrade Plan", url: "/parent/pricing-plan", icon: Crown, 'data-testid': 'nav-upgrade' }] : []),
   ];
 
   return [
     {
-      title: "PARENT PORTAL",
-      items: baseItems
+      title: "DASHBOARD",
+      items: dashboardItems
     },
     {
-      title: "QUICK TOOLS",
-      items: quickToolsItems
+      title: "IEP TOOLS", 
+      items: iepToolsItems
+    },
+    {
+      title: "ASSESSMENT TOOLS",
+      items: assessmentToolsItems
+    },
+    {
+      title: "COMMUNICATION",
+      items: communicationItems
+    },
+    {
+      title: "DIGITAL BINDER",
+      items: digitalBinderItems
+    },
+    {
+      title: `ACCOUNT - ${userPlan.toUpperCase()}`,
+      items: accountItems
     }
   ];
 };
@@ -169,7 +241,7 @@ export function AppSidebar() {
   const pendingAssignmentsCount = (pendingData as any)?.total_pending || 0;
   
   const { canUse, requiredPlanFor } = useToolAccess();
-  const navigation = isAdvocate ? getAdvocateNavigation(dashboardUrl, pendingAssignmentsCount, canUse) : getParentNavigation(dashboardUrl, userPlan, isAdvocate);
+  const navigation = isAdvocate ? getAdvocateNavigation(dashboardUrl, pendingAssignmentsCount, canUse) : getParentNavigation(dashboardUrl, userPlan, canUse);
   
   const isActive = (path: string) => currentPath === path;
   

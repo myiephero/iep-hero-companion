@@ -8,6 +8,7 @@ import { AuthProvider } from "@/hooks/useAuth";
 import { ThemeProvider } from "@/contexts/ThemeContext";
 import { ProtectedRoute, RoleBasedRedirect } from "@/components/ProtectedRoute";
 import { PushNotificationProvider } from "@/components/PushNotificationProvider";
+import { DashboardLayout } from "@/layouts/DashboardLayout";
 // import { FeedbackChat } from "@/components/FeedbackChat"; // TEMPORARILY REMOVED
 
 // Loading components and error boundaries
@@ -176,7 +177,9 @@ function DashboardRoute({ children }: { children: React.ReactNode }) {
   return (
     <DashboardErrorBoundary>
       <Suspense fallback={<DashboardLoading />}>
-        {children}
+        <DashboardLayout>
+          {children}
+        </DashboardLayout>
       </Suspense>
     </DashboardErrorBoundary>
   );
@@ -186,7 +189,9 @@ function ToolsRoute({ children }: { children: React.ReactNode }) {
   return (
     <ToolsErrorBoundary>
       <Suspense fallback={<ToolsLoading />}>
-        {children}
+        <DashboardLayout>
+          {children}
+        </DashboardLayout>
       </Suspense>
     </ToolsErrorBoundary>
   );
@@ -196,7 +201,9 @@ function MessagingRoute({ children }: { children: React.ReactNode }) {
   return (
     <DashboardErrorBoundary>
       <Suspense fallback={<MessagesLoading />}>
-        {children}
+        <DashboardLayout>
+          {children}
+        </DashboardLayout>
       </Suspense>
     </DashboardErrorBoundary>
   );
@@ -206,7 +213,9 @@ function StudentsRoute({ children }: { children: React.ReactNode }) {
   return (
     <DashboardErrorBoundary>
       <Suspense fallback={<StudentsLoading />}>
-        {children}
+        <DashboardLayout>
+          {children}
+        </DashboardLayout>
       </Suspense>
     </DashboardErrorBoundary>
   );

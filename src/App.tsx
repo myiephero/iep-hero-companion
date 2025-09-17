@@ -454,10 +454,10 @@ function App() {
                   </ToolsRoute>
                 </ProtectedRoute>
               } />
-              <Route path="/parent/tools/autism-accommodations" element={
+              <Route path="/parent/tools/autism-accommodation-builder" element={
                 <ProtectedRoute allowedRoles={['parent']}>
                   <ToolsRoute>
-                    <ParentAutismAccommodations />
+                    <AutismAccommodationBuilder />
                   </ToolsRoute>
                 </ProtectedRoute>
               } />
@@ -716,6 +716,13 @@ function App() {
                 <ProtectedRoute allowedRoles={['parent']}>
                   <ToolsRoute>
                     <GiftedTwoeLearners />
+                  </ToolsRoute>
+                </ProtectedRoute>
+              } />
+              <Route path="/parent/tools/student-profiles" element={
+                <ProtectedRoute allowedRoles={['parent']}>
+                  <ToolsRoute>
+                    <StudentProfiles />
                   </ToolsRoute>
                 </ProtectedRoute>
               } />

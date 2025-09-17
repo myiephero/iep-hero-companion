@@ -26,7 +26,8 @@ import {
   Lightbulb,
   PenTool,
   Archive,
-  FileBarChart
+  FileBarChart,
+  Shield
 } from "lucide-react";
 import iepHeroIcon from "@/assets/iep-hero-icon.png";
 import { allAdvocateTools, getToolsByCategory } from "@/lib/advocateToolsRegistry";
@@ -67,68 +68,53 @@ interface SidebarSection {
 }
 
 const getParentNavigation = (dashboardUrl: string, userPlan: string, canUse?: any): SidebarSection[] => {
-  // Helper function to create navigation item with proper feature gating
-  const createNavItem = (title: string, url: string, icon: any, testId: string, feature?: keyof any): SidebarItem => {
-    if (!feature || !canUse) {
-      return { title, url, icon, 'data-testid': testId };
-    }
-    
-    const hasAccess = canUse(feature);
-    return {
-      title,
-      url,
-      icon,
-      'data-testid': testId,
-      isLocked: !hasAccess,
-      requiredPlan: hasAccess ? undefined : (userPlan === 'free' ? 'Essential' : 'Premium'),
-    };
-  };
-
-  // Dashboard Section
-  const dashboardItems: SidebarItem[] = [
-    { title: "My Dashboard", url: dashboardUrl, icon: LayoutDashboard, 'data-testid': 'nav-dashboard' },
-    { title: "My Students", url: "/parent/students", icon: GraduationCap, 'data-testid': 'nav-students' },
+  const baseItems: SidebarItem[] = [
+    { title: "Dashboard", url: dashboardUrl, icon: LayoutDashboard, 'data-testid': 'nav-dashboard' },
+    { title: "Students", url: "/parent/students", icon: GraduationCap, 'data-testid': 'nav-students' },
   ];
 
-  // IEP Tools Section  
+  // IEP Tools from EmergentToolsHub
   const iepToolsItems: SidebarItem[] = [
-    createNavItem("IEP Review", "/parent/tools/iep-review", FileText, 'nav-iep-review', 'iepReviewTool'),
-    createNavItem("Goal Generator", "/parent/tools/goal-generator", Target, 'nav-goal-generator', 'goalGenerator'),
-    createNavItem("Progress Notes", "/parent/tools/progress-notes", FileBarChart, 'nav-progress-notes', 'progressNotes'),
-    createNavItem("Meeting Prep", "/parent/meeting-prep", ClipboardCheck, 'nav-meeting-prep', 'parentMeetingPrep'),
+    { title: "Unified IEP Review", url: "/parent/tools/unified-iep-review", icon: Brain, 'data-testid': 'nav-unified-iep-review' },
+    { title: "Goal Generator", url: "/parent/tools/goal-generator", icon: Target, 'data-testid': 'nav-goal-generator' },
+    { title: "Progress Notes", url: "/parent/tools/progress-notes", icon: TrendingUp, 'data-testid': 'nav-progress-notes' },
+    { title: "Meeting Prep", url: "/parent/tools/meeting-prep", icon: ClipboardCheck, 'data-testid': 'nav-meeting-prep' },
+    { title: "IEP Master Suite", url: "/parent/tools/iep-master-suite", icon: Crown, 'data-testid': 'nav-iep-master-suite' },
   ];
 
-  // Assessment Tools Section
+  // Assessment Tools from EmergentToolsHub
   const assessmentToolsItems: SidebarItem[] = [
-    { title: "Autism Tools", url: "/parent/autism-tools", icon: Brain, 'data-testid': 'nav-autism-tools' },
-    { title: "Gifted Tools", url: "/parent/gifted-tools", icon: Lightbulb, 'data-testid': 'nav-gifted-tools' },
-    createNavItem("Emotion Tracker", "/parent/tools/emotion-tracker", User, 'nav-emotion-tracker', 'parentEmotionTracker'),
+    { title: "Autism Accommodation Builder", url: "/parent/tools/autism-accommodation-builder", icon: Users, 'data-testid': 'nav-autism-accommodation-builder' },
+    { title: "Gifted & 2e Learners", url: "/parent/tools/gifted-2e-learners", icon: Sparkles, 'data-testid': 'nav-gifted-2e-learners' },
+    { title: "Emotion Tracker", url: "/parent/tools/emotion-tracker", icon: User, 'data-testid': 'nav-emotion-tracker' },
   ];
 
-  // Communication Section
+  // Communication Tools from EmergentToolsHub
   const communicationItems: SidebarItem[] = [
-    createNavItem("Messages", "/parent/messages", MessageSquare, 'nav-messages', 'parentMessages'),
-    createNavItem("Find Advocates", "/parent/matching", UserCheck, 'nav-find-advocates', 'advocateMatchingTool'),
-    createNavItem("Letter Generator", "/parent/tools/smart-letter-generator", PenTool, 'nav-letter-generator', 'smartLetterGenerator'),
+    { title: "Smart Letter Generator", url: "/parent/tools/smart-letter-generator", icon: PenTool, 'data-testid': 'nav-smart-letter-generator' },
+    { title: "Communication Tracker", url: "/parent/tools/communication-tracker", icon: MessageSquare, 'data-testid': 'nav-communication-tracker' },
+    { title: "Find Advocates", url: "/parent/matching", icon: UserCheck, 'data-testid': 'nav-find-advocates' },
+    { title: "Messages", url: "/parent/messages", icon: MessageSquare, 'data-testid': 'nav-messages' },
   ];
 
-  // Digital Binder Section
+  // Digital Binder from EmergentToolsHub
   const digitalBinderItems: SidebarItem[] = [
-    createNavItem("Document Vault", "/parent/tools/document-vault", Archive, 'nav-document-vault', 'documentVault'),
-    { title: "Schedule", url: "/parent/schedule", icon: Calendar, 'data-testid': 'nav-schedule' },
+    { title: "Document Vault", url: "/parent/tools/document-vault", icon: Archive, 'data-testid': 'nav-document-vault' },
+    { title: "Student Profiles", url: "/parent/tools/student-profiles", icon: GraduationCap, 'data-testid': 'nav-student-profiles' },
+    { title: "Ask AI Documents", url: "/parent/tools/ask-ai-documents", icon: Brain, 'data-testid': 'nav-ask-ai-documents' },
   ];
 
-  // Account Section
-  const accountItems: SidebarItem[] = [
-    { title: "Profile", url: "/parent/profile", icon: User, 'data-testid': 'nav-profile' },
-    { title: "Settings", url: "/parent/settings", icon: Settings, 'data-testid': 'nav-settings' },
-    ...(userPlan !== 'hero' ? [{ title: "Upgrade Plan", url: "/parent/pricing-plan", icon: Crown, 'data-testid': 'nav-upgrade' }] : []),
+  // Rights & Advocacy from EmergentToolsHub
+  const rightsAdvocacyItems: SidebarItem[] = [
+    { title: "IDEA Rights Guide", url: "/parent/tools/idea-rights-guide", icon: Shield, 'data-testid': 'nav-idea-rights-guide' },
+    { title: "504 Plan Guide", url: "/parent/tools/plan-504-guide", icon: FileText, 'data-testid': 'nav-plan-504-guide' },
+    { title: "Expert Analysis", url: "/parent/tools/expert-analysis", icon: Brain, 'data-testid': 'nav-expert-analysis' },
   ];
 
   return [
     {
       title: "DASHBOARD",
-      items: dashboardItems
+      items: baseItems
     },
     {
       title: "IEP TOOLS", 
@@ -147,8 +133,8 @@ const getParentNavigation = (dashboardUrl: string, userPlan: string, canUse?: an
       items: digitalBinderItems
     },
     {
-      title: `ACCOUNT - ${userPlan.toUpperCase()}`,
-      items: accountItems
+      title: "RIGHTS & ADVOCACY",
+      items: rightsAdvocacyItems
     }
   ];
 };

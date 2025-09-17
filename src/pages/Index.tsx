@@ -83,7 +83,7 @@ const Index = () => {
     <div className="min-h-screen">
       {/* Hero Section */}
       <section className="relative bg-gradient-to-br from-primary/5 to-secondary/5 py-16 lg:py-24">
-        <div className="container mx-auto px-4">
+        <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid lg:grid-cols-2 gap-12 items-center">
             <div className="space-y-8">
               <div className="space-y-4">
@@ -328,7 +328,7 @@ const Index = () => {
 
       {/* Features Section */}
       <section className="py-16 lg:py-24">
-        <div className="container mx-auto px-4">
+        <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center space-y-4 mb-12">
             <h2 className="text-3xl lg:text-4xl font-bold">
               Everything You Need for IEP Success
@@ -360,7 +360,7 @@ const Index = () => {
 
       {/* CTA Section */}
       <section className="py-16 bg-gradient-to-r from-primary to-primary/80">
-        <div className="container mx-auto px-4 text-center">
+        <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <div className="max-w-3xl mx-auto space-y-6 text-white">
             <h2 className="text-3xl lg:text-4xl font-bold">
               Ready to Advocate with Confidence?

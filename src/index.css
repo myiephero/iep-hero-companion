@@ -5,16 +5,12 @@
 /* Critical Mobile Viewport Fixes */
 @layer base {
   html {
-    /* Prevent horizontal scroll on mobile */
-    overflow-x: hidden;
     /* Improve text rendering on mobile */
     -webkit-text-size-adjust: 100%;
     text-size-adjust: 100%;
   }
   
   body {
-    /* Prevent horizontal scroll */
-    overflow-x: hidden;
     /* Improve mobile performance */
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
@@ -23,8 +19,6 @@
   }
   
   #root {
-    /* Ensure root container doesn't overflow */
-    overflow-x: hidden;
     min-height: 100vh;
     min-height: 100dvh;
   }
@@ -86,10 +80,10 @@
       min-height: 100dvh;
     }
     
-    /* Improve container padding on mobile */
-    .container {
-      padding-left: 1rem;
-      padding-right: 1rem;
+    /* Mobile-specific optimizations */
+    .mobile-safe-header {
+      padding-left: max(1rem, env(safe-area-inset-left));
+      padding-right: max(1rem, env(safe-area-inset-right));
     }
   }
   
@@ -446,10 +440,7 @@
     touch-action: manipulation;
   }
   
-  /* Mobile viewport fixes */
-  html {
-    overflow-x: hidden;
-  }
+  /* Mobile viewport fixes - allow natural overflow handling */
   
   /* Prevent horizontal scroll on mobile */
   * {

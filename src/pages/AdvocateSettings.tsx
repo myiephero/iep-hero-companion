@@ -14,7 +14,8 @@ import { useState, useEffect } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
-import { Moon, Sun, User, Bell, Shield, Briefcase, Calendar, MapPin, Clock, DollarSign, GraduationCap, Star, X, CheckCircle } from "lucide-react";
+import { Moon, Sun, User, Bell, Shield, Briefcase, Calendar, MapPin, Clock, DollarSign, GraduationCap, Star, X, CheckCircle, LogOut } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 
 interface AdvocateProfile {
   bio?: string;
@@ -31,8 +32,9 @@ interface AdvocateProfile {
 
 export default function AdvocateSettings() {
   const { theme, toggleTheme } = useTheme();
-  const { user } = useAuth();
+  const { user, signOut } = useAuth();
   const { toast } = useToast();
+  const navigate = useNavigate();
   const queryClient = useQueryClient();
   
   // Profile state
@@ -107,6 +109,23 @@ export default function AdvocateSettings() {
   
   const handleSaveProfile = () => {
     saveProfileMutation.mutate(profile);
+  };
+
+  const handleSignOut = async () => {
+    try {
+      await signOut();
+      toast({
+        title: "Signed out successfully",
+        description: "You have been logged out of your account.",
+      });
+      navigate("/auth");
+    } catch (error) {
+      toast({
+        title: "Error signing out",
+        description: "There was a problem signing you out. Please try again.",
+        variant: "destructive",
+      });
+    }
   };
   
   // Helper functions for managing arrays
@@ -656,6 +675,15 @@ export default function AdvocateSettings() {
               </Button>
               <Button variant="outline" data-testid="button-two-factor">
                 Enable Two-Factor Authentication
+              </Button>
+              <Button 
+                onClick={handleSignOut}
+                variant="outline" 
+                className="border-orange-200 dark:border-orange-800 hover:bg-orange-50 dark:hover:bg-orange-950 text-orange-600 dark:text-orange-400 hover:text-orange-700 dark:hover:text-orange-300"
+                data-testid="button-sign-out"
+              >
+                <LogOut className="h-4 w-4 mr-2" />
+                Sign Out
               </Button>
               <Separator />
               <div className="space-y-2">

@@ -5,6 +5,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { useState, useEffect } from "react";
 import { useToast } from "@/hooks/use-toast";
 import { NotificationSettings } from "@/components/NotificationSettings";
+import { useNavigate } from "react-router-dom";
 import { 
   MobileAppShell,
   PremiumLargeHeader,
@@ -19,12 +20,14 @@ import {
   Bell,
   Key,
   Trash2,
-  Save
+  Save,
+  LogOut
 } from "lucide-react";
 
 export default function Settings() {
-  const { user, refreshUser } = useAuth();
+  const { user, refreshUser, signOut } = useAuth();
   const { toast } = useToast();
+  const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState(false);
   const [formData, setFormData] = useState({
     firstName: '',
@@ -76,6 +79,23 @@ export default function Settings() {
       });
     } finally {
       setIsLoading(false);
+    }
+  };
+
+  const handleSignOut = async () => {
+    try {
+      await signOut();
+      toast({
+        title: "Signed out successfully",
+        description: "You have been logged out of your account.",
+      });
+      navigate("/auth");
+    } catch (error) {
+      toast({
+        title: "Error signing out",
+        description: "There was a problem signing you out. Please try again.",
+        variant: "destructive",
+      });
     }
   };
 
@@ -246,6 +266,19 @@ export default function Settings() {
                   <div className="text-left">
                     <div className="font-medium">Two-Factor Authentication</div>
                     <div className="text-sm text-gray-600 dark:text-gray-400">Add extra security to your account</div>
+                  </div>
+                </Button>
+                
+                <Button 
+                  onClick={handleSignOut}
+                  variant="outline" 
+                  className="w-full h-12 rounded-xl border-orange-200 dark:border-orange-800 hover:bg-orange-50 dark:hover:bg-orange-950 text-orange-600 dark:text-orange-400 hover:text-orange-700 dark:hover:text-orange-300 justify-start text-left"
+                  data-testid="button-sign-out"
+                >
+                  <LogOut className="h-5 w-5 mr-3" />
+                  <div className="text-left">
+                    <div className="font-medium">Sign Out</div>
+                    <div className="text-sm text-orange-500 dark:text-orange-400">Log out of your account</div>
                   </div>
                 </Button>
                 

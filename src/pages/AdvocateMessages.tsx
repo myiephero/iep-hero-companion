@@ -669,7 +669,6 @@ export default function AdvocateMessages() {
                   )}
                 </>
               )}
-              </div>
             </div>
           )}
 

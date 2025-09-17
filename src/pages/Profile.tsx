@@ -1,8 +1,9 @@
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Calendar, Mail, Phone, Clock, Settings, Crown, Zap, Shield, ChevronRight } from "lucide-react";
+import { Calendar, Mail, Phone, Clock, Settings, Crown, Zap, Shield, ChevronRight, LogOut } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { useNavigate } from "react-router-dom";
+import { useToast } from "@/hooks/use-toast";
 import { AvatarUpload } from "@/components/AvatarUpload";
 import { 
   MobileAppShell,
@@ -14,8 +15,26 @@ import {
 } from "@/components/mobile";
 
 export default function Profile() {
-  const { user } = useAuth();
+  const { user, signOut } = useAuth();
   const navigate = useNavigate();
+  const { toast } = useToast();
+
+  const handleSignOut = async () => {
+    try {
+      await signOut();
+      toast({
+        title: "Signed out successfully",
+        description: "You have been logged out of your account.",
+      });
+      navigate("/auth");
+    } catch (error) {
+      toast({
+        title: "Error signing out",
+        description: "There was a problem signing you out. Please try again.",
+        variant: "destructive",
+      });
+    }
+  };
 
   if (!user) {
     return (
@@ -215,6 +234,55 @@ export default function Profile() {
                   </p>
                 </div>
               </div>
+            </div>
+          </PremiumCard>
+
+          {/* Account Actions Card */}
+          <PremiumCard variant="elevated" className="p-6">
+            <h3 className="text-xl font-semibold text-gray-900 dark:text-gray-100 mb-6">Account Actions</h3>
+            
+            <div className="space-y-3">
+              <Button 
+                onClick={() => {
+                  const route = user.role === 'advocate' ? '/advocate/settings' : '/parent/settings';
+                  navigate(route);
+                }}
+                variant="outline" 
+                className="w-full h-12 justify-between rounded-xl border-gray-200 dark:border-gray-800 hover:bg-gray-50 dark:hover:bg-gray-800"
+                data-testid="profile-settings-button"
+              >
+                <div className="flex items-center gap-3">
+                  <Settings className="h-5 w-5 text-gray-600 dark:text-gray-400" />
+                  <span className="font-medium">Account Settings</span>
+                </div>
+                <ChevronRight className="h-5 w-5 text-gray-400" />
+              </Button>
+              
+              <Button 
+                onClick={() => navigate(user.role === 'advocate' ? '/advocate/pricing' : '/parent/pricing')}
+                variant="outline" 
+                className="w-full h-12 justify-between rounded-xl border-gray-200 dark:border-gray-800 hover:bg-gray-50 dark:hover:bg-gray-800"
+                data-testid="profile-billing-button"
+              >
+                <div className="flex items-center gap-3">
+                  <Crown className="h-5 w-5 text-gray-600 dark:text-gray-400" />
+                  <span className="font-medium">Billing & Plans</span>
+                </div>
+                <ChevronRight className="h-5 w-5 text-gray-400" />
+              </Button>
+              
+              <Button 
+                onClick={handleSignOut}
+                variant="outline" 
+                className="w-full h-12 justify-between rounded-xl border-orange-200 dark:border-orange-800 hover:bg-orange-50 dark:hover:bg-orange-950 text-orange-600 dark:text-orange-400 hover:text-orange-700 dark:hover:text-orange-300"
+                data-testid="profile-signout-button"
+              >
+                <div className="flex items-center gap-3">
+                  <LogOut className="h-5 w-5" />
+                  <span className="font-medium">Sign Out</span>
+                </div>
+                <ChevronRight className="h-5 w-5" />
+              </Button>
             </div>
           </PremiumCard>
 

@@ -4,6 +4,9 @@ import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { Separator } from "@/components/ui/separator";
 import { useTheme } from "@/contexts/ThemeContext";
+import { useAuth } from "@/hooks/useAuth";
+import { useNavigate } from "react-router-dom";
+import { useToast } from "@/hooks/use-toast";
 import { 
   MobileAppShell,
   PremiumLargeHeader,
@@ -21,11 +24,32 @@ import {
   Palette,
   Key,
   Trash2,
-  Save
+  Save,
+  LogOut
 } from "lucide-react";
 
 export default function ParentSettings() {
   const { theme, toggleTheme } = useTheme();
+  const { signOut } = useAuth();
+  const navigate = useNavigate();
+  const { toast } = useToast();
+
+  const handleSignOut = async () => {
+    try {
+      await signOut();
+      toast({
+        title: "Signed out successfully",
+        description: "You have been logged out of your account.",
+      });
+      navigate("/auth");
+    } catch (error) {
+      toast({
+        title: "Error signing out",
+        description: "There was a problem signing you out. Please try again.",
+        variant: "destructive",
+      });
+    }
+  };
 
   return (
     <MobileAppShell>
@@ -264,6 +288,16 @@ export default function ParentSettings() {
                 >
                   <Shield className="h-5 w-5 mr-3" />
                   Two-Factor Authentication
+                </Button>
+                
+                <Button 
+                  onClick={handleSignOut}
+                  variant="outline" 
+                  className="w-full h-12 rounded-xl border-orange-200 dark:border-orange-800 hover:bg-orange-50 dark:hover:bg-orange-950 text-orange-600 dark:text-orange-400 hover:text-orange-700 dark:hover:text-orange-300 justify-start"
+                  data-testid="button-sign-out"
+                >
+                  <LogOut className="h-5 w-5 mr-3" />
+                  Sign Out
                 </Button>
                 
                 <Separator className="bg-gray-200 dark:bg-gray-700 my-6" />

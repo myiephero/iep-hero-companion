@@ -447,10 +447,6 @@ export default function ParentDashboard({ plan }: ParentDashboardProps) {
 
   return (
     <MobileAppShell>
-      <PremiumLargeHeader 
-        title={user?.firstName ? `Welcome back, ${user.firstName}!` : 'Premium Dashboard'}
-        subtitle="Your command center for advocacy excellence"
-      />
       <SafeAreaFull className="min-h-screen bg-gray-50 dark:bg-gray-950">
         <ContainerMobile className="space-y-6">
         {/* Premium Hero Section with Mobile-First Design */}
@@ -469,18 +465,6 @@ export default function ParentDashboard({ plan }: ParentDashboardProps) {
               Your premium command center for advocacy excellence, real-time progress tracking, and comprehensive IEP management.
             </p>
             
-            {/* Plan Status Badge */}
-            <div className="flex justify-center mb-4 sm:mb-6">
-              <Badge 
-                variant={userPlan === 'hero' ? "default" : "secondary"}
-                className={userPlan === 'hero' 
-                  ? "bg-gradient-to-r from-yellow-400 to-orange-500 text-white px-3 sm:px-6 py-2 text-sm sm:text-lg font-bold"
-                  : "px-3 sm:px-6 py-2 text-sm sm:text-lg"
-                }
-              >
-                {planName} Plan
-              </Badge>
-            </div>
               
             <div className="flex flex-col gap-3 sm:gap-4 justify-center max-w-4xl mx-auto px-4">
               <Button 

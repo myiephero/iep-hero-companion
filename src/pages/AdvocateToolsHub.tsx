@@ -516,11 +516,11 @@ export default function AdvocateToolsHub() {
         <div className="sticky top-0 z-40 bg-background/95 backdrop-blur border-b border-border">
           <ContainerMobile padding="sm">
             <div className="py-3">
-              <div className="flex gap-2 overflow-x-auto scrollbar-hide">
+              <div className="flex gap-3 overflow-x-auto scrollbar-hide pb-1">
                 <Button
                   variant={selectedCategory === 'All' ? 'default' : 'outline'}
                   size="sm"
-                  className="whitespace-nowrap"
+                  className="whitespace-nowrap flex-shrink-0 min-h-[36px] px-4"
                   onClick={() => setSelectedCategory('All')}
                   data-testid="filter-all"
                 >
@@ -531,7 +531,7 @@ export default function AdvocateToolsHub() {
                     key={cat.category}
                     variant={selectedCategory === cat.category ? 'default' : 'outline'}
                     size="sm"
-                    className="whitespace-nowrap"
+                    className="whitespace-nowrap flex-shrink-0 min-h-[36px] px-4"
                     onClick={() => setSelectedCategory(cat.category)}
                     data-testid={`filter-${cat.category.replace(/\s+/g, '-').toLowerCase()}`}
                   >

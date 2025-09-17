@@ -49,8 +49,8 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
         <AppSidebar />
         
         <div className="flex-1 flex flex-col w-full max-w-none">
-          {/* Dashboard Header - Hidden on mobile, visible on desktop */}
-          <header className="hidden md:block sticky top-0 z-40 w-full border-b border-border bg-background/95 backdrop-blur">
+          {/* Dashboard Header - Hidden on mobile, visible on desktop - Hidden for Tools Hub */}
+          <header className={`hidden md:block sticky top-0 z-40 w-full border-b border-border bg-background/95 backdrop-blur ${location.pathname === '/advocate/tools' ? 'md:hidden' : ''}`}>
             <div className="flex h-16 items-center justify-between px-4 md:px-6">
               <div className="flex items-center gap-4">
                 <SidebarTrigger />

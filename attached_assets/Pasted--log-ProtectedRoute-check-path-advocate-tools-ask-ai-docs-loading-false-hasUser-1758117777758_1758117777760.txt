@@ -1,0 +1,31 @@
+⚡️  [log] - 🛡️ ProtectedRoute check: {"path":"/advocate/tools/ask-ai-docs","loading":false,"hasUser":true,"userEmail":"wxwinn@gmail.com","userRole":"advocate"}
+⚡️  [log] - 🛡️ ProtectedRoute check: {"path":"/advocate/tools/ask-ai-docs","loading":false,"hasUser":true,"userEmail":"wxwinn@gmail.com","userRole":"advocate"}
+⚡️  [error] - The above error occurred in the <ProtectedRoute> component:
+
+ProtectedRoute@https://afd4ab41-fa60-4e78-9742-69bb4e3004d6-00-6i79wn87wfhu.janeway.replit.dev/src/components/ProtectedRoute.tsx:27:7
+RenderedRoute@https://afd4ab41-fa60-4e78-9742-69bb4e3004d6-00-6i79wn87wfhu.janeway.replit.dev/node_modules/.vite/deps/react-router-dom.js:4092:32
+Routes@https://afd4ab41-fa60-4e78-9742-69bb4e3004d6-00-6i79wn87wfhu.janeway.replit.dev/node_modules/.vite/deps/react-router-dom.js:4561:19
+Router@https://afd4ab41-fa60-4e78-9742-69bb4e3004d6-00-6i79wn87wfhu.janeway.replit.dev/node_modules/.vite/deps/react-router-dom.js:4504:28
+BrowserRouter@https://afd4ab41-fa60-4e78-9742-69bb4e3004d6-00-6i79wn87wfhu.janeway.replit.dev/node_modules/.vite/deps/react-router-dom.js:5249:11
+AuthProvider@https://afd4ab41-fa60-4e78-9742-69bb4e3004d6-00-6i79wn87wfhu.janeway.replit.dev/src/hooks/useAuth.tsx:41:8
+ThemeProvider@https://afd4ab41-fa60-4e78-9742-69bb4e3004d6-00-6i79wn87wfhu.janeway.replit.dev/src/contexts/ThemeContext.tsx:25:7
+TooltipProviderProvider@https://afd4ab41-fa60-4e78-9742-69bb4e3004d6-00-6i79wn87wfhu.janeway.replit.dev/node_modules/.vite/deps/chunk-OXZDJRWN.js:38:13
+TooltipProvider@https://afd4ab41-fa60-4e78-9742-69bb4e3004d6-00-6i79wn87wfhu.janeway.replit.dev/node_modules/.vite/deps/@radix-ui_react-tooltip.js:64:43
+QueryClientProvider@https://afd4ab41-fa60-4e78-9742-69bb4e3004d6-00-6i79wn87wfhu.janeway.replit.dev/node_modules/.vite/deps/@tanstack_react-query.js:2934:9
+App
+
+Consider adding an error boundary to your tree to customize error handling behavior.
+Visit https://reactjs.org/link/error-boundaries to learn more about error boundaries.
+⚡️  [error] - {}
+
+⚡️  ------ STARTUP JS ERROR ------
+
+⚡️  Error: A component suspended while responding to synchronous input. This will cause the UI to be replaced with a loading indicator. To fix, updates that suspend should be wrapped with startTransition.
+⚡️  URL: https://afd4ab41-fa60-4e78-9742-69bb4e3004d6-00-6i79wn87wfhu.janeway.replit.dev/node_modules/.vite/deps/chunk-RPCDYKBN.js?v=0654c453
+⚡️  chunk-RPCDYKBN.js?v=0654c453:9129:27
+
+⚡️  See above for help with debugging blank-screen issues
+⚡️  To Native ->  PushNotifications removeListener 17186002
+⚡️  To Native ->  PushNotifications removeListener 17186003
+⚡️  To Native ->  PushNotifications removeListener 17186004
+⚡️  To Native ->  PushNotifications removeListener 17186005

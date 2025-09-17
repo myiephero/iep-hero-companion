@@ -1,7 +1,7 @@
 import { DashboardLayout } from "@/layouts/DashboardLayout";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Link, useLocation } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { UpgradeDialog } from "@/components/UpgradePrompt";
 import { useToolAccess } from "@/hooks/useToolAccess";
 import { useAuth } from "@/hooks/useAuth";
@@ -61,7 +61,7 @@ import {
   Filter,
   Settings
 } from "lucide-react";
-import { useState } from "react";
+import { useState, startTransition, useTransition } from "react";
 
 const getBadgeVariant = (badge: string) => {
   switch (badge) {
@@ -115,6 +115,7 @@ interface ToolCardProps {
   hasAccess: boolean;
   currentPlan: SubscriptionPlan;
   onUpgradeClick?: () => void;
+  onNavigate?: (route: string) => void;
 }
 
 // Mobile-Native General Upgrade Bottom Sheet Component
@@ -346,7 +347,7 @@ function MobileUpgradeBottomSheet({
   );
 }
 
-function ToolCard({ tool, hasAccess, currentPlan, onUpgradeClick }: ToolCardProps) {
+function ToolCard({ tool, hasAccess, currentPlan, onUpgradeClick, onNavigate }: ToolCardProps) {
   const [showUpgrade, setShowUpgrade] = useState(false);
 
   if (!hasAccess) {
@@ -421,13 +422,19 @@ function ToolCard({ tool, hasAccess, currentPlan, onUpgradeClick }: ToolCardProp
     );
   }
 
+  const handleNavigate = () => {
+    if (onNavigate) {
+      onNavigate(tool.route);
+    }
+  };
+
   return (
-    <Link to={tool.route} className="block" data-testid={`tool-card-link-${tool.id}`}>
-      <MobileCardInteractive 
-        data-testid={`tool-card-unlocked-${tool.id}`}
-        className="group active:scale-[0.98] transition-all duration-150 cursor-pointer"
-        padding="md"
-      >
+    <MobileCardInteractive 
+      data-testid={`tool-card-unlocked-${tool.id}`}
+      className="group active:scale-[0.98] transition-all duration-150 cursor-pointer"
+      padding="md"
+      onClick={handleNavigate}
+    >
         <div className="flex items-center gap-4 p-2">
           {/* Icon Section */}
           <div className="flex-shrink-0">
@@ -482,17 +489,25 @@ function ToolCard({ tool, hasAccess, currentPlan, onUpgradeClick }: ToolCardProp
           </div>
         </Button>
       </MobileCardInteractive>
-    </Link>
   );
 }
 
 export default function AdvocateToolsHub() {
+  const navigate = useNavigate();
+  const [isPending, startTransition] = useTransition();
   const { user } = useAuth();
   const { canUse, currentPlan } = useToolAccess();
   const [selectedCategory, setSelectedCategory] = useState<string>('All');
   const [searchTerm, setSearchTerm] = useState('');
   const [showFilters, setShowFilters] = useState(false);
   const [showMainUpgrade, setShowMainUpgrade] = useState(false);
+
+  // Concurrent navigation handler using startTransition
+  const handleToolNavigation = (route: string) => {
+    startTransition(() => {
+      navigate(route);
+    });
+  };
 
   const categories = getCategoriesWithCounts();
   const popularTools = getPopularTools();
@@ -638,6 +653,7 @@ export default function AdvocateToolsHub() {
                     tool={tool}
                     hasAccess={hasAccess}
                     currentPlan={currentPlan}
+                    onNavigate={handleToolNavigation}
                   />
                 );
               })}

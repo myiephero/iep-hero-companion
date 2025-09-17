@@ -73,18 +73,18 @@ const getParentNavigation = (dashboardUrl: string, userPlan: string, canUse?: an
     { title: "Students", url: "/parent/students", icon: GraduationCap, 'data-testid': 'nav-students' },
   ];
 
-  // IEP Tools from EmergentToolsHub
+  // IEP Tools from EmergentToolsHub  
   const iepToolsItems: SidebarItem[] = [
     { title: "Unified IEP Review", url: "/parent/tools/unified-iep-review", icon: Brain, 'data-testid': 'nav-unified-iep-review' },
     { title: "Goal Generator", url: "/parent/tools/goal-generator", icon: Target, 'data-testid': 'nav-goal-generator' },
     { title: "Progress Notes", url: "/parent/tools/progress-notes", icon: TrendingUp, 'data-testid': 'nav-progress-notes' },
-    { title: "Meeting Prep", url: "/parent/tools/meeting-prep", icon: ClipboardCheck, 'data-testid': 'nav-meeting-prep' },
+    { title: "Meeting Prep", url: "/parent/meeting-prep", icon: ClipboardCheck, 'data-testid': 'nav-meeting-prep' },
     { title: "IEP Master Suite", url: "/parent/tools/iep-master-suite", icon: Crown, 'data-testid': 'nav-iep-master-suite' },
   ];
 
   // Assessment Tools from EmergentToolsHub
   const assessmentToolsItems: SidebarItem[] = [
-    { title: "Autism Accommodation Builder", url: "/parent/tools/autism-accommodation-builder", icon: Users, 'data-testid': 'nav-autism-accommodation-builder' },
+    { title: "Autism Accommodations", url: "/parent/tools/autism-accommodations", icon: Users, 'data-testid': 'nav-autism-accommodations' },
     { title: "Gifted & 2e Learners", url: "/parent/tools/gifted-2e-learners", icon: Sparkles, 'data-testid': 'nav-gifted-2e-learners' },
     { title: "Emotion Tracker", url: "/parent/tools/emotion-tracker", icon: User, 'data-testid': 'nav-emotion-tracker' },
   ];
@@ -97,10 +97,10 @@ const getParentNavigation = (dashboardUrl: string, userPlan: string, canUse?: an
     { title: "Messages", url: "/parent/messages", icon: MessageSquare, 'data-testid': 'nav-messages' },
   ];
 
-  // Digital Binder from EmergentToolsHub
+  // Digital Binder from EmergentToolsHub  
   const digitalBinderItems: SidebarItem[] = [
-    { title: "Document Vault", url: "/parent/tools/document-vault", icon: Archive, 'data-testid': 'nav-document-vault' },
-    { title: "Student Profiles", url: "/parent/tools/student-profiles", icon: GraduationCap, 'data-testid': 'nav-student-profiles' },
+    { title: "Document Vault", url: "/tools/document-vault", icon: Archive, 'data-testid': 'nav-document-vault' },
+    { title: "Student Profiles", url: "/parent/students", icon: GraduationCap, 'data-testid': 'nav-student-profiles' },
     { title: "Ask AI Documents", url: "/parent/tools/ask-ai-documents", icon: Brain, 'data-testid': 'nav-ask-ai-documents' },
   ];
 

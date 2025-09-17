@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { DashboardLayout } from "@/layouts/DashboardLayout";
+// DashboardLayout removed - already provided by ToolsRoute wrapper
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -294,7 +294,6 @@ export default function SmartMatching() {
   // Show different views for advocates vs parents
   if (isAdvocate) {
     return (
-      <DashboardLayout>
         <div className="space-y-8">
           {/* Advocate Header */}
           <div className="relative overflow-hidden">
@@ -376,12 +375,10 @@ export default function SmartMatching() {
             )}
           </div>
         </div>
-      </DashboardLayout>
     );
   }
 
   return (
-    <DashboardLayout>
       <div className="space-y-8">
         {/* Hero Section */}
         <div className="relative overflow-hidden">
@@ -911,6 +908,5 @@ export default function SmartMatching() {
           </div>
         </DialogContent>
       </Dialog>
-    </DashboardLayout>
   );
 }

@@ -54,7 +54,7 @@ export function Breadcrumb({ className = "", showBackButton = true }: Breadcrumb
         'messages': 'Messages',
         'parents': 'Parent Clients',
         'students': 'Client Students', 
-        'tools': 'Tools Hub',
+        'tools': '',
         'matching': isAdvocate ? 'Client Matching' : 'Find Advocates',
         'profile': 'Profile',
         'settings': 'Settings',

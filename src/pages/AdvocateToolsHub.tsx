@@ -161,8 +161,6 @@ export default function AdvocateToolsHub() {
   const [isPending, startTransition] = useTransition();
   const { user } = useAuth();
   const { canUse, currentPlan } = useToolAccess();
-  const [selectedCategory, setSelectedCategory] = useState('All');
-
   // Concurrent navigation handler using startTransition
   const handleToolNavigation = (route: string) => {
     startTransition(() => {
@@ -176,51 +174,10 @@ export default function AdvocateToolsHub() {
   const popularTools = allAdvocateTools.filter(t => t.isPopular);
   const otherTools = allAdvocateTools.filter(t => !t.isPopular);
 
-  // Filter categories
-  const categories = ['All', 'Enhanced', 'Popular', 'Analytics', 'IEP Documents', 'Legal', 'Templates'];
-
-  const getFilteredTools = () => {
-    if (selectedCategory === 'All') return allAdvocateTools;
-    if (selectedCategory === 'Popular') return popularTools;
-    // For other categories, filter by badge or category
-    return allAdvocateTools.filter(tool => 
-      tool.badge === selectedCategory || 
-      tool.category === selectedCategory
-    );
-  };
-
-  const filteredTools = getFilteredTools();
-
   return (
     <DashboardLayout>
       <SafeAreaFull>
         <ContainerMobile padding="md" className="space-y-6 pb-32">
-          {/* Tools Hub Header */}
-          <div className="space-y-1">
-            <MobileH1 data-testid="header-tools-hub">Tools Hub</MobileH1>
-          </div>
-
-          {/* Category Filter Chips */}
-          <div className="sticky top-0 z-10 bg-background py-3 -mx-4 px-4">
-            <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-hide">
-              {categories.map((category) => (
-                <Button
-                  key={category}
-                  variant={selectedCategory === category ? "default" : "outline"}
-                  size="sm"
-                  className={`whitespace-nowrap min-h-[36px] transition-all duration-200 ${
-                    selectedCategory === category 
-                      ? 'bg-primary text-primary-foreground shadow-sm' 
-                      : 'bg-background hover:bg-muted'
-                  }`}
-                  onClick={() => setSelectedCategory(category)}
-                  data-testid={`filter-${category.toLowerCase().replace(' ', '-')}`}
-                >
-                  {category}
-                </Button>
-              ))}
-            </div>
-          </div>
           {/* PINK: Professional Advocate Tools Section */}
           <div className="space-y-4">
             <div className="space-y-3">
@@ -244,8 +201,8 @@ export default function AdvocateToolsHub() {
             </div>
           </div>
 
-          {/* Popular Tools Section - Show when Popular filter is selected */}
-          {selectedCategory === 'Popular' && popularTools.length > 0 && (
+          {/* Popular Tools Section */}
+          {popularTools.length > 0 && (
             <div className="space-y-4">
               <div className="flex items-center gap-3">
                 <MobileH3 data-testid="header-popular">Popular Tools</MobileH3>
@@ -256,24 +213,40 @@ export default function AdvocateToolsHub() {
                   </Badge>
                 )}
               </div>
+              <div className="space-y-4">
+                {popularTools.map((tool) => {
+                  const hasAccess = canUse(tool.requiredFeature);
+                  return (
+                    <ToolCard
+                      key={tool.id}
+                      tool={tool}
+                      hasAccess={hasAccess}
+                      currentPlan={currentPlan}
+                      onNavigate={handleToolNavigation}
+                    />
+                  );
+                })}
+              </div>
             </div>
           )}
 
-          {/* Tool Cards - Based on Selected Filter */}
-          <div className="space-y-4">
-            {filteredTools.map((tool) => {
-              const hasAccess = canUse(tool.requiredFeature);
-              return (
-                <ToolCard
-                  key={tool.id}
-                  tool={tool}
-                  hasAccess={hasAccess}
-                  currentPlan={currentPlan}
-                  onNavigate={handleToolNavigation}
-                />
-              );
-            })}
-          </div>
+          {/* Remaining Tools */}
+          {otherTools.length > 0 && (
+            <div className="space-y-4">
+              {otherTools.map((tool) => {
+                const hasAccess = canUse(tool.requiredFeature);
+                return (
+                  <ToolCard
+                    key={tool.id}
+                    tool={tool}
+                    hasAccess={hasAccess}
+                    currentPlan={currentPlan}
+                    onNavigate={handleToolNavigation}
+                  />
+                );
+              })}
+            </div>
+          )}
         </ContainerMobile>
       </SafeAreaFull>
     </DashboardLayout>

@@ -8,7 +8,8 @@ import {
   GraduationCap, 
   FileSearch,
   UserCheck,
-  Home
+  Home,
+  User
 } from "lucide-react";
 
 interface BottomNavItem {
@@ -40,15 +41,16 @@ export function BottomNavigation() {
       return [
         { title: "Cases", url: dashboardUrl, icon: LayoutDashboard, 'data-testid': 'bottom-nav-dashboard' },
         { title: "Parents", url: "/advocate/parents", icon: Users, 'data-testid': 'bottom-nav-parents' },
-        { title: "Students", url: "/advocate/students", icon: GraduationCap, 'data-testid': 'bottom-nav-students' },
+        { title: "Messages", url: "/advocate/messages", icon: MessageSquare, 'data-testid': 'bottom-nav-messages' },
         { title: "Tools", url: "/advocate/tools", icon: FileSearch, 'data-testid': 'bottom-nav-tools' },
-        { title: "Messages", url: "/advocate/messages", icon: MessageSquare, 'data-testid': 'bottom-nav-messages' }
+        { title: "Account", url: "/advocate/profile", icon: User, 'data-testid': 'bottom-nav-account' }
       ];
     } else {
       return [
         { title: "Dashboard", url: dashboardUrl, icon: LayoutDashboard, 'data-testid': 'bottom-nav-dashboard' },
         { title: "Advocates", url: "/parent/matching", icon: UserCheck, 'data-testid': 'bottom-nav-matching' },
-        { title: "Messages", url: "/parent/messages", icon: MessageSquare, 'data-testid': 'bottom-nav-messages' }
+        { title: "Messages", url: "/parent/messages", icon: MessageSquare, 'data-testid': 'bottom-nav-messages' },
+        { title: "Account", url: "/parent/profile", icon: User, 'data-testid': 'bottom-nav-account' }
       ];
     }
   };

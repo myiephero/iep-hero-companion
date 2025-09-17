@@ -5,7 +5,7 @@ import { Breadcrumb } from "@/components/Breadcrumb";
 import { Button } from "@/components/ui/button";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { Link, useNavigate, useLocation } from "react-router-dom";
-import { Crown, User, LogOut, Settings, CreditCard, Menu, ArrowLeft } from "lucide-react";
+import { Crown, User, LogOut, Settings, CreditCard } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
 import { normalizeSubscriptionPlan } from "@/lib/planAccess";
@@ -24,14 +24,6 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
   const userPlan = normalizeSubscriptionPlan(user?.subscriptionPlan);
   const isPaidUser = userPlan !== 'free';
   
-  // Check if we should show back button on mobile (not on dashboard/main pages)
-  const currentPath = location.pathname;
-  const isDashboardPage = currentPath.includes('/dashboard') || 
-                         currentPath === '/parent/matching' || 
-                         currentPath === '/advocate/parents' || 
-                         currentPath === '/parent/messages' || 
-                         currentPath === '/advocate/messages';
-  const showMobileBackButton = !isDashboardPage;
 
   const handleSignOut = async () => {
     try {
@@ -57,72 +49,32 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
         <AppSidebar />
         
         <div className="flex-1 flex flex-col w-full max-w-none">
-          {/* Dashboard Header */}
-          <header className="sticky top-0 z-40 w-full border-b border-border bg-background/95 backdrop-blur">
+          {/* Dashboard Header - Hidden on mobile, visible on desktop */}
+          <header className="hidden md:block sticky top-0 z-40 w-full border-b border-border bg-background/95 backdrop-blur">
             <div className="flex h-16 items-center justify-between px-4 md:px-6">
-              <div className="flex items-center gap-2 md:gap-4">
-                {/* Mobile Back Button or Sidebar Trigger */}
-                {showMobileBackButton ? (
-                  <Button 
-                    variant="ghost" 
-                    size="icon"
-                    className="md:hidden min-h-[44px] min-w-[44px] p-2"
-                    onClick={() => navigate(-1)}
-                    data-testid="button-mobile-back"
-                  >
-                    <ArrowLeft className="h-5 w-5" />
-                    <span className="sr-only">Go back</span>
-                  </Button>
-                ) : (
-                  <div className="md:hidden">
-                    <SidebarTrigger className="min-h-[44px] min-w-[44px] p-2" />
-                  </div>
-                )}
-                
-                {/* Desktop sidebar trigger */}
-                <div className="hidden md:block">
-                  <SidebarTrigger />
-                </div>
-                
-                <div className="font-semibold text-base md:text-lg">My IEP Hero</div>
+              <div className="flex items-center gap-4">
+                <SidebarTrigger />
+                <div className="font-semibold text-lg">My IEP Hero</div>
               </div>
-              <div className="flex items-center gap-1 md:gap-3">
+              <div className="flex items-center gap-3">
                 {/* Role-aware upgrade buttons */}
                 {user?.role === 'parent' && userPlan !== 'hero' && (
-                  <>
-                    <Button asChild variant="hero" className="hidden sm:flex min-h-[44px]" data-testid="button-parent-upgrade-header">
-                      <Link to="/parent/pricing">
-                        <Crown className="h-4 w-4 mr-1" />
-                        {userPlan === 'free' ? 'HERO Plan' : 'Upgrade'}
-                      </Link>
-                    </Button>
-                    
-                    {/* Mobile Parent Upgrade Button */}
-                    <Button asChild variant="hero" className="sm:hidden min-h-[44px] min-w-[44px]" data-testid="button-parent-upgrade-header-mobile">
-                      <Link to="/parent/pricing">
-                        <Crown className="h-4 w-4" />
-                      </Link>
-                    </Button>
-                  </>
+                  <Button asChild variant="hero" className="min-h-[44px]" data-testid="button-parent-upgrade-header">
+                    <Link to="/parent/pricing">
+                      <Crown className="h-4 w-4 mr-1" />
+                      {userPlan === 'free' ? 'HERO Plan' : 'Upgrade'}
+                    </Link>
+                  </Button>
                 )}
                 
                 {/* Advocate upgrade buttons */}
                 {user?.role === 'advocate' && userPlan !== 'agency-plus' && (
-                  <>
-                    <Button asChild variant="outline" className="hidden sm:flex border-blue-200 text-blue-700 hover:bg-blue-50 min-h-[44px]" data-testid="button-advocate-upgrade-header">
-                      <Link to="/advocate/pricing">
-                        <Crown className="h-4 w-4 mr-1" />
-                        Upgrade Plan
-                      </Link>
-                    </Button>
-                    
-                    {/* Mobile Advocate Upgrade Button */}
-                    <Button asChild variant="outline" className="sm:hidden border-blue-200 text-blue-700 hover:bg-blue-50 min-h-[44px] min-w-[44px]" data-testid="button-advocate-upgrade-header-mobile">
-                      <Link to="/advocate/pricing">
-                        <Crown className="h-4 w-4" />
-                      </Link>
-                    </Button>
-                  </>
+                  <Button asChild variant="outline" className="border-blue-200 text-blue-700 hover:bg-blue-50 min-h-[44px]" data-testid="button-advocate-upgrade-header">
+                    <Link to="/advocate/pricing">
+                      <Crown className="h-4 w-4 mr-1" />
+                      Upgrade Plan
+                    </Link>
+                  </Button>
                 )}
                 
                 {/* User Dropdown */}
@@ -130,12 +82,12 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
                   <DropdownMenuTrigger asChild>
                     <Button 
                       variant="ghost" 
-                      className="flex items-center gap-2 px-3 min-h-[44px] min-w-[44px] active:scale-95 transition-transform duration-150"
+                      className="flex items-center gap-2 px-3 min-h-[44px] active:scale-95 transition-transform duration-150"
                       aria-label="User menu"
                     >
                       <User className="h-5 w-5" />
                       {(profile?.full_name || user?.email) && (
-                        <span className="text-sm text-muted-foreground hidden lg:block truncate max-w-[120px]">
+                        <span className="text-sm text-muted-foreground truncate max-w-[120px]">
                           {profile?.full_name || user?.email}
                         </span>
                       )}
@@ -143,11 +95,8 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
                   </DropdownMenuTrigger>
                   <DropdownMenuContent 
                     align="end" 
-                    className="w-64 max-w-[calc(100vw-1rem)] mr-2 md:mr-0 md:w-56 shadow-lg border-2 md:border"
+                    className="w-56 shadow-lg"
                     sideOffset={12}
-                    alignOffset={0}
-                    collisionPadding={8}
-                    avoidCollisions={true}
                   >
                     <DropdownMenuItem 
                       onClick={() => {
@@ -246,7 +195,7 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
             <div className="w-full max-w-none overflow-x-clip p-3 sm:p-4 md:p-6 pb-20 md:pb-6 min-h-0">
               {/* Breadcrumb Navigation */}
               <div className="mb-4 md:mb-6">
-                <Breadcrumb showBackButton={false} className="md:mb-0" />
+                <Breadcrumb showBackButton={true} className="md:mb-0" />
               </div>
               
               {children}

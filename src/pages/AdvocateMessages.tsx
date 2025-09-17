@@ -5,7 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Search, Send, Paperclip, MessageSquare, Loader2, FileText, Clock, Users, X, Archive, ArchiveRestore, AlertTriangle, ChevronUp, MoreHorizontal } from "lucide-react";
-import { ConversationTable } from "@/components/ui/responsive-table-examples";
+import { ConversationCards } from "@/components/ConversationCards";
 import { useLocation } from "react-router-dom";
 import { useState, useEffect, useRef, useMemo } from "react";
 import { useConversations, useMessages, useSendMessage, useCreateConversation, useProposalContacts } from "@/hooks/useMessaging";
@@ -421,16 +421,19 @@ export default function AdvocateMessages() {
         <div className="lg:col-span-1">
           <Card className="h-full flex flex-col">
             <div className="p-4 border-b">
-              <h2 className="text-lg font-semibold mb-3">Messages</h2>
+              <h2 className="text-xl font-bold mb-4">Messages</h2>
               <div className="relative">
                 <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
-                <Input placeholder="Search conversations..." className="pl-10" />
+                <Input placeholder="Search conversations..." className="pl-10 h-11 text-base" />
               </div>
             </div>
             <div className="flex-1 overflow-y-auto">
               {conversationsLoading ? (
                 <div className="flex items-center justify-center p-8">
-                  <Loader2 className="h-6 w-6 animate-spin" />
+                  <div className="flex items-center gap-3">
+                    <Loader2 className="h-6 w-6 animate-spin" />
+                    <span className="text-base text-muted-foreground">Loading conversations...</span>
+                  </div>
                 </div>
               ) : conversationsError ? (
                 <div className="p-4 text-center text-red-500">
@@ -456,19 +459,14 @@ export default function AdvocateMessages() {
                   {/* Existing Conversations */}
                   {filteredConversations.length > 0 && (
                     <div>
-                      <div className="px-4 py-2 bg-muted/20 border-b">
-                        <h3 className="text-xs font-medium text-muted-foreground uppercase tracking-wider">Active Conversations</h3>
+                      <div className="px-4 py-3 bg-muted/20 border-b">
+                        <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider">Active Conversations</h3>
                       </div>
-                      <ConversationTable
+                      <ConversationCards
                         conversations={filteredConversations}
                         loading={conversationsLoading}
                         onOpenConversation={(conversation) => setSelectedConversation(conversation)}
-                        onArchive={async (conversation) => {
-                          // Handle archiving here if needed
-                        }}
-                        onMarkUrgent={async (conversation) => {
-                          // Handle marking urgent here if needed  
-                        }}
+                        selectedConversationId={selectedConversation?.id}
                       />
                     </div>
                   )}
@@ -476,8 +474,8 @@ export default function AdvocateMessages() {
                   {/* Proposal Contacts (New Contacts) */}
                   {proposalContacts && proposalContacts.filter(contact => !contact.hasConversation).length > 0 && (
                     <div>
-                      <div className="px-4 py-2 bg-muted/20 border-b">
-                        <h3 className="text-xs font-medium text-muted-foreground uppercase tracking-wider">New Contacts (Incoming Proposals)</h3>
+                      <div className="px-4 py-3 bg-muted/20 border-b">
+                        <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider">New Contacts (Incoming Proposals)</h3>
                       </div>
                       {proposalContacts.filter(contact => !contact.hasConversation).map((contact) => {
                         const studentName = contact.student?.full_name || 'Unknown Student';
@@ -487,24 +485,24 @@ export default function AdvocateMessages() {
                         return (
                           <div
                             key={contact.proposal.id}
-                            className="p-4 border-b hover:bg-muted/50 cursor-pointer transition-colors"
+                            className="p-5 border-b hover:bg-muted/50 cursor-pointer transition-colors"
                             onClick={() => handleStartConversationFromProposal(contact)}
                             data-testid={`proposal-contact-${contact.proposal.id}`}
                           >
                             <div className="flex items-start gap-3">
-                              <Avatar className="h-10 w-10">
+                              <Avatar className="h-12 w-12">
                                 <AvatarImage src="/placeholder-new.jpg" />
-                                <AvatarFallback>{avatar}</AvatarFallback>
+                                <AvatarFallback className="text-base font-medium">{avatar}</AvatarFallback>
                               </Avatar>
                               <div className="flex-1 min-w-0">
-                                <div className="flex items-center justify-between">
-                                  <p className="font-medium truncate">{studentName}'s Family</p>
-                                  <Badge variant={contact.contactType === 'inactive' ? 'secondary' : 'outline'} className="text-xs">
+                                <div className="flex items-center justify-between mb-1">
+                                  <p className="text-base font-semibold truncate">{studentName}'s Family</p>
+                                  <Badge variant={contact.contactType === 'inactive' ? 'secondary' : 'outline'} className="text-sm px-2 py-1">
                                     {contact.contactType === 'inactive' ? 'New' : 'Ready'}
                                   </Badge>
                                 </div>
-                                <p className="text-sm text-muted-foreground mb-1">{statusText}</p>
-                                <p className="text-sm text-green-600">
+                                <p className="text-sm text-muted-foreground mb-2">{statusText}</p>
+                                <p className="text-sm font-medium text-green-600">
                                   Click to start messaging
                                 </p>
                               </div>
@@ -519,9 +517,9 @@ export default function AdvocateMessages() {
                   {filteredConversations.length === 0 && conversations.length > 0 && (
                     <div className="flex items-center justify-center h-32 p-8">
                       <div className="text-center text-muted-foreground">
-                        <MessageSquare className="h-8 w-8 mx-auto mb-2 opacity-50" />
-                        <p className="text-sm font-medium mb-1">No conversations match your filters</p>
-                        <p className="text-xs">Try adjusting your filter criteria</p>
+                        <MessageSquare className="h-12 w-12 mx-auto mb-4 opacity-50" />
+                        <p className="text-base font-semibold mb-2">No conversations match your filters</p>
+                        <p className="text-sm">Try adjusting your filter criteria</p>
                       </div>
                     </div>
                   )}
@@ -531,8 +529,8 @@ export default function AdvocateMessages() {
                     <div className="flex items-center justify-center h-full p-8">
                       <div className="text-center text-muted-foreground">
                         <MessageSquare className="h-12 w-12 mx-auto mb-4 opacity-50" />
-                        <p className="text-lg font-medium mb-2">No Conversations Yet</p>
-                        <p className="text-sm">Your client messages will appear here once you start receiving communications.</p>
+                        <p className="text-xl font-bold mb-3">No Conversations Yet</p>
+                        <p className="text-base">Your client messages will appear here once you start receiving communications.</p>
                       </div>
                     </div>
                   )}
@@ -559,7 +557,7 @@ export default function AdvocateMessages() {
                     </Avatar>
                     <div>
                       <div className="flex items-center gap-2">
-                        <p className="font-medium">
+                        <p className="text-lg font-bold">
                           {selectedConversation?.student?.full_name 
                             ? `${selectedConversation.student.full_name}'s Family` 
                             : "Student's Family"}
@@ -584,7 +582,7 @@ export default function AdvocateMessages() {
                         )}
                       </div>
                       <div className="flex items-center gap-2 mt-1">
-                        <p className="text-sm text-muted-foreground">
+                        <p className="text-base text-muted-foreground">
                           Advocate: {selectedConversation?.advocate?.name || 'Unknown Advocate'}
                         </p>
                         <ConversationLabelsDisplay conversationId={selectedConversation.id} />
@@ -669,8 +667,8 @@ export default function AdvocateMessages() {
                   <div className="flex items-center justify-center h-full">
                     <div className="text-center text-muted-foreground">
                       <MessageSquare className="h-12 w-12 mx-auto mb-4 opacity-50" />
-                      <p className="text-lg font-medium mb-2">No Messages Yet</p>
-                      <p className="text-sm">Start a conversation with {selectedConversation.student?.full_name || 'the student'}'s family</p>
+                      <p className="text-xl font-bold mb-3">No Messages Yet</p>
+                      <p className="text-base">Start a conversation with {selectedConversation.student?.full_name || 'the student'}'s family</p>
                     </div>
                   </div>
                 )
@@ -678,8 +676,8 @@ export default function AdvocateMessages() {
                 <div className="flex items-center justify-center h-full">
                   <div className="text-center text-muted-foreground">
                     <MessageSquare className="h-16 w-16 mx-auto mb-4 opacity-50" />
-                    <p className="text-xl font-medium mb-2">Select a Conversation</p>
-                    <p className="text-sm">Choose a conversation from the list to start messaging</p>
+                    <p className="text-2xl font-bold mb-3">Select a Conversation</p>
+                    <p className="text-base">Choose a conversation from the list to start messaging</p>
                   </div>
                 </div>
               )}
@@ -690,9 +688,9 @@ export default function AdvocateMessages() {
                 {/* Template Selector - Only show for new conversations from proposals */}
                 {showTemplateSelector && location.state?.newMessage && (
                   <div className="p-4 bg-muted/30 border-b">
-                    <div className="mb-3">
-                      <h4 className="text-sm font-medium mb-2">Professional Templates</h4>
-                      <p className="text-xs text-muted-foreground">Choose a template to personalize your response</p>
+                    <div className="mb-4">
+                      <h4 className="text-base font-bold mb-3">Professional Templates</h4>
+                      <p className="text-sm text-muted-foreground">Choose a template to personalize your response</p>
                     </div>
                     <div className="flex flex-wrap gap-2">
                       {Object.entries(MESSAGE_TEMPLATES).map(([key, template]) => {
@@ -764,7 +762,7 @@ export default function AdvocateMessages() {
                     <div className="flex-1 space-y-2">
                       <textarea 
                         placeholder="Type your message..." 
-                        className="w-full min-h-[60px] max-h-[200px] p-3 border rounded-md resize-none focus:outline-none focus:ring-2 focus:ring-ring bg-background"
+                        className="w-full min-h-[80px] max-h-[200px] p-4 text-base border rounded-md resize-none focus:outline-none focus:ring-2 focus:ring-ring bg-background"
                         value={newMessageText}
                         onChange={(e) => setNewMessageText(e.target.value)}
                         onKeyDown={async (e) => {
@@ -784,11 +782,11 @@ export default function AdvocateMessages() {
                       )}
                     </div>
                     <Button 
-                      size="icon" 
+                      size="default" 
                       disabled={sending || (!newMessageText.trim() && !attachmentFiles.some(f => f.status === 'completed'))}
                       onClick={handleSendMessage}
                       data-testid="button-send-message"
-                      className="mb-1"
+                      className="mb-1 h-11 w-11"
                     >
                       {sending ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />}
                     </Button>

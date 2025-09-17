@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Calendar, Target, TrendingUp, Clock, Plus, BookOpen, AlertCircle, AlertTriangle, Star, Trophy, Sparkles, ChevronRight, Users, CheckCircle2, ArrowUpRight, Rocket, FileText, GraduationCap, Smile, Brain, Save, Loader2, Crown, Zap, Shield } from "lucide-react";
+import { Calendar, Target, TrendingUp, Clock, Plus, BookOpen, AlertCircle, AlertTriangle, Star, Trophy, Sparkles, ChevronRight, Users, CheckCircle2, ArrowUpRight, Rocket, FileText, GraduationCap, Smile, Brain, Save, Loader2, Crown, Zap, Shield, UserCheck, MessageSquare } from "lucide-react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -502,11 +502,11 @@ export default function ParentDashboard({ plan }: ParentDashboardProps) {
                 <Rocket className="h-4 w-4 sm:h-5 sm:w-5 mr-2" />
                 Explore Premium Tools
               </Button>
-              <div className="flex flex-col sm:flex-row gap-3 sm:gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
                 <Button 
                   variant="outline" 
                   size="lg"
-                  className="border-2 border-primary/30 hover:border-primary text-primary hover:bg-primary/5 px-4 sm:px-6 py-4 sm:py-3 cursor-pointer min-h-[44px] text-sm sm:text-base font-medium flex-1"
+                  className="border-2 border-primary/30 hover:border-primary text-primary hover:bg-primary/5 px-4 sm:px-6 py-4 sm:py-3 cursor-pointer min-h-[44px] text-sm sm:text-base font-medium"
                   onClick={(e) => {
                     e.preventDefault();
                     e.stopPropagation();
@@ -526,7 +526,7 @@ export default function ParentDashboard({ plan }: ParentDashboardProps) {
                 <Button 
                   variant="outline" 
                   size="lg"
-                  className="border-2 border-purple-500/30 hover:border-purple-500 text-purple-600 hover:bg-purple-50 px-4 sm:px-6 py-4 sm:py-3 cursor-pointer min-h-[44px] text-sm sm:text-base font-medium flex-1"
+                  className="border-2 border-purple-500/30 hover:border-purple-500 text-purple-600 hover:bg-purple-50 px-4 sm:px-6 py-4 sm:py-3 cursor-pointer min-h-[44px] text-sm sm:text-base font-medium"
                   onClick={(e) => {
                     e.preventDefault();
                     e.stopPropagation();
@@ -542,6 +542,46 @@ export default function ParentDashboard({ plan }: ParentDashboardProps) {
                 >
                   <FileText className="h-4 w-4 sm:h-5 sm:w-5 mr-2" />
                   Document Vault
+                </Button>
+                <Button 
+                  variant="outline" 
+                  size="lg"
+                  className="border-2 border-green-500/30 hover:border-green-500 text-green-600 hover:bg-green-50 px-4 sm:px-6 py-4 sm:py-3 cursor-pointer min-h-[44px] text-sm sm:text-base font-medium"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    console.log('🔍 Find Advocates clicked!');
+                    try {
+                      navigate('/parent/matching');
+                    } catch (error) {
+                      console.error('Navigation error:', error);
+                      window.location.href = '/parent/matching';
+                    }
+                  }}
+                  data-testid="button-find-advocates"
+                >
+                  <UserCheck className="h-4 w-4 sm:h-5 sm:w-5 mr-2" />
+                  Find Advocates
+                </Button>
+                <Button 
+                  variant="outline" 
+                  size="lg"
+                  className="border-2 border-orange-500/30 hover:border-orange-500 text-orange-600 hover:bg-orange-50 px-4 sm:px-6 py-4 sm:py-3 cursor-pointer min-h-[44px] text-sm sm:text-base font-medium"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    console.log('💬 Messages clicked!');
+                    try {
+                      navigate('/parent/messages');
+                    } catch (error) {
+                      console.error('Navigation error:', error);
+                      window.location.href = '/parent/messages';
+                    }
+                  }}
+                  data-testid="button-messages"
+                >
+                  <MessageSquare className="h-4 w-4 sm:h-5 sm:w-5 mr-2" />
+                  Messages
                 </Button>
               </div>
             </div>

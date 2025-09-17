@@ -1,6 +1,7 @@
 import React from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
+import { normalizeSubscriptionPlan } from '@/lib/planAccess';
 import { 
   Home, 
   Wrench, 
@@ -35,6 +36,17 @@ export function PremiumBottomNav({ className }: PremiumBottomNavProps) {
   
   const isAdvocate = user?.role === 'advocate';
   const isParent = user?.role === 'parent';
+  
+  // Generate correct plan-based dashboard URLs (matches BottomNavigation.tsx logic)
+  const userPlan = normalizeSubscriptionPlan(user?.subscriptionPlan);
+  const advocatePlanMapping = {
+    'starter': 'starter',
+    'pro': 'pro', 
+    'agency': 'agency',
+    'agency-plus': 'agency-plus'
+  };
+  const advocatePlanSlug = advocatePlanMapping[userPlan] || 'starter';
+  const dashboardUrl = isAdvocate ? `/advocate/dashboard-${advocatePlanSlug}` : `/parent/dashboard-${userPlan}`;
 
   // Premium navigation items based on user role
   const navItems: NavItem[] = [
@@ -42,7 +54,7 @@ export function PremiumBottomNav({ className }: PremiumBottomNavProps) {
       id: 'dashboard',
       label: 'Home',
       icon: Home,
-      href: isAdvocate ? '/advocate/dashboard-pro' : '/parent/dashboard-free',
+      href: dashboardUrl,
       roles: ['parent', 'advocate'],
     },
     {

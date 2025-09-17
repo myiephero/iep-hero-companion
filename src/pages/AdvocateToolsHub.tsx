@@ -1,6 +1,6 @@
 import { useState, startTransition, useTransition } from "react";
 import { useNavigate } from "react-router-dom";
-import { DashboardLayout } from "@/layouts/DashboardLayout";
+// DashboardLayout removed - already provided by ToolsRoute wrapper
 import { useAuth } from "@/hooks/useAuth";
 import { useToolAccess } from "@/hooks/useToolAccess";
 import { 
@@ -175,7 +175,6 @@ export default function AdvocateToolsHub() {
   const otherTools = allAdvocateTools.filter(t => !t.isPopular);
 
   return (
-    <DashboardLayout>
       <SafeAreaFull>
         <ContainerMobile padding="md" className="space-y-6 pb-32">
           {/* PINK: Professional Advocate Tools Section */}
@@ -249,6 +248,5 @@ export default function AdvocateToolsHub() {
           )}
         </ContainerMobile>
       </SafeAreaFull>
-    </DashboardLayout>
   );
 }

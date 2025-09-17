@@ -1,4 +1,4 @@
-import { DashboardLayout } from "@/layouts/DashboardLayout";
+// DashboardLayout removed - already provided by ToolsRoute wrapper
 import { Badge } from "@/components/ui/badge";
 import { AccessControlledToolCard } from "@/components/AccessControlledToolCard";
 import { Zap, Users, Star, FileText, Target, Building, BookOpen, Smile, TrendingUp, MessageSquare, Brain, Heart, Code } from "lucide-react";
@@ -247,7 +247,6 @@ export default function EmergentToolsHubNew() {
   }, []);
   
   return (
-    <DashboardLayout>
       <div className="space-y-8">
         <div className="text-center space-y-6">
           <div className="flex items-center justify-center gap-2 mb-4">
@@ -280,6 +279,5 @@ export default function EmergentToolsHubNew() {
           </div>
         </div>
       </div>
-    </DashboardLayout>
   );
 }

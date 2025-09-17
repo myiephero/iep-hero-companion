@@ -775,6 +775,7 @@ const AdvocateDashboard = ({ plan }: AdvocateDashboardProps) => {
                   </p>
                   <p className="text-sm font-medium text-gray-900 dark:text-gray-100">This Week</p>
                   <p className="text-xs text-gray-500 dark:text-gray-400">Upcoming meetings</p>
+                </div>
               </PremiumCard>
             </FeatureGate>
 

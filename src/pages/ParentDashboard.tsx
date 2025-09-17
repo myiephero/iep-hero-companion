@@ -657,15 +657,7 @@ export default function ParentDashboard({ plan }: ParentDashboardProps) {
                   key={index}
                   variant="elevated"
                   className={`text-center relative overflow-hidden min-h-[140px] ${isInitialized ? 'cursor-pointer' : 'cursor-wait'}`}
-                  style={{ 
-                    animationDelay: `${index * 100}ms`,
-                    animation: 'fadeInUp 0.6s ease-out forwards',
-                    opacity: isInitialized ? 1 : 0.7
-                  }}
-                  onClick={(e) => {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    
+                  onClick={() => {
                     // Ensure handlers are initialized
                     if (!isInitialized) {
                       console.log('⚠️ Dashboard not initialized yet, skipping card click');

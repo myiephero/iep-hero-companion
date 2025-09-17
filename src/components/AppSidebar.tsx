@@ -61,21 +61,22 @@ interface SidebarSection {
 
 const getParentNavigation = (dashboardUrl: string, userPlan: string, isAdvocate: boolean): SidebarSection[] => {
   const baseItems: SidebarItem[] = [
-    { title: "Dashboard", url: dashboardUrl, icon: LayoutDashboard },
+    { title: "Dashboard", url: dashboardUrl, icon: LayoutDashboard, 'data-testid': 'nav-dashboard' },
   ];
 
+  const quickToolsItems: SidebarItem[] = [
+    { title: "Find Advocates", url: "/parent/matching", icon: UserCheck, 'data-testid': 'nav-find-advocates' },
+    { title: "Messages", url: "/parent/messages", icon: MessageSquare, 'data-testid': 'nav-messages' },
+  ];
 
   return [
     {
-      title: "Parent Portal",
+      title: "PARENT PORTAL",
       items: baseItems
     },
     {
-      title: "Quick Tools",
-      items: [
-        { title: "Find Advocates", url: "/parent/matching", icon: UserCheck },
-        { title: "Messages", url: "/parent/messages", icon: MessageSquare },
-      ]
+      title: "QUICK TOOLS",
+      items: quickToolsItems
     }
   ];
 };

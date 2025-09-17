@@ -1,5 +1,4 @@
 import { useState, useEffect } from "react";
-import { DashboardLayout } from "@/layouts/DashboardLayout";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -2403,8 +2402,7 @@ const ParentStudents = () => {
   }
 
   return (
-    <DashboardLayout>
-      <div className="space-y-6">
+    <div className="space-y-6">
         {/* Enhanced Header Section */}
         <div className="relative overflow-hidden">
           <div className="absolute inset-0 bg-gradient-to-r from-primary/5 via-secondary/5 to-accent/5 rounded-2xl pointer-events-none" />
@@ -3374,8 +3372,7 @@ const ParentStudents = () => {
             </CardContent>
           </Card>
         )}
-      </div>
-    </DashboardLayout>
+    </div>
   );
 };
 

@@ -1,0 +1,120 @@
+Unable to simultaneously satisfy constraints.
+	Probably at least one of the constraints in the following list is one you don't want. 
+	Try this: 
+		(1) look at each constraint and try to figure out which you don't expect; 
+		(2) find the code that added the unwanted constraint or constraints and fix it. 
+(
+    "<NSLayoutConstraint:0x600002131180 V:|-(7)-[TUIKeyboardContentView:0x104323ec0]   (active, names: '|':TUIKeyplaneView:0x104322ad0 )>",
+    "<NSLayoutConstraint:0x600002130370 V:[TUIKeyboardContentView:0x104323ec0]-(12)-|   (active, names: '|':TUIKeyplaneView:0x104322ad0 )>",
+    "<NSLayoutConstraint:0x600002130be0 V:|-(0)-[TUIKeyplaneView:0x104322ad0]   (active, names: UIKeyboardLayoutStar Prev...:0x104823e00, '|':UIKeyboardLayoutStar Prev...:0x104823e00 )>",
+    "<NSLayoutConstraint:0x600002130c30 V:[TUIKeyplaneView:0x104322ad0]-(0)-|   (active, names: UIKeyboardLayoutStar Prev...:0x104823e00, '|':UIKeyboardLayoutStar Prev...:0x104823e00 )>",
+    "<NSLayoutConstraint:0x6000021305a0 V:|-(0)-[UIKeyboardLayoutStar Prev...]   (active, names: UIKeyboardLayoutStar Prev...:0x104823e00, '|':UIKeyboardImpl:0x103e1ccc0 )>",
+    "<NSLayoutConstraint:0x600002130960 V:[UIKeyboardLayoutStar Prev...]-(0)-|   (active, names: UIKeyboardLayoutStar Prev...:0x104823e00, '|':UIKeyboardImpl:0x103e1ccc0 )>",
+    "<NSLayoutConstraint:0x60000212f570 '_UITemporaryLayoutHeight' UIKeyboardImpl:0x103e1ccc0.height == 241   (active)>",
+    "<NSLayoutConstraint:0x600002131090 'TUIKeyplane.height' TUIKeyboardContentView:0x104323ec0.height == 224   (active)>"
+)
+
+Will attempt to recover by breaking constraint 
+<NSLayoutConstraint:0x600002131090 'TUIKeyplane.height' TUIKeyboardContentView:0x104323ec0.height == 224   (active)>
+
+Make a symbolic breakpoint at UIViewAlertForUnsatisfiableConstraints to catch this in the debugger.
+The methods in the UIConstraintBasedLayoutDebugging category on UIView listed in <UIKitCore/UIView.h> may also be helpful.
+Unable to simultaneously satisfy constraints.
+	Probably at least one of the constraints in the following list is one you don't want. 
+	Try this: 
+		(1) look at each constraint and try to figure out which you don't expect; 
+		(2) find the code that added the unwanted constraint or constraints and fix it. 
+(
+    "<NSLayoutConstraint:0x600002143660 'accessoryView.bottom' _UIRemoteKeyboardPlaceholderView:0x104141ff0.bottom == _UIKBCompatInputView:0x104343990.top - 17   (active)>",
+    "<NSLayoutConstraint:0x60000214eee0 'inputView.top' V:[_UIRemoteKeyboardPlaceholderView:0x104141ff0]-(0)-[_UIKBCompatInputView:0x104343990]   (active)>"
+)
+
+Will attempt to recover by breaking constraint 
+<NSLayoutConstraint:0x60000214eee0 'inputView.top' V:[_UIRemoteKeyboardPlaceholderView:0x104141ff0]-(0)-[_UIKBCompatInputView:0x104343990]   (active)>
+
+Make a symbolic breakpoint at UIViewAlertForUnsatisfiableConstraints to catch this in the debugger.
+The methods in the UIConstraintBasedLayoutDebugging category on UIView listed in <UIKitCore/UIView.h> may also be helpful.
+Unable to simultaneously satisfy constraints.
+	Probably at least one of the constraints in the following list is one you don't want. 
+	Try this: 
+		(1) look at each constraint and try to figure out which you don't expect; 
+		(2) find the code that added the unwanted constraint or constraints and fix it. 
+	(Note: If you're seeing NSAutoresizingMaskLayoutConstraints that you don't understand, refer to the documentation for the UIView property translatesAutoresizingMaskIntoConstraints) 
+(
+    "<NSAutoresizingMaskLayoutConstraint:0x600002159810 h=-&- v=-&- _TtC5UIKitP33_DDE14AA6B49FCAFC5A54255A118E1D8713ButtonWrapper:0x1043574d0.minX == 0   (active, names: '|':_TtGC5UIKit22UICorePlatformViewHostGVS_32PlatformViewRepresentableAdaptorVS_P10$186c5d1b020ButtonRepresentation__:0x1043579d0 )>",
+    "<NSAutoresizingMaskLayoutConstraint:0x600002159860 h=-&- v=-&- H:[_TtC5UIKitP33_DDE14AA6B49FCAFC5A54255A118E1D8713ButtonWrapper:0x1043574d0]-(0)-|   (active, names: '|':_TtGC5UIKit22UICorePlatformViewHostGVS_32PlatformViewRepresentableAdaptorVS_P10$186c5d1b020ButtonRepresentation__:0x1043579d0 )>",
+    "<NSLayoutConstraint:0x60000215d9a0 _TtC5UIKitP33_DDE14AA6B49FCAFC5A54255A118E1D8713ButtonWrapper:0x1043574d0.width == _UIButtonBarButton:0x104352030.width   (active)>",
+    "<NSLayoutConstraint:0x600002151310 '_UITemporaryLayoutWidth' _TtGC5UIKit22UICorePlatformViewHostGVS_32PlatformViewRepresentableAdaptorVS_P10$186c5d1b020ButtonRepresentation__:0x1043579d0.width == 0   (active)>",
+    "<NSLayoutConstraint:0x6000021579d0 'IB_Leading_Leading' H:|-(8)-[_UIModernBarButton:0x104270ae0]   (active, names: '|':_UIButtonBarButton:0x104352030 )>",
+    "<NSLayoutConstraint:0x600002157a20 'IB_Trailing_Trailing' H:[_UIModernBarButton:0x104270ae0]-(8)-|   (active, names: '|':_UIButtonBarButton:0x104352030 )>"
+)
+
+Will attempt to recover by breaking constraint 
+<NSLayoutConstraint:0x600002157a20 'IB_Trailing_Trailing' H:[_UIModernBarButton:0x104270ae0]-(8)-|   (active, names: '|':_UIButtonBarButton:0x104352030 )>
+
+Make a symbolic breakpoint at UIViewAlertForUnsatisfiableConstraints to catch this in the debugger.
+The methods in the UIConstraintBasedLayoutDebugging category on UIView listed in <UIKitCore/UIView.h> may also be helpful.
+Unable to simultaneously satisfy constraints.
+	Probably at least one of the constraints in the following list is one you don't want. 
+	Try this: 
+		(1) look at each constraint and try to figure out which you don't expect; 
+		(2) find the code that added the unwanted constraint or constraints and fix it. 
+	(Note: If you're seeing NSAutoresizingMaskLayoutConstraints that you don't understand, refer to the documentation for the UIView property translatesAutoresizingMaskIntoConstraints) 
+(
+    "<NSAutoresizingMaskLayoutConstraint:0x60000215bde0 h=-&- v=-&- _TtC5UIKitP33_DDE14AA6B49FCAFC5A54255A118E1D8713ButtonWrapper:0x104270e10.minX == 0   (active, names: '|':_TtGC5UIKit22UICorePlatformViewHostGVS_32PlatformViewRepresentableAdaptorVS_P10$186c5d1b020ButtonRepresentation__:0x1042745f0 )>",
+    "<NSAutoresizingMaskLayoutConstraint:0x60000215be30 h=-&- v=-&- H:[_TtC5UIKitP33_DDE14AA6B49FCAFC5A54255A118E1D8713ButtonWrapper:0x104270e10]-(0)-|   (active, names: '|':_TtGC5UIKit22UICorePlatformViewHostGVS_32PlatformViewRepresentableAdaptorVS_P10$186c5d1b020ButtonRepresentation__:0x1042745f0 )>",
+    "<NSLayoutConstraint:0x60000215ac60 _TtC5UIKitP33_DDE14AA6B49FCAFC5A54255A118E1D8713ButtonWrapper:0x104270e10.width == _UIButtonBarButton:0x104272b80.width   (active)>",
+    "<NSLayoutConstraint:0x60000215bb10 '_UITemporaryLayoutWidth' _TtGC5UIKit22UICorePlatformViewHostGVS_32PlatformViewRepresentableAdaptorVS_P10$186c5d1b020ButtonRepresentation__:0x1042745f0.width == 0   (active)>",
+    "<NSLayoutConstraint:0x60000215adf0 'IB_Leading_Leading' H:|-(8)-[_UIModernBarButton:0x104275030]   (active, names: '|':_UIButtonBarButton:0x104272b80 )>",
+    "<NSLayoutConstraint:0x60000215ae40 'IB_Trailing_Trailing' H:[_UIModernBarButton:0x104275030]-(8)-|   (active, names: '|':_UIButtonBarButton:0x104272b80 )>"
+)
+
+Will attempt to recover by breaking constraint 
+<NSLayoutConstraint:0x60000215ae40 'IB_Trailing_Trailing' H:[_UIModernBarButton:0x104275030]-(8)-|   (active, names: '|':_UIButtonBarButton:0x104272b80 )>
+
+Make a symbolic breakpoint at UIViewAlertForUnsatisfiableConstraints to catch this in the debugger.
+The methods in the UIConstraintBasedLayoutDebugging category on UIView listed in <UIKitCore/UIView.h> may also be helpful.
+Unable to simultaneously satisfy constraints.
+	Probably at least one of the constraints in the following list is one you don't want. 
+	Try this: 
+		(1) look at each constraint and try to figure out which you don't expect; 
+		(2) find the code that added the unwanted constraint or constraints and fix it. 
+	(Note: If you're seeing NSAutoresizingMaskLayoutConstraints that you don't understand, refer to the documentation for the UIView property translatesAutoresizingMaskIntoConstraints) 
+(
+    "<NSAutoresizingMaskLayoutConstraint:0x60000215ec10 h=-&- v=-&- _TtC5UIKitP33_DDE14AA6B49FCAFC5A54255A118E1D8713ButtonWrapper:0x104147010.minX == 0   (active, names: '|':_TtGC5UIKit22UICorePlatformViewHostGVS_32PlatformViewRepresentableAdaptorVS_P10$186c5d1b020ButtonRepresentation__:0x104147310 )>",
+    "<NSAutoresizingMaskLayoutConstraint:0x60000215ec60 h=-&- v=-&- H:[_TtC5UIKitP33_DDE14AA6B49FCAFC5A54255A118E1D8713ButtonWrapper:0x104147010]-(0)-|   (active, names: '|':_TtGC5UIKit22UICorePlatformViewHostGVS_32PlatformViewRepresentableAdaptorVS_P10$186c5d1b020ButtonRepresentation__:0x104147310 )>",
+    "<NSLayoutConstraint:0x60000215bf70 _TtC5UIKitP33_DDE14AA6B49FCAFC5A54255A118E1D8713ButtonWrapper:0x104147010.width == _UIButtonBarButton:0x104147f40.width   (active)>",
+    "<NSLayoutConstraint:0x60000215e940 '_UITemporaryLayoutWidth' _TtGC5UIKit22UICorePlatformViewHostGVS_32PlatformViewRepresentableAdaptorVS_P10$186c5d1b020ButtonRepresentation__:0x104147310.width == 0   (active)>",
+    "<NSLayoutConstraint:0x60000215e1c0 'IB_Leading_Leading' H:|-(8)-[_UIModernBarButton:0x104149330]   (active, names: '|':_UIButtonBarButton:0x104147f40 )>",
+    "<NSLayoutConstraint:0x60000215e2b0 'IB_Trailing_Trailing' H:[_UIModernBarButton:0x104149330]-(8)-|   (active, names: '|':_UIButtonBarButton:0x104147f40 )>"
+)
+
+Will attempt to recover by breaking constraint 
+<NSLayoutConstraint:0x60000215e2b0 'IB_Trailing_Trailing' H:[_UIModernBarButton:0x104149330]-(8)-|   (active, names: '|':_UIButtonBarButton:0x104147f40 )>
+
+Make a symbolic breakpoint at UIViewAlertForUnsatisfiableConstraints to catch this in the debugger.
+The methods in the UIConstraintBasedLayoutDebugging category on UIView listed in <UIKitCore/UIView.h> may also be helpful.
+-[RTIInputSystemClient remoteTextInputSessionWithID:textSuggestionsChanged:]  Can only set suggestions for an active session. sessionID = 1EC0B2F7-6DD4-4A34-8239-3C57A2B2BEDD
+       CHHapticPattern.mm:487   +[CHHapticPattern patternForKey:error:]: Failed to read pattern library data: Error Domain=NSCocoaErrorDomain Code=260 "The file “hapticpatternlibrary.plist” couldn’t be opened because there is no such file." UserInfo={NSFilePath=/Library/Audio/Tunings/Generic/Haptics/Library/hapticpatternlibrary.plist, NSURL=file:///Library/Audio/Tunings/Generic/Haptics/Library/hapticpatternlibrary.plist, NSUnderlyingError=0x600000cd0f00 {Error Domain=NSPOSIXErrorDomain Code=2 "No such file or directory"}}
+<_UIKBFeedbackGenerator: 0x600003507c80>: Error creating CHHapticPattern: Error Domain=NSCocoaErrorDomain Code=260 "The file “hapticpatternlibrary.plist” couldn’t be opened because there is no such file." UserInfo={NSFilePath=/Library/Audio/Tunings/Generic/Haptics/Library/hapticpatternlibrary.plist, NSURL=file:///Library/Audio/Tunings/Generic/Haptics/Library/hapticpatternlibrary.plist, NSUnderlyingError=0x600000cd0f00 {Error Domain=NSPOSIXErrorDomain Code=2 "No such file or directory"}}
+       CHHapticPattern.mm:487   +[CHHapticPattern patternForKey:error:]: Failed to read pattern library data: Error Domain=NSCocoaErrorDomain Code=260 "The file “hapticpatternlibrary.plist” couldn’t be opened because there is no such file." UserInfo={NSFilePath=/Library/Audio/Tunings/Generic/Haptics/Library/hapticpatternlibrary.plist, NSURL=file:///Library/Audio/Tunings/Generic/Haptics/Library/hapticpatternlibrary.plist, NSUnderlyingError=0x600000cbc5a0 {Error Domain=NSPOSIXErrorDomain Code=2 "No such file or directory"}}
+<_UIKBFeedbackGenerator: 0x600003507c80>: Error creating CHHapticPattern: Error Domain=NSCocoaErrorDomain Code=260 "The file “hapticpatternlibrary.plist” couldn’t be opened because there is no such file." UserInfo={NSFilePath=/Library/Audio/Tunings/Generic/Haptics/Library/hapticpatternlibrary.plist, NSURL=file:///Library/Audio/Tunings/Generic/Haptics/Library/hapticpatternlibrary.plist, NSUnderlyingError=0x600000cbc5a0 {Error Domain=NSPOSIXErrorDomain Code=2 "No such file or directory"}}
+       CHHapticPattern.mm:487   +[CHHapticPattern patternForKey:error:]: Failed to read pattern library data: Error Domain=NSCocoaErrorDomain Code=260 "The file “hapticpatternlibrary.plist” couldn’t be opened because there is no such file." UserInfo={NSFilePath=/Library/Audio/Tunings/Generic/Haptics/Library/hapticpatternlibrary.plist, NSURL=file:///Library/Audio/Tunings/Generic/Haptics/Library/hapticpatternlibrary.plist, NSUnderlyingError=0x600000cbe940 {Error Domain=NSPOSIXErrorDomain Code=2 "No such file or directory"}}
+<_UIKBFeedbackGenerator: 0x600003507c80>: Error creating CHHapticPattern: Error Domain=NSCocoaErrorDomain Code=260 "The file “hapticpatternlibrary.plist” couldn’t be opened because there is no such file." UserInfo={NSFilePath=/Library/Audio/Tunings/Generic/Haptics/Library/hapticpatternlibrary.plist, NSURL=file:///Library/Audio/Tunings/Generic/Haptics/Library/hapticpatternlibrary.plist, NSUnderlyingError=0x600000cbe940 {Error Domain=NSPOSIXErrorDomain Code=2 "No such file or directory"}}
+       CHHapticPattern.mm:487   +[CHHapticPattern patternForKey:error:]: Failed to read pattern library data: Error Domain=NSCocoaErrorDomain Code=260 "The file “hapticpatternlibrary.plist” couldn’t be opened because there is no such file." UserInfo={NSFilePath=/Library/Audio/Tunings/Generic/Haptics/Library/hapticpatternlibrary.plist, NSURL=file:///Library/Audio/Tunings/Generic/Haptics/Library/hapticpatternlibrary.plist, NSUnderlyingError=0x600000cbe9d0 {Error Domain=NSPOSIXErrorDomain Code=2 "No such file or directory"}}
+<_UIKBFeedbackGenerator: 0x600003507c80>: Error creating CHHapticPattern: Error Domain=NSCocoaErrorDomain Code=260 "The file “hapticpatternlibrary.plist” couldn’t be opened because there is no such file." UserInfo={NSFilePath=/Library/Audio/Tunings/Generic/Haptics/Library/hapticpatternlibrary.plist, NSURL=file:///Library/Audio/Tunings/Generic/Haptics/Library/hapticpatternlibrary.plist, NSUnderlyingError=0x600000cbe9d0 {Error Domain=NSPOSIXErrorDomain Code=2 "No such file or directory"}}
+       CHHapticPattern.mm:487   +[CHHapticPattern patternForKey:error:]: Failed to read pattern library data: Error Domain=NSCocoaErrorDomain Code=260 "The file “hapticpatternlibrary.plist” couldn’t be opened because there is no such file." UserInfo={NSFilePath=/Library/Audio/Tunings/Generic/Haptics/Library/hapticpatternlibrary.plist, NSURL=file:///Library/Audio/Tunings/Generic/Haptics/Library/hapticpatternlibrary.plist, NSUnderlyingError=0x600000cbe7c0 {Error Domain=NSPOSIXErrorDomain Code=2 "No such file or directory"}}
+<_UIKBFeedbackGenerator: 0x600003507c80>: Error creating CHHapticPattern: Error Domain=NSCocoaErrorDomain Code=260 "The file “hapticpatternlibrary.plist” couldn’t be opened because there is no such file." UserInfo={NSFilePath=/Library/Audio/Tunings/Generic/Haptics/Library/hapticpatternlibrary.plist, NSURL=file:///Library/Audio/Tunings/Generic/Haptics/Library/hapticpatternlibrary.plist, NSUnderlyingError=0x600000cbe7c0 {Error Domain=NSPOSIXErrorDomain Code=2 "No such file or directory"}}
+       CHHapticPattern.mm:487   +[CHHapticPattern patternForKey:error:]: Failed to read pattern library data: Error Domain=NSCocoaErrorDomain Code=260 "The file “hapticpatternlibrary.plist” couldn’t be opened because there is no such file." UserInfo={NSFilePath=/Library/Audio/Tunings/Generic/Haptics/Library/hapticpatternlibrary.plist, NSURL=file:///Library/Audio/Tunings/Generic/Haptics/Library/hapticpatternlibrary.plist, NSUnderlyingError=0x600000cbc5a0 {Error Domain=NSPOSIXErrorDomain Code=2 "No such file or directory"}}
+<_UIKBFeedbackGenerator: 0x600003507c80>: Error creating CHHapticPattern: Error Domain=NSCocoaErrorDomain Code=260 "The file “hapticpatternlibrary.plist” couldn’t be opened because there is no such file." UserInfo={NSFilePath=/Library/Audio/Tunings/Generic/Haptics/Library/hapticpatternlibrary.plist, NSURL=file:///Library/Audio/Tunings/Generic/Haptics/Library/hapticpatternlibrary.plist, NSUnderlyingError=0x600000cbc5a0 {Error Domain=NSPOSIXErrorDomain Code=2 "No such file or directory"}}
+       CHHapticPattern.mm:487   +[CHHapticPattern patternForKey:error:]: Failed to read pattern library data: Error Domain=NSCocoaErrorDomain Code=260 "The file “hapticpatternlibrary.plist” couldn’t be opened because there is no such file." UserInfo={NSFilePath=/Library/Audio/Tunings/Generic/Haptics/Library/hapticpatternlibrary.plist, NSURL=file:///Library/Audio/Tunings/Generic/Haptics/Library/hapticpatternlibrary.plist, NSUnderlyingError=0x600000cbe940 {Error Domain=NSPOSIXErrorDomain Code=2 "No such file or directory"}}
+<_UIKBFeedbackGenerator: 0x600003507c80>: Error creating CHHapticPattern: Error Domain=NSCocoaErrorDomain Code=260 "The file “hapticpatternlibrary.plist” couldn’t be opened because there is no such file." UserInfo={NSFilePath=/Library/Audio/Tunings/Generic/Haptics/Library/hapticpatternlibrary.plist, NSURL=file:///Library/Audio/Tunings/Generic/Haptics/Library/hapticpatternlibrary.plist, NSUnderlyingError=0x600000cbe940 {Error Domain=NSPOSIXErrorDomain Code=2 "No such file or directory"}}
+       CHHapticPattern.mm:487   +[CHHapticPattern patternForKey:error:]: Failed to read pattern library data: Error Domain=NSCocoaErrorDomain Code=260 "The file “hapticpatternlibrary.plist” couldn’t be opened because there is no such file." UserInfo={NSFilePath=/Library/Audio/Tunings/Generic/Haptics/Library/hapticpatternlibrary.plist, NSURL=file:///Library/Audio/Tunings/Generic/Haptics/Library/hapticpatternlibrary.plist, NSUnderlyingError=0x600000cbe9d0 {Error Domain=NSPOSIXErrorDomain Code=2 "No such file or directory"}}
+<_UIKBFeedbackGenerator: 0x600003507c80>: Error creating CHHapticPattern: Error Domain=NSCocoaErrorDomain Code=260 "The file “hapticpatternlibrary.plist” couldn’t be opened because there is no such file." UserInfo={NSFilePath=/Library/Audio/Tunings/Generic/Haptics/Library/hapticpatternlibrary.plist, NSURL=file:///Library/Audio/Tunings/Generic/Haptics/Library/hapticpatternlibrary.plist, NSUnderlyingError=0x600000cbe9d0 {Error Domain=NSPOSIXErrorDomain Code=2 "No such file or directory"}}
+       CHHapticPattern.mm:487   +[CHHapticPattern patternForKey:error:]: Failed to read pattern library data: Error Domain=NSCocoaErrorDomain Code=260 "The file “hapticpatternlibrary.plist” couldn’t be opened because there is no such file." UserInfo={NSFilePath=/Library/Audio/Tunings/Generic/Haptics/Library/hapticpatternlibrary.plist, NSURL=file:///Library/Audio/Tunings/Generic/Haptics/Library/hapticpatternlibrary.plist, NSUnderlyingError=0x600000cbe7c0 {Error Domain=NSPOSIXErrorDomain Code=2 "No such file or directory"}}
+<_UIKBFeedbackGenerator: 0x600003507c80>: Error creating CHHapticPattern: Error Domain=NSCocoaErrorDomain Code=260 "The file “hapticpatternlibrary.plist” couldn’t be opened because there is no such file." UserInfo={NSFilePath=/Library/Audio/Tunings/Generic/Haptics/Library/hapticpatternlibrary.plist, NSURL=file:///Library/Audio/Tunings/Generic/Haptics/Library/hapticpatternlibrary.plist, NSUnderlyingError=0x600000cbe7c0 {Error Domain=NSPOSIXErrorDomain Code=2 "No such file or directory"}}
+⚡️  [error] - Login error: {"line":3,"column":24175,"sourceURL":"capacitor://localhost/assets/index-B5Y2_RTE.js"}
+-[RTIInputSystemClient remoteTextInputSessionWithID:performInputOperation:]  perform input operation requires a valid sessionID. inputModality = Keyboard, inputOperation = <null selector>, customInfoType = UIEmojiSearchOperations
+-[RTIInputSystemClient remoteTextInputSessionWithID:textSuggestionsChanged:]  Can only set suggestions for an active session. sessionID = 1EC0B2F7-6DD4-4A34-8239-3C57A2B2BEDD
+0x11410c100 - [PID=25758] WebProcessProxy::didBecomeUnresponsive:
+0x104850418 - [pageProxyID=7, webPageID=8, PID=25758] WebPageProxy::processDidBecomeUnresponsive:

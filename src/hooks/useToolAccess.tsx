@@ -5,12 +5,6 @@ import { allAdvocateTools, getToolById, type AdvocateTool } from "@/lib/advocate
 export function useToolAccess() {
   const { user } = useAuth();
   
-  // Enhanced debug logging to track the issue
-  console.log('🔍 useToolAccess - Full user object:', JSON.stringify(user, null, 2));
-  console.log('🔍 useToolAccess - Raw subscriptionPlan:', user?.subscriptionPlan);
-  console.log('🔍 useToolAccess - User role:', user?.role);
-  console.log('🔍 useToolAccess - User ID:', user?.id);
-  
   // CRITICAL FIX: Use normalization function to handle different plan formats
   const rawPlan = user?.subscriptionPlan;
   const normalizedPlan = normalizeSubscriptionPlan(rawPlan);
@@ -18,23 +12,14 @@ export function useToolAccess() {
   // STRICT default-deny approach: only allow known normalized plans
   const validPlans: SubscriptionPlan[] = ['free', 'essential', 'premium', 'hero', 'starter', 'pro', 'agency', 'agency-plus'];
   const currentPlan: SubscriptionPlan = validPlans.includes(normalizedPlan) ? normalizedPlan : 'free';
-  
-  console.log('🔍 useToolAccess - Raw plan:', rawPlan);
-  console.log('🔍 useToolAccess - Normalized plan:', normalizedPlan);
-  console.log('🔍 useToolAccess - Final currentPlan (STRICT default-deny):', currentPlan);
-  console.log('🔍 useToolAccess - Plan validation result:', validPlans.includes(normalizedPlan) ? 'VALID' : 'INVALID -> DEFAULTED TO FREE');
 
   const checkAccess = (requiredTool: keyof PlanFeatures) => {
-    console.log('🔍 useToolAccess.checkAccess - Called with:', requiredTool, 'for plan:', currentPlan);
     const result = checkToolAccess(currentPlan, requiredTool);
-    console.log('🔍 useToolAccess.checkAccess - Result:', result);
     return result;
   };
 
   const hasAccess = (feature: keyof PlanFeatures): boolean => {
-    console.log('🔍 useToolAccess.hasAccess - Called with feature:', feature, 'for plan:', currentPlan);
     const result = hasFeatureAccess(currentPlan, feature);
-    console.log('🔍 useToolAccess.hasAccess - Result:', result);
     return result;
   };
 
@@ -49,13 +34,11 @@ export function useToolAccess() {
   // Enhanced helper functions for tier-based access control
   const canUse = (feature: keyof PlanFeatures): boolean => {
     const result = hasFeatureAccess(currentPlan, feature);
-    console.log('🔍 useToolAccess.canUse -', feature, ':', result, 'for plan:', currentPlan);
     return result;
   };
 
   const needsUpgrade = (feature: keyof PlanFeatures): boolean => {
     const needs = !hasFeatureAccess(currentPlan, feature);
-    console.log('🔍 useToolAccess.needsUpgrade -', feature, ':', needs, 'for plan:', currentPlan);
     return needs;
   };
 
@@ -65,7 +48,6 @@ export function useToolAccess() {
     
     for (const plan of planHierarchy) {
       if (PLAN_FEATURES[plan]?.[feature]) {
-        console.log('🔍 useToolAccess.requiredPlanFor -', feature, 'requires:', plan);
         return plan;
       }
     }
@@ -74,12 +56,10 @@ export function useToolAccess() {
     const parentPlans: SubscriptionPlan[] = ['free', 'essential', 'premium', 'hero'];
     for (const plan of parentPlans) {
       if (PLAN_FEATURES[plan]?.[feature]) {
-        console.log('🔍 useToolAccess.requiredPlanFor -', feature, 'requires:', plan);
         return plan;
       }
     }
     
-    console.log('🔍 useToolAccess.requiredPlanFor -', feature, 'not found, defaulting to agency-plus');
     return 'agency-plus';
   };
 
@@ -124,6 +104,10 @@ export function useToolAccess() {
     isUpgrade: boolean;
   }> => {
     const planHierarchy: Record<SubscriptionPlan, number> = {
+      'free': 0,
+      'essential': 1,
+      'premium': 2,
+      'hero': 3,
       'starter': 1,
       'pro': 2, 
       'agency': 3,
@@ -141,10 +125,6 @@ export function useToolAccess() {
       .filter(option => option.isUpgrade);
   };
 
-  console.log('🔍 useToolAccess - Returning with currentPlan:', currentPlan);
-  console.log('🔍 useToolAccess - User authenticated:', !!user);
-  console.log('🔍 useToolAccess - Ready to gate access');
-  
   return {
     currentPlan,
     checkAccess,

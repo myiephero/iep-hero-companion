@@ -147,8 +147,40 @@ export default {
                         animation: {
                                 'accordion-down': 'accordion-down 0.2s ease-out',
                                 'accordion-up': 'accordion-up 0.2s ease-out'
+                        },
+                        spacing: {
+                                'safe': 'env(safe-area-inset-bottom)',
+                                'safe-top': 'env(safe-area-inset-top)',
+                                'safe-bottom': 'env(safe-area-inset-bottom)',
+                                'safe-left': 'env(safe-area-inset-left)',
+                                'safe-right': 'env(safe-area-inset-right)'
                         }
                 }
         },
-        plugins: [require("tailwindcss-animate")],
+        plugins: [
+                require("tailwindcss-animate"),
+                function({ addUtilities }) {
+                        const safeAreaUtilities = {
+                                '.pt-safe': {
+                                        paddingTop: 'max(1rem, env(safe-area-inset-top))'
+                                },
+                                '.pb-safe': {
+                                        paddingBottom: 'max(1rem, env(safe-area-inset-bottom))'
+                                },
+                                '.pl-safe': {
+                                        paddingLeft: 'max(1rem, env(safe-area-inset-left))'
+                                },
+                                '.pr-safe': {
+                                        paddingRight: 'max(1rem, env(safe-area-inset-right))'
+                                },
+                                '.p-safe': {
+                                        paddingTop: 'max(1rem, env(safe-area-inset-top))',
+                                        paddingBottom: 'max(1rem, env(safe-area-inset-bottom))',
+                                        paddingLeft: 'max(1rem, env(safe-area-inset-left))',
+                                        paddingRight: 'max(1rem, env(safe-area-inset-right))'
+                                }
+                        };
+                        addUtilities(safeAreaUtilities);
+                }
+        ],
 } satisfies Config;

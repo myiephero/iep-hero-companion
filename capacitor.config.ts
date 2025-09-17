@@ -6,6 +6,8 @@ const config: CapacitorConfig = {
   webDir: 'dist',
   server: {
     androidScheme: 'https',
+    // iOS Development: Use production URL (localhost issues in iOS simulator)
+    url: 'https://afd4ab41-fa60-4e78-9742-69bb4e3004d6-00-6i79wn87wfhu.janeway.replit.dev',
     // Development: Allow localhost and production URLs
     allowNavigation: [
       "http://localhost:3000",
@@ -15,7 +17,8 @@ const config: CapacitorConfig = {
       "https://api.myiephero.com",
       "https://myiephero.com",
       "https://firebaseapp.com",
-      "https://googleapis.com"
+      "https://googleapis.com",
+      "https://afd4ab41-fa60-4e78-9742-69bb4e3004d6-00-6i79wn87wfhu.janeway.replit.dev"
     ],
     // Development: Enable cleartext for local server
     cleartext: true,

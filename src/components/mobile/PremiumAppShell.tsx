@@ -66,13 +66,6 @@ export function PremiumBottomNav({ className }: PremiumBottomNavProps) {
       roles: ['parent', 'advocate'],
     },
     {
-      id: 'documents',
-      label: 'Docs',
-      icon: FileText,
-      href: isAdvocate ? '/advocate/documents' : '/parent/documents',
-      roles: ['parent', 'advocate'],
-    },
-    {
       id: 'messages',
       label: 'Chat',
       icon: MessageCircle,
@@ -80,18 +73,18 @@ export function PremiumBottomNav({ className }: PremiumBottomNavProps) {
       roles: ['parent', 'advocate'],
     },
     {
-      id: 'clients',
-      label: 'Clients',
+      id: 'parents',
+      label: 'Parents',
       icon: Users,
-      href: '/advocate/clients',
+      href: '/advocate/parents',
       roles: ['advocate'],
     },
     {
-      id: 'analytics',
-      label: 'Insights',
-      icon: BarChart3,
-      href: isAdvocate ? '/advocate/analytics' : '/parent/progress',
-      roles: ['parent', 'advocate'],
+      id: 'matching',
+      label: 'Advocates',
+      icon: Users,
+      href: '/parent/matching',
+      roles: ['parent'],
     },
   ];
 
@@ -115,7 +108,7 @@ export function PremiumBottomNav({ className }: PremiumBottomNavProps) {
 
   return (
     <div className={cn(
-      "fixed bottom-0 left-0 right-0 z-50",
+      "fixed bottom-0 left-0 right-0 z-50 md:hidden",
       "bg-white/95 dark:bg-gray-950/95 backdrop-blur-xl border-t border-gray-200/20 dark:border-gray-800/20",
       "supports-[backdrop-filter]:bg-white/80 supports-[backdrop-filter]:dark:bg-gray-950/80",
       className

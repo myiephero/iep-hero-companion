@@ -15,7 +15,7 @@ interface BreadcrumbProps {
   showBackButton?: boolean;
 }
 
-export function Breadcrumb({ className = "", showBackButton = true }: BreadcrumbProps) {
+export function Breadcrumb({ className = "", showBackButton = false }: BreadcrumbProps) {
   const location = useLocation();
   const navigate = useNavigate();
   const { user } = useAuth();
@@ -105,19 +105,7 @@ export function Breadcrumb({ className = "", showBackButton = true }: Breadcrumb
 
   return (
     <div className={`flex items-center gap-2 ${className}`}>
-      {/* Mobile back button */}
-      {showBackButton && (
-        <Button
-          variant="ghost"
-          size="icon"
-          className="md:hidden min-h-[44px] min-w-[44px] p-2 mr-1 active:scale-95 transition-transform"
-          onClick={() => navigate(-1)}
-          aria-label="Go back"
-          data-testid="breadcrumb-back-button"
-        >
-          <ArrowLeft className="h-5 w-5" />
-        </Button>
-      )}
+      {/* Mobile back button - DISABLED BY USER REQUEST */}
       
       {/* Desktop breadcrumbs */}
       {showBreadcrumbs && (

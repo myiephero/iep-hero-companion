@@ -168,25 +168,88 @@ export default function AdvocateToolsHub() {
     });
   };
 
+  // Compute dynamic data
+  const totalTools = allAdvocateTools.length;
+  const newCount = allAdvocateTools.filter(t => t.isNew).length;
+  const popularTools = allAdvocateTools.filter(t => t.isPopular);
+  const otherTools = allAdvocateTools.filter(t => !t.isPopular);
+
   return (
     <DashboardLayout>
       <SafeAreaFull>
-        <ContainerMobile padding="md" className="space-y-4 pb-32">
-          {/* Simple Tool Cards - No Headers or Extras */}
+        <ContainerMobile padding="md" className="space-y-6 pb-32">
+          {/* PINK: Professional Advocate Tools Section */}
           <div className="space-y-4">
-            {allAdvocateTools.map((tool) => {
-              const hasAccess = canUse(tool.requiredFeature);
-              return (
-                <ToolCard
-                  key={tool.id}
-                  tool={tool}
-                  hasAccess={hasAccess}
-                  currentPlan={currentPlan}
-                  onNavigate={handleToolNavigation}
-                />
-              );
-            })}
+            <div className="space-y-3">
+              <MobileH3 data-testid="text-section-title">Professional Advocate Tools</MobileH3>
+              <MobileBody className="text-muted-foreground leading-relaxed" data-testid="text-section-description">
+                Complete professional toolkit for special education advocacy. Access tools based on your subscription tier with seamless upgrade options.
+              </MobileBody>
+            </div>
+
+            {/* PINK: Stats Badges Row */}
+            <div className="flex items-center gap-2 flex-wrap">
+              <Badge className="text-sm px-3 py-1.5 font-medium bg-blue-50 text-blue-700 border-blue-200" data-testid="badge-tools-count">
+                {totalTools} Tools
+              </Badge>
+              <Badge className="text-sm px-3 py-1.5 font-medium bg-green-50 text-green-700 border-green-200" data-testid="badge-ai">
+                AI-Powered
+              </Badge>
+              <Badge className="text-sm px-3 py-1.5 font-medium bg-purple-50 text-purple-700 border-purple-200" data-testid="badge-legal">
+                Legal
+              </Badge>
+              <Badge className="text-sm px-3 py-1.5 font-medium bg-orange-50 text-orange-700 border-orange-200" data-testid="badge-plan">
+                Plan: {getPlanDisplayName(currentPlan)}
+              </Badge>
+            </div>
           </div>
+
+          {/* PINK: Popular Tools Section */}
+          {popularTools.length > 0 && (
+            <div className="space-y-4">
+              <div className="flex items-center gap-3">
+                <MobileH3 data-testid="header-popular">Popular Tools</MobileH3>
+                {newCount > 0 && (
+                  <Badge className="text-sm px-2 py-1 font-medium bg-gradient-to-r from-green-100 to-emerald-100 text-green-800 border-green-200" data-testid="badge-new-count">
+                    <Sparkles className="h-3 w-3 mr-1" />
+                    {newCount} New
+                  </Badge>
+                )}
+              </div>
+              <div className="space-y-4">
+                {popularTools.map((tool) => {
+                  const hasAccess = canUse(tool.requiredFeature);
+                  return (
+                    <ToolCard
+                      key={tool.id}
+                      tool={tool}
+                      hasAccess={hasAccess}
+                      currentPlan={currentPlan}
+                      onNavigate={handleToolNavigation}
+                    />
+                  );
+                })}
+              </div>
+            </div>
+          )}
+
+          {/* Remaining Tools */}
+          {otherTools.length > 0 && (
+            <div className="space-y-4">
+              {otherTools.map((tool) => {
+                const hasAccess = canUse(tool.requiredFeature);
+                return (
+                  <ToolCard
+                    key={tool.id}
+                    tool={tool}
+                    hasAccess={hasAccess}
+                    currentPlan={currentPlan}
+                    onNavigate={handleToolNavigation}
+                  />
+                );
+              })}
+            </div>
+          )}
         </ContainerMobile>
       </SafeAreaFull>
     </DashboardLayout>

@@ -866,9 +866,8 @@ export default function SmartMatching() {
             </div>
           </TabsContent>
         </Tabs>
-      </div>
-
-      {/* Contact Advocate Dialog */}
+        
+        {/* Contact Advocate Dialog */}
       <Dialog open={showContactDialog} onOpenChange={setShowContactDialog}>
         <DialogContent className="sm:max-w-[500px]">
           <DialogHeader>
@@ -908,5 +907,6 @@ export default function SmartMatching() {
           </div>
         </DialogContent>
       </Dialog>
+      </div>
   );
 }

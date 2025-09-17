@@ -483,63 +483,62 @@ const DocumentVault: React.FC = () => {
                   </TabsList>
                 </div>
               </div>
-            </Tabs>
-          </PremiumCard>
-
-          <TabsContent value={activeTab} className="space-y-6">
-            {/* Enhanced Search and Filter */}
-            <PremiumCard variant="elevated" className="p-6">
-              <div className="space-y-4">
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-500 to-indigo-500 flex items-center justify-center">
-                    <Search className="h-5 w-5 text-white" />
-                  </div>
-                  <div>
-                    <h3 className="font-semibold text-gray-900 dark:text-gray-100">Search & Filter</h3>
-                    <p className="text-sm text-gray-600 dark:text-gray-400">Find your documents quickly</p>
-                  </div>
-                </div>
-                
-                <div className="space-y-4">
-                  <div className="relative">
-                    <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
-                    <Input
-                      placeholder="Search documents, students, or content..."
-                      value={searchTerm}
-                      onChange={(e) => setSearchTerm(e.target.value)}
-                      className="pl-12 h-12 bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700 rounded-xl focus:border-blue-500 focus:ring-blue-500/20"
-                      data-testid="search-input"
-                    />
-                  </div>
-                  
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    <Select value={filterType} onValueChange={setFilterType}>
-                      <SelectTrigger className="h-12 bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700 rounded-xl" data-testid="filter-type">
-                        <Filter className="h-4 w-4 mr-2 text-blue-600" />
-                        <SelectValue placeholder="Filter by type" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="all">All File Types</SelectItem>
-                        <SelectItem value="pdf">📄 PDF Files</SelectItem>
-                        <SelectItem value="doc">📝 Word Documents</SelectItem>
-                        <SelectItem value="txt">📋 Text Files</SelectItem>
-                        <SelectItem value="ai review">🧠 AI Analysis</SelectItem>
-                        <SelectItem value="upload">📁 Uploaded Files</SelectItem>
-                      </SelectContent>
-                    </Select>
+              
+              <TabsContent value={activeTab} className="space-y-6">
+                {/* Enhanced Search and Filter */}
+                <PremiumCard variant="elevated" className="p-6">
+                  <div className="space-y-4">
+                    <div className="flex items-center gap-3">
+                      <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-500 to-indigo-500 flex items-center justify-center">
+                        <Search className="h-5 w-5 text-white" />
+                      </div>
+                      <div>
+                        <h3 className="font-semibold text-gray-900 dark:text-gray-100">Search & Filter</h3>
+                        <p className="text-sm text-gray-600 dark:text-gray-400">Find your documents quickly</p>
+                      </div>
+                    </div>
                     
-                    <Button 
-                      onClick={() => setIsSelectMode(!isSelectMode)} 
-                      variant={isSelectMode ? "default" : "outline"} 
-                      className="h-12 rounded-xl gap-2 bg-gradient-to-r from-blue-500 to-indigo-500 hover:from-blue-600 hover:to-indigo-600 text-white border-0" 
-                      data-testid="select-mode-toggle"
-                    >
-                      {isSelectMode ? <CheckSquare className="h-4 w-4" /> : <Square className="h-4 w-4" />}
-                      {isSelectMode ? "Exit Select" : "Select Multiple"}
-                    </Button>
+                    <div className="space-y-4">
+                      <div className="relative">
+                        <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+                        <Input
+                          placeholder="Search documents, students, or content..."
+                          value={searchTerm}
+                          onChange={(e) => setSearchTerm(e.target.value)}
+                          className="pl-12 h-12 bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700 rounded-xl focus:border-blue-500 focus:ring-blue-500/20"
+                          data-testid="search-input"
+                        />
+                      </div>
+                      
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <Select value={filterType} onValueChange={setFilterType}>
+                          <SelectTrigger className="h-12 bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700 rounded-xl" data-testid="filter-type">
+                            <Filter className="h-4 w-4 mr-2 text-blue-600" />
+                            <SelectValue placeholder="Filter by type" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="all">All File Types</SelectItem>
+                            <SelectItem value="pdf">📄 PDF Files</SelectItem>
+                            <SelectItem value="doc">📝 Word Documents</SelectItem>
+                            <SelectItem value="txt">📋 Text Files</SelectItem>
+                            <SelectItem value="ai review">🧠 AI Analysis</SelectItem>
+                            <SelectItem value="upload">📁 Uploaded Files</SelectItem>
+                          </SelectContent>
+                        </Select>
+                        
+                        <Button 
+                          onClick={() => setIsSelectMode(!isSelectMode)} 
+                          variant={isSelectMode ? "default" : "outline"} 
+                          className="h-12 rounded-xl gap-2 bg-gradient-to-r from-blue-500 to-indigo-500 hover:from-blue-600 hover:to-indigo-600 text-white border-0" 
+                          data-testid="select-mode-toggle"
+                        >
+                          {isSelectMode ? <CheckSquare className="h-4 w-4" /> : <Square className="h-4 w-4" />}
+                          {isSelectMode ? "Exit Select" : "Select Multiple"}
+                        </Button>
+                      </div>
+                    </div>
                   </div>
-                </div>
-              </div>
+                </PremiumCard>
 
                 {/* Premium Bulk Actions */}
                 {isSelectMode && (
@@ -621,7 +620,9 @@ const DocumentVault: React.FC = () => {
                         )}
                       </div>
                     </div>
-                  </PremiumCard>
+                  </div>
+                </div>
+              </PremiumCard>
                 )}
 
                 {/* Premium Documents Display */}
@@ -849,6 +850,8 @@ const DocumentVault: React.FC = () => {
 
               </TabsContent>
             </Tabs>
+          </PremiumCard>
+
         </ContainerMobile>
 
         {/* Edit Document Name Dialog */}
@@ -1029,6 +1032,3 @@ const DocumentVault: React.FC = () => {
 };
 
 export default DocumentVault;
-                                    <div className="text-gray-500 dark:text-gray-400 p-4">No action items available</div>
-                                  );
-                                

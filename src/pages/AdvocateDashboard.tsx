@@ -1,8 +1,14 @@
 import { Link } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
-import { DashboardLayout } from "@/layouts/DashboardLayout";
-import { StatCard } from "@/components/StatCard";
+import { 
+  MobileAppShell,
+  PremiumLargeHeader,
+  PremiumCard,
+  PremiumToolCard,
+  SafeAreaFull,
+  ContainerMobile
+} from "@/components/mobile";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -593,38 +599,41 @@ const AdvocateDashboard = ({ plan }: AdvocateDashboardProps) => {
   const recentActivities = generateActivityFeed();
 
   return (
-    <DashboardLayout>
-      <div className="space-y-6 sm:space-y-8">
-        {/* Hero Section */}
-        <div className="relative overflow-hidden rounded-xl bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 dark:from-blue-950 dark:via-indigo-950 dark:to-purple-950 p-4 sm:p-6 md:p-8">
-          <div className="relative z-10">
-            <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 lg:gap-0">
-              <div className="space-y-2 sm:space-y-3">
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-xl flex items-center justify-center">
-                    <Shield className="h-5 w-5 sm:h-6 sm:w-6 text-white" />
-                  </div>
-                  <div>
-                    <h1 className="text-xl sm:text-2xl md:text-3xl font-bold bg-gradient-to-r from-gray-900 to-gray-700 dark:from-gray-100 dark:to-gray-300 bg-clip-text text-transparent">
-                      Welcome back, {user?.firstName && user?.lastName ? `${user.firstName} ${user.lastName}` : (user?.firstName || user?.email?.split('@')[0] || 'Advocate')}
-                    </h1>
-                    <p className="text-gray-600 dark:text-gray-400 text-sm sm:text-base md:text-lg">Your advocacy command center</p>
-                  </div>
+    <MobileAppShell>
+      <PremiumLargeHeader 
+        title={`Welcome back, ${user?.firstName || 'Advocate'}`}
+        subtitle="Your advocacy dashboard"
+      />
+      <SafeAreaFull className="space-y-6">
+        {/* Welcome Section */}
+        <ContainerMobile>
+          <PremiumCard variant="gradient" className="p-6">
+            <div className="space-y-4">
+              <div className="flex items-center gap-3">
+                <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-xl flex items-center justify-center">
+                  <Shield className="h-6 w-6 text-white" />
                 </div>
-                <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4 mt-3 sm:mt-4">
-                  <div className="flex items-center gap-2 px-3 sm:px-4 py-2 bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200 rounded-full text-xs sm:text-sm font-medium">
-                    <Flag className="h-3 w-3 sm:h-4 sm:w-4" />
-                    {plan ? `${plan.charAt(0).toUpperCase() + plan.slice(1)} Plan` : 'Active Plan'}
-                  </div>
-                  <div className="flex items-center gap-2 px-3 sm:px-4 py-2 bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200 rounded-full text-xs sm:text-sm font-medium">
-                    <Activity className="h-3 w-3 sm:h-4 sm:w-4" />
-                    Active Today
-                  </div>
+                <div>
+                  <h2 className="text-lg font-bold text-gray-900 dark:text-gray-100">
+                    Ready to advocate
+                  </h2>
+                  <p className="text-gray-600 dark:text-gray-400 text-sm">Your command center</p>
                 </div>
               </div>
-              
-              {/* Quick Actions */}
-              <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 sm:gap-3">
+              <div className="flex flex-wrap gap-2">
+                <span className="inline-flex items-center gap-1 px-3 py-1 bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200 rounded-full text-xs font-medium">
+                  <Flag className="h-3 w-3" />
+                  {plan ? `${plan.charAt(0).toUpperCase() + plan.slice(1)} Plan` : 'Active Plan'}
+                </span>
+                <span className="inline-flex items-center gap-1 px-3 py-1 bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200 rounded-full text-xs font-medium">
+                  <Activity className="h-3 w-3" />
+                  Active Today
+                </span>
+              </div>
+            </div>
+            
+            {/* Quick Actions */}
+            <div className="mt-4 grid grid-cols-2 gap-3">
                 <FeatureGate 
                   requiredFeature="advocateMessaging"
                   showUpgradePrompt={false}
@@ -685,116 +694,128 @@ const AdvocateDashboard = ({ plan }: AdvocateDashboardProps) => {
                     </Link>
                   </Button>
                 </FeatureGate>
-              </div>
             </div>
+          </PremiumCard>
+        </ContainerMobile>
+
+        {/* Dashboard Statistics */}
+        <ContainerMobile>
+          <div className="grid grid-cols-2 gap-4">
+            {/* Pending Assignments */}
+            <PremiumCard variant="glass" className="p-4">
+              <div className="flex items-center gap-3 mb-3">
+                <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-orange-50 to-orange-100 dark:from-orange-950 dark:to-orange-900 flex items-center justify-center">
+                  <Bell className="h-5 w-5 text-orange-600 dark:text-orange-400" />
+                </div>
+                {totalPendingCount > 0 && (
+                  <div className="ml-auto">
+                    <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-red-100 dark:bg-red-900 text-red-700 dark:text-red-300">
+                      Urgent
+                    </span>
+                  </div>
+                )}
+              </div>
+              <div className="space-y-1">
+                <p className="text-2xl font-bold text-gray-900 dark:text-gray-100" data-testid="stat-pending-assignments">
+                  {loading ? '...' : totalPendingCount}
+                </p>
+                <p className="text-sm font-medium text-gray-900 dark:text-gray-100">Pending Matches</p>
+                <p className="text-xs text-gray-500 dark:text-gray-400">Awaiting response</p>
+              </div>
+            </PremiumCard>
+
+            {/* Active Cases */}
+            <PremiumCard variant="glass" className="p-4">
+              <div className="flex items-center gap-3 mb-3">
+                <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-50 to-blue-100 dark:from-blue-950 dark:to-blue-900 flex items-center justify-center">
+                  <Briefcase className="h-5 w-5 text-blue-600 dark:text-blue-400" />
+                </div>
+                {openCases.length > 0 && (
+                  <div className="ml-auto">
+                    <TrendingUp className="h-4 w-4 text-green-500" />
+                  </div>
+                )}
+              </div>
+              <div className="space-y-1">
+                <p className="text-2xl font-bold text-gray-900 dark:text-gray-100">
+                  {loading ? '...' : openCases.length}
+                </p>
+                <p className="text-sm font-medium text-gray-900 dark:text-gray-100">Active Cases</p>
+                <p className="text-xs text-gray-500 dark:text-gray-400">Currently advocating</p>
+              </div>
+            </PremiumCard>
+
+            {/* Meetings */}
+            <FeatureGate 
+              requiredFeature="meetingScheduler"
+              upgradeBenefits={[
+                "Schedule and manage client meetings",
+                "Automated meeting reminders",
+                "Calendar integration",
+                "Meeting templates and agendas"
+              ]}
+              data-testid="stat-meetings-gate"
+            >
+              <PremiumCard variant="glass" className="p-4">
+                <div className="flex items-center gap-3 mb-3">
+                  <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-green-50 to-green-100 dark:from-green-950 dark:to-green-900 flex items-center justify-center">
+                    <Calendar className="h-5 w-5 text-green-600 dark:text-green-400" />
+                  </div>
+                  {upcomingMeetings.length > 0 && (
+                    <div className="ml-auto">
+                      <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 dark:bg-green-900 text-green-700 dark:text-green-300">
+                        Scheduled
+                      </span>
+                    </div>
+                  )}
+                </div>
+                <div className="space-y-1">
+                  <p className="text-2xl font-bold text-gray-900 dark:text-gray-100" data-testid="stat-meetings-count">
+                    {loading ? '...' : upcomingMeetings.length}
+                  </p>
+                  <p className="text-sm font-medium text-gray-900 dark:text-gray-100">This Week</p>
+                  <p className="text-xs text-gray-500 dark:text-gray-400">Upcoming meetings</p>
+              </PremiumCard>
+            </FeatureGate>
+
+            {/* Goals Achieved */}
+            <FeatureGate 
+              requiredFeature="goalManagement"
+              upgradeBenefits={[
+                "Set and track advocacy goals",
+                "Goal templates and recommendations",
+                "Progress tracking and analytics",
+                "Achievement reports and insights"
+              ]}
+              data-testid="stat-goals-gate"
+            >
+              <PremiumCard variant="glass" className="p-4">
+                <div className="flex items-center gap-3 mb-3">
+                  <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-purple-50 to-purple-100 dark:from-purple-950 dark:to-purple-900 flex items-center justify-center">
+                    <Target className="h-5 w-5 text-purple-600 dark:text-purple-400" />
+                  </div>
+                  {completedGoals.length > 0 && (
+                    <div className="ml-auto">
+                      <Award className="h-4 w-4 text-yellow-500" />
+                    </div>
+                  )}
+                </div>
+                <div className="space-y-1">
+                  <p className="text-2xl font-bold text-gray-900 dark:text-gray-100" data-testid="stat-goals-count">
+                    {loading ? '...' : completedGoals.length}
+                  </p>
+                  <p className="text-sm font-medium text-gray-900 dark:text-gray-100">Goals Achieved</p>
+                  <p className="text-xs text-gray-500 dark:text-gray-400">Total completed</p>
+                </div>
+              </PremiumCard>
+            </FeatureGate>
           </div>
-          
-          {/* Background decoration */}
-          <div className="absolute top-0 right-0 w-64 h-64 bg-gradient-to-br from-blue-200/30 to-indigo-200/30 dark:from-blue-800/30 dark:to-indigo-800/30 rounded-full blur-3xl transform translate-x-32 -translate-y-16"></div>
-        </div>
-
-        {/* Enhanced Stats Cards */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4 sm:gap-6">
-          <Card className="relative overflow-hidden group hover:shadow-lg transition-all duration-300 border-0 bg-gradient-to-br from-orange-50 to-red-50 dark:from-orange-950 dark:to-red-950">
-            <CardContent className="p-3 sm:p-4 md:p-6">
-              <div className="flex items-center justify-between">
-                <div className="space-y-1 sm:space-y-2">
-                  <p className="text-xs sm:text-sm font-medium text-orange-600 dark:text-orange-400">Pending Assignments</p>
-                  <div className="flex items-center gap-2">
-                    <p className="text-xl sm:text-2xl md:text-3xl font-bold text-orange-900 dark:text-orange-100" data-testid="stat-pending-assignments">{totalPendingCount}</p>
-                    {totalPendingCount > 0 && <Badge variant="outline" className="text-orange-700 border-orange-300 text-xs sm:text-sm">Urgent</Badge>}
-                  </div>
-                  <p className="text-xs text-orange-600/70 dark:text-orange-400/70">Awaiting your response</p>
-                </div>
-                <div className="w-10 h-10 sm:w-12 sm:h-12 bg-orange-100 dark:bg-orange-900 rounded-lg flex items-center justify-center group-hover:scale-110 transition-transform">
-                  <Bell className="h-5 w-5 sm:h-6 sm:w-6 text-orange-600 dark:text-orange-400" />
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card className="relative overflow-hidden group hover:shadow-lg transition-all duration-300 border-0 bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-blue-950 dark:to-indigo-950">
-            <CardContent className="p-3 sm:p-4 md:p-6">
-              <div className="flex items-center justify-between">
-                <div className="space-y-1 sm:space-y-2">
-                  <p className="text-xs sm:text-sm font-medium text-blue-600 dark:text-blue-400">Active Cases</p>
-                  <div className="flex items-center gap-2">
-                    <p className="text-xl sm:text-2xl md:text-3xl font-bold text-blue-900 dark:text-blue-100">{openCases.length}</p>
-                    <TrendingUp className="h-3 w-3 sm:h-4 sm:w-4 text-green-500" />
-                  </div>
-                  <p className="text-xs text-blue-600/70 dark:text-blue-400/70">Currently advocating</p>
-                </div>
-                <div className="w-10 h-10 sm:w-12 sm:h-12 bg-blue-100 dark:bg-blue-900 rounded-lg flex items-center justify-center group-hover:scale-110 transition-transform">
-                  <Briefcase className="h-5 w-5 sm:h-6 sm:w-6 text-blue-600 dark:text-blue-400" />
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-
-          <FeatureGate 
-            requiredFeature="meetingScheduler"
-            upgradeBenefits={[
-              "Schedule and manage client meetings",
-              "Automated meeting reminders",
-              "Calendar integration",
-              "Meeting templates and agendas"
-            ]}
-            data-testid="stat-meetings-gate"
-          >
-            <Card className="relative overflow-hidden group hover:shadow-lg transition-all duration-300 border-0 bg-gradient-to-br from-green-50 to-emerald-50 dark:from-green-950 dark:to-emerald-950">
-              <CardContent className="p-3 sm:p-4 md:p-6">
-                <div className="flex items-center justify-between">
-                  <div className="space-y-1 sm:space-y-2">
-                    <p className="text-xs sm:text-sm font-medium text-green-600 dark:text-green-400">This Week's Meetings</p>
-                    <div className="flex items-center gap-2">
-                      <p className="text-xl sm:text-2xl md:text-3xl font-bold text-green-900 dark:text-green-100" data-testid="stat-meetings-count">{upcomingMeetings.length}</p>
-                      <Badge variant="outline" className="text-green-700 border-green-300 text-xs sm:text-sm">Scheduled</Badge>
-                    </div>
-                    <p className="text-xs text-green-600/70 dark:text-green-400/70">Upcoming sessions</p>
-                  </div>
-                  <div className="w-10 h-10 sm:w-12 sm:h-12 bg-green-100 dark:bg-green-900 rounded-lg flex items-center justify-center group-hover:scale-110 transition-transform">
-                    <CalendarIcon className="h-5 w-5 sm:h-6 sm:w-6 text-green-600 dark:text-green-400" />
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          </FeatureGate>
-
-          <FeatureGate 
-            requiredFeature="goalManagement"
-            upgradeBenefits={[
-              "Set and track advocacy goals",
-              "Goal templates and recommendations",
-              "Progress tracking and analytics",
-              "Achievement reports and insights"
-            ]}
-            data-testid="stat-goals-gate"
-          >
-            <Card className="relative overflow-hidden group hover:shadow-lg transition-all duration-300 border-0 bg-gradient-to-br from-purple-50 to-pink-50 dark:from-purple-950 dark:to-pink-950">
-              <CardContent className="p-3 sm:p-4 md:p-6">
-                <div className="flex items-center justify-between">
-                  <div className="space-y-1 sm:space-y-2">
-                    <p className="text-xs sm:text-sm font-medium text-purple-600 dark:text-purple-400">Goals Achieved</p>
-                    <div className="flex items-center gap-2">
-                      <p className="text-xl sm:text-2xl md:text-3xl font-bold text-purple-900 dark:text-purple-100" data-testid="stat-goals-count">{completedGoals.length}</p>
-                      <Award className="h-3 w-3 sm:h-4 sm:w-4 text-yellow-500" />
-                    </div>
-                    <p className="text-xs text-purple-600/70 dark:text-purple-400/70">Total completed</p>
-                  </div>
-                  <div className="w-10 h-10 sm:w-12 sm:h-12 bg-purple-100 dark:bg-purple-900 rounded-lg flex items-center justify-center group-hover:scale-110 transition-transform">
-                    <Target className="h-5 w-5 sm:h-6 sm:w-6 text-purple-600 dark:text-purple-400" />
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          </FeatureGate>
-        </div>
+        </ContainerMobile>
 
         {/* Advocate Upgrade Section */}
         {shouldShowUpgrade && (
-          <div className="space-y-4 sm:space-y-6">
-            <Card className="border-0 shadow-xl bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 text-white overflow-hidden">
-              <CardContent className="p-4 sm:p-6 md:p-8">
+          <ContainerMobile>
+            <PremiumCard variant="gradient" className="bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 text-white p-6">
                 <div className="flex flex-col lg:flex-row items-center justify-between gap-6 sm:gap-8">
                   <div className="flex-1 text-center lg:text-left">
                     <div className="flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-3 mb-4">
@@ -845,108 +866,75 @@ const AdvocateDashboard = ({ plan }: AdvocateDashboardProps) => {
                     </Button>
                   </div>
                 </div>
-              </CardContent>
-            </Card>
-          </div>
+            </PremiumCard>
+          </ContainerMobile>
         )}
 
-        {/* Quick Access Grid - Integrated Sidebar Functions */}
-        <div className="space-y-4 sm:space-y-6">
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 sm:gap-4">
-            <h2 className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-gray-100">Quick Access</h2>
-            <p className="text-sm sm:text-base text-gray-600 dark:text-gray-400">Access all your advocacy tools and workflows</p>
-          </div>
+        {/* Quick Access Grid */}
+        <ContainerMobile>
+          <div className="space-y-4">
+            <div className="text-center">
+              <h2 className="text-xl font-bold text-gray-900 dark:text-gray-100 mb-2">Quick Access</h2>
+              <p className="text-sm text-gray-600 dark:text-gray-400">Access all your advocacy tools</p>
+            </div>
           
-          {loading ? (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
-              {[...Array(8)].map((_, i) => (
-                <Card key={i} className="animate-pulse border-0">
-                  <CardContent className="p-4 sm:p-6">
-                    <div className="flex items-center justify-between mb-4">
-                      <div className="w-10 h-10 sm:w-12 sm:h-12 bg-gray-200 dark:bg-gray-700 rounded-xl"></div>
-                      <div className="w-4 h-4 sm:w-5 sm:h-5 bg-gray-200 dark:bg-gray-700 rounded"></div>
+            {loading ? (
+              <div className="grid grid-cols-2 gap-4">
+                {[...Array(6)].map((_, i) => (
+                  <PremiumCard key={i} variant="glass" className="p-4 animate-pulse">
+                    <div className="flex items-center gap-3 mb-3">
+                      <div className="w-10 h-10 bg-gray-200 dark:bg-gray-700 rounded-xl"></div>
                     </div>
                     <div className="space-y-2">
-                      <div className="h-4 sm:h-5 bg-gray-200 dark:bg-gray-700 rounded w-32"></div>
-                      <div className="h-3 sm:h-4 bg-gray-200 dark:bg-gray-700 rounded w-24"></div>
-                      <div className="h-5 sm:h-6 bg-gray-200 dark:bg-gray-700 rounded w-16"></div>
+                      <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-20"></div>
+                      <div className="h-3 bg-gray-200 dark:bg-gray-700 rounded w-16"></div>
+                      <div className="h-5 bg-gray-200 dark:bg-gray-700 rounded w-12"></div>
                     </div>
-                  </CardContent>
-                </Card>
-              ))}
-            </div>
-          ) : (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
-              {/* Parent Clients */}
-              <Card className="group hover:shadow-xl transition-all duration-300 cursor-pointer border-0 bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-blue-950/50 dark:to-indigo-950/50 hover:scale-105" data-testid="card-parent-clients">
-                <Link to="/advocate/parents" className="block">
-                  <CardContent className="p-6">
-                    <div className="flex items-center justify-between mb-4">
-                      <div className="w-12 h-12 bg-blue-100 dark:bg-blue-900 rounded-xl flex items-center justify-center group-hover:bg-blue-200 dark:group-hover:bg-blue-800 transition-colors">
-                        <Users className="h-6 w-6 text-blue-600 dark:text-blue-400" />
-                      </div>
-                      <ArrowRight className="h-5 w-5 text-gray-400 group-hover:text-blue-600 group-hover:translate-x-1 transition-all" />
-                    </div>
-                    <h3 className="font-semibold text-lg mb-2 text-gray-900 dark:text-gray-100">Parent Clients</h3>
-                    <p className="text-sm text-gray-600 dark:text-gray-400 mb-3">Manage your parent client relationships</p>
-                    <div className="flex items-center gap-2">
-                      <span className="text-2xl font-bold text-blue-600 dark:text-blue-400">{(parents as any[]).length}</span>
-                      <span className="text-sm text-gray-500">clients</span>
-                    </div>
-                  </CardContent>
-                </Link>
-              </Card>
+                  </PremiumCard>
+                ))}
+              </div>
+            ) : (
+              <div className="grid grid-cols-2 gap-4">
+                {/* Parent Clients */}
+                <PremiumToolCard
+                  icon={<Users className="h-5 w-5" />}
+                  title="Parent Clients"
+                  description="Manage client relationships"
+                  badge={`${(parents as any[]).length} clients`}
+                  onClick={() => navigate('/advocate/parents')}
+                  data-testid="card-parent-clients"
+                />
 
-              {/* Client Students */}
-              <Card className="group hover:shadow-xl transition-all duration-300 cursor-pointer border-0 bg-gradient-to-br from-green-50 to-emerald-50 dark:from-green-950/50 dark:to-emerald-950/50 hover:scale-105" data-testid="card-client-students">
-                <Link to="/advocate/students" className="block">
-                  <CardContent className="p-6">
-                    <div className="flex items-center justify-between mb-4">
-                      <div className="w-12 h-12 bg-green-100 dark:bg-green-900 rounded-xl flex items-center justify-center group-hover:bg-green-200 dark:group-hover:bg-green-800 transition-colors">
-                        <GraduationCap className="h-6 w-6 text-green-600 dark:text-green-400" />
-                      </div>
-                      <ArrowRight className="h-5 w-5 text-gray-400 group-hover:text-green-600 group-hover:translate-x-1 transition-all" />
-                    </div>
-                    <h3 className="font-semibold text-lg mb-2 text-gray-900 dark:text-gray-100">Client Students</h3>
-                    <p className="text-sm text-gray-600 dark:text-gray-400 mb-3">View and manage student cases</p>
-                    <div className="flex items-center gap-2">
-                      <span className="text-2xl font-bold text-green-600 dark:text-green-400">{(students as any[]).length}</span>
-                      <span className="text-sm text-gray-500">students</span>
-                    </div>
-                  </CardContent>
-                </Link>
-              </Card>
+                {/* Client Students */}
+                <PremiumToolCard
+                  icon={<GraduationCap className="h-5 w-5" />}
+                  title="Client Students"
+                  description="View and manage cases"
+                  badge={`${(students as any[]).length} students`}
+                  onClick={() => navigate('/advocate/students')}
+                  data-testid="card-client-students"
+                />
 
-              {/* Schedule */}
-              <FeatureGate 
-                requiredFeature="meetingScheduler"
-                upgradeBenefits={[
-                  "Schedule and manage client meetings",
-                  "Automated meeting reminders",
-                  "Calendar integration and sync",
-                  "Meeting templates and agendas"
-                ]}
-                data-testid="card-schedule-gate"
-              >
-                <Card className="group hover:shadow-xl transition-all duration-300 cursor-pointer border-0 bg-gradient-to-br from-teal-50 to-cyan-50 dark:from-teal-950/50 dark:to-cyan-950/50 hover:scale-105" data-testid="card-schedule">
-                  <Link to="/advocate/schedule" className="block">
-                    <CardContent className="p-6">
-                      <div className="flex items-center justify-between mb-4">
-                        <div className="w-12 h-12 bg-teal-100 dark:bg-teal-900 rounded-xl flex items-center justify-center group-hover:bg-teal-200 dark:group-hover:bg-teal-800 transition-colors">
-                          <Calendar className="h-6 w-6 text-teal-600 dark:text-teal-400" />
-                        </div>
-                        <ArrowRight className="h-5 w-5 text-gray-400 group-hover:text-teal-600 group-hover:translate-x-1 transition-all" />
-                      </div>
-                      <h3 className="font-semibold text-lg mb-2 text-gray-900 dark:text-gray-100">Schedule</h3>
-                      <p className="text-sm text-gray-600 dark:text-gray-400 mb-3">Manage appointments and meetings</p>
-                      <div className="flex items-center gap-2">
-                        <span className="text-2xl font-bold text-teal-600 dark:text-teal-400">{upcomingMeetings.length}</span>
-                        <span className="text-sm text-gray-500">upcoming</span>
-                      </div>
-                    </CardContent>
-                  </Link>
-                </Card>
-              </FeatureGate>
+                {/* Schedule */}
+                <FeatureGate 
+                  requiredFeature="meetingScheduler"
+                  upgradeBenefits={[
+                    "Schedule and manage client meetings",
+                    "Automated meeting reminders",
+                    "Calendar integration and sync",
+                    "Meeting templates and agendas"
+                  ]}
+                  data-testid="card-schedule-gate"
+                >
+                  <PremiumToolCard
+                    icon={<Calendar className="h-5 w-5" />}
+                    title="Schedule"
+                    description="Manage appointments"
+                    badge={`${upcomingMeetings.length} upcoming`}
+                    onClick={() => navigate('/advocate/schedule')}
+                    data-testid="card-schedule"
+                  />
+                </FeatureGate>
 
               {/* Client Matching */}
               <FeatureGate 
@@ -1059,62 +1047,51 @@ const AdvocateDashboard = ({ plan }: AdvocateDashboardProps) => {
                 </Card>
               </FeatureGate>
 
-              {/* Analytics/Reports */}
-              <FeatureGate 
-                requiredFeature="advocacyReports"
-                upgradeBenefits={[
-                  "Advanced analytics and reporting",
-                  "Success metrics tracking",
-                  "Client outcome analysis",
-                  "Professional report generation"
-                ]}
-                data-testid="card-analytics-gate"
-              >
-                <Card className="group hover:shadow-xl transition-all duration-300 cursor-pointer border-0 bg-gradient-to-br from-amber-50 to-yellow-50 dark:from-amber-950/50 dark:to-yellow-950/50 hover:scale-105" data-testid="card-analytics">
-                  <Link to="/advocate/reports" className="block">
-                    <CardContent className="p-6">
-                      <div className="flex items-center justify-between mb-4">
-                        <div className="w-12 h-12 bg-amber-100 dark:bg-amber-900 rounded-xl flex items-center justify-center group-hover:bg-amber-200 dark:group-hover:bg-amber-800 transition-colors">
-                          <BarChart3 className="h-6 w-6 text-amber-600 dark:text-amber-400" />
-                        </div>
-                        <ArrowRight className="h-5 w-5 text-gray-400 group-hover:text-amber-600 group-hover:translate-x-1 transition-all" />
-                      </div>
-                      <h3 className="font-semibold text-lg mb-2 text-gray-900 dark:text-gray-100">Analytics</h3>
-                      <p className="text-sm text-gray-600 dark:text-gray-400 mb-3">Track success metrics & insights</p>
-                      <div className="flex items-center gap-2">
-                        <Badge variant="outline" className="text-amber-700 border-amber-300">Pro Features</Badge>
-                      </div>
-                    </CardContent>
-                  </Link>
-                </Card>
-              </FeatureGate>
-            </div>
-          )}
-        </div>
+                {/* Analytics/Reports */}
+                <FeatureGate 
+                  requiredFeature="advocacyReports"
+                  upgradeBenefits={[
+                    "Advanced analytics and reporting",
+                    "Success metrics tracking",
+                    "Client outcome analysis",
+                    "Professional report generation"
+                  ]}
+                  data-testid="card-analytics-gate"
+                >
+                  <PremiumToolCard
+                    icon={<BarChart3 className="h-5 w-5" />}
+                    title="Analytics"
+                    description="Track success metrics"
+                    badge="Pro Features"
+                    onClick={() => navigate('/advocate/reports')}
+                    data-testid="card-analytics"
+                  />
+                </FeatureGate>
+              </div>
+            )}
+          </div>
+        </ContainerMobile>
 
 
-        {/* Unified Activity Feed */}
-        <FeatureGate 
-          requiredFeature="caseAnalytics"
-          upgradeBenefits={[
-            "Advanced activity tracking and analytics",
-            "Detailed case progress monitoring",
-            "Client interaction insights",
-            "Performance metrics and trends"
-          ]}
-          data-testid="activity-feed-gate"
-        >
-          <Card className="bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800 border-0">
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Activity className="h-5 w-5" />
-                Recent Activity
-              </CardTitle>
-              <CardDescription>
-                Your latest advocacy activities and updates
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4">
+        {/* Recent Activity Feed */}
+        <ContainerMobile>
+          <FeatureGate 
+            requiredFeature="caseAnalytics"
+            upgradeBenefits={[
+              "Advanced activity tracking and analytics",
+              "Detailed case progress monitoring",
+              "Client interaction insights",
+              "Performance metrics and trends"
+            ]}
+            data-testid="activity-feed-gate"
+          >
+            <PremiumCard variant="glass" className="p-4">
+              <div className="space-y-4">
+                <div className="flex items-center gap-2">
+                  <Activity className="h-5 w-5 text-blue-600 dark:text-blue-400" />
+                  <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">Recent Activity</h3>
+                </div>
+                <p className="text-sm text-gray-600 dark:text-gray-400">Your latest advocacy activities</p>
               {recentActivities.length > 0 ? (
                 <div className="space-y-3">
                   {recentActivities.map((activity) => {
@@ -1126,7 +1103,7 @@ const AdvocateDashboard = ({ plan }: AdvocateDashboardProps) => {
                         data-testid={`activity-${activity.type}-${activity.id}`}
                         onClick={() => activity.link && (window.location.href = activity.link)}
                       >
-                        <div className={`w-8 h-8 rounded-full flex items-center justify-center ${activity.color}`}>
+                        <div className={`w-8 h-8 rounded-xl flex items-center justify-center ${activity.color}`}>
                           <IconComponent className="h-4 w-4" />
                         </div>
                         <div className="flex-1">
@@ -1150,7 +1127,7 @@ const AdvocateDashboard = ({ plan }: AdvocateDashboardProps) => {
                   })}
                 </div>
               ) : (
-                <div className="text-center py-8 bg-white/50 dark:bg-gray-800/50 rounded-lg">
+                <div className="text-center py-8 bg-white/50 dark:bg-gray-800/50 rounded-xl">
                   <div className="text-muted-foreground mb-4">
                     <Activity className="h-12 w-12 mx-auto mb-2 opacity-50" />
                     <p className="text-lg font-medium">No recent activity</p>
@@ -1165,25 +1142,26 @@ const AdvocateDashboard = ({ plan }: AdvocateDashboardProps) => {
                 </div>
               )}
               
-              <div className="pt-4 border-t border-gray-200 dark:border-gray-700">
-                <Button 
-                  variant="outline" 
-                  size="sm" 
-                  className="w-full hover:bg-blue-50 dark:hover:bg-blue-900"
-                  asChild
-                  data-testid="view-all-activity"
-                >
-                  <Link to="/advocate/activity">
-                    View All Activity
-                    <ArrowRight className="h-4 w-4 ml-2" />
-                  </Link>
-                </Button>
+                <div className="pt-4 border-t border-gray-200/20 dark:border-gray-700/20">
+                  <Button 
+                    variant="outline" 
+                    size="sm" 
+                    className="w-full min-h-[44px] hover:bg-blue-50 dark:hover:bg-blue-900 rounded-xl"
+                    asChild
+                    data-testid="view-all-activity"
+                  >
+                    <Link to="/advocate/activity">
+                      View All Activity
+                      <ArrowRight className="h-4 w-4 ml-2" />
+                    </Link>
+                  </Button>
+                </div>
               </div>
-            </CardContent>
-          </Card>
-        </FeatureGate>
-      </div>
-    </DashboardLayout>
+            </PremiumCard>
+          </FeatureGate>
+        </ContainerMobile>
+      </SafeAreaFull>
+    </MobileAppShell>
   );
 };
 

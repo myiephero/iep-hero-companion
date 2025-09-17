@@ -6,7 +6,21 @@ export { ContainerMobile } from './ContainerMobile'
 export { MobilePage } from './MobilePage'
 export { SafeArea, SafeAreaTop, SafeAreaBottom, SafeAreaHorizontal, SafeAreaFull } from './SafeArea'
 
-// UI Components
+// Premium App Shell (NEW)
+export { MobileAppShell, PremiumBottomNav } from './PremiumAppShell'
+export { 
+  PremiumMobileHeader, 
+  PremiumLargeHeader, 
+  PremiumElevatedHeader, 
+  PremiumTransparentHeader 
+} from './PremiumMobileHeader'
+export { 
+  PremiumCard, 
+  PremiumToolCard, 
+  PremiumFeatureCard 
+} from './PremiumCards'
+
+// Legacy UI Components
 export { MobileCard, MobileCardElevated, MobileCardInteractive, MobileCardWithHeader } from './MobileCard'
 export { MobileHeader, MobileHeaderSimple, MobileHeaderWithAction, MobileHeaderTransparent } from './MobileHeader'
 

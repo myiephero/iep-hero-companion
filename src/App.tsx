@@ -68,7 +68,7 @@ const MeetingPrepWizard = lazy(() => import("./pages/MeetingPrepWizard"));
 
 // Tools Hub Routes
 const ToolsHub = lazy(() => import("./pages/ToolsHub"));
-const AdvocateToolsHub = lazy(() => import("./pages/AdvocateToolsHub"));
+const AdvocateToolsHubPremium = lazy(() => import("./pages/AdvocateToolsHubPremium"));
 
 // IEP & Analysis Tools
 const IEPReview = lazy(() => import("./pages/IEPReview"));
@@ -418,7 +418,7 @@ function App() {
               <Route path="/advocate/tools" element={
                 <ProtectedRoute allowedRoles={['advocate']}>
                   <ToolsRoute>
-                    <AdvocateToolsHub />
+                    <AdvocateToolsHubPremium />
                   </ToolsRoute>
                 </ProtectedRoute>
               } />

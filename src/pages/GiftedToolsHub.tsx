@@ -1,8 +1,16 @@
 import { useState, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { TopNavigation } from "@/components/TopNavigation";
+import { 
+  MobileAppShell,
+  PremiumLargeHeader,
+  PremiumToolCard,
+  PremiumCard,
+  SafeAreaFull,
+  ContainerMobile
+} from "@/components/mobile";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { StudentSelector } from "@/components/StudentSelector";
 import { 
   Brain,
@@ -17,9 +25,12 @@ import {
   Star,
   Sparkles,
   BookOpen,
-  Calculator
+  Calculator,
+  Crown,
+  Zap,
+  Shield
 } from "lucide-react";
-import { Link, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { apiRequest } from "@/lib/queryClient";
 
 const GiftedToolsHub = () => {
@@ -32,14 +43,7 @@ const GiftedToolsHub = () => {
     setUserRole(window.location.pathname.includes('advocate') ? 'advocate' : 'parent');
   }, []);
 
-  // Fetch students to show progress
-  const { data: students } = useQuery({
-    queryKey: ['/api/students'],
-    queryFn: async () => {
-      const response = await apiRequest('GET', '/api/students');
-      return response.json();
-    },
-  });
+  // StudentSelector fetches its own students internally
 
   // Fetch real progress data from API for selected student
   const { data: giftedProfile } = useQuery({
@@ -191,229 +195,182 @@ const GiftedToolsHub = () => {
   const totalAssessmentTools = giftedToolCards.filter(tool => !tool.requiresOtherTools).length;
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-amber-50 via-yellow-50 to-orange-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
-      <TopNavigation />
+    <MobileAppShell className="bg-gradient-to-br from-amber-50 via-yellow-50 to-orange-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
+      <PremiumLargeHeader 
+        title="Gifted & 2e Assessment Tools"
+        subtitle={`${completedTools}/${totalAssessmentTools} assessments completed`}
+        showBack
+      />
       
-      <div className="container mx-auto px-4 py-8 max-w-6xl">
-        {/* Header */}
-        <div className="text-center mb-12">
-          <div className="inline-flex items-center justify-center p-4 bg-gradient-to-r from-amber-500 to-orange-600 rounded-full mb-6">
-            <Target className="h-8 w-8 text-white" />
-          </div>
-          <h1 className="text-4xl font-bold text-gray-900 dark:text-white mb-4">
-            Gifted & 2e Assessment Tools
-          </h1>
-          <p className="text-xl text-muted-foreground max-w-3xl mx-auto mb-6">
-            Comprehensive assessment tools to identify and support your child's giftedness. 
-            Complete individual assessments to build a complete gifted profile, then get AI-powered insights and recommendations.
-          </p>
-          
-          {/* Progress Overview */}
-          <div className="inline-flex items-center gap-4 bg-white dark:bg-gray-800 rounded-full px-6 py-3 shadow-lg">
-            <div className="flex items-center gap-2">
-              <CheckCircle className="h-5 w-5 text-green-600" />
-              <span className="text-sm font-medium">
-                {completedTools} of {totalAssessmentTools} assessments completed
-              </span>
+      <SafeAreaFull>
+        <ContainerMobile className="space-y-8 pb-8">
+          {/* Hero Section */}
+          <div className="text-center space-y-6 pt-6">
+            <div className="inline-flex items-center justify-center p-4 bg-gradient-to-r from-amber-500 to-orange-600 rounded-2xl shadow-lg">
+              <Target className="h-8 w-8 text-white" />
             </div>
-            <div className="w-px h-4 bg-border" />
-            <div className="flex items-center gap-2">
-              <Clock className="h-5 w-5 text-muted-foreground" />
-              <span className="text-sm text-muted-foreground">
-                ~45 min total time
-              </span>
-            </div>
-          </div>
-        </div>
-
-        {/* Student Selection */}
-        <Card className="mb-8">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Target className="h-5 w-5 text-orange-600" />
-              Student Selection
-            </CardTitle>
-            <CardDescription>
-              Choose a student to view their gifted assessment profile progress
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <StudentSelector
-              selectedStudent={selectedStudent}
-              onStudentSelect={setSelectedStudent}
-              students={students}
-              placeholder="Select student to view gifted tools progress"
-              className="max-w-md"
-              data-testid="select-student"
-            />
-          </CardContent>
-        </Card>
-
-        {/* Main Tools Grid */}
-        <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-3 mb-8">
-          {giftedToolCards.map((tool, index) => {
-            const isCompleted = !tool.requiresOtherTools && getToolCompletionStatus(tool.id);
-            const canAccess = !tool.requiresOtherTools || completedTools >= totalAssessmentTools;
-            
-            return (
-              <Card 
-                key={tool.id}
-                className={`group relative overflow-hidden transition-all duration-300 hover:shadow-xl hover:-translate-y-1 ${
-                  tool.isNew ? 'ring-2 ring-orange-200 dark:ring-orange-800' : ''
-                } ${canAccess ? 'cursor-pointer' : 'opacity-75 cursor-not-allowed'}`}
-                onClick={() => canAccess && navigate(tool.route)}
-                data-testid={`card-${tool.id}`}
-              >
-                <div className={`absolute inset-0 bg-gradient-to-br ${tool.bgGradient} opacity-30`} />
-                
-                <CardHeader className="relative pb-4">
-                  <div className="flex items-start justify-between mb-4">
-                    <div className={`p-3 rounded-xl bg-gradient-to-r ${tool.gradient} text-white`}>
-                      {tool.icon}
-                    </div>
-                    <div className="flex flex-col items-end gap-2">
-                      {tool.isNew && (
-                        <Badge className="bg-gradient-to-r from-orange-500 to-pink-500 text-white font-bold">
-                          <Sparkles className="h-3 w-3 mr-1" />
-                          NEW
-                        </Badge>
-                      )}
-                      {isCompleted && (
-                        <Badge className="bg-green-100 dark:bg-green-900 text-green-700 dark:text-green-300">
-                          <CheckCircle className="h-3 w-3 mr-1" />
-                          Complete
-                        </Badge>
-                      )}
-                      {!canAccess && (
-                        <Badge variant="outline" className="text-xs">
-                          Complete other assessments first
-                        </Badge>
-                      )}
-                    </div>
-                  </div>
-                  
-                  <div>
-                    <CardTitle className="text-xl font-semibold text-gray-900 dark:text-white mb-2">
-                      {tool.title}
-                    </CardTitle>
-                    <CardDescription className="text-sm text-muted-foreground mb-3">
-                      {tool.description}
-                    </CardDescription>
-                  </div>
-                </CardHeader>
-
-                <CardContent className="relative pt-0">
-                  <p className="text-sm text-muted-foreground mb-4">
-                    {tool.longDescription}
-                  </p>
-                  
-                  <div className="space-y-3 mb-4">
-                    <div className="flex items-center justify-between text-xs">
-                      <span className="text-muted-foreground">Estimated time:</span>
-                      <span className="font-medium">{tool.estimatedTime}</span>
-                    </div>
-                    <div className="flex items-center justify-between text-xs">
-                      <span className="text-muted-foreground">Category:</span>
-                      <Badge variant="outline" className="text-xs">
-                        {tool.category}
-                      </Badge>
-                    </div>
-                  </div>
-
-                  {/* Key Features */}
-                  <div className="mb-4">
-                    <h4 className="text-xs font-medium text-muted-foreground mb-2 uppercase tracking-wide">
-                      Key Features
-                    </h4>
-                    <ul className="space-y-1">
-                      {tool.features.slice(0, 3).map((feature, i) => (
-                        <li key={i} className="flex items-center gap-2 text-xs text-muted-foreground">
-                          <div className="w-1 h-1 bg-current rounded-full opacity-60" />
-                          {feature}
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-
-                  {/* Action Button */}
-                  <div className={`flex items-center justify-between p-3 bg-gradient-to-r ${tool.bgGradient} rounded-lg border ${tool.borderColor}`}>
-                    <span className="text-sm font-medium text-gray-900 dark:text-white">
-                      {isCompleted ? 'Review Assessment' : 
-                       tool.requiresOtherTools ? 'Generate Insights' : 
-                       'Start Assessment'}
-                    </span>
-                    <ArrowRight className="h-4 w-4 text-gray-600 dark:text-gray-300 group-hover:translate-x-1 transition-transform" />
-                  </div>
-                </CardContent>
-              </Card>
-            );
-          })}
-        </div>
-
-        {/* Getting Started Guide */}
-        <Card className="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-950 dark:to-indigo-950 border-blue-200 dark:border-blue-800">
-          <CardContent className="p-8">
-            <div className="text-center mb-6">
-              <Lightbulb className="h-8 w-8 text-blue-600 mx-auto mb-4" />
-              <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-2">
-                How to Use These Assessment Tools
-              </h3>
-              <p className="text-muted-foreground max-w-2xl mx-auto">
-                Follow this step-by-step process to build a comprehensive gifted profile for your child
+            <div className="space-y-3">
+              <p className="text-gray-600 dark:text-gray-300 leading-relaxed px-4">
+                Comprehensive assessment tools to identify and support your child's giftedness. 
+                Complete assessments to build a complete profile, then get AI-powered insights.
               </p>
+              
+              {/* Progress Overview */}
+              <PremiumCard variant="glass" className="p-4 mx-4">
+                <div className="flex items-center justify-center gap-4">
+                  <div className="flex items-center gap-2">
+                    <CheckCircle className="h-5 w-5 text-green-500" />
+                    <span className="text-sm font-medium text-gray-900 dark:text-gray-100">
+                      {completedTools} of {totalAssessmentTools} completed
+                    </span>
+                  </div>
+                  <div className="w-px h-4 bg-gray-300 dark:bg-gray-600" />
+                  <div className="flex items-center gap-2">
+                    <Clock className="h-4 w-4 text-gray-500 dark:text-gray-400" />
+                    <span className="text-sm text-gray-500 dark:text-gray-400">
+                      ~45 min total
+                    </span>
+                  </div>
+                </div>
+              </PremiumCard>
+            </div>
+          </div>
+
+          {/* Student Selection */}
+          <PremiumCard variant="elevated" className="p-6 mx-4">
+            <div className="space-y-4">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 bg-gradient-to-br from-orange-100 to-orange-200 dark:from-orange-900 dark:to-orange-800 rounded-xl flex items-center justify-center">
+                  <Target className="h-5 w-5 text-orange-600 dark:text-orange-400" />
+                </div>
+                <div>
+                  <h3 className="font-semibold text-gray-900 dark:text-gray-100">Student Selection</h3>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">
+                    Choose a student to view their assessment progress
+                  </p>
+                </div>
+              </div>
+              <StudentSelector
+                selectedStudent={selectedStudent}
+                onStudentChange={setSelectedStudent}
+                placeholder="Select student to view progress"
+                allowEmpty={true}
+              />
+            </div>
+          </PremiumCard>
+
+          {/* Main Tools Grid */}
+          <div className="space-y-4 px-4">
+            <div className="flex items-center justify-between">
+              <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100">Assessment Tools</h2>
+              <Badge variant="outline" className="text-xs">
+                {giftedToolCards.length} tools
+              </Badge>
             </div>
             
-            <div className="grid gap-4 md:grid-cols-4 max-w-4xl mx-auto">
-              <div className="text-center">
-                <div className="w-8 h-8 bg-purple-100 dark:bg-purple-900 text-purple-600 dark:text-purple-300 rounded-full flex items-center justify-center mx-auto mb-3 text-sm font-bold">
-                  1
+            <div className="space-y-4">
+              {giftedToolCards.map((tool) => {
+                const isCompleted = !tool.requiresOtherTools && getToolCompletionStatus(tool.id);
+                const canAccess = !tool.requiresOtherTools || completedTools >= totalAssessmentTools;
+                const IconComponent = tool.icon.type;
+                
+                return (
+                  <PremiumToolCard
+                    key={tool.id}
+                    icon={<IconComponent className="h-6 w-6" />}
+                    title={tool.title}
+                    description={tool.description}
+                    badge={isCompleted ? "Complete" : tool.estimatedTime}
+                    isPopular={tool.category === "AI Analysis"}
+                    isNew={tool.isNew}
+                    isLocked={!canAccess}
+                    requiredPlan={!canAccess ? "Complete other assessments first" : undefined}
+                    onClick={() => canAccess && navigate(tool.route)}
+                    className={tool.isNew ? "ring-2 ring-amber-200 dark:ring-amber-800" : ""}
+                  />
+                );
+              })}
+            </div>
+          </div>
+
+          {/* Getting Started Guide */}
+          <PremiumCard variant="gradient" className="p-6 mx-4 bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-950 dark:to-indigo-950 border-blue-200 dark:border-blue-800">
+            <div className="space-y-6">
+              <div className="text-center space-y-3">
+                <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-2xl flex items-center justify-center mx-auto">
+                  <Lightbulb className="h-6 w-6 text-white" />
                 </div>
-                <h4 className="font-medium text-gray-900 dark:text-white mb-1">Start with Cognitive</h4>
-                <p className="text-sm text-muted-foreground">Begin with the cognitive assessment to establish baseline abilities</p>
+                <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
+                  How to Use Assessment Tools
+                </h3>
+                <p className="text-gray-600 dark:text-gray-300 text-sm leading-relaxed">
+                  Follow this step-by-step process to build a comprehensive gifted profile
+                </p>
               </div>
               
-              <div className="text-center">
-                <div className="w-8 h-8 bg-blue-100 dark:bg-blue-900 text-blue-600 dark:text-blue-300 rounded-full flex items-center justify-center mx-auto mb-3 text-sm font-bold">
-                  2
+              <div className="space-y-4">
+                <div className="flex items-start gap-3">
+                  <div className="w-8 h-8 bg-purple-100 dark:bg-purple-900 text-purple-600 dark:text-purple-300 rounded-full flex items-center justify-center flex-shrink-0 text-sm font-bold">
+                    1
+                  </div>
+                  <div className="flex-1">
+                    <h4 className="font-medium text-gray-900 dark:text-white mb-1">Start with Cognitive</h4>
+                    <p className="text-sm text-gray-500 dark:text-gray-400">Begin with cognitive assessment to establish baseline abilities</p>
+                  </div>
                 </div>
-                <h4 className="font-medium text-gray-900 dark:text-white mb-1">Add Academic Areas</h4>
-                <p className="text-sm text-muted-foreground">Complete academic assessment for subject-specific strengths</p>
-              </div>
-              
-              <div className="text-center">
-                <div className="w-8 h-8 bg-pink-100 dark:bg-pink-900 text-pink-600 dark:text-pink-300 rounded-full flex items-center justify-center mx-auto mb-3 text-sm font-bold">
-                  3
+                
+                <div className="flex items-start gap-3">
+                  <div className="w-8 h-8 bg-blue-100 dark:bg-blue-900 text-blue-600 dark:text-blue-300 rounded-full flex items-center justify-center flex-shrink-0 text-sm font-bold">
+                    2
+                  </div>
+                  <div className="flex-1">
+                    <h4 className="font-medium text-gray-900 dark:text-white mb-1">Add Academic Areas</h4>
+                    <p className="text-sm text-gray-500 dark:text-gray-400">Complete academic assessment for subject-specific strengths</p>
+                  </div>
                 </div>
-                <h4 className="font-medium text-gray-900 dark:text-white mb-1">Explore Creative & Leadership</h4>
-                <p className="text-sm text-muted-foreground">Add creative and leadership assessments as relevant</p>
-              </div>
-              
-              <div className="text-center">
-                <div className="w-8 h-8 bg-orange-100 dark:bg-orange-900 text-orange-600 dark:text-orange-300 rounded-full flex items-center justify-center mx-auto mb-3 text-sm font-bold">
-                  4
+                
+                <div className="flex items-start gap-3">
+                  <div className="w-8 h-8 bg-pink-100 dark:bg-pink-900 text-pink-600 dark:text-pink-300 rounded-full flex items-center justify-center flex-shrink-0 text-sm font-bold">
+                    3
+                  </div>
+                  <div className="flex-1">
+                    <h4 className="font-medium text-gray-900 dark:text-white mb-1">Explore Creative & Leadership</h4>
+                    <p className="text-sm text-gray-500 dark:text-gray-400">Add creative and leadership assessments as relevant</p>
+                  </div>
                 </div>
-                <h4 className="font-medium text-gray-900 dark:text-white mb-1">Get AI Insights</h4>
-                <p className="text-sm text-muted-foreground">Generate comprehensive analysis and recommendations</p>
+                
+                <div className="flex items-start gap-3">
+                  <div className="w-8 h-8 bg-orange-100 dark:bg-orange-900 text-orange-600 dark:text-orange-300 rounded-full flex items-center justify-center flex-shrink-0 text-sm font-bold">
+                    4
+                  </div>
+                  <div className="flex-1">
+                    <h4 className="font-medium text-gray-900 dark:text-white mb-1">Get AI Insights</h4>
+                    <p className="text-sm text-gray-500 dark:text-gray-400">Generate comprehensive analysis and recommendations</p>
+                  </div>
+                </div>
               </div>
             </div>
-          </CardContent>
-        </Card>
+          </PremiumCard>
 
-        {/* Navigation */}
-        <div className="flex justify-between items-center mt-8">
-          <div className="text-sm text-muted-foreground">
-            Part of the <strong>IEP Hero</strong> educational toolkit
+          {/* Navigation Footer */}
+          <div className="px-4 py-6 border-t border-gray-200 dark:border-gray-700 bg-gray-50/50 dark:bg-gray-800/50">
+            <div className="text-center space-y-3">
+              <p className="text-sm text-gray-500 dark:text-gray-400">
+                Part of the <span className="font-semibold text-gray-700 dark:text-gray-300">IEP Hero</span> educational toolkit
+              </p>
+              <Button
+                variant="outline"
+                onClick={() => navigate(userRole === 'advocate' ? '/advocate/tools' : '/parent/tools')}
+                className="w-full max-w-xs mx-auto"
+                data-testid="button-back-to-tools"
+              >
+                ← Back to All Tools
+              </Button>
+            </div>
           </div>
-          <Link 
-            to={userRole === 'advocate' ? '/advocate/tools' : '/parent/tools'}
-            className="text-sm text-primary hover:underline"
-            data-testid="link-back-to-tools"
-          >
-            ← Back to All Tools
-          </Link>
-        </div>
-      </div>
-    </div>
+        </ContainerMobile>
+      </SafeAreaFull>
+    </MobileAppShell>
   );
 };
 

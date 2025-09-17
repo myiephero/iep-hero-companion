@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Switch } from "@/components/ui/switch";
@@ -9,12 +9,23 @@ import {
   Heart, 
   Star,
   Shield,
-  ArrowLeft
+  Target,
+  ChevronRight,
+  Sparkles
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { getCheckoutUrl, requiresPayment } from '@/lib/stripePricing';
+import { 
+  MobileAppShell,
+  PremiumMobileHeader,
+  PremiumCard,
+  SafeAreaFull,
+  ContainerMobile
+} from "@/components/mobile";
+import { cn } from "@/lib/utils";
 
 const ParentPricingPlan = () => {
+  const navigate = useNavigate();
   const [selectedPlan, setSelectedPlan] = useState<string | null>(null);
   const [isYearly, setIsYearly] = useState(false);
   const [highlightedPlan, setHighlightedPlan] = useState<string | null>(null);
@@ -59,8 +70,9 @@ const ParentPricingPlan = () => {
         'No document vault', 
         'Limited letter templates'
       ],
-      icon: <Heart className="h-6 w-6 text-white" />,
+      icon: Heart,
       gradient: 'from-gray-500 to-gray-600',
+      accentColor: 'gray',
       popular: false
     },
     {
@@ -93,8 +105,9 @@ const ParentPricingPlan = () => {
         'No expert support',
         'Basic specialization tools'
       ],
-      icon: <Star className="h-6 w-6 text-white" />,
+      icon: Star,
       gradient: 'from-blue-500 to-indigo-600',
+      accentColor: 'blue',
       popular: true
     },
     {
@@ -124,8 +137,9 @@ const ParentPricingPlan = () => {
         'No dedicated support manager',
         'No strategy calls'
       ],
-      icon: <Crown className="h-6 w-6 text-white" />,
+      icon: Crown,
       gradient: 'from-purple-500 to-indigo-600',
+      accentColor: 'purple',
       popular: false
     },
     {
@@ -151,8 +165,9 @@ const ParentPricingPlan = () => {
         'Unlimited documents, AI analyses & letters'
       ],
       limitations: [],
-      icon: <Shield className="h-6 w-6 text-white" />,
+      icon: Shield,
       gradient: 'from-orange-500 to-pink-600',
+      accentColor: 'orange',
       popular: false
     }
   ];
@@ -196,165 +211,261 @@ const ParentPricingPlan = () => {
     }, 1000);
   };
 
+  const handleBack = () => {
+    navigate(-1);
+  };
+
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50">
-      <div className="container mx-auto px-4 py-16">
-        {/* Back Button */}
-        <div className="mb-8">
-          <Button
-            variant="ghost"
-            onClick={() => window.history.back()}
-            className="text-gray-700 hover:text-blue-600 hover:bg-blue-50"
-          >
-            <ArrowLeft className="h-4 w-4 mr-2" />
-            Back
-          </Button>
-        </div>
+    <MobileAppShell showBottomNav={false}>
+      <SafeAreaFull>
+        {/* Premium Mobile Header */}
+        <PremiumMobileHeader
+          title="Parent Pricing"
+          subtitle="Empower Your Child's Journey"
+          showBack={true}
+          onBack={handleBack}
+          variant="elevated"
+        />
 
-        {/* Shortened Hero Section */}
-        <div className="text-center space-y-4 mb-16">
-          <h1 className="text-4xl lg:text-5xl font-bold text-gray-900">
-            Empower Your Child's <span className="text-blue-600">IEP Journey</span>
-          </h1>
-          <p className="text-lg text-gray-600 max-w-2xl mx-auto mb-6">
-            Choose the perfect plan to advocate effectively for your child's educational needs
-          </p>
-          <div className="bg-blue-100 border border-blue-200 rounded-lg p-6 max-w-4xl mx-auto">
-            <p className="text-gray-800 font-medium text-lg">
-              "We provide the <span className="text-blue-600">platform, tools, and coordination</span>. Your matched advocate provides the <span className="text-blue-600">professional services</span>. Together, we make sure you're never alone in this journey."
-            </p>
-            <p className="text-blue-600 text-sm mt-2">
-              — The Operating System for IEP Advocacy
-            </p>
-          </div>
-        </div>
-
-        {/* Billing Toggle */}
-        <div className="flex justify-center items-center gap-6 mb-12">
-          <div className="relative bg-gray-300 rounded-full p-1 flex items-center">
-            <div
-              className={`absolute inset-y-1 w-32 bg-blue-600 rounded-full transition-transform duration-300 ease-in-out ${
-                isYearly ? 'translate-x-32' : 'translate-x-0'
-              }`}
-            />
-            <button
-              onClick={() => setIsYearly(false)}
-              className={`relative z-10 px-6 py-3 rounded-full font-semibold text-base transition-colors duration-300 w-32 ${
-                !isYearly 
-                  ? 'text-white' 
-                  : 'text-gray-600 hover:text-gray-800'
-              }`}
-            >
-              Monthly
-            </button>
-            <button
-              onClick={() => setIsYearly(true)}
-              className={`relative z-10 px-6 py-3 rounded-full font-semibold text-base transition-colors duration-300 w-32 ${
-                isYearly 
-                  ? 'text-white' 
-                  : 'text-gray-600 hover:text-gray-800'
-              }`}
-            >
-              Yearly
-            </button>
-          </div>
-          <Badge className="bg-gradient-to-r from-green-500 to-emerald-600 text-white border-0 px-4 py-2 text-sm font-semibold shadow-lg">
-            💰 Save up to 25%
-          </Badge>
-        </div>
-
-        {/* 4 Equal-sized Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
-          {pricingTiers.map((tier) => (
-            <Card 
-              key={tier.id}
-              data-plan-id={tier.id}
-              className={`bg-white shadow-lg border-gray-200 relative min-h-[420px] flex flex-col hover:shadow-xl transition-all duration-500 ${
-                tier.popular ? 'ring-2 ring-blue-500' : ''
-              } ${
-                highlightedPlan === tier.id ? 'ring-4 ring-orange-400 shadow-2xl scale-105 bg-gradient-to-br from-orange-50 to-pink-50' : ''
-              }`}
-            >
-              {tier.popular && (
-                <div className="absolute -top-3 left-1/2 transform -translate-x-1/2">
-                  <Badge className="bg-blue-600 text-white">
-                    Most Popular
-                  </Badge>
+        <ContainerMobile className="pb-8">
+          {/* Hero Section */}
+          <div className="px-6 py-8 text-center">
+            <div className="space-y-6">
+              <div className="space-y-4">
+                <div className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-blue-50 to-purple-50 dark:from-blue-950/50 dark:to-purple-950/50 rounded-full border border-blue-200/50 dark:border-blue-800/50">
+                  <Heart className="h-4 w-4 text-blue-600 dark:text-blue-400" />
+                  <span className="text-sm font-medium text-blue-700 dark:text-blue-300">
+                    Parent & Family Plans
+                  </span>
                 </div>
-              )}
+                
+                <h1 className="text-3xl md:text-4xl font-bold text-gray-900 dark:text-gray-100 leading-tight">
+                  Empower Your Child's
+                  <span className="bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent block">
+                    IEP Journey
+                  </span>
+                </h1>
+                
+                <p className="text-gray-600 dark:text-gray-400 text-lg leading-relaxed max-w-2xl mx-auto">
+                  Choose the perfect plan to advocate effectively for your child's educational needs
+                </p>
+              </div>
+
+              {/* Value Proposition */}
+              <PremiumCard variant="glass" className="p-6">
+                <div className="space-y-3 text-center">
+                  <div className="flex items-center justify-center gap-2">
+                    <Target className="h-5 w-5 text-blue-600 dark:text-blue-400" />
+                    <span className="font-semibold text-gray-900 dark:text-gray-100">Our Partnership Promise</span>
+                  </div>
+                  <p className="text-gray-700 dark:text-gray-300 text-sm leading-relaxed">
+                    "We provide the <span className="font-semibold text-blue-600 dark:text-blue-400">platform, tools, and coordination</span>. Your matched advocate provides the <span className="font-semibold text-blue-600 dark:text-blue-400">professional services</span>. Together, we make sure you're never alone in this journey."
+                  </p>
+                  <p className="text-gray-500 dark:text-gray-400 text-xs">
+                    — The Operating System for IEP Advocacy
+                  </p>
+                </div>
+              </PremiumCard>
+            </div>
+          </div>
+
+          {/* Billing Toggle */}
+          <div className="px-6 mb-8">
+            <div className="flex items-center justify-center">
+              <PremiumCard variant="glass" className="p-1">
+                <div className="flex items-center gap-3 px-3 py-2">
+                  <span className={cn(
+                    "text-sm font-medium transition-colors",
+                    !isYearly ? "text-gray-900 dark:text-gray-100" : "text-gray-500 dark:text-gray-400"
+                  )}>
+                    Monthly
+                  </span>
+                  <Switch 
+                    checked={isYearly}
+                    onCheckedChange={setIsYearly}
+                    data-testid="billing-toggle"
+                  />
+                  <span className={cn(
+                    "text-sm font-medium transition-colors",
+                    isYearly ? "text-gray-900 dark:text-gray-100" : "text-gray-500 dark:text-gray-400"
+                  )}>
+                    Yearly
+                  </span>
+                  {isYearly && (
+                    <Badge className="bg-green-100 dark:bg-green-900 text-green-700 dark:text-green-300 border-green-200 dark:border-green-800 ml-2">
+                      💰 Save up to 25%
+                    </Badge>
+                  )}
+                </div>
+              </PremiumCard>
+            </div>
+          </div>
+
+          {/* Pricing Cards */}
+          <div className="px-6 space-y-6">
+            {pricingTiers.map((tier) => {
+              const IconComponent = tier.icon;
+              const isHighlighted = highlightedPlan === tier.id;
               
-              <CardHeader className="text-center pb-6">
-                <div className={`inline-flex items-center justify-center w-12 h-12 bg-gradient-to-r ${tier.gradient} rounded-xl mb-4 mx-auto`}>
-                  {tier.icon}
-                </div>
-                <CardTitle className="text-xl font-bold text-gray-900">{tier.name}</CardTitle>
-                <CardDescription className="text-gray-600 text-sm mb-3">
-                  {tier.description}
-                </CardDescription>
-                <div className="mb-3">
-                  <Badge variant="secondary" className="bg-blue-100 text-blue-700 border-blue-300">
-                    {tier.toolCount}
-                  </Badge>
-                </div>
-                <div className="text-center">
-                  {isYearly && tier.yearlyDiscount && (
-                    <div className="mb-2">
-                      <Badge className="bg-green-100 text-green-700 border-green-300 text-xs">
-                        {tier.yearlyDiscount}
+              return (
+                <PremiumCard 
+                  key={tier.id}
+                  data-plan-id={tier.id}
+                  variant={tier.popular ? "gradient" : "elevated"}
+                  className={cn(
+                    "p-6 transition-all duration-300 relative overflow-hidden",
+                    isHighlighted && "ring-2 ring-orange-400 dark:ring-orange-500 shadow-xl scale-[1.02]",
+                    tier.popular && "ring-2 ring-blue-400 dark:ring-blue-500"
+                  )}
+                >
+                  {/* Background Pattern */}
+                  <div className={cn(
+                    "absolute top-0 right-0 w-32 h-32 rounded-full transform translate-x-16 -translate-y-16 opacity-10",
+                    tier.accentColor === 'gray' && "bg-gradient-to-bl from-gray-500",
+                    tier.accentColor === 'blue' && "bg-gradient-to-bl from-blue-500",
+                    tier.accentColor === 'purple' && "bg-gradient-to-bl from-purple-500",
+                    tier.accentColor === 'orange' && "bg-gradient-to-bl from-orange-500"
+                  )} />
+
+                  {/* Popular Badge */}
+                  {tier.popular && (
+                    <div className="absolute -top-3 left-1/2 transform -translate-x-1/2">
+                      <Badge className="bg-blue-600 dark:bg-blue-500 text-white border-0 shadow-lg">
+                        <Star className="h-3 w-3 mr-1" />
+                        Most Popular
                       </Badge>
                     </div>
                   )}
-                  <div className="flex items-baseline justify-center gap-1">
-                    <span className="text-3xl font-bold text-gray-900">
-                      {isYearly ? tier.yearlyPrice : tier.monthlyPrice}
-                    </span>
-                    <span className="text-gray-500 text-sm">{tier.period}</span>
-                  </div>
-                </div>
-              </CardHeader>
-              
-              <CardContent className="space-y-6 flex-grow flex flex-col">
-                <ul className="space-y-3 flex-grow">
-                  {tier.features.map((feature, index) => (
-                    <li key={index} className="flex items-start gap-3">
-                      <Check className="h-4 w-4 text-green-400 mt-0.5 flex-shrink-0" />
-                      <span className="text-sm text-gray-700">{feature}</span>
-                    </li>
-                  ))}
-                </ul>
-                
-                {tier.limitations && tier.limitations.length > 0 && (
-                  <div className="border-t border-gray-200 pt-4">
-                    <p className="text-xs text-gray-600 mb-2">Limitations:</p>
-                    <ul className="space-y-1">
-                      {tier.limitations.map((limitation, index) => (
-                        <li key={index} className="text-xs text-gray-500">
-                          • {limitation}
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-                )}
-                
-                <Button 
-                  className={`w-full mt-auto ${
-                    tier.popular 
-                      ? 'bg-blue-600 hover:bg-blue-700' 
-                      : 'bg-gradient-to-r from-gray-600 to-gray-700 hover:from-gray-500 hover:to-gray-600'
-                  }`}
-                  onClick={() => handlePlanSelection(tier.id)}
-                  data-testid={`button-select-${tier.id}`}
-                >
-                  {selectedPlan === tier.id ? 'Selected' : 'Choose Plan'}
-                </Button>
-              </CardContent>
-            </Card>
-          ))}
-        </div>
 
-        {/* Hero Family Pack - Ultimate Promotion */}
-        <div className="max-w-6xl mx-auto">
-          <Card className="bg-gradient-to-r from-orange-600 to-pink-600 border-orange-500 relative overflow-hidden min-h-[400px]">
+                  <div className="relative z-10 space-y-6">
+                    {/* Header */}
+                    <div className="text-center space-y-4">
+                      <div className={cn(
+                        "w-16 h-16 rounded-2xl bg-gradient-to-br flex items-center justify-center mx-auto",
+                        tier.accentColor === 'gray' && "from-gray-50 to-gray-100 dark:from-gray-950 dark:to-gray-900",
+                        tier.accentColor === 'blue' && "from-blue-50 to-blue-100 dark:from-blue-950 dark:to-blue-900",
+                        tier.accentColor === 'purple' && "from-purple-50 to-purple-100 dark:from-purple-950 dark:to-purple-900",
+                        tier.accentColor === 'orange' && "from-orange-50 to-orange-100 dark:from-orange-950 dark:to-orange-900"
+                      )}>
+                        <IconComponent className={cn(
+                          "h-8 w-8",
+                          tier.accentColor === 'gray' && "text-gray-600 dark:text-gray-400",
+                          tier.accentColor === 'blue' && "text-blue-600 dark:text-blue-400",
+                          tier.accentColor === 'purple' && "text-purple-600 dark:text-purple-400",
+                          tier.accentColor === 'orange' && "text-orange-600 dark:text-orange-400"
+                        )} />
+                      </div>
+                      
+                      <div className="space-y-2">
+                        <h3 className="text-xl font-bold text-gray-900 dark:text-gray-100">{tier.name}</h3>
+                        <p className="text-gray-600 dark:text-gray-400 text-sm">{tier.description}</p>
+                        
+                        <Badge 
+                          variant="secondary" 
+                          className={cn(
+                            "text-xs",
+                            tier.accentColor === 'gray' && "bg-gray-100 dark:bg-gray-900 text-gray-700 dark:text-gray-300 border-gray-200 dark:border-gray-800",
+                            tier.accentColor === 'blue' && "bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300 border-blue-200 dark:border-blue-800",
+                            tier.accentColor === 'purple' && "bg-purple-100 dark:bg-purple-900 text-purple-700 dark:text-purple-300 border-purple-200 dark:border-purple-800",
+                            tier.accentColor === 'orange' && "bg-orange-100 dark:bg-orange-900 text-orange-700 dark:text-orange-300 border-orange-200 dark:border-orange-800"
+                          )}
+                        >
+                          {tier.toolCount}
+                        </Badge>
+                      </div>
+
+                      {/* Pricing */}
+                      <div className="space-y-2">
+                        <div className="flex items-baseline justify-center gap-1">
+                          <span className="text-4xl font-bold text-gray-900 dark:text-gray-100">
+                            {isYearly ? tier.yearlyPrice : tier.monthlyPrice}
+                          </span>
+                          <span className="text-gray-500 dark:text-gray-400 text-sm">
+                            {tier.period}
+                          </span>
+                        </div>
+                        {isYearly && tier.yearlyDiscount && (
+                          <Badge className="bg-green-100 dark:bg-green-900 text-green-700 dark:text-green-300 border-green-200 dark:border-green-800">
+                            {tier.yearlyDiscount}
+                          </Badge>
+                        )}
+                      </div>
+                    </div>
+
+                    {/* Features */}
+                    <div className="space-y-4">
+                      <div className="space-y-3">
+                        {tier.features.slice(0, 8).map((feature, index) => (
+                          <div key={index} className="flex items-start gap-3">
+                            <Check className="h-4 w-4 text-green-600 dark:text-green-400 mt-0.5 flex-shrink-0" />
+                            <span className="text-sm leading-relaxed text-gray-700 dark:text-gray-300">
+                              {feature}
+                            </span>
+                          </div>
+                        ))}
+                        
+                        {tier.features.length > 8 && (
+                          <div className="text-center">
+                            <Badge variant="outline" className="text-xs">
+                              +{tier.features.length - 8} more features
+                            </Badge>
+                          </div>
+                        )}
+                      </div>
+
+                      {/* Limitations */}
+                      {tier.limitations && tier.limitations.length > 0 && (
+                        <div className="pt-4 border-t border-gray-200 dark:border-gray-700 border-dashed">
+                          <p className="text-xs text-gray-500 dark:text-gray-400 mb-2">Limitations:</p>
+                          <div className="space-y-1">
+                            {tier.limitations.map((limitation, index) => (
+                              <p key={index} className="text-xs text-gray-500 dark:text-gray-400">
+                                • {limitation}
+                              </p>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+                    </div>
+
+                    {/* CTA Button */}
+                    <Button 
+                      className={cn(
+                        "w-full h-12 font-semibold transition-all duration-200 active:scale-[0.98]",
+                        tier.popular 
+                          ? "bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white shadow-lg" 
+                          : tier.accentColor === 'purple'
+                          ? "bg-gradient-to-r from-purple-600 to-purple-700 hover:from-purple-700 hover:to-purple-800 text-white"
+                          : tier.accentColor === 'orange'
+                          ? "bg-gradient-to-r from-orange-600 to-orange-700 hover:from-orange-700 hover:to-orange-800 text-white"
+                          : "bg-gray-900 dark:bg-gray-100 hover:bg-gray-800 dark:hover:bg-gray-200 text-white dark:text-gray-900"
+                      )}
+                      onClick={() => handlePlanSelection(tier.id)}
+                      data-testid={`select-plan-${tier.id}`}
+                    >
+                      <span className="flex items-center justify-center gap-2">
+                        {selectedPlan === tier.id ? (
+                          <>
+                            <Shield className="h-4 w-4" />
+                            Selected
+                          </>
+                        ) : (
+                          <>
+                            Choose {tier.name}
+                            <ChevronRight className="h-4 w-4" />
+                          </>
+                        )}
+                      </span>
+                    </Button>
+                  </div>
+                </PremiumCard>
+              );
+            })}
+          </div>
+
+          {/* Hero Family Pack - Ultimate Promotion */}
+          <div className="px-6 mt-12">
+            <PremiumCard variant="gradient" className="relative overflow-hidden bg-gradient-to-r from-orange-600 to-pink-600 border-orange-500 p-8">
             <div className="absolute inset-0 bg-gradient-to-r from-orange-600/90 to-pink-600/90" />
             
             {/* Limited Time Badge */}
@@ -548,16 +659,18 @@ const ParentPricingPlan = () => {
                 </div>
               </div>
             </div>
-          </Card>
-        </div>
+            </PremiumCard>
+          </div>
 
-        <div className="text-center mt-12">
-          <p className="text-gray-400">
-            Need help choosing? <a href="/auth" className="text-blue-400 hover:underline">Contact our support team</a> for personalized guidance.
-          </p>
-        </div>
-      </div>
-    </div>
+          {/* Footer */}
+          <div className="px-6 mt-12 text-center">
+            <p className="text-gray-500 dark:text-gray-400 text-sm">
+              Need help choosing? <a href="/auth" className="text-blue-600 dark:text-blue-400 hover:underline font-medium">Contact our support team</a> for personalized guidance.
+            </p>
+          </div>
+        </ContainerMobile>
+      </SafeAreaFull>
+    </MobileAppShell>
   );
 };
 

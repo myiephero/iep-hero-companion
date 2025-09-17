@@ -1,11 +1,18 @@
 import { useState } from 'react';
 import { useLocation } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Check, Star, Zap, Crown, Heart } from 'lucide-react';
+import { Check, Star, Zap, Crown, Heart, Sparkles } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { getCheckoutUrl } from '@/lib/stripePricing';
+import {
+  MobileAppShell,
+  PremiumLargeHeader,
+  PremiumCard,
+  SafeAreaFull,
+  ContainerMobile
+} from '@/components/mobile';
+import { cn } from '@/lib/utils';
 // REMOVED CheckoutFirst - using unified checkout flow via SubscriptionSetup
 
 // Parent pricing tiers
@@ -283,6 +290,154 @@ const ADVOCATE_PRICING = [
   }
 ];
 
+// Premium Subscription Card Component
+interface PremiumSubscriptionCardProps {
+  tier: any;
+  onSubscribe: () => void;
+  className?: string;
+}
+
+function PremiumSubscriptionCard({ tier, onSubscribe, className }: PremiumSubscriptionCardProps) {
+  return (
+    <PremiumCard
+      variant={tier.popular ? "elevated" : "glass"}
+      className={cn("overflow-hidden", className)}
+    >
+      {/* Popular Badge */}
+      {tier.popular && (
+        <div className="absolute -top-2 -right-2 z-10">
+          <Badge className="bg-gradient-to-r from-blue-500 to-blue-600 text-white border-0 px-3 py-1 rounded-full shadow-lg flex items-center gap-1">
+            <Sparkles className="h-3 w-3" />
+            Most Popular
+          </Badge>
+        </div>
+      )}
+
+      {/* Background Gradient */}
+      <div className={cn(
+        "absolute top-0 right-0 w-32 h-32 bg-gradient-to-bl rounded-full transform translate-x-12 -translate-y-12 opacity-10",
+        tier.gradient
+      )} />
+
+      <div className="relative p-6 space-y-6">
+        {/* Header */}
+        <div className="flex items-start justify-between">
+          <div className="space-y-4">
+            {/* Icon */}
+            <div className={cn(
+              "w-14 h-14 rounded-2xl bg-gradient-to-br flex items-center justify-center text-white shadow-lg",
+              tier.gradient
+            )}>
+              {tier.icon}
+            </div>
+
+            {/* Title & Seats */}
+            <div className="space-y-1">
+              <h3 className="text-xl font-bold text-gray-900 dark:text-gray-100">
+                {tier.name}
+              </h3>
+              {tier.seats && (
+                <p className="text-sm text-gray-500 dark:text-gray-400">
+                  {tier.seats}
+                </p>
+              )}
+            </div>
+          </div>
+
+          {/* Price */}
+          <div className="text-right">
+            <div className="flex items-baseline gap-1">
+              <span className="text-3xl font-bold text-gray-900 dark:text-gray-100">
+                ${tier.price}
+              </span>
+              <span className="text-gray-500 dark:text-gray-400 text-sm">
+                {tier.period}
+              </span>
+            </div>
+            {tier.isFree && (
+              <Badge variant="secondary" className="mt-2 bg-green-100 text-green-700 border-green-200">
+                Free Forever
+              </Badge>
+            )}
+          </div>
+        </div>
+
+        {/* Description & Tool Count */}
+        <div className="space-y-3">
+          <p className="text-gray-600 dark:text-gray-400 text-sm leading-relaxed">
+            {tier.description}
+          </p>
+          {tier.toolCount && (
+            <Badge 
+              variant="secondary" 
+              className="bg-blue-50 dark:bg-blue-950 text-blue-700 dark:text-blue-300 border-blue-200 dark:border-blue-800"
+            >
+              {tier.toolCount}
+            </Badge>
+          )}
+        </div>
+
+        {/* Features */}
+        <div className="space-y-4">
+          <h4 className="font-semibold text-gray-900 dark:text-gray-100 text-sm">
+            What's included:
+          </h4>
+          <div className="grid gap-2">
+            {tier.features.slice(0, 6).map((feature: string, index: number) => (
+              <div key={index} className="flex items-start gap-3">
+                <div className="flex-shrink-0 w-5 h-5 rounded-full bg-green-100 dark:bg-green-900 flex items-center justify-center mt-0.5">
+                  <Check className="h-3 w-3 text-green-600 dark:text-green-400" />
+                </div>
+                <span className="text-sm text-gray-600 dark:text-gray-400 leading-relaxed">
+                  {feature}
+                </span>
+              </div>
+            ))}
+            {tier.features.length > 6 && (
+              <div className="text-sm text-gray-500 dark:text-gray-400 italic pl-8">
+                +{tier.features.length - 6} more features
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* Limitations */}
+        {tier.limitations && tier.limitations.length > 0 && (
+          <div className="pt-4 border-t border-gray-200 dark:border-gray-700 border-dashed space-y-3">
+            <h4 className="font-semibold text-gray-700 dark:text-gray-300 text-sm">
+              Limitations:
+            </h4>
+            <div className="space-y-1">
+              {tier.limitations.map((limitation: string, index: number) => (
+                <div key={index} className="text-sm text-gray-500 dark:text-gray-400 flex items-start gap-2">
+                  <span className="text-xs mt-1.5">•</span>
+                  <span>{limitation}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* CTA Button */}
+        <Button
+          onClick={onSubscribe}
+          className={cn(
+            "w-full h-12 rounded-xl font-semibold transition-all duration-200 shadow-lg",
+            tier.popular
+              ? "bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white border-0 shadow-blue-500/30"
+              : tier.isFree
+              ? "bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white border-0 shadow-green-500/30"
+              : "bg-white dark:bg-gray-800 border-2 border-gray-200 dark:border-gray-700 text-gray-900 dark:text-gray-100 hover:bg-gray-50 dark:hover:bg-gray-700"
+          )}
+          data-testid={`subscribe-${tier.id}`}
+        >
+          {tier.isFree ? 'Get Started Free' : 'Start Free Trial'}
+        </Button>
+      </div>
+    </PremiumCard>
+  );
+}
+
 export default function Subscribe() {
   const location = useLocation();
   const { toast } = useToast();
@@ -307,12 +462,7 @@ export default function Subscribe() {
 
     // Use unified checkout flow
     try {
-      const checkoutUrl = getCheckoutUrl({
-        planId: plan.id,
-        role: role,
-        amount: plan.price,
-        planName: plan.name
-      });
+      const checkoutUrl = getCheckoutUrl(plan.id, role);
 
       if (checkoutUrl) {
         toast({
@@ -333,98 +483,89 @@ export default function Subscribe() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-primary/5 to-accent/5 py-12">
-      <div className="container mx-auto px-4 max-w-6xl">
-        <div className="text-center mb-12">
-          <h1 className="text-4xl font-bold text-gray-900 mb-4">
-            {role === 'parent' ? 'Parent' : 'Advocate'} Subscription Plans
-          </h1>
-          <p className="text-xl text-gray-600 max-w-2xl mx-auto">
-            {role === 'parent' 
-              ? 'Choose the perfect plan to advocate effectively for your child\'s educational needs' 
-              : 'Select the right tools and features to grow your advocacy practice'
-            }
-          </p>
-        </div>
+    <MobileAppShell showBottomNav={false}>
+      <SafeAreaFull>
+        {/* Premium Header */}
+        <PremiumLargeHeader
+          title={`${role === 'parent' ? 'Parent' : 'Advocate'} Plans`}
+          subtitle={role === 'parent' 
+            ? 'Choose the perfect plan to advocate for your child' 
+            : 'Select the right tools to grow your practice'
+          }
+          showBack={true}
+        />
 
-        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5" 
-             style={{ gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))' }}>
-          {pricingTiers.map((tier) => (
-            <Card 
-              key={tier.id}
-              className={`relative transition-all duration-300 hover:shadow-lg ${
-                tier.popular ? 'ring-2 ring-primary scale-105' : 'hover:scale-102'
-              }`}
-            >
-              {tier.popular && (
-                <div className="absolute -top-3 left-1/2 transform -translate-x-1/2">
-                  <Badge className="bg-primary text-primary-foreground">
-                    Most Popular
-                  </Badge>
-                </div>
-              )}
-              
-              <CardHeader className="text-center pb-6">
-                <div className={`inline-flex items-center justify-center w-12 h-12 bg-gradient-to-r ${tier.gradient} rounded-2xl mb-4 mx-auto`}>
-                  {tier.icon}
-                </div>
-                <CardTitle className="text-xl font-bold">{tier.name}</CardTitle>
-                {tier.seats && (
-                  <div className="text-sm text-muted-foreground">{tier.seats}</div>
-                )}
-                <CardDescription className="text-muted-foreground mb-3">
-                  {tier.description}
-                </CardDescription>
-                {tier.toolCount && (
-                  <div className="mb-3">
-                    <Badge variant="secondary" className="bg-blue-500/20 text-blue-300 border-blue-400">
-                      {tier.toolCount}
-                    </Badge>
-                  </div>
-                )}
-                <div className="flex items-baseline justify-center gap-1">
-                  <span className="text-3xl font-bold">${tier.price}</span>
-                  <span className="text-muted-foreground">{tier.period}</span>
-                </div>
-              </CardHeader>
-              
-              <CardContent className="pt-0 flex flex-col h-full">
-                <ul className="space-y-3 mb-4 flex-grow">
-                  {tier.features.map((feature, index) => (
-                    <li key={index} className="flex items-start gap-3">
-                      <Check className="h-5 w-5 text-green-500 flex-shrink-0 mt-0.5" />
-                      <span className="text-sm text-muted-foreground">{feature}</span>
-                    </li>
-                  ))}
-                </ul>
-                
-                {tier.limitations && tier.limitations.length > 0 && (
-                  <div className="border-t border-border pt-3 mb-4">
-                    <p className="text-xs text-muted-foreground mb-2">Limitations:</p>
-                    <ul className="space-y-1">
-                      {tier.limitations.map((limitation, index) => (
-                        <li key={index} className="text-xs text-muted-foreground">
-                          • {limitation}
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-                )}
-                
-                <Button 
-                  className="w-full mt-auto"
-                  variant={tier.popular ? "default" : "outline"}
-                  onClick={() => handleSubscribe(tier)}
-                >
-                  {tier.isFree ? 'Get Started Free' : 'Subscribe Now'}
-                </Button>
-              </CardContent>
-            </Card>
-          ))}
-        </div>
+        <ContainerMobile className="space-y-6 pt-6 pb-8">
 
-        {/* Checkout handled by unified SubscriptionSetup flow */}
-      </div>
-    </div>
+          {/* Premium Mobile Pricing Cards */}
+          <div className="space-y-4">
+            {pricingTiers.map((tier) => (
+              <PremiumSubscriptionCard
+                key={tier.id}
+                tier={tier}
+                onSubscribe={() => handleSubscribe(tier)}
+                className={cn(
+                  "relative",
+                  tier.popular && "ring-2 ring-blue-500 ring-opacity-50"
+                )}
+              />
+            ))}
+          </div>
+
+          {/* Premium Features Section */}
+          <PremiumCard variant="glass" className="mt-8 p-6">
+            <div className="text-center space-y-4">
+              <div className="w-16 h-16 bg-gradient-to-br from-blue-500 to-purple-600 rounded-2xl mx-auto flex items-center justify-center">
+                <Crown className="h-8 w-8 text-white" />
+              </div>
+              <div className="space-y-2">
+                <h3 className="text-lg font-bold text-gray-900 dark:text-gray-100">
+                  Premium {role === 'parent' ? 'Parent' : 'Advocate'} Experience
+                </h3>
+                <p className="text-sm text-gray-600 dark:text-gray-400 leading-relaxed">
+                  {role === 'parent' 
+                    ? 'Join thousands of parents who have successfully advocated for their children\'s educational rights with our comprehensive toolkit.'
+                    : 'Trusted by professional advocates nationwide to streamline their practice and deliver exceptional results for families.'
+                  }
+                </p>
+              </div>
+              
+              {/* Quick Stats */}
+              <div className="grid grid-cols-3 gap-4 pt-4 border-t border-gray-200 dark:border-gray-700 border-dashed">
+                <div className="text-center">
+                  <div className="font-bold text-lg text-blue-600 dark:text-blue-400">50+</div>
+                  <div className="text-xs text-gray-500 dark:text-gray-400">Tools</div>
+                </div>
+                <div className="text-center">
+                  <div className="font-bold text-lg text-green-600 dark:text-green-400">15k+</div>
+                  <div className="text-xs text-gray-500 dark:text-gray-400">Families</div>
+                </div>
+                <div className="text-center">
+                  <div className="font-bold text-lg text-purple-600 dark:text-purple-400">98%</div>
+                  <div className="text-xs text-gray-500 dark:text-gray-400">Success</div>
+                </div>
+              </div>
+            </div>
+          </PremiumCard>
+
+          {/* Trust Indicators */}
+          <div className="text-center space-y-4 mt-6 px-4">
+            <div className="flex items-center justify-center gap-2 text-sm text-gray-500 dark:text-gray-400">
+              <Check className="h-4 w-4 text-green-500" />
+              <span>30-day free trial</span>
+            </div>
+            <div className="flex items-center justify-center gap-2 text-sm text-gray-500 dark:text-gray-400">
+              <Check className="h-4 w-4 text-green-500" />
+              <span>Cancel anytime</span>
+            </div>
+            <div className="flex items-center justify-center gap-2 text-sm text-gray-500 dark:text-gray-400">
+              <Check className="h-4 w-4 text-green-500" />
+              <span>Secure checkout</span>
+            </div>
+          </div>
+
+        </ContainerMobile>
+      </SafeAreaFull>
+    </MobileAppShell>
   );
 }

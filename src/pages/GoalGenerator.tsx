@@ -1,5 +1,11 @@
-import { DashboardLayout } from "@/layouts/DashboardLayout";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { 
+  MobileAppShell,
+  PremiumLargeHeader,
+  PremiumCard,
+  PremiumToolCard,
+  SafeAreaFull,
+  ContainerMobile
+} from "@/components/mobile";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
@@ -9,13 +15,14 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Separator } from "@/components/ui/separator";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Progress } from "@/components/ui/progress";
-import { Target, Brain, CheckCircle, Lightbulb, BookOpen, Clock, Upload, FileText, AlertCircle, CheckCheck, Users, UserPlus, User, GraduationCap, Heart, Search, Save } from "lucide-react";
+import { Target, Brain, CheckCircle, Lightbulb, BookOpen, Clock, Upload, FileText, AlertCircle, CheckCheck, Users, UserPlus, User, GraduationCap, Heart, Search, Save, ChevronRight, Star, Sparkles } from "lucide-react";
 import { useState, useEffect } from "react";
 import { useDropzone } from "react-dropzone";
 import { StudentSelector } from "@/components/StudentSelector";
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 import { api } from "@/lib/api";
+import { cn } from "@/lib/utils";
 
 interface GeneratedGoal {
   id: string;
@@ -364,17 +371,22 @@ export default function GoalGenerator() {
 
   const renderGenerateTab = () => (
     <div className="space-y-6">
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Users className="h-5 w-5 text-blue-600" />
-            Student Information
-          </CardTitle>
-          <CardDescription>
-            Select an existing student or enter new student information to generate personalized SMART goals
-          </CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-6">
+      <PremiumCard variant="glass" className="overflow-hidden">
+        <div className="p-6 space-y-6">
+          {/* Premium Header */}
+          <div className="text-center space-y-3">
+            <div className="w-12 h-12 mx-auto rounded-2xl bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center shadow-lg">
+              <Users className="h-6 w-6 text-white" />
+            </div>
+            <div>
+              <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">
+                Student Information
+              </h3>
+              <p className="text-sm text-gray-600 dark:text-gray-400 leading-relaxed">
+                Select a student to auto-fill information and generate personalized SMART goals
+              </p>
+            </div>
+          </div>
           {/* Student Selection */}
           <div className="space-y-4 p-6 border rounded-xl bg-gradient-to-br from-blue-50/50 to-indigo-50/30 dark:from-blue-950/20 dark:to-indigo-950/10">
             <div className="space-y-3">
@@ -490,17 +502,24 @@ export default function GoalGenerator() {
           </div>
             </div>
           </div>
-        </CardContent>
-      </Card>
+        </div>
+      </PremiumCard>
 
-      <Card>
-        <CardHeader>
-          <CardTitle>Optional: Upload Existing IEP or Evaluation</CardTitle>
-          <CardDescription>
-            Upload documents to provide additional context for goal generation (PDF, DOC, DOCX)
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
+      <PremiumCard variant="elevated" className="overflow-hidden">
+        <div className="p-6 space-y-6">
+          <div className="text-center space-y-3">
+            <div className="w-12 h-12 mx-auto rounded-2xl bg-gradient-to-br from-purple-500 to-purple-600 flex items-center justify-center shadow-lg">
+              <Upload className="h-6 w-6 text-white" />
+            </div>
+            <div>
+              <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">
+                Optional: Upload Documents
+              </h3>
+              <p className="text-sm text-gray-600 dark:text-gray-400 leading-relaxed">
+                Upload existing IEP or evaluation documents for additional context (PDF, DOC, DOCX)
+              </p>
+            </div>
+          </div>
           <div
             {...getRootProps()}
             className={`border-2 border-dashed rounded-lg p-8 text-center cursor-pointer transition-colors ${
@@ -528,8 +547,8 @@ export default function GoalGenerator() {
               </div>
             )}
           </div>
-        </CardContent>
-      </Card>
+        </div>
+      </PremiumCard>
 
       <div className="text-center">
         <Button
@@ -554,121 +573,174 @@ export default function GoalGenerator() {
       </div>
 
       {isGenerating && (
-        <Card>
-          <CardContent className="pt-6">
+        <PremiumCard variant="glass" className="overflow-hidden">
+          <div className="p-6">
             <div className="text-center space-y-4">
-              <div className="text-sm text-muted-foreground">
-                AI is analyzing student information and generating personalized SMART goals...
+              <div className="w-16 h-16 mx-auto rounded-2xl bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center shadow-lg animate-pulse">
+                <Brain className="h-8 w-8 text-white" />
               </div>
-              <Progress value={66} className="w-full" />
-              <div className="text-xs text-muted-foreground">
-                Processing compliance requirements and standards alignment
+              <div className="space-y-2">
+                <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">
+                  Generating SMART Goals
+                </h3>
+                <p className="text-sm text-gray-600 dark:text-gray-400">
+                  AI is analyzing student information and creating personalized goals...
+                </p>
               </div>
+              <Progress value={66} className="w-full h-3 bg-gray-200 dark:bg-gray-700" />
+              <p className="text-xs text-gray-500 dark:text-gray-400 animate-pulse">
+                🤖 Processing compliance requirements • 📚 Aligning with standards
+              </p>
             </div>
-          </CardContent>
-        </Card>
+          </div>
+        </PremiumCard>
       )}
 
       {generatedGoals.length > 0 && (
-        <div className="space-y-4">
-          <div className="flex items-center justify-between">
-            <h3 className="text-xl font-semibold">Generated Goals for {studentInfo.name || 'Student'}</h3>
-            <p className="text-sm text-muted-foreground">
-              Here are personalized IEP goals for your child. You can share these with your child's IEP team.
-            </p>
+        <div className="space-y-6">
+          <div className="text-center space-y-3">
+            <div className="w-16 h-16 mx-auto rounded-2xl bg-gradient-to-br from-green-500 to-emerald-600 flex items-center justify-center shadow-lg">
+              <CheckCircle className="h-8 w-8 text-white" />
+            </div>
+            <div>
+              <h3 className="text-xl font-semibold text-gray-900 dark:text-gray-100">
+                Generated Goals for {studentInfo.name || 'Student'}
+              </h3>
+              <p className="text-sm text-gray-600 dark:text-gray-400 leading-relaxed px-4">
+                Here are personalized IEP goals ready to share with your child's IEP team
+              </p>
+            </div>
           </div>
           
           {generatedGoals.map((goal) => (
-            <Card key={goal.id} className="border-l-4 border-l-primary">
-              <CardHeader>
+            <PremiumCard key={goal.id} variant="elevated" className="border-l-4 border-l-blue-500 overflow-hidden">
+              <div className="p-6 space-y-6">
                 <div className="flex items-center justify-between">
-                  <CardTitle className="text-base">{goal.category}</CardTitle>
-                  <Badge variant={goal.complianceScore >= 90 ? "default" : "secondary"}>
-                    {goal.complianceScore}% SMART Goal
+                  <h4 className="text-lg font-semibold text-gray-900 dark:text-gray-100">{goal.category}</h4>
+                  <Badge className={cn(
+                    "px-3 py-1.5 rounded-full text-xs font-medium",
+                    goal.complianceScore >= 90 
+                      ? "bg-gradient-to-r from-green-100 to-green-200 text-green-700 dark:from-green-900 dark:to-green-800 dark:text-green-300"
+                      : "bg-gradient-to-r from-gray-100 to-gray-200 text-gray-700 dark:from-gray-800 dark:to-gray-700 dark:text-gray-300"
+                  )}>
+                    <Star className="h-3 w-3 mr-1" />
+                    {goal.complianceScore}% SMART
                   </Badge>
                 </div>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="space-y-2">
-                  <Label className="text-sm font-medium">Annual Goal</Label>
-                  <p className="text-sm p-3 bg-muted rounded-md">{goal.goal}</p>
+                <div className="space-y-3">
+                  <div className="flex items-center gap-2">
+                    <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
+                    <Label className="text-sm font-semibold text-gray-900 dark:text-gray-100">Annual Goal</Label>
+                  </div>
+                  <p className="text-sm p-4 bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-800 dark:to-gray-900 rounded-xl leading-relaxed border border-gray-200 dark:border-gray-700">
+                    {goal.goal}
+                  </p>
                 </div>
                 
-                <div className="space-y-2">
-                  <Label className="text-sm font-medium">Steps to achieve this goal:</Label>
-                  <ul className="text-sm space-y-1 ml-4">
+                <div className="space-y-3">
+                  <div className="flex items-center gap-2">
+                    <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+                    <Label className="text-sm font-semibold text-gray-900 dark:text-gray-100">Steps to achieve this goal</Label>
+                  </div>
+                  <ul className="space-y-2">
                     {goal.objectives.map((objective, idx) => (
-                      <li key={idx} className="flex items-start gap-2">
-                        <CheckCheck className="h-4 w-4 text-green-600 mt-0.5 flex-shrink-0" />
-                        {objective}
+                      <li key={idx} className="flex items-start gap-3 p-3 bg-green-50 dark:bg-green-950/20 rounded-lg border border-green-200 dark:border-green-800">
+                        <CheckCheck className="h-4 w-4 text-green-600 dark:text-green-400 mt-0.5 flex-shrink-0" />
+                        <span className="text-sm text-gray-700 dark:text-gray-300">{objective}</span>
                       </li>
                     ))}
                   </ul>
                 </div>
 
-                <div className="grid gap-4 md:grid-cols-2">
-                  <div className="space-y-2">
-                    <Label className="text-sm font-medium">How we'll measure progress:</Label>
-                    <p className="text-sm text-muted-foreground">{goal.measurableData}</p>
+                <div className="grid gap-4 sm:grid-cols-2">
+                  <div className="space-y-3">
+                    <div className="flex items-center gap-2">
+                      <div className="w-2 h-2 bg-orange-500 rounded-full"></div>
+                      <Label className="text-sm font-semibold text-gray-900 dark:text-gray-100">Progress Measurement</Label>
+                    </div>
+                    <p className="text-sm text-gray-600 dark:text-gray-400 p-3 bg-orange-50 dark:bg-orange-950/20 rounded-lg border border-orange-200 dark:border-orange-800">
+                      {goal.measurableData}
+                    </p>
                   </div>
-                  <div className="space-y-2">
-                    <Label className="text-sm font-medium">Timeline:</Label>
-                    <p className="text-sm text-muted-foreground">{goal.timeframe}</p>
+                  <div className="space-y-3">
+                    <div className="flex items-center gap-2">
+                      <div className="w-2 h-2 bg-purple-500 rounded-full"></div>
+                      <Label className="text-sm font-semibold text-gray-900 dark:text-gray-100">Timeline</Label>
+                    </div>
+                    <p className="text-sm text-gray-600 dark:text-gray-400 p-3 bg-purple-50 dark:bg-purple-950/20 rounded-lg border border-purple-200 dark:border-purple-800">
+                      {goal.timeframe}
+                    </p>
                   </div>
                 </div>
 
-                <div className="space-y-2">
-                  <Label className="text-sm font-medium">Standards Alignment</Label>
-                  <div className="flex flex-wrap gap-1">
+                <div className="space-y-3">
+                  <div className="flex items-center gap-2">
+                    <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
+                    <Label className="text-sm font-semibold text-gray-900 dark:text-gray-100">Standards Alignment</Label>
+                  </div>
+                  <div className="flex flex-wrap gap-2">
                     {goal.standards.map((standard) => (
-                      <Badge key={standard} variant="outline" className="text-xs">
+                      <Badge key={standard} className="bg-gradient-to-r from-blue-100 to-blue-200 text-blue-700 dark:from-blue-900 dark:to-blue-800 dark:text-blue-300 border-0">
                         {standard}
                       </Badge>
                     ))}
                   </div>
                 </div>
-              </CardContent>
-            </Card>
+              </div>
+            </PremiumCard>
           ))}
           
-          <Card className="bg-gradient-to-br from-green-50/50 to-emerald-50/30 dark:from-green-950/20 dark:to-emerald-950/10 border-green-200 dark:border-green-800">
-            <CardContent className="p-6">
-              <div className="text-center space-y-4">
-                <div className="flex items-center justify-center gap-2">
-                  <CheckCircle className="h-5 w-5 text-green-600" />
-                  <h4 className="text-lg font-semibold text-green-800 dark:text-green-200">
+          <PremiumCard variant="gradient" className="overflow-hidden border-2 border-green-200 dark:border-green-800">
+            <div className="p-6">
+              <div className="text-center space-y-6">
+                <div className="relative">
+                  <div className="absolute inset-0 bg-gradient-to-r from-green-600/20 to-emerald-600/20 rounded-full blur-xl" />
+                  <div className="relative w-16 h-16 mx-auto rounded-2xl bg-gradient-to-br from-green-500 to-emerald-600 flex items-center justify-center shadow-lg">
+                    <Save className="h-8 w-8 text-white" />
+                  </div>
+                </div>
+                <div className="space-y-2">
+                  <h4 className="text-xl font-semibold text-gray-900 dark:text-gray-100">
                     Ready to Save Your Goals?
                   </h4>
+                  <p className="text-sm text-gray-600 dark:text-gray-400 leading-relaxed px-4">
+                    Save these goals to your student's profile to track progress and share with the IEP team
+                  </p>
                 </div>
-                <p className="text-sm text-green-700 dark:text-green-300 max-w-md mx-auto">
-                  Save these goals to your student's profile to track progress and share with the IEP team.
-                </p>
                 <Button 
                   onClick={handleSaveGoals}
                   disabled={isSaving || !selectedStudentId || selectedStudentId === 'no-student'}
-                  className="bg-green-600 hover:bg-green-700 text-white"
+                  className={cn(
+                    "w-full sm:w-auto px-8 py-3 h-12 rounded-xl font-semibold transition-all duration-200",
+                    "bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700",
+                    "text-white shadow-lg hover:shadow-xl transform hover:scale-105 active:scale-95",
+                    "disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
+                  )}
                   data-testid="button-save-goals"
                 >
                   {isSaving ? (
                     <>
-                      <Save className="h-4 w-4 mr-2 animate-spin" />
+                      <Save className="h-5 w-5 mr-2 animate-spin" />
                       Saving Goals...
                     </>
                   ) : (
                     <>
-                      <Save className="h-4 w-4 mr-2" />
+                      <Save className="h-5 w-5 mr-2" />
                       Save Goals to Student Profile
                     </>
                   )}
                 </Button>
                 {(!selectedStudentId || selectedStudentId === 'no-student') && (
-                  <p className="text-xs text-amber-600 dark:text-amber-400">
-                    Please select a student above to save goals
-                  </p>
+                  <div className="flex items-center justify-center gap-2 p-3 bg-amber-50 dark:bg-amber-950/20 rounded-lg border border-amber-200 dark:border-amber-800">
+                    <AlertCircle className="h-4 w-4 text-amber-600 dark:text-amber-400" />
+                    <p className="text-xs text-amber-600 dark:text-amber-400">
+                      Please select a student above to save goals
+                    </p>
+                  </div>
                 )}
               </div>
-            </CardContent>
-          </Card>
+            </div>
+          </PremiumCard>
         </div>
       )}
     </div>
@@ -715,14 +787,22 @@ export default function GoalGenerator() {
 
   const renderComplianceTab = () => (
     <div className="space-y-6">
-      <Card>
-        <CardHeader>
-          <CardTitle>Compliance Checker</CardTitle>
-          <CardDescription>
-            Verify that IEP goals meet IDEA requirements and best practices
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
+      <PremiumCard variant="glass" className="overflow-hidden">
+        <div className="p-6 space-y-6">
+          {/* Premium Header */}
+          <div className="text-center space-y-3">
+            <div className="w-12 h-12 mx-auto rounded-2xl bg-gradient-to-br from-green-500 to-emerald-600 flex items-center justify-center shadow-lg">
+              <CheckCircle className="h-6 w-6 text-white" />
+            </div>
+            <div>
+              <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">
+                Compliance Checker
+              </h3>
+              <p className="text-sm text-gray-600 dark:text-gray-400 leading-relaxed">
+                Verify that IEP goals meet IDEA requirements and best practices
+              </p>
+            </div>
+          </div>
           <div className="space-y-4">
             {/* Goal Selection Options */}
             <div className="space-y-4 p-4 rounded-lg bg-muted/20">
@@ -1329,114 +1409,166 @@ export default function GoalGenerator() {
   );
 
   return (
-    <DashboardLayout>
-      <div className="space-y-8">
-        {/* Hero Section */}
-        <div className="text-center space-y-4">
-          <div className="flex items-center justify-center gap-2 mb-4">
-            <Target className="h-8 w-8 text-primary" />
-            <h1 className="text-4xl font-bold">IEP Goal Generator</h1>
+    <MobileAppShell>
+      <PremiumLargeHeader
+        title="Goal Generator"
+        subtitle="AI-powered SMART goal creation"
+        showBack={true}
+      />
+      
+      <SafeAreaFull>
+        <ContainerMobile className="space-y-6 pb-8">
+          {/* Premium Hero Section */}
+          <div className="text-center space-y-4 py-8">
+            <div className="relative">
+              <div className="absolute inset-0 bg-gradient-to-r from-blue-600/20 to-purple-600/20 rounded-full blur-xl" />
+              <div className="relative w-20 h-20 mx-auto rounded-2xl bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center shadow-lg">
+                <Target className="h-10 w-10 text-white" />
+              </div>
+            </div>
+            <div className="space-y-2">
+              <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">
+                IEP Goal Generator
+              </h1>
+              <p className="text-sm text-gray-600 dark:text-gray-400 leading-relaxed px-4">
+                Create professional SMART goals with AI-powered compliance verification and standards alignment
+              </p>
+            </div>
+            <div className="flex items-center justify-center gap-2">
+              <Badge className="bg-gradient-to-r from-orange-100 to-orange-200 text-orange-700 dark:from-orange-900 dark:to-orange-800 dark:text-orange-300 border-0">
+                <Sparkles className="h-3 w-3 mr-1" />
+                SMART Goals
+              </Badge>
+              <Badge className="bg-gradient-to-r from-green-100 to-green-200 text-green-700 dark:from-green-900 dark:to-green-800 dark:text-green-300 border-0">
+                <Star className="h-3 w-3 mr-1" />
+                AI-Powered
+              </Badge>
+            </div>
           </div>
-          <p className="text-xl text-muted-foreground max-w-3xl mx-auto">
-            AI-powered SMART goal creation with professional standards and compliance verification.
-          </p>
-          <Badge className="bg-gradient-to-r from-warning to-warning-light text-warning-foreground">
-            SMART Goals
-          </Badge>
-        </div>
 
-        {/* Navigation Tabs */}
-        <Card>
-          <CardHeader>
-            <div className="flex flex-wrap gap-2">
-              <Button
-                variant={activeTab === 'generate' ? 'default' : 'outline'}
+          {/* Premium Tab Navigation */}
+          <PremiumCard variant="elevated" className="p-1.5">
+            <div className="flex bg-gray-100 dark:bg-gray-800 rounded-xl p-1">
+              <button
                 onClick={() => setActiveTab('generate')}
-                className="flex items-center gap-2"
+                className={cn(
+                  "flex-1 flex items-center justify-center gap-2 px-4 py-3 rounded-lg transition-all duration-200 text-sm font-medium min-h-[44px]",
+                  activeTab === 'generate'
+                    ? "bg-white dark:bg-gray-900 text-blue-600 dark:text-blue-400 shadow-sm"
+                    : "text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100"
+                )}
                 data-testid="tab-generate"
               >
                 <Brain className="h-4 w-4" />
-                Generate Goals
-              </Button>
-              <Button
-                variant={activeTab === 'check' ? 'default' : 'outline'}
+                <span className="hidden sm:inline">Generate</span>
+              </button>
+              <button
                 onClick={() => setActiveTab('check')}
-                className="flex items-center gap-2"
+                className={cn(
+                  "flex-1 flex items-center justify-center gap-2 px-4 py-3 rounded-lg transition-all duration-200 text-sm font-medium min-h-[44px]",
+                  activeTab === 'check'
+                    ? "bg-white dark:bg-gray-900 text-blue-600 dark:text-blue-400 shadow-sm"
+                    : "text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100"
+                )}
                 data-testid="tab-compliance"
               >
                 <CheckCircle className="h-4 w-4" />
-                Check Compliance
-              </Button>
-              <Button
-                variant={activeTab === 'align' ? 'default' : 'outline'}
+                <span className="hidden sm:inline">Check</span>
+              </button>
+              <button
                 onClick={() => setActiveTab('align')}
-                className="flex items-center gap-2"
+                className={cn(
+                  "flex-1 flex items-center justify-center gap-2 px-4 py-3 rounded-lg transition-all duration-200 text-sm font-medium min-h-[44px]",
+                  activeTab === 'align'
+                    ? "bg-white dark:bg-gray-900 text-blue-600 dark:text-blue-400 shadow-sm"
+                    : "text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100"
+                )}
                 data-testid="tab-alignment"
               >
                 <BookOpen className="h-4 w-4" />
-                Align Standards
-              </Button>
+                <span className="hidden sm:inline">Align</span>
+              </button>
             </div>
-          </CardHeader>
-        </Card>
+          </PremiumCard>
 
         {/* Tab Content */}
         {activeTab === 'generate' && renderGenerateTab()}
         {activeTab === 'check' && renderComplianceTab()}
         {activeTab === 'align' && renderAlignmentTab()}
 
-        {/* SMART Framework Reference */}
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Lightbulb className="h-5 w-5" />
-              SMART Goal Framework
-            </CardTitle>
-            <CardDescription>
-              Our AI ensures every goal meets these essential criteria
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="grid gap-4 md:grid-cols-5">
+          {/* Premium SMART Framework Reference */}
+          <PremiumCard variant="gradient" className="p-6">
+            <div className="space-y-6">
               <div className="text-center space-y-2">
-                <div className="w-12 h-12 mx-auto rounded-full bg-blue-100 flex items-center justify-center">
-                  <span className="font-bold text-blue-600">S</span>
+                <div className="flex items-center justify-center gap-2">
+                  <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-yellow-400 to-orange-500 flex items-center justify-center">
+                    <Lightbulb className="h-4 w-4 text-white" />
+                  </div>
+                  <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">
+                    SMART Goal Framework
+                  </h3>
                 </div>
-                <h4 className="font-semibold">Specific</h4>
-                <p className="text-xs text-muted-foreground">Clear and well-defined objectives</p>
+                <p className="text-sm text-gray-600 dark:text-gray-400">
+                  Our AI ensures every goal meets these essential criteria
+                </p>
               </div>
-              <div className="text-center space-y-2">
-                <div className="w-12 h-12 mx-auto rounded-full bg-green-100 flex items-center justify-center">
-                  <span className="font-bold text-green-600">M</span>
+              
+              <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-5">
+                <div className="text-center space-y-3 p-4 rounded-xl bg-white/50 dark:bg-gray-800/50">
+                  <div className="w-12 h-12 mx-auto rounded-2xl bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center shadow-lg">
+                    <span className="font-bold text-white text-lg">S</span>
+                  </div>
+                  <div>
+                    <h4 className="font-semibold text-gray-900 dark:text-gray-100">Specific</h4>
+                    <p className="text-xs text-gray-600 dark:text-gray-400 leading-relaxed">Clear and well-defined objectives</p>
+                  </div>
                 </div>
-                <h4 className="font-semibold">Measurable</h4>
-                <p className="text-xs text-muted-foreground">Quantifiable progress indicators</p>
-              </div>
-              <div className="text-center space-y-2">
-                <div className="w-12 h-12 mx-auto rounded-full bg-orange-100 flex items-center justify-center">
-                  <span className="font-bold text-orange-600">A</span>
+                
+                <div className="text-center space-y-3 p-4 rounded-xl bg-white/50 dark:bg-gray-800/50">
+                  <div className="w-12 h-12 mx-auto rounded-2xl bg-gradient-to-br from-green-500 to-green-600 flex items-center justify-center shadow-lg">
+                    <span className="font-bold text-white text-lg">M</span>
+                  </div>
+                  <div>
+                    <h4 className="font-semibold text-gray-900 dark:text-gray-100">Measurable</h4>
+                    <p className="text-xs text-gray-600 dark:text-gray-400 leading-relaxed">Quantifiable progress indicators</p>
+                  </div>
                 </div>
-                <h4 className="font-semibold">Achievable</h4>
-                <p className="text-xs text-muted-foreground">Realistic and attainable</p>
-              </div>
-              <div className="text-center space-y-2">
-                <div className="w-12 h-12 mx-auto rounded-full bg-purple-100 flex items-center justify-center">
-                  <span className="font-bold text-purple-600">R</span>
+                
+                <div className="text-center space-y-3 p-4 rounded-xl bg-white/50 dark:bg-gray-800/50">
+                  <div className="w-12 h-12 mx-auto rounded-2xl bg-gradient-to-br from-orange-500 to-orange-600 flex items-center justify-center shadow-lg">
+                    <span className="font-bold text-white text-lg">A</span>
+                  </div>
+                  <div>
+                    <h4 className="font-semibold text-gray-900 dark:text-gray-100">Achievable</h4>
+                    <p className="text-xs text-gray-600 dark:text-gray-400 leading-relaxed">Realistic and attainable</p>
+                  </div>
                 </div>
-                <h4 className="font-semibold">Relevant</h4>
-                <p className="text-xs text-muted-foreground">Meaningful and important</p>
-              </div>
-              <div className="text-center space-y-2">
-                <div className="w-12 h-12 mx-auto rounded-full bg-red-100 flex items-center justify-center">
-                  <Clock className="h-6 w-6 text-red-600" />
+                
+                <div className="text-center space-y-3 p-4 rounded-xl bg-white/50 dark:bg-gray-800/50">
+                  <div className="w-12 h-12 mx-auto rounded-2xl bg-gradient-to-br from-purple-500 to-purple-600 flex items-center justify-center shadow-lg">
+                    <span className="font-bold text-white text-lg">R</span>
+                  </div>
+                  <div>
+                    <h4 className="font-semibold text-gray-900 dark:text-gray-100">Relevant</h4>
+                    <p className="text-xs text-gray-600 dark:text-gray-400 leading-relaxed">Meaningful and important</p>
+                  </div>
                 </div>
-                <h4 className="font-semibold">Time-bound</h4>
-                <p className="text-xs text-muted-foreground">Clear deadlines and timeframes</p>
+                
+                <div className="text-center space-y-3 p-4 rounded-xl bg-white/50 dark:bg-gray-800/50">
+                  <div className="w-12 h-12 mx-auto rounded-2xl bg-gradient-to-br from-red-500 to-red-600 flex items-center justify-center shadow-lg">
+                    <Clock className="h-6 w-6 text-white" />
+                  </div>
+                  <div>
+                    <h4 className="font-semibold text-gray-900 dark:text-gray-100">Time-bound</h4>
+                    <p className="text-xs text-gray-600 dark:text-gray-400 leading-relaxed">Clear deadlines and timeframes</p>
+                  </div>
+                </div>
               </div>
             </div>
-          </CardContent>
-        </Card>
-      </div>
-    </DashboardLayout>
+          </PremiumCard>
+          
+        </ContainerMobile>
+      </SafeAreaFull>
+    </MobileAppShell>
   );
 }

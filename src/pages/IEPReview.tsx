@@ -1,5 +1,11 @@
 import { useState, useEffect } from "react";
-import { DashboardLayout } from "@/layouts/DashboardLayout";
+import { 
+  MobileAppShell,
+  PremiumLargeHeader,
+  PremiumCard,
+  ContainerMobile,
+  SafeAreaFull
+} from "@/components/mobile";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -13,6 +19,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/hooks/useAuth";
 import { api } from "@/lib/api";
+import { cn } from "@/lib/utils";
 import { 
   Upload, 
   FileText, 
@@ -24,7 +31,11 @@ import {
   MessageSquare,
   Clock,
   Target,
-  BarChart3
+  BarChart3,
+  Sparkles,
+  Shield,
+  Eye,
+  ChevronRight
 } from "lucide-react";
 
 interface IEPDocument {
@@ -280,55 +291,82 @@ export default function IEPReview() {
   };
 
   const renderScoreCard = (title: string, score: number, description: string) => (
-    <Card>
-      <CardHeader className="pb-2">
-        <CardTitle className="text-sm font-medium">{title}</CardTitle>
-      </CardHeader>
-      <CardContent>
-        <div className="flex items-center space-x-2">
+    <PremiumCard variant="elevated" className="p-4">
+      <div className="space-y-3">
+        <div className="text-sm font-medium text-gray-900 dark:text-gray-100">{title}</div>
+        <div className="flex items-center space-x-3">
           <div className="flex-1">
-            <Progress value={score} className="h-2" />
+            <Progress value={score} className="h-3 bg-gray-100 dark:bg-gray-800" />
           </div>
-          <div className="text-2xl font-bold">{score}</div>
+          <div className="text-2xl font-bold text-gray-900 dark:text-gray-100">{score}</div>
         </div>
-        <p className="text-xs text-muted-foreground mt-1">{description}</p>
-      </CardContent>
-    </Card>
+        <p className="text-xs text-gray-500 dark:text-gray-400">{description}</p>
+      </div>
+    </PremiumCard>
   );
 
   return (
-    <DashboardLayout>
-      <div className="space-y-6">
-        <div className="flex justify-between items-center">
-          <div>
-            <h1 className="text-3xl font-bold">AI IEP Review & Compliance</h1>
-            <p className="text-muted-foreground">
-              Upload IEP documents for comprehensive AI-powered quality and compliance analysis
-            </p>
-          </div>
-        </div>
+    <MobileAppShell>
+      <PremiumLargeHeader 
+        title="AI IEP Review & Compliance"
+        subtitle="AI-powered quality and compliance analysis"
+        showBack={true}
+      />
+      
+      <SafeAreaFull>
+        <ContainerMobile className="space-y-6 pb-8"
+          data-testid="iep-review-container"
+        >
 
-        <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-          <TabsList className="grid w-full grid-cols-2 sm:grid-cols-4">
-            <TabsTrigger value="upload">Upload</TabsTrigger>
-            <TabsTrigger value="ingest" disabled={!selectedDoc}>Ingest</TabsTrigger>
-            <TabsTrigger value="analyze" disabled={ingestStatus !== 'completed'}>Analyze</TabsTrigger>
-            <TabsTrigger value="report" disabled={analyses.length === 0}>Report</TabsTrigger>
-          </TabsList>
+          {/* Premium Status Indicators */}
+          <div className="flex items-center gap-2 overflow-x-auto pb-2">
+            <Badge variant={activeTab === 'upload' ? 'default' : 'secondary'} className="flex items-center gap-1">
+              <Upload className="h-3 w-3" />
+              Upload
+            </Badge>
+            <ChevronRight className="h-4 w-4 text-gray-400" />
+            <Badge variant={activeTab === 'ingest' ? 'default' : selectedDoc ? 'secondary' : 'outline'} className="flex items-center gap-1">
+              <Brain className="h-3 w-3" />
+              Process
+            </Badge>
+            <ChevronRight className="h-4 w-4 text-gray-400" />
+            <Badge variant={activeTab === 'analyze' ? 'default' : ingestStatus === 'completed' ? 'secondary' : 'outline'} className="flex items-center gap-1">
+              <Target className="h-3 w-3" />
+              Analyze
+            </Badge>
+            <ChevronRight className="h-4 w-4 text-gray-400" />
+            <Badge variant={activeTab === 'report' ? 'default' : analyses.length > 0 ? 'secondary' : 'outline'} className="flex items-center gap-1">
+              <Eye className="h-3 w-3" />
+              Report
+            </Badge>
+          </div>
+
+          <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
+            <div className="hidden">
+              <TabsList className="grid w-full grid-cols-2 sm:grid-cols-4">
+                <TabsTrigger value="upload">Upload</TabsTrigger>
+                <TabsTrigger value="ingest" disabled={!selectedDoc}>Ingest</TabsTrigger>
+                <TabsTrigger value="analyze" disabled={ingestStatus !== 'completed'}>Analyze</TabsTrigger>
+                <TabsTrigger value="report" disabled={analyses.length === 0}>Report</TabsTrigger>
+              </TabsList>
+            </div>
 
           <TabsContent value="upload" className="space-y-6">
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Upload className="h-5 w-5" />
-                  Upload IEP Document
-                </CardTitle>
-                <CardDescription>
-                  Upload PDF, DOCX, or TXT files for analysis. Supported formats: PDF, DOCX, TXT
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="border-2 border-dashed border-muted-foreground/25 rounded-lg p-6 text-center hover:border-muted-foreground/50 transition-colors">
+            <PremiumCard variant="glass" className="p-6">
+              <div className="space-y-4">
+                <div className="flex items-center gap-3">
+                  <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-blue-50 to-blue-100 dark:from-blue-950 dark:to-blue-900 flex items-center justify-center">
+                    <Upload className="h-6 w-6 text-blue-600 dark:text-blue-400" />
+                  </div>
+                  <div>
+                    <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">Upload IEP Document</h3>
+                    <p className="text-sm text-gray-600 dark:text-gray-400">
+                      Upload PDF, DOCX, or TXT files for AI analysis
+                    </p>
+                  </div>
+                </div>
+
+                <div className="border-2 border-dashed border-blue-200 dark:border-blue-800 rounded-2xl p-8 text-center hover:border-blue-300 dark:hover:border-blue-700 transition-all duration-200 bg-gradient-to-br from-blue-50/30 to-transparent dark:from-blue-950/30">
                   <input
                     type="file"
                     accept=".pdf,.docx,.txt"
@@ -336,211 +374,334 @@ export default function IEPReview() {
                     className="hidden"
                     id="file-upload"
                     disabled={loading}
+                    data-testid="file-input-upload"
                   />
                   <label htmlFor="file-upload" className={`cursor-pointer block ${loading ? 'opacity-50 cursor-not-allowed' : ''}`}>
-                    <FileText className="mx-auto h-12 w-12 text-muted-foreground" />
-                    <div className="mt-4">
+                    <FileText className="mx-auto h-16 w-16 text-blue-500 dark:text-blue-400 mb-4" />
+                    <div className="space-y-3">
                       <Button 
-                        variant="outline" 
+                        variant={loading ? "outline" : "default"}
                         disabled={loading}
-                        className="pointer-events-none"
-                        asChild={false}
+                        className="pointer-events-none h-12 px-8"
+                        data-testid="button-choose-file"
                       >
-                        {loading ? 'Uploading...' : 'Choose File'}
+                        {loading ? (
+                          <>
+                            <Clock className="h-4 w-4 mr-2 animate-spin" />
+                            Uploading...
+                          </>
+                        ) : (
+                          <>
+                            <Upload className="h-4 w-4 mr-2" />
+                            Choose Document
+                          </>
+                        )}
                       </Button>
+                      <p className="text-sm text-gray-500 dark:text-gray-400">
+                        PDF, DOCX, or TXT up to 10MB
+                      </p>
                     </div>
-                    <p className="mt-2 text-sm text-muted-foreground">
-                      PDF, DOCX, or TXT up to 10MB
-                    </p>
                   </label>
                 </div>
 
                 {documents.length > 0 && (
-                  <div className="mt-6">
-                    <h3 className="text-lg font-medium mb-3">Recent Documents</h3>
-                    <div className="space-y-2">
+                  <div className="space-y-4">
+                    <div className="flex items-center gap-2">
+                      <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">Recent Documents</h3>
+                      <Badge variant="secondary" className="text-xs">{documents.length}</Badge>
+                    </div>
+                    <div className="space-y-3">
                       {documents.map((doc) => (
-                        <Card key={doc.id} className={`cursor-pointer transition-colors ${selectedDoc?.id === doc.id ? 'bg-blue-50 border-blue-200' : 'hover:bg-gray-50'}`} onClick={() => setSelectedDoc(doc)}>
-                          <CardContent className="p-4">
-                            <div className="flex items-center justify-between">
-                              <div>
-                                <h4 className="font-medium">{doc.title}</h4>
-                                <p className="text-sm text-muted-foreground">
-                                  Uploaded {new Date(doc.uploaded_at).toLocaleDateString()}
-                                </p>
-                              </div>
-                              {selectedDoc?.id === doc.id && (
-                                <CheckCircle className="h-5 w-5 text-blue-600" />
-                              )}
+                        <PremiumCard 
+                          key={doc.id} 
+                          variant={selectedDoc?.id === doc.id ? "interactive" : "default"}
+                          onClick={() => setSelectedDoc(doc)}
+                          className={cn(
+                            "p-4 transition-all duration-200",
+                            selectedDoc?.id === doc.id 
+                              ? "ring-2 ring-blue-500 ring-offset-2 bg-blue-50 dark:bg-blue-950/30" 
+                              : "hover:shadow-md"
+                          )}
+                          data-testid={`card-document-${doc.id}`}
+                        >
+                          <div className="flex items-center gap-3">
+                            <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-gray-100 to-gray-200 dark:from-gray-800 dark:to-gray-700 flex items-center justify-center">
+                              <FileText className="h-5 w-5 text-gray-600 dark:text-gray-400" />
                             </div>
-                          </CardContent>
-                        </Card>
+                            <div className="flex-1 min-w-0">
+                              <h4 className="font-medium text-gray-900 dark:text-gray-100 truncate">{doc.title}</h4>
+                              <p className="text-sm text-gray-500 dark:text-gray-400">
+                                Uploaded {new Date(doc.uploaded_at).toLocaleDateString()}
+                              </p>
+                            </div>
+                            {selectedDoc?.id === doc.id && (
+                              <div className="flex items-center gap-2">
+                                <CheckCircle className="h-5 w-5 text-blue-600 dark:text-blue-400" />
+                                <Badge variant="default" className="text-xs">Selected</Badge>
+                              </div>
+                            )}
+                          </div>
+                        </PremiumCard>
                       ))}
                     </div>
                   </div>
                 )}
-              </CardContent>
-            </Card>
+              </div>
+            </PremiumCard>
           </TabsContent>
 
           <TabsContent value="ingest" className="space-y-6">
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Brain className="h-5 w-5" />
-                  Document Ingestion
-                </CardTitle>
-                <CardDescription>
-                  Extract and chunk text from the uploaded document for AI analysis
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
+            <PremiumCard variant="elevated" className="p-6">
+              <div className="space-y-6">
+                <div className="flex items-center gap-3">
+                  <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-purple-50 to-purple-100 dark:from-purple-950 dark:to-purple-900 flex items-center justify-center">
+                    <Brain className="h-6 w-6 text-purple-600 dark:text-purple-400" />
+                  </div>
+                  <div>
+                    <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">Document Processing</h3>
+                    <p className="text-sm text-gray-600 dark:text-gray-400">
+                      Extract and chunk text for AI analysis
+                    </p>
+                  </div>
+                </div>
+
                 {selectedDoc && (
                   <div className="space-y-4">
-                    <div className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
-                      <div>
-                        <h4 className="font-medium">{selectedDoc.title}</h4>
-                        <p className="text-sm text-muted-foreground">Ready for processing</p>
+                    <PremiumCard variant="glass" className="p-4">
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-3">
+                          <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-blue-100 to-blue-200 dark:from-blue-800 dark:to-blue-700 flex items-center justify-center">
+                            <FileText className="h-5 w-5 text-blue-600 dark:text-blue-400" />
+                          </div>
+                          <div>
+                            <h4 className="font-medium text-gray-900 dark:text-gray-100">{selectedDoc.title}</h4>
+                            <p className="text-sm text-gray-500 dark:text-gray-400">
+                              {ingestStatus === 'idle' ? 'Ready for processing' : 
+                               ingestStatus === 'processing' ? 'Processing...' :
+                               ingestStatus === 'completed' ? 'Processing complete' : 'Processing failed'}
+                            </p>
+                          </div>
+                        </div>
+                        <Button 
+                          onClick={handleIngest} 
+                          disabled={ingestStatus === 'processing' || ingestStatus === 'completed'}
+                          className="flex items-center gap-2 h-12 px-6"
+                          variant={ingestStatus === 'completed' ? 'outline' : 'default'}
+                          data-testid="button-start-ingest"
+                        >
+                          {ingestStatus === 'processing' ? (
+                            <>
+                              <Clock className="h-4 w-4 animate-spin" />
+                              Processing...
+                            </>
+                          ) : ingestStatus === 'completed' ? (
+                            <>
+                              <CheckCircle className="h-4 w-4" />
+                              Completed
+                            </>
+                          ) : (
+                            <>
+                              <Brain className="h-4 w-4" />
+                              Start Processing
+                            </>
+                          )}
+                        </Button>
                       </div>
-                      <Button 
-                        onClick={handleIngest} 
-                        disabled={ingestStatus === 'processing'}
-                        className="flex items-center gap-2"
-                      >
-                        {ingestStatus === 'processing' ? (
-                          <>
-                            <Clock className="h-4 w-4 animate-spin" />
-                            Processing...
-                          </>
-                        ) : (
-                          <>
-                            <Brain className="h-4 w-4" />
-                            Start Ingestion
-                          </>
-                        )}
-                      </Button>
-                    </div>
+                    </PremiumCard>
 
                     {ingestStatus === 'processing' && (
-                      <div className="space-y-2">
-                        <div className="text-sm font-medium">Processing document...</div>
-                        <Progress value={undefined} className="h-2" />
-                      </div>
+                      <PremiumCard variant="glass" className="p-4 bg-blue-50/50 dark:bg-blue-950/20">
+                        <div className="space-y-3">
+                          <div className="flex items-center gap-2">
+                            <Clock className="h-4 w-4 animate-spin text-blue-600 dark:text-blue-400" />
+                            <span className="text-sm font-medium text-blue-900 dark:text-blue-100">Processing document...</span>
+                          </div>
+                          <Progress value={undefined} className="h-2 bg-blue-100 dark:bg-blue-800" />
+                          <p className="text-xs text-blue-700 dark:text-blue-300">
+                            This may take a few moments
+                          </p>
+                        </div>
+                      </PremiumCard>
                     )}
 
                     {ingestStatus === 'completed' && (
-                      <div className="p-4 bg-green-50 border border-green-200 rounded-lg">
-                        <div className="flex items-center gap-2 text-green-800">
-                          <CheckCircle className="h-5 w-5" />
-                          <span className="font-medium">Ingestion completed successfully</span>
+                      <PremiumCard variant="glass" className="p-4 bg-green-50/50 dark:bg-green-950/20">
+                        <div className="flex items-center gap-3">
+                          <div className="w-10 h-10 rounded-lg bg-green-100 dark:bg-green-800 flex items-center justify-center">
+                            <CheckCircle className="h-5 w-5 text-green-600 dark:text-green-400" />
+                          </div>
+                          <div>
+                            <span className="font-medium text-green-900 dark:text-green-100">Processing completed successfully</span>
+                            <p className="text-sm text-green-700 dark:text-green-300">
+                              Document is ready for AI analysis
+                            </p>
+                          </div>
                         </div>
-                        <p className="text-sm text-green-700 mt-1">
-                          Document is ready for AI analysis
-                        </p>
-                      </div>
+                      </PremiumCard>
                     )}
 
                     {ingestStatus === 'error' && (
-                      <div className="p-4 bg-red-50 border border-red-200 rounded-lg">
-                        <div className="flex items-center gap-2 text-red-800">
-                          <AlertTriangle className="h-5 w-5" />
-                          <span className="font-medium">Ingestion failed</span>
+                      <PremiumCard variant="glass" className="p-4 bg-red-50/50 dark:bg-red-950/20">
+                        <div className="flex items-center gap-3">
+                          <div className="w-10 h-10 rounded-lg bg-red-100 dark:bg-red-800 flex items-center justify-center">
+                            <AlertTriangle className="h-5 w-5 text-red-600 dark:text-red-400" />
+                          </div>
+                          <div>
+                            <span className="font-medium text-red-900 dark:text-red-100">Processing failed</span>
+                            <p className="text-sm text-red-700 dark:text-red-300">
+                              Please try again or contact support
+                            </p>
+                          </div>
                         </div>
-                        <p className="text-sm text-red-700 mt-1">
-                          Please try again or contact support
-                        </p>
-                      </div>
+                      </PremiumCard>
                     )}
                   </div>
                 )}
-              </CardContent>
-            </Card>
+              </div>
+            </PremiumCard>
           </TabsContent>
 
           <TabsContent value="analyze" className="space-y-6">
-            <div className="grid gap-6 md:grid-cols-2">
-              <Card>
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <Target className="h-5 w-5" />
-                    Quality Analysis
-                  </CardTitle>
-                  <CardDescription>
-                    Analyze IEP quality, goal effectiveness, and service alignment
-                  </CardDescription>
-                </CardHeader>
-                <CardContent>
+            <div className="grid gap-6 md:grid-cols-1 lg:grid-cols-2">
+              <PremiumCard 
+                variant="interactive" 
+                onClick={() => analysisStatus !== 'processing' && handleAnalyze('quality')}
+                disabled={analysisStatus === 'processing'}
+                className="p-6 relative overflow-hidden"
+                data-testid="card-quality-analysis"
+              >
+                <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-bl from-green-50/50 to-transparent dark:from-green-950/20 rounded-full transform translate-x-16 -translate-y-16" />
+                
+                <div className="relative z-10 space-y-4">
+                  <div className="flex items-center gap-3">
+                    <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-green-50 to-green-100 dark:from-green-950 dark:to-green-900 flex items-center justify-center">
+                      <Target className="h-6 w-6 text-green-600 dark:text-green-400" />
+                    </div>
+                    <div className="flex-1">
+                      <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">Quality Analysis</h3>
+                      <p className="text-sm text-gray-600 dark:text-gray-400">
+                        IEP quality, goal effectiveness, and service alignment
+                      </p>
+                    </div>
+                  </div>
+                  
                   <Button 
                     onClick={() => handleAnalyze('quality')} 
                     disabled={analysisStatus === 'processing'}
-                    className="w-full"
+                    className="w-full h-12 flex items-center gap-2"
+                    data-testid="button-run-quality-analysis"
                   >
-                    {analysisStatus === 'processing' ? 'Analyzing...' : 'Run Quality Analysis'}
+                    {analysisStatus === 'processing' ? (
+                      <>
+                        <Clock className="h-4 w-4 animate-spin" />
+                        Analyzing...
+                      </>
+                    ) : (
+                      <>
+                        <Sparkles className="h-4 w-4" />
+                        Run Quality Analysis
+                      </>
+                    )}
                   </Button>
-                </CardContent>
-              </Card>
+                </div>
+              </PremiumCard>
 
-              <Card>
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <CheckCircle className="h-5 w-5" />
-                    Compliance Check
-                  </CardTitle>
-                  <CardDescription>
-                    Check IDEA compliance, timelines, and procedural requirements
-                  </CardDescription>
-                </CardHeader>
-                <CardContent>
+              <PremiumCard 
+                variant="interactive"
+                onClick={() => analysisStatus !== 'processing' && handleAnalyze('compliance')}
+                disabled={analysisStatus === 'processing'}
+                className="p-6 relative overflow-hidden"
+                data-testid="card-compliance-check"
+              >
+                <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-bl from-blue-50/50 to-transparent dark:from-blue-950/20 rounded-full transform translate-x-16 -translate-y-16" />
+                
+                <div className="relative z-10 space-y-4">
+                  <div className="flex items-center gap-3">
+                    <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-blue-50 to-blue-100 dark:from-blue-950 dark:to-blue-900 flex items-center justify-center">
+                      <Shield className="h-6 w-6 text-blue-600 dark:text-blue-400" />
+                    </div>
+                    <div className="flex-1">
+                      <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">Compliance Check</h3>
+                      <p className="text-sm text-gray-600 dark:text-gray-400">
+                        IDEA compliance, timelines, and procedural requirements
+                      </p>
+                    </div>
+                  </div>
+                  
                   <Button 
                     onClick={() => handleAnalyze('compliance')} 
                     disabled={analysisStatus === 'processing'}
-                    className="w-full"
+                    className="w-full h-12 flex items-center gap-2"
                     variant="outline"
+                    data-testid="button-run-compliance-check"
                   >
-                    {analysisStatus === 'processing' ? 'Analyzing...' : 'Run Compliance Check'}
+                    {analysisStatus === 'processing' ? (
+                      <>
+                        <Clock className="h-4 w-4 animate-spin" />
+                        Analyzing...
+                      </>
+                    ) : (
+                      <>
+                        <CheckCircle className="h-4 w-4" />
+                        Run Compliance Check
+                      </>
+                    )}
                   </Button>
-                </CardContent>
-              </Card>
+                </div>
+              </PremiumCard>
             </div>
 
             {analysisStatus === 'processing' && (
-              <Card>
-                <CardContent className="p-6">
-                  <div className="space-y-2">
-                    <div className="text-sm font-medium">AI analysis in progress...</div>
-                    <Progress value={undefined} className="h-2" />
-                    <p className="text-xs text-muted-foreground">
+              <PremiumCard variant="glass" className="p-6 bg-purple-50/30 dark:bg-purple-950/20">
+                <div className="flex items-center gap-4">
+                  <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-purple-100 to-purple-200 dark:from-purple-800 dark:to-purple-700 flex items-center justify-center">
+                    <Brain className="h-6 w-6 text-purple-600 dark:text-purple-400 animate-pulse" />
+                  </div>
+                  <div className="flex-1 space-y-2">
+                    <div className="text-lg font-medium text-gray-900 dark:text-gray-100">AI analysis in progress...</div>
+                    <Progress value={undefined} className="h-3 bg-purple-100 dark:bg-purple-800" />
+                    <p className="text-sm text-purple-700 dark:text-purple-300">
                       This may take a few minutes depending on document size
                     </p>
                   </div>
-                </CardContent>
-              </Card>
+                </div>
+              </PremiumCard>
             )}
           </TabsContent>
 
           <TabsContent value="report" className="space-y-6">
             {analyses.length > 0 && (
               <>
-                <div className="flex gap-4 mb-6">
-                  {analyses.map((analysis) => (
-                    <Button
-                      key={analysis.id}
-                      variant={selectedAnalysis?.id === analysis.id ? "default" : "outline"}
-                      onClick={() => setSelectedAnalysis(analysis)}
-                      className="capitalize"
-                    >
-                      {analysis.kind} Analysis (v{analysis.version})
-                    </Button>
-                  ))}
+                <div className="space-y-4">
+                  <div className="flex items-center gap-2">
+                    <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">Analysis Reports</h3>
+                    <Badge variant="secondary" className="text-xs">{analyses.length}</Badge>
+                  </div>
+                  
+                  <div className="flex gap-3 overflow-x-auto pb-2">
+                    {analyses.map((analysis) => (
+                      <Button
+                        key={analysis.id}
+                        variant={selectedAnalysis?.id === analysis.id ? "default" : "outline"}
+                        onClick={() => setSelectedAnalysis(analysis)}
+                        className="capitalize whitespace-nowrap h-12 px-6 flex items-center gap-2"
+                        data-testid={`button-select-${analysis.kind}-analysis`}
+                      >
+                        {analysis.kind === 'quality' ? <Target className="h-4 w-4" /> : <Shield className="h-4 w-4" />}
+                        {analysis.kind} Analysis
+                        <Badge variant="secondary" className="text-xs ml-1">v{analysis.version}</Badge>
+                      </Button>
+                    ))}
+                  </div>
                 </div>
 
                 {selectedAnalysis && (
                   <div className="space-y-6">
                     {/* Summary Cards */}
-                    <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+                    <div className="grid gap-4 grid-cols-2 lg:grid-cols-4">
                       {Object.entries(selectedAnalysis.scores).map(([key, value]) => (
                         key !== 'overall' && (
-                          <div key={key}>
+                          <div key={key} data-testid={`score-card-${key}`}>
                             {renderScoreCard(
                               key.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase()),
                               value as number,
@@ -552,79 +713,141 @@ export default function IEPReview() {
                     </div>
 
                     {/* Overall Score */}
-                    <Card>
-                      <CardHeader>
-                        <CardTitle className="flex items-center gap-2">
-                          <BarChart3 className="h-5 w-5" />
-                          Overall {selectedAnalysis.kind} Score
-                        </CardTitle>
-                      </CardHeader>
-                      <CardContent>
-                        <div className="text-4xl font-bold text-center mb-4">
-                          {selectedAnalysis.scores.overall}/100
+                    <PremiumCard variant="elevated" className="p-6 bg-gradient-to-br from-blue-50/50 to-purple-50/50 dark:from-blue-950/20 dark:to-purple-950/20">
+                      <div className="space-y-4">
+                        <div className="flex items-center gap-3">
+                          <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-blue-100 to-purple-100 dark:from-blue-800 dark:to-purple-800 flex items-center justify-center">
+                            <BarChart3 className="h-6 w-6 text-blue-600 dark:text-blue-400" />
+                          </div>
+                          <div>
+                            <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">
+                              Overall {selectedAnalysis.kind.charAt(0).toUpperCase() + selectedAnalysis.kind.slice(1)} Score
+                            </h3>
+                            <p className="text-sm text-gray-600 dark:text-gray-400">
+                              Comprehensive {selectedAnalysis.kind} assessment
+                            </p>
+                          </div>
                         </div>
-                        <Progress value={selectedAnalysis.scores.overall} className="h-4" />
-                      </CardContent>
-                    </Card>
+                        
+                        <div className="text-center space-y-4">
+                          <div className="text-5xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+                            {selectedAnalysis.scores.overall}/100
+                          </div>
+                          <Progress 
+                            value={selectedAnalysis.scores.overall} 
+                            className="h-4 bg-gray-100 dark:bg-gray-800" 
+                            data-testid="progress-overall-score"
+                          />
+                          <div className="flex items-center justify-center gap-2">
+                            <div className="flex items-center gap-1">
+                              {selectedAnalysis.scores.overall >= 80 ? (
+                                <CheckCircle className="h-5 w-5 text-green-500" />
+                              ) : selectedAnalysis.scores.overall >= 60 ? (
+                                <AlertTriangle className="h-5 w-5 text-yellow-500" />
+                              ) : (
+                                <AlertTriangle className="h-5 w-5 text-red-500" />
+                              )}
+                              <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                                {selectedAnalysis.scores.overall >= 80 ? 'Excellent' : 
+                                 selectedAnalysis.scores.overall >= 60 ? 'Good' : 'Needs Improvement'}
+                              </span>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </PremiumCard>
 
                     {/* Flags and Recommendations */}
-                    <div className="grid gap-6 md:grid-cols-2">
-                      <Card>
-                        <CardHeader>
-                          <CardTitle className="flex items-center gap-2">
-                            <AlertTriangle className="h-5 w-5" />
-                            Flags & Concerns ({selectedAnalysis.flags.length})
-                          </CardTitle>
-                        </CardHeader>
-                        <CardContent>
-                          <div className="space-y-3">
-                            {selectedAnalysis.flags.map((flag, index) => (
-                              <div key={index} className="p-3 bg-yellow-50 border border-yellow-200 rounded-lg">
-                                <div className="font-medium text-yellow-800">{flag.where}</div>
-                                <div className="text-sm text-yellow-700">{flag.notes}</div>
-                                {flag.type && <Badge variant="secondary" className="mt-1">{flag.type}</Badge>}
-                              </div>
-                            ))}
+                    <div className="grid gap-6 lg:grid-cols-2">
+                      <PremiumCard variant="elevated" className="p-6">
+                        <div className="space-y-4">
+                          <div className="flex items-center gap-3">
+                            <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-yellow-100 to-orange-100 dark:from-yellow-800 dark:to-orange-800 flex items-center justify-center">
+                              <AlertTriangle className="h-5 w-5 text-yellow-600 dark:text-yellow-400" />
+                            </div>
+                            <div>
+                              <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">
+                                Flags & Concerns
+                              </h3>
+                              <p className="text-sm text-gray-600 dark:text-gray-400">
+                                {selectedAnalysis.flags.length} issues identified
+                              </p>
+                            </div>
                           </div>
-                        </CardContent>
-                      </Card>
 
-                      <Card>
-                        <CardHeader>
-                          <CardTitle className="flex items-center gap-2">
-                            <TrendingUp className="h-5 w-5" />
-                            Recommendations ({selectedAnalysis.recommendations.length})
-                          </CardTitle>
-                        </CardHeader>
-                        <CardContent>
+                          <div className="space-y-3">
+                            {selectedAnalysis.flags.length > 0 ? selectedAnalysis.flags.map((flag, index) => (
+                              <PremiumCard key={index} variant="glass" className="p-4 bg-yellow-50/50 dark:bg-yellow-950/20" data-testid={`flag-item-${index}`}>
+                                <div className="space-y-2">
+                                  <div className="flex items-start justify-between">
+                                    <h4 className="font-medium text-yellow-900 dark:text-yellow-100">{flag.where}</h4>
+                                    {flag.type && <Badge variant="outline" className="text-xs">{flag.type}</Badge>}
+                                  </div>
+                                  <p className="text-sm text-yellow-800 dark:text-yellow-200">{flag.notes}</p>
+                                </div>
+                              </PremiumCard>
+                            )) : (
+                              <div className="text-center py-8 text-gray-500 dark:text-gray-400">
+                                <CheckCircle className="h-12 w-12 mx-auto mb-2 text-green-500" />
+                                <p>No concerns identified</p>
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                      </PremiumCard>
+
+                      <PremiumCard variant="elevated" className="p-6">
+                        <div className="space-y-4">
+                          <div className="flex items-center gap-3">
+                            <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-green-100 to-blue-100 dark:from-green-800 dark:to-blue-800 flex items-center justify-center">
+                              <TrendingUp className="h-5 w-5 text-green-600 dark:text-green-400" />
+                            </div>
+                            <div>
+                              <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">
+                                Recommendations
+                              </h3>
+                              <p className="text-sm text-gray-600 dark:text-gray-400">
+                                {selectedAnalysis.recommendations.length} improvement suggestions
+                              </p>
+                            </div>
+                          </div>
+
                           <div className="space-y-3">
                             {selectedAnalysis.recommendations.map((rec, index) => (
-                              <div key={index} className="p-3 bg-blue-50 border border-blue-200 rounded-lg">
-                                <div className="font-medium text-blue-800">{rec.title}</div>
-                                <div className="text-sm text-blue-700">{rec.suggestion}</div>
-                              </div>
+                              <PremiumCard key={index} variant="glass" className="p-4 bg-blue-50/50 dark:bg-blue-950/20" data-testid={`recommendation-item-${index}`}>
+                                <div className="space-y-2">
+                                  <h4 className="font-medium text-blue-900 dark:text-blue-100">{rec.title}</h4>
+                                  <p className="text-sm text-blue-800 dark:text-blue-200">{rec.suggestion}</p>
+                                </div>
+                              </PremiumCard>
                             ))}
                           </div>
-                        </CardContent>
-                      </Card>
+                        </div>
+                      </PremiumCard>
                     </div>
 
                     {/* Action Drafts */}
-                    <Card>
-                      <CardHeader>
-                        <CardTitle className="flex items-center gap-2">
-                          <MessageSquare className="h-5 w-5" />
-                          Generate Action Drafts
-                        </CardTitle>
-                        <CardDescription>
-                          Create letter drafts based on analysis findings
-                        </CardDescription>
-                      </CardHeader>
-                      <CardContent>
-                        <div className="flex gap-4">
+                    <PremiumCard variant="elevated" className="p-6">
+                      <div className="space-y-6">
+                        <div className="flex items-center gap-3">
+                          <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-indigo-50 to-purple-100 dark:from-indigo-950 dark:to-purple-900 flex items-center justify-center">
+                            <MessageSquare className="h-6 w-6 text-indigo-600 dark:text-indigo-400" />
+                          </div>
+                          <div>
+                            <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">Generate Action Drafts</h3>
+                            <p className="text-sm text-gray-600 dark:text-gray-400">
+                              Create letter drafts based on analysis findings
+                            </p>
+                          </div>
+                        </div>
+
+                        <div className="flex flex-col sm:flex-row gap-4">
                           <Dialog open={actionDraftOpen} onOpenChange={setActionDraftOpen}>
                             <DialogTrigger asChild>
-                              <Button>Generate Letter Draft</Button>
+                              <Button className="h-12 px-6 flex items-center gap-2" data-testid="button-generate-draft">
+                                <Sparkles className="h-4 w-4" />
+                                Generate Letter Draft
+                              </Button>
                             </DialogTrigger>
                             <DialogContent className="max-w-2xl">
                               <DialogHeader>
@@ -637,7 +860,7 @@ export default function IEPReview() {
                             </DialogContent>
                           </Dialog>
 
-                          <Button variant="outline" className="flex items-center gap-2">
+                          <Button variant="outline" className="h-12 px-6 flex items-center gap-2" data-testid="button-download-report">
                             <Download className="h-4 w-4" />
                             Download Report
                           </Button>
@@ -645,33 +868,41 @@ export default function IEPReview() {
 
                         {/* Display Generated Drafts */}
                         {actionDrafts.length > 0 && (
-                          <div className="mt-6 space-y-4">
-                            <h4 className="font-medium">Generated Drafts</h4>
-                            {actionDrafts.map((draft) => (
-                              <Card key={draft.id} className="p-4">
-                                <h5 className="font-medium mb-2">{draft.title}</h5>
-                                <div className="text-sm text-muted-foreground whitespace-pre-wrap max-h-40 overflow-y-auto">
-                                  {draft.body}
-                                </div>
-                                <div className="flex gap-2 mt-3">
-                                  <Button size="sm" variant="outline">Edit</Button>
-                                  <Button size="sm" variant="outline">Copy</Button>
-                                  <Button size="sm" variant="outline">Download</Button>
-                                </div>
-                              </Card>
-                            ))}
+                          <div className="space-y-4">
+                            <div className="flex items-center gap-2">
+                              <h4 className="text-lg font-semibold text-gray-900 dark:text-gray-100">Generated Drafts</h4>
+                              <Badge variant="secondary" className="text-xs">{actionDrafts.length}</Badge>
+                            </div>
+                            <div className="space-y-3">
+                              {actionDrafts.map((draft) => (
+                                <PremiumCard key={draft.id} variant="glass" className="p-4" data-testid={`draft-item-${draft.id}`}>
+                                  <div className="space-y-3">
+                                    <h5 className="font-semibold text-gray-900 dark:text-gray-100">{draft.title}</h5>
+                                    <div className="text-sm text-gray-700 dark:text-gray-300 whitespace-pre-wrap max-h-40 overflow-y-auto bg-gray-50 dark:bg-gray-800 rounded-lg p-3">
+                                      {draft.body}
+                                    </div>
+                                    <div className="flex flex-wrap gap-2">
+                                      <Button size="sm" variant="outline" className="h-9 px-4">Edit</Button>
+                                      <Button size="sm" variant="outline" className="h-9 px-4">Copy</Button>
+                                      <Button size="sm" variant="outline" className="h-9 px-4">Download</Button>
+                                    </div>
+                                  </div>
+                                </PremiumCard>
+                              ))}
+                            </div>
                           </div>
                         )}
-                      </CardContent>
-                    </Card>
+                      </div>
+                    </PremiumCard>
                   </div>
                 )}
               </>
             )}
           </TabsContent>
-        </Tabs>
-      </div>
-    </DashboardLayout>
+          </Tabs>
+        </ContainerMobile>
+      </SafeAreaFull>
+    </MobileAppShell>
   );
 }
 

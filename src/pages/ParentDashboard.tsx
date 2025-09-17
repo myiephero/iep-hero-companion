@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Calendar, Target, TrendingUp, Clock, Plus, BookOpen, AlertCircle, AlertTriangle, Star, Trophy, Sparkles, ChevronRight, Users, CheckCircle2, ArrowUpRight, Rocket, FileText, GraduationCap, Smile, Brain, Save, Loader2, Crown } from "lucide-react";
+import { Calendar, Target, TrendingUp, Clock, Plus, BookOpen, AlertCircle, AlertTriangle, Star, Trophy, Sparkles, ChevronRight, Users, CheckCircle2, ArrowUpRight, Rocket, FileText, GraduationCap, Smile, Brain, Save, Loader2, Crown, Zap, Shield } from "lucide-react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -13,7 +13,13 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 // import { supabase } from "@/integrations/supabase/client"; // Removed during migration
 import { api } from "@/lib/api";
 import { useToast } from "@/hooks/use-toast";
-import { DashboardLayout } from "@/layouts/DashboardLayout";
+import { 
+  MobileAppShell,
+  PremiumLargeHeader,
+  PremiumCard,
+  SafeAreaFull,
+  ContainerMobile
+} from "@/components/mobile";
 import { useAuth } from "@/hooks/useAuth";
 import { useNavigate } from "react-router-dom";
 import { SubscriptionPlan, hasFeatureAccess, getPlanFeatures, normalizeSubscriptionPlan, getPlanDisplayName } from "@/lib/planAccess";
@@ -429,21 +435,28 @@ export default function ParentDashboard({ plan }: ParentDashboardProps) {
 
   if (loading) {
     return (
-      <DashboardLayout>
-        <div className="flex items-center justify-center h-64">
-          <div className="text-lg text-muted-foreground">Loading your dashboard...</div>
-        </div>
-      </DashboardLayout>
+      <MobileAppShell>
+        <SafeAreaFull>
+          <div className="flex items-center justify-center h-64">
+            <div className="text-lg text-gray-500 dark:text-gray-400">Loading your dashboard...</div>
+          </div>
+        </SafeAreaFull>
+      </MobileAppShell>
     );
   }
 
   return (
-    <DashboardLayout>
-      <div className="min-h-screen">
-        {/* Enhanced Hero Section with Unified Design */}
-        <div className="relative overflow-hidden">
-          <div className="absolute inset-0 bg-gradient-to-r from-primary/5 via-secondary/5 to-accent/5 rounded-2xl pointer-events-none" />
-          <div className="relative p-4 sm:p-6 md:p-8 text-center z-10">
+    <MobileAppShell>
+      <PremiumLargeHeader 
+        title={user?.firstName ? `Welcome back, ${user.firstName}!` : 'Premium Dashboard'}
+        subtitle="Your command center for advocacy excellence"
+      />
+      <SafeAreaFull className="min-h-screen bg-gray-50 dark:bg-gray-950">
+        <ContainerMobile className="space-y-6">
+        {/* Premium Hero Section with Mobile-First Design */}
+        <PremiumCard variant="gradient" className="relative overflow-hidden mx-4 mt-6 mb-6">
+          <div className="absolute inset-0 bg-gradient-to-br from-blue-50/80 via-purple-50/60 to-indigo-50/80 dark:from-blue-950/50 dark:via-purple-950/40 dark:to-indigo-950/50" />
+          <div className="relative p-6 text-center z-10">
             <div className="flex flex-col sm:flex-row items-center justify-center gap-2 sm:gap-3 mb-4">
               <div className="p-2 sm:p-3 bg-gradient-to-br from-primary to-secondary rounded-xl shadow-lg">
                 <Trophy className="h-6 w-6 sm:h-8 sm:w-8 text-white" />
@@ -533,7 +546,7 @@ export default function ParentDashboard({ plan }: ParentDashboardProps) {
               </div>
             </div>
           </div>
-        </div>
+        </PremiumCard>
 
         {/* Upgrade Section for Stripe Testing - Only show for free/basic users */}
         {userPlan === 'free' && (
@@ -600,15 +613,16 @@ export default function ParentDashboard({ plan }: ParentDashboardProps) {
         {/* Main Content Grid */}
         <div className="px-4 sm:px-6 pb-16">
           <div className="max-w-7xl mx-auto">
-            {/* Enhanced Quick Stats with Unified Design */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4 sm:gap-6 mb-8 sm:mb-12 relative" style={{ zIndex: 10 }}>
+            {/* Premium Statistics Cards with Mobile-First Design */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4 mx-4 mb-6">
               {[
                 {
                   icon: Target,
                   title: totalGoals,
                   subtitle: "Active Goals",
                   badge: `${completedGoals} completed`,
-                  color: "from-primary to-secondary",
+                  color: "from-blue-500 to-blue-600",
+                  bgColor: "from-blue-50 to-blue-100 dark:from-blue-950 dark:to-blue-900",
                   index: 0
                 },
                 {
@@ -616,7 +630,8 @@ export default function ParentDashboard({ plan }: ParentDashboardProps) {
                   title: upcomingMeetings,
                   subtitle: "Upcoming Meetings", 
                   badge: "Auto reminders on",
-                  color: "from-green-500 to-teal-600",
+                  color: "from-green-500 to-green-600",
+                  bgColor: "from-green-50 to-green-100 dark:from-green-950 dark:to-green-900",
                   index: 1
                 },
                 {
@@ -624,7 +639,8 @@ export default function ParentDashboard({ plan }: ParentDashboardProps) {
                   title: `${completionRate}%`,
                   subtitle: "Completion Rate",
                   badge: completionRate > 75 ? 'Excellent!' : completionRate > 50 ? 'Great!' : 'Keep going!',
-                  color: "from-purple-500 to-indigo-600",
+                  color: "from-purple-500 to-purple-600",
+                  bgColor: "from-purple-50 to-purple-100 dark:from-purple-950 dark:to-purple-900",
                   index: 2
                 },
                 {
@@ -632,13 +648,15 @@ export default function ParentDashboard({ plan }: ParentDashboardProps) {
                   title: insights.length,
                   subtitle: "Deep Analysis",
                   badge: "Full IEP review",
-                  color: "from-orange-500 to-red-600",
+                  color: "from-orange-500 to-orange-600",
+                  bgColor: "from-orange-50 to-orange-100 dark:from-orange-950 dark:to-orange-900",
                   index: 3
                 }
-              ].map(({ icon: Icon, title, subtitle, badge, color, index }) => (
-                <Card 
+              ].map(({ icon: Icon, title, subtitle, badge, color, bgColor, index }) => (
+                <PremiumCard 
                   key={index}
-                  className={`group hover:shadow-xl transition-all duration-300 hover:-translate-y-1 border-0 shadow-md overflow-hidden min-h-[120px] sm:min-h-[140px] ${isInitialized ? 'cursor-pointer' : 'cursor-wait'}`}
+                  variant="elevated"
+                  className={`text-center relative overflow-hidden min-h-[140px] ${isInitialized ? 'cursor-pointer' : 'cursor-wait'}`}
                   style={{ 
                     animationDelay: `${index * 100}ms`,
                     animation: 'fadeInUp 0.6s ease-out forwards',
@@ -703,61 +721,40 @@ export default function ParentDashboard({ plan }: ParentDashboardProps) {
                   }}
                   data-testid={`card-stat-${index}`}
                 >
-                  <CardContent className="p-3 sm:p-4 md:p-6 text-center">
-                    <div className={`inline-flex items-center justify-center w-12 h-12 sm:w-14 sm:h-14 md:w-16 md:h-16 bg-gradient-to-br ${color} rounded-2xl mb-2 sm:mb-3 md:mb-4 group-hover:scale-110 transition-transform duration-300 shadow-lg`}>
-                      <Icon className="h-5 w-5 sm:h-6 sm:w-6 md:h-8 md:w-8 text-white" />
+                  {/* Premium Background Pattern */}
+                  <div className={`absolute inset-0 bg-gradient-to-br ${bgColor} opacity-50`} />
+                  <div className={`absolute top-0 right-0 w-20 h-20 bg-gradient-to-bl from-white/20 to-transparent rounded-full transform translate-x-8 -translate-y-8`} />
+                  
+                  <div className="relative z-10 p-6 space-y-3">
+                    {/* Premium Icon Container */}
+                    <div className={`w-14 h-14 mx-auto rounded-2xl bg-gradient-to-br ${color} flex items-center justify-center shadow-lg`}>
+                      <Icon className="h-7 w-7 text-white" />
                     </div>
-                    <h3 className="text-lg sm:text-xl md:text-2xl lg:text-3xl font-bold mb-1 sm:mb-2 text-gray-900 dark:text-white">{title}</h3>
-                    <p className="text-xs sm:text-sm md:text-base text-muted-foreground mb-2 sm:mb-3 font-medium">{subtitle}</p>
-                    <Button 
-                      variant="secondary" 
-                      size="sm" 
-                      className="bg-blue-50 text-blue-700 border-blue-200 hover:bg-blue-100 hover:text-blue-800 cursor-pointer text-xs sm:text-sm min-h-[32px] sm:min-h-[36px] px-2 sm:px-3"
-                      onClick={(e) => {
-                        // Allow card click to work by not stopping propagation
-                        const actions = [
-                          () => {
-                            toast({
-                              title: "Goal Completion",
-                              description: `${completedGoals} goals completed out of ${totalGoals} total goals.`,
-                            });
-                          },
-                          () => {
-                            toast({
-                              title: "Auto Reminders",
-                              description: "Email reminders are automatically sent 7, 3, and 1 day before each meeting.",
-                            });
-                          },
-                          () => {
-                            toast({
-                              title: "Completion Rate",
-                              description: `Your completion rate is ${completionRate}%. ${badge}`,
-                            });
-                          },
-                          () => {
-                            toast({
-                              title: "AI Analysis",
-                              description: `${insights.length} AI insights have been generated from your data.`,
-                            });
-                          }
-                        ];
-                        actions[index]?.();
-                      }}
-                      data-testid={`button-badge-${index}`}
-                    >
-                      {badge}
-                    </Button>
-                  </CardContent>
-                </Card>
+                    
+                    {/* Title and Subtitle */}
+                    <div className="space-y-1">
+                      <h3 className="text-2xl font-bold text-gray-900 dark:text-gray-100">{title}</h3>
+                      <p className="text-sm font-medium text-gray-600 dark:text-gray-400">{subtitle}</p>
+                    </div>
+                    
+                    {/* Premium Badge */}
+                    <div className="pt-2">
+                      <span className="inline-flex items-center px-3 py-1.5 rounded-lg text-xs font-medium bg-white/80 dark:bg-gray-800/80 text-gray-700 dark:text-gray-300 shadow-sm">
+                        {badge}
+                      </span>
+                    </div>
+                  </div>
+                </PremiumCard>
               ))}
             </div>
             
-            {/* Modern Horizontal Tab Navigation */}
-            <Card className="border-0 shadow-lg overflow-hidden relative" style={{ zIndex: 'auto' }}>
+            {/* Premium Mobile Tab Navigation */}
+            <PremiumCard variant="glass" className="relative overflow-hidden">
               <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-                <div className="w-full p-3 sm:p-4 md:p-6 pb-0">
-                  <div className="bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 p-0.5 sm:p-1 rounded-xl sm:rounded-2xl shadow-lg">
-                    <div className="flex bg-white dark:bg-gray-900 rounded-lg sm:rounded-xl p-1 sm:p-2 gap-1 sm:gap-2">
+                <div className="p-4">
+                  {/* Premium Tab Container with Enhanced Styling */}
+                  <div className="relative rounded-2xl bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 p-1 shadow-xl">
+                    <div className="flex bg-white/95 dark:bg-gray-900/95 backdrop-blur-sm rounded-xl p-2 gap-2">
                       <button
                         onClick={() => setActiveTab("goals")}
                         className={`flex items-center gap-1 sm:gap-2 px-2 sm:px-3 md:px-4 py-2 sm:py-3 rounded-md sm:rounded-lg font-medium transition-all duration-200 flex-1 justify-center min-h-[44px] text-xs sm:text-sm md:text-base ${
@@ -900,11 +897,12 @@ export default function ParentDashboard({ plan }: ParentDashboardProps) {
                 <div className="grid gap-6" data-section="goals">
                   {goals.length === 0 ? (
                     <div className="space-y-6">
-                      {/* Main Welcome Card */}
-                      <Card className="border-0 shadow-xl bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 overflow-hidden relative">
+                      {/* Premium Welcome Card */}
+                      <PremiumCard variant="glass" className="text-center relative overflow-hidden">
+                        <div className="absolute inset-0 bg-gradient-to-br from-blue-50/80 via-indigo-50/60 to-purple-50/80" />
                         <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-blue-400/20 to-indigo-400/20 rounded-full blur-2xl"></div>
                         <div className="absolute bottom-0 left-0 w-24 h-24 bg-gradient-to-br from-purple-400/20 to-pink-400/20 rounded-full blur-xl"></div>
-                        <CardContent className="relative text-center py-8 sm:py-12 px-4 sm:px-8">
+                        <div className="relative z-10 py-12 px-8 space-y-6">
                           <div className="relative mb-4 sm:mb-6">
                             <div className="absolute inset-0 bg-gradient-to-r from-blue-400 to-indigo-400 rounded-full blur-xl opacity-30 animate-pulse"></div>
                             <Target className="h-12 w-12 sm:h-16 sm:w-16 md:h-20 md:w-20 mx-auto text-blue-600 relative drop-shadow-lg" />
@@ -923,13 +921,13 @@ export default function ParentDashboard({ plan }: ParentDashboardProps) {
                               Create Your First Goal
                             </Button>
                           </div>
-                        </CardContent>
-                      </Card>
+                        </div>
+                      </PremiumCard>
 
                       {/* Quick Start Guide */}
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
-                        <Card className="border-0 shadow-lg hover:shadow-xl transition-all duration-300 bg-white group">
-                          <CardContent className="p-4 sm:p-6">
+                        <PremiumCard variant="elevated" className="group">
+                          <div className="p-6 space-y-4">
                             <div className="flex items-start gap-4">
                               <div className="p-3 bg-gradient-to-br from-green-100 to-emerald-100 rounded-xl group-hover:scale-110 transition-transform duration-300">
                                 <CheckCircle2 className="h-6 w-6 text-green-600" />
@@ -944,11 +942,11 @@ export default function ParentDashboard({ plan }: ParentDashboardProps) {
                                 </div>
                               </div>
                             </div>
-                          </CardContent>
-                        </Card>
+                          </div>
+                        </PremiumCard>
 
-                        <Card className="border-0 shadow-lg hover:shadow-xl transition-all duration-300 bg-white group">
-                          <CardContent className="p-6">
+                        <PremiumCard variant="elevated" className="group">
+                          <div className="p-6 space-y-4">
                             <div className="flex items-start gap-4">
                               <div className="p-3 bg-gradient-to-br from-blue-100 to-indigo-100 rounded-xl group-hover:scale-110 transition-transform duration-300">
                                 <TrendingUp className="h-6 w-6 text-blue-600" />
@@ -968,13 +966,14 @@ export default function ParentDashboard({ plan }: ParentDashboardProps) {
                                 </div>
                               </div>
                             </div>
-                          </CardContent>
-                        </Card>
+                          </div>
+                        </PremiumCard>
                       </div>
 
-                      {/* Goal Type Examples */}
-                      <Card className="border-0 shadow-lg bg-gradient-to-r from-gray-50 to-gray-100 overflow-hidden">
-                        <CardContent className="p-8">
+                      {/* Premium Goal Type Examples */}
+                      <PremiumCard variant="gradient" className="relative overflow-hidden">
+                        <div className="absolute inset-0 bg-gradient-to-r from-gray-50/90 to-gray-100/90" />
+                        <div className="relative z-10 p-8">
                           <div className="text-center mb-6">
                             <h4 className="text-xl font-semibold text-gray-900 mb-2">Common IEP Goal Categories</h4>
                             <p className="text-gray-600">Choose the type that best matches your child's current focus areas</p>
@@ -1006,14 +1005,17 @@ export default function ParentDashboard({ plan }: ParentDashboardProps) {
                               <div className="text-xs text-gray-500 mt-1 hidden sm:block">Independence, Daily tasks</div>
                             </div>
                           </div>
-                        </CardContent>
-                      </Card>
+                        </div>
+                      </PremiumCard>
                     </div>
                   ) : (
                     goals.map((goal) => (
-                      <Card key={goal.id} className="group hover:shadow-xl transition-all duration-300 border-0 shadow-lg bg-white overflow-hidden">
-                        <div className="absolute inset-0 bg-gradient-to-r from-blue-500/5 via-transparent to-indigo-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-                        <CardContent className="p-3 sm:p-4 md:p-6 relative">
+                      <PremiumCard key={goal.id} variant="interactive" className="relative overflow-hidden">
+                        {/* Premium Goal Card Background */}
+                        <div className="absolute inset-0 bg-gradient-to-br from-blue-50/50 via-indigo-50/30 to-purple-50/50" />
+                        <div className="absolute top-0 right-0 w-24 h-24 bg-gradient-to-bl from-blue-400/10 to-transparent rounded-full" />
+                        
+                        <div className="relative z-10 p-6 space-y-4">
                           <div className="flex flex-col lg:flex-row lg:items-start justify-between mb-4 gap-3 lg:gap-4">
                             <div className="flex-1">
                               {/* Student Name - Prominently displayed */}
@@ -1113,8 +1115,8 @@ export default function ParentDashboard({ plan }: ParentDashboardProps) {
                               <span className="text-xs sm:text-sm font-medium text-green-800">🎉 Goal completed! Great job!</span>
                             </div>
                           )}
-                        </CardContent>
-                      </Card>
+                        </div>
+                      </PremiumCard>
                     ))
                   )}
                 </div>
@@ -1211,8 +1213,9 @@ export default function ParentDashboard({ plan }: ParentDashboardProps) {
 
                 <div className="grid gap-4">
                   {meetings.length === 0 ? (
-                    <Card className="border-0 shadow-lg bg-gradient-to-br from-purple-50 to-violet-50 overflow-hidden">
-                      <CardContent className="text-center py-12">
+                    <PremiumCard variant="glass" className="text-center relative overflow-hidden">
+                      <div className="absolute inset-0 bg-gradient-to-br from-purple-50/80 to-violet-50/80" />
+                      <div className="relative z-10 py-12 px-8 space-y-6">
                         <div className="relative">
                           <div className="absolute inset-0 bg-gradient-to-r from-purple-400 to-violet-400 rounded-full blur-xl opacity-20 animate-pulse"></div>
                           <Calendar className="h-16 w-16 mx-auto text-purple-500 mb-4 relative" />
@@ -1226,13 +1229,16 @@ export default function ParentDashboard({ plan }: ParentDashboardProps) {
                           <Plus className="h-4 w-4 mr-2" />
                           Schedule Your First Meeting
                         </Button>
-                      </CardContent>
-                    </Card>
+                      </div>
+                    </PremiumCard>
                   ) : (
                     meetings.map((meeting) => (
-                      <Card key={meeting.id} className="group hover:shadow-xl transition-all duration-300 border-0 shadow-lg bg-white overflow-hidden">
-                        <div className="absolute inset-0 bg-gradient-to-r from-purple-500/5 via-transparent to-violet-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-                        <CardContent className="p-6 relative">
+                      <PremiumCard key={meeting.id} variant="glass" className="relative overflow-hidden">
+                        {/* Premium Meeting Card Background */}
+                        <div className="absolute inset-0 bg-gradient-to-br from-purple-50/50 via-violet-50/30 to-indigo-50/50" />
+                        <div className="absolute top-0 right-0 w-20 h-20 bg-gradient-to-bl from-purple-400/10 to-transparent rounded-full" />
+                        
+                        <div className="relative z-10 p-6 space-y-4">
                           <div className="flex items-start justify-between mb-4">
                             <div className="flex-1">
                               <div className="flex items-center gap-3 mb-2">
@@ -1284,8 +1290,8 @@ export default function ParentDashboard({ plan }: ParentDashboardProps) {
                             <CheckCircle2 className="h-4 w-4 text-green-600" />
                             <span className="text-sm font-medium text-green-800">Email reminders: 7, 3, and 1 day before</span>
                           </div>
-                        </CardContent>
-                      </Card>
+                        </div>
+                      </PremiumCard>
                     ))
                   )}
                 </div>
@@ -1300,9 +1306,10 @@ export default function ParentDashboard({ plan }: ParentDashboardProps) {
                   </div>
                 </div>
 
-                {/* Student Selection for Emotions */}
-                <Card className="border-0 shadow-lg bg-gradient-to-r from-pink-50 to-rose-50">
-                  <CardHeader>
+                {/* Premium Student Selection for Emotions */}
+                <PremiumCard variant="gradient" className="relative overflow-hidden">
+                  <div className="absolute inset-0 bg-gradient-to-r from-pink-50/90 to-rose-50/90" />
+                  <CardHeader className="relative z-10">
                     <CardTitle className="flex items-center gap-2 text-gray-900">
                       <Smile className="h-5 w-5 text-pink-600" />
                       Select Student for Emotion Tracking
@@ -1332,7 +1339,7 @@ export default function ParentDashboard({ plan }: ParentDashboardProps) {
                       </div>
                     )}
                   </CardContent>
-                </Card>
+                </PremiumCard>
 
                 {/* Quick Mood Check-in */}
                 <div className="grid gap-6 md:grid-cols-2">
@@ -1811,13 +1818,14 @@ export default function ParentDashboard({ plan }: ParentDashboardProps) {
                 )}
               </TabsContent>
             </Tabs>
-          </Card>
+          </PremiumCard>
           </div>
         </div>
-      </div>
+        </ContainerMobile>
+      </SafeAreaFull>
       
       {/* Feedback Chat Component - TEMPORARILY REMOVED */}
       {/* <FeedbackChat /> */}
-    </DashboardLayout>
+    </MobileAppShell>
   );
 }

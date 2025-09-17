@@ -1,11 +1,19 @@
-import { DashboardLayout } from "@/layouts/DashboardLayout";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { useState, startTransition, useTransition } from "react";
+import { useNavigate } from "react-router-dom";
+import { useAuth } from "@/hooks/useAuth";
+import { useToolAccess } from "@/hooks/useToolAccess";
+import { 
+  MobileAppShell,
+  PremiumLargeHeader,
+  PremiumToolCard,
+  PremiumCard,
+  SafeAreaFull,
+  ContainerMobile
+} from "@/components/mobile";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Link } from "react-router-dom";
-import { Zap, Users, Star, FileText, Target, Building, BookOpen, Smile, TrendingUp, MessageSquare, Brain, Heart } from "lucide-react";
-import { AccessControlledToolCard } from "@/components/AccessControlledToolCard";
-import { getToolRequiredPlan, getToolCategory } from "@/lib/toolAccess";
+import { Zap, Users, Star, FileText, Target, Building, BookOpen, Smile, TrendingUp, MessageSquare, Brain, Heart, Crown, Sparkles, Search, ArrowRight, Shield } from "lucide-react";
+import { getPlanDisplayName } from "@/lib/planAccess";
 import { PlanFeatures } from "@/lib/planAccess";
 
 // ALL 18 EMERGENT TOOLS - COMPLETE REFRESH v2.0 with Access Control
@@ -209,114 +217,304 @@ const categories = Array.from(new Set(emergentTools.map(tool => tool.category)))
 console.log('🔥 COMPLETE REFRESH: EmergentTools array length:', emergentTools.length);
 console.log('🔥 All 18 tools loaded:', emergentTools.map(t => t.title));
 
-const getBadgeVariant = (badge: string) => {
-  switch (badge) {
-    case "Core": return "bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border-slate-200 dark:border-slate-600";
-    case "New": return "bg-green-100 dark:bg-green-900 text-green-700 dark:text-green-300 border-green-200 dark:border-green-700";
-    case "Enhanced": return "bg-gradient-to-r from-blue-100 to-purple-100 dark:from-blue-900 dark:to-purple-900 text-blue-800 dark:text-blue-200 border-blue-300 dark:border-blue-600";
-    case "Specialized": return "bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300 border-blue-200 dark:border-blue-700";
-    case "Connect": return "bg-purple-100 dark:bg-purple-900 text-purple-700 dark:text-purple-300 border-purple-200 dark:border-purple-700";
-    case "2e": return "bg-yellow-100 dark:bg-yellow-900 text-yellow-700 dark:text-yellow-300 border-yellow-200 dark:border-yellow-700";
-    case "Templates": return "bg-orange-100 dark:bg-orange-900 text-orange-700 dark:text-orange-300 border-orange-200 dark:border-orange-700";
-    case "Prep": return "bg-indigo-100 dark:bg-indigo-900 text-indigo-700 dark:text-indigo-300 border-indigo-200 dark:border-indigo-700";
-    case "Secure": return "bg-red-100 dark:bg-red-900 text-red-700 dark:text-red-300 border-red-200 dark:border-red-700";
-    case "Wellness": return "bg-emerald-100 dark:bg-emerald-900 text-emerald-700 dark:text-emerald-300 border-emerald-200 dark:border-emerald-700";
-    case "Parent-Friendly": return "bg-pink-100 dark:bg-pink-900 text-pink-700 dark:text-pink-300 border-pink-200 dark:border-pink-700";
-    case "Pro": return "bg-cyan-100 dark:bg-cyan-900 text-cyan-700 dark:text-cyan-300 border-cyan-200 dark:border-cyan-700";
-    case "Essential": return "bg-amber-100 dark:bg-amber-900 text-amber-700 dark:text-amber-300 border-amber-200 dark:border-amber-700";
-    case "Tracking": return "bg-teal-100 dark:bg-teal-900 text-teal-700 dark:text-teal-300 border-teal-200 dark:border-teal-700";
-    case "Interactive": return "bg-violet-100 dark:bg-violet-900 text-violet-700 dark:text-violet-300 border-violet-200 dark:border-violet-700";
-    case "Organize": return "bg-rose-100 dark:bg-rose-900 text-rose-700 dark:text-rose-300 border-rose-200 dark:border-rose-700";
-    case "Personalized": return "bg-lime-100 dark:bg-lime-900 text-lime-700 dark:text-lime-300 border-lime-200 dark:border-lime-700";
-    default: return "bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 border-gray-200 dark:border-gray-600";
-  }
-};
+interface ToolCardProps {
+  tool: EmergentTool;
+  hasAccess: boolean;
+  currentPlan: string;
+  onNavigate?: (route: string) => void;
+}
+
+function PremiumEmergentToolCard({ tool, hasAccess, currentPlan, onNavigate }: ToolCardProps) {
+  const { requiredPlanFor } = useToolAccess();
+  
+  const handleNavigate = () => {
+    if (onNavigate && hasAccess) {
+      onNavigate(tool.path);
+    }
+  };
+
+  // Determine if tool is popular/new based on category and badge
+  const isPopular = ['Enhanced', 'Pro', 'AI Analysis', 'IEP Analysis'].some(keyword => 
+    tool.badge.includes(keyword) || tool.category.includes(keyword)
+  );
+  const isNew = ['New', 'Interactive', 'Fresh'].some(keyword => 
+    tool.badge.includes(keyword) || tool.title.includes('AI')
+  );
+
+  const minimumPlan = requiredPlanFor(tool.requiredFeature);
+
+  return (
+    <PremiumToolCard
+      icon={<tool.icon className="h-6 w-6" />}
+      title={tool.title}
+      description={tool.description}
+      badge={tool.badge}
+      isPopular={isPopular}
+      isNew={isNew}
+      isLocked={!hasAccess}
+      requiredPlan={hasAccess ? undefined : getPlanDisplayName(minimumPlan)}
+      onClick={handleNavigate}
+      className={hasAccess ? "cursor-pointer" : ""}
+    />
+  );
+}
 
 export default function EmergentToolsHub() {
+  const navigate = useNavigate();
+  const [isPending, startTransition] = useTransition();
+  const { user } = useAuth();
+  const { canUse, currentPlan } = useToolAccess();
+
+  // Concurrent navigation handler using startTransition
+  const handleToolNavigation = (route: string) => {
+    startTransition(() => {
+      navigate(route);
+    });
+  };
+
+  // Compute dynamic data
+  const totalTools = emergentTools.length;
+  const availableTools = emergentTools.filter(tool => canUse(tool.requiredFeature));
+  const lockedTools = emergentTools.filter(tool => !canUse(tool.requiredFeature));
+  const popularTools = emergentTools.filter(tool => 
+    ['Enhanced', 'Pro', 'AI Analysis', 'IEP Analysis'].some(keyword => 
+      tool.badge.includes(keyword) || tool.category.includes(keyword)
+    )
+  );
+
+  // Group tools by category
+  const toolsByCategory = categories.reduce((acc, category) => {
+    acc[category] = emergentTools.filter(tool => tool.category === category);
+    return acc;
+  }, {} as Record<string, EmergentTool[]>);
+
   return (
-    <DashboardLayout>
-      <div className="space-y-8">
-        {/* Hero Section */}
-        <div className="text-center space-y-6">
-          <div className="flex items-center justify-center gap-2 mb-4">
-            <Zap className="h-8 w-8 text-primary" />
-            <h1 className="text-4xl font-bold">🚀 Emergent Tools Hub - FRESH BUILD</h1>
-          </div>
-          <p className="text-xl text-muted-foreground max-w-3xl mx-auto">
-            Advanced AI-powered tools and specialized resources for special education advocacy, 
-            designed to streamline IEP processes and improve student outcomes. Complete 18-tool suite!
-          </p>
-          <div className="flex items-center justify-center gap-4 pt-4">
-            <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200">
-              <TrendingUp className="h-3 w-3 mr-1" />
-              ✅ 18 COMPLETE TOOLS ✅
-            </Badge>
-            <Badge variant="outline" className="bg-blue-50 text-blue-700 border-blue-200">
-              <Brain className="h-3 w-3 mr-1" />
-              AI-Powered
-            </Badge>
-            <Badge variant="outline" className="bg-purple-50 text-purple-700 border-purple-200">
-              <MessageSquare className="h-3 w-3 mr-1" />
-              Expert Support
-            </Badge>
-          </div>
-        </div>
+    <MobileAppShell>
+      <SafeAreaFull>
+        {/* Premium Header */}
+        <PremiumLargeHeader
+          title="Emergent Tools Hub"
+          subtitle="18 advanced AI-powered tools for special education"
+          rightAction={
+            <Button variant="ghost" size="icon" className="h-10 w-10 rounded-full">
+              <Search className="h-5 w-5" />
+            </Button>
+          }
+        />
 
-        {/* Complete Tools Grid - All 18 Tools with Access Control */}
-        <div className="space-y-6">
-          <h2 className="text-2xl font-semibold text-center">Complete Toolbox Overview</h2>
-          <p className="text-center text-muted-foreground max-w-2xl mx-auto">
-            All tools are visible - upgrade to unlock advanced features for your subscription tier
-          </p>
-          
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
-            {emergentTools.map((tool) => (
-              <AccessControlledToolCard
-                key={tool.title}
-                title={tool.title}
-                description={tool.description}
-                icon={tool.icon}
-                path={tool.path}
-                badge={tool.badge}
-                features={tool.features}
-                requiredFeature={tool.requiredFeature}
-                requiredPlan={getToolRequiredPlan(tool.requiredFeature)}
-              />
-            ))}
-          </div>
-        </div>
-
-        {/* Quick Stats */}
-        <Card className="bg-gradient-to-r from-primary/5 to-primary/10">
-          <CardContent className="p-8">
+        <ContainerMobile padding="md" className="space-y-8 pb-32">
+          {/* Premium Stats Section */}
+          <PremiumCard variant="gradient" className="p-6">
             <div className="text-center space-y-4">
-              <h3 className="text-2xl font-semibold">Empowering Special Education Advocacy</h3>
-              <p className="text-muted-foreground max-w-2xl mx-auto">
-                Our emergent tools leverage advanced AI technology and specialized expertise to provide 
-                comprehensive support for parents, advocates, and educators in the special education journey.
-              </p>
-              <div className="grid grid-cols-1 md:grid-cols-4 gap-6 pt-6">
-                <div className="text-center">
-                  <div className="text-3xl font-bold text-primary">AI</div>
-                  <div className="text-sm text-muted-foreground">Powered Analysis</div>
+              <div className="flex items-center justify-center gap-3">
+                <div className="w-12 h-12 rounded-full bg-gradient-to-br from-purple-500 to-blue-600 flex items-center justify-center">
+                  <Zap className="h-6 w-6 text-white" />
                 </div>
-                <div className="text-center">
-                  <div className="text-3xl font-bold text-primary">2e</div>
-                  <div className="text-sm text-muted-foreground">Specialized Support</div>
+                <div>
+                  <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100">
+                    {getPlanDisplayName(currentPlan)} Plan
+                  </h2>
+                  <p className="text-sm text-gray-600 dark:text-gray-400">
+                    Access to {availableTools.length}/{totalTools} emergent tools
+                  </p>
                 </div>
-                <div className="text-center">
-                  <div className="text-3xl font-bold text-primary">360°</div>
-                  <div className="text-sm text-muted-foreground">Comprehensive Tools</div>
+              </div>
+              
+              {/* Plan Features */}
+              <div className="flex items-center justify-center gap-4 text-sm flex-wrap">
+                <div className="flex items-center gap-1.5 text-green-600 dark:text-green-400">
+                  <Brain className="h-4 w-4" />
+                  <span>AI-Powered</span>
                 </div>
-                <div className="text-center">
-                  <div className="text-3xl font-bold text-primary">24/7</div>
-                  <div className="text-sm text-muted-foreground">Available Access</div>
+                <div className="flex items-center gap-1.5 text-blue-600 dark:text-blue-400">
+                  <Shield className="h-4 w-4" />
+                  <span>IDEA Compliant</span>
+                </div>
+                <div className="flex items-center gap-1.5 text-purple-600 dark:text-purple-400">
+                  <Target className="h-4 w-4" />
+                  <span>Specialized</span>
                 </div>
               </div>
             </div>
-          </CardContent>
-        </Card>
-      </div>
-    </DashboardLayout>
+          </PremiumCard>
+
+          {/* Popular Tools Section */}
+          {popularTools.length > 0 && (
+            <div className="space-y-4">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <h3 className="text-xl font-semibold text-gray-900 dark:text-gray-100">
+                    Popular Tools
+                  </h3>
+                  <Badge className="bg-gradient-to-r from-green-500 to-green-600 text-white border-0">
+                    <Star className="h-3 w-3 mr-1" />
+                    Top Picks
+                  </Badge>
+                </div>
+              </div>
+              
+              <div className="space-y-4">
+                {popularTools.slice(0, 3).map((tool) => {
+                  const hasAccess = canUse(tool.requiredFeature);
+                  return (
+                    <PremiumEmergentToolCard
+                      key={tool.title}
+                      tool={tool}
+                      hasAccess={hasAccess}
+                      currentPlan={currentPlan}
+                      onNavigate={handleToolNavigation}
+                    />
+                  );
+                })}
+              </div>
+            </div>
+          )}
+
+          {/* AI Analysis Tools */}
+          {toolsByCategory['AI Analysis'] && (
+            <div className="space-y-4">
+              <h3 className="text-xl font-semibold text-gray-900 dark:text-gray-100">
+                AI Analysis Tools
+              </h3>
+              
+              <div className="space-y-4">
+                {toolsByCategory['AI Analysis'].map((tool) => {
+                  const hasAccess = canUse(tool.requiredFeature);
+                  return (
+                    <PremiumEmergentToolCard
+                      key={tool.title}
+                      tool={tool}
+                      hasAccess={hasAccess}
+                      currentPlan={currentPlan}
+                      onNavigate={handleToolNavigation}
+                    />
+                  );
+                })}
+              </div>
+            </div>
+          )}
+
+          {/* Communication & Support Tools */}
+          {(toolsByCategory['Communication'] || toolsByCategory['Professional Support']) && (
+            <div className="space-y-4">
+              <h3 className="text-xl font-semibold text-gray-900 dark:text-gray-100">
+                Communication & Support
+              </h3>
+              
+              <div className="space-y-4">
+                {[...(toolsByCategory['Communication'] || []), ...(toolsByCategory['Professional Support'] || [])].map((tool) => {
+                  const hasAccess = canUse(tool.requiredFeature);
+                  return (
+                    <PremiumEmergentToolCard
+                      key={tool.title}
+                      tool={tool}
+                      hasAccess={hasAccess}
+                      currentPlan={currentPlan}
+                      onNavigate={handleToolNavigation}
+                    />
+                  );
+                })}
+              </div>
+            </div>
+          )}
+
+          {/* All Other Tools */}
+          <div className="space-y-4">
+            <h3 className="text-xl font-semibold text-gray-900 dark:text-gray-100">
+              All Tools
+            </h3>
+            
+            <div className="grid grid-cols-1 gap-4">
+              {emergentTools
+                .filter(tool => 
+                  !popularTools.includes(tool) && 
+                  tool.category !== 'AI Analysis' && 
+                  tool.category !== 'Communication' && 
+                  tool.category !== 'Professional Support'
+                )
+                .map((tool) => {
+                  const hasAccess = canUse(tool.requiredFeature);
+                  return (
+                    <PremiumEmergentToolCard
+                      key={tool.title}
+                      tool={tool}
+                      hasAccess={hasAccess}
+                      currentPlan={currentPlan}
+                      onNavigate={handleToolNavigation}
+                    />
+                  );
+                })}
+            </div>
+          </div>
+
+          {/* Upgrade Section for Locked Tools */}
+          {lockedTools.length > 0 && (
+            <div className="space-y-4">
+              <div className="flex items-center justify-between">
+                <h3 className="text-xl font-semibold text-gray-900 dark:text-gray-100">
+                  Upgrade to Unlock More
+                </h3>
+                <Button 
+                  variant="default" 
+                  size="sm"
+                  className="bg-gradient-to-r from-purple-500 to-blue-600 hover:from-purple-600 hover:to-blue-700"
+                  onClick={() => navigate('/parent/pricing')}
+                >
+                  <Crown className="h-4 w-4 mr-1" />
+                  View Plans
+                </Button>
+              </div>
+              
+              {lockedTools.length > 2 && (
+                <PremiumCard variant="glass" className="p-4 text-center">
+                  <p className="text-sm text-gray-600 dark:text-gray-400">
+                    {lockedTools.length} premium tools waiting to be unlocked
+                  </p>
+                  <Button 
+                    variant="ghost" 
+                    size="sm" 
+                    className="mt-2"
+                    onClick={() => navigate('/parent/pricing')}
+                  >
+                    See All Plans
+                    <ArrowRight className="h-4 w-4 ml-1" />
+                  </Button>
+                </PremiumCard>
+              )}
+            </div>
+          )}
+
+          {/* Premium Stats Card */}
+          <PremiumCard variant="elevated" className="p-6">
+            <div className="text-center space-y-4">
+              <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">
+                Empowering Special Education Advocacy
+              </h3>
+              <p className="text-gray-600 dark:text-gray-400 text-sm leading-relaxed">
+                Advanced AI-powered tools and specialized resources designed to streamline IEP processes and improve student outcomes.
+              </p>
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-4 pt-4">
+                <div className="text-center">
+                  <div className="text-2xl font-bold text-blue-600 dark:text-blue-400">AI</div>
+                  <div className="text-xs text-gray-500 dark:text-gray-400">Powered</div>
+                </div>
+                <div className="text-center">
+                  <div className="text-2xl font-bold text-purple-600 dark:text-purple-400">2e</div>
+                  <div className="text-xs text-gray-500 dark:text-gray-400">Support</div>
+                </div>
+                <div className="text-center">
+                  <div className="text-2xl font-bold text-green-600 dark:text-green-400">360°</div>
+                  <div className="text-xs text-gray-500 dark:text-gray-400">Complete</div>
+                </div>
+                <div className="text-center">
+                  <div className="text-2xl font-bold text-orange-600 dark:text-orange-400">24/7</div>
+                  <div className="text-xs text-gray-500 dark:text-gray-400">Access</div>
+                </div>
+              </div>
+            </div>
+          </PremiumCard>
+        </ContainerMobile>
+      </SafeAreaFull>
+    </MobileAppShell>
   );
 }

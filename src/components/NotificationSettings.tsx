@@ -1,13 +1,27 @@
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
-import { Separator } from "@/components/ui/separator";
 import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
 import { usePushNotifications } from "@/hooks/usePushNotifications";
 import { useState, useEffect } from "react";
-import { Bell, BellOff, Smartphone, AlertCircle, CheckCircle, XCircle } from "lucide-react";
+import { PremiumCard } from "@/components/mobile";
+import { 
+  Bell, 
+  BellOff, 
+  Smartphone, 
+  AlertCircle, 
+  CheckCircle, 
+  XCircle,
+  Calendar,
+  FileCheck,
+  MessageSquare,
+  TrendingUp,
+  CreditCard,
+  BarChart3,
+  Shield,
+  Zap
+} from "lucide-react";
 
 interface NotificationPreferences {
   iepMeetingReminders: boolean;
@@ -163,37 +177,40 @@ export function NotificationSettings() {
 
   return (
     <div className="space-y-6" data-testid="notification-settings">
-      {/* Permission Status */}
-      <Card>
-        <CardHeader>
+      {/* Premium Permission Status Card */}
+      <PremiumCard variant="elevated" className="p-6">
+        <div className="space-y-5">
           <div className="flex items-center justify-between">
-            <div>
-              <CardTitle className="flex items-center gap-2">
-                <Bell className="h-5 w-5" />
-                Push Notifications
-              </CardTitle>
-              <CardDescription>
-                Get notified about important IEP updates and messages
-              </CardDescription>
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-50 to-blue-100 dark:from-blue-950 dark:to-blue-900 flex items-center justify-center">
+                <Bell className="h-5 w-5 text-blue-600 dark:text-blue-400" />
+              </div>
+              <div>
+                <h3 className="font-semibold text-gray-900 dark:text-gray-100">
+                  Push Notifications
+                </h3>
+                <p className="text-sm text-gray-600 dark:text-gray-400">
+                  Get notified about important updates
+                </p>
+              </div>
             </div>
-            <Badge variant={permissionStatus.variant} className="flex items-center gap-1">
+            <Badge variant={permissionStatus.variant} className="flex items-center gap-1.5 px-3 py-1.5">
               {permissionStatus.icon}
               {permissionStatus.text}
             </Badge>
           </div>
-        </CardHeader>
-        <CardContent>
-          <div className="space-y-4">
-            <p className="text-sm text-muted-foreground">
+
+          <div className="bg-gray-50 dark:bg-gray-900 rounded-xl p-4">
+            <p className="text-sm text-gray-700 dark:text-gray-300 mb-4">
               {permissionStatus.description}
             </p>
 
             {isSupported && (
-              <div className="flex gap-2">
+              <div className="flex gap-3">
                 {!permissionState.granted && (
                   <Button
                     onClick={handleEnableNotifications}
-                    className="bg-blue-600 hover:bg-blue-700"
+                    className="bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white rounded-xl h-11 px-6 shadow-lg shadow-blue-600/25"
                     data-testid="button-enable-notifications"
                   >
                     <Bell className="h-4 w-4 mr-2" />
@@ -205,6 +222,7 @@ export function NotificationSettings() {
                   <Button
                     onClick={handleDisableNotifications}
                     variant="outline"
+                    className="h-11 rounded-xl border-gray-200 dark:border-gray-800"
                     data-testid="button-disable-notifications"
                   >
                     <BellOff className="h-4 w-4 mr-2" />
@@ -214,159 +232,215 @@ export function NotificationSettings() {
               </div>
             )}
           </div>
-        </CardContent>
-      </Card>
+        </div>
+      </PremiumCard>
 
-      {/* Notification Preferences */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Notification Preferences</CardTitle>
-          <CardDescription>
-            Choose which types of notifications you want to receive
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="space-y-6">
-            {/* IEP Related */}
-            <div>
-              <h4 className="font-medium mb-3">IEP & Education</h4>
-              <div className="space-y-3">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <Label htmlFor="iep-meetings">IEP Meeting Reminders</Label>
-                    <p className="text-sm text-muted-foreground">
-                      Get notified before scheduled IEP meetings
-                    </p>
-                  </div>
-                  <Switch
-                    id="iep-meetings"
-                    checked={preferences.iepMeetingReminders}
-                    onCheckedChange={(checked) => updatePreference('iepMeetingReminders', checked)}
-                    data-testid="switch-iep-reminders"
-                  />
-                </div>
-
-                <div className="flex items-center justify-between">
-                  <div>
-                    <Label htmlFor="document-analysis">Document Analysis Complete</Label>
-                    <p className="text-sm text-muted-foreground">
-                      When AI analysis of uploaded documents is finished
-                    </p>
-                  </div>
-                  <Switch
-                    id="document-analysis"
-                    checked={preferences.documentAnalysisComplete}
-                    onCheckedChange={(checked) => updatePreference('documentAnalysisComplete', checked)}
-                    data-testid="switch-document-analysis"
-                  />
-                </div>
-
-                <div className="flex items-center justify-between">
-                  <div>
-                    <Label htmlFor="goal-progress">Goal Progress Updates</Label>
-                    <p className="text-sm text-muted-foreground">
-                      Updates on your child's goal progress
-                    </p>
-                  </div>
-                  <Switch
-                    id="goal-progress"
-                    checked={preferences.goalProgressUpdates}
-                    onCheckedChange={(checked) => updatePreference('goalProgressUpdates', checked)}
-                    data-testid="switch-goal-progress"
-                  />
-                </div>
+      {/* Premium Notification Categories */}
+      <div className="space-y-4">
+        {/* IEP & Education Card */}
+        <PremiumCard variant="glass" className="p-6">
+          <div className="space-y-5">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-green-50 to-green-100 dark:from-green-950 dark:to-green-900 flex items-center justify-center">
+                <Calendar className="h-5 w-5 text-green-600 dark:text-green-400" />
+              </div>
+              <div>
+                <h4 className="font-semibold text-gray-900 dark:text-gray-100">IEP & Education</h4>
+                <p className="text-sm text-gray-600 dark:text-gray-400">Academic progress and meetings</p>
               </div>
             </div>
-
-            <Separator />
-
-            {/* Communication */}
-            <div>
-              <h4 className="font-medium mb-3">Communication</h4>
-              <div className="space-y-3">
-                <div className="flex items-center justify-between">
+            
+            <div className="space-y-4">
+              <div className="flex items-center justify-between p-4 rounded-xl bg-white/50 dark:bg-gray-950/50 border border-gray-100 dark:border-gray-800">
+                <div className="flex items-center gap-3">
+                  <Calendar className="h-5 w-5 text-gray-600 dark:text-gray-400" />
                   <div>
-                    <Label htmlFor="new-messages">New Messages</Label>
-                    <p className="text-sm text-muted-foreground">
-                      Messages from advocates and other team members
+                    <Label htmlFor="iep-meetings" className="font-medium text-gray-900 dark:text-gray-100">
+                      IEP Meeting Reminders
+                    </Label>
+                    <p className="text-sm text-gray-600 dark:text-gray-400">
+                      Get notified before scheduled meetings
                     </p>
                   </div>
-                  <Switch
-                    id="new-messages"
-                    checked={preferences.newMessages}
-                    onCheckedChange={(checked) => updatePreference('newMessages', checked)}
-                    data-testid="switch-new-messages"
-                  />
                 </div>
-
-                <div className="flex items-center justify-between">
-                  <div>
-                    <Label htmlFor="urgent-alerts">Urgent Alerts</Label>
-                    <p className="text-sm text-muted-foreground">
-                      High-priority notifications requiring immediate attention
-                    </p>
-                  </div>
-                  <Switch
-                    id="urgent-alerts"
-                    checked={preferences.urgentAlerts}
-                    onCheckedChange={(checked) => updatePreference('urgentAlerts', checked)}
-                    data-testid="switch-urgent-alerts"
-                  />
-                </div>
+                <Switch
+                  id="iep-meetings"
+                  checked={preferences.iepMeetingReminders}
+                  onCheckedChange={(checked) => updatePreference('iepMeetingReminders', checked)}
+                  data-testid="switch-iep-reminders"
+                />
               </div>
-            </div>
 
-            <Separator />
-
-            {/* Account & Reports */}
-            <div>
-              <h4 className="font-medium mb-3">Account & Reports</h4>
-              <div className="space-y-3">
-                <div className="flex items-center justify-between">
+              <div className="flex items-center justify-between p-4 rounded-xl bg-white/50 dark:bg-gray-950/50 border border-gray-100 dark:border-gray-800">
+                <div className="flex items-center gap-3">
+                  <FileCheck className="h-5 w-5 text-gray-600 dark:text-gray-400" />
                   <div>
-                    <Label htmlFor="subscription-updates">Subscription Updates</Label>
-                    <p className="text-sm text-muted-foreground">
-                      Billing, plan changes, and account notifications
+                    <Label htmlFor="document-analysis" className="font-medium text-gray-900 dark:text-gray-100">
+                      Document Analysis Complete
+                    </Label>
+                    <p className="text-sm text-gray-600 dark:text-gray-400">
+                      When AI analysis is finished
                     </p>
                   </div>
-                  <Switch
-                    id="subscription-updates"
-                    checked={preferences.subscriptionUpdates}
-                    onCheckedChange={(checked) => updatePreference('subscriptionUpdates', checked)}
-                    data-testid="switch-subscription-updates"
-                  />
                 </div>
-
-                <div className="flex items-center justify-between">
-                  <div>
-                    <Label htmlFor="weekly-reports">Weekly Progress Reports</Label>
-                    <p className="text-sm text-muted-foreground">
-                      Summary of your child's weekly progress
-                    </p>
-                  </div>
-                  <Switch
-                    id="weekly-reports"
-                    checked={preferences.weeklyReports}
-                    onCheckedChange={(checked) => updatePreference('weeklyReports', checked)}
-                    data-testid="switch-weekly-reports"
-                  />
-                </div>
+                <Switch
+                  id="document-analysis"
+                  checked={preferences.documentAnalysisComplete}
+                  onCheckedChange={(checked) => updatePreference('documentAnalysisComplete', checked)}
+                  data-testid="switch-document-analysis"
+                />
               </div>
-            </div>
 
-            <div className="pt-4">
-              <Button 
-                onClick={savePreferences} 
-                disabled={isSaving}
-                className="bg-blue-600 hover:bg-blue-700"
-                data-testid="button-save-preferences"
-              >
-                {isSaving ? "Saving..." : "Save Preferences"}
-              </Button>
+              <div className="flex items-center justify-between p-4 rounded-xl bg-white/50 dark:bg-gray-950/50 border border-gray-100 dark:border-gray-800">
+                <div className="flex items-center gap-3">
+                  <TrendingUp className="h-5 w-5 text-gray-600 dark:text-gray-400" />
+                  <div>
+                    <Label htmlFor="goal-progress" className="font-medium text-gray-900 dark:text-gray-100">
+                      Goal Progress Updates
+                    </Label>
+                    <p className="text-sm text-gray-600 dark:text-gray-400">
+                      Updates on goal achievements
+                    </p>
+                  </div>
+                </div>
+                <Switch
+                  id="goal-progress"
+                  checked={preferences.goalProgressUpdates}
+                  onCheckedChange={(checked) => updatePreference('goalProgressUpdates', checked)}
+                  data-testid="switch-goal-progress"
+                />
+              </div>
             </div>
           </div>
-        </CardContent>
-      </Card>
+        </PremiumCard>
+
+        {/* Communication Card */}
+        <PremiumCard variant="glass" className="p-6">
+          <div className="space-y-5">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-50 to-blue-100 dark:from-blue-950 dark:to-blue-900 flex items-center justify-center">
+                <MessageSquare className="h-5 w-5 text-blue-600 dark:text-blue-400" />
+              </div>
+              <div>
+                <h4 className="font-semibold text-gray-900 dark:text-gray-100">Communication</h4>
+                <p className="text-sm text-gray-600 dark:text-gray-400">Messages and urgent alerts</p>
+              </div>
+            </div>
+            
+            <div className="space-y-4">
+              <div className="flex items-center justify-between p-4 rounded-xl bg-white/50 dark:bg-gray-950/50 border border-gray-100 dark:border-gray-800">
+                <div className="flex items-center gap-3">
+                  <MessageSquare className="h-5 w-5 text-gray-600 dark:text-gray-400" />
+                  <div>
+                    <Label htmlFor="new-messages" className="font-medium text-gray-900 dark:text-gray-100">
+                      New Messages
+                    </Label>
+                    <p className="text-sm text-gray-600 dark:text-gray-400">
+                      Messages from advocates and team members
+                    </p>
+                  </div>
+                </div>
+                <Switch
+                  id="new-messages"
+                  checked={preferences.newMessages}
+                  onCheckedChange={(checked) => updatePreference('newMessages', checked)}
+                  data-testid="switch-new-messages"
+                />
+              </div>
+
+              <div className="flex items-center justify-between p-4 rounded-xl bg-white/50 dark:bg-gray-950/50 border border-gray-100 dark:border-gray-800">
+                <div className="flex items-center gap-3">
+                  <Zap className="h-5 w-5 text-red-500" />
+                  <div>
+                    <Label htmlFor="urgent-alerts" className="font-medium text-gray-900 dark:text-gray-100">
+                      Urgent Alerts
+                    </Label>
+                    <p className="text-sm text-gray-600 dark:text-gray-400">
+                      High-priority notifications
+                    </p>
+                  </div>
+                </div>
+                <Switch
+                  id="urgent-alerts"
+                  checked={preferences.urgentAlerts}
+                  onCheckedChange={(checked) => updatePreference('urgentAlerts', checked)}
+                  data-testid="switch-urgent-alerts"
+                />
+              </div>
+            </div>
+          </div>
+        </PremiumCard>
+
+        {/* Account & Reports Card */}
+        <PremiumCard variant="glass" className="p-6">
+          <div className="space-y-5">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-purple-50 to-purple-100 dark:from-purple-950 dark:to-purple-900 flex items-center justify-center">
+                <BarChart3 className="h-5 w-5 text-purple-600 dark:text-purple-400" />
+              </div>
+              <div>
+                <h4 className="font-semibold text-gray-900 dark:text-gray-100">Account & Reports</h4>
+                <p className="text-sm text-gray-600 dark:text-gray-400">Billing and progress reports</p>
+              </div>
+            </div>
+            
+            <div className="space-y-4">
+              <div className="flex items-center justify-between p-4 rounded-xl bg-white/50 dark:bg-gray-950/50 border border-gray-100 dark:border-gray-800">
+                <div className="flex items-center gap-3">
+                  <CreditCard className="h-5 w-5 text-gray-600 dark:text-gray-400" />
+                  <div>
+                    <Label htmlFor="subscription-updates" className="font-medium text-gray-900 dark:text-gray-100">
+                      Subscription Updates
+                    </Label>
+                    <p className="text-sm text-gray-600 dark:text-gray-400">
+                      Billing and plan changes
+                    </p>
+                  </div>
+                </div>
+                <Switch
+                  id="subscription-updates"
+                  checked={preferences.subscriptionUpdates}
+                  onCheckedChange={(checked) => updatePreference('subscriptionUpdates', checked)}
+                  data-testid="switch-subscription-updates"
+                />
+              </div>
+
+              <div className="flex items-center justify-between p-4 rounded-xl bg-white/50 dark:bg-gray-950/50 border border-gray-100 dark:border-gray-800">
+                <div className="flex items-center gap-3">
+                  <BarChart3 className="h-5 w-5 text-gray-600 dark:text-gray-400" />
+                  <div>
+                    <Label htmlFor="weekly-reports" className="font-medium text-gray-900 dark:text-gray-100">
+                      Weekly Progress Reports
+                    </Label>
+                    <p className="text-sm text-gray-600 dark:text-gray-400">
+                      Summary of weekly progress
+                    </p>
+                  </div>
+                </div>
+                <Switch
+                  id="weekly-reports"
+                  checked={preferences.weeklyReports}
+                  onCheckedChange={(checked) => updatePreference('weeklyReports', checked)}
+                  data-testid="switch-weekly-reports"
+                />
+              </div>
+            </div>
+          </div>
+        </PremiumCard>
+      </div>
+
+      {/* Premium Save Button */}
+      <PremiumCard variant="elevated" className="p-6">
+        <Button 
+          onClick={savePreferences} 
+          disabled={isSaving}
+          className="w-full h-12 bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 text-white rounded-xl font-medium text-base shadow-lg shadow-green-600/25 active:scale-[0.98] transition-all duration-150"
+          data-testid="button-save-preferences"
+        >
+          <Shield className="h-5 w-5 mr-2" />
+          {isSaving ? "Saving..." : "Save Preferences"}
+        </Button>
+      </PremiumCard>
     </div>
   );
 }

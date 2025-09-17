@@ -1,10 +1,15 @@
-import { DashboardLayout } from "@/layouts/DashboardLayout";
-import { Card } from "@/components/ui/card";
+import { 
+  MobileAppShell,
+  PremiumElevatedHeader,
+  PremiumCard,
+  SafeAreaFull,
+  ContainerMobile
+} from "@/components/mobile";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
-import { Search, Send, Paperclip, MessageSquare, Loader2, FileText, Clock, Users, X, Archive, ArchiveRestore, AlertTriangle, ChevronUp, MoreHorizontal } from "lucide-react";
+import { Search, Send, Paperclip, MessageSquare, Loader2, FileText, Clock, Users, X, Archive, ArchiveRestore, AlertTriangle, ChevronUp, MoreHorizontal, ArrowLeft, Sparkles } from "lucide-react";
 import { ConversationCards } from "@/components/ConversationCards";
 import { useLocation } from "react-router-dom";
 import { useState, useEffect, useRef, useMemo } from "react";
@@ -21,6 +26,7 @@ import { useConversationLabelsForConversation, useUpdateConversationStatus } fro
 import { useToast } from "@/hooks/use-toast";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import type { Conversation } from "@/lib/messaging";
+import { cn } from "@/lib/utils";
 
 // Professional message templates for different scenarios
 const MESSAGE_TEMPLATES = {
@@ -190,6 +196,7 @@ export default function AdvocateMessages() {
   const [showTemplateSelector, setShowTemplateSelector] = useState(false);
   const [attachmentFiles, setAttachmentFiles] = useState<MessageFile[]>([]);
   const [showFileUpload, setShowFileUpload] = useState(false);
+  const [showConversationList, setShowConversationList] = useState(true);
   
   // Conversation management state
   const [filters, setFilters] = useState({
@@ -414,298 +421,400 @@ export default function AdvocateMessages() {
     }
   };
 
+  // Handle conversation selection for mobile navigation
+  const handleConversationSelect = (conversation: Conversation) => {
+    setSelectedConversation(conversation);
+    setShowConversationList(false);
+  };
+
+  const handleBackToConversations = () => {
+    setSelectedConversation(null);
+    setShowConversationList(true);
+  };
+
   return (
-    <DashboardLayout>
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 h-[calc(100vh-8rem)]">
-        {/* Conversations List */}
-        <div className="lg:col-span-1">
-          <Card className="h-full flex flex-col">
-            <div className="p-4 border-b">
-              <h2 className="text-xl font-bold mb-4">Messages</h2>
-              <div className="relative">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
-                <Input placeholder="Search conversations..." className="pl-10 h-11 text-base" />
-              </div>
+    <MobileAppShell showBottomNav={true}>
+      <SafeAreaFull>
+        {/* Premium Mobile Header */}
+        <PremiumElevatedHeader
+          title={selectedConversation && !showConversationList ? 
+            `${selectedConversation.student?.full_name || 'Student'}'s Family` : 
+            'Messages'
+          }
+          subtitle={selectedConversation && !showConversationList ? 
+            `Advocate: ${selectedConversation.advocate?.name || 'Unknown'}` : 
+            `${filteredConversations.length} conversation${filteredConversations.length !== 1 ? 's' : ''}`
+          }
+          showBack={selectedConversation && !showConversationList}
+          onBack={handleBackToConversations}
+          rightAction={selectedConversation && !showConversationList && (
+            <div className="flex items-center gap-2">
+              <ConversationLabelSelector 
+                conversationId={selectedConversation.id}
+                onLabelsChanged={() => {
+                  refetchConversations();
+                }}
+              />
+              <ConversationActionsMenu conversation={selectedConversation} />
             </div>
-            <div className="flex-1 overflow-y-auto">
-              {conversationsLoading ? (
-                <div className="flex items-center justify-center p-8">
-                  <div className="flex items-center gap-3">
-                    <Loader2 className="h-6 w-6 animate-spin" />
-                    <span className="text-base text-muted-foreground">Loading conversations...</span>
+          )}
+        />
+
+        <ContainerMobile className="flex-1 overflow-hidden">
+          {/* Conversations List View */}
+          {showConversationList && (
+            <div className="h-full flex flex-col">
+              {/* Search Bar */}
+              <PremiumCard variant="glass" className="p-4 mb-4">
+                <div className="relative">
+                  <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 h-5 w-5" />
+                  <Input 
+                    placeholder="Search conversations..." 
+                    className="pl-12 h-12 text-base bg-white/50 dark:bg-gray-900/50 border-gray-200/50 dark:border-gray-700/50 backdrop-blur-sm" 
+                  />
+                </div>
+              </PremiumCard>
+
+              {/* Conversation Management */}
+              <PremiumCard variant="elevated" className="p-4 mb-4">
+                <div className="flex items-center justify-between mb-4">
+                  <ConversationLabelManager />
+                  <div className="flex items-center gap-1 px-3 py-1 bg-blue-50 dark:bg-blue-950 rounded-full">
+                    <Sparkles className="h-4 w-4 text-blue-600 dark:text-blue-400" />
+                    <span className="text-sm font-medium text-blue-700 dark:text-blue-300">
+                      {filteredConversations.length}
+                    </span>
                   </div>
                 </div>
+                <ConversationFilters
+                  filters={filters}
+                  onFiltersChange={setFilters}
+                  conversationCount={filteredConversations.length}
+                />
+              </PremiumCard>
+
+              {/* Loading State */}
+              {conversationsLoading ? (
+                <PremiumCard variant="glass" className="p-8">
+                  <div className="flex items-center justify-center">
+                    <div className="flex items-center gap-3">
+                      <Loader2 className="h-6 w-6 animate-spin text-blue-600 dark:text-blue-400" />
+                      <span className="text-base text-gray-600 dark:text-gray-400">Loading conversations...</span>
+                    </div>
+                  </div>
+                </PremiumCard>
               ) : conversationsError ? (
-                <div className="p-4 text-center text-red-500">
-                  Error loading conversations: {conversationsError}
-                </div>
+                <PremiumCard variant="elevated" className="p-6">
+                  <div className="text-center text-red-500">
+                    Error loading conversations: {conversationsError}
+                  </div>
+                </PremiumCard>
               ) : (
                 <>
-                  {/* Conversation Management Controls */}
-                  <div className="p-4 border-b bg-muted/5">
-                    <div className="flex items-center justify-between mb-3">
-                      <ConversationLabelManager />
-                      <div className="text-sm text-muted-foreground">
-                        {filteredConversations.length} conversation{filteredConversations.length !== 1 ? 's' : ''}
-                      </div>
-                    </div>
-                    <ConversationFilters
-                      filters={filters}
-                      onFiltersChange={setFilters}
-                      conversationCount={filteredConversations.length}
-                    />
-                  </div>
-                  
                   {/* Existing Conversations */}
                   {filteredConversations.length > 0 && (
-                    <div>
-                      <div className="px-4 py-3 bg-muted/20 border-b">
-                        <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider">Active Conversations</h3>
+                    <div className="space-y-3">
+                      <div className="flex items-center gap-2 px-2">
+                        <div className="h-1 w-8 bg-gradient-to-r from-blue-500 to-blue-600 rounded-full" />
+                        <h3 className="text-sm font-semibold text-gray-600 dark:text-gray-400 uppercase tracking-wider">
+                          Active Conversations
+                        </h3>
                       </div>
-                      <ConversationCards
-                        conversations={filteredConversations}
-                        loading={conversationsLoading}
-                        onOpenConversation={(conversation) => setSelectedConversation(conversation)}
-                        selectedConversationId={selectedConversation?.id}
-                      />
+                      <div className="space-y-3">
+                        {filteredConversations.map((conversation) => (
+                          <PremiumCard
+                            key={conversation.id}
+                            variant="interactive"
+                            onClick={() => handleConversationSelect(conversation)}
+                            className={cn(
+                              "p-4 transition-all duration-200",
+                              selectedConversation?.id === conversation.id && "ring-2 ring-blue-500 dark:ring-blue-400"
+                            )}
+                          >
+                            <div className="flex items-start gap-3">
+                              <Avatar className="h-12 w-12">
+                                <AvatarImage src="/placeholder-1.jpg" />
+                                <AvatarFallback className="bg-gradient-to-br from-blue-50 to-blue-100 dark:from-blue-950 dark:to-blue-900 text-blue-600 dark:text-blue-400 font-semibold">
+                                  {conversation.student?.full_name 
+                                    ? conversation.student.full_name.split(' ').map(n => n[0]).join('') 
+                                    : 'S'}
+                                </AvatarFallback>
+                              </Avatar>
+                              <div className="flex-1 min-w-0">
+                                <div className="flex items-center justify-between mb-1">
+                                  <p className="text-base font-semibold text-gray-900 dark:text-gray-100 truncate">
+                                    {conversation.student?.full_name 
+                                      ? `${conversation.student.full_name}'s Family` 
+                                      : "Student's Family"}
+                                  </p>
+                                  <div className="flex items-center gap-1">
+                                    {conversation.archived && (
+                                      <Badge variant="secondary" className="text-xs px-2 py-1">
+                                        <Archive className="w-3 h-3 mr-1" />
+                                        Archived
+                                      </Badge>
+                                    )}
+                                    {conversation.priority === 'urgent' && (
+                                      <Badge variant="destructive" className="text-xs px-2 py-1">
+                                        <AlertTriangle className="w-3 h-3 mr-1" />
+                                        Urgent
+                                      </Badge>
+                                    )}
+                                  </div>
+                                </div>
+                                <div className="flex items-center justify-between">
+                                  <p className="text-sm text-gray-600 dark:text-gray-400">
+                                    {conversation.last_message_at 
+                                      ? new Date(conversation.last_message_at).toLocaleDateString()
+                                      : 'No messages yet'
+                                    }
+                                  </p>
+                                  <ConversationLabelsDisplay conversationId={conversation.id} />
+                                </div>
+                              </div>
+                            </div>
+                          </PremiumCard>
+                        ))}
+                      </div>
                     </div>
                   )}
 
                   {/* Proposal Contacts (New Contacts) */}
                   {proposalContacts && proposalContacts.filter(contact => !contact.hasConversation).length > 0 && (
-                    <div>
-                      <div className="px-4 py-3 bg-muted/20 border-b">
-                        <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider">New Contacts (Incoming Proposals)</h3>
+                    <div className="space-y-3 mt-6">
+                      <div className="flex items-center gap-2 px-2">
+                        <div className="h-1 w-8 bg-gradient-to-r from-green-500 to-green-600 rounded-full" />
+                        <h3 className="text-sm font-semibold text-gray-600 dark:text-gray-400 uppercase tracking-wider">
+                          New Contacts
+                        </h3>
+                        <Badge variant="secondary" className="ml-auto">
+                          {proposalContacts.filter(contact => !contact.hasConversation).length} new
+                        </Badge>
                       </div>
-                      {proposalContacts.filter(contact => !contact.hasConversation).map((contact) => {
-                        const studentName = contact.student?.full_name || 'Unknown Student';
-                        const avatar = studentName.split(' ').map(n => n[0]).join('');
-                        const statusText = contact.contactType === 'inactive' ? 'Pending proposal' : 'Accepted proposal';
-                        
-                        return (
-                          <div
-                            key={contact.proposal.id}
-                            className="p-5 border-b hover:bg-muted/50 cursor-pointer transition-colors"
-                            onClick={() => handleStartConversationFromProposal(contact)}
-                            data-testid={`proposal-contact-${contact.proposal.id}`}
-                          >
-                            <div className="flex items-start gap-3">
-                              <Avatar className="h-12 w-12">
-                                <AvatarImage src="/placeholder-new.jpg" />
-                                <AvatarFallback className="text-base font-medium">{avatar}</AvatarFallback>
-                              </Avatar>
-                              <div className="flex-1 min-w-0">
-                                <div className="flex items-center justify-between mb-1">
-                                  <p className="text-base font-semibold truncate">{studentName}'s Family</p>
-                                  <Badge variant={contact.contactType === 'inactive' ? 'secondary' : 'outline'} className="text-sm px-2 py-1">
-                                    {contact.contactType === 'inactive' ? 'New' : 'Ready'}
-                                  </Badge>
+                      <div className="space-y-3">
+                        {proposalContacts.filter(contact => !contact.hasConversation).map((contact) => {
+                          const studentName = contact.student?.full_name || 'Unknown Student';
+                          const avatar = studentName.split(' ').map(n => n[0]).join('');
+                          const statusText = contact.contactType === 'inactive' ? 'Pending proposal' : 'Accepted proposal';
+                          
+                          return (
+                            <PremiumCard
+                              key={contact.proposal.id}
+                              variant="interactive"
+                              onClick={() => handleStartConversationFromProposal(contact)}
+                              className="p-4 bg-gradient-to-r from-green-50/50 to-green-100/50 dark:from-green-950/20 dark:to-green-900/20 border-green-200/50 dark:border-green-800/50"
+                              data-testid={`proposal-contact-${contact.proposal.id}`}
+                            >
+                              <div className="flex items-start gap-3">
+                                <Avatar className="h-12 w-12 ring-2 ring-green-200 dark:ring-green-800">
+                                  <AvatarImage src="/placeholder-new.jpg" />
+                                  <AvatarFallback className="bg-gradient-to-br from-green-50 to-green-100 dark:from-green-950 dark:to-green-900 text-green-600 dark:text-green-400 font-semibold">
+                                    {avatar}
+                                  </AvatarFallback>
+                                </Avatar>
+                                <div className="flex-1 min-w-0">
+                                  <div className="flex items-center justify-between mb-1">
+                                    <p className="text-base font-semibold text-gray-900 dark:text-gray-100 truncate">
+                                      {studentName}'s Family
+                                    </p>
+                                    <Badge 
+                                      variant={contact.contactType === 'inactive' ? 'secondary' : 'outline'} 
+                                      className="text-xs px-2 py-1 bg-green-100 dark:bg-green-900 text-green-700 dark:text-green-300 border-green-300 dark:border-green-700"
+                                    >
+                                      {contact.contactType === 'inactive' ? 'New' : 'Ready'}
+                                    </Badge>
+                                  </div>
+                                  <p className="text-sm text-gray-600 dark:text-gray-400 mb-2">{statusText}</p>
+                                  <div className="flex items-center gap-2">
+                                    <Sparkles className="h-4 w-4 text-green-600 dark:text-green-400" />
+                                    <p className="text-sm font-medium text-green-600 dark:text-green-400">
+                                      Click to start messaging
+                                    </p>
+                                  </div>
                                 </div>
-                                <p className="text-sm text-muted-foreground mb-2">{statusText}</p>
-                                <p className="text-sm font-medium text-green-600">
-                                  Click to start messaging
-                                </p>
                               </div>
-                            </div>
-                          </div>
-                        );
-                      })}
+                            </PremiumCard>
+                          );
+                        })}
+                      </div>
                     </div>
                   )}
 
                   {/* No Results State */}
                   {filteredConversations.length === 0 && conversations.length > 0 && (
-                    <div className="flex items-center justify-center h-32 p-8">
-                      <div className="text-center text-muted-foreground">
-                        <MessageSquare className="h-12 w-12 mx-auto mb-4 opacity-50" />
-                        <p className="text-base font-semibold mb-2">No conversations match your filters</p>
-                        <p className="text-sm">Try adjusting your filter criteria</p>
+                    <PremiumCard variant="glass" className="p-8">
+                      <div className="text-center">
+                        <div className="w-16 h-16 mx-auto mb-4 bg-gradient-to-br from-blue-50 to-blue-100 dark:from-blue-950 dark:to-blue-900 rounded-2xl flex items-center justify-center">
+                          <MessageSquare className="h-8 w-8 text-blue-600 dark:text-blue-400" />
+                        </div>
+                        <p className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-2">No matches found</p>
+                        <p className="text-sm text-gray-600 dark:text-gray-400">Try adjusting your filter criteria</p>
                       </div>
-                    </div>
+                    </PremiumCard>
                   )}
                   
                   {/* Empty State */}
                   {conversations.length === 0 && (!proposalContacts || proposalContacts.length === 0) && (
-                    <div className="flex items-center justify-center h-full p-8">
-                      <div className="text-center text-muted-foreground">
-                        <MessageSquare className="h-12 w-12 mx-auto mb-4 opacity-50" />
-                        <p className="text-xl font-bold mb-3">No Conversations Yet</p>
-                        <p className="text-base">Your client messages will appear here once you start receiving communications.</p>
+                    <PremiumCard variant="glass" className="p-8">
+                      <div className="text-center">
+                        <div className="w-20 h-20 mx-auto mb-6 bg-gradient-to-br from-blue-50 to-blue-100 dark:from-blue-950 dark:to-blue-900 rounded-3xl flex items-center justify-center">
+                          <MessageSquare className="h-10 w-10 text-blue-600 dark:text-blue-400" />
+                        </div>
+                        <p className="text-xl font-bold text-gray-900 dark:text-gray-100 mb-3">No Conversations Yet</p>
+                        <p className="text-base text-gray-600 dark:text-gray-400 leading-relaxed">
+                          Your client messages will appear here once you start receiving communications.
+                        </p>
                       </div>
-                    </div>
+                    </PremiumCard>
                   )}
                 </>
               )}
-            </div>
-          </Card>
-        </div>
-
-        {/* Chat Area */}
-        <div className="lg:col-span-2">
-          <Card className="h-full flex flex-col">
-            {selectedConversation && (
-              <div className="p-4 border-b">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-3">
-                    <Avatar className="h-10 w-10">
-                      <AvatarImage src="/placeholder-1.jpg" />
-                      <AvatarFallback>
-                        {selectedConversation?.student?.full_name 
-                          ? selectedConversation.student.full_name.split(' ').map(n => n[0]).join('') 
-                          : 'S'}
-                      </AvatarFallback>
-                    </Avatar>
-                    <div>
-                      <div className="flex items-center gap-2">
-                        <p className="text-lg font-bold">
-                          {selectedConversation?.student?.full_name 
-                            ? `${selectedConversation.student.full_name}'s Family` 
-                            : "Student's Family"}
-                        </p>
-                        {selectedConversation.archived && (
-                          <Badge variant="secondary" className="text-xs">
-                            <Archive className="w-3 h-3 mr-1" />
-                            Archived
-                          </Badge>
-                        )}
-                        {selectedConversation.priority === 'urgent' && (
-                          <Badge variant="destructive" className="text-xs">
-                            <AlertTriangle className="w-3 h-3 mr-1" />
-                            Urgent
-                          </Badge>
-                        )}
-                        {selectedConversation.priority === 'high' && (
-                          <Badge variant="outline" className="text-xs border-orange-500 text-orange-600">
-                            <ChevronUp className="w-3 h-3 mr-1" />
-                            High
-                          </Badge>
-                        )}
-                      </div>
-                      <div className="flex items-center gap-2 mt-1">
-                        <p className="text-base text-muted-foreground">
-                          Advocate: {selectedConversation?.advocate?.name || 'Unknown Advocate'}
-                        </p>
-                        <ConversationLabelsDisplay conversationId={selectedConversation.id} />
-                      </div>
-                    </div>
-                  </div>
-                  
-                  {/* Conversation Management Controls */}
-                  <div className="flex items-center gap-2">
-                    <ConversationLabelSelector 
-                      conversationId={selectedConversation.id}
-                      onLabelsChanged={() => {
-                        // Refresh conversations to update label display
-                        refetchConversations();
-                      }}
-                    />
-                    <ConversationActionsMenu conversation={selectedConversation} />
-                  </div>
-                </div>
               </div>
-            )}
-            
-            {/* Message Search */}
-            {selectedConversation && messageHistory?.messages && messageHistory.messages.length > 0 && (
-              <MessageSearch
-                searchTerm={searchTerm}
-                onSearchChange={setSearchTerm}
-                currentResult={currentResultIndex}
-                totalResults={totalResults}
-                onNext={goToNext}
-                onPrevious={goToPrevious}
-                onClear={clearSearch}
-                placeholder="Search conversation messages..."
-              />
-            )}
-            
-            <div className="flex-1 p-4 overflow-y-auto space-y-4" ref={messagesContainerRef}>
-              {selectedConversation ? (
-                messagesLoading ? (
-                  <div className="flex items-center justify-center h-full">
-                    <Loader2 className="h-6 w-6 animate-spin" />
-                  </div>
-                ) : messageHistory?.messages && messageHistory.messages.length > 0 ? (
-                  messageHistory.messages.map((message) => (
-                    <div
-                      key={message.id}
-                      className={`flex ${message.sender_id === selectedConversation.advocate_id ? 'justify-end' : 'justify-start'}`}
-                      data-testid={`message-${message.id}`}
-                      data-message-id={message.id}
-                    >
-                      <div className={`max-w-lg p-3 rounded-lg ${
-                        message.sender_id === selectedConversation.advocate_id 
-                          ? 'bg-primary text-primary-foreground ml-12' 
-                          : 'bg-muted mr-12'
-                      }`}>
-                        {message.content && (
-                          <p className="text-sm">
-                            <MessageHighlight
-                              text={message.content}
-                              searchTerm={searchTerm}
-                              isCurrentResult={isCurrentResult(message.id)}
-                              className="break-words"
-                            />
-                          </p>
-                        )}
-                        {(message as any).attachments && (message as any).attachments.length > 0 && (
-                          <MessageAttachmentDisplay 
-                            attachments={(message as any).attachments as MessageAttachment[]} 
-                            compact={true}
-                          />
-                        )}
-                        <span className="text-xs opacity-75 block mt-1">
-                          {new Date(message.created_at).toLocaleTimeString([], { 
-                            hour: '2-digit', 
-                            minute: '2-digit' 
-                          })}
-                        </span>
-                      </div>
-                    </div>
-                  ))
-                ) : (
-                  <div className="flex items-center justify-center h-full">
-                    <div className="text-center text-muted-foreground">
-                      <MessageSquare className="h-12 w-12 mx-auto mb-4 opacity-50" />
-                      <p className="text-xl font-bold mb-3">No Messages Yet</p>
-                      <p className="text-base">Start a conversation with {selectedConversation.student?.full_name || 'the student'}'s family</p>
-                    </div>
-                  </div>
-                )
-              ) : (
-                <div className="flex items-center justify-center h-full">
-                  <div className="text-center text-muted-foreground">
-                    <MessageSquare className="h-16 w-16 mx-auto mb-4 opacity-50" />
-                    <p className="text-2xl font-bold mb-3">Select a Conversation</p>
-                    <p className="text-base">Choose a conversation from the list to start messaging</p>
-                  </div>
+            </div>
+          )}
+
+          {/* Chat Interface View */}
+          {selectedConversation && !showConversationList && (
+            <div className="h-full flex flex-col">
+              
+              {/* Message Search */}
+              {messageHistory?.messages && messageHistory.messages.length > 0 && (
+                <div className="mb-4">
+                  <MessageSearch
+                    searchTerm={searchTerm}
+                    onSearchChange={setSearchTerm}
+                    currentResult={currentResultIndex}
+                    totalResults={totalResults}
+                    onNext={goToNext}
+                    onPrevious={goToPrevious}
+                    onClear={clearSearch}
+                    placeholder="Search conversation messages..."
+                  />
                 </div>
               )}
-            </div>
-            
-            {selectedConversation && (
-              <div className="border-t">
+              
+              {/* Messages Container */}
+              <PremiumCard variant="glass" className="flex-1 p-4 overflow-hidden">
+                <div 
+                  className="h-full overflow-y-auto space-y-4 scroll-smooth" 
+                  ref={messagesContainerRef}
+                >
+                  {messagesLoading ? (
+                    <div className="flex items-center justify-center h-full">
+                      <div className="flex items-center gap-3">
+                        <Loader2 className="h-6 w-6 animate-spin text-blue-600 dark:text-blue-400" />
+                        <span className="text-base text-gray-600 dark:text-gray-400">Loading messages...</span>
+                      </div>
+                    </div>
+                  ) : messageHistory?.messages && messageHistory.messages.length > 0 ? (
+                    messageHistory.messages.map((message) => (
+                      <div
+                        key={message.id}
+                        className={`flex ${message.sender_id === selectedConversation.advocate_id ? 'justify-end' : 'justify-start'}`}
+                        data-testid={`message-${message.id}`}
+                        data-message-id={message.id}
+                      >
+                        <div className={cn(
+                          "max-w-[85%] p-4 rounded-2xl shadow-sm transition-all duration-200",
+                          message.sender_id === selectedConversation.advocate_id 
+                            ? 'bg-gradient-to-br from-blue-500 to-blue-600 text-white ml-12' 
+                            : 'bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 mr-12'
+                        )}>
+                          {message.content && (
+                            <p className="text-sm leading-relaxed">
+                              <MessageHighlight
+                                text={message.content}
+                                searchTerm={searchTerm}
+                                isCurrentResult={isCurrentResult(message.id)}
+                                className="break-words"
+                              />
+                            </p>
+                          )}
+                          {(message as any).attachments && (message as any).attachments.length > 0 && (
+                            <MessageAttachmentDisplay 
+                              attachments={(message as any).attachments as MessageAttachment[]} 
+                              compact={true}
+                            />
+                          )}
+                          <span className={cn(
+                            "text-xs block mt-2",
+                            message.sender_id === selectedConversation.advocate_id 
+                              ? "text-blue-100" 
+                              : "text-gray-500 dark:text-gray-400"
+                          )}>
+                            {new Date(message.created_at).toLocaleTimeString([], { 
+                              hour: '2-digit', 
+                              minute: '2-digit' 
+                            })}
+                          </span>
+                        </div>
+                      </div>
+                    ))
+                  ) : (
+                    <div className="flex items-center justify-center h-full">
+                      <div className="text-center">
+                        <div className="w-16 h-16 mx-auto mb-4 bg-gradient-to-br from-blue-50 to-blue-100 dark:from-blue-950 dark:to-blue-900 rounded-2xl flex items-center justify-center">
+                          <MessageSquare className="h-8 w-8 text-blue-600 dark:text-blue-400" />
+                        </div>
+                        <p className="text-xl font-bold text-gray-900 dark:text-gray-100 mb-3">No Messages Yet</p>
+                        <p className="text-base text-gray-600 dark:text-gray-400">
+                          Start a conversation with {selectedConversation.student?.full_name || 'the student'}'s family
+                        </p>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </PremiumCard>
+
+              {/* Template Selector & Message Input */}
+              <div className="mt-4 space-y-4">
                 {/* Template Selector - Only show for new conversations from proposals */}
                 {showTemplateSelector && location.state?.newMessage && (
-                  <div className="p-4 bg-muted/30 border-b">
+                  <PremiumCard variant="glass" className="p-4">
                     <div className="mb-4">
-                      <h4 className="text-base font-bold mb-3">Professional Templates</h4>
-                      <p className="text-sm text-muted-foreground">Choose a template to personalize your response</p>
+                      <div className="flex items-center gap-2 mb-2">
+                        <div className="w-8 h-8 bg-gradient-to-br from-purple-50 to-purple-100 dark:from-purple-950 dark:to-purple-900 rounded-xl flex items-center justify-center">
+                          <Sparkles className="h-4 w-4 text-purple-600 dark:text-purple-400" />
+                        </div>
+                        <h4 className="text-lg font-bold text-gray-900 dark:text-gray-100">Professional Templates</h4>
+                      </div>
+                      <p className="text-sm text-gray-600 dark:text-gray-400">Choose a template to personalize your response</p>
                     </div>
-                    <div className="flex flex-wrap gap-2">
+                    <div className="flex flex-col gap-3">
                       {Object.entries(MESSAGE_TEMPLATES).map(([key, template]) => {
                         const Icon = template.icon;
+                        const isSelected = selectedTemplate === key;
                         return (
                           <Button
                             key={key}
-                            variant={selectedTemplate === key ? "default" : "outline"}
-                            size="sm"
+                            variant="ghost"
                             onClick={() => applyTemplate(key)}
-                            className="flex items-center gap-2"
+                            className={cn(
+                              "h-auto p-4 justify-start text-left transition-all duration-200",
+                              isSelected 
+                                ? "bg-gradient-to-r from-blue-50 to-blue-100 dark:from-blue-950 dark:to-blue-900 border-2 border-blue-200 dark:border-blue-800" 
+                                : "hover:bg-gray-50 dark:hover:bg-gray-800 border border-gray-200 dark:border-gray-700"
+                            )}
                             data-testid={`template-${key}`}
                           >
-                            <Icon className="h-3 w-3" />
-                            {template.title}
+                            <div className="flex items-center gap-3 w-full">
+                              <div className={cn(
+                                "w-10 h-10 rounded-xl flex items-center justify-center",
+                                isSelected 
+                                  ? "bg-blue-500 text-white" 
+                                  : "bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-400"
+                              )}>
+                                <Icon className="h-5 w-5" />
+                              </div>
+                              <div className="flex-1">
+                                <p className={cn(
+                                  "font-semibold",
+                                  isSelected ? "text-blue-700 dark:text-blue-300" : "text-gray-900 dark:text-gray-100"
+                                )}>
+                                  {template.title}
+                                </p>
+                              </div>
+                            </div>
                           </Button>
                         );
                       })}
@@ -713,19 +822,25 @@ export default function AdvocateMessages() {
                         variant="ghost"
                         size="sm"
                         onClick={() => setShowTemplateSelector(false)}
-                        className="ml-auto text-muted-foreground"
+                        className="mt-2 self-end text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300"
                       >
+                        <X className="h-4 w-4 mr-2" />
                         Hide Templates
                       </Button>
                     </div>
-                  </div>
+                  </PremiumCard>
                 )}
                 
                 {/* File Upload Section */}
                 {showFileUpload && (
-                  <div className="p-4 bg-muted/20 border-b">
-                    <div className="flex items-center justify-between mb-3">
-                      <h3 className="text-sm font-medium">Attach Files</h3>
+                  <PremiumCard variant="elevated" className="p-4">
+                    <div className="flex items-center justify-between mb-4">
+                      <div className="flex items-center gap-2">
+                        <div className="w-8 h-8 bg-gradient-to-br from-green-50 to-green-100 dark:from-green-950 dark:to-green-900 rounded-xl flex items-center justify-center">
+                          <Paperclip className="h-4 w-4 text-green-600 dark:text-green-400" />
+                        </div>
+                        <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">Attach Files</h3>
+                      </div>
                       <Button
                         variant="ghost"
                         size="sm"
@@ -733,7 +848,7 @@ export default function AdvocateMessages() {
                           setShowFileUpload(false);
                           setAttachmentFiles([]);
                         }}
-                        className="h-6 w-6 p-0"
+                        className="h-8 w-8 p-0 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300"
                       >
                         <X className="h-4 w-4" />
                       </Button>
@@ -744,25 +859,30 @@ export default function AdvocateMessages() {
                       maxFiles={5}
                       disabled={sending}
                     />
-                  </div>
+                  </PremiumCard>
                 )}
 
                 {/* Message Input */}
-                <div className="p-4">
-                  <div className="flex items-end gap-2">
+                <PremiumCard variant="elevated" className="p-4">
+                  <div className="flex items-end gap-3">
                     <Button 
                       variant="ghost" 
                       size="icon"
                       onClick={() => setShowFileUpload(!showFileUpload)}
-                      className={`mb-1 ${showFileUpload ? 'bg-muted' : ''}`}
+                      className={cn(
+                        "h-12 w-12 rounded-xl transition-all duration-200 mb-1",
+                        showFileUpload 
+                          ? 'bg-green-50 dark:bg-green-950 text-green-600 dark:text-green-400 hover:bg-green-100 dark:hover:bg-green-900' 
+                          : 'hover:bg-gray-100 dark:hover:bg-gray-800'
+                      )}
                       data-testid="button-attach-files"
                     >
-                      <Paperclip className="h-4 w-4" />
+                      <Paperclip className="h-5 w-5" />
                     </Button>
                     <div className="flex-1 space-y-2">
                       <textarea 
                         placeholder="Type your message..." 
-                        className="w-full min-h-[80px] max-h-[200px] p-4 text-base border rounded-md resize-none focus:outline-none focus:ring-2 focus:ring-ring bg-background"
+                        className="w-full min-h-[80px] max-h-[200px] p-4 text-base border border-gray-200 dark:border-gray-700 rounded-2xl resize-none focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-800 transition-all duration-200"
                         value={newMessageText}
                         onChange={(e) => setNewMessageText(e.target.value)}
                         onKeyDown={async (e) => {
@@ -776,8 +896,13 @@ export default function AdvocateMessages() {
                         data-testid="input-message"
                       />
                       {attachmentFiles.length > 0 && (
-                        <div className="text-xs text-muted-foreground">
-                          {attachmentFiles.filter(f => f.status === 'completed').length} of {attachmentFiles.length} files ready
+                        <div className="flex items-center gap-2 text-sm">
+                          <div className="flex items-center gap-1 px-2 py-1 bg-blue-50 dark:bg-blue-950 rounded-lg">
+                            <Paperclip className="h-4 w-4 text-blue-600 dark:text-blue-400" />
+                            <span className="text-blue-700 dark:text-blue-300 font-medium">
+                              {attachmentFiles.filter(f => f.status === 'completed').length} of {attachmentFiles.length} files ready
+                            </span>
+                          </div>
                         </div>
                       )}
                     </div>
@@ -786,32 +911,37 @@ export default function AdvocateMessages() {
                       disabled={sending || (!newMessageText.trim() && !attachmentFiles.some(f => f.status === 'completed'))}
                       onClick={handleSendMessage}
                       data-testid="button-send-message"
-                      className="mb-1 h-11 w-11"
+                      className={cn(
+                        "h-12 w-12 rounded-xl mb-1 transition-all duration-200",
+                        (newMessageText.trim() || attachmentFiles.some(f => f.status === 'completed')) && !sending
+                          ? "bg-gradient-to-br from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white shadow-lg hover:shadow-xl"
+                          : ""
+                      )}
                     >
-                      {sending ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />}
+                      {sending ? <Loader2 className="h-5 w-5 animate-spin" /> : <Send className="h-5 w-5" />}
                     </Button>
                   </div>
                   
                   {/* Template hint for new conversations */}
                   {!showTemplateSelector && location.state?.newMessage && (
-                    <div className="mt-2">
+                    <div className="mt-4 pt-4 border-t border-gray-200 dark:border-gray-700 border-dashed">
                       <Button
                         variant="ghost"
                         size="sm"
                         onClick={() => setShowTemplateSelector(true)}
-                        className="text-xs text-muted-foreground"
+                        className="text-gray-500 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
                       >
-                        <FileText className="h-3 w-3 mr-1" />
+                        <Sparkles className="h-4 w-4 mr-2" />
                         Show Professional Templates
                       </Button>
                     </div>
                   )}
-                </div>
+                </PremiumCard>
               </div>
-            )}
-          </Card>
-        </div>
-      </div>
-    </DashboardLayout>
+            </div>
+          )}
+        </ContainerMobile>
+      </SafeAreaFull>
+    </MobileAppShell>
   );
 }

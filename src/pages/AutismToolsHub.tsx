@@ -1,6 +1,12 @@
 import { useState } from "react";
-import { TopNavigation } from "@/components/TopNavigation";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { 
+  MobileAppShell,
+  PremiumLargeHeader,
+  PremiumCard,
+  PremiumToolCard,
+  SafeAreaFull,
+  ContainerMobile
+} from "@/components/mobile";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
@@ -14,16 +20,23 @@ import {
   Sparkles,
   Heart,
   Target,
-  Eye
+  Eye,
+  Search,
+  Crown,
+  Zap,
+  Shield
 } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
-import { StudentSelector } from "@/components/StudentSelector";
+import { StudentSelector } from "@/components/StudentSelector"; 
+import { useNavigate } from "react-router-dom";
+import { cn } from "@/lib/utils";
 
 const AutismToolsHub = () => {
   const [selectedStudent, setSelectedStudent] = useState<string>("");
   const { toast } = useToast();
+  const navigate = useNavigate();
 
   // Fetch students from API
   const { data: students } = useQuery({
@@ -142,195 +155,254 @@ const AutismToolsHub = () => {
   const completedTools = [toolProgress.sensory, toolProgress.communication, toolProgress.behavioral].filter(p => p > 0).length;
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
-      <TopNavigation />
-      
-      <div className="container mx-auto px-4 py-8 max-w-6xl">
-        {/* Header */}
-        <div className="text-center mb-12">
-          <div className="inline-flex items-center justify-center p-3 bg-gradient-to-r from-blue-500 to-purple-600 rounded-full mb-6">
-            <Brain className="h-8 w-8 text-white" />
-          </div>
-          <h1 className="text-4xl font-bold text-gray-900 dark:text-white mb-4">
-            Autism Support Tools
-          </h1>
-          <p className="text-xl text-muted-foreground max-w-3xl mx-auto mb-8">
-            Build a comprehensive autism support plan for your child through our step-by-step tools. 
-            Complete tools 1-3 to unlock AI-powered insights and recommendations.
-          </p>
-          
-          {/* Progress Overview */}
-          <div className="bg-white dark:bg-gray-800 rounded-xl p-6 shadow-lg max-w-md mx-auto">
-            <div className="flex items-center justify-between mb-4">
-              <span className="text-sm font-medium text-muted-foreground">Your Progress</span>
-              <span className="text-sm font-bold text-primary">{completedTools}/3 Tools Complete</span>
+    <MobileAppShell>
+      <SafeAreaFull>
+        {/* Premium Header */}
+        <PremiumLargeHeader
+          title="Autism Support Tools"
+          subtitle="Build comprehensive support plans for your child"
+          rightAction={
+            <Button variant="ghost" size="icon" className="h-10 w-10 rounded-full">
+              <Search className="h-5 w-5" />
+            </Button>
+          }
+        />
+
+        <ContainerMobile padding="md" className="space-y-8 pb-32">
+          {/* Premium Progress Section */}
+          <PremiumCard variant="gradient" className="p-6">
+            <div className="text-center space-y-4">
+              <div className="flex items-center justify-center gap-3">
+                <div className="w-12 h-12 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center">
+                  <Brain className="h-6 w-6 text-white" />
+                </div>
+                <div>
+                  <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100">
+                    Your Progress
+                  </h2>
+                  <p className="text-sm text-gray-600 dark:text-gray-400">
+                    {completedTools}/3 Tools Complete
+                  </p>
+                </div>
+              </div>
+              
+              <div className="space-y-3">
+                <Progress value={totalProgress} className="h-3" />
+                <p className="text-sm text-gray-600 dark:text-gray-400 max-w-sm mx-auto">
+                  {completedTools === 0 && "Start with any tool to begin building your child's profile"}
+                  {completedTools > 0 && completedTools < 3 && `Complete ${3 - completedTools} more tool${3 - completedTools > 1 ? 's' : ''} to unlock AI insights`}
+                  {completedTools === 3 && "All tools complete! Click AI Insights for comprehensive analysis"}
+                </p>
+              </div>
+              
+              {/* Progress Features */}
+              <div className="flex items-center justify-center gap-4 text-sm">
+                <div className="flex items-center gap-1.5 text-green-600 dark:text-green-400">
+                  <Zap className="h-4 w-4" />
+                  <span>AI-Powered</span>
+                </div>
+                <div className="flex items-center gap-1.5 text-blue-600 dark:text-blue-400">
+                  <Shield className="h-4 w-4" />
+                  <span>Evidence-Based</span>
+                </div>
+                <div className="flex items-center gap-1.5 text-purple-600 dark:text-purple-400">
+                  <Heart className="h-4 w-4" />
+                  <span>Parent-Friendly</span>
+                </div>
+              </div>
             </div>
-            <Progress value={totalProgress} className="h-3 mb-2" />
-            <p className="text-xs text-muted-foreground">
-              {completedTools === 0 && "Start with any tool to begin building your child's profile"}
-              {completedTools > 0 && completedTools < 3 && `Complete ${3 - completedTools} more tool${3 - completedTools > 1 ? 's' : ''} to unlock AI insights`}
-              {completedTools === 3 && "All tools complete! Click AI Insights for comprehensive analysis"}
-            </p>
-          </div>
-        </div>
+          </PremiumCard>
 
-        {/* Student Selection */}
-        <Card className="mb-8">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Eye className="h-5 w-5 text-blue-600" />
-              Student Selection
-            </CardTitle>
-            <CardDescription>
-              Choose a student to view their autism support profile progress
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <StudentSelector
-              selectedStudent={selectedStudent}
-              onStudentSelect={setSelectedStudent}
-              students={students}
-              placeholder="Select student to view autism tools progress"
-              className="max-w-md"
-              data-testid="select-student"
-            />
-          </CardContent>
-        </Card>
+          {/* Premium Student Selection */}
+          <PremiumCard variant="elevated" className="p-6">
+            <div className="space-y-4">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-50 to-blue-100 dark:from-blue-950 dark:to-blue-900 flex items-center justify-center">
+                  <Eye className="h-5 w-5 text-blue-600 dark:text-blue-400" />
+                </div>
+                <div>
+                  <h3 className="font-semibold text-lg text-gray-900 dark:text-gray-100">
+                    Student Selection
+                  </h3>
+                  <p className="text-sm text-gray-600 dark:text-gray-400">
+                    Choose a student to view their progress
+                  </p>
+                </div>
+              </div>
+              <StudentSelector
+                selectedStudent={selectedStudent}
+                onStudentChange={setSelectedStudent}
+                placeholder="Select student to view autism tools progress"
+                data-testid="student-selector"
+              />
+            </div>
+          </PremiumCard>
 
-        {/* Tool Cards Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-8 mb-8">
-          {autismTools.map((tool) => (
-            <Card 
-              key={tool.id} 
-              className={`group hover:shadow-xl transition-all duration-300 ${tool.color} relative overflow-hidden`}
-            >
-              {/* Badge */}
-              {tool.badge && (
-                <div className="absolute top-4 right-4 z-10">
-                  <Badge className={`${tool.badgeColor} font-bold text-xs px-3 py-1 shadow-lg`}>
+          {/* Premium Tool Cards */}
+          <div className="space-y-4">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <h3 className="text-xl font-semibold text-gray-900 dark:text-gray-100">
+                  Autism Support Tools
+                </h3>
+                {autismTools.filter(t => t.badge).length > 0 && (
+                  <Badge className="bg-gradient-to-r from-green-500 to-green-600 text-white border-0">
                     <Sparkles className="h-3 w-3 mr-1" />
-                    {tool.badge}
+                    AI Enhanced
                   </Badge>
-                </div>
-              )}
-
-              {/* Disabled Overlay */}
-              {tool.disabled && (
-                <div className="absolute inset-0 bg-black/20 z-20 flex items-center justify-center backdrop-blur-sm">
-                  <div className="bg-white dark:bg-gray-800 p-4 rounded-lg text-center max-w-xs mx-4">
-                    <Target className="h-8 w-8 text-muted-foreground mx-auto mb-2" />
-                    <p className="text-sm font-medium text-muted-foreground">
-                      Complete at least one accommodation tool first
-                    </p>
-                  </div>
-                </div>
-              )}
-
-              <CardHeader className="pb-4">
-                <div className="flex items-start justify-between">
-                  <div className="flex items-center space-x-4">
-                    <div className={`p-3 rounded-xl ${tool.iconColor} bg-white/50 dark:bg-gray-800/50`}>
-                      {tool.icon}
-                    </div>
-                    <div>
-                      <CardTitle className="text-xl font-bold text-gray-900 dark:text-white group-hover:text-primary transition-colors">
-                        {tool.title}
-                      </CardTitle>
-                      <CardDescription className="text-muted-foreground mt-1">
-                        {tool.description}
-                      </CardDescription>
-                    </div>
-                  </div>
-                </div>
-              </CardHeader>
-
-              <CardContent className="pt-0">
-                {/* Features List */}
-                <ul className="space-y-2 mb-6">
-                  {tool.features.map((feature, index) => (
-                    <li key={index} className="flex items-center text-sm text-muted-foreground">
-                      <div className={`h-1.5 w-1.5 rounded-full ${tool.iconColor} mr-3`} />
-                      {feature}
-                    </li>
-                  ))}
-                </ul>
-
-                {/* Progress for accommodation tools */}
-                {tool.progress !== undefined && (
-                  <div className="mb-4">
-                    <div className="flex items-center justify-between text-xs text-muted-foreground mb-1">
-                      <span>Progress</span>
-                      <span>{tool.progress}% Complete</span>
-                    </div>
-                    <Progress value={tool.progress} className="h-2" />
-                  </div>
                 )}
-
-                {/* Action Button */}
-                <Button 
-                  asChild 
-                  className={`w-full ${tool.disabled ? 'opacity-50 cursor-not-allowed' : 'group-hover:scale-105'} transition-all duration-200`}
-                  disabled={tool.disabled}
-                  data-testid={`button-${tool.id}`}
-                >
-                  <Link to={tool.disabled ? "#" : tool.path} className="flex items-center justify-center">
-                    {tool.completed ? "Continue Building" : "Start Tool"}
-                    <ArrowRight className="h-4 w-4 ml-2" />
-                  </Link>
-                </Button>
-
-                {/* Completion Status */}
-                {tool.completed && (
-                  <div className="flex items-center justify-center mt-3 text-xs text-green-600 dark:text-green-400">
-                    <CheckCircle className="h-3 w-3 mr-1" />
-                    Profile Started
-                  </div>
-                )}
-              </CardContent>
-            </Card>
-          ))}
-        </div>
-
-        {/* Help Section */}
-        <Card className="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-950 dark:to-indigo-950 border-blue-200 dark:border-blue-800">
-          <CardContent className="p-8 text-center">
-            <Heart className="h-8 w-8 text-blue-600 dark:text-blue-400 mx-auto mb-4" />
-            <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">
-              Building Your Child's Success Plan
-            </h3>
-            <p className="text-muted-foreground max-w-2xl mx-auto mb-6">
-              Each tool focuses on a specific area of support. Work through tools 1-3 in any order to build 
-              a comprehensive accommodation plan. Our AI will analyze your selections and provide personalized 
-              insights and recommendations.
-            </p>
-            <div className="flex items-center justify-center space-x-4 text-sm text-muted-foreground">
-              <div className="flex items-center">
-                <Eye className="h-4 w-4 mr-2" />
-                Evidence-based
-              </div>
-              <div className="flex items-center">
-                <Target className="h-4 w-4 mr-2" />
-                Personalized
-              </div>
-              <div className="flex items-center">
-                <Heart className="h-4 w-4 mr-2" />
-                Parent-friendly
               </div>
             </div>
-          </CardContent>
-        </Card>
+            
+            <div className="space-y-4">
+              {autismTools.map((tool) => {
+                const handleNavigate = () => {
+                  if (!tool.disabled) {
+                    navigate(tool.path);
+                  }
+                };
+                
+                return (
+                  <PremiumCard 
+                    key={tool.id}
+                    variant={tool.disabled ? "default" : "interactive"} 
+                    onClick={tool.disabled ? undefined : handleNavigate}
+                    disabled={tool.disabled}
+                    className={`p-6 text-left relative overflow-hidden ${
+                      tool.disabled ? "opacity-60" : ""
+                    }`}
+                  >
+                    {/* Background Pattern for Premium Tools */}
+                    {!tool.disabled && (
+                      <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-bl from-blue-50/50 to-transparent dark:from-blue-950/20 rounded-full transform translate-x-16 -translate-y-16" />
+                    )}
+                    
+                    <div className="relative z-10 space-y-4">
+                      {/* Header with Icon and Badges */}
+                      <div className="flex items-start justify-between">
+                        <div className="flex-1 space-y-3">
+                          {/* Icon */}
+                          <div className={cn(
+                            "w-12 h-12 rounded-xl flex items-center justify-center",
+                            tool.disabled 
+                              ? "bg-gray-100 dark:bg-gray-800 text-gray-400" 
+                              : "bg-gradient-to-br from-blue-50 to-blue-100 dark:from-blue-950 dark:to-blue-900 text-blue-600 dark:text-blue-400"
+                          )}>
+                            {tool.icon}
+                          </div>
+                          
+                          {/* Badges */}
+                          <div className="flex items-center gap-2 flex-wrap">
+                            {tool.progress !== undefined && (
+                              <span className="inline-flex items-center px-2.5 py-1 rounded-lg text-xs font-medium bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300">
+                                {tool.progress}% Complete
+                              </span>
+                            )}
+                            {tool.completed && (
+                              <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-medium bg-green-100 dark:bg-green-900 text-green-700 dark:text-green-300">
+                                <CheckCircle className="h-3 w-3" />
+                                Started
+                              </span>
+                            )}
+                            {tool.badge && (
+                              <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-medium bg-orange-100 dark:bg-orange-900 text-orange-700 dark:text-orange-300">
+                                <Sparkles className="h-3 w-3" />
+                                {tool.badge}
+                              </span>
+                            )}
+                          </div>
+                        </div>
+                        
+                        {/* Action Indicator */}
+                        {!tool.disabled && (
+                          <ArrowRight className="h-5 w-5 text-gray-400 dark:text-gray-500 group-hover:text-gray-600 dark:group-hover:text-gray-400 transition-colors" />
+                        )}
+                      </div>
 
-        {/* Back to Tools */}
-        <div className="flex justify-center pt-8">
-          <Button asChild variant="ghost" size="sm" data-testid="button-back-to-hub">
-            <Link to="/parent/tools" className="flex items-center gap-2">
-              <ArrowRight className="h-4 w-4 rotate-180" />
-              Back to Tools
-            </Link>
-          </Button>
-        </div>
-      </div>
-    </div>
+                      {/* Content */}
+                      <div className="space-y-3">
+                        <h3 className="font-semibold text-lg text-gray-900 dark:text-gray-100 leading-tight">
+                          {tool.title}
+                        </h3>
+                        <p className="text-gray-600 dark:text-gray-400 text-sm leading-relaxed">
+                          {tool.description}
+                        </p>
+                        
+                        {/* Features List */}
+                        <div className="space-y-1">
+                          {tool.features.slice(0, 3).map((feature, index) => (
+                            <div key={index} className="flex items-center text-xs text-gray-500 dark:text-gray-400">
+                              <div className="h-1 w-1 rounded-full bg-blue-500 mr-2" />
+                              {feature}
+                            </div>
+                          ))}
+                        </div>
+                        
+                        {/* Progress Bar */}
+                        {tool.progress !== undefined && (
+                          <div className="space-y-2">
+                            <Progress value={tool.progress} className="h-2" />
+                          </div>
+                        )}
+                      </div>
+
+                      {/* Locked State */}
+                      {tool.disabled && (
+                        <div className="pt-3 border-t border-gray-200 dark:border-gray-700 border-dashed">
+                          <div className="flex items-center justify-center gap-2 text-sm text-gray-500 dark:text-gray-400">
+                            <Target className="h-4 w-4" />
+                            <span>Complete other tools first</span>
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  </PremiumCard>
+                );
+              })}
+            </div>
+          </div>
+
+          {/* Premium Help Section */}
+          <PremiumCard variant="glass" className="p-6 text-center space-y-4">
+            <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-blue-50 to-blue-100 dark:from-blue-950 dark:to-blue-900 text-blue-600 dark:text-blue-400 flex items-center justify-center mx-auto">
+              <Heart className="h-8 w-8" />
+            </div>
+            <div className="space-y-2">
+              <h3 className="font-semibold text-lg text-gray-900 dark:text-gray-100">
+                Building Your Child's Success Plan
+              </h3>
+              <p className="text-gray-600 dark:text-gray-400 text-sm leading-relaxed max-w-sm mx-auto">
+                Work through each tool to build a comprehensive support plan. Our AI analyzes your selections for personalized insights.
+              </p>
+            </div>
+            <div className="flex items-center justify-center gap-4 text-sm">
+              <div className="flex items-center gap-1.5 text-green-600 dark:text-green-400">
+                <Eye className="h-4 w-4" />
+                <span>Evidence-based</span>
+              </div>
+              <div className="flex items-center gap-1.5 text-blue-600 dark:text-blue-400">
+                <Target className="h-4 w-4" />
+                <span>Personalized</span>
+              </div>
+            </div>
+          </PremiumCard>
+
+          {/* Premium Back Navigation */}
+          <div className="text-center pt-4">
+            <Button 
+              variant="ghost" 
+              size="lg"
+              onClick={() => navigate('/parent/tools')}
+              className="h-12 px-6 rounded-xl"
+              data-testid="button-back-to-hub"
+            >
+              <ArrowRight className="h-4 w-4 mr-2 rotate-180" />
+              Back to Tools Hub
+            </Button>
+          </div>
+        </ContainerMobile>
+      </SafeAreaFull>
+    </MobileAppShell>
   );
 };
 

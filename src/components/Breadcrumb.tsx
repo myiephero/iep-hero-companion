@@ -61,7 +61,7 @@ export function Breadcrumb({ className = "", showBackButton = true }: Breadcrumb
         'pricing': 'Pricing Plans'
       };
 
-      if (sectionMap[section]) {
+      if (sectionMap[section] && sectionMap[section] !== '') {
         breadcrumbs.push({
           label: sectionMap[section],
           href: `/${role}/${section}`

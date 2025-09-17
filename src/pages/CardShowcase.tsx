@@ -253,12 +253,12 @@ const CardShowcase = () => {
           </div>
         </section>
 
-        {/* Back to Tools Hub */}
+        {/* Back to Tools */}
         <div className="pt-8 border-t">
           <Button asChild variant="outline" size="lg">
             <Link to="/tools" className="flex items-center gap-2">
               <Shield className="h-4 w-4" />
-              Back to Tools Hub
+              Back to Tools
             </Link>
           </Button>
         </div>

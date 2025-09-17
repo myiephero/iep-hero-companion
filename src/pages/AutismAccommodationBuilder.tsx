@@ -730,7 +730,7 @@ const AutismAccommodationBuilder = () => {
             <Button asChild variant="ghost" size="sm">
               <Link to="/tools/hub" className="flex items-center gap-2">
                 <ArrowRight className="h-4 w-4 rotate-180" />
-                Back to Tools Hub
+                Back to Tools
               </Link>
             </Button>
           </div>

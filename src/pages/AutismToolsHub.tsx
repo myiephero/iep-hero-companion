@@ -320,12 +320,12 @@ const AutismToolsHub = () => {
           </CardContent>
         </Card>
 
-        {/* Back to Tools Hub */}
+        {/* Back to Tools */}
         <div className="flex justify-center pt-8">
           <Button asChild variant="ghost" size="sm" data-testid="button-back-to-hub">
             <Link to="/parent/tools" className="flex items-center gap-2">
               <ArrowRight className="h-4 w-4 rotate-180" />
-              Back to Tools Hub
+              Back to Tools
             </Link>
           </Button>
         </div>

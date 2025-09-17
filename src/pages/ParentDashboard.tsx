@@ -21,7 +21,7 @@ import {
   ContainerMobile
 } from "@/components/mobile";
 import { useAuth } from "@/hooks/useAuth";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import { SubscriptionPlan, hasFeatureAccess, getPlanFeatures, normalizeSubscriptionPlan, getPlanDisplayName } from "@/lib/planAccess";
 // import { FeedbackChat } from "@/components/FeedbackChat"; // TEMPORARILY REMOVED
 
@@ -468,23 +468,15 @@ export default function ParentDashboard({ plan }: ParentDashboardProps) {
               
             <div className="flex flex-col gap-3 sm:gap-4 justify-center max-w-4xl mx-auto px-4">
               <Button 
+                asChild
                 size="lg" 
                 className="bg-gradient-to-r from-primary to-secondary hover:from-primary/90 hover:to-secondary/90 text-white shadow-lg hover:shadow-xl transition-all duration-300 px-4 sm:px-6 py-4 sm:py-3 cursor-pointer min-h-[44px] text-sm sm:text-base font-medium"
-                onClick={(e) => {
-                  e.preventDefault();
-                  e.stopPropagation();
-                  console.log('🚀 Explore Premium Tools clicked!');
-                  try {
-                    navigate('/parent/tools/emergent');
-                  } catch (error) {
-                    console.error('Navigation error:', error);
-                    window.location.href = '/parent/tools/emergent';
-                  }
-                }}
                 data-testid="button-explore-premium-tools"
               >
-                <Rocket className="h-4 w-4 sm:h-5 sm:w-5 mr-2" />
-                Explore Premium Tools
+                <Link to="/parent/tools/emergent">
+                  <Rocket className="h-4 w-4 sm:h-5 sm:w-5 mr-2" />
+                  Explore Premium Tools
+                </Link>
               </Button>
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
                 <Button 

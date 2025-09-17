@@ -29,8 +29,21 @@ export function validateEnvironment(): EnvironmentConfig {
   const isDevelopment = typeof import.meta !== 'undefined' && import.meta.env?.DEV;
   const isMobile = checkMobileEnvironment();
   
-  // For mobile environments, require explicit API domain configuration
+  // For mobile environments, check if using remote URL (Capacitor server.url) or require explicit config
   if (isMobile) {
+    // If mobile app is loading from a remote URL (not localhost or file://), use that domain
+    if (typeof window !== 'undefined') {
+      const currentHost = window.location.host;
+      if (currentHost && currentHost !== 'localhost' && !currentHost.includes('capacitor')) {
+        return {
+          apiDomain: currentHost,
+          isDevelopment,
+          isMobile: true
+        };
+      }
+    }
+    
+    // Otherwise require explicit API domain configuration
     const apiDomain = getRequiredEnvVar('VITE_REPLIT_DEV_DOMAIN');
     
     if (!isValidDomain(apiDomain)) {

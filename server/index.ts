@@ -5432,64 +5432,21 @@ Respond with this exact JSON format:
       res.sendFile(path.join(__dirname, '../dist/index.html'));
     });
   } else {
-    // Development: Create conditional proxy instances for platform separation
-    console.log('🚀 Development mode: Creating smart conditional proxy system');
-    
-    const mobileProxy = createProxyMiddleware({
-      target: 'http://localhost:5000',
-      changeOrigin: true,
-      ws: true // Enable WebSocket proxying for HMR
-    });
-    
+    // Development: Create single proxy instance to desktop for main URL
+    console.log('🚀 Development mode: Main URL serves DESKTOP, iOS app uses direct mobile URL');
     const desktopProxy = createProxyMiddleware({
       target: 'http://localhost:3000',
       changeOrigin: true,
       ws: true // Enable WebSocket proxying for HMR
     });
     
-    // Smart platform detection
-    function isMobileRequest(req: any): boolean {
-      // Check for explicit override
-      const viewOverride = req.query?.view || req.cookies?.forceView;
-      if (viewOverride === 'mobile') return true;
-      if (viewOverride === 'desktop') return false;
-      
-      // Detect mobile/Capacitor user agent
-      const userAgent = req.get('User-Agent') || '';
-      const mobileRegex = /(iphone|ipad|android|mobile|capacitor)/i;
-      return mobileRegex.test(userAgent);
-    }
-    
-    // Apply conditional proxy to all non-API routes
+    // Apply proxy to all non-API routes
     app.use((req, res, next) => {
       if (req.path.startsWith('/api')) {
         return next(); // Let API routes be handled by Express
       }
-      
-      // Set override cookie if view parameter provided
-      if (req.query?.view) {
-        res.cookie('forceView', req.query.view, { maxAge: 24 * 60 * 60 * 1000 }); // 24 hours
-      }
-      
-      // Route to appropriate platform
-      const proxy = isMobileRequest(req) ? mobileProxy : desktopProxy;
-      const platform = isMobileRequest(req) ? 'MOBILE' : 'DESKTOP';
-      console.log(`📱 Routing ${req.method} ${req.path} → ${platform} (UA: ${req.get('User-Agent')?.substring(0, 50)}...)`);
-      
-      proxy(req, res, next);
+      desktopProxy(req, res, next); // Proxy everything else to Desktop
     });
-    
-    // Handle WebSocket upgrades for Vite HMR
-    const server = app.listen(PORT, '0.0.0.0', () => {
-      console.log(`Server running on port ${PORT}`);
-    });
-    
-    server.on('upgrade', (req: any, socket: any, head: any) => {
-      const proxy = isMobileRequest(req) ? mobileProxy : desktopProxy;
-      proxy.upgrade!(req, socket, head);
-    });
-    
-    return; // Exit early since we handled server.listen above
   }
 
   // Start the server after all setup is complete

@@ -329,157 +329,173 @@ export default function ParentMessages() {
           <Card className="h-full flex flex-col">
             {selectedConversation && (
               <div className="p-4 border-b">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center space-x-3">
-                    <Avatar className="h-8 w-8">
-                      <AvatarImage src={selectedConversation.advocate?.avatar_url} alt={selectedConversation.advocate?.name || 'Advocate'} />
-                      <AvatarFallback>
-                        {selectedConversation.advocate?.name?.charAt(0) || 'A'}
-                      </AvatarFallback>
-                    </Avatar>
-                    <div>
-                      <h3 className="font-medium">{selectedConversation.advocate?.name || 'Unknown Advocate'}</h3>
-                      <p className="text-sm text-muted-foreground">{selectedConversation.subject}</p>
-                    </div>
-                  </div>
-                  <div className="flex items-center space-x-2">
-                    <ConversationLabelsDisplay conversationId={selectedConversation.id} />
-                    <ConversationActionsMenu conversation={selectedConversation} />
+                <div className="flex items-center gap-3">
+                  <Avatar className="h-10 w-10">
+                    <AvatarImage src="/placeholder-1.jpg" />
+                    <AvatarFallback>
+                      {selectedConversation.advocate.name.split(' ').map(n => n[0]).join('')}
+                    </AvatarFallback>
+                  </Avatar>
+                  <div>
+                    <p className="font-medium">
+                      {selectedConversation.advocate.name}
+                    </p>
+                    <p className="text-sm text-muted-foreground">
+                      {selectedConversation.advocate.specialty}
+                    </p>
                   </div>
                 </div>
               </div>
             )}
             
-            {selectedConversation && (
-              <>
-                {/* Message Search */}
-                <div className="p-4 border-b">
-                  <MessageSearch
-                    searchTerm={searchTerm}
-                    onSearchChange={setSearchTerm}
-                    currentResultIndex={currentResultIndex}
-                    totalResults={totalResults}
-                    onNext={goToNext}
-                    onPrevious={goToPrevious}
-                    onClear={clearSearch}
-                    hasActiveSearch={hasActiveSearch}
-                    hasResults={hasResults}
-                  />
-                </div>
-
-                {/* Messages */}
-                <div ref={messagesContainerRef} className="flex-1 overflow-y-auto p-4 space-y-4">
-                  {messagesLoading ? (
-                    <div className="flex items-center justify-center h-64">
-                      <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
-                    </div>
-                  ) : messageHistory?.messages?.length > 0 ? (
-                    messageHistory.messages.map((message) => (
-                      <div 
-                        key={message.id} 
-                        data-message-id={message.id}
-                        className={`flex ${message.sender_type === 'parent' ? 'justify-end' : 'justify-start'}`}
-                      >
-                        <div className={`max-w-[70%] ${
-                          message.sender_type === 'parent' 
-                            ? 'bg-primary text-primary-foreground' 
-                            : 'bg-muted'
-                        } rounded-lg p-3`}>
-                          <div className="flex items-center justify-between mb-1">
-                            <span className="text-sm font-medium">
-                              {message.sender_type === 'parent' ? 'You' : selectedConversation.advocate?.name}
-                            </span>
-                            <span className="text-xs opacity-70">
-                              {new Date(message.created_at).toLocaleTimeString()}
-                            </span>
-                          </div>
-                          {hasActiveSearch ? (
+            {/* Message Search */}
+            {selectedConversation && messageHistory?.messages && messageHistory.messages.length > 0 && (
+              <MessageSearch
+                searchTerm={searchTerm}
+                onSearchChange={setSearchTerm}
+                currentResult={currentResultIndex}
+                totalResults={totalResults}
+                onNext={goToNext}
+                onPrevious={goToPrevious}
+                onClear={clearSearch}
+                placeholder="Search conversation messages..."
+              />
+            )}
+            
+            <div className="flex-1 p-4 overflow-y-auto space-y-4" ref={messagesContainerRef}>
+              {selectedConversation ? (
+                messagesLoading ? (
+                  <div className="flex items-center justify-center h-full">
+                    <Loader2 className="h-6 w-6 animate-spin" />
+                  </div>
+                ) : messageHistory?.messages && messageHistory.messages.length > 0 ? (
+                  messageHistory.messages.map((message) => (
+                    <div
+                      key={message.id}
+                      className={`flex ${message.sender_id === selectedConversation.parent_id ? 'justify-end' : 'justify-start'}`}
+                      data-testid={`message-${message.id}`}
+                      data-message-id={message.id}
+                    >
+                      <div className={`max-w-lg p-3 rounded-lg ${
+                        message.sender_id === selectedConversation.parent_id 
+                          ? 'bg-primary text-primary-foreground ml-12' 
+                          : 'bg-muted mr-12'
+                      }`}>
+                        {message.content && (
+                          <p className="text-sm">
                             <MessageHighlight
                               text={message.content}
                               searchTerm={searchTerm}
-                              isCurrentResult={isCurrentResult(message)}
+                              isCurrentResult={isCurrentResult(message.id)}
+                              className="break-words"
                             />
-                          ) : (
-                            <p>{message.content}</p>
-                          )}
-                          {message.attachments && message.attachments.length > 0 && (
-                            <div className="mt-2 space-y-2">
-                              {message.attachments.map((attachment: MessageAttachment, index) => (
-                                <MessageAttachmentDisplay 
-                                  key={index}
-                                  attachment={attachment}
-                                />
-                              ))}
-                            </div>
-                          )}
-                        </div>
-                      </div>
-                    ))
-                  ) : (
-                    <div className="flex items-center justify-center h-64 text-muted-foreground">
-                      <div className="text-center">
-                        <MessageSquare className="h-12 w-12 mx-auto mb-4 opacity-50" />
-                        <p>No messages yet</p>
-                        <p className="text-sm">Start a conversation with your advocate</p>
+                          </p>
+                        )}
+                        {(message as any).attachments && (message as any).attachments.length > 0 && (
+                          <MessageAttachmentDisplay 
+                            attachments={(message as any).attachments as MessageAttachment[]} 
+                            compact={true}
+                          />
+                        )}
+                        <span className="text-xs opacity-75 block mt-1">
+                          {new Date(message.created_at).toLocaleTimeString([], { 
+                            hour: '2-digit', 
+                            minute: '2-digit' 
+                          })}
+                        </span>
                       </div>
                     </div>
-                  )}
-                </div>
-
-                {/* Message Input */}
-                <div className="p-4 border-t">
-                  {showFileUpload && (
-                    <div className="mb-4">
-                      <MessageFileUpload
-                        files={attachmentFiles}
-                        onFilesChange={setAttachmentFiles}
-                        onClose={() => setShowFileUpload(false)}
-                      />
-                    </div>
-                  )}
-                  <div className="flex items-end space-x-2">
-                    <div className="flex-1">
-                      <textarea
-                        value={newMessageText}
-                        onChange={(e) => setNewMessageText(e.target.value)}
-                        placeholder="Type your message..."
-                        className="w-full min-h-[80px] p-3 border rounded-lg resize-none focus:outline-none focus:ring-2 focus:ring-primary"
-                        onKeyDown={(e) => {
-                          if (e.key === 'Enter' && !e.shiftKey) {
-                            e.preventDefault();
-                            handleSendMessage();
-                          }
-                        }}
-                        data-testid="message-input"
-                      />
-                    </div>
-                    <div className="flex flex-col space-y-2">
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => setShowFileUpload(!showFileUpload)}
-                        data-testid="attach-file-button"
-                      >
-                        <Paperclip className="h-4 w-4" />
-                      </Button>
-                      <Button
-                        onClick={handleSendMessage}
-                        disabled={(!newMessageText.trim() && !attachmentFiles.some(f => f.status === 'completed')) || sending}
-                        data-testid="send-message-button"
-                      >
-                        {sending ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />}
-                      </Button>
+                  ))
+                ) : (
+                  <div className="flex items-center justify-center h-full">
+                    <div className="text-center text-muted-foreground">
+                      <MessageSquare className="h-12 w-12 mx-auto mb-4 opacity-50" />
+                      <p className="text-lg font-medium mb-2">No Messages Yet</p>
+                      <p className="text-sm">Start a conversation with {selectedConversation.advocate.name}</p>
                     </div>
                   </div>
+                )
+              ) : (
+                <div className="flex items-center justify-center h-full">
+                  <div className="text-center text-muted-foreground">
+                    <MessageSquare className="h-16 w-16 mx-auto mb-4 opacity-50" />
+                    <p className="text-xl font-medium mb-2">Select a Conversation</p>
+                    <p className="text-sm">Choose a conversation from the list to start messaging</p>
+                  </div>
                 </div>
-              </>
-            )}
-
-            {!selectedConversation && (
-              <div className="flex-1 flex items-center justify-center text-muted-foreground">
-                <div className="text-center">
-                  <MessageSquare className="h-12 w-12 mx-auto mb-4 opacity-50" />
-                  <p>Select a conversation to start messaging</p>
+              )}
+            </div>
+            
+            {selectedConversation && (
+              <div className="border-t">
+                {/* File Upload Section */}
+                {showFileUpload && (
+                  <div className="p-4 bg-muted/20 border-b">
+                    <div className="flex items-center justify-between mb-3">
+                      <h3 className="text-sm font-medium">Attach Files</h3>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => {
+                          setShowFileUpload(false);
+                          setAttachmentFiles([]);
+                        }}
+                        className="h-6 w-6 p-0"
+                      >
+                        <X className="h-4 w-4" />
+                      </Button>
+                    </div>
+                    <MessageFileUpload
+                      files={attachmentFiles}
+                      onFilesChange={setAttachmentFiles}
+                      maxFiles={5}
+                      disabled={sending}
+                    />
+                  </div>
+                )}
+                
+                {/* Message Input */}
+                <div className="p-4">
+                  <div className="flex items-end gap-2">
+                    <Button 
+                      variant="ghost" 
+                      size="icon"
+                      onClick={() => setShowFileUpload(!showFileUpload)}
+                      className={showFileUpload ? 'bg-muted' : ''}
+                      data-testid="button-attach-files"
+                    >
+                      <Paperclip className="h-4 w-4" />
+                    </Button>
+                    <div className="flex-1 space-y-2">
+                      <Input 
+                        placeholder="Type your message..." 
+                        value={newMessageText}
+                        onChange={(e) => setNewMessageText(e.target.value)}
+                        onKeyDown={async (e) => {
+                          if (e.key === 'Enter' && !e.shiftKey) {
+                            e.preventDefault();
+                            if ((newMessageText.trim() || attachmentFiles.some(f => f.status === 'completed')) && selectedConversation && !sending) {
+                              await handleSendMessage();
+                            }
+                          }
+                        }}
+                        data-testid="input-message"
+                      />
+                      {attachmentFiles.length > 0 && (
+                        <div className="text-xs text-muted-foreground">
+                          {attachmentFiles.filter(f => f.status === 'completed').length} of {attachmentFiles.length} files ready
+                        </div>
+                      )}
+                    </div>
+                    <Button 
+                      size="icon" 
+                      disabled={sending || (!newMessageText.trim() && !attachmentFiles.some(f => f.status === 'completed'))}
+                      onClick={handleSendMessage}
+                      data-testid="button-send-message"
+                    >
+                      {sending ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />}
+                    </Button>
+                  </div>
                 </div>
               </div>
             )}

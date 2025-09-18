@@ -231,7 +231,7 @@ function App() {
         <ThemeProvider>
           <AuthProvider>
             <PushNotificationProvider />
-            <BrowserRouter>
+            <BrowserRouter basename="/m">
             <Routes>
               <Route path="/" element={<Index />} />
               <Route path="/pricing" element={

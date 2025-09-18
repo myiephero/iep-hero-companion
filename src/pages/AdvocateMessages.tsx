@@ -24,6 +24,7 @@ import { ConversationFilters } from "@/components/ConversationFilters";
 import { ConversationLabelSelector } from "@/components/ConversationLabelSelector";
 import { useConversationLabelsForConversation, useUpdateConversationStatus } from "@/hooks/useConversationLabels";
 import { useToast } from "@/hooks/use-toast";
+import { useAuth } from "@/hooks/useAuth";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import type { Conversation } from "@/lib/messaging";
 import { cn } from "@/lib/utils";
@@ -189,6 +190,8 @@ function ConversationLabelsDisplay({ conversationId }: { conversationId: string 
 }
 
 export default function AdvocateMessages() {
+  // Authentication check
+  const { user, loading: authLoading, isAuthenticated } = useAuth();
   const location = useLocation();
   const [selectedConversation, setSelectedConversation] = useState<Conversation | null>(null);
   const [newMessageText, setNewMessageText] = useState('');
@@ -209,10 +212,10 @@ export default function AdvocateMessages() {
   const { toast } = useToast();
   const { updateStatus: updateConversationStatus } = useUpdateConversationStatus();
   
-  // API hooks
-  const { conversations, loading: conversationsLoading, error: conversationsError, refetch: refetchConversations } = useConversations();
-  const { contacts: proposalContacts, loading: contactsLoading, error: contactsError, refetch: refetchContacts } = useProposalContacts();
-  const { messageHistory, loading: messagesLoading, refetch: refetchMessages } = useMessages(selectedConversation?.id || null);
+  // API hooks - gated by authentication status
+  const { conversations, loading: conversationsLoading, error: conversationsError, refetch: refetchConversations } = useConversations({}, isAuthenticated);
+  const { contacts: proposalContacts, loading: contactsLoading, error: contactsError, refetch: refetchContacts } = useProposalContacts(isAuthenticated);
+  const { messageHistory, loading: messagesLoading, refetch: refetchMessages } = useMessages(selectedConversation?.id || null, isAuthenticated);
   const { send: sendMessage, sending } = useSendMessage();
   const { create: createConversation, creating } = useCreateConversation();
   
@@ -431,6 +434,55 @@ export default function AdvocateMessages() {
     setSelectedConversation(null);
     setShowConversationList(true);
   };
+
+  // Authentication loading state
+  if (authLoading) {
+    return (
+      <MobileAppShell showBottomNav={true}>
+        <SafeAreaFull>
+          <PremiumElevatedHeader title="Messages" />
+          <ContainerMobile className="flex items-center justify-center min-h-[400px]">
+            <div className="flex flex-col items-center gap-4 text-center">
+              <Loader2 className="h-8 w-8 animate-spin text-primary" />
+              <p className="text-muted-foreground">Loading...</p>
+            </div>
+          </ContainerMobile>
+        </SafeAreaFull>
+      </MobileAppShell>
+    );
+  }
+
+  // Authentication required state
+  if (!isAuthenticated || !user) {
+    return (
+      <MobileAppShell showBottomNav={true}>
+        <SafeAreaFull>
+          <PremiumElevatedHeader title="Messages" />
+          <ContainerMobile className="flex items-center justify-center min-h-[400px]">
+            <PremiumCard variant="elevated" className="max-w-md mx-auto p-6">
+              <div className="text-center space-y-6">
+                <MessageSquare className="h-12 w-12 mx-auto text-primary" />
+                <div className="space-y-2">
+                  <h3 className="text-xl font-semibold">Authentication Required</h3>
+                  <p className="text-muted-foreground">
+                    You need to sign in to access advocate messaging.
+                  </p>
+                </div>
+                <div className="space-y-2">
+                  <Button asChild className="w-full" data-testid="button-sign-in">
+                    <a href="/auth">Sign In</a>
+                  </Button>
+                  <Button variant="outline" asChild className="w-full" data-testid="button-home">
+                    <a href="/">Go Home</a>
+                  </Button>
+                </div>
+              </div>
+            </PremiumCard>
+          </ContainerMobile>
+        </SafeAreaFull>
+      </MobileAppShell>
+    );
+  }
 
   return (
     <MobileAppShell showBottomNav={true}>

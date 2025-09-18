@@ -26,6 +26,9 @@ import { useToast } from "@/hooks/use-toast";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import type { Conversation } from "@/lib/messaging";
 import { cn } from "@/lib/utils";
+import { useAuth } from "@/hooks/useAuth";
+import { Link } from "react-router-dom";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 // Conversation Actions Menu Component
 function ConversationActionsMenu({ conversation }: { conversation: Conversation }) {
@@ -223,6 +226,9 @@ function ConversationLabelsDisplay({ conversationId }: { conversationId: string 
 }
 
 export default function ParentMessages() {
+  // Authentication check
+  const { user, loading: authLoading, isAuthenticated } = useAuth();
+  
   const [selectedConversation, setSelectedConversation] = useState<Conversation | null>(null);
   const [newMessageText, setNewMessageText] = useState('');
   const [attachmentFiles, setAttachmentFiles] = useState<MessageFile[]>([]);
@@ -243,9 +249,9 @@ export default function ParentMessages() {
   const { toast } = useToast();
   const { updateStatus: updateConversationStatus } = useUpdateConversationStatus();
   
-  // API hooks
-  const { conversations, loading: conversationsLoading, error: conversationsError, refetch: refetchConversations } = useConversations();
-  const { messageHistory, loading: messagesLoading, refetch: refetchMessages } = useMessages(selectedConversation?.id || null);
+  // API hooks - gated by authentication status
+  const { conversations, loading: conversationsLoading, error: conversationsError, refetch: refetchConversations } = useConversations({}, isAuthenticated);
+  const { messageHistory, loading: messagesLoading, refetch: refetchMessages } = useMessages(selectedConversation?.id || null, isAuthenticated);
   const { send: sendMessage, sending } = useSendMessage();
   const { markMessagesRead } = useMarkAsRead();
   
@@ -292,10 +298,61 @@ export default function ParentMessages() {
     });
   }, [conversations, filters]);
   
-  // Auto-select first conversation when loaded
-  if (conversations.length > 0 && !selectedConversation) {
-    setSelectedConversation(conversations[0]);
+  // Authentication loading state
+  if (authLoading) {
+    return (
+      <MobileAppShell>
+        <SafeAreaFull>
+          <PremiumMobileHeader title="Messages" />
+          <ContainerMobile className="flex items-center justify-center min-h-[400px]">
+            <div className="flex flex-col items-center gap-4 text-center">
+              <Loader2 className="h-8 w-8 animate-spin text-primary" />
+              <p className="text-muted-foreground">Loading...</p>
+            </div>
+          </ContainerMobile>
+        </SafeAreaFull>
+      </MobileAppShell>
+    );
   }
+
+  // Authentication required state
+  if (!isAuthenticated || !user) {
+    return (
+      <MobileAppShell>
+        <SafeAreaFull>
+          <PremiumMobileHeader title="Messages" />
+          <ContainerMobile className="flex items-center justify-center min-h-[400px]">
+            <Card className="max-w-md mx-auto">
+              <CardHeader className="text-center">
+                <MessageSquare className="h-12 w-12 mx-auto text-primary mb-4" />
+                <CardTitle>Authentication Required</CardTitle>
+              </CardHeader>
+              <CardContent className="text-center space-y-4">
+                <p className="text-muted-foreground">
+                  You need to sign in to access your messages.
+                </p>
+                <div className="space-y-2">
+                  <Button asChild className="w-full" data-testid="button-sign-in">
+                    <Link to="/auth">Sign In</Link>
+                  </Button>
+                  <Button variant="outline" asChild className="w-full" data-testid="button-home">
+                    <Link to="/">Go Home</Link>
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+          </ContainerMobile>
+        </SafeAreaFull>
+      </MobileAppShell>
+    );
+  }
+
+  // Auto-select first conversation when loaded - moved to useEffect to avoid setState-during-render
+  useEffect(() => {
+    if (isAuthenticated && conversations.length > 0 && !selectedConversation) {
+      setSelectedConversation(conversations[0]);
+    }
+  }, [isAuthenticated, conversations.length, selectedConversation]);
   
   // Auto-scroll to current search result
   useEffect(() => {

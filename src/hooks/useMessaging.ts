@@ -15,7 +15,7 @@ import {
 } from '../lib/messaging';
 import { apiRequest } from '@/lib/queryClient'; // FIXED: Import authenticated API client
 
-export function useConversations(filters: ConversationFilters = {}) {
+export function useConversations(filters: ConversationFilters = {}, enabled: boolean = true) {
   // Create stable filtersKey using useMemo to prevent unnecessary re-renders
   const filtersKey = useMemo(() => filters, [JSON.stringify(filters)]);
   
@@ -28,6 +28,7 @@ export function useConversations(filters: ConversationFilters = {}) {
   } = useQuery({
     queryKey: ['/api/messaging/conversations', filtersKey],
     queryFn: () => getConversations(filtersKey),
+    enabled: enabled, // Gate query by authentication status
     staleTime: 30000, // 30 seconds
     refetchOnWindowFocus: false,
     retry: 1
@@ -45,7 +46,7 @@ export function useConversations(filters: ConversationFilters = {}) {
   };
 }
 
-export function useMessages(conversationId: string | null) {
+export function useMessages(conversationId: string | null, enabled: boolean = true) {
   // Use React Query for messages
   const {
     data: messageHistory,
@@ -55,7 +56,7 @@ export function useMessages(conversationId: string | null) {
   } = useQuery({
     queryKey: ['/api/messaging/conversations', conversationId],
     queryFn: () => getMessages(conversationId!),
-    enabled: !!conversationId, // Only run query when conversationId exists
+    enabled: enabled && !!conversationId, // Gate by authentication AND conversationId
     staleTime: 15000, // 15 seconds for messages
     refetchOnWindowFocus: false,
     retry: 1
@@ -183,7 +184,7 @@ export function useMarkAsRead() {
   return { markMessagesRead };
 }
 
-export function useUnreadCount() {
+export function useUnreadCount(enabled: boolean = true) {
   const {
     data,
     isLoading: loading,
@@ -191,6 +192,7 @@ export function useUnreadCount() {
   } = useQuery({
     queryKey: ['/api/messaging/unread-count'],
     queryFn: getUnreadCount,
+    enabled: enabled, // Gate query by authentication status
     staleTime: 10000, // 10 seconds
     refetchOnWindowFocus: false,
     retry: 1
@@ -204,7 +206,7 @@ export function useUnreadCount() {
 }
 
 // Hook for getting incoming proposals as potential messaging contacts  
-export function useProposalContacts() {
+export function useProposalContacts(enabled: boolean = true) {
   const {
     data,
     isLoading: loading,
@@ -220,6 +222,7 @@ export function useProposalContacts() {
       const data = await response.json();
       return data.contacts || [];
     },
+    enabled: enabled, // Gate query by authentication status
     staleTime: 30000, // 30 seconds
     refetchOnWindowFocus: false,
     retry: 1

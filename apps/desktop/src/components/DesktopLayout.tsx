@@ -1,8 +1,10 @@
-import { Routes, Route } from 'react-router-dom';
+import { Routes, Route, Link, useLocation } from 'react-router-dom';
 import { DesktopDashboard } from '../pages/DesktopDashboard';
 import ParentMessages from '../pages/ParentMessages';
 
 export function DesktopLayout() {
+  const location = useLocation();
+  
   return (
     <div className="min-h-screen bg-background">
       <nav className="border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
@@ -11,16 +13,30 @@ export function DesktopLayout() {
             <div className="flex items-center space-x-6">
               <h1 className="text-xl font-semibold">IEP Hero - Desktop</h1>
               <div className="flex space-x-4">
-                <a href="/" className="text-muted-foreground hover:text-foreground transition-colors">
+                <Link 
+                  to="/" 
+                  className={`transition-colors ${
+                    location.pathname === '/' 
+                      ? 'text-foreground font-medium' 
+                      : 'text-muted-foreground hover:text-foreground'
+                  }`}
+                >
                   Dashboard
-                </a>
-                <a href="/messages" className="text-muted-foreground hover:text-foreground transition-colors">
+                </Link>
+                <Link 
+                  to="/messages" 
+                  className={`transition-colors ${
+                    location.pathname === '/messages' 
+                      ? 'text-foreground font-medium' 
+                      : 'text-muted-foreground hover:text-foreground'
+                  }`}
+                >
                   Messages
-                </a>
+                </Link>
               </div>
             </div>
             <div className="text-sm text-muted-foreground">
-              Desktop Experience - Original Layout
+              Desktop Experience - Independent Routing
             </div>
           </div>
         </div>

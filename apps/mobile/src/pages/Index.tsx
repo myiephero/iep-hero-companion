@@ -5,6 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useAuth } from "@/hooks/useAuth";
 import { ArrowRight, BookOpen, CheckCircle, FileText, Heart, Shield, Users, Zap, Eye, EyeOff } from "lucide-react";
+import { Capacitor } from '@capacitor/core';
 import heroImage from "@/assets/hero-image.jpg";
 
 const features = [
@@ -62,7 +63,13 @@ const Index = () => {
         localStorage.setItem('authToken', token);
         
         // Use the redirectTo URL from server response (plan-specific dashboard)
-        window.location.replace(redirectTo);
+        if (Capacitor.isNativePlatform()) {
+          // For mobile apps: Use internal navigation
+          window.location.href = redirectTo;
+        } else {
+          // For web: Use replace method
+          window.location.replace(redirectTo);
+        }
       } else {
         const errorData = await response.json();
         alert(errorData.message || 'Login failed');

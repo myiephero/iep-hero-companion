@@ -5458,9 +5458,41 @@ Respond with this exact JSON format:
     index: false // Don't serve index.html automatically
   }));
   
-  // Serve mobile index.html for /m route
+  // Serve mobile index.html for /m route with base path fix
   app.get('/m', (req, res) => {
-    res.sendFile(path.join(mobileDist, 'index.html'));
+    const fs = require('fs');
+    const indexPath = path.join(mobileDist, 'index.html');
+    
+    fs.readFile(indexPath, 'utf8', (err, data) => {
+      if (err) {
+        return res.status(500).send('Error loading mobile app');
+      }
+      
+      // Fix base path and asset URLs for mobile app
+      let modifiedHtml = data
+        // Inject base tag for correct asset resolution
+        .replace('<head>', '<head>\n    <base href="/m/">')
+        // Rewrite absolute URLs to be relative to /m/
+        .replace(/(?:href|src)="\/(?!m\/)/g, (match) => match.replace('="/', '="/m/'))
+        // Disable service worker to prevent offline fallback issues
+        .replace('</head>', `
+    <script>
+      // Temporarily disable service worker registration for web deployment
+      if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.getRegistrations().then(registrations => {
+          registrations.forEach(registration => registration.unregister());
+        });
+        // Override registration to prevent new SW
+        const originalRegister = navigator.serviceWorker.register;
+        navigator.serviceWorker.register = () => Promise.resolve();
+      }
+    </script>
+    </head>`);
+      
+      res.setHeader('Cache-Control', 'no-store');
+      res.setHeader('Content-Type', 'text/html');
+      res.send(modifiedHtml);
+    });
   });
   
   // Service worker clearing endpoint

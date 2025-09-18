@@ -1,0 +1,36 @@
+# Firebase Cloud Messaging - Sensitive Configuration Files
+# NEVER commit these files to version control
+
+# FCM Configuration
+google-services.json
+google-services-dev.json
+google-services-staging.json
+google-services-prod.json
+
+# Firebase Admin SDK
+firebase-adminsdk-*.json
+service-account-*.json
+
+# FCM Tokens and Keys
+fcm-tokens.txt
+server-keys.txt
+credentials.json
+
+# Firebase project configuration
+.firebaserc
+firebase-debug.log
+
+# Testing tokens
+test-tokens.json
+device-tokens.txt
+
+# Firebase cache
+.firebase/
+firebase-hosting-cache/
+
+# Analytics data
+firebase-analytics-*.json
+
+# Any local FCM test files
+fcm-test-*
+notification-test-*

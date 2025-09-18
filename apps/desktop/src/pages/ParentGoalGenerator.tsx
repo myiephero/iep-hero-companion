@@ -1,3 +1,4 @@
+import { DashboardLayout } from "@/layouts/DashboardLayout";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -15,7 +16,6 @@ import { StudentSelector } from "@/components/StudentSelector";
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 import { useNavigate } from "react-router-dom";
-import { cn } from "@/lib/utils";
 
 interface GeneratedGoal {
   id: string;
@@ -114,8 +114,10 @@ export default function ParentGoalGenerator() {
 
   const handleStudentSelection = (studentId: string) => {
     setSelectedStudentId(studentId);
+    // Auto-fill basic information when student is selected
     if (studentId && studentId !== 'no-student') {
       setUseExistingStudent(true);
+      // You could fetch student details here and populate the form
     } else {
       setUseExistingStudent(false);
       setStudentInfo({
@@ -185,30 +187,35 @@ export default function ParentGoalGenerator() {
       suggestions: []
     };
 
+    // Check for measurable elements
     if (goalText.includes('%') || goalText.includes('out of') || /\d+/.test(goalText)) {
       result.criteria.measurable = true;
     } else {
       result.suggestions.push("Add specific numbers or percentages to make the goal measurable");
     }
 
+    // Check for timeframe
     if (goalText.includes('By the end of') || goalText.includes('within') || goalText.includes('year')) {
       result.criteria.timeframe = true;
     } else {
       result.suggestions.push("Include when the goal should be achieved (like 'by the end of the school year')");
     }
 
+    // Check for conditions
     if (goalText.includes('when given') || goalText.includes('when presented') || goalText.includes('during')) {
       result.criteria.conditions = true;
     } else {
       result.suggestions.push("Describe the situation when your child will demonstrate the skill");
     }
 
+    // Check for criteria
     if (goalText.includes('with') && (goalText.includes('accuracy') || goalText.includes('success'))) {
       result.criteria.criteria = true;
     } else {
       result.suggestions.push("Include how well your child needs to perform (like 'with 80% accuracy')");
     }
 
+    // Check for observable behavior
     if (goalText.includes('will read') || goalText.includes('will write') || goalText.includes('will solve') || 
         goalText.includes('will demonstrate') || goalText.includes('will complete')) {
       result.criteria.observable = true;
@@ -216,6 +223,7 @@ export default function ParentGoalGenerator() {
       result.suggestions.push("Use action words that describe what your child will do");
     }
 
+    // Check for student-specific language
     if (goalText.toLowerCase().includes('student') || goalText.toLowerCase().includes('child') || 
         studentInfo.name && goalText.includes(studentInfo.name)) {
       result.criteria.studentSpecific = true;
@@ -223,6 +231,7 @@ export default function ParentGoalGenerator() {
       result.suggestions.push("Make the goal about your specific child");
     }
 
+    // Calculate overall score
     const passedCriteria = Object.values(result.criteria).filter(Boolean).length;
     result.overallScore = Math.round((passedCriteria / 6) * 100);
 
@@ -249,11 +258,12 @@ export default function ParentGoalGenerator() {
     try {
       setSavingGoals(prev => new Set([...prev, goal.id]));
       
+      // Convert GeneratedGoal to dashboard goal format
       const goalData = {
         title: goal.category,
         description: goal.goal,
         goal_type: goal.category.toLowerCase().replace(/\s+/g, '_'),
-        target_date: new Date(new Date().getFullYear() + 1, 5, 30).toISOString().split('T')[0],
+        target_date: new Date(new Date().getFullYear() + 1, 5, 30).toISOString().split('T')[0], // End of next school year
         status: 'not_started' as const,
         current_progress: 0,
         notes: `Steps: ${goal.objectives.join('; ')} | Measurement: ${goal.measurableData} | Timeline: ${goal.timeframe}`,
@@ -268,6 +278,7 @@ export default function ParentGoalGenerator() {
           description: `"${goal.category}" has been added to your dashboard goal tracking.`,
         });
         
+        // Option to navigate to dashboard
         setTimeout(() => {
           if (confirm("Would you like to view this goal in your dashboard now?")) {
             navigate('/parent/dashboard');
@@ -292,631 +303,598 @@ export default function ParentGoalGenerator() {
     }
   };
 
-  return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
-      {/* Header Section */}
-      <div className="bg-white dark:bg-gray-800 border-b shadow-sm">
-        <div className="max-w-7xl mx-auto px-6 py-8">
-          <div className="text-center space-y-4">
-            <div className="flex items-center justify-center space-x-3">
-              <Target className="h-10 w-10 text-blue-600" />
-              <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">
-                IEP Goal Generator
-              </h1>
-            </div>
-            <p className="text-lg text-gray-600 dark:text-gray-400 max-w-3xl mx-auto">
-              Create personalized, compliant IEP goals that you can understand and discuss with your child's team
-            </p>
-            <div className="flex justify-center space-x-2">
-              <Badge className="bg-gradient-to-r from-blue-100 to-purple-100 text-blue-800 border-blue-300">
-                AI-Powered
-              </Badge>
-              <Badge className="bg-green-100 text-green-800 border-green-300">
-                Parent-Friendly
-              </Badge>
-              <Badge className="bg-yellow-100 text-yellow-800 border-yellow-300">
-                IDEA Compliant
-              </Badge>
+  const renderLearnTab = () => (
+    <div className="space-y-6">
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <Lightbulb className="h-5 w-5 text-yellow-600" />
+            Understanding IEP Goals: A Parent's Guide
+          </CardTitle>
+          <CardDescription>
+            Learn what makes a good IEP goal and how to advocate for your child
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-6">
+          {/* What are IEP Goals */}
+          <div className="space-y-4">
+            <h3 className="text-lg font-semibold flex items-center gap-2">
+              <Target className="h-5 w-5 text-blue-600" />
+              What Are IEP Goals?
+            </h3>
+            <div className="bg-blue-50 dark:bg-blue-950/20 p-4 rounded-lg">
+              <p className="text-sm">
+                IEP goals are like roadmaps for your child's learning. They describe exactly what your child will learn and how much progress they need to make during the school year. Good goals are specific, measurable, and realistic for your child.
+              </p>
             </div>
           </div>
-        </div>
-      </div>
 
-      <div className="max-w-7xl mx-auto px-6 py-8">
-        {/* Tab Navigation */}
-        <div className="mb-8">
-          <div className="bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 p-1 rounded-2xl shadow-lg">
-            <div className="flex bg-white dark:bg-gray-900 rounded-xl p-2 gap-2">
-              <button
-                onClick={() => setActiveTab("learn")}
-                className={cn(
-                  "flex items-center gap-2 px-6 py-3 rounded-lg font-medium transition-all duration-200 flex-1 justify-center",
-                  activeTab === "learn"
-                    ? "bg-gradient-to-r from-blue-500 to-purple-500 text-white shadow-md"
-                    : "text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800"
-                )}
-                data-testid="tab-learn"
-              >
-                <BookOpen className="h-5 w-5" />
-                <span>Learn About Goals</span>
-              </button>
-              <button
-                onClick={() => setActiveTab("generate")}
-                className={cn(
-                  "flex items-center gap-2 px-6 py-3 rounded-lg font-medium transition-all duration-200 flex-1 justify-center",
-                  activeTab === "generate"
-                    ? "bg-gradient-to-r from-blue-500 to-purple-500 text-white shadow-md"
-                    : "text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800"
-                )}
-                data-testid="tab-generate"
-              >
-                <Brain className="h-5 w-5" />
-                <span>Create Goals</span>
-              </button>
-              <button
-                onClick={() => setActiveTab("check")}
-                className={cn(
-                  "flex items-center gap-2 px-6 py-3 rounded-lg font-medium transition-all duration-200 flex-1 justify-center",
-                  activeTab === "check"
-                    ? "bg-gradient-to-r from-blue-500 to-purple-500 text-white shadow-md"
-                    : "text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800"
-                )}
-                data-testid="tab-check"
-              >
-                <CheckCircle className="h-5 w-5" />
-                <span>Check Goals</span>
-              </button>
-            </div>
-          </div>
-        </div>
-
-        {/* Learn Tab */}
-        {activeTab === 'learn' && (
-          <div className="space-y-8">
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Lightbulb className="h-6 w-6 text-yellow-600" />
-                  Understanding IEP Goals: A Parent's Guide
-                </CardTitle>
-                <CardDescription className="text-lg">
-                  Learn what makes a good IEP goal and how to advocate for your child
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-8">
-                <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                  <Card className="border-2 border-blue-200 dark:border-blue-800">
-                    <CardHeader>
-                      <CardTitle className="flex items-center gap-2 text-blue-700 dark:text-blue-300">
-                        <Target className="h-5 w-5" />
-                        What Are IEP Goals?
-                      </CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                      <p className="text-gray-600 dark:text-gray-400">
-                        IEP goals are specific targets for what your child will learn and accomplish during the school year. 
-                        They're like roadmaps that help everyone understand where your child is headed and how to get there.
-                      </p>
-                    </CardContent>
-                  </Card>
-
-                  <Card className="border-2 border-green-200 dark:border-green-800">
-                    <CardHeader>
-                      <CardTitle className="flex items-center gap-2 text-green-700 dark:text-green-300">
-                        <CheckCircle className="h-5 w-5" />
-                        SMART Goals
-                      </CardTitle>
-                    </CardHeader>
-                    <CardContent className="space-y-3">
-                      <div className="space-y-2">
-                        <div className="text-sm font-medium text-blue-600">Specific</div>
-                        <div className="text-sm font-medium text-green-600">Measurable</div>
-                        <div className="text-sm font-medium text-purple-600">Achievable</div>
-                        <div className="text-sm font-medium text-orange-600">Relevant</div>
-                        <div className="text-sm font-medium text-red-600">Time-bound</div>
-                      </div>
-                    </CardContent>
-                  </Card>
-
-                  <Card className="border-2 border-purple-200 dark:border-purple-800">
-                    <CardHeader>
-                      <CardTitle className="flex items-center gap-2 text-purple-700 dark:text-purple-300">
-                        <Heart className="h-5 w-5" />
-                        Your Rights
-                      </CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                      <ul className="space-y-2 text-sm text-gray-600 dark:text-gray-400">
-                        <li>• You know your child best</li>
-                        <li>• You are an equal IEP team member</li>
-                        <li>• Your input matters</li>
-                        <li>• It's okay to ask questions</li>
-                      </ul>
-                    </CardContent>
-                  </Card>
+          {/* SMART Goals Explanation */}
+          <div className="space-y-4">
+            <h3 className="text-lg font-semibold flex items-center gap-2">
+              <CheckCircle className="h-5 w-5 text-green-600" />
+              What Makes a Good Goal? (SMART Goals)
+            </h3>
+            <div className="grid gap-4 md:grid-cols-2">
+              <div className="space-y-3">
+                <div className="p-3 border rounded-lg">
+                  <h4 className="font-medium text-blue-600">S - Specific</h4>
+                  <p className="text-sm text-muted-foreground">Clearly describes what your child will do</p>
                 </div>
-
-                <Separator />
-
-                <div className="space-y-6">
-                  <h3 className="text-xl font-semibold">Example Goals You Can Understand</h3>
-                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                    <Card className="bg-green-50 dark:bg-green-950/20 border-green-200 dark:border-green-800">
-                      <CardHeader>
-                        <CardTitle className="text-green-800 dark:text-green-200 flex items-center gap-2">
-                          <CheckCircle className="h-5 w-5" />
-                          ✅ Good Goal Example
-                        </CardTitle>
-                      </CardHeader>
-                      <CardContent>
-                        <p className="text-sm text-gray-700 dark:text-gray-300 mb-3">
-                          "By the end of the school year, when given books at their reading level, your child will read out loud with 90% of words correct and answer questions about what they read with 80% accuracy in 4 weekly sessions."
-                        </p>
-                        <div className="text-xs text-green-600 dark:text-green-400">
-                          ✓ Specific: Reading books ✓ Measurable: 90% accuracy ✓ Time-bound: End of school year
-                        </div>
-                      </CardContent>
-                    </Card>
-
-                    <Card className="bg-red-50 dark:bg-red-950/20 border-red-200 dark:border-red-800">
-                      <CardHeader>
-                        <CardTitle className="text-red-800 dark:text-red-200 flex items-center gap-2">
-                          <AlertCircle className="h-5 w-5" />
-                          ❌ Vague Goal Example
-                        </CardTitle>
-                      </CardHeader>
-                      <CardContent>
-                        <p className="text-sm text-gray-700 dark:text-gray-300 mb-3">
-                          "The student will improve reading skills."
-                        </p>
-                        <div className="text-xs text-red-600 dark:text-red-400">
-                          ❌ Not specific ❌ Not measurable ❌ No timeline
-                        </div>
-                      </CardContent>
-                    </Card>
-                  </div>
+                <div className="p-3 border rounded-lg">
+                  <h4 className="font-medium text-green-600">M - Measurable</h4>
+                  <p className="text-sm text-muted-foreground">Uses numbers so you can track progress</p>
                 </div>
-              </CardContent>
-            </Card>
+                <div className="p-3 border rounded-lg">
+                  <h4 className="font-medium text-purple-600">A - Achievable</h4>
+                  <p className="text-sm text-muted-foreground">Challenging but realistic for your child</p>
+                </div>
+              </div>
+              <div className="space-y-3">
+                <div className="p-3 border rounded-lg">
+                  <h4 className="font-medium text-orange-600">R - Relevant</h4>
+                  <p className="text-sm text-muted-foreground">Important for your child's future success</p>
+                </div>
+                <div className="p-3 border rounded-lg">
+                  <h4 className="font-medium text-red-600">T - Time-bound</h4>
+                  <p className="text-sm text-muted-foreground">Has a clear deadline (usually one school year)</p>
+                </div>
+              </div>
+            </div>
           </div>
-        )}
 
-        {/* Generate Tab */}
-        {activeTab === 'generate' && (
-          <div className="grid grid-cols-12 gap-8">
-            {/* Main Content */}
-            <div className="col-span-12 lg:col-span-8 space-y-6">
-              <Card>
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <Brain className="h-6 w-6 text-purple-600" />
-                    Create Goals for Your Child
-                  </CardTitle>
-                  <CardDescription>
-                    Use this tool to create personalized IEP goals that you can understand and discuss with your child's team
-                  </CardDescription>
-                </CardHeader>
-                <CardContent className="space-y-6">
-                  {/* Student Selection */}
-                  <div className="p-6 border rounded-xl bg-gradient-to-br from-purple-50/50 to-blue-50/30 dark:from-purple-950/20 dark:to-blue-950/10">
-                    <div className="space-y-3">
+          {/* Example Goals */}
+          <div className="space-y-4">
+            <h3 className="text-lg font-semibold flex items-center gap-2">
+              <BookOpen className="h-5 w-5 text-indigo-600" />
+              Example Goals You Can Understand
+            </h3>
+            <div className="space-y-3">
+              <div className="p-4 border rounded-lg bg-green-50 dark:bg-green-950/20">
+                <h4 className="font-medium text-green-800 dark:text-green-200 mb-2">✅ Good Goal Example:</h4>
+                <p className="text-sm">
+                  "By the end of the school year, when given books at their reading level, your child will read out loud with 90% of words correct and answer questions about what they read with 80% accuracy in 4 weekly sessions."
+                </p>
+                <div className="mt-2 text-xs text-green-600 dark:text-green-400">
+                  ✓ Specific: Reading books ✓ Measurable: 90% accuracy ✓ Time-bound: End of school year
+                </div>
+              </div>
+              <div className="p-4 border rounded-lg bg-red-50 dark:bg-red-950/20">
+                <h4 className="font-medium text-red-800 dark:text-red-200 mb-2">❌ Vague Goal Example:</h4>
+                <p className="text-sm">
+                  "The student will improve reading skills."
+                </p>
+                <div className="mt-2 text-xs text-red-600 dark:text-red-400">
+                  ❌ Not specific ❌ Not measurable ❌ No timeline
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Parent Tips */}
+          <div className="space-y-4">
+            <h3 className="text-lg font-semibold flex items-center gap-2">
+              <Heart className="h-5 w-5 text-pink-600" />
+              Tips for Parents
+            </h3>
+            <div className="grid gap-3">
+              <Alert>
+                <Info className="h-4 w-4" />
+                <AlertDescription>
+                  <strong>Ask Questions:</strong> If you don't understand a goal, ask the team to explain it in simple terms. You should be able to understand what your child is working on.
+                </AlertDescription>
+              </Alert>
+              <Alert>
+                <Info className="h-4 w-4" />
+                <AlertDescription>
+                  <strong>Think About Daily Life:</strong> Good goals help your child in real situations, not just at school. Consider how the skill will help them at home and in the community.
+                </AlertDescription>
+              </Alert>
+              <Alert>
+                <Info className="h-4 w-4" />
+                <AlertDescription>
+                  <strong>Track Progress:</strong> Ask for regular updates on how your child is doing. Goals should be reviewed and updated if needed.
+                </AlertDescription>
+              </Alert>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+    </div>
+  );
+
+  const renderGenerateTab = () => (
+    <div className="space-y-6">
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <Brain className="h-5 w-5 text-purple-600" />
+            Create Goals for Your Child
+          </CardTitle>
+          <CardDescription>
+            Use this tool to create personalized IEP goals that you can understand and discuss with your child's team
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-6">
+          {/* Student Selection */}
+          <div className="space-y-4 p-6 border rounded-xl bg-gradient-to-br from-purple-50/50 to-blue-50/30 dark:from-purple-950/20 dark:to-blue-950/10">
+            <div className="space-y-3">
+              <div className="flex items-center gap-2">
+                <Users className="h-4 w-4 text-purple-600" />
+                <Label htmlFor="student-select" className="text-sm font-medium">
+                  Choose Your Child
+                </Label>
+              </div>
+              <StudentSelector
+                selectedStudent={selectedStudentId}
+                onStudentChange={handleStudentSelection}
+                placeholder="Select your child from the list..."
+                allowEmpty={true}
+              />
+              {selectedStudentId && selectedStudentId !== 'no-student' && (
+                <div className="flex items-center gap-2 text-sm text-green-600 bg-green-50 dark:bg-green-950/20 px-3 py-2 rounded-md">
+                  <CheckCircle className="h-4 w-4" />
+                  Child selected - basic information will be filled in automatically
+                </div>
+              )}
+            </div>
+          </div>
+
+          {/* Student Information Form */}
+          <div className="space-y-6">
+            <div>
+              <h4 className="text-base font-semibold text-foreground mb-4 flex items-center gap-2">
+                <FileText className="h-4 w-4 text-purple-600" />
+                Tell Us About Your Child
+              </h4>
+              <div className="grid gap-4 md:grid-cols-2">
+                <div>
+                  <Label htmlFor="student-name">Child's Name</Label>
+                  <Input
+                    id="student-name"
+                    value={studentInfo.name}
+                    onChange={(e) => setStudentInfo({...studentInfo, name: e.target.value})}
+                    placeholder="Enter your child's name"
+                    data-testid="input-student-name"
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="student-grade">Grade Level</Label>
+                  <Select value={studentInfo.grade} onValueChange={(value) => setStudentInfo({...studentInfo, grade: value})}>
+                    <SelectTrigger data-testid="select-grade">
+                      <SelectValue placeholder="Select grade" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {['Pre-K', 'K', '1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12'].map(grade => (
+                        <SelectItem key={grade} value={grade}>{grade}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div>
+                  <Label htmlFor="student-disability">Primary Challenge Area</Label>
+                  <Select value={studentInfo.disability} onValueChange={(value) => setStudentInfo({...studentInfo, disability: value})}>
+                    <SelectTrigger data-testid="select-disability">
+                      <SelectValue placeholder="Select primary area" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="autism">Autism</SelectItem>
+                      <SelectItem value="adhd">ADHD</SelectItem>
+                      <SelectItem value="learning-disability">Learning Disability</SelectItem>
+                      <SelectItem value="intellectual-disability">Intellectual Disability</SelectItem>
+                      <SelectItem value="speech-language">Speech/Language</SelectItem>
+                      <SelectItem value="emotional-behavioral">Emotional/Behavioral</SelectItem>
+                      <SelectItem value="other">Other</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div>
+                  <Label htmlFor="goal-area">Goal Area</Label>
+                  <Select value={studentInfo.area} onValueChange={(value) => setStudentInfo({...studentInfo, area: value})}>
+                    <SelectTrigger data-testid="select-goal-area">
+                      <SelectValue placeholder="What area needs work?" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="reading">Reading</SelectItem>
+                      <SelectItem value="writing">Writing</SelectItem>
+                      <SelectItem value="math">Math</SelectItem>
+                      <SelectItem value="communication">Communication/Social Skills</SelectItem>
+                      <SelectItem value="behavior">Behavior</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
+            </div>
+
+            <div className="space-y-4">
+              <div>
+                <Label htmlFor="current-level">What Can Your Child Do Now?</Label>
+                <Textarea
+                  id="current-level"
+                  value={studentInfo.currentLevel}
+                  onChange={(e) => setStudentInfo({...studentInfo, currentLevel: e.target.value})}
+                  placeholder="Describe what your child can already do in this area. For example: 'Can read simple sentences but struggles with longer paragraphs'"
+                  className="min-h-20"
+                  data-testid="textarea-current-level"
+                />
+              </div>
+              <div>
+                <Label htmlFor="strengths">Your Child's Strengths</Label>
+                <Textarea
+                  id="strengths"
+                  value={studentInfo.strengths}
+                  onChange={(e) => setStudentInfo({...studentInfo, strengths: e.target.value})}
+                  placeholder="What is your child good at? What do they enjoy? This helps create goals that build on their strengths."
+                  className="min-h-20"
+                  data-testid="textarea-strengths"
+                />
+              </div>
+              <div>
+                <Label htmlFor="needs">What Does Your Child Need Help With?</Label>
+                <Textarea
+                  id="needs"
+                  value={studentInfo.needs}
+                  onChange={(e) => setStudentInfo({...studentInfo, needs: e.target.value})}
+                  placeholder="What specific skills or behaviors would you like to see improve? Be as specific as possible."
+                  className="min-h-20"
+                  data-testid="textarea-needs"
+                />
+              </div>
+            </div>
+
+            <Button 
+              onClick={handleGenerateGoals} 
+              disabled={isGenerating || !studentInfo.name || !studentInfo.area}
+              className="w-full"
+              size="lg"
+              data-testid="button-generate-goals"
+            >
+              {isGenerating ? (
+                <>
+                  <div className="animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent mr-2" />
+                  Creating Goals for Your Child...
+                </>
+              ) : (
+                <>
+                  <Brain className="h-4 w-4 mr-2" />
+                  Create IEP Goals
+                </>
+              )}
+            </Button>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Generated Goals Display */}
+      {generatedGoals.length > 0 && (
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Target className="h-5 w-5 text-green-600" />
+              Generated Goals for {studentInfo.name}
+            </CardTitle>
+            <CardDescription>
+              Here are personalized IEP goals for your child. You can share these with your child's IEP team.
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-4">
+              {generatedGoals.map((goal, index) => (
+                <div key={goal.id} className="p-4 border rounded-lg space-y-3">
+                  <div className="flex items-start justify-between gap-2">
+                    <div className="space-y-2 flex-1">
                       <div className="flex items-center gap-2">
-                        <Users className="h-5 w-5 text-purple-600" />
-                        <Label htmlFor="student-select" className="text-base font-medium">
-                          Choose Your Child
-                        </Label>
-                      </div>
-                      <StudentSelector
-                        selectedStudent={selectedStudentId}
-                        onStudentChange={handleStudentSelection}
-                        placeholder="Select your child from the list..."
-                        allowEmpty={true}
-                        data-testid="select-student"
-                      />
-                      {selectedStudentId && selectedStudentId !== 'no-student' && (
-                        <div className="flex items-center gap-2 text-sm text-green-600 bg-green-50 dark:bg-green-950/20 px-3 py-2 rounded-md">
-                          <CheckCircle className="h-4 w-4" />
-                          Child selected - basic information will be filled in automatically
+                        <Badge variant="secondary">{goal.category}</Badge>
+                        <div className="flex items-center gap-1">
+                          <CheckCircle className="h-4 w-4 text-green-600" />
+                          <span className="text-sm text-green-600">{goal.complianceScore}% SMART Goal</span>
                         </div>
-                      )}
-                    </div>
-                  </div>
+                      </div>
+                      <p className="text-sm font-medium">{goal.goal}</p>
+                      
+                      <div className="space-y-2">
+                        <h5 className="text-sm font-medium">Steps to achieve this goal:</h5>
+                        <ul className="text-sm text-muted-foreground space-y-1">
+                          {goal.objectives.map((objective, objIndex) => (
+                            <li key={objIndex} className="flex items-start gap-2">
+                              <CheckCircle className="h-3 w-3 text-green-600 mt-0.5 flex-shrink-0" />
+                              {objective}
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
 
-                  {/* Student Information Form */}
-                  <div className="space-y-4">
-                    <h4 className="text-lg font-semibold text-foreground flex items-center gap-2">
-                      <FileText className="h-5 w-5 text-purple-600" />
-                      Tell Us About Your Child
-                    </h4>
-                    <div className="grid gap-4 md:grid-cols-2">
-                      <div>
-                        <Label htmlFor="student-name">Child's Name</Label>
-                        <Input
-                          id="student-name"
-                          value={studentInfo.name}
-                          onChange={(e) => setStudentInfo({...studentInfo, name: e.target.value})}
-                          placeholder="Enter your child's name"
-                          data-testid="input-student-name"
-                        />
-                      </div>
-                      <div>
-                        <Label htmlFor="student-grade">Grade Level</Label>
-                        <Select value={studentInfo.grade} onValueChange={(value) => setStudentInfo({...studentInfo, grade: value})}>
-                          <SelectTrigger data-testid="select-grade">
-                            <SelectValue placeholder="Select grade" />
-                          </SelectTrigger>
-                          <SelectContent>
-                            {['Pre-K', 'K', '1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12'].map(grade => (
-                              <SelectItem key={grade} value={grade}>{grade}</SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
-                      </div>
-                      <div>
-                        <Label htmlFor="student-disability">Primary Challenge Area</Label>
-                        <Select value={studentInfo.disability} onValueChange={(value) => setStudentInfo({...studentInfo, disability: value})}>
-                          <SelectTrigger data-testid="select-disability">
-                            <SelectValue placeholder="Select primary area" />
-                          </SelectTrigger>
-                          <SelectContent>
-                            <SelectItem value="autism">Autism</SelectItem>
-                            <SelectItem value="adhd">ADHD</SelectItem>
-                            <SelectItem value="learning-disability">Learning Disability</SelectItem>
-                            <SelectItem value="intellectual-disability">Intellectual Disability</SelectItem>
-                            <SelectItem value="speech-language">Speech/Language</SelectItem>
-                            <SelectItem value="emotional-behavioral">Emotional/Behavioral</SelectItem>
-                            <SelectItem value="other">Other</SelectItem>
-                          </SelectContent>
-                        </Select>
-                      </div>
-                      <div>
-                        <Label htmlFor="goal-area">Goal Area</Label>
-                        <Select value={studentInfo.area} onValueChange={(value) => setStudentInfo({...studentInfo, area: value})}>
-                          <SelectTrigger data-testid="select-goal-area">
-                            <SelectValue placeholder="What area needs work?" />
-                          </SelectTrigger>
-                          <SelectContent>
-                            <SelectItem value="reading">Reading</SelectItem>
-                            <SelectItem value="writing">Writing</SelectItem>
-                            <SelectItem value="math">Math</SelectItem>
-                            <SelectItem value="communication">Communication/Speech</SelectItem>
-                            <SelectItem value="behavior">Behavior/Social</SelectItem>
-                            <SelectItem value="motor">Fine/Gross Motor</SelectItem>
-                            <SelectItem value="life-skills">Life Skills</SelectItem>
-                          </SelectContent>
-                        </Select>
+                      <div className="text-xs text-muted-foreground space-y-1">
+                        <p><strong>How we'll measure progress:</strong> {goal.measurableData}</p>
+                        <p><strong>Timeline:</strong> {goal.timeframe}</p>
                       </div>
                     </div>
                     
-                    <div className="grid gap-4 md:grid-cols-2">
-                      <div>
-                        <Label htmlFor="strengths">Your Child's Strengths</Label>
-                        <Textarea
-                          id="strengths"
-                          value={studentInfo.strengths}
-                          onChange={(e) => setStudentInfo({...studentInfo, strengths: e.target.value})}
-                          placeholder="What is your child good at? What do they enjoy?"
-                          rows={3}
-                          data-testid="textarea-strengths"
-                        />
-                      </div>
-                      <div>
-                        <Label htmlFor="needs">Areas That Need Work</Label>
-                        <Textarea
-                          id="needs"
-                          value={studentInfo.needs}
-                          onChange={(e) => setStudentInfo({...studentInfo, needs: e.target.value})}
-                          placeholder="What challenges does your child face? What would you like them to work on?"
-                          rows={3}
-                          data-testid="textarea-needs"
-                        />
-                      </div>
+                    {/* Save to Dashboard Button */}
+                    <div className="flex items-center gap-2 pt-2">
+                      <Button
+                        size="sm"
+                        onClick={() => handleSaveGoal(goal)}
+                        disabled={savingGoals.has(goal.id) || !selectedStudentId || selectedStudentId === 'no-student'}
+                        className="bg-green-600 hover:bg-green-700 text-white"
+                        data-testid={`button-save-goal-${goal.id}`}
+                      >
+                        {savingGoals.has(goal.id) ? (
+                          <>
+                            <div className="animate-spin h-3 w-3 border border-white border-t-transparent rounded-full mr-2" />
+                            Saving...
+                          </>
+                        ) : (
+                          <>
+                            <Save className="h-3 w-3 mr-2" />
+                            Save to Dashboard
+                          </>
+                        )}
+                      </Button>
+                      {(!selectedStudentId || selectedStudentId === 'no-student') && (
+                        <span className="text-xs text-muted-foreground">Select a student first</span>
+                      )}
                     </div>
                   </div>
+                </div>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+      )}
+    </div>
+  );
 
-                  <div className="flex justify-center">
-                    <Button 
-                      onClick={handleGenerateGoals}
-                      disabled={isGenerating || !studentInfo.name || !studentInfo.area}
-                      className="bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white px-8 py-3 rounded-xl font-medium shadow-lg"
-                      data-testid="button-generate-goals"
-                    >
-                      {isGenerating ? (
-                        <>
-                          <div className="animate-spin w-5 h-5 border-2 border-white border-t-transparent rounded-full mr-2" />
-                          Generating Goals...
-                        </>
-                      ) : (
-                        <>
-                          <Brain className="h-5 w-5 mr-2" />
-                          Generate IEP Goals
-                        </>
-                      )}
-                    </Button>
+  const renderCheckTab = () => (
+    <div className="space-y-6">
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <CheckCheck className="h-5 w-5 text-blue-600" />
+            Check if Goals Are Good
+          </CardTitle>
+          <CardDescription>
+            Paste a goal from your child's IEP and we'll help you understand if it's a good goal
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="space-y-4">
+            {/* Goal Selection Options */}
+            <div className="space-y-4 p-4 rounded-lg bg-muted/20">
+              <div className="flex items-center justify-between">
+                <Label className="text-base font-semibold">Choose a Goal to Check</Label>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => {
+                    setSelectedPresetGoal('');
+                    setComplianceGoalText('');
+                    setComplianceResults(null);
+                  }}
+                  data-testid="button-clear-goal"
+                >
+                  Clear
+                </Button>
+              </div>
+              
+              <div className="grid gap-4 md:grid-cols-2">
+                <div className="space-y-2">
+                  <Label htmlFor="goal-category">Example Goal Type</Label>
+                  <Select value={selectedGoalCategory} onValueChange={setSelectedGoalCategory}>
+                    <SelectTrigger data-testid="select-goal-category">
+                      <SelectValue placeholder="Pick a type to see examples" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="reading">Reading</SelectItem>
+                      <SelectItem value="writing">Writing</SelectItem>
+                      <SelectItem value="math">Math</SelectItem>
+                      <SelectItem value="communication">Communication</SelectItem>
+                      <SelectItem value="behavior">Behavior</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                
+                {selectedGoalCategory && (
+                  <div className="space-y-2">
+                    <Label htmlFor="preset-goal">Example Goal</Label>
+                    <Select value={selectedPresetGoal} onValueChange={(value) => {
+                      setSelectedPresetGoal(value);
+                      const categoryGoals = PARENT_SAMPLE_GOALS[selectedGoalCategory as keyof typeof PARENT_SAMPLE_GOALS];
+                      const goalIndex = parseInt(value);
+                      if (categoryGoals && !isNaN(goalIndex)) {
+                        setComplianceGoalText(categoryGoals[goalIndex]);
+                        setComplianceResults(null);
+                      }
+                    }}>
+                      <SelectTrigger data-testid="select-preset-goal">
+                        <SelectValue placeholder="Choose an example" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {PARENT_SAMPLE_GOALS[selectedGoalCategory as keyof typeof PARENT_SAMPLE_GOALS]?.map((goal, index) => (
+                          <SelectItem key={index} value={index.toString()}>
+                            {goal.substring(0, 50)}...
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
                   </div>
-                </CardContent>
-              </Card>
-
-              {/* Generated Goals */}
-              {generatedGoals.length > 0 && (
-                <Card>
-                  <CardHeader>
-                    <CardTitle className="flex items-center gap-2">
-                      <Target className="h-6 w-6 text-green-600" />
-                      Your Generated IEP Goals
-                    </CardTitle>
-                    <CardDescription>
-                      Review these goals and save the ones you'd like to discuss with your child's team
-                    </CardDescription>
-                  </CardHeader>
-                  <CardContent className="space-y-6">
-                    {generatedGoals.map((goal) => (
-                      <Card key={goal.id} className="border-l-4 border-l-green-500">
-                        <CardContent className="p-6">
-                          <div className="space-y-4">
-                            <div className="flex items-start justify-between">
-                              <div>
-                                <h4 className="text-lg font-semibold text-gray-900 dark:text-gray-100">
-                                  {goal.category}
-                                </h4>
-                                <Badge variant="outline" className="mt-1">
-                                  Compliance Score: {goal.complianceScore}%
-                                </Badge>
-                              </div>
-                              <Button
-                                onClick={() => handleSaveGoal(goal)}
-                                disabled={savingGoals.has(goal.id)}
-                                className="bg-green-600 hover:bg-green-700 text-white"
-                                data-testid={`button-save-goal-${goal.id}`}
-                              >
-                                {savingGoals.has(goal.id) ? (
-                                  <>
-                                    <div className="animate-spin w-4 h-4 border-2 border-white border-t-transparent rounded-full mr-2" />
-                                    Saving...
-                                  </>
-                                ) : (
-                                  <>
-                                    <Save className="h-4 w-4 mr-2" />
-                                    Save Goal
-                                  </>
-                                )}
-                              </Button>
-                            </div>
-                            
-                            <div className="bg-gray-50 dark:bg-gray-800 p-4 rounded-lg">
-                              <p className="text-gray-700 dark:text-gray-300">{goal.goal}</p>
-                            </div>
-                            
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                              <div>
-                                <h5 className="font-medium text-gray-900 dark:text-gray-100 mb-2">Objectives:</h5>
-                                <ul className="space-y-1 text-sm text-gray-600 dark:text-gray-400">
-                                  {goal.objectives.map((objective, index) => (
-                                    <li key={index} className="flex items-start gap-2">
-                                      <CheckCircle className="h-4 w-4 text-green-600 mt-0.5 flex-shrink-0" />
-                                      {objective}
-                                    </li>
-                                  ))}
-                                </ul>
-                              </div>
-                              <div className="space-y-3">
-                                <div>
-                                  <h5 className="font-medium text-gray-900 dark:text-gray-100">Measurement:</h5>
-                                  <p className="text-sm text-gray-600 dark:text-gray-400">{goal.measurableData}</p>
-                                </div>
-                                <div>
-                                  <h5 className="font-medium text-gray-900 dark:text-gray-100">Timeline:</h5>
-                                  <p className="text-sm text-gray-600 dark:text-gray-400">{goal.timeframe}</p>
-                                </div>
-                              </div>
-                            </div>
-                          </div>
-                        </CardContent>
-                      </Card>
-                    ))}
-                  </CardContent>
-                </Card>
-              )}
+                )}
+              </div>
             </div>
 
-            {/* Sidebar */}
-            <div className="col-span-12 lg:col-span-4 space-y-6">
-              <Card>
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <Info className="h-5 w-5 text-blue-600" />
-                    Tips for Success
-                  </CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  <div className="space-y-3">
-                    <Alert>
-                      <Lightbulb className="h-4 w-4" />
-                      <AlertDescription>
-                        <strong>Be Specific:</strong> The more details you provide about your child, the better the generated goals will be.
-                      </AlertDescription>
-                    </Alert>
-                    <Alert>
-                      <Users className="h-4 w-4" />
-                      <AlertDescription>
-                        <strong>Know Your Child:</strong> Think about what your child does well and what they struggle with.
-                      </AlertDescription>
-                    </Alert>
-                    <Alert>
-                      <Target className="h-4 w-4" />
-                      <AlertDescription>
-                        <strong>Start Small:</strong> Focus on one or two key areas where your child needs the most support.
-                      </AlertDescription>
-                    </Alert>
-                  </div>
-                </CardContent>
-              </Card>
+            {/* Goal Text Input */}
+            <div className="space-y-2">
+              <Label htmlFor="goal-text">Copy and Paste a Goal Here</Label>
+              <Textarea
+                id="goal-text"
+                value={complianceGoalText}
+                onChange={(e) => {
+                  setComplianceGoalText(e.target.value);
+                  setComplianceResults(null);
+                }}
+                placeholder="Paste an IEP goal here or select an example above..."
+                className="min-h-32"
+                data-testid="textarea-goal-text"
+              />
+            </div>
 
-              <Card>
+            <Button 
+              onClick={handleComplianceCheck} 
+              disabled={!complianceGoalText.trim()}
+              className="w-full"
+              data-testid="button-check-compliance"
+            >
+              <CheckCheck className="h-4 w-4 mr-2" />
+              Check This Goal
+            </Button>
+
+            {/* Compliance Results */}
+            {complianceResults && (
+              <Card className="mt-6">
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2">
-                    <Clock className="h-5 w-5 text-orange-600" />
-                    What Happens Next?
+                    <Target className="h-5 w-5" />
+                    Goal Quality Score: {complianceResults.overallScore}%
+                    {complianceResults.overallScore >= 80 ? (
+                      <Badge variant="default" className="bg-green-600">Excellent Goal</Badge>
+                    ) : complianceResults.overallScore >= 60 ? (
+                      <Badge variant="secondary" className="bg-yellow-600">Good Goal</Badge>
+                    ) : (
+                      <Badge variant="destructive">Needs Improvement</Badge>
+                    )}
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <div className="space-y-3 text-sm">
-                    <div className="flex items-start gap-3">
-                      <div className="w-6 h-6 rounded-full bg-blue-100 dark:bg-blue-900 flex items-center justify-center flex-shrink-0">
-                        <span className="text-xs font-medium text-blue-700 dark:text-blue-300">1</span>
-                      </div>
-                      <p>Review the generated goals carefully</p>
-                    </div>
-                    <div className="flex items-start gap-3">
-                      <div className="w-6 h-6 rounded-full bg-blue-100 dark:bg-blue-900 flex items-center justify-center flex-shrink-0">
-                        <span className="text-xs font-medium text-blue-700 dark:text-blue-300">2</span>
-                      </div>
-                      <p>Save goals you want to discuss with the team</p>
-                    </div>
-                    <div className="flex items-start gap-3">
-                      <div className="w-6 h-6 rounded-full bg-blue-100 dark:bg-blue-900 flex items-center justify-center flex-shrink-0">
-                        <span className="text-xs font-medium text-blue-700 dark:text-blue-300">3</span>
-                      </div>
-                      <p>Bring these to your IEP meeting</p>
-                    </div>
-                    <div className="flex items-start gap-3">
-                      <div className="w-6 h-6 rounded-full bg-blue-100 dark:bg-blue-900 flex items-center justify-center flex-shrink-0">
-                        <span className="text-xs font-medium text-blue-700 dark:text-blue-300">4</span>
-                      </div>
-                      <p>Work with the team to finalize them</p>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            </div>
-          </div>
-        )}
-
-        {/* Check Tab */}
-        {activeTab === 'check' && (
-          <div className="grid grid-cols-12 gap-8">
-            <div className="col-span-12 lg:col-span-8 space-y-6">
-              <Card>
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <CheckCircle className="h-6 w-6 text-green-600" />
-                    Goal Compliance Checker
-                  </CardTitle>
-                  <CardDescription>
-                    Check if your existing IEP goals meet IDEA compliance standards
-                  </CardDescription>
-                </CardHeader>
-                <CardContent className="space-y-6">
                   <div className="space-y-4">
-                    <Label htmlFor="goal-text">Paste Your Goal Here</Label>
-                    <Textarea
-                      id="goal-text"
-                      value={complianceGoalText}
-                      onChange={(e) => setComplianceGoalText(e.target.value)}
-                      placeholder="Paste the IEP goal you want to check..."
-                      rows={4}
-                      data-testid="textarea-goal-check"
-                    />
-                  </div>
-
-                  <div className="flex justify-center">
-                    <Button 
-                      onClick={handleComplianceCheck}
-                      disabled={!complianceGoalText.trim()}
-                      className="bg-green-600 hover:bg-green-700 text-white px-8 py-3 rounded-xl font-medium"
-                      data-testid="button-check-compliance"
-                    >
-                      <CheckCircle className="h-5 w-5 mr-2" />
-                      Check This Goal
-                    </Button>
-                  </div>
-
-                  {complianceResults && (
-                    <Card className="border-l-4 border-l-blue-500">
-                      <CardHeader>
-                        <CardTitle className="flex items-center justify-between">
-                          <span>Compliance Results</span>
-                          <Badge variant={complianceResults.overallScore >= 80 ? "default" : "secondary"}>
-                            {complianceResults.overallScore}% Score
-                          </Badge>
-                        </CardTitle>
-                      </CardHeader>
-                      <CardContent className="space-y-4">
-                        <Progress value={complianceResults.overallScore} className="w-full" />
-                        
-                        <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
-                          {Object.entries(complianceResults.criteria).map(([key, passed]) => (
-                            <div key={key} className={cn(
-                              "flex items-center gap-2 p-2 rounded-lg",
-                              passed ? "bg-green-50 dark:bg-green-950/20" : "bg-red-50 dark:bg-red-950/20"
-                            )}>
-                              {passed ? (
-                                <CheckCircle className="h-4 w-4 text-green-600" />
-                              ) : (
-                                <AlertCircle className="h-4 w-4 text-red-600" />
-                              )}
-                              <span className="text-sm font-medium capitalize">
-                                {key.replace(/([A-Z])/g, ' $1').trim()}
-                              </span>
-                            </div>
-                          ))}
-                        </div>
-
-                        {complianceResults.suggestions.length > 0 && (
-                          <div className="space-y-2">
-                            <h4 className="font-medium text-gray-900 dark:text-gray-100">Suggestions for Improvement:</h4>
-                            <ul className="space-y-1">
-                              {complianceResults.suggestions.map((suggestion, index) => (
-                                <li key={index} className="flex items-start gap-2 text-sm text-gray-600 dark:text-gray-400">
-                                  <Lightbulb className="h-4 w-4 text-yellow-600 mt-0.5 flex-shrink-0" />
-                                  {suggestion}
-                                </li>
-                              ))}
-                            </ul>
+                    <Progress value={complianceResults.overallScore} className="w-full" />
+                    
+                    <div className="grid gap-2 md:grid-cols-2">
+                      {Object.entries(complianceResults.criteria).map(([key, passed]) => {
+                        const labels = {
+                          measurable: "Has Numbers/Percentages",
+                          timeframe: "Has a Deadline",
+                          conditions: "Describes the Situation",
+                          criteria: "Shows How Well",
+                          observable: "Uses Action Words", 
+                          studentSpecific: "About Your Child"
+                        };
+                        return (
+                          <div key={key} className="flex items-center gap-2">
+                            {passed ? (
+                              <CheckCircle className="h-4 w-4 text-green-600" />
+                            ) : (
+                              <AlertCircle className="h-4 w-4 text-red-600" />
+                            )}
+                            <span className={`text-sm ${passed ? 'text-green-600' : 'text-red-600'}`}>
+                              {labels[key as keyof typeof labels]}
+                            </span>
                           </div>
-                        )}
-                      </CardContent>
-                    </Card>
-                  )}
-                </CardContent>
-              </Card>
-            </div>
-
-            <div className="col-span-12 lg:col-span-4 space-y-6">
-              <Card>
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <BookOpen className="h-5 w-5 text-purple-600" />
-                    Sample Goals to Test
-                  </CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  {Object.entries(PARENT_SAMPLE_GOALS).map(([category, goals]) => (
-                    <div key={category} className="space-y-2">
-                      <h4 className="font-medium text-gray-900 dark:text-gray-100 capitalize">{category}</h4>
-                      {goals.slice(0, 1).map((goal, index) => (
-                        <Button
-                          key={index}
-                          variant="outline"
-                          size="sm"
-                          onClick={() => {
-                            setComplianceGoalText(goal);
-                            setSelectedGoalCategory(category);
-                          }}
-                          className="w-full text-left justify-start h-auto p-3 text-wrap"
-                          data-testid={`button-sample-${category}-${index}`}
-                        >
-                          {goal.slice(0, 100)}...
-                        </Button>
-                      ))}
+                        );
+                      })}
                     </div>
-                  ))}
+
+                    {complianceResults.suggestions.length > 0 && (
+                      <div className="space-y-2">
+                        <h4 className="font-medium">How to Make This Goal Better:</h4>
+                        <ul className="space-y-1">
+                          {complianceResults.suggestions.map((suggestion, index) => (
+                            <li key={index} className="text-sm text-muted-foreground flex items-start gap-2">
+                              <Lightbulb className="h-3 w-3 text-yellow-600 mt-0.5 flex-shrink-0" />
+                              {suggestion}
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                    )}
+                  </div>
                 </CardContent>
               </Card>
-            </div>
+            )}
           </div>
-        )}
-      </div>
+        </CardContent>
+      </Card>
     </div>
+  );
+
+  return (
+    <DashboardLayout>
+      <div className="max-w-4xl mx-auto space-y-6">
+        <div className="space-y-2">
+          <h1 className="text-3xl font-bold tracking-tight">IEP Goal Helper for Parents</h1>
+          <p className="text-muted-foreground">
+            Learn about IEP goals, create goals for your child, and check if existing goals are good
+          </p>
+        </div>
+
+        {/* Tab Navigation */}
+        <Card>
+          <CardContent className="p-0">
+            <div className="flex border-b">
+              <button
+                onClick={() => setActiveTab('learn')}
+                className={`px-6 py-3 text-sm font-medium border-b-2 transition-colors ${
+                  activeTab === 'learn'
+                    ? 'border-blue-600 text-blue-600'
+                    : 'border-transparent text-muted-foreground hover:text-foreground'
+                }`}
+                data-testid="tab-learn"
+              >
+                <Lightbulb className="h-4 w-4 inline mr-2" />
+                Learn About Goals
+              </button>
+              <button
+                onClick={() => setActiveTab('generate')}
+                className={`px-6 py-3 text-sm font-medium border-b-2 transition-colors ${
+                  activeTab === 'generate'
+                    ? 'border-blue-600 text-blue-600'
+                    : 'border-transparent text-muted-foreground hover:text-foreground'
+                }`}
+                data-testid="tab-generate"
+              >
+                <Brain className="h-4 w-4 inline mr-2" />
+                Create Goals
+              </button>
+              <button
+                onClick={() => setActiveTab('check')}
+                className={`px-6 py-3 text-sm font-medium border-b-2 transition-colors ${
+                  activeTab === 'check'
+                    ? 'border-blue-600 text-blue-600'
+                    : 'border-transparent text-muted-foreground hover:text-foreground'
+                }`}
+                data-testid="tab-check"
+              >
+                <CheckCheck className="h-4 w-4 inline mr-2" />
+                Check Goals
+              </button>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Tab Content */}
+        {activeTab === 'learn' && renderLearnTab()}
+        {activeTab === 'generate' && renderGenerateTab()}
+        {activeTab === 'check' && renderCheckTab()}
+      </div>
+    </DashboardLayout>
   );
 }

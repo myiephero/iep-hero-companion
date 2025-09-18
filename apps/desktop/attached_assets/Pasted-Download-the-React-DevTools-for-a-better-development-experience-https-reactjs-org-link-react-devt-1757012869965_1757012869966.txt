@@ -1,0 +1,76 @@
+Download the React DevTools for a better development experience: https://reactjs.org/link/react-devtools
+ProtectedRoute.tsx:17 🛡️ ProtectedRoute check: Object
+react-router-dom.js?v=599bdceb:4393 ⚠️ React Router Future Flag Warning: React Router will begin wrapping state updates in `React.startTransition` in v7. You can use the `v7_startTransition` future flag to opt-in early. For more information, see https://reactrouter.com/v6/upgrading/future#v7_starttransition.
+warnOnce @ react-router-dom.js?v=599bdceb:4393Understand this warning
+react-router-dom.js?v=599bdceb:4393 ⚠️ React Router Future Flag Warning: Relative route resolution within Splat routes is changing in v7. You can use the `v7_relativeSplatPath` future flag to opt-in early. For more information, see https://reactrouter.com/v6/upgrading/future#v7_relativesplatpath.
+warnOnce @ react-router-dom.js?v=599bdceb:4393Understand this warning
+ProtectedRoute.tsx:17 🛡️ ProtectedRoute check: Object
+ProtectedRoute.tsx:17 🛡️ ProtectedRoute check: Object
+/api/students:1  Failed to load resource: the server responded with a status of 401 (Unauthorized)Understand this error
+StudentSelector.tsx:60 Error fetching students: Error: Failed to fetch students
+    at fetchStudents (StudentSelector.tsx:55:15)
+fetchStudents @ StudentSelector.tsx:60Understand this error
+/api/students?_t=1757012805214:1  Failed to load resource: the server responded with a status of 401 (Unauthorized)Understand this error
+ParentStudents.tsx:268 Error fetching students: Error: Failed to fetch students
+    at fetchStudents (ParentStudents.tsx:259:15)
+fetchStudents @ ParentStudents.tsx:268Understand this error
+chunk-ZSLIGSWZ.js?v=599bdceb:52 Select is changing from uncontrolled to controlled. Components should not switch from controlled to uncontrolled (or vice versa). Decide between using a controlled or uncontrolled value for the lifetime of the component.
+(anonymous) @ chunk-ZSLIGSWZ.js?v=599bdceb:52Understand this warning
+ProtectedRoute.tsx:17 🛡️ ProtectedRoute check: Object
+ProtectedRoute.tsx:17 🛡️ ProtectedRoute check: Object
+/api/students:1  Failed to load resource: the server responded with a status of 401 (Unauthorized)Understand this error
+2DocumentUpload.tsx:1128 Uncaught TypeError: students.map is not a function
+    at DocumentUpload (DocumentUpload.tsx:1128:29)
+    at renderWithHooks (chunk-T2SWDQEL.js?v=599bdceb:11548:26)
+    at updateFunctionComponent (chunk-T2SWDQEL.js?v=599bdceb:14582:28)
+    at beginWork (chunk-T2SWDQEL.js?v=599bdceb:15924:22)
+    at HTMLUnknownElement.callCallback2 (chunk-T2SWDQEL.js?v=599bdceb:3674:22)
+    at Object.invokeGuardedCallbackDev (chunk-T2SWDQEL.js?v=599bdceb:3699:24)
+    at invokeGuardedCallback (chunk-T2SWDQEL.js?v=599bdceb:3733:39)
+    at beginWork$1 (chunk-T2SWDQEL.js?v=599bdceb:19765:15)
+    at performUnitOfWork (chunk-T2SWDQEL.js?v=599bdceb:19198:20)
+    at workLoopSync (chunk-T2SWDQEL.js?v=599bdceb:19137:13)Understand this error
+chunk-T2SWDQEL.js?v=599bdceb:14032 The above error occurred in the <DocumentUpload> component:
+
+    at DocumentUpload (https://afd4ab41-fa60-4e78-9742-69bb4e3004d6-00-6i79wn87wfhu.janeway.replit.dev/src/components/DocumentUpload.tsx:1575:34)
+    at div
+    at div
+    at main
+    at div
+    at div
+    at div
+    at Provider (https://afd4ab41-fa60-4e78-9742-69bb4e3004d6-00-6i79wn87wfhu.janeway.replit.dev/node_modules/.vite/deps/chunk-OXZDJRWN.js?v=599bdceb:38:15)
+    at TooltipProvider (https://afd4ab41-fa60-4e78-9742-69bb4e3004d6-00-6i79wn87wfhu.janeway.replit.dev/node_modules/.vite/deps/@radix-ui_react-tooltip.js?v=599bdceb:63:5)
+    at https://afd4ab41-fa60-4e78-9742-69bb4e3004d6-00-6i79wn87wfhu.janeway.replit.dev/src/components/ui/sidebar.tsx:50:72
+    at DashboardLayout (https://afd4ab41-fa60-4e78-9742-69bb4e3004d6-00-6i79wn87wfhu.janeway.replit.dev/src/layouts/DashboardLayout.tsx:30:35)
+    at DocumentVault (https://afd4ab41-fa60-4e78-9742-69bb4e3004d6-00-6i79wn87wfhu.janeway.replit.dev/src/pages/DocumentVault.tsx:40:23)
+    at ProtectedRoute (https://afd4ab41-fa60-4e78-9742-69bb4e3004d6-00-6i79wn87wfhu.janeway.replit.dev/src/components/ProtectedRoute.tsx:26:34)
+    at RenderedRoute (https://afd4ab41-fa60-4e78-9742-69bb4e3004d6-00-6i79wn87wfhu.janeway.replit.dev/node_modules/.vite/deps/react-router-dom.js?v=599bdceb:4088:5)
+    at Routes (https://afd4ab41-fa60-4e78-9742-69bb4e3004d6-00-6i79wn87wfhu.janeway.replit.dev/node_modules/.vite/deps/react-router-dom.js?v=599bdceb:4558:5)
+    at Router (https://afd4ab41-fa60-4e78-9742-69bb4e3004d6-00-6i79wn87wfhu.janeway.replit.dev/node_modules/.vite/deps/react-router-dom.js?v=599bdceb:4501:15)
+    at BrowserRouter (https://afd4ab41-fa60-4e78-9742-69bb4e3004d6-00-6i79wn87wfhu.janeway.replit.dev/node_modules/.vite/deps/react-router-dom.js?v=599bdceb:5247:5)
+    at AuthProvider (https://afd4ab41-fa60-4e78-9742-69bb4e3004d6-00-6i79wn87wfhu.janeway.replit.dev/src/hooks/useAuth.tsx:40:32)
+    at ThemeProvider (https://afd4ab41-fa60-4e78-9742-69bb4e3004d6-00-6i79wn87wfhu.janeway.replit.dev/src/contexts/ThemeContext.tsx:24:33)
+    at Provider (https://afd4ab41-fa60-4e78-9742-69bb4e3004d6-00-6i79wn87wfhu.janeway.replit.dev/node_modules/.vite/deps/chunk-OXZDJRWN.js?v=599bdceb:38:15)
+    at TooltipProvider (https://afd4ab41-fa60-4e78-9742-69bb4e3004d6-00-6i79wn87wfhu.janeway.replit.dev/node_modules/.vite/deps/@radix-ui_react-tooltip.js?v=599bdceb:63:5)
+    at QueryClientProvider (https://afd4ab41-fa60-4e78-9742-69bb4e3004d6-00-6i79wn87wfhu.janeway.replit.dev/node_modules/.vite/deps/@tanstack_react-query.js?v=599bdceb:2934:3)
+    at App
+
+Consider adding an error boundary to your tree to customize error handling behavior.
+Visit https://reactjs.org/link/error-boundaries to learn more about error boundaries.
+logCapturedError @ chunk-T2SWDQEL.js?v=599bdceb:14032Understand this error
+chunk-T2SWDQEL.js?v=599bdceb:19413 Uncaught TypeError: students.map is not a function
+    at DocumentUpload (DocumentUpload.tsx:1128:29)
+    at renderWithHooks (chunk-T2SWDQEL.js?v=599bdceb:11548:26)
+    at updateFunctionComponent (chunk-T2SWDQEL.js?v=599bdceb:14582:28)
+    at beginWork (chunk-T2SWDQEL.js?v=599bdceb:15924:22)
+    at beginWork$1 (chunk-T2SWDQEL.js?v=599bdceb:19753:22)
+    at performUnitOfWork (chunk-T2SWDQEL.js?v=599bdceb:19198:20)
+    at workLoopSync (chunk-T2SWDQEL.js?v=599bdceb:19137:13)
+    at renderRootSync (chunk-T2SWDQEL.js?v=599bdceb:19116:15)
+    at recoverFromConcurrentError (chunk-T2SWDQEL.js?v=599bdceb:18736:28)
+    at performConcurrentWorkOnRoot (chunk-T2SWDQEL.js?v=599bdceb:18684:30)Understand this error
+/api/students:1  Failed to load resource: the server responded with a status of 401 (Unauthorized)Understand this error
+api.ts:183 API call failed for /students: Error: API error: Unauthorized
+    at ApiClient.request (api.ts:178:15)
+request @ api.ts:183Understand this error

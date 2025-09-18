@@ -1,10 +1,11 @@
 import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react-swc";
 import path from "path";
+import { componentTagger } from "lovable-tagger";
 
 export default defineConfig(({ mode }) => ({
   server: {
-    host: "0.0.0.0",
+    host: "::",
     port: 3000,
     allowedHosts: true,
     proxy: {
@@ -15,11 +16,13 @@ export default defineConfig(({ mode }) => ({
       },
     },
   },
-  plugins: [react()],
+  plugins: [
+    react(),
+    mode === "development" && componentTagger(),
+  ].filter(Boolean),
   resolve: {
     alias: {
       "@": path.resolve(__dirname, "./src"),
-      "@shared": path.resolve(__dirname, "../../packages/shared"),
     },
   },
   build: {
@@ -41,13 +44,17 @@ export default defineConfig(({ mode }) => ({
           // Forms and validation
           forms: ['react-hook-form', '@hookform/resolvers', 'zod'],
         },
-        chunkFileNames: 'js/[name]-[hash].js',
-        entryFileNames: 'js/[name]-[hash].js',
-        assetFileNames: 'assets/[name]-[hash].[ext]'
+        // Optimize chunk sizes for mobile
+        chunkFileNames: (chunkInfo) => {
+          const facadeModuleId = chunkInfo.facadeModuleId ? chunkInfo.facadeModuleId.split('/').pop() : 'chunk';
+          return `js/${facadeModuleId}-[hash].js`;
+        },
       },
     },
-    chunkSizeWarningLimit: 1000, // Desktop can handle larger chunks
+    // Optimize for mobile networks
+    chunkSizeWarningLimit: 500,
   },
+  // Enhanced mobile optimization
   optimizeDeps: {
     include: [
       'react', 
@@ -55,6 +62,7 @@ export default defineConfig(({ mode }) => ({
       'react-router-dom',
       '@tanstack/react-query',
       'lucide-react'
-    ]
+    ],
+    exclude: ['pdf-parse'] // Exclude heavy server-side only deps
   },
 }));

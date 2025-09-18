@@ -1,324 +1,500 @@
+import { DashboardLayout } from "@/layouts/DashboardLayout";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
-import { Search, MessageSquare, Send, Paperclip, Archive, Star } from "lucide-react";
-import { useState, useCallback, useMemo } from "react";
-import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Separator } from "@/components/ui/separator";
-import { ScrollArea } from "@/components/ui/scroll-area";
-import { cn } from "@/lib/utils";
+import { Badge } from "@/components/ui/badge";
+import { Search, Send, Paperclip, MessageSquare, Loader2, X, Archive, ArchiveRestore, AlertTriangle, ChevronUp, MoreHorizontal } from "lucide-react";
+import { ConversationTable } from "@/components/ui/responsive-table-examples";
+import { useState, useEffect, useRef, useMemo } from "react";
+import { useConversations, useMessages, useSendMessage, useMarkAsRead } from "@/hooks/useMessaging";
+import { MessageFileUpload, type MessageFile } from "@/components/MessageFileUpload";
+import { MessageAttachmentDisplay, type MessageAttachment } from "@/components/MessageAttachmentDisplay";
+import { MessageSearch } from "@/components/MessageSearch";
+import { MessageHighlight } from "@/components/MessageHighlight";
+import { useMessageSearch } from "@/hooks/useMessageSearch";
+import { ConversationLabelManager } from "@/components/ConversationLabelManager";
+import { ConversationFilters } from "@/components/ConversationFilters";
+import { ConversationLabelSelector } from "@/components/ConversationLabelSelector";
+import { useConversationLabelsForConversation, useUpdateConversationStatus } from "@/hooks/useConversationLabels";
+import { useToast } from "@/hooks/use-toast";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import type { Conversation } from "@/lib/messaging";
 
-// Original Desktop ParentMessages - No mobile components
+// Conversation Actions Menu Component
+function ConversationActionsMenu({ conversation }: { conversation: Conversation }) {
+  const { updateStatus } = useUpdateConversationStatus();
+  const { toast } = useToast();
+  
+  const handleArchiveToggle = async () => {
+    try {
+      await updateStatus(conversation.id, { archived: !conversation.archived });
+      toast({
+        title: conversation.archived ? "Conversation unarchived" : "Conversation archived",
+        description: conversation.archived 
+          ? "Conversation moved back to active conversations." 
+          : "Conversation moved to archived conversations."
+      });
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to update conversation status.",
+        variant: "destructive"
+      });
+    }
+  };
+  
+  const handlePriorityChange = async (priority: 'low' | 'normal' | 'high' | 'urgent') => {
+    try {
+      await updateStatus(conversation.id, { priority });
+      toast({
+        title: "Priority updated",
+        description: `Conversation priority set to ${priority}.`
+      });
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to update conversation priority.",
+        variant: "destructive"
+      });
+    }
+  };
+  
+  return (
+    <DropdownMenu>
+      <DropdownMenuTrigger asChild>
+        <Button variant="ghost" size="sm" className="h-8 w-8 p-0" data-testid={`conversation-menu-${conversation.id}`}>
+          <MoreHorizontal className="h-4 w-4" />
+        </Button>
+      </DropdownMenuTrigger>
+      <DropdownMenuContent align="end">
+        <DropdownMenuItem onClick={handleArchiveToggle} data-testid={`conversation-${conversation.archived ? 'unarchive' : 'archive'}-${conversation.id}`}>
+          {conversation.archived ? (
+            <>
+              <ArchiveRestore className="mr-2 h-4 w-4" />
+              Unarchive
+            </>
+          ) : (
+            <>
+              <Archive className="mr-2 h-4 w-4" />
+              Archive
+            </>
+          )}
+        </DropdownMenuItem>
+        <DropdownMenuSeparator />
+        <DropdownMenuItem onClick={() => handlePriorityChange('urgent')} data-testid={`conversation-priority-urgent-${conversation.id}`}>
+          <AlertTriangle className="mr-2 h-4 w-4 text-red-500" />
+          Mark as Urgent
+        </DropdownMenuItem>
+        <DropdownMenuItem onClick={() => handlePriorityChange('high')} data-testid={`conversation-priority-high-${conversation.id}`}>
+          <ChevronUp className="mr-2 h-4 w-4 text-orange-500" />
+          Mark as High Priority
+        </DropdownMenuItem>
+        <DropdownMenuItem onClick={() => handlePriorityChange('normal')} data-testid={`conversation-priority-normal-${conversation.id}`}>
+          <MessageSquare className="mr-2 h-4 w-4" />
+          Mark as Normal
+        </DropdownMenuItem>
+        <DropdownMenuItem onClick={() => handlePriorityChange('low')} data-testid={`conversation-priority-low-${conversation.id}`}>
+          <ChevronUp className="mr-2 h-4 w-4 text-gray-500 rotate-180" />
+          Mark as Low Priority
+        </DropdownMenuItem>
+      </DropdownMenuContent>
+    </DropdownMenu>
+  );
+}
+
+// Conversation Labels Display Component
+function ConversationLabelsDisplay({ conversationId }: { conversationId: string }) {
+  const { labels, loading } = useConversationLabelsForConversation(conversationId);
+  
+  if (loading || !labels || labels.length === 0) return null;
+  
+  return (
+    <div className="flex flex-wrap gap-1">
+      {labels.slice(0, 3).map((label) => (
+        <Badge
+          key={label.id}
+          style={{
+            backgroundColor: label.color,
+            color: '#ffffff',
+            borderColor: label.color
+          }}
+          className="text-xs px-1 py-0 h-5"
+          data-testid={`conversation-label-${conversationId}-${label.id}`}
+        >
+          {label.name}
+        </Badge>
+      ))}
+      {labels.length > 3 && (
+        <Badge variant="outline" className="text-xs px-1 py-0 h-5">
+          +{labels.length - 3}
+        </Badge>
+      )}
+    </div>
+  );
+}
+
 export default function ParentMessages() {
-  const [selectedConversation, setSelectedConversation] = useState<string | null>("conv-1");
-  const [searchQuery, setSearchQuery] = useState('');
-  const [messageText, setMessageText] = useState('');
-  const [messageSearchTerm, setMessageSearchTerm] = useState('');
-
-  // Mock data for desktop display
-  const conversations = [
-    {
-      id: "conv-1",
-      advocate: { name: "Sarah Johnson", avatar_url: null },
-      subject: "IEP Meeting Preparation",
-      last_message: { content: "I've reviewed the documents you sent.", timestamp: "2 hours ago" },
-      unread_count: 2,
-      priority: "normal" as const,
-      archived: false
-    },
-    {
-      id: "conv-2",
-      advocate: { name: "Dr. Michael Chen", avatar_url: null },
-      subject: "Assessment Results Discussion",
-      last_message: { content: "The results show significant improvement in reading comprehension.", timestamp: "1 day ago" },
-      unread_count: 0,
-      priority: "urgent" as const,
-      archived: false
-    },
-    {
-      id: "conv-3",
-      advocate: { name: "Lisa Rodriguez", avatar_url: null },
-      subject: "Accommodation Updates",
-      last_message: { content: "Thank you for the quick response!", timestamp: "3 days ago" },
-      unread_count: 1,
-      priority: "normal" as const,
-      archived: false
-    }
-  ];
-
-  const messages = [
-    {
-      id: "msg-1",
-      sender: { id: "sarah", name: "Sarah Johnson" },
-      content: "Hi! I've reviewed the IEP documents you submitted for your child. Overall, the goals look appropriate for their current level.",
-      timestamp: "10:30 AM",
-      attachments: []
-    },
-    {
-      id: "msg-2",
-      sender: { id: "parent", name: "You" },
-      content: "Thank you for the review. I have some concerns about the math goals - they seem too basic for what my child is capable of.",
-      timestamp: "10:35 AM",
-      attachments: []
-    },
-    {
-      id: "msg-3",
-      sender: { id: "sarah", name: "Sarah Johnson" },
-      content: "That's a great point. Based on the assessment data, your child is performing at grade level in math. We should definitely advocate for more challenging goals. I've prepared some alternative goal suggestions.",
-      timestamp: "10:45 AM",
-      attachments: [{ name: "Alternative_Math_Goals.pdf", size: "245 KB" }]
-    },
-    {
-      id: "msg-4",
-      sender: { id: "parent", name: "You" },
-      content: "This looks much better! I especially like the problem-solving focus in goal #3. When can we schedule a meeting to discuss these changes?",
-      timestamp: "11:15 AM",
-      attachments: []
-    }
-  ];
-
+  const [selectedConversation, setSelectedConversation] = useState<Conversation | null>(null);
+  const [newMessageText, setNewMessageText] = useState('');
+  const [attachmentFiles, setAttachmentFiles] = useState<MessageFile[]>([]);
+  const [showFileUpload, setShowFileUpload] = useState(false);
+  
+  // Conversation management state
+  const [filters, setFilters] = useState({
+    status: [] as string[],
+    priority: [] as string[],
+    archived: null as boolean | null,
+    labels: [] as string[]
+  });
+  
+  const { toast } = useToast();
+  const { updateStatus: updateConversationStatus } = useUpdateConversationStatus();
+  
+  // API hooks
+  const { conversations, loading: conversationsLoading, error: conversationsError, refetch: refetchConversations } = useConversations();
+  const { messageHistory, loading: messagesLoading, refetch: refetchMessages } = useMessages(selectedConversation?.id || null);
+  const { send: sendMessage, sending } = useSendMessage();
+  const { markMessagesRead } = useMarkAsRead();
+  
+  // Message search functionality
+  const {
+    searchTerm,
+    setSearchTerm,
+    currentResultIndex,
+    totalResults,
+    goToNext,
+    goToPrevious,
+    clearSearch,
+    isCurrentResult,
+    hasActiveSearch,
+    hasResults,
+    currentSearchResult
+  } = useMessageSearch(messageHistory?.messages || []);
+  
+  // Ref for auto-scroll to current search result
+  const messagesContainerRef = useRef<HTMLDivElement>(null);
+  
+  // Filtered conversations based on active filters
   const filteredConversations = useMemo(() => {
-    if (!searchQuery.trim()) return conversations;
-    return conversations.filter(conv => 
-      conv.advocate?.name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      conv.subject?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      conv.last_message?.content?.toLowerCase().includes(searchQuery.toLowerCase())
-    );
-  }, [searchQuery]);
-
-  const handleSendMessage = useCallback(() => {
-    if (!messageText.trim()) return;
+    if (!conversations.length) return [];
     
-    // In real implementation, this would send the message to the API
-    console.log("Sending message:", messageText);
-    setMessageText('');
-  }, [messageText]);
+    return conversations.filter(conversation => {
+      // Filter by archive status
+      if (filters.archived !== null) {
+        if (filters.archived && !conversation.archived) return false;
+        if (!filters.archived && conversation.archived) return false;
+      }
+      
+      // Filter by status
+      if (filters.status.length > 0) {
+        if (!filters.status.includes(conversation.status || 'active')) return false;
+      }
+      
+      // Filter by priority
+      if (filters.priority.length > 0) {
+        if (!filters.priority.includes(conversation.priority || 'normal')) return false;
+      }
+      
+      return true;
+    });
+  }, [conversations, filters]);
+  
+  // Auto-select first conversation when loaded
+  if (conversations.length > 0 && !selectedConversation) {
+    setSelectedConversation(conversations[0]);
+  }
+  
+  // Auto-scroll to current search result
+  useEffect(() => {
+    if (currentSearchResult && messagesContainerRef.current) {
+      const messageElement = messagesContainerRef.current.querySelector(
+        `[data-message-id="${currentSearchResult.message.id}"]`
+      );
+      if (messageElement) {
+        messageElement.scrollIntoView({
+          behavior: 'smooth',
+          block: 'center',
+          inline: 'nearest'
+        });
+      }
+    }
+  }, [currentSearchResult]);
 
-  const selectedConv = conversations.find(c => c.id === selectedConversation);
+  // Handle sending message with optional attachments
+  const handleSendMessage = async () => {
+    if (!selectedConversation || sending) return;
+    
+    const hasContent = newMessageText.trim();
+    const hasAttachments = attachmentFiles.some(f => f.status === 'completed');
+    
+    if (!hasContent && !hasAttachments) return;
+
+    // Prepare attachments data
+    const attachments = attachmentFiles
+      .filter(f => f.status === 'completed')
+      .map(async (fileData) => {
+        // Read file as base64 for sending
+        const reader = new FileReader();
+        const base64Content = await new Promise<string>((resolve) => {
+          reader.onload = () => resolve(reader.result as string);
+          reader.readAsDataURL(fileData.file);
+        });
+
+        return {
+          file_name: fileData.file.name,
+          file_type: fileData.file.type,
+          file_size: fileData.file.size,
+          file_content: base64Content
+        };
+      });
+
+    try {
+      const attachmentData = await Promise.all(attachments);
+      
+      const message = await sendMessage(
+        selectedConversation.id, 
+        newMessageText.trim() || undefined,
+        attachmentData.length > 0 ? attachmentData as any : undefined
+      );
+      
+      if (message) {
+        // Clear form
+        setNewMessageText('');
+        setAttachmentFiles([]);
+        setShowFileUpload(false);
+        
+        // Refresh data
+        refetchMessages();
+        refetchConversations();
+      }
+    } catch (error) {
+      console.error('Error sending message:', error);
+      // Error handling could be improved with toast notifications
+    }
+  };
 
   return (
-    <div className="h-[calc(100vh-12rem)]">
-      <div className="grid grid-cols-12 gap-6 h-full">
-        {/* Conversations Sidebar - Desktop optimized */}
-        <div className="col-span-4">
+    <DashboardLayout>
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 h-[calc(100vh-8rem)]">
+        {/* Conversations List */}
+        <div className="lg:col-span-1">
           <Card className="h-full flex flex-col">
-            {/* Header */}
             <div className="p-4 border-b">
-              <div className="flex items-center justify-between mb-3">
-                <h2 className="text-lg font-semibold">Messages</h2>
-                <Badge variant="secondary" className="text-xs">
-                  Desktop
-                </Badge>
-              </div>
+              <h2 className="text-lg font-semibold mb-3">Messages</h2>
               <div className="relative">
                 <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
-                <Input 
-                  placeholder="Search conversations..." 
-                  className="pl-10" 
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                />
+                <Input placeholder="Search conversations..." className="pl-10" />
               </div>
             </div>
-            
-            {/* Conversations List */}
-            <ScrollArea className="flex-1">
-              <div className="p-2 space-y-1">
-                {filteredConversations.map((conversation) => (
-                  <div
-                    key={conversation.id}
-                    className={cn(
-                      "p-3 rounded-lg cursor-pointer transition-colors border",
-                      selectedConversation === conversation.id
-                        ? "bg-primary/10 border-primary/20" 
-                        : "hover:bg-muted/50 border-transparent"
-                    )}
-                    onClick={() => setSelectedConversation(conversation.id)}
-                  >
-                    <div className="flex items-start space-x-3">
-                      <Avatar className="h-10 w-10 flex-shrink-0">
-                        <AvatarImage src={conversation.advocate.avatar_url || undefined} />
-                        <AvatarFallback className="bg-primary/10 text-primary">
-                          {conversation.advocate.name?.split(' ').map(n => n[0]).join('') || '?'}
-                        </AvatarFallback>
-                      </Avatar>
-                      
-                      <div className="flex-1 min-w-0">
-                        <div className="flex items-center justify-between mb-1">
-                          <h4 className="font-medium text-sm truncate">
-                            {conversation.advocate.name}
-                          </h4>
-                          <div className="flex items-center space-x-1 flex-shrink-0">
-                            {conversation.priority === 'urgent' && (
-                              <Star className="h-3 w-3 text-yellow-500" />
-                            )}
-                            {conversation.unread_count > 0 && (
-                              <Badge variant="destructive" className="h-5 min-w-[20px] text-xs px-1.5">
-                                {conversation.unread_count}
-                              </Badge>
-                            )}
-                          </div>
-                        </div>
-                        <p className="text-xs text-muted-foreground font-medium mb-1 truncate">
-                          {conversation.subject}
-                        </p>
-                        <p className="text-xs text-muted-foreground truncate">
-                          {conversation.last_message?.content}
-                        </p>
-                        <p className="text-xs text-muted-foreground mt-1">
-                          {conversation.last_message?.timestamp}
-                        </p>
-                      </div>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </ScrollArea>
+            <div className="flex-1 overflow-y-auto">
+              <ConversationTable
+                conversations={conversations}
+                loading={conversationsLoading}
+                onOpenConversation={async (conversation) => {
+                  setSelectedConversation(conversation);
+                  if (conversation.unread_count > 0) {
+                    await markMessagesRead(conversation.id);
+                    refetchConversations();
+                  }
+                }}
+                onArchive={async (conversation) => {
+                  try {
+                    await updateConversationStatus(conversation.id, { archived: !conversation.archived });
+                    refetchConversations();
+                  } catch (error) {
+                    console.error('Error archiving conversation:', error);
+                  }
+                }}
+                onMarkUrgent={async (conversation) => {
+                  try {
+                    await updateConversationStatus(conversation.id, { priority: 'urgent' });
+                    refetchConversations();
+                  } catch (error) {
+                    console.error('Error marking conversation urgent:', error);
+                  }
+                }}
+              />
+              {!conversationsLoading && conversationsError && (
+                <div className="p-4 text-center text-red-500">
+                  Error loading conversations: {conversationsError}
+                </div>
+              )}
+            </div>
           </Card>
         </div>
 
-        {/* Chat Area - Desktop optimized */}
-        <div className="col-span-8">
+        {/* Chat Area */}
+        <div className="lg:col-span-2">
           <Card className="h-full flex flex-col">
-            {/* Chat Header */}
-            {selectedConv && (
+            {selectedConversation && (
               <div className="p-4 border-b">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center space-x-3">
-                    <Avatar className="h-10 w-10">
-                      <AvatarImage src={selectedConv.advocate.avatar_url || undefined} />
-                      <AvatarFallback className="bg-primary/10 text-primary">
-                        {selectedConv.advocate.name?.split(' ').map(n => n[0]).join('') || '?'}
-                      </AvatarFallback>
-                    </Avatar>
-                    <div>
-                      <h3 className="font-semibold">{selectedConv.advocate.name}</h3>
-                      <p className="text-sm text-muted-foreground">{selectedConv.subject}</p>
-                    </div>
-                  </div>
-                  <div className="flex items-center space-x-2">
-                    <div className="relative">
-                      <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
-                      <Input 
-                        placeholder="Search messages..." 
-                        className="pl-10 w-64" 
-                        value={messageSearchTerm}
-                        onChange={(e) => setMessageSearchTerm(e.target.value)}
-                      />
-                    </div>
-                    <Button variant="ghost" size="sm">
-                      <Archive className="h-4 w-4" />
-                    </Button>
+                <div className="flex items-center gap-3">
+                  <Avatar className="h-10 w-10">
+                    <AvatarImage src="/placeholder-1.jpg" />
+                    <AvatarFallback>
+                      {selectedConversation.advocate.name.split(' ').map(n => n[0]).join('')}
+                    </AvatarFallback>
+                  </Avatar>
+                  <div>
+                    <p className="font-medium">
+                      {selectedConversation.advocate.name}
+                    </p>
+                    <p className="text-sm text-muted-foreground">
+                      {selectedConversation.advocate.specialty}
+                    </p>
                   </div>
                 </div>
               </div>
             )}
-
-            {/* Messages Area - Desktop traditional layout */}
-            <ScrollArea className="flex-1 p-4">
-              {selectedConv ? (
-                <div className="space-y-4">
-                  {messages.map((message) => {
-                    const isFromUser = message.sender.id === 'parent';
-                    return (
-                      <div
-                        key={message.id}
-                        className={cn(
-                          "flex",
-                          isFromUser ? "justify-end" : "justify-start"
+            
+            {/* Message Search */}
+            {selectedConversation && messageHistory?.messages && messageHistory.messages.length > 0 && (
+              <MessageSearch
+                searchTerm={searchTerm}
+                onSearchChange={setSearchTerm}
+                currentResult={currentResultIndex}
+                totalResults={totalResults}
+                onNext={goToNext}
+                onPrevious={goToPrevious}
+                onClear={clearSearch}
+                placeholder="Search conversation messages..."
+              />
+            )}
+            
+            <div className="flex-1 p-4 overflow-y-auto space-y-4" ref={messagesContainerRef}>
+              {selectedConversation ? (
+                messagesLoading ? (
+                  <div className="flex items-center justify-center h-full">
+                    <Loader2 className="h-6 w-6 animate-spin" />
+                  </div>
+                ) : messageHistory?.messages && messageHistory.messages.length > 0 ? (
+                  messageHistory.messages.map((message) => (
+                    <div
+                      key={message.id}
+                      className={`flex ${message.sender_id === selectedConversation.parent_id ? 'justify-end' : 'justify-start'}`}
+                      data-testid={`message-${message.id}`}
+                      data-message-id={message.id}
+                    >
+                      <div className={`max-w-lg p-3 rounded-lg ${
+                        message.sender_id === selectedConversation.parent_id 
+                          ? 'bg-primary text-primary-foreground ml-12' 
+                          : 'bg-muted mr-12'
+                      }`}>
+                        {message.content && (
+                          <p className="text-sm">
+                            <MessageHighlight
+                              text={message.content}
+                              searchTerm={searchTerm}
+                              isCurrentResult={isCurrentResult(message.id)}
+                              className="break-words"
+                            />
+                          </p>
                         )}
-                      >
-                        <div
-                          className={cn(
-                            "max-w-[70%] rounded-lg p-3",
-                            isFromUser 
-                              ? "bg-primary text-primary-foreground" 
-                              : "bg-muted"
-                          )}
-                        >
-                          {!isFromUser && (
-                            <p className="text-xs font-medium mb-2 opacity-70">
-                              {message.sender.name}
-                            </p>
-                          )}
-                          <p className="text-sm whitespace-pre-wrap">
-                            {message.content}
-                          </p>
-                          {message.attachments && message.attachments.length > 0 && (
-                            <div className="mt-2 pt-2 border-t border-white/20">
-                              {message.attachments.map((attachment, idx) => (
-                                <div key={idx} className="flex items-center space-x-2 text-xs">
-                                  <Paperclip className="h-3 w-3" />
-                                  <span>{attachment.name}</span>
-                                  <span className="opacity-70">({attachment.size})</span>
-                                </div>
-                              ))}
-                            </div>
-                          )}
-                          <p className="text-xs mt-2 opacity-70">
-                            {message.timestamp}
-                          </p>
-                        </div>
+                        {(message as any).attachments && (message as any).attachments.length > 0 && (
+                          <MessageAttachmentDisplay 
+                            attachments={(message as any).attachments as MessageAttachment[]} 
+                            compact={true}
+                          />
+                        )}
+                        <span className="text-xs opacity-75 block mt-1">
+                          {new Date(message.created_at).toLocaleTimeString([], { 
+                            hour: '2-digit', 
+                            minute: '2-digit' 
+                          })}
+                        </span>
                       </div>
-                    );
-                  })}
-                </div>
+                    </div>
+                  ))
+                ) : (
+                  <div className="flex items-center justify-center h-full">
+                    <div className="text-center text-muted-foreground">
+                      <MessageSquare className="h-12 w-12 mx-auto mb-4 opacity-50" />
+                      <p className="text-lg font-medium mb-2">No Messages Yet</p>
+                      <p className="text-sm">Start a conversation with {selectedConversation.advocate.name}</p>
+                    </div>
+                  </div>
+                )
               ) : (
-                <div className="flex-1 flex items-center justify-center text-muted-foreground">
-                  <div className="text-center">
-                    <MessageSquare className="h-16 w-16 mx-auto mb-4 opacity-30" />
-                    <h3 className="text-lg font-medium mb-2">No conversation selected</h3>
-                    <p>Select a conversation from the sidebar to start messaging</p>
+                <div className="flex items-center justify-center h-full">
+                  <div className="text-center text-muted-foreground">
+                    <MessageSquare className="h-16 w-16 mx-auto mb-4 opacity-50" />
+                    <p className="text-xl font-medium mb-2">Select a Conversation</p>
+                    <p className="text-sm">Choose a conversation from the list to start messaging</p>
                   </div>
                 </div>
               )}
-            </ScrollArea>
-
-            {/* Message Composer - Desktop traditional */}
-            {selectedConv && (
-              <div className="p-4 border-t">
-                <div className="space-y-3">
-                  <div className="flex space-x-2">
-                    <div className="flex-1">
-                      <Textarea
-                        placeholder={`Reply to ${selectedConv.advocate.name}...`}
-                        value={messageText}
-                        onChange={(e) => setMessageText(e.target.value)}
-                        className="min-h-[80px] resize-none"
-                        onKeyDown={(e) => {
-                          if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) {
+            </div>
+            
+            {selectedConversation && (
+              <div className="border-t">
+                {/* File Upload Section */}
+                {showFileUpload && (
+                  <div className="p-4 bg-muted/20 border-b">
+                    <div className="flex items-center justify-between mb-3">
+                      <h3 className="text-sm font-medium">Attach Files</h3>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => {
+                          setShowFileUpload(false);
+                          setAttachmentFiles([]);
+                        }}
+                        className="h-6 w-6 p-0"
+                      >
+                        <X className="h-4 w-4" />
+                      </Button>
+                    </div>
+                    <MessageFileUpload
+                      files={attachmentFiles}
+                      onFilesChange={setAttachmentFiles}
+                      maxFiles={5}
+                      disabled={sending}
+                    />
+                  </div>
+                )}
+                
+                {/* Message Input */}
+                <div className="p-4">
+                  <div className="flex items-end gap-2">
+                    <Button 
+                      variant="ghost" 
+                      size="icon"
+                      onClick={() => setShowFileUpload(!showFileUpload)}
+                      className={showFileUpload ? 'bg-muted' : ''}
+                      data-testid="button-attach-files"
+                    >
+                      <Paperclip className="h-4 w-4" />
+                    </Button>
+                    <div className="flex-1 space-y-2">
+                      <Input 
+                        placeholder="Type your message..." 
+                        value={newMessageText}
+                        onChange={(e) => setNewMessageText(e.target.value)}
+                        onKeyDown={async (e) => {
+                          if (e.key === 'Enter' && !e.shiftKey) {
                             e.preventDefault();
-                            handleSendMessage();
+                            if ((newMessageText.trim() || attachmentFiles.some(f => f.status === 'completed')) && selectedConversation && !sending) {
+                              await handleSendMessage();
+                            }
                           }
                         }}
+                        data-testid="input-message"
                       />
+                      {attachmentFiles.length > 0 && (
+                        <div className="text-xs text-muted-foreground">
+                          {attachmentFiles.filter(f => f.status === 'completed').length} of {attachmentFiles.length} files ready
+                        </div>
+                      )}
                     </div>
-                  </div>
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center space-x-2">
-                      <Button variant="ghost" size="sm">
-                        <Paperclip className="h-4 w-4 mr-1" />
-                        Attach
-                      </Button>
-                      <span className="text-xs text-muted-foreground">
-                        {messageText.length}/2000 characters
-                      </span>
-                    </div>
-                    <div className="flex items-center space-x-2">
-                      <p className="text-xs text-muted-foreground">
-                        Ctrl+Enter to send
-                      </p>
-                      <Button 
-                        onClick={handleSendMessage}
-                        disabled={!messageText.trim()}
-                        className="px-6"
-                      >
-                        <Send className="h-4 w-4 mr-1" />
-                        Send
-                      </Button>
-                    </div>
+                    <Button 
+                      size="icon" 
+                      disabled={sending || (!newMessageText.trim() && !attachmentFiles.some(f => f.status === 'completed'))}
+                      onClick={handleSendMessage}
+                      data-testid="button-send-message"
+                    >
+                      {sending ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />}
+                    </Button>
                   </div>
                 </div>
               </div>
@@ -326,6 +502,6 @@ export default function ParentMessages() {
           </Card>
         </div>
       </div>
-    </div>
+    </DashboardLayout>
   );
 }

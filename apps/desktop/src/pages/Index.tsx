@@ -1,13 +1,11 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { useAuth } from "@/hooks/useAuth";
 import { ArrowRight, BookOpen, CheckCircle, FileText, Heart, Shield, Users, Zap, Eye, EyeOff } from "lucide-react";
-
-// Desktop independent auth system (simplified for now)
-const useAuth = () => ({ user: null, loading: false });
+import heroImage from "@/assets/hero-image.jpg";
 
 const features = [
   {
@@ -34,7 +32,6 @@ const features = [
 
 const Index = () => {
   const { user, loading } = useAuth();
-  const navigate = useNavigate();
   const [authMode, setAuthMode] = useState<'signin' | 'create'>('signin');
   const [showLoginForm, setShowLoginForm] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
@@ -61,11 +58,11 @@ const Index = () => {
       });
 
       if (response.ok) {
-        const { token, user: userData } = await response.json();
+        const { token, user: userData, redirectTo } = await response.json();
         localStorage.setItem('authToken', token);
         
-        // Navigate to desktop dashboard (independent of mobile routes)
-        navigate('/');
+        // Use the redirectTo URL from server response (plan-specific dashboard)
+        window.location.replace(redirectTo);
       } else {
         const errorData = await response.json();
         alert(errorData.message || 'Login failed');
@@ -79,313 +76,326 @@ const Index = () => {
   };
 
   if (loading) {
-    return (
-      <div className="min-h-screen bg-background">
-        <div className="container mx-auto px-6 py-16">
-          <div className="flex items-center justify-center min-h-[400px]">
-            <div className="animate-pulse">
-              <div className="w-16 h-16 bg-primary/20 rounded-full mx-auto mb-4"></div>
-              <p className="text-muted-foreground text-center">Loading...</p>
-            </div>
-          </div>
-        </div>
-      </div>
-    );
+    return <div className="min-h-screen flex items-center justify-center">Loading...</div>;
   }
 
   return (
-    <div className="min-h-screen bg-background">
-      {/* Desktop Navigation Bar */}
-      <nav className="border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-        <div className="container mx-auto px-6 py-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-6">
-              <h1 className="text-xl font-semibold text-primary">IEP Hero - Desktop</h1>
-            </div>
-            <div className="flex items-center space-x-4">
-              {user ? (
-                <Button 
-                  variant="default"
-                  onClick={() => navigate('/')}
-                  data-testid="button-dashboard"
-                >
-                  Go to Dashboard
-                  <ArrowRight className="ml-2 h-4 w-4" />
-                </Button>
-              ) : (
-                <Button 
-                  variant="outline"
-                  onClick={() => setShowLoginForm(!showLoginForm)}
-                  data-testid="button-signin"
-                >
-                  Sign In
-                </Button>
-              )}
-            </div>
-          </div>
-        </div>
-      </nav>
+    <div className="min-h-screen">
+      {/* Hero Section */}
+      <section className="relative bg-gradient-to-br from-primary/5 to-secondary/5 py-16 lg:py-24">
+        <div className="container mx-auto px-4">
+          <div className="grid lg:grid-cols-2 gap-12 items-center">
+            <div className="space-y-8">
+              <div className="space-y-4">
+                <h1 className="text-4xl lg:text-6xl font-bold leading-tight">
+                  Empower Your Child's{" "}
+                  <span className="text-primary">IEP</span>{" "}
+                  <span className="text-accent">Journey</span>
+                </h1>
+                <p className="text-xl text-muted-foreground leading-relaxed">
+                  AI-powered tools, certified advocates, and comprehensive resources to help your child succeed in special education.
+                </p>
+              </div>
 
-      <main>
-        {/* Hero Section - Desktop Optimized */}
-        <section className="relative py-24 lg:py-32">
-          <div className="container mx-auto px-6">
-            <div className="grid lg:grid-cols-2 gap-16 items-center">
-              <div className="space-y-8 max-w-2xl">
-                <div className="space-y-6">
-                  <h1 className="text-5xl lg:text-7xl font-bold leading-tight">
-                    Empower Your Child's{" "}
-                    <span className="text-primary">IEP</span>{" "}
-                    <span className="text-accent">Journey</span>
-                  </h1>
-                  <p className="text-xl text-muted-foreground leading-relaxed max-w-lg">
-                    AI-powered tools, certified advocates, and comprehensive resources to help your child succeed in special education.
-                  </p>
-                </div>
-
-                {/* Auth Section - Desktop Layout */}
-                <div className="space-y-6">
-                  {user ? (
-                    // User is logged in
-                    <div className="flex items-center gap-4">
-                      <Button 
-                        variant="default"
-                        size="lg"
-                        onClick={() => navigate('/')}
-                        data-testid="button-dashboard"
-                        className="px-8"
-                      >
-                        Go to Dashboard 
-                        <ArrowRight className="ml-2 h-5 w-5" />
-                      </Button>
-                    </div>
-                  ) : (
-                    // User not logged in - Desktop Auth Form
-                    <div className="space-y-6">
-                      {!showLoginForm ? (
-                        <div className="flex items-center gap-4">
-                          {/* Toggle between Sign In / Create Account */}
-                          <div className="flex items-center bg-muted rounded-lg p-1">
-                            <button
-                              onClick={() => setAuthMode('signin')}
-                              className={`px-6 py-3 rounded-md text-sm font-medium transition-all ${
-                                authMode === 'signin'
-                                  ? 'bg-primary text-primary-foreground shadow-sm'
-                                  : 'text-muted-foreground hover:text-foreground'
-                              }`}
-                              data-testid="toggle-signin"
-                            >
-                              Sign In
-                            </button>
-                            <button
-                              onClick={() => setAuthMode('create')}
-                              className={`px-6 py-3 rounded-md text-sm font-medium transition-all ${
-                                authMode === 'create'
-                                  ? 'bg-primary text-primary-foreground shadow-sm'
-                                  : 'text-muted-foreground hover:text-foreground'
-                              }`}
-                              data-testid="toggle-create"
-                            >
-                              Create Account
-                            </button>
-                          </div>
-
-                          <Button
-                            onClick={() => setShowLoginForm(true)}
-                            size="lg"
-                            className="px-8"
-                            data-testid="button-get-started"
+              {/* Auth Section */}
+              <div className="space-y-6">
+                {user ? (
+                  // User is logged in
+                  <div className="text-center">
+                    <Button 
+                      variant="default"
+                      size="lg"
+                      onClick={() => {
+                        // Generate correct plan-specific dashboard URL
+                        let dashboardPath;
+                        if (user.role === 'parent') {
+                          const planSlug = user.subscriptionPlan?.toLowerCase().replace(/\s+/g, '') || 'free';
+                          const supportedPlans = ['free', 'basic', 'plus', 'explorer', 'premium', 'hero'];
+                          const normalizedPlan = supportedPlans.includes(planSlug) ? planSlug : 'free';
+                          dashboardPath = `/parent/dashboard-${normalizedPlan}`;
+                        } else if (user.role === 'advocate') {
+                          const advocatePlanMapping = {
+                            'starter': 'starter',
+                            'pro': 'pro',
+                            'agency': 'agency',
+                            'agency plus': 'agency-plus',
+                            'agencyplus': 'agency-plus'
+                          };
+                          const planKey = user.subscriptionPlan?.toLowerCase() || 'starter';
+                          const planSlug = advocatePlanMapping[planKey] || 'starter';
+                          dashboardPath = `/advocate/dashboard-${planSlug}`;
+                        } else {
+                          dashboardPath = '/dashboard';
+                        }
+                        window.location.href = dashboardPath;
+                      }}
+                      data-testid="button-dashboard"
+                    >
+                      Go to {user.role === 'parent' ? 'Parent' : 'Advocate'} Dashboard 
+                      <ArrowRight className="ml-2 h-5 w-5" />
+                    </Button>
+                  </div>
+                ) : (
+                  // User not logged in
+                  <div className="space-y-6">
+                    {!showLoginForm ? (
+                      <>
+                        {/* Toggle between Sign In / Create Account */}
+                        <div className="flex items-center justify-center space-x-1 bg-muted rounded-lg p-1 max-w-xs mx-auto">
+                          <button
+                            onClick={() => setAuthMode('signin')}
+                            className={`flex-1 px-6 py-3 rounded-md text-sm font-medium transition-all ${
+                              authMode === 'signin'
+                                ? 'bg-primary text-primary-foreground shadow-sm'
+                                : 'text-muted-foreground hover:text-foreground'
+                            }`}
+                            data-testid="toggle-signin"
                           >
-                            {authMode === 'signin' ? 'Sign In' : 'Get Started Free'}
-                            <ArrowRight className="ml-2 h-5 w-5" />
-                          </Button>
+                            Sign In
+                          </button>
+                          <button
+                            onClick={() => setAuthMode('create')}
+                            className={`flex-1 px-6 py-3 rounded-md text-sm font-medium transition-all ${
+                              authMode === 'create'
+                                ? 'bg-primary text-primary-foreground shadow-sm'
+                                : 'text-muted-foreground hover:text-foreground'
+                            }`}
+                            data-testid="toggle-create"
+                          >
+                            Create Account
+                          </button>
                         </div>
-                      ) : (
-                        // Quick Login Form - Desktop Layout
-                        <Card className="max-w-md">
-                          <CardHeader className="pb-4">
-                            <CardTitle className="text-xl">{authMode === 'signin' ? 'Sign In' : 'Create Account'}</CardTitle>
-                            <CardDescription>
-                              {authMode === 'signin' ? 'Welcome back to IEP Hero' : 'Join thousands of families getting results'}
-                            </CardDescription>
-                          </CardHeader>
-                          <CardContent className="space-y-4">
-                            <form onSubmit={handleLogin} className="space-y-4">
-                              <div className="space-y-2">
-                                <Label htmlFor="email">Email</Label>
-                                <Input
-                                  id="email"
-                                  type="email"
-                                  value={loginForm.email}
-                                  onChange={(e) => setLoginForm({...loginForm, email: e.target.value})}
-                                  placeholder="Enter your email"
-                                  required
-                                  disabled={loginLoading}
-                                  data-testid="input-email"
-                                />
-                              </div>
-                              
-                              <div className="space-y-2">
-                                <Label htmlFor="password">Password</Label>
-                                <div className="relative">
-                                  <Input
-                                    id="password"
-                                    type={showPassword ? "text" : "password"}
-                                    value={loginForm.password}
-                                    onChange={(e) => setLoginForm({...loginForm, password: e.target.value})}
-                                    placeholder="Enter your password"
-                                    required
-                                    disabled={loginLoading}
-                                    className="pr-12"
-                                    data-testid="input-password"
-                                  />
-                                  <Button
-                                    type="button"
-                                    variant="ghost"
-                                    size="sm"
-                                    className="absolute right-2 top-1/2 -translate-y-1/2 h-8 w-8 p-0"
-                                    onClick={() => setShowPassword(!showPassword)}
-                                    data-testid="button-toggle-password"
-                                  >
-                                    {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-                                  </Button>
+
+                        {/* Action Buttons or Role Selection */}
+                        {authMode === 'signin' ? (
+                          <div className="flex justify-center">
+                            <Button 
+                              size="lg"
+                              className="bg-primary hover:bg-primary/90 text-primary-foreground font-semibold px-8 py-4"
+                              onClick={() => setShowLoginForm(true)}
+                              data-testid="button-signin"
+                            >
+                              Sign In Now
+                              <ArrowRight className="ml-2 h-5 w-5" />
+                            </Button>
+                          </div>
+                        ) : (
+                          /* Role Selection for Create Account */
+                          <div className="space-y-4">
+                            <p className="text-center text-lg font-medium">Choose your role to get started:</p>
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 max-w-2xl mx-auto">
+                              {/* Parent Option */}
+                              <div 
+                                className="bg-card border border-border rounded-lg p-6 cursor-pointer hover:border-primary transition-colors group"
+                                onClick={() => window.location.href = "/parent/pricing"}
+                                data-testid="card-parent"
+                              >
+                                <div className="text-center space-y-3">
+                                  <div className="w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center mx-auto group-hover:bg-primary/20 transition-colors">
+                                    <svg className="w-6 h-6 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+                                    </svg>
+                                  </div>
+                                  <h3 className="text-xl font-semibold">Parent</h3>
+                                  <p className="text-muted-foreground text-sm">
+                                    Empower your child's educational journey with AI tools, advocate connections, and comprehensive IEP support.
+                                  </p>
                                 </div>
                               </div>
 
-                              <div className="flex gap-2 pt-2">
-                                <Button 
-                                  type="submit" 
-                                  disabled={loginLoading}
-                                  className="flex-1"
-                                  data-testid="button-submit"
-                                >
-                                  {loginLoading ? 'Signing in...' : (authMode === 'signin' ? 'Sign In' : 'Create Account')}
-                                </Button>
-                                <Button
-                                  type="button"
-                                  variant="outline"
-                                  onClick={() => setShowLoginForm(false)}
-                                  data-testid="button-cancel"
-                                >
-                                  Cancel
-                                </Button>
+                              {/* Advocate Option */}
+                              <div 
+                                className="bg-card border border-border rounded-lg p-6 cursor-pointer hover:border-secondary transition-colors group"
+                                onClick={() => window.location.href = "/advocate/pricing"}
+                                data-testid="card-advocate"
+                              >
+                                <div className="text-center space-y-3">
+                                  <div className="w-12 h-12 bg-secondary/10 rounded-full flex items-center justify-center mx-auto group-hover:bg-secondary/20 transition-colors">
+                                    <svg className="w-6 h-6 text-secondary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                    </svg>
+                                  </div>
+                                  <h3 className="text-xl font-semibold">Advocate</h3>
+                                  <p className="text-muted-foreground text-sm">
+                                    Expand your practice with powerful tools to support more families and streamline your advocacy work.
+                                  </p>
+                                </div>
                               </div>
-                            </form>
-                          </CardContent>
-                        </Card>
-                      )}
-                    </div>
-                  )}
-                </div>
+                            </div>
+                          </div>
+                        )}
+                      </>
+                    ) : (
+                      // Inline Login Form
+                      <form onSubmit={handleLogin} className="space-y-4 max-w-sm mx-auto">
+                        <div className="space-y-2">
+                          <Label htmlFor="email">Email Address</Label>
+                          <Input
+                            id="email"
+                            type="email"
+                            placeholder="Enter your email"
+                            value={loginForm.email}
+                            onChange={(e) => setLoginForm({ ...loginForm, email: e.target.value })}
+                            required
+                            data-testid="input-email"
+                          />
+                        </div>
+                        <div className="space-y-2">
+                          <Label htmlFor="password">Password</Label>
+                          <div className="relative">
+                            <Input
+                              id="password"
+                              type={showPassword ? 'text' : 'password'}
+                              placeholder="Enter your password"
+                              value={loginForm.password}
+                              onChange={(e) => setLoginForm({ ...loginForm, password: e.target.value })}
+                              required
+                              data-testid="input-password"
+                            />
+                            <Button
+                              type="button"
+                              variant="ghost"
+                              size="sm"
+                              className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
+                              onClick={() => setShowPassword(!showPassword)}
+                            >
+                              {showPassword ? (
+                                <EyeOff className="h-4 w-4" />
+                              ) : (
+                                <Eye className="h-4 w-4" />
+                              )}
+                            </Button>
+                          </div>
+                        </div>
+                        <div className="space-y-2">
+                          <Button 
+                            type="submit" 
+                            className="w-full" 
+                            disabled={loginLoading}
+                            data-testid="button-login-submit"
+                          >
+                            {loginLoading ? 'Signing In...' : 'Sign In'}
+                          </Button>
+                          <Button 
+                            type="button" 
+                            variant="outline" 
+                            className="w-full"
+                            onClick={() => setShowLoginForm(false)}
+                            data-testid="button-back"
+                          >
+                            Back
+                          </Button>
+                        </div>
+                      </form>
+                    )}
+                  </div>
+                )}
               </div>
 
-              {/* Hero Image - Desktop Layout */}
-              <div className="relative">
-                <div className="relative rounded-2xl overflow-hidden shadow-2xl">
-                  <div className="w-full h-[600px] bg-gradient-to-br from-primary/20 to-accent/20 flex items-center justify-center">
-                    <div className="text-center space-y-4 text-primary/60">
-                      <FileText className="w-24 h-24 mx-auto" />
-                      <p className="text-lg font-medium">IEP Hero Desktop Platform</p>
-                      <p className="text-sm">Comprehensive Educational Advocacy</p>
-                    </div>
-                  </div>
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent" />
+              {/* Trust Indicators */}
+              <div className="flex flex-wrap items-center gap-6 text-sm text-muted-foreground">
+                <div className="flex items-center gap-2">
+                  <CheckCircle className="h-4 w-4 text-success" />
+                  HIPAA Secure
                 </div>
-                
-                {/* Floating Feature Cards */}
-                <div className="absolute -bottom-8 -left-8 bg-background rounded-xl shadow-lg p-4 border max-w-xs">
-                  <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-full bg-green-100 dark:bg-green-900 flex items-center justify-center">
-                      <CheckCircle className="h-5 w-5 text-green-600 dark:text-green-400" />
-                    </div>
-                    <div>
-                      <p className="font-semibold text-sm">98% Success Rate</p>
-                      <p className="text-xs text-muted-foreground">Families see improvements</p>
-                    </div>
-                  </div>
+                <div className="flex items-center gap-2">
+                  <CheckCircle className="h-4 w-4 text-success" />
+                  Certified Advocates
                 </div>
-
-                <div className="absolute -top-8 -right-8 bg-background rounded-xl shadow-lg p-4 border max-w-xs">
-                  <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-full bg-blue-100 dark:bg-blue-900 flex items-center justify-center">
-                      <Shield className="h-5 w-5 text-blue-600 dark:text-blue-400" />
-                    </div>
-                    <div>
-                      <p className="font-semibold text-sm">FERPA Compliant</p>
-                      <p className="text-xs text-muted-foreground">Your data is secure</p>
-                    </div>
-                  </div>
+                <div className="flex items-center gap-2">
+                  <CheckCircle className="h-4 w-4 text-success" />
+                  Bank-Level Security
+                </div>
+                <div className="flex items-center gap-2">
+                  <CheckCircle className="h-4 w-4 text-success" />
+                  Supports IDEA/FAPE
                 </div>
               </div>
             </div>
-          </div>
-        </section>
 
-        {/* Features Section - Desktop Grid Layout */}
-        <section className="py-24 bg-muted/30">
-          <div className="container mx-auto px-6">
-            <div className="text-center max-w-3xl mx-auto mb-16">
-              <h2 className="text-4xl font-bold mb-6">Comprehensive IEP Support Platform</h2>
-              <p className="text-xl text-muted-foreground leading-relaxed">
-                Everything you need to advocate effectively for your child's education, powered by AI and backed by certified experts.
-              </p>
-            </div>
-
-            {/* Features Grid - 2x2 Desktop Layout */}
-            <div className="grid md:grid-cols-2 xl:grid-cols-4 gap-8 max-w-6xl mx-auto">
-              {features.map((feature, index) => (
-                <Card key={index} className="relative group hover:shadow-lg transition-all duration-300">
-                  <CardHeader className="pb-4">
-                    <div className="w-14 h-14 rounded-xl bg-primary/10 flex items-center justify-center mb-4 group-hover:bg-primary/20 transition-colors">
-                      <div className="text-primary">
-                        {feature.icon}
-                      </div>
-                    </div>
-                    <CardTitle className="text-xl">{feature.title}</CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <p className="text-muted-foreground leading-relaxed">
-                      {feature.description}
-                    </p>
-                  </CardContent>
-                </Card>
-              ))}
+            {/* Hero Image */}
+            <div className="relative">
+              <div className="absolute inset-0 bg-gradient-to-r from-primary/20 to-secondary/20 rounded-2xl opacity-20 blur-3xl"></div>
+              <img
+                src={heroImage}
+                alt="Children with disabilities thriving in supportive educational environments"
+                className="relative rounded-2xl shadow-2xl w-full object-cover aspect-[4/3]"
+              />
             </div>
           </div>
-        </section>
+        </div>
+      </section>
 
-        {/* CTA Section - Desktop Layout */}
-        <section className="py-24">
-          <div className="container mx-auto px-6">
-            <Card className="bg-gradient-to-r from-primary/5 to-accent/5 border-primary/20 max-w-4xl mx-auto">
-              <CardContent className="p-12 text-center">
-                <div className="space-y-6">
-                  <div className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center mx-auto">
-                    <Zap className="h-8 w-8 text-primary" />
-                  </div>
-                  <div className="space-y-4">
-                    <h3 className="text-3xl font-bold">Ready to Transform Your Child's IEP Experience?</h3>
-                    <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-                      Join thousands of families who have successfully navigated the IEP process with our comprehensive platform.
-                    </p>
-                  </div>
-                  {!user && (
-                    <div className="flex items-center justify-center gap-4 pt-4">
-                      <Button size="lg" className="px-8" onClick={() => setShowLoginForm(true)}>
-                        Get Started Free
-                        <ArrowRight className="ml-2 h-5 w-5" />
-                      </Button>
-                      <Button variant="outline" size="lg" className="px-8">
-                        Learn More
-                      </Button>
-                    </div>
-                  )}
-                </div>
-              </CardContent>
-            </Card>
+      {/* Features Section */}
+      <section className="py-16 lg:py-24">
+        <div className="container mx-auto px-4">
+          <div className="text-center space-y-4 mb-12">
+            <h2 className="text-3xl lg:text-4xl font-bold">
+              Everything You Need for IEP Success
+            </h2>
+            <p className="text-xl text-muted-foreground max-w-3xl mx-auto">
+              From initial review to meeting preparation, our platform guides you every step of the way.
+            </p>
           </div>
-        </section>
-      </main>
+
+          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
+            {features.map((feature, index) => (
+              <Card key={index} className="text-center hover:shadow-lg transition-all duration-300 border-0 bg-gradient-to-br from-background to-muted/20">
+                <CardHeader className="pb-4">
+                  <div className="mx-auto w-12 h-12 bg-primary/10 rounded-lg flex items-center justify-center text-primary mb-4">
+                    {feature.icon}
+                  </div>
+                  <CardTitle className="text-lg">{feature.title}</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <CardDescription className="text-sm leading-relaxed">
+                    {feature.description}
+                  </CardDescription>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* CTA Section */}
+      <section className="py-16 bg-gradient-to-r from-primary to-primary/80">
+        <div className="container mx-auto px-4 text-center">
+          <div className="max-w-3xl mx-auto space-y-6 text-white">
+            <h2 className="text-3xl lg:text-4xl font-bold">
+              Ready to Advocate with Confidence?
+            </h2>
+            <p className="text-xl opacity-90">
+              Join thousands of parents who have transformed their IEP experience.
+            </p>
+            <div className="flex flex-col sm:flex-row gap-4 justify-center">
+              <Button 
+                variant="secondary" 
+                size="lg"
+                onClick={() => {
+                  if (user) {
+                    window.location.href = user.role ? `/${user.role}/dashboard` : "/parent/dashboard";
+                  } else {
+                    setShowLoginForm(true);
+                  }
+                }}
+                data-testid="button-cta-primary"
+              >
+                {user ? "Go to Dashboard" : "Get Started Free"}
+              </Button>
+              <Button 
+                variant="outline" 
+                size="lg"
+                className="bg-white/10 hover:bg-white/20 border-white/30 text-white hover:text-white"
+                onClick={() => window.location.href = "/pricing"}
+                data-testid="button-cta-secondary"
+              >
+                View Pricing
+              </Button>
+            </div>
+          </div>
+        </div>
+      </section>
     </div>
   );
 };

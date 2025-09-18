@@ -54,16 +54,8 @@ function getApiDomain(): string {
     }
   }
   
-  // For mobile environments using remote URL (Capacitor server.url), use current host
-  if (isCapacitorEnvironment() && typeof window !== 'undefined') {
-    const currentHost = window.location.host;
-    if (currentHost && currentHost !== 'localhost' && !currentHost.includes('capacitor')) {
-      if (isDevelopment) {
-        console.log('API Config - Using Capacitor remote host:', currentHost);
-      }
-      return currentHost;
-    }
-    // If still localhost or capacitor protocol, require explicit configuration
+  // For mobile environments, we require explicit configuration
+  if (isCapacitorEnvironment()) {
     throw new Error(
       'Mobile app requires VITE_REPLIT_DEV_DOMAIN environment variable to be set. ' +
       'Please configure your API domain in the environment variables before building the mobile app.'

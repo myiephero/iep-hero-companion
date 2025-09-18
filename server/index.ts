@@ -5432,20 +5432,29 @@ Respond with this exact JSON format:
       res.sendFile(path.join(__dirname, '../dist/index.html'));
     });
   } else {
-    // Development: Create single proxy instance to desktop for main URL
-    console.log('🚀 Development mode: Main URL serves DESKTOP, iOS app uses direct mobile URL');
+    // Development: Separate mobile and desktop routing
+    console.log('🚀 Development mode: Root URL = DESKTOP, /m path = MOBILE');
+    
+    // Create proxy instances
+    const mobileProxy = createProxyMiddleware({
+      target: 'http://localhost:5000',
+      changeOrigin: true,
+      ws: true
+    });
+    
     const desktopProxy = createProxyMiddleware({
       target: 'http://localhost:3000',
       changeOrigin: true,
-      ws: true // Enable WebSocket proxying for HMR
+      ws: true
     });
     
-    // Apply proxy to all non-API routes
+    // Apply proxies in correct order
+    app.use('/m', mobileProxy); // Mobile at /m path
     app.use((req, res, next) => {
       if (req.path.startsWith('/api')) {
         return next(); // Let API routes be handled by Express
       }
-      desktopProxy(req, res, next); // Proxy everything else to Desktop
+      desktopProxy(req, res, next); // Everything else to Desktop
     });
   }
 

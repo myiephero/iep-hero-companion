@@ -527,6 +527,17 @@ export default function ParentMessages() {
                       <MessageSquare className="h-12 w-12 mx-auto mb-4 opacity-50" />
                       <p className="text-lg font-medium mb-2">No Conversations</p>
                       <p className="text-sm">Your conversations will appear here</p>
+                      {/* TEMP DEBUG: Show debugging info in UI */}
+                      <div className="mt-4 p-4 bg-red-100 dark:bg-red-900 rounded text-xs text-left max-w-md mx-auto">
+                        <p><strong>DEBUG INFO:</strong></p>
+                        <p>Auth: {isAuthenticated ? 'Yes' : 'No'}</p>
+                        <p>Loading: {conversationsLoading ? 'Yes' : 'No'}</p>
+                        <p>Raw conversations: {conversations?.length || 0}</p>
+                        <p>Filtered: {filteredConversations.length}</p>
+                        <p>Error: {conversationsError || 'None'}</p>
+                        <p>User: {user?.id || 'None'}</p>
+                        <p>Token: {typeof window !== 'undefined' && localStorage.getItem('authToken') ? 'Present' : 'Missing'}</p>
+                      </div>
                     </div>
                   </div>
                 )}

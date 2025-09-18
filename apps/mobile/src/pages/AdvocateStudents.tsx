@@ -58,7 +58,7 @@ import {
   STUDENT_IEP_WORKFLOW_STAGES, 
   type ClientEngagementStage, 
   type StudentIEPWorkflowStage 
-} from "../../shared/schema";
+} from "@shared/schema";
 import { GiftedInsightsView } from "@/components/GiftedInsightsView";
 import { StudentSelector } from "@/components/StudentSelector";
 

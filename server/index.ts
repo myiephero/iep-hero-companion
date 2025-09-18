@@ -18,7 +18,7 @@ import { storage } from './storage';
 import Stripe from 'stripe';
 import { sendVerificationEmail, sendWelcomeEmail } from './emailService';
 import { getUserId } from './utils';
-import { createProxyMiddleware } from 'http-proxy-middleware';
+import path from 'path';
 import { standardsAnalyzer } from './standards-analyzer';
 import { ALL_STANDARDS, STATE_SPECIFIC_STANDARDS } from './standards-database';
 import OpenAI from 'openai';
@@ -571,7 +571,7 @@ async function analyzeWithOpenAI(text: string, analysisType: string, retries = 3
 }
 
 const app = express();
-const PORT = Number(process.env.PORT) || 8080;
+const PORT = Number(process.env.PORT) || 5000;
 
 // Middleware
 app.use(cors({
@@ -5422,41 +5422,98 @@ Respond with this exact JSON format:
     }
   });
 
-  // Development vs Production handling for non-API routes
-  const isProduction = process.env.NODE_ENV === 'production';
+  // NUCLEAR SOLUTION: Static file serving for both desktop and mobile
+  console.log('🚀 NUCLEAR SOLUTION: Serving static builds - Root URL = DESKTOP, /m path = MOBILE');
   
-  if (isProduction) {
-    // Production: serve static files from dist/
-    app.use(express.static(path.join(__dirname, '../dist')));
-    app.get(/^(?!\/api).*/, (req, res) => {
-      res.sendFile(path.join(__dirname, '../dist/index.html'));
-    });
-  } else {
-    // Development: Separate mobile and desktop routing
-    console.log('🚀 Development mode: Root URL = DESKTOP, /m path = MOBILE');
+  // Define paths to the built applications
+  const desktopDist = path.join(__dirname, '../apps/desktop/dist');
+  const mobileDist = path.join(__dirname, '../apps/mobile/dist');
+  
+  // Cache headers middleware
+  const setCacheHeaders = (req, res, next) => {
+    if (req.path.endsWith('.html')) {
+      // No cache for HTML files to ensure fresh routing
+      res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate');
+      res.setHeader('Pragma', 'no-cache');
+      res.setHeader('Expires', '0');
+    } else if (req.path.match(/\.(js|css|png|jpg|jpeg|gif|ico|svg|woff|woff2|ttf|eot)$/)) {
+      // Long cache for assets with hash in filename
+      res.setHeader('Cache-Control', 'public, max-age=31536000, immutable');
+    }
+    next();
+  };
+  
+  // Apply cache headers to all static routes
+  app.use(setCacheHeaders);
+  
+  // Mount mobile static files at /m path with fallthrough
+  app.use('/m', express.static(mobileDist, { 
+    fallthrough: true,
+    index: false // Don't serve index.html automatically
+  }));
+  
+  // Mount desktop static files at root with fallthrough
+  app.use('/', express.static(desktopDist, { 
+    fallthrough: true,
+    index: false // Don't serve index.html automatically
+  }));
+  
+  // Service worker clearing endpoint
+  app.get('/clear-sw', (req, res) => {
+    res.setHeader('Cache-Control', 'no-store');
+    res.send(`
+      <script>
+        (async function() {
+          console.log('🧹 Clearing service workers and caches...');
+          
+          // Clear all service workers
+          if ('serviceWorker' in navigator) {
+            const registrations = await navigator.serviceWorker.getRegistrations();
+            for (const registration of registrations) {
+              await registration.unregister();
+              console.log('✅ Unregistered service worker:', registration.scope);
+            }
+          }
+          
+          // Clear all caches
+          if ('caches' in window) {
+            const cacheNames = await caches.keys();
+            for (const cacheName of cacheNames) {
+              await caches.delete(cacheName);
+              console.log('✅ Deleted cache:', cacheName);
+            }
+          }
+          
+          console.log('🎯 Service workers cleared! Redirecting...');
+          setTimeout(() => window.location.href = '/', 1000);
+        })();
+      </script>
+      <p>Clearing service workers and caches... Please wait.</p>
+    `);
+  });
+  
+  // SPA fallback middleware - handles both mobile and desktop routing
+  app.use((req, res, next) => {
+    // Skip API routes - let them be handled normally
+    if (req.path.startsWith('/api')) {
+      return next();
+    }
     
-    // Create proxy instances - SWAPPED TARGETS
-    const mobileProxy = createProxyMiddleware({
-      target: 'http://localhost:3000',
-      changeOrigin: true,
-      ws: true
-    });
+    // Skip static assets
+    if (req.path.match(/\.(js|css|png|jpg|jpeg|gif|ico|svg|woff|woff2|ttf|eot|html)$/)) {
+      return next();
+    }
     
-    const desktopProxy = createProxyMiddleware({
-      target: 'http://localhost:5000',
-      changeOrigin: true,
-      ws: true
-    });
+    // Handle mobile routes
+    if (req.path.startsWith('/m')) {
+      res.setHeader('Cache-Control', 'no-store');
+      return res.sendFile(path.join(mobileDist, 'index.html'));
+    }
     
-    // Apply proxies in correct order
-    app.use('/m', mobileProxy); // Mobile at /m path
-    app.use((req, res, next) => {
-      if (req.path.startsWith('/api')) {
-        return next(); // Let API routes be handled by Express
-      }
-      desktopProxy(req, res, next); // Everything else to Desktop
-    });
-  }
+    // Handle desktop routes (everything else)
+    res.setHeader('Cache-Control', 'no-store');
+    res.sendFile(path.join(desktopDist, 'index.html'));
+  });
 
   // Start the server after all setup is complete
   app.listen(PORT, '0.0.0.0', () => {

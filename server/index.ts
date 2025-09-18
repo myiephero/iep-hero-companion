@@ -5435,15 +5435,15 @@ Respond with this exact JSON format:
     // Development: Separate mobile and desktop routing
     console.log('🚀 Development mode: Root URL = DESKTOP, /m path = MOBILE');
     
-    // Create proxy instances
+    // Create proxy instances - SWAPPED TARGETS
     const mobileProxy = createProxyMiddleware({
-      target: 'http://localhost:5000',
+      target: 'http://localhost:3000',
       changeOrigin: true,
       ws: true
     });
     
     const desktopProxy = createProxyMiddleware({
-      target: 'http://localhost:3000',
+      target: 'http://localhost:5000',
       changeOrigin: true,
       ws: true
     });

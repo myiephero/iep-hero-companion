@@ -114,6 +114,20 @@ function ConversationActionsMenu({ conversation }: { conversation: Conversation 
 
 // Premium Conversation Card Component
 function PremiumConversationCard({ conversation, onClick }: { conversation: Conversation; onClick: () => void }) {
+  // 🐛 DEBUG: Trace PremiumConversationCard render calls
+  console.log('🟢 PremiumConversationCard RENDER START for conversation:', {
+    id: conversation.id,
+    conversation: conversation,
+    hasAdvocate: !!conversation.advocate,
+    advocateName: conversation.advocate?.name,
+    advocateSpecialty: conversation.advocate?.specialty,
+    unreadCount: conversation.unread_count,
+    latestMessage: conversation.latest_message,
+    archived: conversation.archived,
+    status: conversation.status,
+    priority: conversation.priority
+  });
+  
   const hasUnread = conversation.unread_count > 0;
   const lastMessage = conversation.latest_message;
   const priorityColors = {
@@ -123,15 +137,37 @@ function PremiumConversationCard({ conversation, onClick }: { conversation: Conv
     low: 'text-gray-400 dark:text-gray-500'
   };
   
-  return (
-    <PremiumCard 
-      variant="interactive" 
-      onClick={onClick}
-      className={cn(
-        "p-4 relative overflow-hidden",
-        hasUnread && "ring-2 ring-blue-500/20 dark:ring-blue-400/20"
-      )}
-    >
+  // 🐛 DEBUG: Check for critical data issues
+  if (!conversation.advocate) {
+    console.error('❌ PremiumConversationCard ERROR: Missing advocate data for conversation:', conversation.id);
+    return (
+      <div className="p-4 bg-red-100 dark:bg-red-900 border border-red-300 dark:border-red-700 rounded-lg">
+        <p className="text-red-800 dark:text-red-200 text-sm font-medium">⚠️ DEBUG: Missing advocate data</p>
+        <p className="text-red-600 dark:text-red-400 text-xs mt-1">Conversation ID: {conversation.id}</p>
+      </div>
+    );
+  }
+  
+  if (!conversation.advocate.name) {
+    console.error('❌ PremiumConversationCard ERROR: Missing advocate name for conversation:', conversation.id, conversation.advocate);
+  }
+  
+  console.log('🟢 PremiumConversationCard RENDER proceeding with valid data');
+  
+  // 🐛 DEBUG: About to return JSX
+  console.log('🟢 PremiumConversationCard RETURNING JSX for:', conversation.id);
+  
+  try {
+    return (
+      <PremiumCard 
+        variant="interactive" 
+        onClick={onClick}
+        className={cn(
+          "p-4 relative overflow-hidden",
+          hasUnread && "ring-2 ring-blue-500/20 dark:ring-blue-400/20"
+        )}
+        data-testid={`conversation-card-${conversation.id}`}
+      >
       {/* Unread indicator gradient */}
       {hasUnread && (
         <div className="absolute top-0 left-0 w-1 h-full bg-gradient-to-b from-blue-500 to-blue-600" />
@@ -191,7 +227,17 @@ function PremiumConversationCard({ conversation, onClick }: { conversation: Conv
         </div>
       </div>
     </PremiumCard>
-  );
+    );
+  } catch (error) {
+    console.error('❌ PremiumConversationCard JSX RENDER ERROR:', error, 'for conversation:', conversation.id);
+    return (
+      <div className="p-4 bg-red-100 dark:bg-red-900 border border-red-300 dark:border-red-700 rounded-lg">
+        <p className="text-red-800 dark:text-red-200 text-sm font-medium">⚠️ DEBUG: JSX Render Error</p>
+        <p className="text-red-600 dark:text-red-400 text-xs mt-1">Conversation: {conversation.id}</p>
+        <p className="text-red-600 dark:text-red-400 text-xs">Error: {String(error)}</p>
+      </div>
+    );
+  }
 }
 
 // Conversation Labels Display Component
@@ -251,19 +297,49 @@ export default function ParentMessages() {
   
   // API hooks - gated by authentication status
   const { conversations, loading: conversationsLoading, error: conversationsError, refetch: refetchConversations } = useConversations({}, isAuthenticated);
+  
+  // 🐛 DEBUG: Monitor conversations hook state changes
+  useEffect(() => {
+    console.log('🔍 ParentMessages DEBUG - Conversations hook state change:', {
+      conversationsCount: conversations?.length || 0,
+      conversationsLoading,
+      conversationsError,
+      isAuthenticated,
+      hookEnabled: isAuthenticated,
+      timestamp: new Date().toISOString(),
+      conversationsSample: conversations?.slice(0, 2).map(c => ({
+        id: c.id,
+        hasAdvocate: !!c.advocate,
+        advocateName: c.advocate?.name
+      }))
+    });
+  }, [conversations, conversationsLoading, conversationsError, isAuthenticated]);
   const { messageHistory, loading: messagesLoading, refetch: refetchMessages } = useMessages(selectedConversation?.id || null, isAuthenticated);
   const { send: sendMessage, sending } = useSendMessage();
   const { markMessagesRead } = useMarkAsRead();
   
-  // DEBUG: Add console logging to trace data flow
+  // 🐛 DEBUG: Add comprehensive authentication tracing
+  const currentAuthToken = typeof window !== 'undefined' ? localStorage.getItem('authToken') : null;
   console.log('🔍 ParentMessages DEBUG - Authentication status:', { 
     isAuthenticated, 
     authLoading, 
     user: user?.id,
     userFull: user,
-    hasAuthToken: !!localStorage.getItem('authToken'),
-    authToken: localStorage.getItem('authToken') ? '[PRESENT]' : '[MISSING]'
+    hasAuthToken: !!currentAuthToken,
+    authToken: currentAuthToken ? `[PRESENT: ${currentAuthToken.substring(0, 20)}...]` : '[MISSING]',
+    timestamp: new Date().toISOString()
   });
+  
+  // 🐛 DEBUG: Check for token changes
+  useEffect(() => {
+    const token = typeof window !== 'undefined' ? localStorage.getItem('authToken') : null;
+    console.log('🔍 ParentMessages DEBUG - Token check on mount/change:', {
+      hasToken: !!token,
+      tokenPreview: token ? `${token.substring(0, 20)}...` : null,
+      isAuthenticated,
+      userLoaded: !!user
+    });
+  }, [isAuthenticated, user]);
   console.log('🔍 ParentMessages DEBUG - Conversations data:', { 
     conversations, 
     conversationsLength: conversations?.length,
@@ -553,13 +629,52 @@ export default function ParentMessages() {
                   </div>
                 ) : filteredConversations.length > 0 ? (
                   <div className="space-y-3 pt-4">
-                    {filteredConversations.map((conversation) => (
-                      <PremiumConversationCard
-                        key={conversation.id}
-                        conversation={conversation}
-                        onClick={() => handleSelectConversation(conversation)}
-                      />
-                    ))}
+                    {/* 🐛 DEBUG: Show conversation mapping info */}
+                    <div className="mb-4 p-3 bg-green-100 dark:bg-green-900 border border-green-300 dark:border-green-700 rounded-lg">
+                      <p className="text-green-800 dark:text-green-200 text-sm font-medium">✅ DEBUG: Conversations found!</p>
+                      <p className="text-green-700 dark:text-green-300 text-xs mt-1">Filtered conversations: {filteredConversations.length}</p>
+                      <p className="text-green-700 dark:text-green-300 text-xs">About to render PremiumConversationCard components...</p>
+                    </div>
+                    {(() => {
+                      console.log('🔥 CONVERSATION MAPPING START:', {
+                        filteredConversationsLength: filteredConversations.length,
+                        conversations: filteredConversations.map(c => ({
+                          id: c.id,
+                          advocateName: c.advocate?.name,
+                          hasAdvocate: !!c.advocate
+                        }))
+                      });
+                      
+                      return filteredConversations.map((conversation, index) => {
+                        console.log(`🔥 MAPPING CONVERSATION ${index + 1}/${filteredConversations.length}:`, {
+                          id: conversation.id,
+                          conversation,
+                          hasAdvocate: !!conversation.advocate,
+                          advocateName: conversation.advocate?.name
+                        });
+                        
+                        try {
+                          return (
+                            <div key={conversation.id} data-testid={`conversation-wrapper-${conversation.id}`}>
+                              <PremiumConversationCard
+                                conversation={conversation}
+                                onClick={() => handleSelectConversation(conversation)}
+                              />
+                            </div>
+                          );
+                        } catch (error) {
+                          console.error('❌ ERROR mapping conversation:', conversation.id, error);
+                          return (
+                            <div key={conversation.id} className="p-4 bg-red-100 dark:bg-red-900 border border-red-300 dark:border-red-700 rounded-lg">
+                              <p className="text-red-800 dark:text-red-200 text-sm font-medium">⚠️ DEBUG: Mapping Error</p>
+                              <p className="text-red-600 dark:text-red-400 text-xs mt-1">ID: {conversation.id}</p>
+                              <p className="text-red-600 dark:text-red-400 text-xs">Error: {String(error)}</p>
+                            </div>
+                          );
+                        }
+                      });
+                    })()
+                    }
                   </div>
                 ) : (
                   <div className="flex items-center justify-center h-64">

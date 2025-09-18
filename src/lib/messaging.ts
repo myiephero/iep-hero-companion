@@ -97,6 +97,9 @@ export interface MessageHistory {
 
 // Get conversations with optional filtering and pagination
 export async function getConversations(filters: ConversationFilters = {}): Promise<ConversationsResponse> {
+  // DEBUG: Log the getConversations call
+  console.log('🔍 getConversations DEBUG - Called with filters:', filters);
+  
   // Build query parameters
   const params = new URLSearchParams();
   
@@ -123,8 +126,13 @@ export async function getConversations(filters: ConversationFilters = {}): Promi
   }
   
   const url = `/api/messaging/conversations${params.toString() ? `?${params.toString()}` : ''}`;
+  console.log('🔍 getConversations DEBUG - Making request to:', url);
+  
   const response = await apiRequest('GET', url);
+  console.log('🔍 getConversations DEBUG - Response status:', response.status);
+  
   const data = await handleApiResponse<ConversationsResponse>(response);
+  console.log('🔍 getConversations DEBUG - Response data:', data);
   
   return {
     conversations: data.conversations,

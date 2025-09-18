@@ -19,6 +19,14 @@ export function useConversations(filters: ConversationFilters = {}, enabled: boo
   // Create stable filtersKey using useMemo to prevent unnecessary re-renders
   const filtersKey = useMemo(() => filters, [JSON.stringify(filters)]);
   
+  // DEBUG: Add detailed logging for useConversations hook
+  console.log('🔍 useConversations DEBUG - Hook called with:', {
+    filters: filtersKey,
+    enabled,
+    hasAuthToken: !!localStorage.getItem('authToken'),
+    authToken: localStorage.getItem('authToken') ? '[PRESENT]' : '[MISSING]'
+  });
+  
   // Use React Query with specific configuration to prevent infinite loops
   const {
     data,
@@ -27,11 +35,30 @@ export function useConversations(filters: ConversationFilters = {}, enabled: boo
     refetch
   } = useQuery({
     queryKey: ['/api/messaging/conversations', filtersKey],
-    queryFn: () => getConversations(filtersKey),
+    queryFn: async () => {
+      console.log('🔍 useConversations DEBUG - Query function called, about to call getConversations with:', filtersKey);
+      try {
+        const result = await getConversations(filtersKey);
+        console.log('🔍 useConversations DEBUG - getConversations returned:', result);
+        return result;
+      } catch (error) {
+        console.error('🔍 useConversations DEBUG - getConversations error:', error);
+        throw error;
+      }
+    },
     enabled: enabled, // Gate query by authentication status
     staleTime: 30000, // 30 seconds
     refetchOnWindowFocus: false,
     retry: 1
+  });
+  
+  // DEBUG: Log the query result
+  console.log('🔍 useConversations DEBUG - Query result:', {
+    data,
+    loading,
+    queryError,
+    conversations: data?.conversations,
+    conversationsLength: data?.conversations?.length
   });
 
   // Transform error to match existing interface

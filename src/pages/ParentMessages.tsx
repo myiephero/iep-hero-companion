@@ -151,7 +151,7 @@ function PremiumConversationCard({ conversation, onClick }: { conversation: Conv
               "font-semibold text-gray-900 dark:text-gray-100 truncate",
               hasUnread && "text-blue-900 dark:text-blue-100"
             )}>
-              {conversation.advocate.name}
+              {conversation.advocate?.name || 'Unknown Advocate'}
             </h3>
             <div className="flex items-center gap-2">
               {conversation.priority && conversation.priority !== 'normal' && (
@@ -255,6 +255,23 @@ export default function ParentMessages() {
   const { send: sendMessage, sending } = useSendMessage();
   const { markMessagesRead } = useMarkAsRead();
   
+  // DEBUG: Add console logging to trace data flow
+  console.log('🔍 ParentMessages DEBUG - Authentication status:', { 
+    isAuthenticated, 
+    authLoading, 
+    user: user?.id,
+    userFull: user,
+    hasAuthToken: !!localStorage.getItem('authToken'),
+    authToken: localStorage.getItem('authToken') ? '[PRESENT]' : '[MISSING]'
+  });
+  console.log('🔍 ParentMessages DEBUG - Conversations data:', { 
+    conversations, 
+    conversationsLength: conversations?.length,
+    conversationsLoading, 
+    conversationsError,
+    hookEnabled: isAuthenticated
+  });
+  
   // Message search functionality
   const {
     searchTerm,
@@ -275,27 +292,67 @@ export default function ParentMessages() {
   
   // Filtered conversations based on active filters
   const filteredConversations = useMemo(() => {
-    if (!conversations.length) return [];
+    console.log('🔍 ParentMessages DEBUG - Filtering conversations:', { 
+      conversationsLength: conversations.length, 
+      filters,
+      rawConversations: conversations 
+    });
     
-    return conversations.filter(conversation => {
+    if (!conversations.length) {
+      console.log('🔍 ParentMessages DEBUG - No conversations to filter, returning empty array');
+      return [];
+    }
+    
+    const filtered = conversations.filter(conversation => {
+      console.log('🔍 ParentMessages DEBUG - Checking conversation:', {
+        id: conversation.id,
+        advocate: conversation.advocate,
+        advocateName: conversation.advocate?.name,
+        advocateSpecialty: conversation.advocate?.specialty,
+        archived: conversation.archived,
+        status: conversation.status,
+        priority: conversation.priority,
+        fullConversation: conversation
+      });
+      
       // Filter by archive status
       if (filters.archived !== null) {
-        if (filters.archived && !conversation.archived) return false;
-        if (!filters.archived && conversation.archived) return false;
+        if (filters.archived && !conversation.archived) {
+          console.log('🔍 ParentMessages DEBUG - Filtered out: archived filter mismatch');
+          return false;
+        }
+        if (!filters.archived && conversation.archived) {
+          console.log('🔍 ParentMessages DEBUG - Filtered out: archived filter mismatch');
+          return false;
+        }
       }
       
       // Filter by status
       if (filters.status.length > 0) {
-        if (!filters.status.includes(conversation.status || 'active')) return false;
+        if (!filters.status.includes(conversation.status || 'active')) {
+          console.log('🔍 ParentMessages DEBUG - Filtered out: status filter mismatch');
+          return false;
+        }
       }
       
       // Filter by priority
       if (filters.priority.length > 0) {
-        if (!filters.priority.includes(conversation.priority || 'normal')) return false;
+        if (!filters.priority.includes(conversation.priority || 'normal')) {
+          console.log('🔍 ParentMessages DEBUG - Filtered out: priority filter mismatch');
+          return false;
+        }
       }
       
+      console.log('🔍 ParentMessages DEBUG - Conversation passed all filters');
       return true;
     });
+    
+    console.log('🔍 ParentMessages DEBUG - Final filtered conversations:', {
+      filteredLength: filtered.length,
+      filtered: filtered
+    });
+    
+    return filtered;
   }, [conversations, filters]);
   
   // Authentication loading state
@@ -510,6 +567,17 @@ export default function ParentMessages() {
                       <MessageSquare className="h-12 w-12 mx-auto mb-4 opacity-50" />
                       <p className="text-lg font-medium mb-2">No Conversations</p>
                       <p className="text-sm">Your conversations will appear here</p>
+                      {/* TEMP DEBUG: Show debugging info in UI */}
+                      <div className="mt-4 p-4 bg-red-100 dark:bg-red-900 rounded text-xs text-left max-w-md mx-auto">
+                        <p><strong>DEBUG INFO:</strong></p>
+                        <p>Auth: {isAuthenticated ? 'Yes' : 'No'}</p>
+                        <p>Loading: {conversationsLoading ? 'Yes' : 'No'}</p>
+                        <p>Raw conversations: {conversations?.length || 0}</p>
+                        <p>Filtered: {filteredConversations.length}</p>
+                        <p>Error: {conversationsError || 'None'}</p>
+                        <p>User: {user?.id || 'None'}</p>
+                        <p>Token: {typeof window !== 'undefined' && localStorage.getItem('authToken') ? 'Present' : 'Missing'}</p>
+                      </div>
                     </div>
                   </div>
                 )}

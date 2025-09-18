@@ -82,10 +82,7 @@ export function useUpdateLabel() {
   const update = useCallback(async (labelId: string, labelData: UpdateLabelData): Promise<ConversationLabel> => {
     setIsUpdating(true);
     try {
-      const response = await apiRequest(`/api/messaging/labels/${labelId}`, {
-        method: 'PUT',
-        body: JSON.stringify(labelData),
-      });
+      const response = await apiRequest('PUT', `/api/messaging/labels/${labelId}`, JSON.stringify(labelData));
 
       if (!response.ok) {
         const errorData = await response.json();
@@ -117,9 +114,7 @@ export function useDeleteLabel() {
   const deleteLabel = useCallback(async (labelId: string): Promise<void> => {
     setIsDeleting(true);
     try {
-      const response = await apiRequest(`/api/messaging/labels/${labelId}`, {
-        method: 'DELETE',
-      });
+      const response = await apiRequest('DELETE', `/api/messaging/labels/${labelId}`);
 
       if (!response.ok) {
         const errorData = await response.json();
@@ -144,7 +139,7 @@ export function useConversationLabelsForConversation(conversationId: string) {
   const { data, isLoading, error, refetch } = useQuery({
     queryKey: ['/api/messaging/conversations', conversationId, 'labels'],
     queryFn: async () => {
-      const response = await apiRequest(`/api/messaging/conversations/${conversationId}/labels`);
+      const response = await apiRequest('GET', `/api/messaging/conversations/${conversationId}/labels`);
       if (!response.ok) {
         throw new Error('Failed to fetch conversation labels');
       }
@@ -170,10 +165,7 @@ export function useAssignLabels() {
   const assign = useCallback(async (conversationId: string, labelIds: string[]): Promise<void> => {
     setIsAssigning(true);
     try {
-      const response = await apiRequest(`/api/messaging/conversations/${conversationId}/labels`, {
-        method: 'POST',
-        body: JSON.stringify({ label_ids: labelIds }),
-      });
+      const response = await apiRequest('POST', `/api/messaging/conversations/${conversationId}/labels`, JSON.stringify({ label_ids: labelIds }));
 
       if (!response.ok) {
         const errorData = await response.json();
@@ -210,10 +202,7 @@ export function useUpdateConversationStatus() {
   }) => {
     setIsUpdating(true);
     try {
-      const response = await apiRequest(`/api/messaging/conversations/${conversationId}`, {
-        method: 'PATCH',
-        body: JSON.stringify(updates),
-      });
+      const response = await apiRequest('PATCH', `/api/messaging/conversations/${conversationId}`, JSON.stringify(updates));
 
       if (!response.ok) {
         const errorData = await response.json();

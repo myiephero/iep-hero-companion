@@ -114,20 +114,6 @@ function ConversationActionsMenu({ conversation }: { conversation: Conversation 
 
 // Premium Conversation Card Component
 function PremiumConversationCard({ conversation, onClick }: { conversation: Conversation; onClick: () => void }) {
-  // 🐛 DEBUG: Trace PremiumConversationCard render calls
-  console.log('🟢 PremiumConversationCard RENDER START for conversation:', {
-    id: conversation.id,
-    conversation: conversation,
-    hasAdvocate: !!conversation.advocate,
-    advocateName: conversation.advocate?.name,
-    advocateSpecialty: conversation.advocate?.specialty,
-    unreadCount: conversation.unread_count,
-    latestMessage: conversation.latest_message,
-    archived: conversation.archived,
-    status: conversation.status,
-    priority: conversation.priority
-  });
-  
   const hasUnread = conversation.unread_count > 0;
   const lastMessage = conversation.latest_message;
   const priorityColors = {
@@ -137,107 +123,81 @@ function PremiumConversationCard({ conversation, onClick }: { conversation: Conv
     low: 'text-gray-400 dark:text-gray-500'
   };
   
-  // 🐛 DEBUG: Check for critical data issues
   if (!conversation.advocate) {
-    console.error('❌ PremiumConversationCard ERROR: Missing advocate data for conversation:', conversation.id);
-    return (
-      <div className="p-4 bg-red-100 dark:bg-red-900 border border-red-300 dark:border-red-700 rounded-lg">
-        <p className="text-red-800 dark:text-red-200 text-sm font-medium">⚠️ DEBUG: Missing advocate data</p>
-        <p className="text-red-600 dark:text-red-400 text-xs mt-1">Conversation ID: {conversation.id}</p>
-      </div>
-    );
+    console.error('Missing advocate data for conversation:', conversation.id);
+    return null;
   }
   
-  if (!conversation.advocate.name) {
-    console.error('❌ PremiumConversationCard ERROR: Missing advocate name for conversation:', conversation.id, conversation.advocate);
-  }
-  
-  console.log('🟢 PremiumConversationCard RENDER proceeding with valid data');
-  
-  // 🐛 DEBUG: About to return JSX
-  console.log('🟢 PremiumConversationCard RETURNING JSX for:', conversation.id);
-  
-  try {
-    return (
-      <PremiumCard 
-        variant="interactive" 
-        onClick={onClick}
-        className={cn(
-          "p-4 relative overflow-hidden",
-          hasUnread && "ring-2 ring-blue-500/20 dark:ring-blue-400/20"
-        )}
-        data-testid={`conversation-card-${conversation.id}`}
-      >
-      {/* Unread indicator gradient */}
-      {hasUnread && (
-        <div className="absolute top-0 left-0 w-1 h-full bg-gradient-to-b from-blue-500 to-blue-600" />
+  return (
+    <PremiumCard 
+      variant="interactive" 
+      onClick={onClick}
+      className={cn(
+        "p-4 relative overflow-hidden",
+        hasUnread && "ring-2 ring-blue-500/20 dark:ring-blue-400/20"
       )}
+      data-testid={`conversation-card-${conversation.id}`}
+    >
+    {/* Unread indicator gradient */}
+    {hasUnread && (
+      <div className="absolute top-0 left-0 w-1 h-full bg-gradient-to-b from-blue-500 to-blue-600" />
+    )}
+    
+    <div className="flex items-start gap-3">
+      <Avatar className="h-12 w-12 ring-2 ring-white dark:ring-gray-900 shadow-lg">
+        <AvatarImage src="/placeholder-1.jpg" />
+        <AvatarFallback className="bg-gradient-to-br from-blue-50 to-blue-100 dark:from-blue-950 dark:to-blue-900 text-blue-600 dark:text-blue-400 font-semibold">
+          {conversation.advocate.name.split(' ').map(n => n[0]).join('')}
+        </AvatarFallback>
+      </Avatar>
       
-      <div className="flex items-start gap-3">
-        <Avatar className="h-12 w-12 ring-2 ring-white dark:ring-gray-900 shadow-lg">
-          <AvatarImage src="/placeholder-1.jpg" />
-          <AvatarFallback className="bg-gradient-to-br from-blue-50 to-blue-100 dark:from-blue-950 dark:to-blue-900 text-blue-600 dark:text-blue-400 font-semibold">
-            {conversation.advocate.name.split(' ').map(n => n[0]).join('')}
-          </AvatarFallback>
-        </Avatar>
-        
-        <div className="flex-1 min-w-0 space-y-1">
-          <div className="flex items-center justify-between">
-            <h3 className={cn(
-              "font-semibold text-gray-900 dark:text-gray-100 truncate",
-              hasUnread && "text-blue-900 dark:text-blue-100"
-            )}>
-              {conversation.advocate?.name || 'Unknown Advocate'}
-            </h3>
-            <div className="flex items-center gap-2">
-              {conversation.priority && conversation.priority !== 'normal' && (
-                <AlertTriangle className={cn("h-4 w-4", priorityColors[conversation.priority as keyof typeof priorityColors])} />
-              )}
-              {hasUnread && (
-                <Badge className="bg-gradient-to-r from-blue-500 to-blue-600 text-white text-xs px-2 py-0.5 h-5">
-                  {conversation.unread_count}
-                </Badge>
-              )}
-            </div>
-          </div>
-          
-          <p className="text-sm text-gray-600 dark:text-gray-400 mb-1">
-            {conversation.advocate.specialty}
-          </p>
-          
-          {lastMessage && (
-            <p className={cn(
-              "text-sm truncate",
-              hasUnread 
-                ? "text-gray-900 dark:text-gray-100 font-medium" 
-                : "text-gray-600 dark:text-gray-400"
-            )}>
-              {lastMessage.content || '📎 Attachment'}
-            </p>
-          )}
-          
-          <div className="flex items-center justify-between mt-2">
-            <ConversationLabelsDisplay conversationId={conversation.id} />
-            {lastMessage && (
-              <span className="text-xs text-gray-500 dark:text-gray-400">
-                {new Date(lastMessage.created_at).toLocaleDateString()}
-              </span>
+      <div className="flex-1 min-w-0 space-y-1">
+        <div className="flex items-center justify-between">
+          <h3 className={cn(
+            "font-semibold text-gray-900 dark:text-gray-100 truncate",
+            hasUnread && "text-blue-900 dark:text-blue-100"
+          )}>
+            {conversation.advocate?.name || 'Unknown Advocate'}
+          </h3>
+          <div className="flex items-center gap-2">
+            {conversation.priority && conversation.priority !== 'normal' && (
+              <AlertTriangle className={cn("h-4 w-4", priorityColors[conversation.priority as keyof typeof priorityColors])} />
+            )}
+            {hasUnread && (
+              <Badge className="bg-gradient-to-r from-blue-500 to-blue-600 text-white text-xs px-2 py-0.5 h-5">
+                {conversation.unread_count}
+              </Badge>
             )}
           </div>
         </div>
+        
+        <p className="text-sm text-gray-600 dark:text-gray-400 mb-1">
+          {conversation.advocate.specialty}
+        </p>
+        
+        {lastMessage && (
+          <p className={cn(
+            "text-sm truncate",
+            hasUnread 
+              ? "text-gray-900 dark:text-gray-100 font-medium" 
+              : "text-gray-600 dark:text-gray-400"
+          )}>
+            {lastMessage.content || '📎 Attachment'}
+          </p>
+        )}
+        
+        <div className="flex items-center justify-between mt-2">
+          <ConversationLabelsDisplay conversationId={conversation.id} />
+          {lastMessage && (
+            <span className="text-xs text-gray-500 dark:text-gray-400">
+              {new Date(lastMessage.created_at).toLocaleDateString()}
+            </span>
+          )}
+        </div>
       </div>
-    </PremiumCard>
-    );
-  } catch (error) {
-    console.error('❌ PremiumConversationCard JSX RENDER ERROR:', error, 'for conversation:', conversation.id);
-    return (
-      <div className="p-4 bg-red-100 dark:bg-red-900 border border-red-300 dark:border-red-700 rounded-lg">
-        <p className="text-red-800 dark:text-red-200 text-sm font-medium">⚠️ DEBUG: JSX Render Error</p>
-        <p className="text-red-600 dark:text-red-400 text-xs mt-1">Conversation: {conversation.id}</p>
-        <p className="text-red-600 dark:text-red-400 text-xs">Error: {String(error)}</p>
-      </div>
-    );
-  }
+    </div>
+  </PremiumCard>
+  );
 }
 
 // Conversation Labels Display Component
@@ -297,56 +257,9 @@ export default function ParentMessages() {
   
   // API hooks - gated by authentication status
   const { conversations, loading: conversationsLoading, error: conversationsError, refetch: refetchConversations } = useConversations({}, isAuthenticated);
-  
-  // 🐛 DEBUG: Monitor conversations hook state changes
-  useEffect(() => {
-    console.log('🔍 ParentMessages DEBUG - Conversations hook state change:', {
-      conversationsCount: conversations?.length || 0,
-      conversationsLoading,
-      conversationsError,
-      isAuthenticated,
-      hookEnabled: isAuthenticated,
-      timestamp: new Date().toISOString(),
-      conversationsSample: conversations?.slice(0, 2).map(c => ({
-        id: c.id,
-        hasAdvocate: !!c.advocate,
-        advocateName: c.advocate?.name
-      }))
-    });
-  }, [conversations, conversationsLoading, conversationsError, isAuthenticated]);
   const { messageHistory, loading: messagesLoading, refetch: refetchMessages } = useMessages(selectedConversation?.id || null, isAuthenticated);
   const { send: sendMessage, sending } = useSendMessage();
   const { markMessagesRead } = useMarkAsRead();
-  
-  // 🐛 DEBUG: Add comprehensive authentication tracing
-  const currentAuthToken = typeof window !== 'undefined' ? localStorage.getItem('authToken') : null;
-  console.log('🔍 ParentMessages DEBUG - Authentication status:', { 
-    isAuthenticated, 
-    authLoading, 
-    user: user?.id,
-    userFull: user,
-    hasAuthToken: !!currentAuthToken,
-    authToken: currentAuthToken ? `[PRESENT: ${currentAuthToken.substring(0, 20)}...]` : '[MISSING]',
-    timestamp: new Date().toISOString()
-  });
-  
-  // 🐛 DEBUG: Check for token changes
-  useEffect(() => {
-    const token = typeof window !== 'undefined' ? localStorage.getItem('authToken') : null;
-    console.log('🔍 ParentMessages DEBUG - Token check on mount/change:', {
-      hasToken: !!token,
-      tokenPreview: token ? `${token.substring(0, 20)}...` : null,
-      isAuthenticated,
-      userLoaded: !!user
-    });
-  }, [isAuthenticated, user]);
-  console.log('🔍 ParentMessages DEBUG - Conversations data:', { 
-    conversations, 
-    conversationsLength: conversations?.length,
-    conversationsLoading, 
-    conversationsError,
-    hookEnabled: isAuthenticated
-  });
   
   // Message search functionality
   const {
@@ -368,37 +281,17 @@ export default function ParentMessages() {
   
   // Filtered conversations based on active filters
   const filteredConversations = useMemo(() => {
-    console.log('🔍 ParentMessages DEBUG - Filtering conversations:', { 
-      conversationsLength: conversations.length, 
-      filters,
-      rawConversations: conversations 
-    });
-    
     if (!conversations.length) {
-      console.log('🔍 ParentMessages DEBUG - No conversations to filter, returning empty array');
       return [];
     }
     
-    const filtered = conversations.filter(conversation => {
-      console.log('🔍 ParentMessages DEBUG - Checking conversation:', {
-        id: conversation.id,
-        advocate: conversation.advocate,
-        advocateName: conversation.advocate?.name,
-        advocateSpecialty: conversation.advocate?.specialty,
-        archived: conversation.archived,
-        status: conversation.status,
-        priority: conversation.priority,
-        fullConversation: conversation
-      });
-      
+    return conversations.filter(conversation => {
       // Filter by archive status
       if (filters.archived !== null) {
         if (filters.archived && !conversation.archived) {
-          console.log('🔍 ParentMessages DEBUG - Filtered out: archived filter mismatch');
           return false;
         }
         if (!filters.archived && conversation.archived) {
-          console.log('🔍 ParentMessages DEBUG - Filtered out: archived filter mismatch');
           return false;
         }
       }
@@ -406,7 +299,6 @@ export default function ParentMessages() {
       // Filter by status
       if (filters.status.length > 0) {
         if (!filters.status.includes(conversation.status || 'active')) {
-          console.log('🔍 ParentMessages DEBUG - Filtered out: status filter mismatch');
           return false;
         }
       }
@@ -414,21 +306,12 @@ export default function ParentMessages() {
       // Filter by priority
       if (filters.priority.length > 0) {
         if (!filters.priority.includes(conversation.priority || 'normal')) {
-          console.log('🔍 ParentMessages DEBUG - Filtered out: priority filter mismatch');
           return false;
         }
       }
       
-      console.log('🔍 ParentMessages DEBUG - Conversation passed all filters');
       return true;
     });
-    
-    console.log('🔍 ParentMessages DEBUG - Final filtered conversations:', {
-      filteredLength: filtered.length,
-      filtered: filtered
-    });
-    
-    return filtered;
   }, [conversations, filters]);
   
   // Authentication loading state
@@ -629,52 +512,14 @@ export default function ParentMessages() {
                   </div>
                 ) : filteredConversations.length > 0 ? (
                   <div className="space-y-3 pt-4">
-                    {/* 🐛 DEBUG: Show conversation mapping info */}
-                    <div className="mb-4 p-3 bg-green-100 dark:bg-green-900 border border-green-300 dark:border-green-700 rounded-lg">
-                      <p className="text-green-800 dark:text-green-200 text-sm font-medium">✅ DEBUG: Conversations found!</p>
-                      <p className="text-green-700 dark:text-green-300 text-xs mt-1">Filtered conversations: {filteredConversations.length}</p>
-                      <p className="text-green-700 dark:text-green-300 text-xs">About to render PremiumConversationCard components...</p>
-                    </div>
-                    {(() => {
-                      console.log('🔥 CONVERSATION MAPPING START:', {
-                        filteredConversationsLength: filteredConversations.length,
-                        conversations: filteredConversations.map(c => ({
-                          id: c.id,
-                          advocateName: c.advocate?.name,
-                          hasAdvocate: !!c.advocate
-                        }))
-                      });
-                      
-                      return filteredConversations.map((conversation, index) => {
-                        console.log(`🔥 MAPPING CONVERSATION ${index + 1}/${filteredConversations.length}:`, {
-                          id: conversation.id,
-                          conversation,
-                          hasAdvocate: !!conversation.advocate,
-                          advocateName: conversation.advocate?.name
-                        });
-                        
-                        try {
-                          return (
-                            <div key={conversation.id} data-testid={`conversation-wrapper-${conversation.id}`}>
-                              <PremiumConversationCard
-                                conversation={conversation}
-                                onClick={() => handleSelectConversation(conversation)}
-                              />
-                            </div>
-                          );
-                        } catch (error) {
-                          console.error('❌ ERROR mapping conversation:', conversation.id, error);
-                          return (
-                            <div key={conversation.id} className="p-4 bg-red-100 dark:bg-red-900 border border-red-300 dark:border-red-700 rounded-lg">
-                              <p className="text-red-800 dark:text-red-200 text-sm font-medium">⚠️ DEBUG: Mapping Error</p>
-                              <p className="text-red-600 dark:text-red-400 text-xs mt-1">ID: {conversation.id}</p>
-                              <p className="text-red-600 dark:text-red-400 text-xs">Error: {String(error)}</p>
-                            </div>
-                          );
-                        }
-                      });
-                    })()
-                    }
+                    {filteredConversations.map((conversation) => (
+                      <div key={conversation.id} data-testid={`conversation-wrapper-${conversation.id}`}>
+                        <PremiumConversationCard
+                          conversation={conversation}
+                          onClick={() => handleSelectConversation(conversation)}
+                        />
+                      </div>
+                    ))}
                   </div>
                 ) : (
                   <div className="flex items-center justify-center h-64">
@@ -682,17 +527,6 @@ export default function ParentMessages() {
                       <MessageSquare className="h-12 w-12 mx-auto mb-4 opacity-50" />
                       <p className="text-lg font-medium mb-2">No Conversations</p>
                       <p className="text-sm">Your conversations will appear here</p>
-                      {/* TEMP DEBUG: Show debugging info in UI */}
-                      <div className="mt-4 p-4 bg-red-100 dark:bg-red-900 rounded text-xs text-left max-w-md mx-auto">
-                        <p><strong>DEBUG INFO:</strong></p>
-                        <p>Auth: {isAuthenticated ? 'Yes' : 'No'}</p>
-                        <p>Loading: {conversationsLoading ? 'Yes' : 'No'}</p>
-                        <p>Raw conversations: {conversations?.length || 0}</p>
-                        <p>Filtered: {filteredConversations.length}</p>
-                        <p>Error: {conversationsError || 'None'}</p>
-                        <p>User: {user?.id || 'None'}</p>
-                        <p>Token: {typeof window !== 'undefined' && localStorage.getItem('authToken') ? 'Present' : 'Missing'}</p>
-                      </div>
                     </div>
                   </div>
                 )}

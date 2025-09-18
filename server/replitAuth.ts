@@ -28,6 +28,17 @@ if (!process.env.REPLIT_DOMAINS) {
   throw new Error("Environment variable REPLIT_DOMAINS not provided");
 }
 
+// Helper function to detect mobile/Capacitor requests
+const isMobileRequest = (req: any): boolean => {
+  const origin = req.headers.origin || '';
+  const userAgent = req.headers['user-agent'] || '';
+  const platform = req.headers['x-iep-platform'] || '';
+  
+  return origin.includes('capacitor://') || 
+         userAgent.includes('Capacitor') || 
+         platform === 'mobile';
+};
+
 const getOidcConfig = memoize(
   async () => {
     return await client.discovery(
@@ -181,18 +192,24 @@ export async function setupAuth(app: Express) {
         // Clear the intent from session
         delete (req.session as any).subscriptionIntent;
         
-        // Redirect to subscription completion flow
-        const params = new URLSearchParams({
-          priceId: subscriptionIntent.priceId,
-          planName: subscriptionIntent.planName,
-          planId: subscriptionIntent.planId,
-          role: subscriptionIntent.role
-        });
+        const subscriptionPath = `/subscription-setup?priceId=${subscriptionIntent.priceId}&planName=${subscriptionIntent.planName}&planId=${subscriptionIntent.planId}&role=${subscriptionIntent.role}`;
         
-        return res.redirect(`/subscription-setup?${params.toString()}`);
+        // For mobile apps: return JSON with redirect path
+        if (isMobileRequest(req)) {
+          return res.json({ redirectTo: subscriptionPath });
+        }
+        
+        // For web: use HTTP redirect
+        return res.redirect(subscriptionPath);
       }
       
-      // Default redirect
+      // Default redirect behavior
+      if (isMobileRequest(req)) {
+        // For mobile apps: return JSON with redirect path
+        return res.json({ redirectTo: "/" });
+      }
+      
+      // For web: use HTTP redirect
       res.redirect("/");
     });
   });
@@ -200,6 +217,12 @@ export async function setupAuth(app: Express) {
   app.get("/api/logout", (req, res) => {
     req.logout(() => {
       // Skip Replit OIDC logout flow and go directly to home page
+      if (isMobileRequest(req)) {
+        // For mobile apps: return JSON with redirect path
+        return res.json({ redirectTo: "/" });
+      }
+      
+      // For web: use HTTP redirect
       res.redirect("/");
     });
   });

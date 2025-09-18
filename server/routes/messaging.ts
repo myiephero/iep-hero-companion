@@ -26,6 +26,17 @@ import {
 
 const router = Router();
 
+// Helper function to detect mobile/Capacitor requests
+const isMobileRequest = (req: any): boolean => {
+  const origin = req.headers.origin || '';
+  const userAgent = req.headers['user-agent'] || '';
+  const platform = req.headers['x-iep-platform'] || '';
+  
+  return origin.includes('capacitor://') || 
+         userAgent.includes('Capacitor') || 
+         platform === 'mobile';
+};
+
 // Configure multer for file uploads
 const upload = multer({
   storage: multer.memoryStorage(),
@@ -735,7 +746,15 @@ router.get('/download/:filePath', async (req: Request, res: Response) => {
     if (filePath.startsWith('/objects/')) {
       // Redirect to the objects handler
       const objectId = filePath.slice(9); // Remove '/objects/' prefix
-      return res.redirect(`/api/messaging/objects/${objectId}`);
+      const objectsPath = `/api/messaging/objects/${objectId}`;
+      
+      if (isMobileRequest(req)) {
+        // For mobile apps: return JSON with redirect path
+        return res.json({ redirectTo: objectsPath });
+      }
+      
+      // For web: use HTTP redirect
+      return res.redirect(objectsPath);
     }
 
     // Get document record to verify access

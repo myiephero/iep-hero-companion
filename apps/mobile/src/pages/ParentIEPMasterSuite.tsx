@@ -17,7 +17,7 @@ import { FileText, Target, CheckCircle, Brain, Upload, Lightbulb, BarChart3, X, 
 import { SimpleFileUpload } from "@/components/SimpleFileUpload";
 import { StudentSelector } from "@/components/StudentSelector";
 // import { FloatingAIAssistant } from "@/components/FloatingAIAssistant"; // TEMPORARILY REMOVED
-import { EXPERT_REVIEW_PRODUCTS, getExpertReviewCheckoutUrl } from "@/lib/expertReviewPricing";
+import { EXPERT_REVIEW_PRODUCTS, getExpertReviewCheckoutUrl } from "@iep-hero/shared";
 
 // Parent-friendly sample IEP goals for understanding
 const PARENT_SAMPLE_GOALS = {

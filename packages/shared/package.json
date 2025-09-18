@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "description": "Shared types, schemas, and business logic for IEP Hero applications",
   "main": "index.ts",
+  "type": "module",
   "exports": {
     ".": "./index.ts",
     "./schema": "./schema.ts",

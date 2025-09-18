@@ -1,7 +1,7 @@
 import express, { Request, Response } from 'express';
 import Stripe from 'stripe';
 import { getUserId } from '../utils';
-import { EXPERT_REVIEW_PRODUCTS } from '../../src/lib/expertReviewPricing';
+import { EXPERT_REVIEW_PRODUCTS } from '@iep-hero/shared';
 
 const router = express.Router();
 

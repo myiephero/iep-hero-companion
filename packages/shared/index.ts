@@ -1,6 +1,7 @@
 // Re-export all shared types, schemas, and business logic
 export * from './schema';
 export * from './planAccess';
+export * from './expertReviewPricing';
 
 // This package contains ONLY:
 // - TypeScript types and interfaces

@@ -1,6 +1,6 @@
 import { Routes, Route } from 'react-router-dom';
 import { DesktopDashboard } from '../pages/DesktopDashboard';
-import { DesktopMessages } from '../pages/DesktopMessages';
+import ParentMessages from '../pages/ParentMessages';
 
 export function DesktopLayout() {
   return (
@@ -29,7 +29,7 @@ export function DesktopLayout() {
       <main className="container mx-auto px-6 py-8">
         <Routes>
           <Route path="/" element={<DesktopDashboard />} />
-          <Route path="/messages" element={<DesktopMessages />} />
+          <Route path="/messages" element={<ParentMessages />} />
         </Routes>
       </main>
     </div>

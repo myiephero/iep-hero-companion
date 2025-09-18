@@ -48,6 +48,7 @@ const ACCEPTED_FILE_TYPES = {
 };
 
 const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB default
+const LARGE_FILE_WARNING_SIZE = 5 * 1024 * 1024; // 5MB warning threshold
 
 // Helper to get file icon based on type
 const getFileIcon = (fileType: string) => {
@@ -98,6 +99,16 @@ export function MessageFileUpload({
         title: "Some files were rejected",
         description: reasons,
         variant: "destructive",
+      });
+    }
+
+    // Check for large files that may cause performance issues
+    const largeFiles = acceptedFiles.filter(file => file.size > LARGE_FILE_WARNING_SIZE);
+    if (largeFiles.length > 0) {
+      toast({
+        title: "Large file detected",
+        description: `Files over ${formatFileSize(LARGE_FILE_WARNING_SIZE)} may take longer to upload and process.`,
+        variant: "default",
       });
     }
 

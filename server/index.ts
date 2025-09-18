@@ -3745,8 +3745,7 @@ app.use('/api/feedback', feedbackRoutes);
 app.use('/api/messaging', messagingRoutes);
 // app.use('/api', mainRoutes); // Temporarily disabled - session context issue
 
-// Serve static files from the dist directory - IMPORTANT: This must come AFTER all API routes
-app.use(express.static(path.join(__dirname, '../dist')));
+// Note: Static file serving is now handled in production check below
 
 
 // Health check

@@ -5458,6 +5458,11 @@ Respond with this exact JSON format:
     index: false // Don't serve index.html automatically
   }));
   
+  // Serve mobile index.html for /m route
+  app.get('/m', (req, res) => {
+    res.sendFile(path.join(mobileDist, 'index.html'));
+  });
+  
   // Service worker clearing endpoint
   app.get('/clear-sw', (req, res) => {
     res.setHeader('Cache-Control', 'no-store');

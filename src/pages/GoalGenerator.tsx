@@ -900,8 +900,8 @@ export default function GoalGenerator() {
               )}
             </Button>
           </div>
-        </CardContent>
-      </Card>
+        </div>
+      </PremiumCard>
 
       {isCheckingCompliance && (
         <Card>

@@ -32,7 +32,7 @@ export function useConversationLabels() {
   });
 
   return {
-    labels: (data?.labels || []) as ConversationLabel[],
+    labels: ((data as any)?.labels || []) as ConversationLabel[],
     loading: isLoading,
     error: error?.message || null,
     refetch
@@ -47,10 +47,7 @@ export function useCreateLabel() {
   const create = useCallback(async (labelData: CreateLabelData): Promise<ConversationLabel> => {
     setIsCreating(true);
     try {
-      const response = await apiRequest('/api/messaging/labels', {
-        method: 'POST',
-        body: JSON.stringify(labelData),
-      });
+      const response = await apiRequest('POST', '/api/messaging/labels', JSON.stringify(labelData));
 
       if (!response.ok) {
         const errorData = await response.json();
@@ -150,7 +147,7 @@ export function useConversationLabelsForConversation(conversationId: string) {
   });
 
   return {
-    labels: (data?.labels || []) as ConversationLabel[],
+    labels: ((data as any)?.labels || []) as ConversationLabel[],
     loading: isLoading,
     error: error?.message || null,
     refetch
@@ -202,7 +199,7 @@ export function useUpdateConversationStatus() {
   }) => {
     setIsUpdating(true);
     try {
-      const response = await apiRequest('PATCH', `/api/messaging/conversations/${conversationId}`, JSON.stringify(updates));
+      const response = await apiRequest('PUT', `/api/messaging/conversations/${conversationId}`, JSON.stringify(updates));
 
       if (!response.ok) {
         const errorData = await response.json();

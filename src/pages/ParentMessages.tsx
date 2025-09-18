@@ -187,7 +187,7 @@ function PremiumConversationCard({ conversation, onClick }: { conversation: Conv
         )}
         
         <div className="flex items-center justify-between mt-2">
-          <ConversationLabelsDisplay conversationId={conversation.id} />
+          {/* <ConversationLabelsDisplay conversationId={conversation.id} /> */}
           {lastMessage && (
             <span className="text-xs text-gray-500 dark:text-gray-400">
               {new Date(lastMessage.created_at).toLocaleDateString()}

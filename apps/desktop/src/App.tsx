@@ -159,7 +159,6 @@ const CardShowcase = lazy(() => import("./pages/CardShowcase"));
 const FABDemo = lazy(() => import("./pages/FABDemo"));
 
 import { queryClient } from "./lib/queryClient";
-import PerformanceMonitor from "./components/PerformanceMonitor";
 
 // Helper components for specific route types with optimized loading
 function AuthRoute({ children }: { children: React.ReactNode }) {
@@ -218,7 +217,6 @@ function App() {
       <TooltipProvider>
         <Toaster />
         <Sonner />
-        <PerformanceMonitor />
         <ThemeProvider>
           <AuthProvider>
             <PushNotificationProvider />

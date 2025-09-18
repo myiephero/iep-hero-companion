@@ -512,6 +512,18 @@ export default function ParentMessages() {
                   </div>
                 ) : filteredConversations.length > 0 ? (
                   <div className="space-y-3 pt-4">
+                    {/* TEMP DEBUG: Show conversation count */}
+                    <div className="p-3 bg-green-100 dark:bg-green-900 border border-green-300 dark:border-green-700 rounded-lg">
+                      <p className="text-green-800 dark:text-green-200 text-sm font-medium">
+                        ✅ DEBUG: About to render {filteredConversations.length} conversations
+                      </p>
+                      <p className="text-green-700 dark:text-green-300 text-xs mt-1">
+                        First conversation ID: {filteredConversations[0]?.id}
+                      </p>
+                      <p className="text-green-700 dark:text-green-300 text-xs">
+                        Advocate: {filteredConversations[0]?.advocate?.name || 'NO ADVOCATE'}
+                      </p>
+                    </div>
                     {filteredConversations.map((conversation) => (
                       <div key={conversation.id} data-testid={`conversation-wrapper-${conversation.id}`}>
                         <PremiumConversationCard

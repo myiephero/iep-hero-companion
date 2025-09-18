@@ -5458,8 +5458,8 @@ Respond with this exact JSON format:
     index: false // Don't serve index.html automatically
   }));
   
-  // Serve mobile index.html for /m route with base path fix
-  app.get('/m', (req, res) => {
+  // Serve mobile index.html for both /m and /m/ routes with base path fix
+  const serveMobileApp = (req, res) => {
     const fs = require('fs');
     const indexPath = path.join(mobileDist, 'index.html');
     
@@ -5493,7 +5493,10 @@ Respond with this exact JSON format:
       res.setHeader('Content-Type', 'text/html');
       res.send(modifiedHtml);
     });
-  });
+  };
+  
+  app.get('/m', serveMobileApp);
+  app.get('/m/', serveMobileApp);
   
   // Service worker clearing endpoint
   app.get('/clear-sw', (req, res) => {

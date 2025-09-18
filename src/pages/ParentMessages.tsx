@@ -140,6 +140,9 @@ export default function ParentMessages() {
   const [attachmentFiles, setAttachmentFiles] = useState<MessageFile[]>([]);
   const [showFileUpload, setShowFileUpload] = useState(false);
   
+  // Mobile view state for responsive design
+  const [mobileView, setMobileView] = useState<'conversations' | 'chat'>('conversations');
+  
   // Conversation management state
   const [filters, setFilters] = useState({
     status: [] as string[],
@@ -276,214 +279,436 @@ export default function ParentMessages() {
 
   return (
     <DashboardLayout>
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 h-[calc(100vh-8rem)]">
-        {/* Conversations List */}
-        <div className="lg:col-span-1">
-          <Card className="h-full flex flex-col">
-            <div className="p-4 border-b">
-              <h2 className="text-lg font-semibold mb-3">Messages</h2>
-              <div className="relative">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
-                <Input placeholder="Search conversations..." className="pl-10" />
+      <div className="h-[calc(100vh-8rem)]">
+        {/* Mobile Layout - Show either conversations list OR chat */}
+        <div className="lg:hidden h-full">
+          {mobileView === 'conversations' ? (
+            /* Conversations List - Mobile */
+            <Card className="h-full flex flex-col">
+              <div className="p-4 border-b">
+                <h2 className="text-lg font-semibold mb-3">Messages</h2>
+                <div className="relative">
+                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
+                  <Input placeholder="Search conversations..." className="pl-10" />
+                </div>
               </div>
-            </div>
-            <div className="flex-1 overflow-y-auto">
-              <ConversationTable
-                conversations={conversations}
-                loading={conversationsLoading}
-                onOpenConversation={async (conversation) => {
-                  setSelectedConversation(conversation);
-                  if (conversation.unread_count > 0) {
-                    await markMessagesRead(conversation.id);
-                    refetchConversations();
-                  }
-                }}
-                onArchive={async (conversation) => {
-                  try {
-                    await updateConversationStatus(conversation.id, { archived: !conversation.archived });
-                    refetchConversations();
-                  } catch (error) {
-                    console.error('Error archiving conversation:', error);
-                  }
-                }}
-                onMarkUrgent={async (conversation) => {
-                  try {
-                    await updateConversationStatus(conversation.id, { priority: 'urgent' });
-                    refetchConversations();
-                  } catch (error) {
-                    console.error('Error marking conversation urgent:', error);
-                  }
-                }}
-              />
-              {!conversationsLoading && conversationsError && (
-                <div className="p-4 text-center text-red-500">
-                  Error loading conversations: {conversationsError}
+              <div className="flex-1 overflow-y-auto">
+                <ConversationTable
+                  conversations={conversations}
+                  loading={conversationsLoading}
+                  onOpenConversation={async (conversation) => {
+                    setSelectedConversation(conversation);
+                    setMobileView('chat'); // Switch to chat view on mobile
+                    if (conversation.unread_count > 0) {
+                      await markMessagesRead(conversation.id);
+                      refetchConversations();
+                    }
+                  }}
+                  onArchive={async (conversation) => {
+                    try {
+                      await updateConversationStatus(conversation.id, { archived: !conversation.archived });
+                      refetchConversations();
+                    } catch (error) {
+                      console.error('Error archiving conversation:', error);
+                    }
+                  }}
+                  onMarkUrgent={async (conversation) => {
+                    try {
+                      await updateConversationStatus(conversation.id, { priority: 'urgent' });
+                      refetchConversations();
+                    } catch (error) {
+                      console.error('Error marking conversation urgent:', error);
+                    }
+                  }}
+                />
+                {!conversationsLoading && conversationsError && (
+                  <div className="p-4 text-center text-red-500">
+                    Error loading conversations: {conversationsError}
+                  </div>
+                )}
+              </div>
+            </Card>
+          ) : (
+            /* Chat View - Mobile */
+            <Card className="h-full flex flex-col">
+              {selectedConversation && (
+                <div className="p-4 border-b">
+                  <div className="flex items-center justify-between">
+                    <Button 
+                      variant="ghost" 
+                      size="sm" 
+                      onClick={() => setMobileView('conversations')}
+                      className="mr-3"
+                    >
+                      ← Back
+                    </Button>
+                    <div className="flex items-center space-x-3 flex-1">
+                      <Avatar className="h-8 w-8">
+                        <AvatarImage src={selectedConversation.advocate?.avatar_url} alt={selectedConversation.advocate?.name || 'Advocate'} />
+                        <AvatarFallback>
+                          {selectedConversation.advocate?.name?.charAt(0) || 'A'}
+                        </AvatarFallback>
+                      </Avatar>
+                      <div className="flex-1">
+                        <h3 className="font-medium">{selectedConversation.advocate?.name || 'Unknown Advocate'}</h3>
+                        <p className="text-sm text-muted-foreground">{selectedConversation.subject}</p>
+                      </div>
+                    </div>
+                    <div className="flex items-center space-x-2">
+                      <ConversationLabelsDisplay conversationId={selectedConversation.id} />
+                      <ConversationActionsMenu conversation={selectedConversation} />
+                    </div>
+                  </div>
                 </div>
               )}
-            </div>
-          </Card>
-        </div>
-
-        {/* Chat Area */}
-        <div className="lg:col-span-2">
-          <Card className="h-full flex flex-col">
-            {selectedConversation && (
-              <div className="p-4 border-b">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center space-x-3">
-                    <Avatar className="h-8 w-8">
-                      <AvatarImage src={selectedConversation.advocate?.avatar_url} alt={selectedConversation.advocate?.name || 'Advocate'} />
-                      <AvatarFallback>
-                        {selectedConversation.advocate?.name?.charAt(0) || 'A'}
-                      </AvatarFallback>
-                    </Avatar>
-                    <div>
-                      <h3 className="font-medium">{selectedConversation.advocate?.name || 'Unknown Advocate'}</h3>
-                      <p className="text-sm text-muted-foreground">{selectedConversation.subject}</p>
-                    </div>
+              
+              {selectedConversation && (
+                <>
+                  {/* Message Search */}
+                  <div className="p-4 border-b">
+                    <MessageSearch
+                      searchTerm={searchTerm}
+                      onSearchChange={setSearchTerm}
+                      currentResultIndex={currentResultIndex}
+                      totalResults={totalResults}
+                      onNext={goToNext}
+                      onPrevious={goToPrevious}
+                      onClear={clearSearch}
+                      hasActiveSearch={hasActiveSearch}
+                      hasResults={hasResults}
+                    />
                   </div>
-                  <div className="flex items-center space-x-2">
-                    <ConversationLabelsDisplay conversationId={selectedConversation.id} />
-                    <ConversationActionsMenu conversation={selectedConversation} />
-                  </div>
-                </div>
-              </div>
-            )}
-            
-            {selectedConversation && (
-              <>
-                {/* Message Search */}
-                <div className="p-4 border-b">
-                  <MessageSearch
-                    searchTerm={searchTerm}
-                    onSearchChange={setSearchTerm}
-                    currentResultIndex={currentResultIndex}
-                    totalResults={totalResults}
-                    onNext={goToNext}
-                    onPrevious={goToPrevious}
-                    onClear={clearSearch}
-                    hasActiveSearch={hasActiveSearch}
-                    hasResults={hasResults}
-                  />
-                </div>
 
-                {/* Messages */}
-                <div ref={messagesContainerRef} className="flex-1 overflow-y-auto p-4 space-y-4">
-                  {messagesLoading ? (
-                    <div className="flex items-center justify-center h-64">
-                      <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
-                    </div>
-                  ) : messageHistory?.messages?.length > 0 ? (
-                    messageHistory.messages.map((message) => (
-                      <div 
-                        key={message.id} 
-                        data-message-id={message.id}
-                        className={`flex ${message.sender_type === 'parent' ? 'justify-end' : 'justify-start'}`}
-                      >
-                        <div className={`max-w-[70%] ${
-                          message.sender_type === 'parent' 
-                            ? 'bg-primary text-primary-foreground' 
-                            : 'bg-muted'
-                        } rounded-lg p-3`}>
-                          <div className="flex items-center justify-between mb-1">
-                            <span className="text-sm font-medium">
-                              {message.sender_type === 'parent' ? 'You' : selectedConversation.advocate?.name}
-                            </span>
-                            <span className="text-xs opacity-70">
-                              {new Date(message.created_at).toLocaleTimeString()}
-                            </span>
-                          </div>
-                          {hasActiveSearch ? (
-                            <MessageHighlight
-                              text={message.content}
-                              searchTerm={searchTerm}
-                              isCurrentResult={isCurrentResult(message)}
-                            />
-                          ) : (
-                            <p>{message.content}</p>
-                          )}
-                          {message.attachments && message.attachments.length > 0 && (
-                            <div className="mt-2 space-y-2">
-                              {message.attachments.map((attachment: MessageAttachment, index) => (
-                                <MessageAttachmentDisplay 
-                                  key={index}
-                                  attachment={attachment}
-                                />
-                              ))}
+                  {/* Messages */}
+                  <div ref={messagesContainerRef} className="flex-1 overflow-y-auto p-4 space-y-4">
+                    {messagesLoading ? (
+                      <div className="flex items-center justify-center h-64">
+                        <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
+                      </div>
+                    ) : messageHistory?.messages?.length > 0 ? (
+                      messageHistory.messages.map((message) => (
+                        <div 
+                          key={message.id} 
+                          data-message-id={message.id}
+                          className={`flex ${message.sender_type === 'parent' ? 'justify-end' : 'justify-start'}`}
+                        >
+                          <div className={`max-w-[70%] ${
+                            message.sender_type === 'parent' 
+                              ? 'bg-primary text-primary-foreground' 
+                              : 'bg-muted'
+                          } rounded-lg p-3`}>
+                            <div className="flex items-center justify-between mb-1">
+                              <span className="text-sm font-medium">
+                                {message.sender_type === 'parent' ? 'You' : selectedConversation.advocate?.name}
+                              </span>
+                              <span className="text-xs opacity-70">
+                                {new Date(message.created_at).toLocaleTimeString()}
+                              </span>
                             </div>
-                          )}
+                            {hasActiveSearch ? (
+                              <MessageHighlight
+                                text={message.content}
+                                searchTerm={searchTerm}
+                                isCurrentResult={isCurrentResult(message)}
+                              />
+                            ) : (
+                              <p>{message.content}</p>
+                            )}
+                            {message.attachments && message.attachments.length > 0 && (
+                              <div className="mt-2 space-y-2">
+                                {message.attachments.map((attachment: MessageAttachment, index) => (
+                                  <MessageAttachmentDisplay 
+                                    key={index}
+                                    attachment={attachment}
+                                  />
+                                ))}
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                      ))
+                    ) : (
+                      <div className="flex items-center justify-center h-64 text-muted-foreground">
+                        <div className="text-center">
+                          <MessageSquare className="h-12 w-12 mx-auto mb-4 opacity-50" />
+                          <p>No messages yet</p>
+                          <p className="text-sm">Start a conversation with your advocate</p>
                         </div>
                       </div>
-                    ))
-                  ) : (
-                    <div className="flex items-center justify-center h-64 text-muted-foreground">
-                      <div className="text-center">
-                        <MessageSquare className="h-12 w-12 mx-auto mb-4 opacity-50" />
-                        <p>No messages yet</p>
-                        <p className="text-sm">Start a conversation with your advocate</p>
+                    )}
+                  </div>
+
+                  {/* Message Input */}
+                  <div className="p-4 border-t">
+                    {showFileUpload && (
+                      <div className="mb-4">
+                        <MessageFileUpload
+                          files={attachmentFiles}
+                          onFilesChange={setAttachmentFiles}
+                          onClose={() => setShowFileUpload(false)}
+                        />
+                      </div>
+                    )}
+                    <div className="flex items-end space-x-2">
+                      <div className="flex-1">
+                        <textarea
+                          value={newMessageText}
+                          onChange={(e) => setNewMessageText(e.target.value)}
+                          placeholder="Type your message..."
+                          className="w-full min-h-[80px] p-3 border rounded-lg resize-none focus:outline-none focus:ring-2 focus:ring-primary"
+                          onKeyDown={(e) => {
+                            if (e.key === 'Enter' && !e.shiftKey) {
+                              e.preventDefault();
+                              handleSendMessage();
+                            }
+                          }}
+                          data-testid="message-input"
+                        />
+                      </div>
+                      <div className="flex flex-col space-y-2">
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => setShowFileUpload(!showFileUpload)}
+                          data-testid="attach-file-button"
+                        >
+                          <Paperclip className="h-4 w-4" />
+                        </Button>
+                        <Button
+                          onClick={handleSendMessage}
+                          disabled={(!newMessageText.trim() && !attachmentFiles.some(f => f.status === 'completed')) || sending}
+                          data-testid="send-message-button"
+                        >
+                          {sending ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />}
+                        </Button>
                       </div>
                     </div>
-                  )}
-                </div>
+                  </div>
+                </>
+              )}
 
-                {/* Message Input */}
-                <div className="p-4 border-t">
-                  {showFileUpload && (
-                    <div className="mb-4">
-                      <MessageFileUpload
-                        files={attachmentFiles}
-                        onFilesChange={setAttachmentFiles}
-                        onClose={() => setShowFileUpload(false)}
-                      />
+              {!selectedConversation && (
+                <div className="flex-1 flex items-center justify-center text-muted-foreground">
+                  <div className="text-center">
+                    <MessageSquare className="h-12 w-12 mx-auto mb-4 opacity-50" />
+                    <p>Select a conversation to start messaging</p>
+                  </div>
+                </div>
+              )}
+            </Card>
+          )}
+        </div>
+        
+        {/* Desktop Layout - Show both conversations list AND chat side by side */}
+        <div className="hidden lg:grid lg:grid-cols-3 gap-6 h-full">
+          {/* Conversations List */}
+          <div className="lg:col-span-1">
+            <Card className="h-full flex flex-col">
+              <div className="p-4 border-b">
+                <h2 className="text-lg font-semibold mb-3">Messages</h2>
+                <div className="relative">
+                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
+                  <Input placeholder="Search conversations..." className="pl-10" />
+                </div>
+              </div>
+              <div className="flex-1 overflow-y-auto">
+                <ConversationTable
+                  conversations={conversations}
+                  loading={conversationsLoading}
+                  onOpenConversation={async (conversation) => {
+                    setSelectedConversation(conversation);
+                    if (conversation.unread_count > 0) {
+                      await markMessagesRead(conversation.id);
+                      refetchConversations();
+                    }
+                  }}
+                  onArchive={async (conversation) => {
+                    try {
+                      await updateConversationStatus(conversation.id, { archived: !conversation.archived });
+                      refetchConversations();
+                    } catch (error) {
+                      console.error('Error archiving conversation:', error);
+                    }
+                  }}
+                  onMarkUrgent={async (conversation) => {
+                    try {
+                      await updateConversationStatus(conversation.id, { priority: 'urgent' });
+                      refetchConversations();
+                    } catch (error) {
+                      console.error('Error marking conversation urgent:', error);
+                    }
+                  }}
+                />
+                {!conversationsLoading && conversationsError && (
+                  <div className="p-4 text-center text-red-500">
+                    Error loading conversations: {conversationsError}
+                  </div>
+                )}
+              </div>
+            </Card>
+          </div>
+
+          {/* Chat Area */}
+          <div className="lg:col-span-2">
+            <Card className="h-full flex flex-col">
+              {selectedConversation && (
+                <div className="p-4 border-b">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center space-x-3">
+                      <Avatar className="h-8 w-8">
+                        <AvatarImage src={selectedConversation.advocate?.avatar_url} alt={selectedConversation.advocate?.name || 'Advocate'} />
+                        <AvatarFallback>
+                          {selectedConversation.advocate?.name?.charAt(0) || 'A'}
+                        </AvatarFallback>
+                      </Avatar>
+                      <div>
+                        <h3 className="font-medium">{selectedConversation.advocate?.name || 'Unknown Advocate'}</h3>
+                        <p className="text-sm text-muted-foreground">{selectedConversation.subject}</p>
+                      </div>
                     </div>
-                  )}
-                  <div className="flex items-end space-x-2">
-                    <div className="flex-1">
-                      <textarea
-                        value={newMessageText}
-                        onChange={(e) => setNewMessageText(e.target.value)}
-                        placeholder="Type your message..."
-                        className="w-full min-h-[80px] p-3 border rounded-lg resize-none focus:outline-none focus:ring-2 focus:ring-primary"
-                        onKeyDown={(e) => {
-                          if (e.key === 'Enter' && !e.shiftKey) {
-                            e.preventDefault();
-                            handleSendMessage();
-                          }
-                        }}
-                        data-testid="message-input"
-                      />
-                    </div>
-                    <div className="flex flex-col space-y-2">
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => setShowFileUpload(!showFileUpload)}
-                        data-testid="attach-file-button"
-                      >
-                        <Paperclip className="h-4 w-4" />
-                      </Button>
-                      <Button
-                        onClick={handleSendMessage}
-                        disabled={(!newMessageText.trim() && !attachmentFiles.some(f => f.status === 'completed')) || sending}
-                        data-testid="send-message-button"
-                      >
-                        {sending ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />}
-                      </Button>
+                    <div className="flex items-center space-x-2">
+                      <ConversationLabelsDisplay conversationId={selectedConversation.id} />
+                      <ConversationActionsMenu conversation={selectedConversation} />
                     </div>
                   </div>
                 </div>
-              </>
-            )}
+              )}
+              
+              {selectedConversation && (
+                <>
+                  {/* Message Search */}
+                  <div className="p-4 border-b">
+                    <MessageSearch
+                      searchTerm={searchTerm}
+                      onSearchChange={setSearchTerm}
+                      currentResultIndex={currentResultIndex}
+                      totalResults={totalResults}
+                      onNext={goToNext}
+                      onPrevious={goToPrevious}
+                      onClear={clearSearch}
+                      hasActiveSearch={hasActiveSearch}
+                      hasResults={hasResults}
+                    />
+                  </div>
 
-            {!selectedConversation && (
-              <div className="flex-1 flex items-center justify-center text-muted-foreground">
-                <div className="text-center">
-                  <MessageSquare className="h-12 w-12 mx-auto mb-4 opacity-50" />
-                  <p>Select a conversation to start messaging</p>
+                  {/* Messages */}
+                  <div ref={messagesContainerRef} className="flex-1 overflow-y-auto p-4 space-y-4">
+                    {messagesLoading ? (
+                      <div className="flex items-center justify-center h-64">
+                        <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
+                      </div>
+                    ) : messageHistory?.messages?.length > 0 ? (
+                      messageHistory.messages.map((message) => (
+                        <div 
+                          key={message.id} 
+                          data-message-id={message.id}
+                          className={`flex ${message.sender_type === 'parent' ? 'justify-end' : 'justify-start'}`}
+                        >
+                          <div className={`max-w-[70%] ${
+                            message.sender_type === 'parent' 
+                              ? 'bg-primary text-primary-foreground' 
+                              : 'bg-muted'
+                          } rounded-lg p-3`}>
+                            <div className="flex items-center justify-between mb-1">
+                              <span className="text-sm font-medium">
+                                {message.sender_type === 'parent' ? 'You' : selectedConversation.advocate?.name}
+                              </span>
+                              <span className="text-xs opacity-70">
+                                {new Date(message.created_at).toLocaleTimeString()}
+                              </span>
+                            </div>
+                            {hasActiveSearch ? (
+                              <MessageHighlight
+                                text={message.content}
+                                searchTerm={searchTerm}
+                                isCurrentResult={isCurrentResult(message)}
+                              />
+                            ) : (
+                              <p>{message.content}</p>
+                            )}
+                            {message.attachments && message.attachments.length > 0 && (
+                              <div className="mt-2 space-y-2">
+                                {message.attachments.map((attachment: MessageAttachment, index) => (
+                                  <MessageAttachmentDisplay 
+                                    key={index}
+                                    attachment={attachment}
+                                  />
+                                ))}
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                      ))
+                    ) : (
+                      <div className="flex items-center justify-center h-64 text-muted-foreground">
+                        <div className="text-center">
+                          <MessageSquare className="h-12 w-12 mx-auto mb-4 opacity-50" />
+                          <p>No messages yet</p>
+                          <p className="text-sm">Start a conversation with your advocate</p>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Message Input */}
+                  <div className="p-4 border-t">
+                    {showFileUpload && (
+                      <div className="mb-4">
+                        <MessageFileUpload
+                          files={attachmentFiles}
+                          onFilesChange={setAttachmentFiles}
+                          onClose={() => setShowFileUpload(false)}
+                        />
+                      </div>
+                    )}
+                    <div className="flex items-end space-x-2">
+                      <div className="flex-1">
+                        <textarea
+                          value={newMessageText}
+                          onChange={(e) => setNewMessageText(e.target.value)}
+                          placeholder="Type your message..."
+                          className="w-full min-h-[80px] p-3 border rounded-lg resize-none focus:outline-none focus:ring-2 focus:ring-primary"
+                          onKeyDown={(e) => {
+                            if (e.key === 'Enter' && !e.shiftKey) {
+                              e.preventDefault();
+                              handleSendMessage();
+                            }
+                          }}
+                          data-testid="message-input"
+                        />
+                      </div>
+                      <div className="flex flex-col space-y-2">
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => setShowFileUpload(!showFileUpload)}
+                          data-testid="attach-file-button"
+                        >
+                          <Paperclip className="h-4 w-4" />
+                        </Button>
+                        <Button
+                          onClick={handleSendMessage}
+                          disabled={(!newMessageText.trim() && !attachmentFiles.some(f => f.status === 'completed')) || sending}
+                          data-testid="send-message-button"
+                        >
+                          {sending ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />}
+                        </Button>
+                      </div>
+                    </div>
+                  </div>
+                </>
+              )}
+
+              {!selectedConversation && (
+                <div className="flex-1 flex items-center justify-center text-muted-foreground">
+                  <div className="text-center">
+                    <MessageSquare className="h-12 w-12 mx-auto mb-4 opacity-50" />
+                    <p>Select a conversation to start messaging</p>
+                  </div>
                 </div>
-              </div>
-            )}
-          </Card>
+              )}
+            </Card>
+          </div>
         </div>
       </div>
     </DashboardLayout>

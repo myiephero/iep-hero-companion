@@ -439,6 +439,13 @@ export default function ParentDashboard({ plan }: ParentDashboardProps) {
 
   return (
     <DashboardLayout>
+      {/* Desktop Platform Test Button */}
+      <div className="fixed top-4 right-4 z-50">
+        <div className="bg-red-500 text-white px-4 py-2 rounded-lg font-semibold shadow-lg">
+          🖥️ DESKTOP VERSION TEST
+        </div>
+      </div>
+      
       <div className="min-h-screen">
         {/* Enhanced Hero Section with Unified Design */}
         <div className="relative overflow-hidden">

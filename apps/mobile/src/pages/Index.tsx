@@ -81,6 +81,13 @@ const Index = () => {
 
   return (
     <div className="min-h-screen">
+      {/* Mobile Platform Test Button */}
+      <div className="fixed top-4 right-4 z-50">
+        <div className="bg-green-500 text-white px-4 py-2 rounded-lg font-semibold shadow-lg">
+          📱 MOBILE VERSION TEST
+        </div>
+      </div>
+      
       {/* Hero Section */}
       <section className="relative bg-gradient-to-br from-primary/5 to-secondary/5 py-16 lg:py-24">
         <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">

@@ -445,7 +445,6 @@ export default function ParentDashboard({ plan }: ParentDashboardProps) {
           🖥️ DESKTOP VERSION TEST
         </div>
       </div>
-      
       <div className="min-h-screen">
         {/* Enhanced Hero Section with Unified Design */}
         <div className="relative overflow-hidden">

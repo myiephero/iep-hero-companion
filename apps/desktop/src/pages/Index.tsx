@@ -41,38 +41,6 @@ const Index = () => {
   });
   const [loginLoading, setLoginLoading] = useState(false);
 
-  // TEMPORARY: Force clear service workers and caches on desktop version load
-  useEffect(() => {
-    const clearServiceWorkers = async () => {
-      try {
-        console.log('🧹 Desktop version: Clearing service workers and caches...');
-        
-        // Clear all service workers
-        if ('serviceWorker' in navigator) {
-          const registrations = await navigator.serviceWorker.getRegistrations();
-          for (const registration of registrations) {
-            await registration.unregister();
-            console.log('✅ Unregistered service worker:', registration.scope);
-          }
-        }
-        
-        // Clear all caches
-        if ('caches' in window) {
-          const cacheNames = await caches.keys();
-          for (const cacheName of cacheNames) {
-            await caches.delete(cacheName);
-            console.log('✅ Deleted cache:', cacheName);
-          }
-        }
-        
-        console.log('🎯 Desktop version should now display correctly!');
-      } catch (error) {
-        console.error('❌ Error clearing service workers:', error);
-      }
-    };
-    
-    clearServiceWorkers();
-  }, []);
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -114,6 +82,7 @@ const Index = () => {
 
   return (
     <div className="min-h-screen">
+
       {/* DESKTOP TEST BOX - RED */}
       <div className="fixed top-20 right-4 z-50 bg-red-500 text-white p-4 rounded-lg shadow-lg font-bold">
         🖥️ DESKTOP VERSION TEST

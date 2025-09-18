@@ -87,7 +87,6 @@ const Index = () => {
           📱 MOBILE VERSION TEST
         </div>
       </div>
-      
       {/* Hero Section */}
       <section className="relative bg-gradient-to-br from-primary/5 to-secondary/5 py-16 lg:py-24">
         <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">

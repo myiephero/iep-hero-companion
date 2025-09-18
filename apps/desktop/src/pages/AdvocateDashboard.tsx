@@ -600,7 +600,6 @@ const AdvocateDashboard = ({ plan }: AdvocateDashboardProps) => {
           🖥️ DESKTOP VERSION TEST
         </div>
       </div>
-      
       <div className="space-y-6 sm:space-y-8">
         {/* Hero Section */}
         <div className="relative overflow-hidden rounded-xl bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 dark:from-blue-950 dark:via-indigo-950 dark:to-purple-950 p-4 sm:p-6 md:p-8">

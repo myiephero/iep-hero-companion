@@ -609,7 +609,6 @@ const AdvocateDashboard = ({ plan }: AdvocateDashboardProps) => {
         <div className="fixed top-20 right-4 z-50 bg-green-500 text-white p-4 rounded-lg shadow-lg font-bold">
           📱 MOBILE VERSION TEST
         </div>
-        
         {/* Welcome Section */}
         <ContainerMobile>
           <PremiumCard variant="gradient" className="p-6">

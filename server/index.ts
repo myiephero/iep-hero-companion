@@ -5433,9 +5433,9 @@ Respond with this exact JSON format:
     });
   } else {
     // Development: Create single proxy instance at startup to forward to Vite dev server
-    console.log('🚀 Development mode: Creating single proxy instance to Vite dev server on port 3000');
+    console.log('🚀 Development mode: Creating single proxy instance to Vite dev server on port 5000');
     const viteProxy = createProxyMiddleware({
-      target: 'http://localhost:3000',
+      target: 'http://localhost:5000',
       changeOrigin: true,
       ws: true // Enable WebSocket proxying for HMR
     });

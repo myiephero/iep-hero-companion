@@ -605,6 +605,11 @@ const AdvocateDashboard = ({ plan }: AdvocateDashboardProps) => {
         subtitle="Your advocacy dashboard"
       />
       <SafeAreaFull className="space-y-6">
+        {/* MOBILE TEST BOX - BRIGHT GREEN */}
+        <div className="fixed top-20 right-4 z-50 bg-green-500 text-white p-4 rounded-lg shadow-lg font-bold">
+          📱 MOBILE VERSION TEST
+        </div>
+        
         {/* Welcome Section */}
         <ContainerMobile>
           <PremiumCard variant="gradient" className="p-6">

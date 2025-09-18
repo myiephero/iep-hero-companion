@@ -81,6 +81,11 @@ const Index = () => {
 
   return (
     <div className="min-h-screen">
+      {/* DESKTOP TEST BOX - RED */}
+      <div className="fixed top-20 right-4 z-50 bg-red-500 text-white p-4 rounded-lg shadow-lg font-bold">
+        🖥️ DESKTOP VERSION TEST
+      </div>
+
       {/* Hero Section */}
       <section className="relative bg-gradient-to-br from-primary/5 to-secondary/5 py-16 lg:py-24">
         <div className="container mx-auto px-4">

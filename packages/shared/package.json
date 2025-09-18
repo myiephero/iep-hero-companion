@@ -1,0 +1,25 @@
+{
+  "name": "@iep-hero/shared",
+  "version": "1.0.0",
+  "description": "Shared types, schemas, and business logic for IEP Hero applications",
+  "main": "index.ts",
+  "exports": {
+    ".": "./index.ts",
+    "./schema": "./schema.ts",
+    "./planAccess": "./planAccess.ts"
+  },
+  "scripts": {
+    "type-check": "tsc --noEmit"
+  },
+  "dependencies": {
+    "drizzle-orm": "^0.44.5",
+    "drizzle-zod": "^0.5.1",
+    "zod": "^3.25.76"
+  },
+  "devDependencies": {
+    "typescript": "^5.8.3"
+  },
+  "peerDependencies": {
+    "typescript": "^5.8.3"
+  }
+}

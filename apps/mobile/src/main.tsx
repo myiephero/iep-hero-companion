@@ -4,68 +4,29 @@ import './index.css'
 import { offlineStorage } from './lib/offlineStorage'
 import { Capacitor } from '@capacitor/core'
 
-// 🔒 CRITICAL iOS SAFARI FIX: Foolproof Capacitor Patch
+// 🔒 CRITICAL iOS SAFARI FIX: Override window.open to prevent external browser
 const originalWindowOpen = window.open;
-
 window.open = function(url?: string | URL, target?: string, features?: string) {
-  const urlStr = url?.toString() || '';
-  console.log('[window.open] URL:', urlStr, 'Target:', target);
-
-  const isInternal = urlStr === '' ||
-                     urlStr.startsWith('/') ||
-                     urlStr.startsWith(window.location.origin) ||
-                     urlStr.startsWith('myiephero://');
-
-  if (isInternal) {
-    console.log('[WebView] Internal navigation detected:', urlStr);
-    window.location.href = urlStr || '/';
+  if (!url) return originalWindowOpen.call(this, url, target, features);
+  
+  const urlStr = url.toString();
+  console.log('🔒 window.open intercepted:', urlStr, 'target:', target);
+  
+  // Keep ALL internal URLs in WebView - NO EXCEPTIONS
+  if (urlStr === '' || urlStr.startsWith('/') || urlStr.startsWith(window.location.origin)) {
+    console.log('🔒 STAYING IN WEBVIEW - redirecting internally');
+    window.location.replace(urlStr || '/');
     return null;
   }
-
-  console.warn('[External URL] Blocked:', urlStr);
-  return null;
+  
+  // Only allow true external URLs
+  return originalWindowOpen.call(this, url, target, features);
 };
-
-// Intercept anchor clicks
-document.addEventListener('click', (e) => {
-  const target = e.target as HTMLElement;
-  if (target.tagName === 'A') {
-    const anchor = target as HTMLAnchorElement;
-    const href = anchor.href;
-    if (href) {
-      const isInternal = href.startsWith(window.location.origin) || href.startsWith('myiephero://');
-      if (isInternal) {
-        e.preventDefault();
-        console.log('[Anchor Click] Internal navigation:', href);
-        window.location.href = href;
-      } else {
-        e.preventDefault();
-        console.warn('[Anchor Click] External URL blocked:', href);
-      }
-    }
-  }
-});
-
-// Log fetch/XHR requests and detect redirects
-(function() {
-  const originalFetch = window.fetch;
-  window.fetch = async function(input: RequestInfo, init?: RequestInit) {
-    const response = await originalFetch(input, init);
-    console.log('[Fetch] URL:', input, 'Status:', response.status, 'Redirected:', response.redirected);
-    return response;
-  };
-
-  const originalXHROpen = XMLHttpRequest.prototype.open;
-  XMLHttpRequest.prototype.open = function(method: string, url: string) {
-    console.log('[XHR] Open:', method, url);
-    return originalXHROpen.apply(this, arguments as any);
-  };
-})();
 
 // 🚀 NATIVE APP FIX: Only register Service Worker for web builds, NOT native apps
 if (!Capacitor.isNativePlatform() && 'serviceWorker' in navigator) {
   window.addEventListener('load', () => {
-    navigator.serviceWorker.register('/m/sw.js', { scope: '/m/' })
+    navigator.serviceWorker.register('/sw.js')
       .then((registration) => {
         console.log('✅ Service Worker registered successfully:', registration.scope);
         

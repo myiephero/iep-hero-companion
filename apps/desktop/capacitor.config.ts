@@ -8,34 +8,10 @@ const config: CapacitorConfig = {
     androidScheme: 'https',
     // Production: Restrict navigation for security
     allowNavigation: [
-      // App domains
-      "api.myiephero.com",
-      "myiephero.com",
-      
-      // Google OAuth and APIs
-      "accounts.google.com",
-      "www.googleapis.com", 
-      "oauth2.googleapis.com",
-      
-      // Replit auth domains
-      "auth.replit.com",
-      "replit.com",
-      "afd4ab41-fa60-4e78-9742-69bb4e3004d6-00-6i79wn87wfhu.janeway.replit.dev",
-      
-      // CDN and object storage for images
-      "storage.googleapis.com",
-      "firebasestorage.googleapis.com",
-      "cdn.myiephero.com",
-      
-      // Google Fonts
-      "fonts.googleapis.com",
-      "fonts.gstatic.com",
-      
-      // Google User Content (profile images, etc.)
-      "lh3.googleusercontent.com",
-      "lh4.googleusercontent.com",
-      "lh5.googleusercontent.com",
-      "lh6.googleusercontent.com"
+      "https://api.myiephero.com",
+      "https://myiephero.com",
+      "https://firebaseapp.com",
+      "https://googleapis.com"
     ],
     // Production: Disable cleartext for security
     cleartext: false,
@@ -131,7 +107,7 @@ const config: CapacitorConfig = {
     // Network security
     appendUserAgent: 'MyIEPHero/1.0',
     // Performance optimizations
-    // hideLogs: true  // Not a valid Capacitor config property
+    hideLogs: true
   }
 };
 

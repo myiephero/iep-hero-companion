@@ -591,40 +591,6 @@ import { fileURLToPath } from 'url';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-// Auth endpoint for /api/auth/me (redirects to /api/auth/user for compatibility)
-app.get('/api/auth/me', async (req: any, res) => {
-  try {
-    // Use the unified getUserId function to check both token-based and Replit auth
-    const userId = await getUserId(req);
-    
-    if (!userId) {
-      return res.status(401).json({ 
-        error: 'Unauthorized',
-        message: 'No valid authentication token or session found',
-        details: 'Please log in again'
-      });
-    }
-
-    const user = await storage.getUser(userId);
-    if (!user) {
-      return res.status(404).json({ 
-        error: 'User not found',
-        message: 'User profile not found in database',
-        details: `User ID: ${userId}`
-      });
-    }
-
-    res.json(user);
-  } catch (error) {
-    console.error('❌ Error in /api/auth/me:', error);
-    res.status(500).json({ 
-      error: 'Internal server error',
-      message: 'Failed to fetch user data',
-      details: error instanceof Error ? error.message : 'Unknown error'
-    });
-  }
-});
-
 // Unified auth endpoint that checks both Replit Auth and custom login
 app.get('/api/auth/user', async (req: any, res) => {
   try {
@@ -5488,13 +5454,7 @@ Respond with this exact JSON format:
   // Mount desktop static files at root with fallthrough
   app.use('/', express.static(desktopDist, { 
     fallthrough: true,
-    index: false, // Don't serve index.html automatically
-    setHeaders: (res, path) => {
-      // Enable JS module serving
-      if (path.endsWith('.js')) {
-        res.setHeader('Content-Type', 'application/javascript; charset=utf-8');
-      }
-    }
+    index: false // Don't serve index.html automatically
   }));
   
   // Serve mobile index.html for both /m and /m/ routes with base path fix

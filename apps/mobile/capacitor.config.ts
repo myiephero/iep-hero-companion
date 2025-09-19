@@ -102,10 +102,7 @@ const config: CapacitorConfig = {
   // iOS specific configuration for TestFlight and production
   ios: {
     scheme: 'MyIEPHero',
-    path: 'ios',
-    // 🔒 CRITICAL: Keep all navigation in WebView
-    contentInset: 'always',
-    allowNavigation: ['*.replit.dev', 'myiephero://*']
+    path: 'ios'
   },
   // Android specific configuration for production
   android: {

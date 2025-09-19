@@ -3,7 +3,6 @@ import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClientProvider } from "@tanstack/react-query";
-import { queryClient } from "@/lib/queryClient";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { AuthProvider } from "@/hooks/useAuth";
 import { ThemeProvider } from "@/contexts/ThemeContext";
@@ -158,6 +157,8 @@ const PremiumToolsDemo = lazy(() => import("./pages/PremiumToolsDemo"));
 const AllPagesView = lazy(() => import("./pages/AllPagesView"));
 const CardShowcase = lazy(() => import("./pages/CardShowcase"));
 const FABDemo = lazy(() => import("./pages/FABDemo"));
+
+import { queryClient } from "./lib/queryClient";
 
 // Helper components for specific route types with optimized loading
 function AuthRoute({ children }: { children: React.ReactNode }) {

@@ -1,5 +1,7 @@
 import { createRoot } from 'react-dom/client'
-import App from './App.tsx'
+// 🚀 iOS WEBVIEW MINIMAL TEST: Use minimal app first
+import AppMinimal from './AppMinimal.tsx'
+// import App from './App.tsx'
 import './index.css'
 import { offlineStorage } from './lib/offlineStorage'
 import { Capacitor } from '@capacitor/core'
@@ -115,7 +117,7 @@ try {
     throw new Error('Root element not found');
   }
   
-  createRoot(root).render(<App />);
+  createRoot(root).render(<AppMinimal />);
   console.log('🔧 React app rendered successfully!');
 } catch (error) {
   console.error('🚨 Critical error rendering React app:', error);
@@ -124,9 +126,10 @@ try {
   if (root) {
     root.innerHTML = `
       <div style="padding: 20px; font-family: Arial;">
-        <h1>My IEP Hero - Debug Mode</h1>
+        <h1>🚨 React Crash Detected</h1>
         <p><strong>Error:</strong> ${error instanceof Error ? error.message : 'Unknown error'}</p>
-        <p>App failed to load. Check console for details.</p>
+        <p>This helps us debug the iOS WebView issue.</p>
+        <p><strong>Stack:</strong> ${error instanceof Error ? error.stack : 'No stack trace'}</p>
       </div>
     `;
   }

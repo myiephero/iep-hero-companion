@@ -8,6 +8,15 @@ Preferred communication style: Simple, everyday language.
 
 # Recent Changes
 
+**September 19, 2025**: Fixed critical iOS Safari redirect issue preventing authentication
+- Diagnosed root cause: iOS app was loading desktop version instead of mobile version, causing blank screens
+- Removed all custom WKWebView delegate code (SceneDelegate/AppDelegate modifications) that were conflicting with Capacitor defaults
+- Fixed Capacitor configuration to load mobile version (/m/) instead of desktop version (/)
+- Enhanced allowNavigation with comprehensive auth and asset domains (Google OAuth, Replit auth, CDNs, fonts, user content)
+- Temporarily relaxed ATS (App Transport Security) for debugging image loading issues
+- Auth flow now stays within WebView instead of redirecting to Safari
+- System tested with clean iOS platform reset and proper configuration-based approach
+
 **September 12, 2025**: Implemented tier-specific tools with upsell strategy for advocates
 - ALL advocates now see the same interface (Agency-tier tools) with subscription-based functionality limits
 - Created centralized tool registry system with 20+ advocate tools and comprehensive metadata

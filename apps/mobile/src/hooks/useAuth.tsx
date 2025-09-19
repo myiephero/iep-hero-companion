@@ -136,8 +136,8 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
               setProfile(null);
               setLoading(false);
               
-              // Redirect to login to force re-authentication
-              window.location.href = '/auth';
+              // Redirect to login to force re-authentication (use replace to stay in WebView)
+              window.location.replace('/auth');
               return;
             } else {
               console.log('✅ Token ownership validated - user ID matches');
@@ -153,7 +153,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
             // This is a new user who just authenticated but hasn't completed onboarding
             const currentPath = window.location.pathname;
             if (!currentPath.includes('/onboarding') && !currentPath.includes('/subscribe')) {
-              window.location.href = '/onboarding';
+              window.location.replace('/onboarding');
             }
           } else if (userData && userData.role) {
             // User has a role - handle plan-specific routing
@@ -187,8 +187,8 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
             
             // Redirect scenarios
             if (currentPath === '/auth' || currentPath === '/onboarding' || currentPath === '/') {
-              // Post-authentication/onboarding redirect
-              window.location.href = correctDashboardPath;
+              // Post-authentication/onboarding redirect (use replace to stay in WebView)
+              window.location.replace(correctDashboardPath);
             } else if (userData.role === 'parent') {
               // Handle parent dashboard redirections
               const isOnGenericDashboard = currentPath === '/parent/dashboard';
@@ -196,7 +196,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
                                            currentPath !== correctDashboardPath;
               
               if (isOnGenericDashboard || isOnWrongPlanDashboard) {
-                window.location.href = correctDashboardPath;
+                window.location.replace(correctDashboardPath);
               }
             } else if (userData.role === 'advocate') {
               // Handle advocate dashboard redirections - NO GENERIC DASHBOARDS ALLOWED
@@ -205,7 +205,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
                                            currentPath !== correctDashboardPath;
               
               if (isOnWrongRoleDashboard || isOnWrongPlanDashboard) {
-                window.location.href = correctDashboardPath;
+                window.location.replace(correctDashboardPath);
               }
             }
           }
@@ -223,7 +223,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
           
           if (isProtectedRoute) {
             console.log('🔄 Redirecting to login due to expired authentication');
-            window.location.href = '/auth';
+            window.location.replace('/auth');
           }
         } else {
           // Other error - clear auth state but don't redirect

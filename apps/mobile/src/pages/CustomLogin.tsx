@@ -66,9 +66,9 @@ export default function CustomLogin() {
           description: "You've been signed in successfully.",
         });
         
-        // Add a delay and force a full page reload to ensure auth state is refreshed
+        // Add a delay and use location.replace to stay within WebView on mobile
         setTimeout(() => {
-          window.location.href = data.redirectTo || '/parent/dashboard';
+          window.location.replace(data.redirectTo || '/parent/dashboard');
         }, 1500);
       } else {
         toast({
@@ -103,7 +103,7 @@ export default function CustomLogin() {
         {/* Premium Transparent Header */}
         <PremiumTransparentHeader
           showBack={true}
-          onBack={() => window.location.href = '/'}
+          onBack={() => window.location.replace('/')}
           rightAction={
             <div className="flex items-center gap-1 px-3 py-1.5 rounded-full bg-gradient-to-r from-blue-500/10 to-purple-500/10 backdrop-blur-sm">
               <Crown className="h-4 w-4 text-blue-600 dark:text-blue-400" />

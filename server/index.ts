@@ -1355,6 +1355,25 @@ app.post('/api/custom-login', async (req: any, res) => {
       return res.status(500).json({ message: 'Login failed. Please try again.' });
     }
 
+    // Determine redirect path based on platform
+    const basePath = isMobileRequest(req) ? '/m' : '';
+    const dashboardPath = user.role === 'parent' 
+      ? `/parent/dashboard-${user.subscriptionPlan?.toLowerCase().replace(/\s+/g, '') || 'free'}` 
+      : (() => {
+          const advocatePlanMapping: Record<string, string> = {
+            'starter': 'starter',
+            'pro': 'pro',
+            'agency': 'agency', 
+            'agency plus': 'agency-plus',
+            'agencyplus': 'agency-plus',
+            'agency-annual': 'agency',
+            'pro-annual': 'pro',
+            'starter-annual': 'starter'
+          };
+          const planSlug = advocatePlanMapping[user.subscriptionPlan?.toLowerCase() || ''] || 'starter';
+          return `/advocate/dashboard-${planSlug}`;
+        })();
+
     res.json({ 
       success: true,
       message: 'Login successful',
@@ -1367,22 +1386,7 @@ app.post('/api/custom-login', async (req: any, res) => {
         role: user.role,
         subscriptionPlan: user.subscriptionPlan
       },
-      redirectTo: user.role === 'parent' 
-        ? `/parent/dashboard-${user.subscriptionPlan?.toLowerCase().replace(/\s+/g, '') || 'free'}` 
-        : (() => {
-            const advocatePlanMapping: Record<string, string> = {
-              'starter': 'starter',
-              'pro': 'pro',
-              'agency': 'agency', 
-              'agency plus': 'agency-plus',
-              'agencyplus': 'agency-plus',
-              'agency-annual': 'agency',
-              'pro-annual': 'pro',
-              'starter-annual': 'starter'
-            };
-            const planSlug = advocatePlanMapping[user.subscriptionPlan?.toLowerCase() || ''] || 'starter';
-            return `/advocate/dashboard-${planSlug}`;
-          })()
+      redirectTo: `${basePath}${dashboardPath}`
     });
   } catch (error) {
     console.error('Login error:', error);

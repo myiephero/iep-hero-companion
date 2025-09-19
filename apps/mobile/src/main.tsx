@@ -4,23 +4,63 @@ import './index.css'
 import { offlineStorage } from './lib/offlineStorage'
 import { Capacitor } from '@capacitor/core'
 
-// 🔒 CRITICAL iOS SAFARI FIX: Override window.open to prevent external browser
+// 🔒 CRITICAL iOS SAFARI FIX: Comprehensive navigation control
 const originalWindowOpen = window.open;
+const originalLocationAssign = window.location.assign;
+const originalLocationReplace = window.location.replace;
+
+// Override window.open to prevent external browser
 window.open = function(url?: string | URL, target?: string, features?: string) {
   if (!url) return originalWindowOpen.call(this, url, target, features);
   
   const urlStr = url.toString();
-  console.log('🔒 window.open intercepted:', urlStr, 'target:', target);
+  console.log('🔒 window.open intercepted:', urlStr, 'target:', target, 'features:', features);
   
   // Keep ALL internal URLs in WebView - NO EXCEPTIONS
-  if (urlStr === '' || urlStr.startsWith('/') || urlStr.startsWith(window.location.origin)) {
+  if (urlStr === '' || urlStr.startsWith('/') || urlStr.startsWith(window.location.origin) || urlStr.startsWith('http://localhost') || urlStr.startsWith('https://localhost') || urlStr.includes('replit.dev')) {
     console.log('🔒 STAYING IN WEBVIEW - redirecting internally');
     window.location.replace(urlStr || '/');
     return null;
   }
   
-  // Only allow true external URLs
+  console.log('🔒 ALLOWING external window.open for:', urlStr);
   return originalWindowOpen.call(this, url, target, features);
+};
+
+// Debug navigation events
+window.addEventListener('beforeunload', (e) => {
+  console.log('🔒 beforeunload triggered:', window.location.href);
+});
+
+window.addEventListener('unload', (e) => {
+  console.log('🔒 unload triggered:', window.location.href);
+});
+
+// Intercept all link clicks to prevent target="_blank" Safari redirects
+document.addEventListener('click', (e) => {
+  const target = e.target as HTMLElement;
+  const link = target.closest('a') as HTMLAnchorElement | null;
+  
+  if (link && link.href) {
+    console.log('🔒 Link clicked:', link.href, 'target:', link.target);
+    
+    if (link.target === '_blank' && (link.origin === window.location.origin || link.href.startsWith('/') || link.href.includes('replit.dev'))) {
+      e.preventDefault();
+      console.log('🔒 Intercepted target="_blank" link - staying in WebView');
+      window.location.replace(link.href);
+    }
+  }
+});
+
+// Override location methods to log navigation
+window.location.assign = function(url: string | URL) {
+  console.log('🔒 location.assign called:', url);
+  return originalLocationAssign.call(this, url);
+};
+
+window.location.replace = function(url: string | URL) {
+  console.log('🔒 location.replace called:', url);
+  return originalLocationReplace.call(this, url);
 };
 
 // 🚀 NATIVE APP FIX: Only register Service Worker for web builds, NOT native apps

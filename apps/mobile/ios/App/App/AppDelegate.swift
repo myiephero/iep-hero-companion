@@ -1,14 +1,61 @@
 import UIKit
 import Capacitor
+import WebKit
 
 @UIApplicationMain
-class AppDelegate: UIResponder, UIApplicationDelegate {
+class AppDelegate: UIResponder, UIApplicationDelegate, WKNavigationDelegate {
 
     var window: UIWindow?
 
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
+        // 🔒 CRITICAL iOS SAFARI FIX: Configure WebView to keep all navigation in-app
+        if let bridge = CAPBridge.getLastCreatedBridge() {
+            if let webView = bridge.webView {
+                // Allow JavaScript to open windows in-place instead of Safari
+                webView.configuration.preferences.javaScriptCanOpenWindowsAutomatically = true
+                
+                // Set navigation delegate to control redirects
+                webView.navigationDelegate = self
+                
+                // Disable external link detection
+                webView.configuration.dataDetectorTypes = []
+                
+                // Ensure all navigation stays in WebView
+                webView.configuration.preferences.javaScriptEnabled = true
+                
+                print("🔒 WebView configured to prevent Safari redirects")
+            }
+        }
+        
         // Override point for customization after application launch.
         return true
+    }
+    
+    // 🔒 CRITICAL: Control navigation to prevent Safari redirects
+    func webView(_ webView: WKWebView, decidePolicyFor navigationAction: WKNavigationAction, decisionHandler: @escaping (WKNavigationActionPolicy) -> Void) {
+        guard let url = navigationAction.request.url else {
+            decisionHandler(.allow)
+            return
+        }
+        
+        let urlString = url.absoluteString
+        print("🔒 Navigation request: \(urlString)")
+        
+        // Allow all internal navigation (Replit domains and relative paths)
+        if url.scheme == "file" || 
+           url.scheme == "capacitor" ||
+           urlString.contains("replit.dev") ||
+           urlString.contains("replit.com") ||
+           urlString.hasPrefix("/") ||
+           url.host == navigationAction.request.url?.host {
+            print("🔒 ALLOWING internal navigation: \(urlString)")
+            decisionHandler(.allow)
+        } else {
+            print("🔒 BLOCKING external navigation: \(urlString)")
+            // For truly external URLs, we could open in Safari if needed
+            // UIApplication.shared.open(url)
+            decisionHandler(.cancel)
+        }
     }
 
     func applicationWillResignActive(_ application: UIApplication) {

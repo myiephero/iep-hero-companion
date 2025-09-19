@@ -6,6 +6,8 @@ const config: CapacitorConfig = {
   webDir: 'dist',
   server: {
     androidScheme: 'https',
+    // 🎯 CRITICAL: Load mobile version for iOS app
+    url: 'https://afd4ab41-fa60-4e78-9742-69bb4e3004d6-00-6i79wn87wfhu.janeway.replit.dev/m/',
     // Production: Restrict navigation for security
     allowNavigation: [
       // App domains

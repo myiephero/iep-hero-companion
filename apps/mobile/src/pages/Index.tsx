@@ -61,8 +61,14 @@ const Index = () => {
         const { token, user: userData, redirectTo } = await response.json();
         localStorage.setItem('authToken', token);
         
-        // Use the redirectTo URL from server response (plan-specific dashboard)
-        window.location.replace(redirectTo);
+        // 🔒 MOBILE FIX: Ensure redirectTo uses mobile path (/m/)
+        let mobileRedirectTo = redirectTo;
+        if (redirectTo && !redirectTo.startsWith('/m/')) {
+          mobileRedirectTo = '/m' + (redirectTo.startsWith('/') ? redirectTo : '/' + redirectTo);
+        }
+        
+        console.log('🔄 Mobile login redirect:', redirectTo, '→', mobileRedirectTo);
+        window.location.replace(mobileRedirectTo);
       } else {
         const errorData = await response.json();
         alert(errorData.message || 'Login failed');

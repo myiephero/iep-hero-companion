@@ -1,76 +1,13 @@
 import UIKit
 import Capacitor
-import WebKit
 
 @UIApplicationMain
-class AppDelegate: UIResponder, UIApplicationDelegate, WKNavigationDelegate, WKUIDelegate {
+class AppDelegate: UIResponder, UIApplicationDelegate {
 
     var window: UIWindow?
 
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
-        // 🎯 CORRECT TARGET: This will actually run!
-        print("🎯 [CORRECT TARGET] AppDelegate running in bundle: \(Bundle.main.bundleIdentifier ?? "unknown")")
-        
-        // Attach to live WebView after a delay to ensure Capacitor is ready
-        DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
-            self.attachWebViewDelegates()
-        }
-        
         return true
-    }
-    
-    private func attachWebViewDelegates() {
-        // Find the live Capacitor WebView
-        if let bridgeVC = window?.rootViewController as? CAPBridgeViewController,
-           let webView = bridgeVC.bridge?.webView {
-            
-            webView.navigationDelegate = self
-            webView.uiDelegate = self
-            webView.configuration.preferences.javaScriptCanOpenWindowsAutomatically = true
-            
-            print("🎯 [SUCCESS] WebView delegates attached to LIVE Capacitor instance")
-        } else {
-            print("🎯 [ERROR] Could not find live Capacitor WebView")
-        }
-    }
-    
-    // 🔒 Block external navigation, allow auth domains
-    func webView(_ webView: WKWebView, decidePolicyFor navigationAction: WKNavigationAction,
-                 decisionHandler: @escaping (WKNavigationActionPolicy) -> Void) {
-
-        let url = navigationAction.request.url
-        print("🎯 [WKWebView] Navigation attempt:", url?.absoluteString ?? "")
-
-        if let urlStr = url?.absoluteString {
-            if urlStr.starts(with: "http://") || urlStr.starts(with: "https://") {
-                if urlStr.contains("replit.dev") || urlStr.contains("myiephero://") {
-                    print("🎯 [WKWebView] ALLOWING internal navigation:", urlStr)
-                    decisionHandler(.allow)
-                    return
-                } else {
-                    print("🎯 [WKWebView] BLOCKED external navigation:", urlStr)
-                    decisionHandler(.cancel)
-                    return
-                }
-            }
-        }
-        decisionHandler(.allow)
-    }
-    
-    // 🔒 CRITICAL: Capture popup/new window requests and keep them in-app
-    func webView(_ webView: WKWebView, createWebViewWith configuration: WKWebViewConfiguration, 
-                 for navigationAction: WKNavigationAction, windowFeatures: WKWindowFeatures) -> WKWebView? {
-        
-        print("🎯 [WKUIDelegate] Popup request - Target frame:", navigationAction.targetFrame?.description ?? "nil")
-        print("🎯 [WKUIDelegate] Popup URL:", navigationAction.request.url?.absoluteString ?? "")
-        
-        // For target=_blank or window.open with no target frame, load in existing WebView
-        if navigationAction.targetFrame == nil {
-            print("🎯 [WKUIDelegate] Loading popup in existing WebView instead of Safari")
-            webView.load(navigationAction.request)
-            return nil
-        }
-        return nil
     }
 
     func applicationWillResignActive(_ application: UIApplication) {

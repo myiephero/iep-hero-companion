@@ -118,23 +118,8 @@ const PerformanceMonitor = memo(function PerformanceMonitor({
     return cleanup;
   }, []);
 
-  // Only render in development
-  if (process.env.NODE_ENV === 'production') {
-    return null;
-  }
-
-  return (
-    <div 
-      className="fixed bottom-4 right-4 bg-black/80 text-white text-xs p-2 rounded font-mono z-50"
-      style={{ pointerEvents: 'none' }}
-      data-testid="performance-monitor"
-    >
-      <div>Memory: {metrics.memoryUsage?.toFixed(1)}MB</div>
-      <div>Connection: {metrics.connectionType}</div>
-      <div>Render: {metrics.renderTime?.toFixed(1)}ms</div>
-      <div>Components: {metrics.componentCount}</div>
-    </div>
-  );
+  // PerformanceMonitor disabled for cleaner user experience
+  return null;
 });
 
 export default PerformanceMonitor;

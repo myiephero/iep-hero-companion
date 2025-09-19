@@ -79,6 +79,35 @@ const Index = () => {
     return <div className="min-h-screen flex items-center justify-center">Loading...</div>;
   }
 
+  // 🔒 MOBILE FIX: Redirect authenticated users immediately to their dashboard
+  if (user) {
+    // Generate correct plan-specific dashboard URL
+    let dashboardPath;
+    if (user.role === 'parent') {
+      const planSlug = user.subscriptionPlan?.toLowerCase().replace(/\s+/g, '') || 'free';
+      const supportedPlans = ['free', 'basic', 'plus', 'explorer', 'premium', 'hero'];
+      const normalizedPlan = supportedPlans.includes(planSlug) ? planSlug : 'free';
+      dashboardPath = `/parent/dashboard-${normalizedPlan}`;
+    } else if (user.role === 'advocate') {
+      const advocatePlanMapping = {
+        'starter': 'starter',
+        'pro': 'pro', 
+        'agency': 'agency',
+        'agency plus': 'agency-plus',
+        'agencyplus': 'agency-plus'
+      };
+      const planKey = user.subscriptionPlan?.toLowerCase() || 'starter';
+      const planSlug = advocatePlanMapping[planKey] || 'starter';
+      dashboardPath = `/advocate/dashboard-${planSlug}`;
+    } else {
+      dashboardPath = '/dashboard';
+    }
+    
+    console.log('🔄 Index: Redirecting authenticated user to:', dashboardPath);
+    window.location.replace(dashboardPath);
+    return <div className="min-h-screen flex items-center justify-center">Redirecting...</div>;
+  }
+
   return (
     <div className="min-h-screen">
       {/* Mobile Platform Test Button */}

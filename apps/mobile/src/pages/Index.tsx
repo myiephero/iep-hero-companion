@@ -79,7 +79,7 @@ const Index = () => {
     return <div className="min-h-screen flex items-center justify-center">Loading...</div>;
   }
 
-  // 🔒 MOBILE FIX: Redirect authenticated users immediately to their dashboard
+  // 🔒 AUTO-REDIRECT: Authenticated users should go directly to their dashboard
   if (user) {
     // Generate correct plan-specific dashboard URL
     let dashboardPath;
@@ -103,9 +103,9 @@ const Index = () => {
       dashboardPath = '/dashboard';
     }
     
-    console.log('🔄 Index: Redirecting authenticated user to:', dashboardPath);
+    console.log('🔄 Index: Auto-redirecting authenticated user to dashboard:', dashboardPath);
     window.location.replace(dashboardPath);
-    return <div className="min-h-screen flex items-center justify-center">Redirecting...</div>;
+    return <div className="min-h-screen flex items-center justify-center">Taking you to your dashboard...</div>;
   }
 
   return (

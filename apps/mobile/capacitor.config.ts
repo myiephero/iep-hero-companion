@@ -4,28 +4,8 @@ const config: CapacitorConfig = {
   appId: 'com.myiephero.app',
   appName: 'My IEP Hero',
   webDir: 'dist',
-  server: {
-    androidScheme: 'https',
-    // 🚀 iOS WEBVIEW TEST: Use simple test page to isolate connectivity
-    url: 'https://afd4ab41-fa60-4e78-9742-69bb4e3004d6-00-6i79wn87wfhu.janeway.replit.dev/m/test.html',
-    // Development: Allow localhost and production URLs
-    allowNavigation: [
-      "http://localhost:3000",
-      "http://localhost:5000", 
-      "http://127.0.0.1:3000",
-      "http://127.0.0.1:5000",
-      "https://api.myiephero.com",
-      "https://myiephero.com",
-      "https://firebaseapp.com",
-      "https://googleapis.com",
-      "https://afd4ab41-fa60-4e78-9742-69bb4e3004d6-00-6i79wn87wfhu.janeway.replit.dev",
-      "https://afd4ab41-fa60-4e78-9742-69bb4e3004d6-00-6i79wn87wfhu.janeway.replit.dev:4200"
-    ],
-    // Development: Enable cleartext for local server
-    cleartext: true,
-    // Development: Allow offline functionality
-    errorPath: "error.html"
-  },
+  // 🚀 iOS WEBVIEW FIX: Remove server config to use local bundled files
+  // This bypasses Replit hosting connectivity issues completely
   plugins: {
     SplashScreen: {
       launchShowDuration: 3000,

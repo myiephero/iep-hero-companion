@@ -4,6 +4,25 @@ import './index.css'
 import { offlineStorage } from './lib/offlineStorage'
 import { Capacitor } from '@capacitor/core'
 
+// 🔒 CRITICAL iOS SAFARI FIX: Override window.open to prevent external browser
+const originalWindowOpen = window.open;
+window.open = function(url?: string | URL, target?: string, features?: string) {
+  if (!url) return originalWindowOpen.call(this, url, target, features);
+  
+  const urlStr = url.toString();
+  console.log('🔒 window.open intercepted:', urlStr, 'target:', target);
+  
+  // Keep ALL internal URLs in WebView - NO EXCEPTIONS
+  if (urlStr === '' || urlStr.startsWith('/') || urlStr.startsWith(window.location.origin)) {
+    console.log('🔒 STAYING IN WEBVIEW - redirecting internally');
+    window.location.replace(urlStr || '/');
+    return null;
+  }
+  
+  // Only allow true external URLs
+  return originalWindowOpen.call(this, url, target, features);
+};
+
 // 🚀 NATIVE APP FIX: Only register Service Worker for web builds, NOT native apps
 if (!Capacitor.isNativePlatform() && 'serviceWorker' in navigator) {
   window.addEventListener('load', () => {

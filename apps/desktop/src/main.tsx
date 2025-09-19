@@ -4,8 +4,8 @@ import './index.css'
 import { offlineStorage } from './lib/offlineStorage'
 import { Capacitor } from '@capacitor/core'
 
-// 🚀 NATIVE APP FIX: Only register Service Worker for web builds, NOT native apps
-if (!Capacitor.isNativePlatform() && 'serviceWorker' in navigator) {
+// TEMPORARILY DISABLED FOR DEBUGGING - Service Worker
+if (false && !Capacitor.isNativePlatform() && 'serviceWorker' in navigator) {
   window.addEventListener('load', () => {
     navigator.serviceWorker.register('/sw.js')
       .then((registration) => {

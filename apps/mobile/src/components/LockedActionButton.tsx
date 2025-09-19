@@ -86,22 +86,13 @@ export function LockedActionButton({
   };
 
   const handleUpgradeClick = async () => {
-    // Open external browser with pricing page for Apple compliance
-    const baseUrl = Capacitor.isNativePlatform() 
-      ? 'https://afd4ab41-fa60-4e78-9742-69bb4e3004d6-00-6i79wn87wfhu.janeway.replit.dev'
-      : window.location.origin;
+    // Stay in-app for upgrade flow - no Safari redirects!
+    const pricingPath = user?.role === 'advocate' 
+      ? `/advocate/pricing?highlight=${minimumPlan}`
+      : `/parent/pricing?highlight=${minimumPlan}`;
     
-    const pricingUrl = user?.role === 'advocate' 
-      ? `${baseUrl}/advocate/pricing?highlight=${minimumPlan}`
-      : `${baseUrl}/parent/pricing?highlight=${minimumPlan}`;
-    
-    if (Capacitor.isNativePlatform()) {
-      // Open in external browser on mobile (Netflix model)
-      await Browser.open({ url: pricingUrl });
-    } else {
-      // Open in new tab on web
-      window.open(pricingUrl, '_blank');
-    }
+    // Always use in-app navigation to prevent Safari redirects
+    window.location.replace(pricingPath);
   };
 
   const defaultBenefits = [

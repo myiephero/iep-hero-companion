@@ -11,7 +11,6 @@
   "scripts": {
     "dev": "concurrently \"npm run server\" \"npm run mobile:dev\" \"npm run desktop:dev\" --names \"SERVER,MOBILE,DESKTOP\" --prefix-colors \"blue,green,yellow\"",
     "server": "tsx server/index.ts",
-    
     "mobile:dev": "cd apps/mobile && npm run dev",
     "mobile:build": "cd apps/mobile && npm run build",
     "mobile:lint": "cd apps/mobile && npm run lint",
@@ -22,30 +21,28 @@
     "mobile:ios:build:prod": "cd apps/mobile && npm run ios:build:prod",
     "mobile:android:build:aab": "cd apps/mobile && npm run android:build:aab",
     "mobile:android:build:prod": "cd apps/mobile && npm run android:build:prod",
-    
     "desktop:dev": "cd apps/desktop && npm run dev",
     "desktop:build": "cd apps/desktop && npm run build",
     "desktop:lint": "cd apps/desktop && npm run lint",
     "desktop:preview": "cd apps/desktop && npm run preview",
-    
     "shared:type-check": "cd packages/shared && npm run type-check",
-    
     "build:all": "npm run shared:type-check && npm run mobile:build && npm run desktop:build",
     "lint:all": "npm run mobile:lint && npm run desktop:lint",
-    
     "install:all": "npm install && cd apps/mobile && npm install && cd ../desktop && npm install && cd ../../packages/shared && npm install"
   },
   "dependencies": {
-    "@iep-hero/shared": "file:./packages/shared",
     "@capacitor/android": "^7.4.3",
+    "@capacitor/app": "^7.1.0",
     "@capacitor/browser": "^7.0.2",
     "@capacitor/camera": "^7.0.2",
     "@capacitor/cli": "^7.4.3",
     "@capacitor/core": "^7.4.3",
     "@capacitor/ios": "^7.4.3",
     "@capacitor/push-notifications": "^7.0.3",
+    "@capacitor/splash-screen": "^7.0.3",
     "@google-cloud/storage": "^7.17.1",
     "@hookform/resolvers": "^3.10.0",
+    "@iep-hero/shared": "file:./packages/shared",
     "@neondatabase/serverless": "^1.0.1",
     "@paypal/paypal-server-sdk": "^1.1.0",
     "@radix-ui/react-accordion": "^1.2.11",

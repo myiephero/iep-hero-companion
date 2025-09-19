@@ -28,8 +28,8 @@ const config: CapacitorConfig = {
   },
   plugins: {
     SplashScreen: {
-      launchShowDuration: 2000,
-      launchAutoHide: true,
+      launchShowDuration: 3000,
+      launchAutoHide: false,  // 🚀 iOS WEBVIEW FIX: Manual control for better state management
       backgroundColor: "#0066CC",
       androidSplashResourceName: "splash",
       androidScaleType: "CENTER_CROP",
@@ -96,7 +96,14 @@ const config: CapacitorConfig = {
   // iOS specific configuration for TestFlight and production
   ios: {
     scheme: 'MyIEPHero',
-    path: 'ios'
+    path: 'ios',
+    // 🚀 iOS WEBVIEW FIX: Handle "Failed to change to usage state 2" error
+    webContentsDebuggingEnabled: false,
+    limitsNavigationsToAppBoundDomains: false,
+    // Enable WebView process management
+    contentInset: 'never',
+    // Handle WebView lifecycle better
+    backgroundColor: '#FFFFFF'
   },
   // Android specific configuration for production
   android: {

@@ -4,6 +4,7 @@ import path from "path";
 import { componentTagger } from "lovable-tagger";
 
 export default defineConfig(({ mode }) => ({
+  base: './',  // Force relative paths for all imports
   server: {
     host: "::",
     port: 3000,
@@ -44,10 +45,13 @@ export default defineConfig(({ mode }) => ({
           // Forms and validation
           forms: ['react-hook-form', '@hookform/resolvers', 'zod'],
         },
-        // Put all JS files in assets directory 
+        // Force all output to assets directory with consistent naming
         chunkFileNames: 'assets/[name]-[hash].js',
         entryFileNames: 'assets/[name]-[hash].js',
-        assetFileNames: 'assets/[name]-[hash].[ext]'
+        assetFileNames: 'assets/[name]-[hash].[ext]',
+        // Force all imports to use assets/ path
+        format: 'es',
+        dir: 'dist'
       },
     },
     // Optimize for mobile networks

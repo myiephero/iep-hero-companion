@@ -5451,6 +5451,35 @@ Respond with this exact JSON format:
     index: false // Don't serve index.html automatically
   }));
   
+  // FALLBACK: Map /js/ requests to /assets/ directory (for old embedded paths)
+  app.use('/js', (req, res, next) => {
+    const requestedFile = req.url.substring(1); // Remove leading slash
+    console.log(`🔄 JS fallback: mapping ${req.url} to assets/`);
+    
+    // Find matching file with hash in assets directory
+    const fs = require('fs');
+    const assetsDir = path.join(desktopDist, 'assets');
+    
+    try {
+      const files = fs.readdirSync(assetsDir);
+      const matchingFile = files.find(file => {
+        // Match the base name (before the hash)
+        const baseName = requestedFile.replace('.js', '');
+        return file.startsWith(baseName) && file.endsWith('.js');
+      });
+      
+      if (matchingFile) {
+        console.log(`✅ Found matching file: ${matchingFile}`);
+        return res.sendFile(path.join(assetsDir, matchingFile));
+      }
+    } catch (err) {
+      console.log(`❌ Error reading assets directory: ${err.message}`);
+    }
+    
+    // Fallback to normal static serving
+    express.static(assetsDir)(req, res, next);
+  });
+  
   // Mount desktop static files at root with fallthrough
   app.use('/', express.static(desktopDist, { 
     fallthrough: true,

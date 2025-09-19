@@ -29,7 +29,7 @@ export default function SetupPassword() {
         description: "The password setup link is invalid or missing.",
         variant: "destructive",
       });
-      navigate('/auth');
+      navigate('/m/auth');
     }
   }, [navigate, toast]);
 
@@ -143,7 +143,7 @@ export default function SetupPassword() {
               The password setup link is invalid or has expired. Please contact your advocate for a new invitation.
             </p>
             <Button 
-              onClick={() => navigate('/auth')} 
+              onClick={() => navigate('/m/auth')} 
               className="mt-6 bg-gradient-to-r from-blue-600 to-cyan-600 hover:from-blue-700 hover:to-cyan-700"
             >
               Go to Sign In

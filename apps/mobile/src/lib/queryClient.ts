@@ -169,7 +169,7 @@ export async function apiRequest(
         // Try to redirect to auth if this is an authentication failure
         if (typeof window !== 'undefined' && !window.location.pathname.includes('/auth')) {
           debugLog('Redirecting to authentication page');
-          window.location.replace('/auth');
+          window.location.replace('/m/auth');
         }
       }
       

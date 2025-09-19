@@ -61,7 +61,7 @@ export default function VerifyEmail() {
             // Fallback - should not happen with new security fixes
             console.log('🔒 Fallback redirect - this should not happen');
             setTimeout(() => {
-              navigate('/auth');
+              navigate('/m/auth');
             }, 3000);
           }
         } else {

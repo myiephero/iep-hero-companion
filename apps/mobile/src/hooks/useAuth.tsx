@@ -137,7 +137,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
               setLoading(false);
               
               // Redirect to login to force re-authentication (use replace to stay in WebView)
-              window.location.replace('/auth');
+              window.location.replace('/m/auth');
               return;
             } else {
               console.log('✅ Token ownership validated - user ID matches');
@@ -223,7 +223,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
           
           if (isProtectedRoute) {
             console.log('🔄 Redirecting to login due to expired authentication');
-            window.location.replace('/auth');
+            window.location.replace('/m/auth');
           }
         } else {
           // Other error - clear auth state but don't redirect

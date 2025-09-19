@@ -452,7 +452,7 @@ export default function Subscribe() {
       description: "To get started with the free plan, please sign in first.",
     });
     // Use custom login instead of OAuth to avoid Safari redirect on iOS
-    window.location.replace('/auth');
+    window.location.replace('/m/auth');
   };
 
   const handleSubscribe = async (plan: any) => {

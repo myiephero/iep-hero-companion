@@ -188,7 +188,7 @@ class ApiClient {
           const isPublicPage = publicPaths.some(path => currentPath === path || currentPath.includes(path));
           
           if (!isPublicPage) {
-            window.location.replace('/auth');
+            window.location.replace('/m/auth');
           }
         }
         

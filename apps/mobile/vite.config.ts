@@ -33,27 +33,19 @@ export default defineConfig(({ mode }) => ({
     cssMinify: true,
     rollupOptions: {
       output: {
-        manualChunks: {
-          // Vendor chunk for core libraries
-          vendor: ['react', 'react-dom', 'react-router-dom'],
-          // UI library chunk
-          ui: ['@radix-ui/react-dialog', '@radix-ui/react-dropdown-menu', '@radix-ui/react-select', '@radix-ui/react-tabs'],
-          // Query and state management
-          query: ['@tanstack/react-query'],
-          // Large utility libraries
-          utils: ['date-fns', 'lucide-react', 'clsx', 'tailwind-merge'],
-          // Forms and validation
-          forms: ['react-hook-form', '@hookform/resolvers', 'zod'],
-        },
-        // Optimize chunk sizes for mobile
-        chunkFileNames: (chunkInfo) => {
-          const facadeModuleId = chunkInfo.facadeModuleId ? chunkInfo.facadeModuleId.split('/').pop() : 'chunk';
-          return `js/${facadeModuleId}-[hash].js`;
-        },
+        // 🚀 iOS WEBVIEW FIX: Disable code splitting - bundle everything into single file
+        // iOS WebView has issues loading dynamic imports/chunks
+        manualChunks: undefined,
+        // Single file naming for better iOS compatibility
+        entryFileNames: 'assets/[name]-[hash].js',
+        chunkFileNames: 'assets/[name]-[hash].js',
+        assetFileNames: 'assets/[name]-[hash].[ext]',
+        // Inline dynamic imports to avoid chunk loading issues
+        inlineDynamicImports: false,
       },
     },
-    // Optimize for mobile networks
-    chunkSizeWarningLimit: 500,
+    // Increase chunk size limit since we're bundling more together for iOS
+    chunkSizeWarningLimit: 1000,
   },
   // Enhanced mobile optimization
   optimizeDeps: {

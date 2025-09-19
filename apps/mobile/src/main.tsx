@@ -1,6 +1,7 @@
 import { createRoot } from 'react-dom/client'
-// 🚀 iOS WEBVIEW MINIMAL TEST: Use minimal app first
-import AppMinimal from './AppMinimal.tsx'
+// 🚀 iOS WEBVIEW SYSTEMATIC TESTING: Progressive complexity testing
+import AppShellTest from './AppShellTest.tsx'
+// import AppMinimal from './AppMinimal.tsx'
 // import App from './App.tsx'
 import './index.css'
 import { offlineStorage } from './lib/offlineStorage'
@@ -104,8 +105,35 @@ document.addEventListener('visibilitychange', () => {
   }
 });
 
-// 🚀 iOS WEBVIEW DEBUGGING: Add comprehensive error catching
+// 🚀 iOS WEBVIEW DEBUGGING: Add global error handling
 console.log('🔧 Mobile app starting...');
+
+// Global error catching for iOS WebView debugging
+window.addEventListener('error', (event) => {
+  console.error('🚨 Global Error:', event.error);
+  const errorDiv = document.createElement('div');
+  errorDiv.innerHTML = `
+    <div style="position: fixed; top: 0; left: 0; right: 0; background: red; color: white; padding: 10px; z-index: 9999;">
+      <h3>🚨 JavaScript Error Detected</h3>
+      <p><strong>Message:</strong> ${event.message}</p>
+      <p><strong>File:</strong> ${event.filename}:${event.lineno}</p>
+      <p><strong>Error:</strong> ${event.error}</p>
+    </div>
+  `;
+  document.body.appendChild(errorDiv);
+});
+
+window.addEventListener('unhandledrejection', (event) => {
+  console.error('🚨 Unhandled Promise Rejection:', event.reason);
+  const errorDiv = document.createElement('div');
+  errorDiv.innerHTML = `
+    <div style="position: fixed; top: 0; left: 0; right: 0; background: orange; color: white; padding: 10px; z-index: 9999;">
+      <h3>🚨 Promise Rejection Detected</h3>
+      <p><strong>Reason:</strong> ${event.reason}</p>
+    </div>
+  `;
+  document.body.appendChild(errorDiv);
+});
 
 // Debug React mounting
 try {
@@ -117,7 +145,7 @@ try {
     throw new Error('Root element not found');
   }
   
-  createRoot(root).render(<AppMinimal />);
+  createRoot(root).render(<AppShellTest />);
   console.log('🔧 React app rendered successfully!');
 } catch (error) {
   console.error('🚨 Critical error rendering React app:', error);

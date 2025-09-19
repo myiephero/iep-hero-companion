@@ -65,7 +65,7 @@ document.addEventListener('click', (e) => {
 // 🚀 NATIVE APP FIX: Only register Service Worker for web builds, NOT native apps
 if (!Capacitor.isNativePlatform() && 'serviceWorker' in navigator) {
   window.addEventListener('load', () => {
-    navigator.serviceWorker.register('/sw.js')
+    navigator.serviceWorker.register('/m/sw.js', { scope: '/m/' })
       .then((registration) => {
         console.log('✅ Service Worker registered successfully:', registration.scope);
         

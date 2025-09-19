@@ -1,7 +1,7 @@
-// Service Worker for My IEP Hero - Offline Support
-const CACHE_NAME = 'iep-hero-cache-v1';
-const OFFLINE_CACHE_NAME = 'iep-hero-offline-v1';
-const RUNTIME_CACHE_NAME = 'iep-hero-runtime-v1';
+// Service Worker for My IEP Hero - Desktop Platform
+const CACHE_NAME = 'iep-hero-desktop-cache-v2';
+const OFFLINE_CACHE_NAME = 'iep-hero-desktop-offline-v2';
+const RUNTIME_CACHE_NAME = 'iep-hero-desktop-runtime-v2';
 
 // Static assets to cache immediately (cache-first strategy)
 const STATIC_ASSETS = [

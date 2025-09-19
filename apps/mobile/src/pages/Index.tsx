@@ -61,14 +61,17 @@ const Index = () => {
         const { token, user: userData, redirectTo } = await response.json();
         localStorage.setItem('authToken', token);
         
-        // 🔒 MOBILE FIX: Ensure redirectTo uses mobile path (/m/)
+        // 🔒 MOBILE FIX: Convert desktop URL to mobile-compatible path  
         let mobileRedirectTo = redirectTo;
         if (redirectTo && !redirectTo.startsWith('/m/')) {
-          mobileRedirectTo = '/m' + (redirectTo.startsWith('/') ? redirectTo : '/' + redirectTo);
+          // Remove leading slash to avoid double slashes
+          const cleanPath = redirectTo.startsWith('/') ? redirectTo.substring(1) : redirectTo;
+          mobileRedirectTo = `/${cleanPath}`;
         }
         
         console.log('🔄 Mobile login redirect:', redirectTo, '→', mobileRedirectTo);
-        window.location.replace(mobileRedirectTo);
+        // Use location.href instead of replace to ensure proper WebView navigation
+        window.location.href = mobileRedirectTo;
       } else {
         const errorData = await response.json();
         alert(errorData.message || 'Login failed');

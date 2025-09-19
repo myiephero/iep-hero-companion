@@ -222,6 +222,8 @@ function StudentsRoute({ children }: { children: React.ReactNode }) {
 }
 
 function App() {
+  // 🚀 iOS WEBVIEW DEBUGGING
+  console.log('🔧 App component starting...');
   return (
     <QueryClientProvider client={queryClient}>
       <TooltipProvider>

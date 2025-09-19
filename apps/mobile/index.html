@@ -41,7 +41,14 @@
   </head>
 
   <body>
-    <div id="root"></div>
+    <div id="root">
+      <!-- 🚀 iOS WEBVIEW DEBUGGING: Fallback content -->
+      <div style="padding: 20px; font-family: Arial; background: #f0f0f0; text-align: center;">
+        <h2>🔧 My IEP Hero - Loading...</h2>
+        <p>If you see this message, HTML is loading but JavaScript may have issues.</p>
+        <p id="debug-info">Initializing...</p>
+      </div>
+    </div>
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>

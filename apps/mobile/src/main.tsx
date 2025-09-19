@@ -102,4 +102,32 @@ document.addEventListener('visibilitychange', () => {
   }
 });
 
-createRoot(document.getElementById("root")!).render(<App />);
+// 🚀 iOS WEBVIEW DEBUGGING: Add comprehensive error catching
+console.log('🔧 Mobile app starting...');
+
+// Debug React mounting
+try {
+  console.log('🔧 Attempting to render React app...');
+  const root = document.getElementById("root");
+  console.log('🔧 Root element found:', !!root);
+  
+  if (!root) {
+    throw new Error('Root element not found');
+  }
+  
+  createRoot(root).render(<App />);
+  console.log('🔧 React app rendered successfully!');
+} catch (error) {
+  console.error('🚨 Critical error rendering React app:', error);
+  // Fallback: Show basic HTML content
+  const root = document.getElementById("root");
+  if (root) {
+    root.innerHTML = `
+      <div style="padding: 20px; font-family: Arial;">
+        <h1>My IEP Hero - Debug Mode</h1>
+        <p><strong>Error:</strong> ${error instanceof Error ? error.message : 'Unknown error'}</p>
+        <p>App failed to load. Check console for details.</p>
+      </div>
+    `;
+  }
+}

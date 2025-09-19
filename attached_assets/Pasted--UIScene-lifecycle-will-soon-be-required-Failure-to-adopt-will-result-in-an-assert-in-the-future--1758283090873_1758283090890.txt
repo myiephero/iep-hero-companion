@@ -1,0 +1,58 @@
+`UIScene` lifecycle will soon be required. Failure to adopt will result in an assert in the future.
+Failed to resolve host network app id to config: bundleID: com.apple.WebKit.Networking instance ID: Optional([_EXExtensionInstanceIdentifier: 7E2483D2-ECE3-4A62-A950-44CE8392EC1A])
+⚡️  Loading app at https://afd4ab41-fa60-4e78-9742-69bb4e3004d6-00-6i79wn87wfhu.janeway.replit.dev/m...
+Failed to send CA Event for app launch measurements for ca_event_type: 0 event_name: com.apple.app_launch_measurement.FirstFramePresentationMetric
+-[RTIInputSystemClient remoteTextInputSessionWithID:performInputOperation:]  Can only perform input operation for an active session. sessionID = 10BFE1B6-F8BC-4135-B700-79EE89583557
+Unable to simultaneously satisfy constraints.
+	Probably at least one of the constraints in the following list is one you don't want. 
+	Try this: 
+		(1) look at each constraint and try to figure out which you don't expect; 
+		(2) find the code that added the unwanted constraint or constraints and fix it. 
+(
+    "<NSLayoutConstraint:0x600002134780 V:|-(7)-[TUIKeyboardContentView:0x105a39910]   (active, names: '|':TUIKeyplaneView:0x10562e6e0 )>",
+    "<NSLayoutConstraint:0x6000021347d0 V:[TUIKeyboardContentView:0x105a39910]-(12)-|   (active, names: '|':TUIKeyplaneView:0x10562e6e0 )>",
+    "<NSLayoutConstraint:0x6000021232f0 V:|-(0)-[TUIKeyplaneView:0x10562e6e0]   (active, names: UIKeyboardLayoutStar Prev...:0x107821c00, '|':UIKeyboardLayoutStar Prev...:0x107821c00 )>",
+    "<NSLayoutConstraint:0x600002123340 V:[TUIKeyplaneView:0x10562e6e0]-(0)-|   (active, names: UIKeyboardLayoutStar Prev...:0x107821c00, '|':UIKeyboardLayoutStar Prev...:0x107821c00 )>",
+    "<NSLayoutConstraint:0x6000021233e0 V:|-(0)-[UIKeyboardLayoutStar Prev...]   (active, names: UIKeyboardLayoutStar Prev...:0x107821c00, '|':UIKeyboardImpl:0x105621670 )>",
+    "<NSLayoutConstraint:0x600002123480 V:[UIKeyboardLayoutStar Prev...]-(0)-|   (active, names: UIKeyboardLayoutStar Prev...:0x107821c00, '|':UIKeyboardImpl:0x105621670 )>",
+    "<NSLayoutConstraint:0x600002139590 '_UITemporaryLayoutHeight' UIKeyboardImpl:0x105621670.height == 241   (active)>",
+    "<NSLayoutConstraint:0x600002134960 'TUIKeyplane.height' TUIKeyboardContentView:0x105a39910.height == 224   (active)>"
+)
+
+Will attempt to recover by breaking constraint 
+<NSLayoutConstraint:0x600002134960 'TUIKeyplane.height' TUIKeyboardContentView:0x105a39910.height == 224   (active)>
+
+Make a symbolic breakpoint at UIViewAlertForUnsatisfiableConstraints to catch this in the debugger.
+The methods in the UIConstraintBasedLayoutDebugging category on UIView listed in <UIKitCore/UIView.h> may also be helpful.
+-[RTIInputSystemClient remoteTextInputSessionWithID:textSuggestionsChanged:]  Can only set suggestions for an active session. sessionID = 10BFE1B6-F8BC-4135-B700-79EE89583557
+Failed to send CA Event for app launch measurements for ca_event_type: 1 event_name: com.apple.app_launch_measurement.ExtendedLaunchMetrics
+-[RTIInputSystemClient remoteTextInputSessionWithID:textSuggestionsChanged:]  Can only set suggestions for an active session. sessionID = 10BFE1B6-F8BC-4135-B700-79EE89583557
+Result accumulator timeout: 0.250000, exceeded.
+Networking process (0x114088190) took 3.183418 seconds to launch
+WebContent process (0x114104100) took 3.654392 seconds to launch
+GPU process (0x11412c1e0) took 4.197000 seconds to launch
+WebContent[5552] Unable to hide query parameters from script (missing data)
+-[RTIInputSystemClient remoteTextInputSessionWithID:textSuggestionsChanged:]  Can only set suggestions for an active session. sessionID = 10BFE1B6-F8BC-4135-B700-79EE89583557
+⚡️  WebView loaded
+⚡️  [log] - 🧹 Native app detected - clearing any existing Service Worker cache
+⚡️  [log] - 🔧 Setting up iOS WebView lifecycle management...
+⚡️  [log] - 🔧 Initializing React app...
+⚡️  [log] - 🔧 DOM loaded - hiding splash screen
+⚡️  [log] - 🔧 App component starting...
+⚡️  [log] - 🔧 App component starting...
+⚡️  [log] - 🔧 App component starting...
+⚡️  [log] - 🔧 App component starting...
+⚡️  [error] - {}
+⚡️  [error] - {}
+
+⚡️  ------ STARTUP JS ERROR ------
+
+⚡️  Error
+⚡️  URL: https://afd4ab41-fa60-4e78-9742-69bb4e3004d6-00-6i79wn87wfhu.janeway.replit.dev/m/assets/index-DD65MQd-.js
+⚡️  index-DD65MQd-.js:31:111841
+
+⚡️  See above for help with debugging blank-screen issues
+⚡️  [log] - ✅ Offline Storage: Database initialized
+⚡️  [log] - ✅ Offline storage initialized successfully
+Error acquiring assertion: <Error Domain=RBSAssertionErrorDomain Code=2 "Could not find attribute name in domain plist" UserInfo={NSLocalizedFailureReason=Could not find attribute name in domain plist}>
+Failed to change to usage state 2: (null)

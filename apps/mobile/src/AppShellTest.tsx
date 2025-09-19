@@ -8,7 +8,7 @@ import { Toaster } from '@/components/ui/sonner';
 const ENABLE_ROUTER = true;
 const ENABLE_QUERY_CLIENT = true;
 const ENABLE_TOOLTIP_PROVIDER = true;
-const ENABLE_TOASTER = false;
+const ENABLE_TOASTER = true;
 const ENABLE_AUTH_PROVIDER = false;
 const ENABLE_PUSH_NOTIFICATIONS = false;
 

@@ -451,8 +451,7 @@ export default function Subscribe() {
       title: "Free Plan Selected",
       description: "To get started with the free plan, please sign in first.",
     });
-    // For now, always use /auth page to stay within app
-    window.location.href = '/auth';
+    window.location.href = '/api/login';
   };
 
   const handleSubscribe = async (plan: any) => {
@@ -470,8 +469,6 @@ export default function Subscribe() {
           title: `${plan.name} Plan Selected`,
           description: "Redirecting to secure checkout...",
         });
-        
-        // For now, use standard redirect for all platforms
         window.location.href = checkoutUrl;
       } else {
         throw new Error('Invalid checkout URL');

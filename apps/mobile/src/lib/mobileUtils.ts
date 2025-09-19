@@ -79,3 +79,33 @@ export function isExternalRedirect(url: string): boolean {
   
   return externalPatterns.some(pattern => url.includes(pattern));
 }
+
+/**
+ * Handle deep link navigation for Universal Links
+ * Routes email links (verify-email, reset-password) to correct mobile paths
+ */
+export function handleDeepLink(url: string): string {
+  console.log('🔗 Processing deep link:', url);
+  
+  // Convert web email links to mobile-compatible paths
+  if (url.includes('/verify-email')) {
+    const mobileUrl = url.replace('/verify-email', '/m/verify-email');
+    console.log('🔗 Email verification deep link → mobile path:', mobileUrl);
+    return mobileUrl;
+  }
+  
+  if (url.includes('/reset-password')) {
+    const mobileUrl = url.replace('/reset-password', '/m/reset-password'); 
+    console.log('🔗 Password reset deep link → mobile path:', mobileUrl);
+    return mobileUrl;
+  }
+  
+  // Default mobile path handling
+  if (!url.includes('/m/') && isMobileWebView()) {
+    const mobilePath = '/m' + new URL(url).pathname + new URL(url).search;
+    console.log('🔗 Generic deep link → mobile path:', mobilePath);
+    return mobilePath;
+  }
+  
+  return url;
+}

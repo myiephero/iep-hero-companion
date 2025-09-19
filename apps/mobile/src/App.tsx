@@ -1,4 +1,4 @@
-import { Suspense, lazy } from "react";
+import { Suspense, lazy, useEffect } from "react";
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -9,6 +9,8 @@ import { ThemeProvider } from "@/contexts/ThemeContext";
 import { ProtectedRoute, RoleBasedRedirect } from "@/components/ProtectedRoute";
 import { PushNotificationProvider } from "@/components/PushNotificationProvider";
 import { DashboardLayout } from "@/layouts/DashboardLayout";
+import { App as CapacitorApp } from "@capacitor/app";
+import { handleDeepLink } from "@/lib/mobileUtils";
 // import { FeedbackChat } from "@/components/FeedbackChat"; // TEMPORARILY REMOVED
 
 // Loading components and error boundaries
@@ -222,6 +224,36 @@ function StudentsRoute({ children }: { children: React.ReactNode }) {
 }
 
 function App() {
+  // Handle Universal Links for email verification and password reset
+  useEffect(() => {
+    const setupDeepLinkHandler = async () => {
+      // Listen for app URL open events (Universal Links)
+      CapacitorApp.addListener('appUrlOpen', (event) => {
+        console.log('🔗 Universal Link received:', event.url);
+        
+        try {
+          const url = new URL(event.url);
+          const mobilePath = handleDeepLink(url.pathname + url.search);
+          
+          // Navigate to the mobile path within the app
+          console.log('🔗 Navigating to mobile path:', mobilePath);
+          window.location.replace(mobilePath);
+        } catch (error) {
+          console.error('🚫 Error handling Universal Link:', error);
+        }
+      });
+
+      console.log('🔗 Universal Links handler configured');
+    };
+
+    setupDeepLinkHandler();
+
+    return () => {
+      // Cleanup listeners
+      CapacitorApp.removeAllListeners();
+    };
+  }, []);
+
   return (
     <QueryClientProvider client={queryClient}>
       <TooltipProvider>
@@ -1020,6 +1052,11 @@ function App() {
               <Route path="/verify-email" element={
                 <AuthRoute>
                   <VerifyEmail />
+                </AuthRoute>
+              } />
+              <Route path="/reset-password" element={
+                <AuthRoute>
+                  <SetupPassword />
                 </AuthRoute>
               } />
               

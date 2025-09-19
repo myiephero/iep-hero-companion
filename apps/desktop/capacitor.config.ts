@@ -11,7 +11,10 @@ const config: CapacitorConfig = {
       "https://api.myiephero.com",
       "https://myiephero.com",
       "https://firebaseapp.com",
-      "https://googleapis.com"
+      "https://googleapis.com",
+      // 🎯 CRITICAL: Allow Replit dev domain for authentication
+      "*.janeway.replit.dev",
+      "afd4ab41-fa60-4e78-9742-69bb4e3004d6-00-6i79wn87wfhu.janeway.replit.dev"
     ],
     // Production: Disable cleartext for security
     cleartext: false,
@@ -107,7 +110,7 @@ const config: CapacitorConfig = {
     // Network security
     appendUserAgent: 'MyIEPHero/1.0',
     // Performance optimizations
-    hideLogs: true
+    // hideLogs: true  // Not a valid Capacitor config property
   }
 };
 

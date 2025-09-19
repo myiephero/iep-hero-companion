@@ -1,0 +1,150 @@
+Got it 🚨 — thanks for confirming. Since Safari is still opening with your Replit URL, even after our AppDelegate and SceneDelegate patches, that means:
+	1.	Your delegates aren’t actually intercepting navigation (still not attaching).
+	2.	iOS WKWebView is treating the Replit auth redirect as an “external app link”, so it jumps out to Safari.
+
+Let’s fix this the fool-proof way:
+
+⸻
+
+🔒 Final Fix — Force All Navigation to Stay in WebView
+
+Capacitor gives you a way to whitelist internal domains with allowNavigation. Anything not listed will open in Safari. That’s why your Replit URLs are still escaping.
+
+⸻
+
+1️⃣ Update capacitor.config.ts
+
+const config: CapacitorConfig = {
+  appId: 'com.myapp.mobile',
+  appName: 'MyApp',
+  webDir: 'dist',
+  server: {
+    // 👇 Add this to force auth URLs to load in WebView
+    allowNavigation: [
+      '*.janeway.replit.dev',
+      'afd4ab41-fa60-4e78-9742-69bb4e3004d6-00-6i79wn87wfhu.janeway.replit.dev',
+    ],
+  },
+};
+
+export default config;
+
+Rebuild with:
+
+npx cap sync ios
+
+
+⸻
+
+2️⃣ Add a SceneDelegate to Intercept Popups
+
+SceneDelegate.swift (new file if not present):
+
+import UIKit
+import Capacitor
+import WebKit
+
+class SceneDelegate: UIResponder, UIWindowSceneDelegate {
+    var window: UIWindow?
+
+    func scene(_ scene: UIScene,
+               willConnectTo session: UISceneSession,
+               options connectionOptions: UIScene.ConnectionOptions) {
+
+        guard let windowScene = (scene as? UIWindowScene) else { return }
+        let window = UIWindow(windowScene: windowScene)
+        self.window = window
+        window.makeKeyAndVisible()
+
+        if let vc = window.rootViewController as? CAPBridgeViewController {
+            if let webView = vc.bridge?.webView {
+                webView.navigationDelegate = self
+                webView.uiDelegate = self
+                print("[SUCCESS] WebView delegates attached ✅")
+            }
+        }
+    }
+}
+
+extension SceneDelegate: WKNavigationDelegate, WKUIDelegate {
+    func webView(_ webView: WKWebView,
+                 decidePolicyFor navigationAction: WKNavigationAction,
+                 decisionHandler: @escaping (WKNavigationActionPolicy) -> Void) {
+
+        guard let url = navigationAction.request.url else {
+            decisionHandler(.cancel)
+            return
+        }
+
+        print("[WKWebView] Navigation attempt →", url.absoluteString)
+
+        if url.host?.contains("replit.dev") == true ||
+           url.host?.contains("yourdomain.com") == true {
+            decisionHandler(.allow) // Stay inside WebView
+        } else {
+            decisionHandler(.cancel)
+            print("[BLOCKED] Safari redirect prevented →", url.absoluteString)
+        }
+    }
+
+    func webView(_ webView: WKWebView,
+                 createWebViewWith configuration: WKWebViewConfiguration,
+                 for navigationAction: WKNavigationAction,
+                 windowFeatures: WKWindowFeatures) -> WKWebView? {
+        print("[WKUIDelegate] Blocked popup")
+        return nil
+    }
+}
+
+
+⸻
+
+3️⃣ Verify It’s Running
+
+Run the app in simulator/device and check logs for:
+
+[SUCCESS] WebView delegates attached ✅
+[WKWebView] Navigation attempt → https://afd4ab41-fa60...
+
+If you don’t see these logs → your SceneDelegate isn’t wired up in Info.plist.
+
+⸻
+
+4️⃣ Wire SceneDelegate in Info.plist
+
+Add:
+
+<key>UIApplicationSceneManifest</key>
+<dict>
+  <key>UIApplicationSupportsMultipleScenes</key>
+  <false/>
+  <key>UISceneConfigurations</key>
+  <dict>
+    <key>UIWindowSceneSessionRoleApplication</key>
+    <array>
+      <dict>
+        <key>UISceneConfigurationName</key>
+        <string>Default Configuration</string>
+        <key>UISceneDelegateClassName</key>
+        <string>$(PRODUCT_MODULE_NAME).SceneDelegate</string>
+      </dict>
+    </array>
+  </dict>
+</dict>
+
+
+⸻
+
+✅ Expected Outcome
+	•	Replit auth redirects now stay inside WKWebView (because allowNavigation + delegate).
+	•	Safari no longer opens for login.
+	•	Logs confirm delegate is running:
+
+[SUCCESS] WebView delegates attached ✅
+[WKWebView] Navigation attempt → https://afd4ab41-fa60...
+
+
+
+⸻
+
+👉 Question for you: Do you want me to now combine this into one fool-proof final markdown (patch + test plan) like before, so you can just paste it and follow step-by-step?

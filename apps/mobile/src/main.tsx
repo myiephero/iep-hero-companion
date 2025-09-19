@@ -4,55 +4,63 @@ import './index.css'
 import { offlineStorage } from './lib/offlineStorage'
 import { Capacitor } from '@capacitor/core'
 
-// 🔒 CRITICAL iOS SAFARI FIX: Comprehensive navigation control
+// 🔒 CRITICAL iOS SAFARI FIX: Foolproof Capacitor Patch
 const originalWindowOpen = window.open;
-const originalLocationAssign = window.location.assign;
-const originalLocationReplace = window.location.replace;
 
-// Override window.open to prevent external browser
 window.open = function(url?: string | URL, target?: string, features?: string) {
-  if (!url) return originalWindowOpen.call(this, url, target, features);
-  
-  const urlStr = url.toString();
-  console.log('🔒 window.open intercepted:', urlStr, 'target:', target, 'features:', features);
-  
-  // Keep ALL internal URLs in WebView - NO EXCEPTIONS
-  if (urlStr === '' || urlStr.startsWith('/') || urlStr.startsWith(window.location.origin) || urlStr.startsWith('http://localhost') || urlStr.startsWith('https://localhost') || urlStr.includes('replit.dev')) {
-    console.log('🔒 STAYING IN WEBVIEW - redirecting internally');
-    window.location.replace(urlStr || '/');
+  const urlStr = url?.toString() || '';
+  console.log('[window.open] URL:', urlStr, 'Target:', target);
+
+  const isInternal = urlStr === '' ||
+                     urlStr.startsWith('/') ||
+                     urlStr.startsWith(window.location.origin) ||
+                     urlStr.startsWith('myiephero://');
+
+  if (isInternal) {
+    console.log('[WebView] Internal navigation detected:', urlStr);
+    window.location.href = urlStr || '/';
     return null;
   }
-  
-  console.log('🔒 ALLOWING external window.open for:', urlStr);
-  return originalWindowOpen.call(this, url, target, features);
+
+  console.warn('[External URL] Blocked:', urlStr);
+  return null;
 };
 
-// Debug navigation events
-window.addEventListener('beforeunload', (e) => {
-  console.log('🔒 beforeunload triggered:', window.location.href);
-});
-
-window.addEventListener('unload', (e) => {
-  console.log('🔒 unload triggered:', window.location.href);
-});
-
-// Intercept all link clicks to prevent target="_blank" Safari redirects
+// Intercept anchor clicks
 document.addEventListener('click', (e) => {
   const target = e.target as HTMLElement;
-  const link = target.closest('a') as HTMLAnchorElement | null;
-  
-  if (link && link.href) {
-    console.log('🔒 Link clicked:', link.href, 'target:', link.target);
-    
-    if (link.target === '_blank' && (link.origin === window.location.origin || link.href.startsWith('/') || link.href.includes('replit.dev'))) {
-      e.preventDefault();
-      console.log('🔒 Intercepted target="_blank" link - staying in WebView');
-      window.location.replace(link.href);
+  if (target.tagName === 'A') {
+    const anchor = target as HTMLAnchorElement;
+    const href = anchor.href;
+    if (href) {
+      const isInternal = href.startsWith(window.location.origin) || href.startsWith('myiephero://');
+      if (isInternal) {
+        e.preventDefault();
+        console.log('[Anchor Click] Internal navigation:', href);
+        window.location.href = href;
+      } else {
+        e.preventDefault();
+        console.warn('[Anchor Click] External URL blocked:', href);
+      }
     }
   }
 });
 
-// Note: Cannot override location.assign/replace as they are readonly in iOS WebView
+// Log fetch/XHR requests and detect redirects
+(function() {
+  const originalFetch = window.fetch;
+  window.fetch = async function(input: RequestInfo, init?: RequestInit) {
+    const response = await originalFetch(input, init);
+    console.log('[Fetch] URL:', input, 'Status:', response.status, 'Redirected:', response.redirected);
+    return response;
+  };
+
+  const originalXHROpen = XMLHttpRequest.prototype.open;
+  XMLHttpRequest.prototype.open = function(method: string, url: string) {
+    console.log('[XHR] Open:', method, url);
+    return originalXHROpen.apply(this, arguments as any);
+  };
+})();
 
 // 🚀 NATIVE APP FIX: Only register Service Worker for web builds, NOT native apps
 if (!Capacitor.isNativePlatform() && 'serviceWorker' in navigator) {

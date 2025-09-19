@@ -1,0 +1,34 @@
+`UIScene` lifecycle will soon be required. Failure to adopt will result in an assert in the future.
+Failed to resolve host network app id to config: bundleID: com.apple.WebKit.Networking instance ID: Optional([_EXExtensionInstanceIdentifier: 59968324-6D58-4E78-A254-D2BAD49B0B82])
+⚡️  Loading app at https://afd4ab41-fa60-4e78-9742-69bb4e3004d6-00-6i79wn87wfhu.janeway.replit.dev/m...
+-[RTIInputSystemClient remoteTextInputSessionWithID:performInputOperation:]  Can only perform input operation for an active session. sessionID = EBCFAFE8-0F45-4D64-A77E-EF859D1F12F4
+-[RTIInputSystemClient remoteTextInputSessionWithID:textSuggestionsChanged:]  Can only set suggestions for an active session. sessionID = EBCFAFE8-0F45-4D64-A77E-EF859D1F12F4
+Unable to simultaneously satisfy constraints.
+	Probably at least one of the constraints in the following list is one you don't want. 
+	Try this: 
+		(1) look at each constraint and try to figure out which you don't expect; 
+		(2) find the code that added the unwanted constraint or constraints and fix it. 
+(
+    "<NSLayoutConstraint:0x600002138320 V:|-(7)-[TUIKeyboardContentView:0x105535300]   (active, names: '|':TUIKeyplaneView:0x105340590 )>",
+    "<NSLayoutConstraint:0x600002138370 V:[TUIKeyboardContentView:0x105535300]-(12)-|   (active, names: '|':TUIKeyplaneView:0x105340590 )>",
+    "<NSLayoutConstraint:0x600002135220 V:|-(0)-[TUIKeyplaneView:0x105340590]   (active, names: UIKeyboardLayoutStar Prev...:0x10584ba00, '|':UIKeyboardLayoutStar Prev...:0x10584ba00 )>",
+    "<NSLayoutConstraint:0x6000021352c0 V:[TUIKeyplaneView:0x105340590]-(0)-|   (active, names: UIKeyboardLayoutStar Prev...:0x10584ba00, '|':UIKeyboardLayoutStar Prev...:0x10584ba00 )>",
+    "<NSLayoutConstraint:0x600002135360 V:|-(0)-[UIKeyboardLayoutStar Prev...]   (active, names: UIKeyboardLayoutStar Prev...:0x10584ba00, '|':UIKeyboardImpl:0x10551c250 )>",
+    "<NSLayoutConstraint:0x600002135400 V:[UIKeyboardLayoutStar Prev...]-(0)-|   (active, names: UIKeyboardLayoutStar Prev...:0x10584ba00, '|':UIKeyboardImpl:0x10551c250 )>",
+    "<NSLayoutConstraint:0x600002125810 '_UITemporaryLayoutHeight' UIKeyboardImpl:0x10551c250.height == 241   (active)>",
+    "<NSLayoutConstraint:0x600002138500 'TUIKeyplane.height' TUIKeyboardContentView:0x105535300.height == 224   (active)>"
+)
+
+Will attempt to recover by breaking constraint 
+<NSLayoutConstraint:0x600002138500 'TUIKeyplane.height' TUIKeyboardContentView:0x105535300.height == 224   (active)>
+
+Make a symbolic breakpoint at UIViewAlertForUnsatisfiableConstraints to catch this in the debugger.
+The methods in the UIConstraintBasedLayoutDebugging category on UIView listed in <UIKitCore/UIView.h> may also be helpful.
+-[RTIInputSystemClient remoteTextInputSessionWithID:textSuggestionsChanged:]  Can only set suggestions for an active session. sessionID = EBCFAFE8-0F45-4D64-A77E-EF859D1F12F4
+Result accumulator timeout: 0.250000, exceeded.
+WebContent[7750] Unable to hide query parameters from script (missing data)
+-[RTIInputSystemClient remoteTextInputSessionWithID:textSuggestionsChanged:]  Can only set suggestions for an active session. sessionID = EBCFAFE8-0F45-4D64-A77E-EF859D1F12F4
+⚡️  WebView loaded
+Error acquiring assertion: <Error Domain=RBSAssertionErrorDomain Code=2 "Could not find attribute name in domain plist" UserInfo={NSLocalizedFailureReason=Could not find attribute name in domain plist}>
+Failed to change to usage state 2: (null)
+-[RTIInputSystemClient remoteTextInputSessionWithID:textSuggestionsChanged:]  Can only set suggestions for an active session. sessionID = EBCFAFE8-0F45-4D64-A77E-EF859D1F12F4

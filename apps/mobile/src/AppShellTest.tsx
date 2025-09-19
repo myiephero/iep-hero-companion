@@ -3,13 +3,14 @@ import { BrowserRouter } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { TooltipProvider } from '@/components/ui/tooltip';
 import { Toaster } from '@/components/ui/sonner';
+import { AuthProvider } from '@/hooks/useAuth';
 
 // 🔧 FEATURE FLAGS - Toggle each layer to isolate the crash
 const ENABLE_ROUTER = true;
 const ENABLE_QUERY_CLIENT = true;
 const ENABLE_TOOLTIP_PROVIDER = true;
 const ENABLE_TOASTER = true;
-const ENABLE_AUTH_PROVIDER = false;
+const ENABLE_AUTH_PROVIDER = true;
 const ENABLE_PUSH_NOTIFICATIONS = false;
 
 // Simple safe component that always works
@@ -91,8 +92,17 @@ function AppWithProviders() {
     );
   }
   
-  // 🚀 TODO: Add AuthProvider and PushNotificationProvider testing
-  // when we get to those phases
+  // 🚀 PHASE 5: AuthProvider testing
+  if (ENABLE_AUTH_PROVIDER) {
+    console.log('🔧 Adding AuthProvider...');
+    content = (
+      <AuthProvider>
+        {content}
+      </AuthProvider>
+    );
+  }
+  
+  // 🚀 TODO: Add PushNotificationProvider testing next
   
   return content;
 }

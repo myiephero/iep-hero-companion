@@ -36,7 +36,6 @@ outputType = "webview"
 [[ports]]
 localPort = 3000
 externalPort = 4200
-exposeLocalhost = true
 
 [[ports]]
 localPort = 3001

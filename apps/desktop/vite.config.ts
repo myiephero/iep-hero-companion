@@ -47,7 +47,7 @@ export default defineConfig(({ mode }) => ({
         // Optimize chunk sizes for mobile
         chunkFileNames: (chunkInfo) => {
           const facadeModuleId = chunkInfo.facadeModuleId ? chunkInfo.facadeModuleId.split('/').pop() : 'chunk';
-          return `js/${facadeModuleId}-[hash].js`;
+          return `assets/${facadeModuleId}-[hash].js`;
         },
       },
     },

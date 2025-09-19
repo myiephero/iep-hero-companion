@@ -53,11 +53,11 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
   useEffect(() => {
     const checkAuth = async () => {
       try {
-        // Skip auth check only for pricing pages (not home page)
+        // Skip auth check for public pages and prevent infinite loops
         const currentPath = window.location.pathname;
         const publicPaths = ['/parent/pricing', '/advocate/pricing'];
         
-        // Only skip auth for truly public pages, NOT for the home page or dashboard routes
+        // 🚨 CRITICAL FIX: Prevent infinite auth loops
         if (publicPaths.some(path => currentPath.includes(path))) {
           setUser(null);
           setProfile(null);
@@ -65,43 +65,22 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
           return;
         }
 
-        // 🔒 SECURITY FIX: Clear any potentially contaminated localStorage data first
-        const clearContaminatedStorage = () => {
-          // Clear all auth-related localStorage items to prevent contamination
-          const authKeys = ['authToken', 'user', 'profile', 'lastAuthCheck'];
-          authKeys.forEach(key => {
-            if (localStorage.getItem(key)) {
-              console.log(`🧹 Cleared potentially contaminated localStorage key: ${key}`);
-              localStorage.removeItem(key);
-            }
-          });
-          
-          // 🔒 ADDITIONAL SECURITY: Clear session storage as well
-          if (window.sessionStorage) {
-            console.log('🧹 Clearing sessionStorage to prevent session contamination');
-            window.sessionStorage.clear();
-          }
-        };
-
-        // Get token and make authenticated request
+        // Get token and validate format
         let token = localStorage.getItem('authToken');
         
-        // 🔒 SECURITY FIX: Validate token format before using
+        // Simple token validation without excessive clearing
         if (token) {
-          // Check if token format is valid (should contain user ID prefix)
           const tokenParts = token.split('-');
           if (tokenParts.length < 3 || tokenParts[0].length < 8) {
-            console.log('⚠️ useAuth: Invalid token format detected - clearing localStorage');
-            clearContaminatedStorage();
+            console.log('⚠️ useAuth: Invalid token format - clearing');
+            localStorage.removeItem('authToken');
             token = null;
-          } else {
-            console.log('✅ useAuth: Found valid token format in localStorage:', `${token.substring(0,20)}...`);
           }
         }
         
-        // 🔧 TOKEN-ONLY AUTH: Skip Replit Auth entirely, use only tokens
+        // If no token, set unauthenticated state and exit
         if (!token) {
-          console.log('❌ useAuth: No auth token found - user not authenticated');
+          console.log('❌ useAuth: No auth token found');
           setUser(null);
           setProfile(null);
           setLoading(false);
@@ -118,129 +97,87 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
         
         if (response.ok) {
           const userData = await response.json();
-          console.log('🔍 useAuth - Received user data:', userData);
-          console.log('🔍 useAuth - subscriptionPlan from server:', userData.subscriptionPlan);
+          console.log('✅ useAuth: Authenticated user loaded:', userData.email);
           
-          // 🔒 CRITICAL SECURITY FIX: Validate token ownership before accepting user data
+          // Simple token validation - just check that token user ID matches
           if (token && userData.id) {
             const tokenUserId = token.split('-')[0];
-            const actualUserId = userData.id; // 🔒 FIXED: Use full user ID, no truncation
-            
-            if (tokenUserId !== actualUserId) {
-              console.error('🚨 SECURITY ALERT: Token user ID mismatch!');
-              console.error(`🚨 Token belongs to: ${tokenUserId}, but received data for: ${actualUserId}`);
-              console.error('🚨 This indicates potential authentication bypass - clearing all auth data');
-              
-              clearContaminatedStorage();
+            if (tokenUserId !== userData.id) {
+              console.error('🚨 Token mismatch - clearing auth');
+              localStorage.removeItem('authToken');
               setUser(null);
               setProfile(null);
               setLoading(false);
-              
-              // Redirect to login to force re-authentication
-              window.location.href = '/auth';
               return;
-            } else {
-              console.log('✅ Token ownership validated - user ID matches');
             }
           }
           
           setUser(userData);
           setProfile(userData);
           
-          // Check if this is a new user without a role/subscription
-          // If so, redirect to onboarding
-          if (userData && !userData.role && !userData.subscriptionStatus && !userData.subscriptionPlan) {
-            // This is a new user who just authenticated but hasn't completed onboarding
-            const currentPath = window.location.pathname;
-            if (!currentPath.includes('/onboarding') && !currentPath.includes('/subscribe')) {
-              window.location.href = '/onboarding';
-            }
-          } else if (userData && userData.role) {
-            // User has a role - handle plan-specific routing
-            const currentPath = window.location.pathname;
-            
-            // Define all supported plans
-            const supportedParentPlans = ['free', 'basic', 'plus', 'explorer', 'premium', 'hero'];
-            const supportedAdvocatePlans = ['starter', 'pro', 'agency', 'agency-plus'];
-            
-            // Generate correct dashboard path based on role and plan
-            let correctDashboardPath;
-            if (userData.role === 'parent') {
-              const planSlug = userData.subscriptionPlan?.toLowerCase().replace(/\s+/g, '') || 'free';
-              const normalizedPlan = supportedParentPlans.includes(planSlug) ? planSlug : 'free';
-              correctDashboardPath = `/parent/dashboard-${normalizedPlan}`;
-            } else if (userData.role === 'advocate') {
-              // Map advocate subscription plans to dashboard routes
-              const advocatePlanMapping = {
-                'starter': 'starter',
-                'pro': 'pro',
-                'agency': 'agency', 
-                'agency plus': 'agency-plus',
-                'agencyplus': 'agency-plus'
-              };
-              const planKey = userData.subscriptionPlan?.toLowerCase() || 'starter';
-              const planSlug = advocatePlanMapping[planKey] || 'starter';
-              correctDashboardPath = `/advocate/dashboard-${planSlug}`;
+          // 🚨 CRITICAL FIX: Simplified routing logic to prevent infinite loops
+          // Only redirect if user is on specific auth/onboarding pages
+          const currentPath = window.location.pathname;
+          const shouldRedirect = currentPath === '/auth' || 
+                                currentPath === '/onboarding' || 
+                                currentPath === '/' ||
+                                currentPath === '/m' ||
+                                currentPath === '/m/';
+          
+          if (shouldRedirect) {
+            if (!userData.role || (!userData.subscriptionStatus && !userData.subscriptionPlan)) {
+              // New user needs onboarding
+              if (currentPath !== '/onboarding') {
+                window.location.href = '/onboarding';
+              }
             } else {
-              correctDashboardPath = '/'; // Fallback for unknown roles
-            }
-            
-            // Redirect scenarios
-            if (currentPath === '/auth' || currentPath === '/onboarding' || currentPath === '/') {
-              // Post-authentication/onboarding redirect
-              window.location.href = correctDashboardPath;
-            } else if (userData.role === 'parent') {
-              // Handle parent dashboard redirections
-              const isOnGenericDashboard = currentPath === '/parent/dashboard';
-              const isOnWrongPlanDashboard = currentPath.startsWith('/parent/dashboard-') && 
-                                           currentPath !== correctDashboardPath;
+              // Existing user - redirect to appropriate dashboard
+              let dashboardPath = '/';
               
-              if (isOnGenericDashboard || isOnWrongPlanDashboard) {
-                window.location.href = correctDashboardPath;
+              if (userData.role === 'parent') {
+                const plan = userData.subscriptionPlan?.toLowerCase().replace(/\s+/g, '') || 'free';
+                const supportedPlans = ['free', 'basic', 'plus', 'explorer', 'premium', 'hero'];
+                const normalizedPlan = supportedPlans.includes(plan) ? plan : 'free';
+                dashboardPath = `/parent/dashboard-${normalizedPlan}`;
+              } else if (userData.role === 'advocate') {
+                const planMapping = {
+                  'starter': 'starter', 'pro': 'pro', 'agency': 'agency', 
+                  'agency plus': 'agency-plus', 'agencyplus': 'agency-plus'
+                };
+                const plan = userData.subscriptionPlan?.toLowerCase() || 'starter';
+                const normalizedPlan = planMapping[plan] || 'starter';
+                dashboardPath = `/advocate/dashboard-${normalizedPlan}`;
               }
-            } else if (userData.role === 'advocate') {
-              // Handle advocate dashboard redirections - NO GENERIC DASHBOARDS ALLOWED
-              const isOnWrongRoleDashboard = currentPath.startsWith('/parent/dashboard');
-              const isOnWrongPlanDashboard = currentPath.startsWith('/advocate/dashboard-') && 
-                                           currentPath !== correctDashboardPath;
               
-              if (isOnWrongRoleDashboard || isOnWrongPlanDashboard) {
-                window.location.href = correctDashboardPath;
-              }
+              window.location.href = dashboardPath;
             }
           }
+          
+          setLoading(false);
         } else if (response.status === 401) {
-          // Token is expired or invalid
-          console.log('🚫 Authentication failed - clearing expired token');
+          // Invalid token - clear and set unauthenticated
+          console.log('❌ useAuth: Invalid token, clearing auth');
           localStorage.removeItem('authToken');
           setUser(null);
           setProfile(null);
-          
-          // Only redirect to login if we're on a protected route
-          const currentPath = window.location.pathname;
-          const publicPaths = ['/parent/pricing', '/advocate/pricing', '/', '/auth', '/login'];
-          const isProtectedRoute = !publicPaths.some(path => currentPath === path || currentPath.includes(path));
-          
-          if (isProtectedRoute) {
-            console.log('🔄 Redirecting to login due to expired authentication');
-            window.location.href = '/auth';
-          }
+          setLoading(false);
         } else {
-          // Other error - clear auth state but don't redirect
+          // Other error - log but don't clear auth
+          console.error('❌ useAuth: Server error:', response.status);
           setUser(null);
           setProfile(null);
+          setLoading(false);
         }
       } catch (error) {
-        // Silently handle auth errors for public pages
+        console.error('❌ useAuth: Network error:', error);
         setUser(null);
         setProfile(null);
-      } finally {
         setLoading(false);
       }
     };
 
     checkAuth();
-  }, []);
+  }, []); // 🚨 CRITICAL: Empty dependency array to prevent re-runs
 
   const signOut = async () => {
     try {

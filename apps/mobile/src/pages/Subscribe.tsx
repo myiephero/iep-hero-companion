@@ -452,7 +452,7 @@ export default function Subscribe() {
       description: "To get started with the free plan, please sign in first.",
     });
     // Use custom login instead of OAuth to avoid Safari redirect on iOS
-    window.location.href = '/auth';
+    window.location.replace('/auth');
   };
 
   const handleSubscribe = async (plan: any) => {
@@ -470,7 +470,14 @@ export default function Subscribe() {
           title: `${plan.name} Plan Selected`,
           description: "Redirecting to secure checkout...",
         });
-        window.location.href = checkoutUrl;
+        // 🔒 CRITICAL iOS FIX: Normalize checkoutUrl to prevent Safari redirect
+        let dest = checkoutUrl;
+        try { 
+          const u = new URL(checkoutUrl, window.location.origin); 
+          if (u.origin !== window.location.origin) dest = u.pathname + u.search + u.hash; 
+        } catch (_) { dest = checkoutUrl; }
+        console.log('🔍 Subscribe redirect normalized:', checkoutUrl, '→', dest);
+        window.location.replace(dest);
       } else {
         throw new Error('Invalid checkout URL');
       }

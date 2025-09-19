@@ -110,7 +110,15 @@ export default function SimpleCheckout({ plan, role, onClose, isOpen }: SimpleCh
           description: "Redirecting you to sign in to complete your subscription...",
         });
         // Redirect to login, which will handle the subscription after auth
-        window.location.href = data.loginUrl;
+        // 🔒 CRITICAL iOS FIX: Normalize loginUrl to prevent Safari redirect
+        const loginUrl = data.loginUrl || '/auth';
+        let dest = loginUrl;
+        try { 
+          const u = new URL(loginUrl, window.location.origin); 
+          if (u.origin !== window.location.origin) dest = u.pathname + u.search + u.hash; 
+        } catch (_) { dest = loginUrl; }
+        console.log('🔍 SimpleCheckout redirect normalized:', loginUrl, '→', dest);
+        window.location.replace(dest);
         return;
       }
 

@@ -85,7 +85,7 @@ const defaultRenderer = (value: any): React.ReactNode => {
     return <span className="font-mono text-sm">{value}</span>;
   }
   if (typeof value === "string" && (value.startsWith("http://") || value.startsWith("https://"))) {
-    return <a href={value} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">{value}</a>;
+    return <a href={value} className="text-blue-600 hover:underline" onClick={(e) => { e.preventDefault(); window.location.replace(value); }}>{value}</a>;
   }
   return <span>{String(value)}</span>;
 };

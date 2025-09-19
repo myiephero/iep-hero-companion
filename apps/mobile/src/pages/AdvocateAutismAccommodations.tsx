@@ -369,32 +369,9 @@ const AdvocateAutismAccommodations = () => {
 
       const result = await response.json();
 
-      // Open preview in a new window
-      const newWindow = window.open('', '_blank');
-      if (newWindow) {
-        newWindow.document.write(`
-          <html>
-            <head>
-              <title>Professional Autism Accommodation Plan</title>
-              <style>
-                body { font-family: 'Times New Roman', serif; margin: 40px; line-height: 1.8; }
-                pre { white-space: pre-wrap; font-family: 'Times New Roman', serif; }
-                h1 { color: #1a365d; text-align: center; border-bottom: 2px solid #1a365d; padding-bottom: 10px; }
-                .header { text-align: center; margin-bottom: 30px; }
-                .advocate { font-style: italic; color: #666; margin-top: 20px; }
-              </style>
-            </head>
-            <body>
-              <div class="header">
-                <h1>Autism Accommodation Plan</h1>
-                <p class="advocate">Prepared by Educational Advocate</p>
-              </div>
-              <pre>${result.preview}</pre>
-            </body>
-          </html>
-        `);
-        newWindow.document.close();
-      }
+      // Store preview content and show in current page to avoid Safari redirect
+      console.log('Preview content:', result.preview);
+      // TODO: Show preview in a modal or dedicated page section instead of popup
 
       toast({
         title: "Professional Preview Generated",

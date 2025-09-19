@@ -343,27 +343,9 @@ const ParentAutismAccommodations = () => {
 
       const result = await response.json();
 
-      // Open preview in a new window
-      const newWindow = window.open('', '_blank');
-      if (newWindow) {
-        newWindow.document.write(`
-          <html>
-            <head>
-              <title>Autism Accommodation Plan Preview</title>
-              <style>
-                body { font-family: Arial, sans-serif; margin: 20px; line-height: 1.6; }
-                pre { white-space: pre-wrap; background: #f5f5f5; padding: 20px; border-radius: 8px; }
-                h1 { color: #2563eb; }
-              </style>
-            </head>
-            <body>
-              <h1>🌟 Your Child's Accommodation Plan Preview</h1>
-              <pre>${result.preview}</pre>
-            </body>
-          </html>
-        `);
-        newWindow.document.close();
-      }
+      // Store preview content and show in current page to avoid Safari redirect
+      console.log('Preview content:', result.preview);
+      // TODO: Show preview in a modal or dedicated page section instead of popup
 
       toast({
         title: "Preview Generated! 👀",

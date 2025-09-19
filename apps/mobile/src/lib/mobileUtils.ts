@@ -42,8 +42,8 @@ export function isMobileWebView(): boolean {
  */
 export function getAuthUrl(): string {
   if (isMobileWebView()) {
-    // Use custom login page for mobile to avoid OAuth Safari redirect
-    return '/auth';
+    // Use mobile custom login page to avoid OAuth Safari redirect
+    return '/m/auth';
   } else {
     // Web can use either OAuth or custom login
     return '/auth'; // Prefer custom login for consistency

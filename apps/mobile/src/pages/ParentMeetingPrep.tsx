@@ -309,7 +309,7 @@ export default function ParentMeetingPrep() {
                     Chat with Advocate
                   </Button>
                 </Link>
-                <a href="https://www.facebook.com/myiephero" target="_blank" rel="noopener noreferrer">
+                <a href="https://www.facebook.com/myiephero" onClick={(e) => { e.preventDefault(); window.location.replace("https://www.facebook.com/myiephero"); }}>
                   <Button variant="ghost" size="sm" className="w-full justify-start">
                     <Users className="h-4 w-4 mr-2" />
                     Join Our Community

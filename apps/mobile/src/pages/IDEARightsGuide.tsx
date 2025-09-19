@@ -1303,8 +1303,9 @@ export default function IDEARightsGuide() {
                     </div>
                     <div className="flex items-center gap-3">
                       <Globe className="h-4 w-4 text-blue-600" />
-                      <a href={stateData?.contacts.website} target="_blank" rel="noopener noreferrer" 
-                         className="text-sm text-blue-600 hover:underline">
+                      <a href={stateData?.contacts.website} 
+                         className="text-sm text-blue-600 hover:underline"
+                         onClick={(e) => { e.preventDefault(); if (stateData?.contacts.website) window.location.replace(stateData.contacts.website); }}>
                         {stateData?.contacts.website}
                       </a>
                     </div>
@@ -1326,7 +1327,7 @@ export default function IDEARightsGuide() {
                             <p className="text-xs text-muted-foreground mb-2">{resource.description}</p>
                           </div>
                           <Button variant="ghost" size="sm" asChild>
-                            <a href={resource.url} target="_blank" rel="noopener noreferrer">
+                            <a href={resource.url} onClick={(e) => { e.preventDefault(); window.location.replace(resource.url); }}>
                               <ExternalLink className="h-3 w-3" />
                             </a>
                           </Button>

@@ -142,33 +142,8 @@ export function MessageAttachmentDisplay({ attachments, compact = false }: Messa
       return;
     }
 
-    if (isImageFile(attachment.file_type)) {
-      // Open image in new window/tab
-      const previewWindow = window.open();
-      if (previewWindow) {
-        previewWindow.document.write(`
-          <html>
-            <head>
-              <title>${attachment.file_name}</title>
-              <style>
-                body { margin: 0; display: flex; justify-content: center; align-items: center; min-height: 100vh; background: #000; }
-                img { max-width: 100%; max-height: 100%; object-fit: contain; }
-              </style>
-            </head>
-            <body>
-              <img src="${previewUrl}" alt="${attachment.file_name}" />
-            </body>
-          </html>
-        `);
-        previewWindow.document.close();
-      }
-    } else if (attachment.file_type === 'application/pdf') {
-      // Open PDF in new tab
-      window.open(previewUrl, '_blank');
-    } else {
-      // Fallback to download for other file types
-      handleDownload(attachment);
-    }
+    // Navigate in same window to avoid Safari redirect on mobile
+    window.location.replace(previewUrl);
   };
 
   if (compact && attachments.length === 1) {

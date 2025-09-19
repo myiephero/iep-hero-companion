@@ -1032,7 +1032,11 @@ export function DocumentUpload({ onAnalysisComplete, selectedAnalysisType = 'iep
                           </DropdownMenuTrigger>
                           <DropdownMenuContent align="end" className="w-48">
                             <DropdownMenuItem 
-                              onClick={() => window.open(URL.createObjectURL(fileData.file), '_blank')}
+                              onClick={() => {
+                                // Create blob URL and navigate in same window to avoid Safari redirect
+                                const url = URL.createObjectURL(fileData.file);
+                                window.location.replace(url);
+                              }}
                               data-testid={`menu-view-${fileData.id}`}
                             >
                               <Eye className="h-4 w-4 mr-2" />

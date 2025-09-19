@@ -68,7 +68,15 @@ export default function CustomLogin() {
         
         // Add a delay and use location.replace to stay within WebView on mobile
         setTimeout(() => {
-          window.location.replace(data.redirectTo || '/parent/dashboard');
+          // 🔒 CRITICAL iOS FIX: Normalize to relative path to prevent Safari redirect
+          const raw = data.redirectTo || '/parent/dashboard';
+          let dest = raw;
+          try { 
+            const u = new URL(raw, window.location.origin); 
+            if (u.origin !== window.location.origin) dest = u.pathname + u.search + u.hash; 
+          } catch (_) { dest = raw; }
+          console.log('🔍 Login redirect normalized:', raw, '→', dest);
+          window.location.replace(dest);
         }, 1500);
       } else {
         toast({

@@ -2,7 +2,7 @@ import { Suspense } from "react";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 
 // Keep only critical routes synchronous for debugging
-import Index from "./pages/Index";
+import Index from "./pages/Index-simple";
 import NotFound from "./pages/NotFound";
 
 function DebugApp() {

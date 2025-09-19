@@ -5531,6 +5531,58 @@ Respond with this exact JSON format:
     `);
   });
   
+  // Apple App Site Association for Universal Links - MUST be served from root domain
+  app.get('/apple-app-site-association', (req, res) => {
+    const aasaContent = {
+      "applinks": {
+        "apps": [],
+        "details": [
+          {
+            "appID": "com.myiephero.app",
+            "paths": [
+              "/verify-email",
+              "/reset-password", 
+              "/auth",
+              "/onboarding",
+              "/subscription-setup",
+              "/account-created"
+            ]
+          }
+        ]
+      }
+    };
+    
+    res.setHeader('Content-Type', 'application/json');
+    res.setHeader('Cache-Control', 'no-cache');
+    res.json(aasaContent);
+  });
+  
+  // Also serve from .well-known path (alternative location)
+  app.get('/.well-known/apple-app-site-association', (req, res) => {
+    const aasaContent = {
+      "applinks": {
+        "apps": [],
+        "details": [
+          {
+            "appID": "com.myiephero.app", 
+            "paths": [
+              "/verify-email",
+              "/reset-password",
+              "/auth", 
+              "/onboarding",
+              "/subscription-setup",
+              "/account-created"
+            ]
+          }
+        ]
+      }
+    };
+    
+    res.setHeader('Content-Type', 'application/json');
+    res.setHeader('Cache-Control', 'no-cache');
+    res.json(aasaContent);
+  });
+  
   // SPA fallback middleware - handles both mobile and desktop routing
   app.use((req, res, next) => {
     // Skip API routes - let them be handled normally

@@ -33,20 +33,20 @@ import NotFound from "./pages/NotFound";
 // Development/Testing Routes
 const MobileTestingPage = lazy(() => import("./pages/MobileTestingPage"));
 
-// 🚀 iOS WEBVIEW FIX: Convert lazy imports to synchronous for iOS compatibility
-// Auth & Onboarding Routes  
-import Auth from "./pages/Auth";
-import SetupPassword from "./pages/SetupPassword";
-import SubscriptionSetup from "./pages/SubscriptionSetup";
-import SubscriptionSuccess from "./pages/SubscriptionSuccess";
-import AccountCreated from "./pages/AccountCreated";
-import VerifyEmail from "./pages/VerifyEmail";
-import Onboarding from "./pages/Onboarding";
-import PricingSelection from "./pages/PricingSelection";
+// Lazy load route groups for code splitting
+// Auth & Onboarding Routes
+const Auth = lazy(() => import("./pages/Auth"));
+const SetupPassword = lazy(() => import("./pages/SetupPassword"));
+const SubscriptionSetup = lazy(() => import("./pages/SubscriptionSetup"));
+const SubscriptionSuccess = lazy(() => import("./pages/SubscriptionSuccess"));
+const AccountCreated = lazy(() => import("./pages/AccountCreated"));
+const VerifyEmail = lazy(() => import("./pages/VerifyEmail"));
+const Onboarding = lazy(() => import("./pages/Onboarding"));
+const PricingSelection = lazy(() => import("./pages/PricingSelection"));
 
-// Dashboard Routes (critical for app functionality)
-import ParentDashboard from "./pages/ParentDashboard";
-import AdvocateDashboard from "./pages/AdvocateDashboard";
+// Dashboard Routes
+const ParentDashboard = lazy(() => import("./pages/ParentDashboard"));
+const AdvocateDashboard = lazy(() => import("./pages/AdvocateDashboard"));
 
 // Student & Parent Management Routes
 const ParentStudents = lazy(() => import("./pages/ParentStudents"));
@@ -222,8 +222,6 @@ function StudentsRoute({ children }: { children: React.ReactNode }) {
 }
 
 function App() {
-  // 🚀 iOS WEBVIEW DEBUGGING
-  console.log('🔧 App component starting...');
   return (
     <QueryClientProvider client={queryClient}>
       <TooltipProvider>

@@ -1,11 +1,8 @@
 import { createRoot } from 'react-dom/client'
-// 🚀 RESTORE ORIGINAL APP: Focus on routing issues, not white screen
 import App from './App.tsx'
 import './index.css'
 import { offlineStorage } from './lib/offlineStorage'
 import { Capacitor } from '@capacitor/core'
-import { App as CapApp } from '@capacitor/app'
-import { SplashScreen } from '@capacitor/splash-screen'
 
 // 🚀 NATIVE APP FIX: Only register Service Worker for web builds, NOT native apps
 if (!Capacitor.isNativePlatform() && 'serviceWorker' in navigator) {
@@ -105,33 +102,4 @@ document.addEventListener('visibilitychange', () => {
   }
 });
 
-// 🚀 iOS WEBVIEW FIX: Handle "Failed to change to usage state 2" error
-// Proper app state management for iOS WebView lifecycle
-if (Capacitor.isNativePlatform()) {
-  console.log('🔧 Setting up iOS WebView lifecycle management...');
-  
-  // Handle app state changes to prevent WebView state errors
-  CapApp.addListener('appStateChange', ({ isActive }) => {
-    console.log('🔧 App state changed:', isActive ? 'Active' : 'Background');
-    
-    if (isActive) {
-      // App came to foreground - refresh WebView if needed
-      console.log('🔧 App activated - WebView should be ready');
-    } else {
-      // App went to background - prepare for state transition
-      console.log('🔧 App backgrounded - preparing WebView state transition');
-    }
-  });
-  
-  // Handle splash screen manually for better control
-  window.addEventListener('DOMContentLoaded', () => {
-    console.log('🔧 DOM loaded - hiding splash screen');
-    setTimeout(() => {
-      SplashScreen.hide();
-    }, 1000);
-  });
-}
-
-// Initialize React app
-console.log('🔧 Initializing React app...');
 createRoot(document.getElementById("root")!).render(<App />);

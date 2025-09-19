@@ -1,12 +1,10 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useAuth } from "@/hooks/useAuth";
 import { ArrowRight, BookOpen, CheckCircle, FileText, Heart, Shield, Users, Zap, Eye, EyeOff } from "lucide-react";
-import { Capacitor } from '@capacitor/core';
 import heroImage from "@/assets/hero-image.jpg";
 
 const features = [
@@ -34,7 +32,6 @@ const features = [
 
 const Index = () => {
   const { user, loading } = useAuth();
-  const navigate = useNavigate();
   const [authMode, setAuthMode] = useState<'signin' | 'create'>('signin');
   const [showLoginForm, setShowLoginForm] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
@@ -65,13 +62,7 @@ const Index = () => {
         localStorage.setItem('authToken', token);
         
         // Use the redirectTo URL from server response (plan-specific dashboard)
-        if (Capacitor.isNativePlatform()) {
-          // For mobile apps: Use internal navigation
-          window.location.href = redirectTo;
-        } else {
-          // For web: Use replace method
-          window.location.replace(redirectTo);
-        }
+        window.location.replace(redirectTo);
       } else {
         const errorData = await response.json();
         alert(errorData.message || 'Login failed');
@@ -202,7 +193,7 @@ const Index = () => {
                               {/* Parent Option */}
                               <div 
                                 className="bg-card border border-border rounded-lg p-6 cursor-pointer hover:border-primary transition-colors group"
-                                onClick={() => navigate("/parent/pricing")}
+                                onClick={() => window.location.href = "/parent/pricing"}
                                 data-testid="card-parent"
                               >
                                 <div className="text-center space-y-3">
@@ -221,7 +212,7 @@ const Index = () => {
                               {/* Advocate Option */}
                               <div 
                                 className="bg-card border border-border rounded-lg p-6 cursor-pointer hover:border-secondary transition-colors group"
-                                onClick={() => navigate("/advocate/pricing")}
+                                onClick={() => window.location.href = "/advocate/pricing"}
                                 data-testid="card-advocate"
                               >
                                 <div className="text-center space-y-3">
@@ -389,7 +380,7 @@ const Index = () => {
                 size="lg"
                 onClick={() => {
                   if (user) {
-                    navigate(user.role ? `/${user.role}/dashboard` : "/parent/dashboard");
+                    window.location.href = user.role ? `/${user.role}/dashboard` : "/parent/dashboard";
                   } else {
                     setShowLoginForm(true);
                   }
@@ -402,7 +393,7 @@ const Index = () => {
                 variant="outline" 
                 size="lg"
                 className="bg-white/10 hover:bg-white/20 border-white/30 text-white hover:text-white"
-                onClick={() => navigate("/pricing")}
+                onClick={() => window.location.href = "/pricing"}
                 data-testid="button-cta-secondary"
               >
                 View Pricing

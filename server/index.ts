@@ -44,17 +44,6 @@ function generateVerificationToken(): string {
 // BUILD VERSION FOR ENVIRONMENT PARITY
 const BUILD_ID = "BUILD_SEP10_2025_1531";
 
-// Helper function to detect mobile/Capacitor requests
-const isMobileRequest = (req: any): boolean => {
-  const origin = req.headers.origin || '';
-  const userAgent = req.headers['user-agent'] || '';
-  const platform = req.headers['x-iep-platform'] || '';
-  
-  return origin.includes('capacitor://') || 
-         userAgent.includes('Capacitor') || 
-         platform === 'mobile';
-};
-
 // Validation schemas
 const updateProfileSchema = z.object({
   firstName: z.string().trim().min(1, 'First name is required').max(50, 'First name too long').optional(),
@@ -1355,25 +1344,6 @@ app.post('/api/custom-login', async (req: any, res) => {
       return res.status(500).json({ message: 'Login failed. Please try again.' });
     }
 
-    // Determine redirect path based on platform
-    const basePath = isMobileRequest(req) ? '/m' : '';
-    const dashboardPath = user.role === 'parent' 
-      ? `/parent/dashboard-${user.subscriptionPlan?.toLowerCase().replace(/\s+/g, '') || 'free'}` 
-      : (() => {
-          const advocatePlanMapping: Record<string, string> = {
-            'starter': 'starter',
-            'pro': 'pro',
-            'agency': 'agency', 
-            'agency plus': 'agency-plus',
-            'agencyplus': 'agency-plus',
-            'agency-annual': 'agency',
-            'pro-annual': 'pro',
-            'starter-annual': 'starter'
-          };
-          const planSlug = advocatePlanMapping[user.subscriptionPlan?.toLowerCase() || ''] || 'starter';
-          return `/advocate/dashboard-${planSlug}`;
-        })();
-
     res.json({ 
       success: true,
       message: 'Login successful',
@@ -1386,7 +1356,22 @@ app.post('/api/custom-login', async (req: any, res) => {
         role: user.role,
         subscriptionPlan: user.subscriptionPlan
       },
-      redirectTo: `${basePath}${dashboardPath}`
+      redirectTo: user.role === 'parent' 
+        ? `/parent/dashboard-${user.subscriptionPlan?.toLowerCase().replace(/\s+/g, '') || 'free'}` 
+        : (() => {
+            const advocatePlanMapping: Record<string, string> = {
+              'starter': 'starter',
+              'pro': 'pro',
+              'agency': 'agency', 
+              'agency plus': 'agency-plus',
+              'agencyplus': 'agency-plus',
+              'agency-annual': 'agency',
+              'pro-annual': 'pro',
+              'starter-annual': 'starter'
+            };
+            const planSlug = advocatePlanMapping[user.subscriptionPlan?.toLowerCase() || ''] || 'starter';
+            return `/advocate/dashboard-${planSlug}`;
+          })()
     });
   } catch (error) {
     console.error('Login error:', error);
@@ -1560,12 +1545,6 @@ app.post('/api/create-subscription-intent', async (req: any, res) => {
     // Check if user is already authenticated
     if (req.isAuthenticated && req.isAuthenticated()) {
       // User is logged in, proceed directly with subscription
-      if (isMobileRequest(req)) {
-        // For mobile apps: return JSON with redirect path
-        return res.json({ redirectTo: '/api/create-subscription' });
-      }
-      
-      // For web: use HTTP redirect
       return res.redirect(307, '/api/create-subscription');
     }
     

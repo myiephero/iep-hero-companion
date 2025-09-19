@@ -1,6 +1,7 @@
 import { createRoot } from 'react-dom/client'
 import App from './App.tsx'
 import './index.css'
+import ErrorBoundary from './components/ErrorBoundary'
 import { offlineStorage } from './lib/offlineStorage'
 import { Capacitor } from '@capacitor/core'
 
@@ -102,4 +103,8 @@ document.addEventListener('visibilitychange', () => {
   }
 });
 
-createRoot(document.getElementById("root")!).render(<App />);
+createRoot(document.getElementById("root")!).render(
+  <ErrorBoundary>
+    <App />
+  </ErrorBoundary>
+);

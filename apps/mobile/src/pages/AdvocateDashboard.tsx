@@ -109,7 +109,7 @@ const AdvocateDashboard = ({ plan }: AdvocateDashboardProps) => {
         
         // Redirect back to subscription setup
         setTimeout(() => {
-          window.location.href = `/subscription-setup?${params.toString()}`;
+          window.location.replace(`/subscription-setup?${params.toString()}`);
         }, 1500);
       } catch (error) {
         console.error('Error parsing pending subscription:', error);
@@ -859,7 +859,7 @@ const AdvocateDashboard = ({ plan }: AdvocateDashboardProps) => {
                           navigate('/advocate/pricing');
                         } catch (error) {
                           console.error('Navigation error:', error);
-                          window.location.href = '/advocate/pricing';
+                          window.location.replace('/advocate/pricing');
                         }
                       }}
                       size="lg"
@@ -1106,7 +1106,7 @@ const AdvocateDashboard = ({ plan }: AdvocateDashboardProps) => {
                         key={activity.id} 
                         className="flex items-center gap-4 p-3 bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 hover:shadow-md transition-all duration-200 cursor-pointer"
                         data-testid={`activity-${activity.type}-${activity.id}`}
-                        onClick={() => activity.link && (window.location.href = activity.link)}
+                        onClick={() => activity.link && window.location.replace(activity.link)}
                       >
                         <div className={`w-8 h-8 rounded-xl flex items-center justify-center ${activity.color}`}>
                           <IconComponent className="h-4 w-4" />

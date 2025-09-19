@@ -102,7 +102,7 @@ export const usePushNotifications = (): PushNotificationHook => {
       const data = notification.notification.data;
       if (data?.route) {
         // Navigate to specific route based on notification data
-        window.location.href = data.route;
+        window.location.replace(data.route);
       }
     });
 

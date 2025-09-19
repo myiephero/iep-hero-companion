@@ -1568,7 +1568,7 @@ const AdvocateStudents = () => {
           <div className="flex items-center gap-2">
             <Button 
               variant="outline" 
-              onClick={() => window.location.href = '/advocate/messages'}
+              onClick={() => window.location.replace('/advocate/messages')}
               data-testid="button-communication"
             >
               <MessageCircle className="h-4 w-4 mr-2" />

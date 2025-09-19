@@ -187,7 +187,7 @@ export default function ParentDashboard({ plan }: ParentDashboardProps) {
         
         // Redirect back to subscription setup
         setTimeout(() => {
-          window.location.href = `/subscription-setup?${params.toString()}`;
+          window.location.replace(`/subscription-setup?${params.toString()}`);
         }, 1500);
       } catch (error) {
         console.error('Error parsing pending subscription:', error);
@@ -491,7 +491,7 @@ export default function ParentDashboard({ plan }: ParentDashboardProps) {
                       navigate('/parent/students');
                     } catch (error) {
                       console.error('Navigation error:', error);
-                      window.location.href = '/parent/students';
+                      window.location.replace('/parent/students');
                     }
                   }}
                   data-testid="button-manage-students"
@@ -511,7 +511,7 @@ export default function ParentDashboard({ plan }: ParentDashboardProps) {
                       navigate('/parent/tools/document-vault');
                     } catch (error) {
                       console.error('Navigation error:', error);
-                      window.location.href = '/parent/tools/document-vault';
+                      window.location.replace('/parent/tools/document-vault');
                     }
                   }}
                   data-testid="button-document-vault"
@@ -531,7 +531,7 @@ export default function ParentDashboard({ plan }: ParentDashboardProps) {
                       navigate('/parent/matching');
                     } catch (error) {
                       console.error('Navigation error:', error);
-                      window.location.href = '/parent/matching';
+                      window.location.replace('/parent/matching');
                     }
                   }}
                   data-testid="button-find-advocates"
@@ -551,7 +551,7 @@ export default function ParentDashboard({ plan }: ParentDashboardProps) {
                       navigate('/parent/messages');
                     } catch (error) {
                       console.error('Navigation error:', error);
-                      window.location.href = '/parent/messages';
+                      window.location.replace('/parent/messages');
                     }
                   }}
                   data-testid="button-messages"
@@ -608,7 +608,7 @@ export default function ParentDashboard({ plan }: ParentDashboardProps) {
                             navigate('/parent/pricing');
                           } catch (error) {
                             console.error('Navigation error:', error);
-                            window.location.href = '/parent/pricing';
+                            window.location.replace('/parent/pricing');
                           }
                         }}
                         size="lg"
@@ -687,7 +687,7 @@ export default function ParentDashboard({ plan }: ParentDashboardProps) {
                           navigate('/parent/tools/goal-generator');
                         } catch (error) {
                           console.error('Navigation error:', error);
-                          window.location.href = '/parent/tools/goal-generator';
+                          window.location.replace('/parent/tools/goal-generator');
                         }
                       },
                       () => {
@@ -696,7 +696,7 @@ export default function ParentDashboard({ plan }: ParentDashboardProps) {
                           navigate('/parent/schedule');
                         } catch (error) {
                           console.error('Navigation error:', error);
-                          window.location.href = '/parent/schedule';
+                          window.location.replace('/parent/schedule');
                         }
                       },
                       () => {
@@ -717,7 +717,7 @@ export default function ParentDashboard({ plan }: ParentDashboardProps) {
                           navigate('/parent/tools/iep-master-suite');
                         } catch (error) {
                           console.error('Navigation error:', error);
-                          window.location.href = '/parent/tools/iep-master-suite';
+                          window.location.replace('/parent/tools/iep-master-suite');
                         }
                       }
                     ];
@@ -1795,7 +1795,7 @@ export default function ParentDashboard({ plan }: ParentDashboardProps) {
                                   navigate('/parent/tools/document-vault');
                                 } catch (error) {
                                   console.error('Navigation error:', error);
-                                  window.location.href = '/parent/tools/document-vault';
+                                  window.location.replace('/parent/tools/document-vault');
                                 }
                               }}
                             >

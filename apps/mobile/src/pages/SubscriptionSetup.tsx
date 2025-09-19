@@ -131,7 +131,7 @@ export default function SubscriptionSetup() {
         variant: "destructive",
       });
       setTimeout(() => {
-        window.location.href = '/';
+        window.location.replace('/');
       }, 3000);
     }
   }, [planName, planId, role, priceId, toast, searchParams]);
@@ -227,7 +227,7 @@ export default function SubscriptionSetup() {
         });
         
         setTimeout(() => {
-          window.location.href = '/subscription-success?plan=free&role=parent';
+          window.location.replace('/subscription-success?plan=free&role=parent');
         }, 2000);
         return;
       }
@@ -265,7 +265,14 @@ export default function SubscriptionSetup() {
       
       if (data.url) {
         // Redirect to Stripe Checkout
-        window.location.href = data.url;
+        // 🔒 CRITICAL iOS FIX: Normalize Stripe URL to prevent Safari redirect
+        let dest = data.url;
+        try { 
+          const u = new URL(data.url, window.location.origin); 
+          if (u.origin !== window.location.origin) dest = u.pathname + u.search + u.hash; 
+        } catch (_) { dest = data.url; }
+        console.log('🔍 Stripe checkout redirect normalized:', data.url, '→', dest);
+        window.location.replace(dest);
       } else {
         throw new Error('No checkout URL received');
       }
@@ -310,7 +317,7 @@ export default function SubscriptionSetup() {
           <div className="mb-6">
             <Button
               variant="ghost"
-              onClick={() => window.location.href = '/'}
+              onClick={() => window.location.replace('/')}
               className="p-2 hover:bg-muted"
               data-testid="button-back"
             >
@@ -483,7 +490,7 @@ export default function SubscriptionSetup() {
               <p className="text-muted-foreground mb-4">
                 If you're not redirected automatically, please try again.
               </p>
-              <Button onClick={() => window.location.href = '/pricing'}>
+              <Button onClick={() => window.location.replace('/pricing')}>
                 Back to Pricing
               </Button>
             </div>

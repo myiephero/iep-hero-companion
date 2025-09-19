@@ -60,7 +60,7 @@ export function navigateInApp(url: string): void {
     window.location.replace(url);
   } else {
     // Web can use normal navigation
-    window.location.href = url;
+    window.location.replace(url);
   }
 }
 

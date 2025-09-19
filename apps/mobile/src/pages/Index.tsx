@@ -133,7 +133,7 @@ const Index = () => {
                         } else {
                           dashboardPath = '/dashboard';
                         }
-                        window.location.href = dashboardPath;
+                        window.location.replace(dashboardPath);
                       }}
                       data-testid="button-dashboard"
                     >
@@ -193,7 +193,7 @@ const Index = () => {
                               {/* Parent Option */}
                               <div 
                                 className="bg-card border border-border rounded-lg p-6 cursor-pointer hover:border-primary transition-colors group"
-                                onClick={() => window.location.href = "/parent/pricing"}
+                                onClick={() => window.location.replace("/parent/pricing")}
                                 data-testid="card-parent"
                               >
                                 <div className="text-center space-y-3">
@@ -212,7 +212,7 @@ const Index = () => {
                               {/* Advocate Option */}
                               <div 
                                 className="bg-card border border-border rounded-lg p-6 cursor-pointer hover:border-secondary transition-colors group"
-                                onClick={() => window.location.href = "/advocate/pricing"}
+                                onClick={() => window.location.replace("/advocate/pricing")}
                                 data-testid="card-advocate"
                               >
                                 <div className="text-center space-y-3">
@@ -380,7 +380,7 @@ const Index = () => {
                 size="lg"
                 onClick={() => {
                   if (user) {
-                    window.location.href = user.role ? `/${user.role}/dashboard` : "/parent/dashboard";
+                    window.location.replace(user.role ? `/${user.role}/dashboard` : "/parent/dashboard");
                   } else {
                     setShowLoginForm(true);
                   }
@@ -393,7 +393,7 @@ const Index = () => {
                 variant="outline" 
                 size="lg"
                 className="bg-white/10 hover:bg-white/20 border-white/30 text-white hover:text-white"
-                onClick={() => window.location.href = "/pricing"}
+                onClick={() => window.location.replace("/pricing")}
                 data-testid="button-cta-secondary"
               >
                 View Pricing

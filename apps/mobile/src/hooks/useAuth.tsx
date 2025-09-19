@@ -95,7 +95,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
             clearContaminatedStorage();
             token = null;
           } else {
-            console.log('✅ useAuth: Found valid token format in localStorage:', `${token.substring(0,20)}...`);
+            console.log('✅ useAuth: Found token format in localStorage:', `${token.substring(0,20)}...`);
           }
         }
         

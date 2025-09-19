@@ -392,7 +392,10 @@ async function syncOfflineOperations() {
     const db = await openOfflineDB();
     const transaction = db.transaction(['operations'], 'readwrite');
     const store = transaction.objectStore('operations');
-    const operations = await store.getAll();
+    const operationsResult = await store.getAll();
+    
+    // Fix: Ensure operations is always an array
+    const operations = Array.isArray(operationsResult) ? operationsResult : [];
     
     console.log(`🔄 Syncing ${operations.length} offline operations`);
     
@@ -425,6 +428,10 @@ async function syncOfflineOperations() {
     });
   } catch (error) {
     console.error('❌ Background sync failed:', error);
+    // Gracefully handle database errors
+    if (error.name === 'NotFoundError' || error.name === 'InvalidStateError') {
+      console.log('🔧 Offline database not ready, skipping sync');
+    }
   }
 }
 

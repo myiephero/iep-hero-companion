@@ -1,4 +1,5 @@
 import { createContext, useContext, useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { Capacitor } from "@capacitor/core";
 
 // Real User types for Replit Auth
@@ -34,16 +35,7 @@ const AuthContext = createContext<AuthContextType>({
   isAuthenticated: false,
 });
 
-// Helper function for mobile-aware navigation
-const navigateToPath = (path: string) => {
-  if (Capacitor.isNativePlatform()) {
-    // For mobile apps: Use href to stay within app
-    window.location.href = path;
-  } else {
-    // For web: Use href as normal
-    window.location.href = path;
-  }
-};
+// Navigation function will be provided by the AuthProvider
 
 export const useAuth = () => {
   const context = useContext(AuthContext);
@@ -57,10 +49,12 @@ interface AuthProviderProps {
   children: React.ReactNode;
 }
 
-export const AuthProvider = ({ children }: AuthProviderProps) => {
+// Create a component that uses React Router
+const AuthProviderInner = ({ children }: AuthProviderProps) => {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
   const [profile, setProfile] = useState<any | null>(null);
+  const navigate = useNavigate();
 
   useEffect(() => {
     const checkAuth = async () => {
@@ -149,7 +143,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
               setLoading(false);
               
               // Redirect to login to force re-authentication
-              navigateToPath('/auth');
+              navigate('/auth');
               return;
             } else {
               console.log('✅ Token ownership validated - user ID matches');
@@ -165,7 +159,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
             // This is a new user who just authenticated but hasn't completed onboarding
             const currentPath = window.location.pathname;
             if (!currentPath.includes('/onboarding') && !currentPath.includes('/subscribe')) {
-              navigateToPath('/onboarding');
+              navigate('/onboarding');
             }
           } else if (userData && userData.role) {
             // User has a role - handle plan-specific routing
@@ -200,7 +194,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
             // Redirect scenarios
             if (currentPath === '/auth' || currentPath === '/onboarding' || currentPath === '/') {
               // Post-authentication/onboarding redirect
-              navigateToPath(correctDashboardPath);
+              navigate(correctDashboardPath);
             } else if (userData.role === 'parent') {
               // Handle parent dashboard redirections
               const isOnGenericDashboard = currentPath === '/parent/dashboard';
@@ -208,7 +202,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
                                            currentPath !== correctDashboardPath;
               
               if (isOnGenericDashboard || isOnWrongPlanDashboard) {
-                navigateToPath(correctDashboardPath);
+                navigate(correctDashboardPath);
               }
             } else if (userData.role === 'advocate') {
               // Handle advocate dashboard redirections - NO GENERIC DASHBOARDS ALLOWED
@@ -217,7 +211,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
                                            currentPath !== correctDashboardPath;
               
               if (isOnWrongRoleDashboard || isOnWrongPlanDashboard) {
-                navigateToPath(correctDashboardPath);
+                navigate(correctDashboardPath);
               }
             }
           }
@@ -235,7 +229,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
           
           if (isProtectedRoute) {
             console.log('🔄 Redirecting to login due to expired authentication');
-            navigateToPath('/auth');
+            navigate('/auth');
           }
         } else {
           // Other error - clear auth state but don't redirect
@@ -305,4 +299,9 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
+};
+
+// Export a wrapper that can be used in App.tsx inside a Router
+export const AuthProvider = ({ children }: AuthProviderProps) => {
+  return <AuthProviderInner>{children}</AuthProviderInner>;
 };

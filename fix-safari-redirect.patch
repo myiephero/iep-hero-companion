@@ -1,0 +1,145 @@
+diff --git a/apps/desktop/capacitor.config.ts b/apps/desktop/capacitor.config.ts
+index 1234567..89abcde 100644
+--- a/apps/desktop/capacitor.config.ts
++++ b/apps/desktop/capacitor.config.ts
+@@ -12,7 +12,10 @@ const config: CapacitorConfig = {
+     allowNavigation: [
+       "https://api.myiephero.com",
+       "https://myiephero.com",
+       "https://firebaseapp.com",
+-      "https://googleapis.com"
++      "https://googleapis.com",
++      // 🎯 CRITICAL: Allow Replit dev domain for authentication
++      "*.janeway.replit.dev",
++      "afd4ab41-fa60-4e78-9742-69bb4e3004d6-00-6i79wn87wfhu.janeway.replit.dev"
+     ],
+     // Production: Disable cleartext for security
+     cleartext: false,
+diff --git a/apps/desktop/ios/App/App/SceneDelegate.swift b/apps/desktop/ios/App/App/SceneDelegate.swift
+new file mode 100644
+index 0000000..1111111
+--- /dev/null
++++ b/apps/desktop/ios/App/App/SceneDelegate.swift
+@@ -0,0 +1,86 @@
++import UIKit
++import Capacitor
++import WebKit
++
++class SceneDelegate: UIResponder, UIWindowSceneDelegate, WKNavigationDelegate, WKUIDelegate {
++
++    var window: UIWindow?
++
++    func scene(_ scene: UIScene, willConnectTo session: UISceneSession, options connectionOptions: UIScene.ConnectionOptions) {
++        guard let windowScene = (scene as? UIWindowScene) else { return }
++        
++        print("🎯 [SceneDelegate] Scene connecting - this WILL run on iOS 13+")
++        
++        // Create window
++        let window = UIWindow(windowScene: windowScene)
++        self.window = window
++        
++        // Create and set root view controller
++        let bridgeViewController = CAPBridgeViewController()
++        window.rootViewController = bridgeViewController
++        window.makeKeyAndVisible()
++        
++        // Attach delegates after a delay to ensure WebView is ready
++        DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
++            self.attachWebViewDelegates(to: bridgeViewController)
++        }
++    }
++    
++    private func attachWebViewDelegates(to bridgeVC: CAPBridgeViewController) {
++        guard let webView = bridgeVC.bridge?.webView else {
++            print("🎯 [ERROR] Could not find live Capacitor WebView in SceneDelegate")
++            return
++        }
++        
++        webView.navigationDelegate = self
++        webView.uiDelegate = self
++        webView.configuration.preferences.javaScriptCanOpenWindowsAutomatically = true
++        
++        print("🎯 [SUCCESS] WebView delegates attached in SceneDelegate")
++    }
++    
++    // MARK: - WKNavigationDelegate
++    
++    func webView(_ webView: WKWebView, decidePolicyFor navigationAction: WKNavigationAction,
++                 decisionHandler: @escaping (WKNavigationActionPolicy) -> Void) {
++
++        let url = navigationAction.request.url
++        print("🎯 [WKWebView] Navigation attempt:", url?.absoluteString ?? "")
++
++        if let urlStr = url?.absoluteString {
++            if urlStr.starts(with: "http://") || urlStr.starts(with: "https://") {
++                if urlStr.contains("replit.dev") || urlStr.contains("myiephero://") {
++                    print("🎯 [WKWebView] ALLOWING internal navigation:", urlStr)
++                    decisionHandler(.allow)
++                    return
++                } else {
++                    print("🎯 [WKWebView] BLOCKED external navigation:", urlStr)
++                    decisionHandler(.cancel)
++                    return
++                }
++            }
++        }
++        decisionHandler(.allow)
++    }
++    
++    // MARK: - WKUIDelegate (CRITICAL for blocking Safari)
++    
++    func webView(_ webView: WKWebView, createWebViewWith configuration: WKWebViewConfiguration, 
++                 for navigationAction: WKNavigationAction, windowFeatures: WKWindowFeatures) -> WKWebView? {
++        
++        print("🎯 [WKUIDelegate] Popup request - Target frame:", navigationAction.targetFrame?.description ?? "nil")
++        print("🎯 [WKUIDelegate] Popup URL:", navigationAction.request.url?.absoluteString ?? "")
++        
++        // For target=_blank or window.open with no target frame, load in existing WebView
++        if navigationAction.targetFrame == nil {
++            print("🎯 [WKUIDelegate] Loading popup in existing WebView instead of Safari")
++            webView.load(navigationAction.request)
++            return nil
++        }
++        return nil
++    }
++
++    func sceneDidDisconnect(_ scene: UIScene) {}
++    func sceneDidBecomeActive(_ scene: UIScene) {}
++    func sceneWillResignActive(_ scene: UIScene) {}
++    func sceneWillEnterForeground(_ scene: UIScene) {}
++    func sceneDidEnterBackground(_ scene: UIScene) {}
++}
+diff --git a/apps/desktop/ios/App/App/Info.plist b/apps/desktop/ios/App/App/Info.plist
+index abcdef0..1234567 100644
+--- a/apps/desktop/ios/App/App/Info.plist
++++ b/apps/desktop/ios/App/App/Info.plist
+@@ -46,6 +46,26 @@
+         </array>
+         <key>UIViewControllerBasedStatusBarAppearance</key>
+         <true/>
++        <key>UISceneDelegate</key>
++        <dict>
++            <key>UISceneStoryboardFile</key>
++            <string>Main</string>
++        </dict>
++        <key>UIApplicationSceneManifest</key>
++        <dict>
++            <key>UIApplicationSupportsMultipleScenes</key>
++            <false/>
++            <key>UISceneConfigurations</key>
++            <dict>
++                <key>UIWindowSceneSessionRoleApplication</key>
++                <array>
++                    <dict>
++                        <key>UISceneConfigurationName</key>
++                        <string>Default Configuration</string>
++                        <key>UISceneDelegateClassName</key>
++                        <string>$(PRODUCT_MODULE_NAME).SceneDelegate</string>
++                        <key>UISceneStoryboardFile</key>
++                        <string>Main</string>
++                    </dict>
++                </array>
++            </dict>
++        </dict>
+ </dict>
+ </plist>

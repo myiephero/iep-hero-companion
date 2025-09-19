@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>iOS WebView Test</title>
+    <style>
+        body { 
+            margin: 0; 
+            padding: 20px; 
+            font-family: Arial, sans-serif; 
+            background: #f0f0f0;
+            text-align: center;
+        }
+        .success { 
+            background: #4CAF50; 
+            color: white; 
+            padding: 20px; 
+            border-radius: 10px;
+            margin: 20px 0;
+        }
+        .info {
+            background: #2196F3;
+            color: white;
+            padding: 15px;
+            border-radius: 5px;
+            margin: 10px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="success">
+        <h1>🎉 iOS WebView SUCCESS!</h1>
+        <p>If you can see this page, the server connection works!</p>
+    </div>
+    
+    <div class="info">
+        <h2>Connection Test</h2>
+        <p>URL: <span id="url"></span></p>
+        <p>User Agent: <span id="userAgent"></span></p>
+        <p>Platform: <span id="platform"></span></p>
+        <p>Time: <span id="time"></span></p>
+    </div>
+
+    <script>
+        // Simple JavaScript test
+        document.getElementById('url').textContent = window.location.href;
+        document.getElementById('userAgent').textContent = navigator.userAgent;
+        document.getElementById('platform').textContent = navigator.platform;
+        document.getElementById('time').textContent = new Date().toLocaleString();
+        
+        console.log('🎯 Test page loaded successfully in iOS WebView');
+        console.log('URL:', window.location.href);
+        console.log('Platform:', navigator.platform);
+    </script>
+</body>
+</html>

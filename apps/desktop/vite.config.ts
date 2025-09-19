@@ -44,11 +44,10 @@ export default defineConfig(({ mode }) => ({
           // Forms and validation
           forms: ['react-hook-form', '@hookform/resolvers', 'zod'],
         },
-        // Optimize chunk sizes for mobile
-        chunkFileNames: (chunkInfo) => {
-          const facadeModuleId = chunkInfo.facadeModuleId ? chunkInfo.facadeModuleId.split('/').pop() : 'chunk';
-          return `assets/${facadeModuleId}-[hash].js`;
-        },
+        // Put all JS files in assets directory 
+        chunkFileNames: 'assets/[name]-[hash].js',
+        entryFileNames: 'assets/[name]-[hash].js',
+        assetFileNames: 'assets/[name]-[hash].[ext]'
       },
     },
     // Optimize for mobile networks

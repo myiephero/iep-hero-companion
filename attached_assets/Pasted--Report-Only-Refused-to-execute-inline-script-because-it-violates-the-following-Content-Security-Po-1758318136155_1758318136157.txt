@@ -1,0 +1,116 @@
+[Report Only] Refused to execute inline script because it violates the following Content Security Policy directive: "script-src 'none'". Either the 'unsafe-inline' keyword, a hash ('sha256-1dVYHTzea4y6kV42Dh6gpUYdAJUm2VZttM/+GVTGXEc='), or a nonce ('nonce-...') is required to enable inline execution.
+
+iep-hero-companion:144 [Report Only] Refused to execute inline script because it violates the following Content Security Policy directive: "script-src 'none'". Either the 'unsafe-inline' keyword, a hash ('sha256-Q2BC+6wvEMMGAG5ptiy0mdlUVz5ymLU+2wnaD11rhyc='), or a nonce ('nonce-...') is required to enable inline execution.
+
+iep-hero-companion:147 [Report Only] Refused to execute inline script because it violates the following Content Security Policy directive: "script-src 'none'". Either the 'unsafe-inline' keyword, a hash ('sha256-XYvVliZ7kJ9JIDhACMzGUvidf8E8T+euknSiwFmyDfg='), or a nonce ('nonce-...') is required to enable inline execution.
+
+iep-hero-companion:147 [Report Only] Refused to execute inline script because it violates the following Content Security Policy directive: "script-src 'none'". Either the 'unsafe-inline' keyword, a hash ('sha256-WuQ3tttJsJ+YpVYBgoqxhhVzmQxiwpjXIC/9n3Re6bY='), or a nonce ('nonce-...') is required to enable inline execution.
+
+iep-hero-companion:147 [Report Only] Refused to execute inline script because it violates the following Content Security Policy directive: "script-src 'none'". Either the 'unsafe-inline' keyword, a hash ('sha256-f7YFPoYEDPa8z0gDF5GgKntyeyBNj2lRUXvb/wP5BBU='), or a nonce ('nonce-...') is required to enable inline execution.
+
+iep-hero-companion:147 [Report Only] Refused to execute inline script because it violates the following Content Security Policy directive: "script-src 'none'". Either the 'unsafe-inline' keyword, a hash ('sha256-s5rZU1oZ1ZCu6+l/LoHka8LuVSayJvydtzuSt4Vuk/M='), or a nonce ('nonce-...') is required to enable inline execution.
+
+iep-hero-companion:147 [Report Only] Refused to execute inline script because it violates the following Content Security Policy directive: "script-src 'none'". Either the 'unsafe-inline' keyword, a hash ('sha256-07l5B4sWF6cor6yDQ+CQBYw+BXfYaB+C6wxFZmj0wqo='), or a nonce ('nonce-...') is required to enable inline execution.
+
+119[Report Only] Refused to load the script '<URL>' because it violates the following Content Security Policy directive: "script-src 'none'". Note that 'script-src-elem' was not explicitly set, so 'script-src' is used as a fallback.
+
+_app-7bbcd3249ce7bce4.js:16 [Report Only] Refused to create a worker from 'https://replit.com/public/stallwart.build.js' because it violates the following Content Security Policy directive: "script-src 'none'". Note that 'worker-src' was not explicitly set, so 'script-src' is used as a fallback.
+
+549-f8af8d2f0443d404.js:1 [Report Only] Refused to evaluate a string as JavaScript because 'unsafe-eval' is not an allowed source of script in the following Content Security Policy directive: "script-src 'none'".
+
+549-f8af8d2f0443d404.js:1 [Report Only] Refused to evaluate a string as JavaScript because 'unsafe-eval' is not an allowed source of script in the following Content Security Policy directive: "script-src 'none'".
+
+464-a83de8a33dc24de8.js:1 [Report Only] Refused to evaluate a string as JavaScript because 'unsafe-eval' is not an allowed source of script in the following Content Security Policy directive: "script-src 'none'".
+
+232[Report Only] Refused to connect to '<URL>' because it violates the following Content Security Policy directive: "connect-src 'none'".
+
+13The source list for the Content Security Policy directive 'default-src' contains an invalid source: ''unsafe-dynamic''. It will be ignored.Understand this error
+13The Content-Security-Policy directive 'default-src' contains 'report-uri' as a source expression. Did you want to add it as a directive and forget a semicolon?Understand this error
+13The source list for Content Security Policy directive 'default-src' contains a source with an invalid path: '/api/4509669501698048/security/?sentry_key=7eb3d90eb4660416caf507087367e67e'. The query component, including the '?', will be ignored.Understand this error
+_app-7bbcd3249ce7bce4.js:28 
+      /////////////////////
+   ///////////////////////////
+  ////////@@@@@@@//////////////
+  ////////@@@@@@@//////////////
+  ////////@@@@@@@//////////////        Curious and driven?
+  ///////////////@@@@@@@///////        Work with us!
+  ///////////////@@@@@@@///////
+  ///////////////@@@@@@@///////        https://join.replit.com/hack.with.us
+  ////////@@@@@@@//////////////
+  ////////@@@@@@@//////////////
+  ////////@@@@@@#//////////////
+   ///////////////////////////
+      /////////////////////
+      
+iep-hero-companion:1 The source list for the Content Security Policy directive 'default-src' contains an invalid source: ''unsafe-dynamic''. It will be ignored.Understand this error
+iep-hero-companion:1 The Content-Security-Policy directive 'default-src' contains 'report-uri' as a source expression. Did you want to add it as a directive and forget a semicolon?Understand this error
+iep-hero-companion:1 The source list for Content Security Policy directive 'default-src' contains a source with an invalid path: '/api/4509669501698048/security/?sentry_key=7eb3d90eb4660416caf507087367e67e'. The query component, including the '?', will be ignored.Understand this error
+_app-7bbcd3249ce7bce4.js:28 [LaunchDarkly] LaunchDarkly client initialized
+_app-7bbcd3249ce7bce4.js:30 [Report Only] Refused to create a worker from 'https://replit.com/service-worker.js' because it violates the following Content Security Policy directive: "script-src 'none'". Note that 'worker-src' was not explicitly set, so 'script-src' is used as a fallback.
+
+iep-hero-companion:1 Banner not shown: beforeinstallpromptevent.preventDefault() called. The page must call beforeinstallpromptevent.prompt() to show the banner.
+5Error while parsing the 'sandbox' attribute: 'allow-downloads-without-user-activation' is an invalid sandbox flag.Understand this error
+framework-0e00f0627c66cf9c.js:1 Unrecognized feature: 'ambient-light-sensor'.
+_ @ framework-0e00f0627c66cf9c.js:1Understand this warning
+framework-0e00f0627c66cf9c.js:1 Unrecognized feature: 'battery'.
+_ @ framework-0e00f0627c66cf9c.js:1Understand this warning
+framework-0e00f0627c66cf9c.js:1 Unrecognized feature: 'execution-while-not-rendered'.
+_ @ framework-0e00f0627c66cf9c.js:1Understand this warning
+framework-0e00f0627c66cf9c.js:1 Unrecognized feature: 'execution-while-out-of-viewport'.
+_ @ framework-0e00f0627c66cf9c.js:1Understand this warning
+framework-0e00f0627c66cf9c.js:1 Unrecognized feature: 'layout-animations'.
+_ @ framework-0e00f0627c66cf9c.js:1Understand this warning
+framework-0e00f0627c66cf9c.js:1 Unrecognized feature: 'legacy-image-formats'.
+_ @ framework-0e00f0627c66cf9c.js:1Understand this warning
+framework-0e00f0627c66cf9c.js:1 Unrecognized feature: 'navigation-override'.
+_ @ framework-0e00f0627c66cf9c.js:1Understand this warning
+framework-0e00f0627c66cf9c.js:1 Unrecognized feature: 'oversized-images'.
+_ @ framework-0e00f0627c66cf9c.js:1Understand this warning
+framework-0e00f0627c66cf9c.js:1 Unrecognized feature: 'publickey-credentials'.
+_ @ framework-0e00f0627c66cf9c.js:1Understand this warning
+framework-0e00f0627c66cf9c.js:1 Unrecognized feature: 'speaker-selection'.
+_ @ framework-0e00f0627c66cf9c.js:1Understand this warning
+framework-0e00f0627c66cf9c.js:1 Unrecognized feature: 'unoptimized-images'.
+_ @ framework-0e00f0627c66cf9c.js:1Understand this warning
+framework-0e00f0627c66cf9c.js:1 Unrecognized feature: 'unsized-media'.
+_ @ framework-0e00f0627c66cf9c.js:1Understand this warning
+framework-0e00f0627c66cf9c.js:1 Unrecognized feature: 'pointer-lock'.
+_ @ framework-0e00f0627c66cf9c.js:1Understand this warning
+framework-0e00f0627c66cf9c.js:1 Allow attribute will take precedence over 'allowfullscreen'.
+_ @ framework-0e00f0627c66cf9c.js:1Understand this warning
+framework-0e00f0627c66cf9c.js:1 Allow attribute will take precedence over 'allowpaymentrequest'.
+_ @ framework-0e00f0627c66cf9c.js:1Understand this warning
+Screenshot%202025-09-19%20at%205.08.12%E2%80%AFPM_1758316094374.png:1  Failed to load resource: the server responded with a status of 404 ()Understand this error
+Screenshot%202025-09-19%20at%205.10.43%E2%80%AFPM_1758316244948.png:1  Failed to load resource: the server responded with a status of 404 ()Understand this error
+Screenshot%202025-09-19%20at%205.23.37%E2%80%AFPM_1758317018718.png:1  Failed to load resource: the server responded with a status of 404 ()Understand this error
+Screenshot%202025-09-19%20at%205.34.07%E2%80%AFPM_1758317674799.png:1  Failed to load resource: the server responded with a status of 404 ()Understand this error
+workspace_iframe.html?initialPath=%2F&id=%3Ar2ao%3A:32 Unrecognized feature: 'ambient-light-sensor'.Understand this warning
+workspace_iframe.html?initialPath=%2F&id=%3Ar2ao%3A:32 Unrecognized feature: 'battery'.Understand this warning
+workspace_iframe.html?initialPath=%2F&id=%3Ar2ao%3A:32 Unrecognized feature: 'execution-while-not-rendered'.Understand this warning
+workspace_iframe.html?initialPath=%2F&id=%3Ar2ao%3A:32 Unrecognized feature: 'execution-while-out-of-viewport'.Understand this warning
+workspace_iframe.html?initialPath=%2F&id=%3Ar2ao%3A:32 Unrecognized feature: 'layout-animations'.Understand this warning
+workspace_iframe.html?initialPath=%2F&id=%3Ar2ao%3A:32 Unrecognized feature: 'legacy-image-formats'.Understand this warning
+workspace_iframe.html?initialPath=%2F&id=%3Ar2ao%3A:32 Unrecognized feature: 'navigation-override'.Understand this warning
+workspace_iframe.html?initialPath=%2F&id=%3Ar2ao%3A:32 Unrecognized feature: 'oversized-images'.Understand this warning
+workspace_iframe.html?initialPath=%2F&id=%3Ar2ao%3A:32 Unrecognized feature: 'publickey-credentials'.Understand this warning
+workspace_iframe.html?initialPath=%2F&id=%3Ar2ao%3A:32 Unrecognized feature: 'speaker-selection'.Understand this warning
+workspace_iframe.html?initialPath=%2F&id=%3Ar2ao%3A:32 Unrecognized feature: 'unoptimized-images'.Understand this warning
+workspace_iframe.html?initialPath=%2F&id=%3Ar2ao%3A:32 Unrecognized feature: 'unsized-media'.Understand this warning
+workspace_iframe.html?initialPath=%2F&id=%3Ar2ao%3A:32 Allow attribute will take precedence over 'allowfullscreen'.Understand this warning
+workspace_iframe.html?initialPath=%2F&id=%3Ar2ao%3A:32 Allow attribute will take precedence over 'allowpaymentrequest'.Understand this warning
+index-DbdJwYSn.js:74 ❌ useAuth: No auth token found - user not authenticated
+index-DbdJwYSn.js:75 🔗 Universal Links handler configured
+index-DbdJwYSn.js:75 ✅ Offline Storage: Database initialized
+index-DbdJwYSn.js:75 ✅ Offline storage initialized successfully
+afd4ab41-fa60-4e78-9742-69bb4e3004d6-00-6i79wn87wfhu.janeway.replit.dev/js/web.js-DKmlJmEE.js:1  Failed to load resource: the server responded with a status of 404 (Not Found)Understand this error
+afd4ab41-fa60-4e78-9742-69bb4e3004d6-00-6i79wn87wfhu.janeway.replit.dev/js/chunk--CdJ9rTh.js:1  Failed to load resource: the server responded with a status of 404 (Not Found)Understand this error
+afd4ab41-fa60-4e78-9742-69bb4e3004d6-00-6i79wn87wfhu.janeway.replit.dev/js/chunk-DsWtD-um.js:1  Failed to load resource: the server responded with a status of 404 (Not Found)Understand this error
+afd4ab41-fa60-4e78-9742-69bb4e3004d6-00-6i79wn87wfhu.janeway.replit.dev/js/chunk-CIO6T0Sb.js:1  Failed to load resource: the server responded with a status of 404 (Not Found)Understand this error
+afd4ab41-fa60-4e78-9742-69bb4e3004d6-00-6i79wn87wfhu.janeway.replit.dev/js/chunk-DiCKXT8z.js:1  Failed to load resource: the server responded with a status of 404 (Not Found)Understand this error
+index-DbdJwYSn.js:75 ✅ Service Worker registered successfully: https://afd4ab41-fa60-4e78-9742-69bb4e3004d6-00-6i79wn87wfhu.janeway.replit.dev/
+index-DbdJwYSn.js:75 ⚠️ Background sync not supported: InvalidAccessError: Attempted to register a sync event without a window or registration tag too long.
+(anonymous) @ VM12 index-DbdJwYSn.js:75Understand this warning
+index-DbdJwYSn.js:75 FID: 2.7999999970197678
+sw.js:444 🚀 Service Worker loaded successfully
+sw.js:149 🌐 Served from network and cached: https://afd4ab41-fa60-4e78-9742-69bb4e3004d6-00-6i79wn87wfhu.janeway.replit.dev/__replco/workspace_iframe.html?initialPath=%2F&id=%3Ar2ao%3A
+sw.js:149 🌐 Served from network and cached: https://afd4ab41-fa60-4e78-9742-69bb4e3004d6-00-6i79wn87wfhu.janeway.replit.dev/

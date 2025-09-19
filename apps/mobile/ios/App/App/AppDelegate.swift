@@ -3,15 +3,23 @@ import Capacitor
 import WebKit
 
 @UIApplicationMain
-class AppDelegate: UIResponder, UIApplicationDelegate, WKNavigationDelegate {
+class AppDelegate: UIResponder, UIApplicationDelegate, WKNavigationDelegate, WKUIDelegate {
 
     var window: UIWindow?
 
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
-
-        let capacitorBridge = CAPBridgeViewController()
-        capacitorBridge.bridge?.webView?.navigationDelegate = self
-        capacitorBridge.bridge?.webView?.configuration.preferences.javaScriptCanOpenWindowsAutomatically = true
+        // 🔒 CRITICAL FIX: Attach to the LIVE WebView, not a new instance
+        guard let bridgeVC = window?.rootViewController as? CAPBridgeViewController,
+              let webView = bridgeVC.bridge?.webView else { 
+            print("[ERROR] Could not find live Capacitor WebView")
+            return true 
+        }
+        
+        webView.navigationDelegate = self
+        webView.uiDelegate = self
+        webView.configuration.preferences.javaScriptCanOpenWindowsAutomatically = true
+        
+        print("[SUCCESS] WebView delegates attached to live Capacitor instance")
         return true
     }
     
@@ -34,6 +42,22 @@ class AppDelegate: UIResponder, UIApplicationDelegate, WKNavigationDelegate {
             }
         }
         decisionHandler(.allow)
+    }
+    
+    // 🔒 CRITICAL: Capture popup/new window requests and keep them in-app
+    func webView(_ webView: WKWebView, createWebViewWith configuration: WKWebViewConfiguration, 
+                 for navigationAction: WKNavigationAction, windowFeatures: WKWindowFeatures) -> WKWebView? {
+        
+        print("[WKUIDelegate] Popup request - Target frame:", navigationAction.targetFrame?.description ?? "nil")
+        print("[WKUIDelegate] Popup URL:", navigationAction.request.url?.absoluteString ?? "")
+        
+        // For target=_blank or window.open with no target frame, load in existing WebView
+        if navigationAction.targetFrame == nil {
+            print("[WKUIDelegate] Loading popup in existing WebView instead of Safari")
+            webView.load(navigationAction.request)
+            return nil
+        }
+        return nil
     }
 
     func applicationWillResignActive(_ application: UIApplication) {

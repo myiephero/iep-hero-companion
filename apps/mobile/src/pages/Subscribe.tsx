@@ -5,8 +5,6 @@ import { Badge } from '@/components/ui/badge';
 import { Check, Star, Zap, Crown, Heart, Sparkles } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { getCheckoutUrl } from '@/lib/stripePricing';
-import { Browser } from '@capacitor/browser';
-import { Capacitor } from '@capacitor/core';
 import {
   MobileAppShell,
   PremiumLargeHeader,
@@ -448,20 +446,13 @@ export default function Subscribe() {
   const role = location.pathname.includes('/parent/') ? 'parent' : 'advocate';
   const pricingTiers = role === 'parent' ? PARENT_PRICING : ADVOCATE_PRICING;
 
-  const handleFreePlan = async () => {
+  const handleFreePlan = () => {
     toast({
       title: "Free Plan Selected",
       description: "To get started with the free plan, please sign in first.",
     });
-    
-    // Handle login redirect - stay within app on mobile
-    if (Capacitor.isNativePlatform()) {
-      // For mobile apps: Use internal navigation to auth page
-      window.location.href = '/auth';
-    } else {
-      // For web: Use API login endpoint
-      window.location.href = '/api/login';
-    }
+    // For now, always use /auth page to stay within app
+    window.location.href = '/auth';
   };
 
   const handleSubscribe = async (plan: any) => {
@@ -480,12 +471,8 @@ export default function Subscribe() {
           description: "Redirecting to secure checkout...",
         });
         
-        // Handle checkout redirect - open in app browser on mobile
-        if (Capacitor.isNativePlatform()) {
-          await Browser.open({ url: checkoutUrl });
-        } else {
-          window.location.href = checkoutUrl;
-        }
+        // For now, use standard redirect for all platforms
+        window.location.href = checkoutUrl;
       } else {
         throw new Error('Invalid checkout URL');
       }

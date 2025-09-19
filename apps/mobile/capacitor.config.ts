@@ -8,19 +8,25 @@ const config: CapacitorConfig = {
     androidScheme: 'https',
     // iOS Development: Use mobile path from nuclear static solution
     url: 'https://afd4ab41-fa60-4e78-9742-69bb4e3004d6-00-6i79wn87wfhu.janeway.replit.dev/m',
-    // Development: Allow localhost and production URLs
-    allowNavigation: [
-      "http://localhost:3000",
-      "http://localhost:5000", 
-      "http://127.0.0.1:3000",
-      "http://127.0.0.1:5000",
-      "https://api.myiephero.com",
-      "https://myiephero.com",
-      "https://firebaseapp.com",
-      "https://googleapis.com",
-      "https://afd4ab41-fa60-4e78-9742-69bb4e3004d6-00-6i79wn87wfhu.janeway.replit.dev",
-      "https://afd4ab41-fa60-4e78-9742-69bb4e3004d6-00-6i79wn87wfhu.janeway.replit.dev:4200"
-    ],
+    // 🔒 CRITICAL iOS FIX: Allow ALL navigation to stay in-app during development
+    allowNavigation: ["*"],
+    // Production config should use:
+    // allowNavigation: [
+    //   "http://localhost:3000",
+    //   "http://localhost:5000", 
+    //   "http://127.0.0.1:3000",
+    //   "http://127.0.0.1:5000",
+    //   "https://api.myiephero.com",
+    //   "https://myiephero.com",
+    //   "https://*.replit.dev",
+    //   "https://replit.com",
+    //   "https://*.replit.com",
+    //   "https://auth.replit.com",
+    //   "https://accounts.google.com",
+    //   "https://*.googleapis.com",
+    //   "https://afd4ab41-fa60-4e78-9742-69bb4e3004d6-00-6i79wn87wfhu.janeway.replit.dev",
+    //   "https://afd4ab41-fa60-4e78-9742-69bb4e3004d6-00-6i79wn87wfhu.janeway.replit.dev:4200"
+    // ],
     // Development: Enable cleartext for local server
     cleartext: true,
     // Development: Allow offline functionality

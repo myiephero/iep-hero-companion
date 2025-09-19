@@ -53,11 +53,11 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
   useEffect(() => {
     const checkAuth = async () => {
       try {
-        // Skip auth check for public pages and prevent infinite loops
+        // Skip auth check only for pricing pages (not home page)
         const currentPath = window.location.pathname;
         const publicPaths = ['/parent/pricing', '/advocate/pricing'];
         
-        // 🚨 CRITICAL FIX: Prevent infinite auth loops
+        // Only skip auth for truly public pages, NOT for the home page or dashboard routes
         if (publicPaths.some(path => currentPath.includes(path))) {
           setUser(null);
           setProfile(null);
@@ -65,22 +65,43 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
           return;
         }
 
-        // Get token and validate format
+        // 🔒 SECURITY FIX: Clear any potentially contaminated localStorage data first
+        const clearContaminatedStorage = () => {
+          // Clear all auth-related localStorage items to prevent contamination
+          const authKeys = ['authToken', 'user', 'profile', 'lastAuthCheck'];
+          authKeys.forEach(key => {
+            if (localStorage.getItem(key)) {
+              console.log(`🧹 Cleared potentially contaminated localStorage key: ${key}`);
+              localStorage.removeItem(key);
+            }
+          });
+          
+          // 🔒 ADDITIONAL SECURITY: Clear session storage as well
+          if (window.sessionStorage) {
+            console.log('🧹 Clearing sessionStorage to prevent session contamination');
+            window.sessionStorage.clear();
+          }
+        };
+
+        // Get token and make authenticated request
         let token = localStorage.getItem('authToken');
         
-        // Simple token validation without excessive clearing
+        // 🔒 SECURITY FIX: Validate token format before using
         if (token) {
+          // Check if token format is valid (should contain user ID prefix)
           const tokenParts = token.split('-');
           if (tokenParts.length < 3 || tokenParts[0].length < 8) {
-            console.log('⚠️ useAuth: Invalid token format - clearing');
-            localStorage.removeItem('authToken');
+            console.log('⚠️ useAuth: Invalid token format detected - clearing localStorage');
+            clearContaminatedStorage();
             token = null;
+          } else {
+            console.log('✅ useAuth: Found valid token format in localStorage:', `${token.substring(0,20)}...`);
           }
         }
         
-        // If no token, set unauthenticated state and exit
+        // 🔧 TOKEN-ONLY AUTH: Skip Replit Auth entirely, use only tokens
         if (!token) {
-          console.log('❌ useAuth: No auth token found');
+          console.log('❌ useAuth: No auth token found - user not authenticated');
           setUser(null);
           setProfile(null);
           setLoading(false);
@@ -97,87 +118,129 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
         
         if (response.ok) {
           const userData = await response.json();
-          console.log('✅ useAuth: Authenticated user loaded:', userData.email);
+          console.log('🔍 useAuth - Received user data:', userData);
+          console.log('🔍 useAuth - subscriptionPlan from server:', userData.subscriptionPlan);
           
-          // Simple token validation - just check that token user ID matches
+          // 🔒 CRITICAL SECURITY FIX: Validate token ownership before accepting user data
           if (token && userData.id) {
             const tokenUserId = token.split('-')[0];
-            if (tokenUserId !== userData.id) {
-              console.error('🚨 Token mismatch - clearing auth');
-              localStorage.removeItem('authToken');
+            const actualUserId = userData.id; // 🔒 FIXED: Use full user ID, no truncation
+            
+            if (tokenUserId !== actualUserId) {
+              console.error('🚨 SECURITY ALERT: Token user ID mismatch!');
+              console.error(`🚨 Token belongs to: ${tokenUserId}, but received data for: ${actualUserId}`);
+              console.error('🚨 This indicates potential authentication bypass - clearing all auth data');
+              
+              clearContaminatedStorage();
               setUser(null);
               setProfile(null);
               setLoading(false);
+              
+              // Redirect to login to force re-authentication
+              window.location.href = '/auth';
               return;
+            } else {
+              console.log('✅ Token ownership validated - user ID matches');
             }
           }
           
           setUser(userData);
           setProfile(userData);
           
-          // 🚨 CRITICAL FIX: Simplified routing logic to prevent infinite loops
-          // Only redirect if user is on specific auth/onboarding pages
-          const currentPath = window.location.pathname;
-          const shouldRedirect = currentPath === '/auth' || 
-                                currentPath === '/onboarding' || 
-                                currentPath === '/' ||
-                                currentPath === '/m' ||
-                                currentPath === '/m/';
-          
-          if (shouldRedirect) {
-            if (!userData.role || (!userData.subscriptionStatus && !userData.subscriptionPlan)) {
-              // New user needs onboarding
-              if (currentPath !== '/onboarding') {
-                window.location.href = '/onboarding';
-              }
+          // Check if this is a new user without a role/subscription
+          // If so, redirect to onboarding
+          if (userData && !userData.role && !userData.subscriptionStatus && !userData.subscriptionPlan) {
+            // This is a new user who just authenticated but hasn't completed onboarding
+            const currentPath = window.location.pathname;
+            if (!currentPath.includes('/onboarding') && !currentPath.includes('/subscribe')) {
+              window.location.href = '/onboarding';
+            }
+          } else if (userData && userData.role) {
+            // User has a role - handle plan-specific routing
+            const currentPath = window.location.pathname;
+            
+            // Define all supported plans
+            const supportedParentPlans = ['free', 'basic', 'plus', 'explorer', 'premium', 'hero'];
+            const supportedAdvocatePlans = ['starter', 'pro', 'agency', 'agency-plus'];
+            
+            // Generate correct dashboard path based on role and plan
+            let correctDashboardPath;
+            if (userData.role === 'parent') {
+              const planSlug = userData.subscriptionPlan?.toLowerCase().replace(/\s+/g, '') || 'free';
+              const normalizedPlan = supportedParentPlans.includes(planSlug) ? planSlug : 'free';
+              correctDashboardPath = `/parent/dashboard-${normalizedPlan}`;
+            } else if (userData.role === 'advocate') {
+              // Map advocate subscription plans to dashboard routes
+              const advocatePlanMapping = {
+                'starter': 'starter',
+                'pro': 'pro',
+                'agency': 'agency', 
+                'agency plus': 'agency-plus',
+                'agencyplus': 'agency-plus'
+              };
+              const planKey = userData.subscriptionPlan?.toLowerCase() || 'starter';
+              const planSlug = advocatePlanMapping[planKey] || 'starter';
+              correctDashboardPath = `/advocate/dashboard-${planSlug}`;
             } else {
-              // Existing user - redirect to appropriate dashboard
-              let dashboardPath = '/';
+              correctDashboardPath = '/'; // Fallback for unknown roles
+            }
+            
+            // Redirect scenarios
+            if (currentPath === '/auth' || currentPath === '/onboarding' || currentPath === '/') {
+              // Post-authentication/onboarding redirect
+              window.location.href = correctDashboardPath;
+            } else if (userData.role === 'parent') {
+              // Handle parent dashboard redirections
+              const isOnGenericDashboard = currentPath === '/parent/dashboard';
+              const isOnWrongPlanDashboard = currentPath.startsWith('/parent/dashboard-') && 
+                                           currentPath !== correctDashboardPath;
               
-              if (userData.role === 'parent') {
-                const plan = userData.subscriptionPlan?.toLowerCase().replace(/\s+/g, '') || 'free';
-                const supportedPlans = ['free', 'basic', 'plus', 'explorer', 'premium', 'hero'];
-                const normalizedPlan = supportedPlans.includes(plan) ? plan : 'free';
-                dashboardPath = `/parent/dashboard-${normalizedPlan}`;
-              } else if (userData.role === 'advocate') {
-                const planMapping = {
-                  'starter': 'starter', 'pro': 'pro', 'agency': 'agency', 
-                  'agency plus': 'agency-plus', 'agencyplus': 'agency-plus'
-                };
-                const plan = userData.subscriptionPlan?.toLowerCase() || 'starter';
-                const normalizedPlan = planMapping[plan] || 'starter';
-                dashboardPath = `/advocate/dashboard-${normalizedPlan}`;
+              if (isOnGenericDashboard || isOnWrongPlanDashboard) {
+                window.location.href = correctDashboardPath;
               }
+            } else if (userData.role === 'advocate') {
+              // Handle advocate dashboard redirections - NO GENERIC DASHBOARDS ALLOWED
+              const isOnWrongRoleDashboard = currentPath.startsWith('/parent/dashboard');
+              const isOnWrongPlanDashboard = currentPath.startsWith('/advocate/dashboard-') && 
+                                           currentPath !== correctDashboardPath;
               
-              window.location.href = dashboardPath;
+              if (isOnWrongRoleDashboard || isOnWrongPlanDashboard) {
+                window.location.href = correctDashboardPath;
+              }
             }
           }
-          
-          setLoading(false);
         } else if (response.status === 401) {
-          // Invalid token - clear and set unauthenticated
-          console.log('❌ useAuth: Invalid token, clearing auth');
+          // Token is expired or invalid
+          console.log('🚫 Authentication failed - clearing expired token');
           localStorage.removeItem('authToken');
           setUser(null);
           setProfile(null);
-          setLoading(false);
+          
+          // Only redirect to login if we're on a protected route
+          const currentPath = window.location.pathname;
+          const publicPaths = ['/parent/pricing', '/advocate/pricing', '/', '/auth', '/login'];
+          const isProtectedRoute = !publicPaths.some(path => currentPath === path || currentPath.includes(path));
+          
+          if (isProtectedRoute) {
+            console.log('🔄 Redirecting to login due to expired authentication');
+            window.location.href = '/auth';
+          }
         } else {
-          // Other error - log but don't clear auth
-          console.error('❌ useAuth: Server error:', response.status);
+          // Other error - clear auth state but don't redirect
           setUser(null);
           setProfile(null);
-          setLoading(false);
         }
       } catch (error) {
-        console.error('❌ useAuth: Network error:', error);
+        // Silently handle auth errors for public pages
         setUser(null);
         setProfile(null);
+      } finally {
         setLoading(false);
       }
     };
 
     checkAuth();
-  }, []); // 🚨 CRITICAL: Empty dependency array to prevent re-runs
+  }, []);
 
   const signOut = async () => {
     try {

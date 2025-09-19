@@ -19,24 +19,39 @@ author = "agent"
 
 [[workflows.workflow.tasks]]
 task = "workflow.run"
-args = "Nuclear Static Server"
+args = "Mobile Platform"
+
+[[workflows.workflow.tasks]]
+task = "workflow.run"
+args = "Desktop Platform"
 
 [[workflows.workflow]]
-name = "Nuclear Static Server"
+name = "Mobile Platform"
 author = "agent"
 
 [[workflows.workflow.tasks]]
 task = "shell.exec"
-args = "npm run server"
+args = "cd apps/mobile && npm run dev"
 waitForPort = 5000
 
 [workflows.workflow.metadata]
 outputType = "webview"
 
+[[workflows.workflow]]
+name = "Desktop Platform"
+author = "agent"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "cd apps/desktop && npm run dev"
+waitForPort = 3000
+
+[workflows.workflow.metadata]
+outputType = "console"
+
 [[ports]]
 localPort = 3000
 externalPort = 4200
-exposeLocalhost = true
 
 [[ports]]
 localPort = 3001

@@ -1,7 +1,5 @@
 import { createRoot } from 'react-dom/client'
-// import App from './App.tsx'
-// import App from './App-minimal.tsx'
-import App from './App-debug.tsx'
+import App from './App.tsx'
 import './index.css'
 import { offlineStorage } from './lib/offlineStorage'
 import { Capacitor } from '@capacitor/core'

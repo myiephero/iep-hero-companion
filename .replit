@@ -19,35 +19,19 @@ author = "agent"
 
 [[workflows.workflow.tasks]]
 task = "workflow.run"
-args = "Mobile Platform"
-
-[[workflows.workflow.tasks]]
-task = "workflow.run"
-args = "Desktop Platform"
+args = "Unified Platform Server"
 
 [[workflows.workflow]]
-name = "Mobile Platform"
+name = "Unified Platform Server"
 author = "agent"
 
 [[workflows.workflow.tasks]]
 task = "shell.exec"
-args = "cd apps/mobile && npm run dev"
+args = "npm run server"
 waitForPort = 5000
 
 [workflows.workflow.metadata]
 outputType = "webview"
-
-[[workflows.workflow]]
-name = "Desktop Platform"
-author = "agent"
-
-[[workflows.workflow.tasks]]
-task = "shell.exec"
-args = "cd apps/desktop && npm run dev"
-waitForPort = 3000
-
-[workflows.workflow.metadata]
-outputType = "console"
 
 [[ports]]
 localPort = 3000
@@ -60,10 +44,6 @@ externalPort = 3001
 [[ports]]
 localPort = 5000
 externalPort = 80
-
-[[ports]]
-localPort = 5001
-externalPort = 9000
 
 [[ports]]
 localPort = 8080

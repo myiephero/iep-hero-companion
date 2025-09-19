@@ -52,16 +52,7 @@ document.addEventListener('click', (e) => {
   }
 });
 
-// Override location methods to log navigation
-window.location.assign = function(url: string | URL) {
-  console.log('🔒 location.assign called:', url);
-  return originalLocationAssign.call(this, url);
-};
-
-window.location.replace = function(url: string | URL) {
-  console.log('🔒 location.replace called:', url);
-  return originalLocationReplace.call(this, url);
-};
+// Note: Cannot override location.assign/replace as they are readonly in iOS WebView
 
 // 🚀 NATIVE APP FIX: Only register Service Worker for web builds, NOT native apps
 if (!Capacitor.isNativePlatform() && 'serviceWorker' in navigator) {

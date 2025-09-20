@@ -381,7 +381,8 @@ const Index = () => {
                 size="lg"
                 onClick={() => {
                   if (user) {
-                    window.location.href = user.role ? `/${user.role}/dashboard` : "/parent/dashboard";
+                    // REMOVED: Automatic redirect - let users stay on homepage
+                    // window.location.href = user.role ? `/${user.role}/dashboard` : "/parent/dashboard";
                   } else {
                     setShowLoginForm(true);
                   }

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useSearchParams } from 'react-router-dom';
+import { useSearchParams, useNavigate } from 'react-router-dom';
 import { loadStripe } from '@stripe/stripe-js';
 import { Elements, PaymentElement, useStripe, useElements } from '@stripe/react-stripe-js';
 import { Button } from '@/components/ui/button';
@@ -84,6 +84,7 @@ function PaymentForm({ planName, price }: { planName: string; price: string }) {
 export default function SubscriptionSetup() {
   console.log('🔥 SubscriptionSetup component loaded!');
   const [searchParams] = useSearchParams();
+  const navigate = useNavigate();
   const { toast } = useToast();
   const [clientSecret, setClientSecret] = useState<string>('');
   const [isLoading, setIsLoading] = useState(false);
@@ -131,7 +132,7 @@ export default function SubscriptionSetup() {
         variant: "destructive",
       });
       setTimeout(() => {
-        window.location.href = '/';
+        navigate('/');
       }, 3000);
     }
   }, [planName, planId, role, priceId, toast, searchParams]);
@@ -227,7 +228,7 @@ export default function SubscriptionSetup() {
         });
         
         setTimeout(() => {
-          window.location.href = '/subscription-success?plan=free&role=parent';
+          navigate('/subscription-success?plan=free&role=parent');
         }, 2000);
         return;
       }
@@ -310,7 +311,7 @@ export default function SubscriptionSetup() {
           <div className="mb-6">
             <Button
               variant="ghost"
-              onClick={() => window.location.href = '/'}
+              onClick={() => navigate('/')}
               className="p-2 hover:bg-muted"
               data-testid="button-back"
             >
@@ -483,7 +484,7 @@ export default function SubscriptionSetup() {
               <p className="text-muted-foreground mb-4">
                 If you're not redirected automatically, please try again.
               </p>
-              <Button onClick={() => window.location.href = '/pricing'}>
+              <Button onClick={() => navigate('/pricing')}>
                 Back to Pricing
               </Button>
             </div>

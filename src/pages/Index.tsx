@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -32,6 +33,7 @@ const features = [
 
 const Index = () => {
   const { user, loading } = useAuth();
+  const navigate = useNavigate();
   const [authMode, setAuthMode] = useState<'signin' | 'create'>('signin');
   const [showLoginForm, setShowLoginForm] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
@@ -62,7 +64,7 @@ const Index = () => {
         localStorage.setItem('authToken', token);
         
         // Use the redirectTo URL from server response (plan-specific dashboard)
-        window.location.replace(redirectTo);
+        navigate(redirectTo, { replace: true });
       } else {
         const errorData = await response.json();
         alert(errorData.message || 'Login failed');
@@ -126,7 +128,7 @@ const Index = () => {
                         } else {
                           dashboardPath = '/dashboard';
                         }
-                        window.location.href = dashboardPath;
+                        navigate(dashboardPath);
                       }}
                       data-testid="button-dashboard"
                     >
@@ -186,7 +188,7 @@ const Index = () => {
                               {/* Parent Option */}
                               <div 
                                 className="bg-card border border-border rounded-lg p-6 cursor-pointer hover:border-primary transition-colors group"
-                                onClick={() => window.location.href = "/parent/pricing"}
+                                onClick={() => navigate("/parent/pricing")}
                                 data-testid="card-parent"
                               >
                                 <div className="text-center space-y-3">
@@ -205,7 +207,7 @@ const Index = () => {
                               {/* Advocate Option */}
                               <div 
                                 className="bg-card border border-border rounded-lg p-6 cursor-pointer hover:border-secondary transition-colors group"
-                                onClick={() => window.location.href = "/advocate/pricing"}
+                                onClick={() => navigate("/advocate/pricing")}
                                 data-testid="card-advocate"
                               >
                                 <div className="text-center space-y-3">
@@ -373,7 +375,7 @@ const Index = () => {
                 size="lg"
                 onClick={() => {
                   if (user) {
-                    window.location.href = user.role ? `/${user.role}/dashboard` : "/parent/dashboard";
+                    navigate(user.role ? `/${user.role}/dashboard` : "/parent/dashboard");
                   } else {
                     setShowLoginForm(true);
                   }
@@ -386,7 +388,7 @@ const Index = () => {
                 variant="outline" 
                 size="lg"
                 className="bg-white/10 hover:bg-white/20 border-white/30 text-white hover:text-white"
-                onClick={() => window.location.href = "/pricing"}
+                onClick={() => navigate("/pricing")}
                 data-testid="button-cta-secondary"
               >
                 View Pricing

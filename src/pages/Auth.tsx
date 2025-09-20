@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -13,6 +14,7 @@ const Auth = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const { toast } = useToast();
+  const navigate = useNavigate();
 
   const handleCustomLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -40,7 +42,7 @@ const Auth = () => {
         });
         
         // Redirect immediately
-        window.location.replace('/parent/dashboard-hero');
+        navigate('/parent/dashboard-hero', { replace: true });
       } else {
         const data = await response.json();
         toast({

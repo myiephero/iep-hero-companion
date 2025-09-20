@@ -5422,7 +5422,7 @@ Respond with this exact JSON format:
   });
 
   // NUCLEAR SOLUTION: Static file serving for both desktop and mobile
-  console.log('🚀 NUCLEAR SOLUTION: Serving static builds - Root URL = DESKTOP, /m path = MOBILE');
+  console.log('🔄 SWAPPED: Serving static builds - Root URL = MOBILE, /m path = DESKTOP');
   
   // Define paths to the built applications
   const desktopDist = path.join(__dirname, '../apps/desktop/dist');
@@ -5445,8 +5445,8 @@ Respond with this exact JSON format:
   // Apply cache headers to all static routes
   app.use(setCacheHeaders);
   
-  // Mount mobile static files at /m path with fallthrough
-  app.use('/m', express.static(mobileDist, { 
+  // Mount desktop static files at /m path with fallthrough
+  app.use('/m', express.static(desktopDist, { 
     fallthrough: true,
     index: false // Don't serve index.html automatically
   }));
@@ -5481,8 +5481,8 @@ Respond with this exact JSON format:
     express.static(assetsDir)(req, res, next);
   });
   
-  // Mount desktop static files at root with fallthrough
-  app.use('/', express.static(desktopDist, { 
+  // Mount mobile static files at root with fallthrough
+  app.use('/', express.static(mobileDist, { 
     fallthrough: true,
     index: false // Don't serve index.html automatically
   }));

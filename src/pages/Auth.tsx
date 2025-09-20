@@ -243,14 +243,14 @@ const Auth = () => {
   return (
     <div className="min-h-screen bg-gradient-to-br from-primary/5 via-background to-secondary/5 flex items-center justify-center p-4">
       {/* 🚨 BIG PINK TEST BUTTON - FOR TESTING ONLY */}
-      <div className="fixed top-4 left-4 z-50">
+      <div className="fixed top-4 left-4 z-[9999]">
         <Button 
           size="lg" 
-          className="bg-pink-500 hover:bg-pink-600 text-white font-bold px-6 py-3 text-lg shadow-lg"
+          className="bg-pink-500 hover:bg-pink-600 text-white font-bold px-6 py-3 text-lg shadow-2xl border-4 border-pink-300"
           onClick={() => alert('🚨 BIG PINK TEST BUTTON ON AUTH PAGE (/auth) - We are working on the same codebase!')}
           data-testid="pink-test-button-auth"
         >
-          🚨 BIG PINK TEST BUTTON - AUTH PAGE
+          🚨 PINK TEST - AUTH
         </Button>
       </div>
 

@@ -5540,6 +5540,38 @@ Respond with this exact JSON format:
     });
   };
   
+  // Service Worker bypass route for desktop
+  app.get('/m/bypass', (req, res) => {
+    const fs = require('fs');
+    const indexPath = path.join(desktopDist, 'index.html');
+    
+    fs.readFile(indexPath, 'utf8', (err, data) => {
+      if (err) {
+        return res.status(500).send('Error loading desktop app');
+      }
+      
+      // Completely disable service worker for this route
+      let modifiedHtml = data
+        .replace('</head>', `
+    <script>
+      // DISABLE ALL SERVICE WORKERS FOR DESKTOP VERSION
+      if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.getRegistrations().then(registrations => {
+          registrations.forEach(registration => registration.unregister());
+        });
+        // Permanently override registration
+        navigator.serviceWorker.register = () => Promise.reject('SW disabled for desktop');
+      }
+      console.log('🔴 DESKTOP VERSION: Service Workers completely disabled');
+    </script>
+    </head>`);
+      
+      res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate');
+      res.setHeader('Content-Type', 'text/html');
+      res.send(modifiedHtml);
+    });
+  });
+
   app.get('/m', serveDesktopApp);
   app.get('/m/', serveDesktopApp);
   

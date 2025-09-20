@@ -46,7 +46,7 @@ outputType = "webview"
 
 [[workflows.workflow.tasks]]
 task = "shell.exec"
-args = "NODE_ENV=production npm run server"
+args = "npm run dev"
 waitForPort = 5000
 
 [[ports]]
@@ -60,10 +60,6 @@ externalPort = 3001
 [[ports]]
 localPort = 5000
 externalPort = 80
-
-[[ports]]
-localPort = 34123
-externalPort = 6000
 
 [[ports]]
 localPort = 34211
@@ -98,12 +94,12 @@ localPort = 42547
 externalPort = 8080
 
 [[ports]]
-localPort = 44963
-externalPort = 5173
+localPort = 42991
+externalPort = 3000
 
 [[ports]]
-localPort = 46391
-externalPort = 3000
+localPort = 44963
+externalPort = 5173
 
 [agent]
 integrations = ["javascript_log_in_with_replit==1.0.0", "javascript_database==1.0.0", "javascript_auth_all_persistance==1.0.0", "javascript_openai==1.0.0", "javascript_object_storage==1.0.0", "javascript_paypal==1.0.0", "javascript_supabase==1.0.0", "javascript_stripe==1.0.0"]

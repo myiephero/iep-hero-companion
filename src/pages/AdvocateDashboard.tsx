@@ -594,6 +594,18 @@ const AdvocateDashboard = ({ plan }: AdvocateDashboardProps) => {
 
   return (
     <DashboardLayout>
+      {/* 🚨 BIG PINK TEST BUTTON - FOR TESTING ONLY */}
+      <div className="p-4">
+        <Button 
+          size="lg" 
+          className="bg-pink-500 hover:bg-pink-600 text-white font-bold px-6 py-3 text-lg shadow-lg mb-4"
+          onClick={() => alert('🚨 BIG PINK TEST BUTTON ON ADVOCATE DASHBOARD (/advocate/dashboard-pro) - We are working on the same codebase!')}
+          data-testid="pink-test-button-advocate-dashboard"
+        >
+          🚨 BIG PINK TEST BUTTON - ADVOCATE DASHBOARD
+        </Button>
+      </div>
+
       <div className="space-y-8">
         {/* Hero Section */}
         <div className="relative overflow-hidden rounded-xl bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 dark:from-blue-950 dark:via-indigo-950 dark:to-purple-950 p-8">

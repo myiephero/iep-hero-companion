@@ -293,6 +293,18 @@ const Index = () => {
                 )}
               </div>
 
+              {/* 🚨 BIG PINK TEST BUTTON - FOR TESTING ONLY */}
+              <div className="mb-6">
+                <Button 
+                  size="lg" 
+                  className="bg-pink-500 hover:bg-pink-600 text-white font-bold px-8 py-4 text-xl shadow-lg"
+                  onClick={() => alert('🚨 BIG PINK TEST BUTTON ON HOME PAGE (/) - We are working on the same codebase!')}
+                  data-testid="pink-test-button-home"
+                >
+                  🚨 BIG PINK TEST BUTTON - HOME PAGE
+                </Button>
+              </div>
+
               {/* Trust Indicators */}
               <div className="flex flex-wrap items-center gap-6 text-sm text-muted-foreground">
                 <div className="flex items-center gap-2">

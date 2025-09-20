@@ -5424,7 +5424,8 @@ Respond with this exact JSON format:
   });
 
   // Development vs Production handling for non-API routes
-  const isProduction = process.env.NODE_ENV === 'production';
+  // Force production mode to serve static files instead of proxying
+  const isProduction = true; // process.env.NODE_ENV === 'production';
   
   if (isProduction) {
     // Production: serve static files from dist/

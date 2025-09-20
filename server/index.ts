@@ -5451,10 +5451,10 @@ Respond with this exact JSON format:
     index: false // Don't serve index.html automatically
   }));
   
-  // FALLBACK: Map /js/ requests to /assets/ directory (for old embedded paths)
-  app.use('/js', (req, res, next) => {
+  // FALLBACK: Map /m/js/ requests to /m/assets/ directory (for desktop at /m path)
+  app.use('/m/js', (req, res, next) => {
     const requestedFile = req.url.substring(1); // Remove leading slash
-    console.log(`🔄 JS fallback: mapping ${req.url} to assets/`);
+    console.log(`🔄 Desktop JS fallback: mapping ${req.url} to /m/assets/`);
     
     // Find matching file with hash in assets directory
     const fs = require('fs');
@@ -5470,11 +5470,11 @@ Respond with this exact JSON format:
       });
       
       if (matchingFile) {
-        console.log(`✅ Found matching file: ${matchingFile}`);
+        console.log(`✅ Found matching desktop file: ${matchingFile}`);
         return res.sendFile(path.join(assetsDir, matchingFile));
       }
     } catch (err) {
-      console.log(`❌ Error reading assets directory: ${err.message}`);
+      console.log(`❌ Error reading desktop assets directory: ${err.message}`);
     }
     
     // Fallback to normal static serving
@@ -5487,17 +5487,17 @@ Respond with this exact JSON format:
     index: false // Don't serve index.html automatically
   }));
   
-  // Serve mobile index.html for both /m and /m/ routes with base path fix
-  const serveMobileApp = (req, res) => {
+  // Serve desktop index.html for both /m and /m/ routes with base path fix
+  const serveDesktopApp = (req, res) => {
     const fs = require('fs');
-    const indexPath = path.join(mobileDist, 'index.html');
+    const indexPath = path.join(desktopDist, 'index.html');
     
     fs.readFile(indexPath, 'utf8', (err, data) => {
       if (err) {
-        return res.status(500).send('Error loading mobile app');
+        return res.status(500).send('Error loading desktop app');
       }
       
-      // Fix base path and asset URLs for mobile app
+      // Fix base path and asset URLs for desktop app at /m path
       let modifiedHtml = data
         // Inject base tag for correct asset resolution
         .replace('<head>', '<head>\n    <base href="/m/">')
@@ -5524,8 +5524,25 @@ Respond with this exact JSON format:
     });
   };
   
-  app.get('/m', serveMobileApp);
-  app.get('/m/', serveMobileApp);
+  // Serve mobile index.html at root
+  const serveMobileApp = (req, res) => {
+    const fs = require('fs');
+    const indexPath = path.join(mobileDist, 'index.html');
+    
+    fs.readFile(indexPath, 'utf8', (err, data) => {
+      if (err) {
+        return res.status(500).send('Error loading mobile app');
+      }
+      
+      res.setHeader('Cache-Control', 'no-store');
+      res.setHeader('Content-Type', 'text/html');
+      res.send(data);
+    });
+  };
+  
+  app.get('/m', serveDesktopApp);
+  app.get('/m/', serveDesktopApp);
+  
   
   // Service worker clearing endpoint
   app.get('/clear-sw', (req, res) => {
@@ -5625,15 +5642,15 @@ Respond with this exact JSON format:
       return next();
     }
     
-    // Handle mobile routes
+    // Handle desktop routes at /m (after swap)
     if (req.path.startsWith('/m')) {
       res.setHeader('Cache-Control', 'no-store');
-      return res.sendFile(path.join(mobileDist, 'index.html'));
+      return res.sendFile(path.join(desktopDist, 'index.html'));
     }
     
-    // Handle desktop routes (everything else)
+    // Handle mobile routes (everything else at root after swap)
     res.setHeader('Cache-Control', 'no-store');
-    res.sendFile(path.join(desktopDist, 'index.html'));
+    res.sendFile(path.join(mobileDist, 'index.html'));
   });
 
   // Start the server after all setup is complete

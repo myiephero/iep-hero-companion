@@ -5661,58 +5661,23 @@ Respond with this exact JSON format:
     res.json(aasaContent);
   });
   
-  // SPA fallback middleware - handles both mobile and desktop routing
-  app.use((req, res, next) => {
-    console.log(`🔍 SPA FALLBACK: Processing path: ${req.path}`);
-    
-    // Skip API routes - let them be handled normally
-    if (req.path.startsWith('/api')) {
-      console.log(`⚡ Skipping API route: ${req.path}`);
-      return next();
-    }
-    
-    // Skip static assets
-    if (req.path.match(/\.(js|css|png|jpg|jpeg|gif|ico|svg|woff|woff2|ttf|eot|html)$/)) {
-      console.log(`📁 Skipping static asset: ${req.path}`);
-      return next();
-    }
-    
-    // Handle desktop routes at /m (after swap)
-    if (req.path.startsWith('/m')) {
-      console.log(`🖥️ SERVING DESKTOP VERSION for path: ${req.path}`);
-      
-      const fs = require('fs');
-      fs.readFile(path.join(desktopDist, 'index.html'), 'utf8', (err, data) => {
-        if (err) {
-          return res.status(500).send('Error loading desktop app');
-        }
-        
-        // Add obvious desktop identifier
-        let modifiedHtml = data.replace('<body>', '<body><div style="position:fixed;top:10px;right:10px;background:red;color:white;padding:10px;z-index:9999;border-radius:5px;">🖥️ DESKTOP VERSION</div>');
-        
-        res.setHeader('Cache-Control', 'no-store');
-        res.setHeader('Content-Type', 'text/html');
-        res.send(modifiedHtml);
-      });
-      return;
-    }
-    
-    // Handle mobile routes (everything else at root after swap)
-    console.log(`📱 SERVING MOBILE VERSION for path: ${req.path}`);
-    
-    const fs = require('fs');
-    fs.readFile(path.join(mobileDist, 'index.html'), 'utf8', (err, data) => {
-      if (err) {
-        return res.status(500).send('Error loading mobile app');
-      }
-      
-      // Add obvious mobile identifier 
-      let modifiedHtml = data.replace('<body>', '<body><div style="position:fixed;top:10px;right:10px;background:green;color:white;padding:10px;z-index:9999;border-radius:5px;">📱 MOBILE VERSION</div>');
-      
-      res.setHeader('Cache-Control', 'no-store');
-      res.setHeader('Content-Type', 'text/html');
-      res.send(modifiedHtml);
-    });
+  // Serve desktop static files at /m path
+  app.use('/m', express.static(desktopDist, { index: false, maxAge: '1y', etag: true }));
+  
+  // Serve mobile static files at root path
+  app.use('/', express.static(mobileDist, { index: false, maxAge: '1y', etag: true }));
+  
+  // Redirect /m to /m/ for consistency
+  app.get('/m', (req, res) => res.redirect(301, '/m/'));
+  
+  // Desktop SPA fallback - serves desktop index.html for /m/* routes
+  app.get('/m/*', (req, res) => {
+    res.sendFile(path.join(desktopDist, 'index.html'));
+  });
+  
+  // Mobile SPA fallback - serves mobile index.html for all other routes
+  app.get('*', (req, res) => {
+    res.sendFile(path.join(mobileDist, 'index.html'));
   });
 
   // Start the server after all setup is complete

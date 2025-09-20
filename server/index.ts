@@ -5676,13 +5676,40 @@ Respond with this exact JSON format:
     
     // Handle desktop routes at /m (after swap)
     if (req.path.startsWith('/m')) {
-      res.setHeader('Cache-Control', 'no-store');
-      return res.sendFile(path.join(desktopDist, 'index.html'));
+      console.log(`🖥️ SERVING DESKTOP VERSION for path: ${req.path}`);
+      
+      const fs = require('fs');
+      fs.readFile(path.join(desktopDist, 'index.html'), 'utf8', (err, data) => {
+        if (err) {
+          return res.status(500).send('Error loading desktop app');
+        }
+        
+        // Add obvious desktop identifier
+        let modifiedHtml = data.replace('<body>', '<body><div style="position:fixed;top:10px;right:10px;background:red;color:white;padding:10px;z-index:9999;border-radius:5px;">🖥️ DESKTOP VERSION</div>');
+        
+        res.setHeader('Cache-Control', 'no-store');
+        res.setHeader('Content-Type', 'text/html');
+        res.send(modifiedHtml);
+      });
+      return;
     }
     
     // Handle mobile routes (everything else at root after swap)
-    res.setHeader('Cache-Control', 'no-store');
-    res.sendFile(path.join(mobileDist, 'index.html'));
+    console.log(`📱 SERVING MOBILE VERSION for path: ${req.path}`);
+    
+    const fs = require('fs');
+    fs.readFile(path.join(mobileDist, 'index.html'), 'utf8', (err, data) => {
+      if (err) {
+        return res.status(500).send('Error loading mobile app');
+      }
+      
+      // Add obvious mobile identifier 
+      let modifiedHtml = data.replace('<body>', '<body><div style="position:fixed;top:10px;right:10px;background:green;color:white;padding:10px;z-index:9999;border-radius:5px;">📱 MOBILE VERSION</div>');
+      
+      res.setHeader('Cache-Control', 'no-store');
+      res.setHeader('Content-Type', 'text/html');
+      res.send(modifiedHtml);
+    });
   });
 
   // Start the server after all setup is complete

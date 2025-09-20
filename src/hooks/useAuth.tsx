@@ -116,6 +116,24 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
             
             console.log('🔍 useAuth: Auth response status:', authResponse.status);
             
+            // Handle 401/403 immediately - user not authenticated
+            if (authResponse.status === 401 || authResponse.status === 403) {
+              console.log('🚫 Authentication failed - no valid session');
+              setUser(null);
+              setProfile(null);
+              setLoading(false);
+              
+              // Redirect to auth if on protected route
+              const isProtectedRoute = !currentPath.includes('/pricing') && 
+                                     currentPath !== '/' && 
+                                     currentPath !== '/auth';
+              if (isProtectedRoute) {
+                console.log('🔄 Redirecting to login from protected route:', currentPath);
+                navigate('/auth', { replace: true });
+              }
+              return;
+            }
+            
             if (authResponse.ok) {
               const authData = await authResponse.json();
               console.log('✅ useAuth: Replit Auth session found, response data:', authData);

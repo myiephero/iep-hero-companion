@@ -186,7 +186,11 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
             }
             
             // Redirect scenarios (EXCLUDE homepage - let users stay on /)
-            if (currentPath === '/auth' || currentPath === '/onboarding') {
+            // CRITICAL FIX: Never redirect users away from the homepage
+            if (currentPath === '/' || currentPath === '/index.html') {
+              // Users on homepage can stay there - no automatic redirect
+              console.log('✅ User on homepage - skipping automatic redirect');
+            } else if (currentPath === '/auth' || currentPath === '/onboarding') {
               // Post-authentication/onboarding redirect (but NOT from homepage)
               window.location.href = correctDashboardPath;
             } else if (userData.role === 'parent') {

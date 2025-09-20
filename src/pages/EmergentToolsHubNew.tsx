@@ -1,8 +1,9 @@
 import { DashboardLayout } from "@/layouts/DashboardLayout";
 import { Badge } from "@/components/ui/badge";
 import { AccessControlledToolCard } from "@/components/AccessControlledToolCard";
-import { Zap, Users, Star, FileText, Target, Building, BookOpen, Smile, TrendingUp, MessageSquare, Brain, Heart, Code } from "lucide-react";
+import { Zap, Users, Star, FileText, Target, Building, BookOpen, Smile, TrendingUp, MessageSquare, Brain, Heart, Code, ArrowLeft } from "lucide-react";
 import { useEffect, useState } from "react";
+import { useLocation, Link } from "react-router-dom";
 import { getToolRequiredPlan } from "@/lib/toolAccess";
 import type { PlanFeatures, SubscriptionPlan } from "@/lib/planAccess";
 
@@ -223,13 +224,61 @@ const emergentTools: ToolConfig[] = [
   }
 ];
 
+// Component for individual tool pages
+function ToolPageContent({ tool }: { tool: ToolConfig }) {
+  const IconComponent = tool.icon;
+  
+  return (
+    <DashboardLayout>
+      <div className="space-y-6">
+        {/* Back button */}
+        <Link to="/parent/tools/emergent" className="flex items-center gap-2 text-muted-foreground hover:text-foreground mb-4">
+          <ArrowLeft className="h-4 w-4" />
+          Back to Tools Hub
+        </Link>
+        
+        {/* Tool header */}
+        <div className="text-center space-y-4">
+          <div className="flex items-center justify-center gap-3">
+            <IconComponent className="h-10 w-10 text-primary" />
+            <h1 className="text-3xl font-bold">{tool.title}</h1>
+            <Badge variant="secondary">{tool.badge}</Badge>
+          </div>
+          <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
+            {tool.description}
+          </p>
+        </div>
+        
+        {/* Tool content placeholder */}
+        <div className="max-w-4xl mx-auto">
+          <div className="bg-card border border-border rounded-lg p-8 text-center space-y-4">
+            <IconComponent className="h-16 w-16 text-muted-foreground mx-auto" />
+            <h3 className="text-xl font-semibold">Tool Coming Soon</h3>
+            <p className="text-muted-foreground">
+              This {tool.title.toLowerCase()} tool is under active development. 
+              Check back soon for the full interactive experience!
+            </p>
+            <div className="flex flex-wrap justify-center gap-2 mt-4">
+              {tool.features.map((feature, index) => (
+                <Badge key={index} variant="outline">{feature}</Badge>
+              ))}
+            </div>
+          </div>
+        </div>
+      </div>
+    </DashboardLayout>
+  );
+}
+
 export default function EmergentToolsHubNew() {
   const [apiVersion, setApiVersion] = useState<string>('');
+  const location = useLocation();
   
   useEffect(() => {
     // Log BUILD_ID to console immediately
     console.log('🔥 FRONTEND BUILD_ID:', BUILD_ID);
     console.log('🆕 NEW FILE LOADED - 18 tools:', emergentTools.length);
+    console.log('🔍 Current location:', location.pathname);
     
     // Fetch API version to confirm environment parity
     fetch('/api/_version')
@@ -244,7 +293,15 @@ export default function EmergentToolsHubNew() {
         }
       })
       .catch(err => console.log('❌ Could not fetch API version:', err));
-  }, []);
+  }, [location.pathname]);
+  
+  // Check if we're on a specific tool page
+  const currentTool = emergentTools.find(tool => tool.path === location.pathname);
+  
+  // If we're on a specific tool page, render the tool content
+  if (currentTool) {
+    return <ToolPageContent tool={currentTool} />;
+  }
   
   return (
     <DashboardLayout>

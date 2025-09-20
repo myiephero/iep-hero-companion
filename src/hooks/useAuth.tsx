@@ -1,5 +1,4 @@
 import { createContext, useContext, useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
 
 // Real User types for Replit Auth
 interface User {
@@ -50,7 +49,6 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
   const [profile, setProfile] = useState<any | null>(null);
-  const navigate = useNavigate();
 
   useEffect(() => {
     const checkAuth = async () => {

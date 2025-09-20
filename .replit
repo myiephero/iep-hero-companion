@@ -90,12 +90,12 @@ localPort = 39731
 externalPort = 5000
 
 [[ports]]
-localPort = 42547
-externalPort = 8080
+localPort = 39777
+externalPort = 3000
 
 [[ports]]
-localPort = 44173
-externalPort = 6000
+localPort = 42547
+externalPort = 8080
 
 [[ports]]
 localPort = 44963

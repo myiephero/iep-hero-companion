@@ -1,8 +1,6 @@
 // API client to replace Supabase calls  
-// Dynamic API base URL that works for both web and mobile environments
-import { getApiBaseUrl } from './apiConfig';
-
-const getApiBase = () => getApiBaseUrl();
+// Use relative path since we're on the same domain
+const API_BASE = '/api';
 
 export interface Student {
   id?: string;
@@ -165,12 +163,7 @@ class ApiClient {
         headers['Authorization'] = `Bearer ${authToken}`;
       }
 
-      const apiBase = getApiBase();
-      const fullUrl = `${apiBase}${endpoint}`;
-      
-      console.log('🔗 API Client - Making request to:', fullUrl);
-      
-      const response = await fetch(fullUrl, {
+      const response = await fetch(`${API_BASE}${endpoint}`, {
         credentials: 'include', // Include cookies for session-based auth
         headers,
         ...options,

@@ -11,7 +11,6 @@ import {
 } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
-import iepHeroIcon from "@/assets/iep-hero-icon.png";
 
 export function TopNavigation() {
   const location = useLocation();
@@ -53,44 +52,41 @@ export function TopNavigation() {
       <div className="container mx-auto flex h-16 items-center justify-between px-4">
         <div className="flex items-center gap-4">
           <Link to="/" className="flex items-center gap-2">
-            <div className="w-8 h-8 rounded-lg flex items-center justify-center overflow-hidden">
-              <img src={iepHeroIcon} alt="IEP Hero" className="w-8 h-8 object-contain" />
+            <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center">
+              <User className="h-4 w-4 text-primary-foreground" />
             </div>
             <span className="font-bold text-lg">My IEP Hero</span>
           </Link>
         </div>
 
-        <nav className="hidden md:flex items-center gap-8">
+        <nav className="hidden md:flex items-center gap-6">
           <Link 
             to="/" 
-            className={`text-sm font-medium transition-colors hover:text-primary px-3 py-2 min-h-[44px] flex items-center ${
+            className={`text-sm font-medium transition-colors hover:text-primary ${
               location.pathname === '/' ? 'text-primary' : 'text-muted-foreground'
             }`}
-            data-testid="nav-home"
           >
             Home
           </Link>
           <Link 
             to="/parent/dashboard" 
-            className={`text-sm font-medium transition-colors hover:text-primary px-3 py-2 min-h-[44px] flex items-center ${
+            className={`text-sm font-medium transition-colors hover:text-primary ${
               location.pathname.startsWith('/parent') ? 'text-primary' : 'text-muted-foreground'
             }`}
-            data-testid="nav-parent-portal"
           >
             Parent Portal
           </Link>
           <Link 
             to="#" // Will redirect to plan-specific dashboard 
-            className={`text-sm font-medium transition-colors hover:text-primary px-3 py-2 min-h-[44px] flex items-center ${
+            className={`text-sm font-medium transition-colors hover:text-primary ${
               location.pathname.startsWith('/advocate') ? 'text-primary' : 'text-muted-foreground'
             }`}
-            data-testid="nav-advocate-portal"
           >
             Advocate Portal
           </Link>
         </nav>
 
-        <div className="flex items-center gap-4">
+        <div className="flex items-center gap-3">
           <Button variant="ghost" size="icon" className="hidden md:flex">
             <Search className="h-4 w-4" />
           </Button>

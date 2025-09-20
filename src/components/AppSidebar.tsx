@@ -21,7 +21,6 @@ import {
   Lock,
   Sparkles
 } from "lucide-react";
-import iepHeroIcon from "@/assets/iep-hero-icon.png";
 import { allAdvocateTools, getToolsByCategory } from "@/lib/advocateToolsRegistry";
 import { useToolAccess } from "@/hooks/useToolAccess";
 
@@ -178,8 +177,8 @@ export function AppSidebar() {
         {/* Brand */}
         <div className="mb-8">
           <Link to="/" className="flex items-center gap-3">
-            <div className="w-8 h-8 rounded-lg flex items-center justify-center overflow-hidden">
-              <img src={iepHeroIcon} alt="IEP Hero" className="w-8 h-8 object-contain" />
+            <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center">
+              <Users className="h-5 w-5 text-primary-foreground" />
             </div>
             {!collapsed && (
               <div>
@@ -197,18 +196,18 @@ export function AppSidebar() {
 
         {/* Main Navigation */}
         {navigation.map((section, sectionIndex) => (
-          <SidebarGroup key={sectionIndex} className="mb-8">
+          <SidebarGroup key={sectionIndex} className="mb-6">
             {!collapsed && (
               <SidebarGroupLabel className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-2">
                 {section.title}
               </SidebarGroupLabel>
             )}
             <SidebarGroupContent>
-              <SidebarMenu className="space-y-2">
+              <SidebarMenu className="space-y-1">
                 {section.items.map((item) => {
                   const ItemComponent = item.isLocked ? 'div' : Link;
                   const isItemActive = isActive(item.url);
-                  const itemClass = `w-full justify-start gap-3 px-3 py-3 min-h-[44px] rounded-lg transition-all ${
+                  const itemClass = `w-full justify-start gap-3 px-3 py-2 rounded-lg transition-all ${
                     isItemActive
                       ? 'bg-sidebar-primary text-sidebar-primary-foreground shadow-sm'
                       : item.isLocked 
@@ -224,25 +223,19 @@ export function AppSidebar() {
                         data-testid={item['data-testid']}
                       >
                         {item.isLocked ? (
-                          <div 
-                            className="flex items-center gap-3 w-full" 
-                            role="button" 
-                            aria-disabled="true"
-                            aria-label={`${item.title} - Requires ${item.requiredPlan} plan to access`}
-                            tabIndex={0}
-                          >
+                          <div className="flex items-center gap-3 w-full">
                             <div className="relative">
-                              <item.icon className={`h-5 w-5 ${collapsed ? 'mx-auto' : ''}`} />
-                              <Lock className="h-3 w-3 absolute -top-1 -right-1 text-muted-foreground" />
+                              <item.icon className={`h-4 w-4 ${collapsed ? 'mx-auto' : ''}`} />
+                              <Lock className="h-2 w-2 absolute -top-1 -right-1 text-muted-foreground" />
                             </div>
                             {!collapsed && (
                               <>
                                 <span className="flex-1">{item.title}</span>
-                                <Badge variant="outline" className="text-xs px-2 py-0 border-dashed" aria-label={`Requires ${item.requiredPlan} plan`}>
+                                <Badge variant="outline" className="text-xs px-2 py-0 border-dashed">
                                   {item.requiredPlan}
                                 </Badge>
                                 {item.notificationCount && item.notificationCount > 0 && (
-                                  <Badge variant="destructive" className="text-xs px-2 py-0 ml-auto bg-red-500 text-white" data-testid="notification-badge" aria-label={`${item.notificationCount} pending notifications`}>
+                                  <Badge variant="destructive" className="text-xs px-2 py-0 ml-auto bg-red-500 text-white" data-testid="notification-badge">
                                     {item.notificationCount}
                                   </Badge>
                                 )}
@@ -250,18 +243,18 @@ export function AppSidebar() {
                             )}
                           </div>
                         ) : (
-                          <Link to={item.url} aria-label={`Navigate to ${item.title}${item.notificationCount ? ` (${item.notificationCount} pending)` : ''}`}>
-                            <item.icon className={`h-5 w-5 ${collapsed ? 'mx-auto' : ''}`} />
+                          <Link to={item.url}>
+                            <item.icon className={`h-4 w-4 ${collapsed ? 'mx-auto' : ''}`} />
                             {!collapsed && (
                               <>
                                 <span className="flex-1">{item.title}</span>
                                 {item.badge && (
-                                  <Badge variant="secondary" className="text-xs px-2 py-0" aria-label={`Badge: ${item.badge}`}>
+                                  <Badge variant="secondary" className="text-xs px-2 py-0">
                                     {item.badge}
                                   </Badge>
                                 )}
                                 {item.notificationCount && item.notificationCount > 0 && (
-                                  <Badge variant="destructive" className="text-xs px-2 py-0 ml-auto bg-red-500 text-white" data-testid="notification-badge" aria-label={`${item.notificationCount} pending notifications`}>
+                                  <Badge variant="destructive" className="text-xs px-2 py-0 ml-auto bg-red-500 text-white" data-testid="notification-badge">
                                     {item.notificationCount}
                                   </Badge>
                                 )}

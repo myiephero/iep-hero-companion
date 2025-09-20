@@ -6,7 +6,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Eye, EyeOff, Shield, CheckCircle, AlertCircle, Sparkles } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
-import iepHeroIcon from '@/assets/iep-hero-icon.png';
+import logoImage from '@/assets/my-iep-hero-logo.png';
 
 export default function SetupPassword() {
   const navigate = useNavigate();
@@ -132,7 +132,7 @@ export default function SetupPassword() {
           <CardContent className="p-8 text-center">
             <div className="flex justify-center mb-6">
               <img 
-                src={iepHeroIcon} 
+                src={logoImage} 
                 alt="My IEP Hero" 
                 className="h-16 w-auto"
               />
@@ -161,7 +161,7 @@ export default function SetupPassword() {
           {/* Logo */}
           <div className="flex justify-center mb-6">
             <img 
-              src={iepHeroIcon} 
+              src={logoImage} 
               alt="My IEP Hero" 
               className="h-20 w-auto transition-transform hover:scale-105"
             />

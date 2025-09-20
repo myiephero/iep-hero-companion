@@ -443,36 +443,36 @@ export default function ParentDashboard({ plan }: ParentDashboardProps) {
         {/* Enhanced Hero Section with Unified Design */}
         <div className="relative overflow-hidden">
           <div className="absolute inset-0 bg-gradient-to-r from-primary/5 via-secondary/5 to-accent/5 rounded-2xl pointer-events-none" />
-          <div className="relative p-4 sm:p-6 md:p-8 text-center z-10">
-            <div className="flex flex-col sm:flex-row items-center justify-center gap-2 sm:gap-3 mb-4">
-              <div className="p-2 sm:p-3 bg-gradient-to-br from-primary to-secondary rounded-xl shadow-lg">
-                <Trophy className="h-6 w-6 sm:h-8 sm:w-8 text-white" />
+          <div className="relative p-8 text-center z-10">
+            <div className="flex items-center justify-center gap-3 mb-4">
+              <div className="p-3 bg-gradient-to-br from-primary to-secondary rounded-xl shadow-lg">
+                <Trophy className="h-8 w-8 text-white" />
               </div>
-              <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent text-center sm:text-left">
+              <h1 className="text-4xl font-bold bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
                 {user?.firstName ? `Welcome back, ${user.firstName}!` : 'Premium Dashboard'}
               </h1>
             </div>
-            <p className="text-sm sm:text-base md:text-lg text-muted-foreground max-w-2xl mx-auto mb-6 sm:mb-8 px-2">
+            <p className="text-lg text-muted-foreground max-w-2xl mx-auto mb-8">
               Your premium command center for advocacy excellence, real-time progress tracking, and comprehensive IEP management.
             </p>
             
             {/* Plan Status Badge */}
-            <div className="flex justify-center mb-4 sm:mb-6">
+            <div className="flex justify-center mb-6">
               <Badge 
                 variant={userPlan === 'hero' ? "default" : "secondary"}
                 className={userPlan === 'hero' 
-                  ? "bg-gradient-to-r from-yellow-400 to-orange-500 text-white px-3 sm:px-6 py-2 text-sm sm:text-lg font-bold"
-                  : "px-3 sm:px-6 py-2 text-sm sm:text-lg"
+                  ? "bg-gradient-to-r from-yellow-400 to-orange-500 text-white px-6 py-2 text-lg font-bold"
+                  : "px-6 py-2 text-lg"
                 }
               >
                 {planName} Plan
               </Badge>
             </div>
               
-            <div className="flex flex-col gap-3 sm:gap-4 justify-center max-w-4xl mx-auto px-4">
+            <div className="flex flex-col sm:flex-row gap-4 justify-center max-w-4xl mx-auto">
               <Button 
                 size="lg" 
-                className="bg-gradient-to-r from-primary to-secondary hover:from-primary/90 hover:to-secondary/90 text-white shadow-lg hover:shadow-xl transition-all duration-300 px-4 sm:px-6 py-4 sm:py-3 cursor-pointer min-h-[44px] text-sm sm:text-base font-medium"
+                className="bg-gradient-to-r from-primary to-secondary hover:from-primary/90 hover:to-secondary/90 text-white shadow-lg hover:shadow-xl transition-all duration-300 px-6 py-3 cursor-pointer"
                 onClick={(e) => {
                   e.preventDefault();
                   e.stopPropagation();
@@ -486,91 +486,89 @@ export default function ParentDashboard({ plan }: ParentDashboardProps) {
                 }}
                 data-testid="button-explore-premium-tools"
               >
-                <Rocket className="h-4 w-4 sm:h-5 sm:w-5 mr-2" />
+                <Rocket className="h-5 w-5 mr-2" />
                 Explore Premium Tools
               </Button>
-              <div className="flex flex-col sm:flex-row gap-3 sm:gap-4">
-                <Button 
-                  variant="outline" 
-                  size="lg"
-                  className="border-2 border-primary/30 hover:border-primary text-primary hover:bg-primary/5 px-4 sm:px-6 py-4 sm:py-3 cursor-pointer min-h-[44px] text-sm sm:text-base font-medium flex-1"
-                  onClick={(e) => {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    console.log('👥 Manage Students clicked!');
-                    try {
-                      navigate('/parent/students');
-                    } catch (error) {
-                      console.error('Navigation error:', error);
-                      window.location.href = '/parent/students';
-                    }
-                  }}
-                  data-testid="button-manage-students"
-                >
-                  <Users className="h-4 w-4 sm:h-5 sm:w-5 mr-2" />
-                  Manage Students
-                </Button>
-                <Button 
-                  variant="outline" 
-                  size="lg"
-                  className="border-2 border-purple-500/30 hover:border-purple-500 text-purple-600 hover:bg-purple-50 px-4 sm:px-6 py-4 sm:py-3 cursor-pointer min-h-[44px] text-sm sm:text-base font-medium flex-1"
-                  onClick={(e) => {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    console.log('📁 Document Vault clicked!');
-                    try {
-                      navigate('/parent/tools/document-vault');
-                    } catch (error) {
-                      console.error('Navigation error:', error);
-                      window.location.href = '/parent/tools/document-vault';
-                    }
-                  }}
-                  data-testid="button-document-vault"
-                >
-                  <FileText className="h-4 w-4 sm:h-5 sm:w-5 mr-2" />
-                  Document Vault
-                </Button>
-              </div>
+              <Button 
+                variant="outline" 
+                size="lg"
+                className="border-2 border-primary/30 hover:border-primary text-primary hover:bg-primary/5 px-6 py-3 cursor-pointer"
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  console.log('👥 Manage Students clicked!');
+                  try {
+                    navigate('/parent/students');
+                  } catch (error) {
+                    console.error('Navigation error:', error);
+                    window.location.href = '/parent/students';
+                  }
+                }}
+                data-testid="button-manage-students"
+              >
+                <Users className="h-5 w-5 mr-2" />
+                Manage Students
+              </Button>
+              <Button 
+                variant="outline" 
+                size="lg"
+                className="border-2 border-purple-500/30 hover:border-purple-500 text-purple-600 hover:bg-purple-50 px-6 py-3 cursor-pointer"
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  console.log('📁 Document Vault clicked!');
+                  try {
+                    navigate('/parent/tools/document-vault');
+                  } catch (error) {
+                    console.error('Navigation error:', error);
+                    window.location.href = '/parent/tools/document-vault';
+                  }
+                }}
+                data-testid="button-document-vault"
+              >
+                <FileText className="h-5 w-5 mr-2" />
+                Document Vault
+              </Button>
             </div>
           </div>
         </div>
 
         {/* Upgrade Section for Stripe Testing - Only show for free/basic users */}
         {userPlan === 'free' && (
-          <div className="px-4 sm:px-6 py-6 sm:py-8">
+          <div className="px-6 py-8">
             <div className="max-w-7xl mx-auto">
               <Card className="border-0 shadow-xl bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 text-white overflow-hidden">
-                <CardContent className="p-4 sm:p-6 md:p-8">
-                  <div className="flex flex-col lg:flex-row items-center justify-between gap-6 md:gap-8">
+                <CardContent className="p-8">
+                  <div className="flex flex-col lg:flex-row items-center justify-between gap-8">
                     <div className="flex-1 text-center lg:text-left">
-                      <div className="flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-2 sm:gap-3 mb-4">
+                      <div className="flex items-center justify-center lg:justify-start gap-3 mb-4">
                         <div className="p-2 bg-white/20 rounded-xl">
-                          <Rocket className="h-5 w-5 sm:h-6 sm:w-6 text-white" />
+                          <Rocket className="h-6 w-6 text-white" />
                         </div>
-                        <Badge variant="secondary" className="bg-white/20 text-white border-white/30 font-semibold text-xs sm:text-sm">
+                        <Badge variant="secondary" className="bg-white/20 text-white border-white/30 font-semibold">
                           Free Plan Active
                         </Badge>
                       </div>
-                      <h2 className="text-xl sm:text-2xl md:text-3xl font-bold mb-3">🚀 Unlock Premium IEP Tools</h2>
-                      <p className="text-white/90 mb-4 sm:mb-6 text-sm sm:text-base md:text-lg">
+                      <h2 className="text-3xl font-bold mb-3">🚀 Unlock Premium IEP Tools</h2>
+                      <p className="text-white/90 mb-6 text-lg">
                         Test our payment system! Get AI-powered analysis, smart letters, and expert advocate matching.
                       </p>
-                      <div className="flex flex-col sm:flex-row sm:flex-wrap justify-center lg:justify-start gap-3 sm:gap-6 text-xs sm:text-sm">
+                      <div className="flex flex-wrap justify-center lg:justify-start gap-6 text-sm">
                         <div className="flex items-center gap-2">
-                          <CheckCircle2 className="h-4 w-4 sm:h-5 sm:w-5 text-green-300" />
+                          <CheckCircle2 className="h-5 w-5 text-green-300" />
                           <span className="font-medium">AI Document Analysis</span>
                         </div>
                         <div className="flex items-center gap-2">
-                          <CheckCircle2 className="h-4 w-4 sm:h-5 sm:w-5 text-green-300" />
+                          <CheckCircle2 className="h-5 w-5 text-green-300" />
                           <span className="font-medium">Smart Letter Generator</span>
                         </div>
                         <div className="flex items-center gap-2">
-                          <CheckCircle2 className="h-4 w-4 sm:h-5 sm:w-5 text-green-300" />
+                          <CheckCircle2 className="h-5 w-5 text-green-300" />
                           <span className="font-medium">Expert Advocate Network</span>
                         </div>
                       </div>
                     </div>
-                    <div className="flex flex-col gap-4 w-full sm:min-w-[280px] lg:w-auto">
+                    <div className="flex flex-col gap-4 min-w-[280px]">
                       <Button 
                         onClick={(e) => {
                           e.preventDefault();
@@ -583,10 +581,10 @@ export default function ParentDashboard({ plan }: ParentDashboardProps) {
                           }
                         }}
                         size="lg"
-                        className="bg-white text-purple-600 hover:bg-white/90 font-bold text-sm sm:text-base md:text-lg py-4 px-6 sm:px-8 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 min-h-[44px]"
+                        className="bg-white text-purple-600 hover:bg-white/90 font-bold text-lg py-4 px-8 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300"
                         data-testid="button-parent-upgrade"
                       >
-                        <Crown className="h-4 w-4 sm:h-5 sm:w-5 mr-2" />
+                        <Crown className="h-5 w-5 mr-2" />
                         Upgrade Now
                       </Button>
                     </div>
@@ -598,10 +596,10 @@ export default function ParentDashboard({ plan }: ParentDashboardProps) {
         )}
 
         {/* Main Content Grid */}
-        <div className="px-4 sm:px-6 pb-16">
+        <div className="px-6 pb-16">
           <div className="max-w-7xl mx-auto">
             {/* Enhanced Quick Stats with Unified Design */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4 sm:gap-6 mb-8 sm:mb-12 relative" style={{ zIndex: 10 }}>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-12 relative" style={{ zIndex: 10 }}>
               {[
                 {
                   icon: Target,
@@ -638,7 +636,7 @@ export default function ParentDashboard({ plan }: ParentDashboardProps) {
               ].map(({ icon: Icon, title, subtitle, badge, color, index }) => (
                 <Card 
                   key={index}
-                  className={`group hover:shadow-xl transition-all duration-300 hover:-translate-y-1 border-0 shadow-md overflow-hidden min-h-[120px] sm:min-h-[140px] ${isInitialized ? 'cursor-pointer' : 'cursor-wait'}`}
+                  className={`group hover:shadow-xl transition-all duration-300 hover:-translate-y-1 border-0 shadow-md overflow-hidden ${isInitialized ? 'cursor-pointer' : 'cursor-wait'}`}
                   style={{ 
                     animationDelay: `${index * 100}ms`,
                     animation: 'fadeInUp 0.6s ease-out forwards',
@@ -703,16 +701,16 @@ export default function ParentDashboard({ plan }: ParentDashboardProps) {
                   }}
                   data-testid={`card-stat-${index}`}
                 >
-                  <CardContent className="p-3 sm:p-4 md:p-6 text-center">
-                    <div className={`inline-flex items-center justify-center w-12 h-12 sm:w-14 sm:h-14 md:w-16 md:h-16 bg-gradient-to-br ${color} rounded-2xl mb-2 sm:mb-3 md:mb-4 group-hover:scale-110 transition-transform duration-300 shadow-lg`}>
-                      <Icon className="h-5 w-5 sm:h-6 sm:w-6 md:h-8 md:w-8 text-white" />
+                  <CardContent className="p-6 text-center">
+                    <div className={`inline-flex items-center justify-center w-16 h-16 bg-gradient-to-br ${color} rounded-2xl mb-4 group-hover:scale-110 transition-transform duration-300 shadow-lg`}>
+                      <Icon className="h-8 w-8 text-white" />
                     </div>
-                    <h3 className="text-lg sm:text-xl md:text-2xl lg:text-3xl font-bold mb-1 sm:mb-2 text-gray-900 dark:text-white">{title}</h3>
-                    <p className="text-xs sm:text-sm md:text-base text-muted-foreground mb-2 sm:mb-3 font-medium">{subtitle}</p>
+                    <h3 className="text-3xl font-bold mb-2 text-gray-900 dark:text-white">{title}</h3>
+                    <p className="text-muted-foreground mb-3 font-medium">{subtitle}</p>
                     <Button 
                       variant="secondary" 
                       size="sm" 
-                      className="bg-blue-50 text-blue-700 border-blue-200 hover:bg-blue-100 hover:text-blue-800 cursor-pointer text-xs sm:text-sm min-h-[32px] sm:min-h-[36px] px-2 sm:px-3"
+                      className="bg-blue-50 text-blue-700 border-blue-200 hover:bg-blue-100 hover:text-blue-800 cursor-pointer"
                       onClick={(e) => {
                         // Allow card click to work by not stopping propagation
                         const actions = [
@@ -755,58 +753,58 @@ export default function ParentDashboard({ plan }: ParentDashboardProps) {
             {/* Modern Horizontal Tab Navigation */}
             <Card className="border-0 shadow-lg overflow-hidden relative" style={{ zIndex: 'auto' }}>
               <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-                <div className="w-full p-3 sm:p-4 md:p-6 pb-0">
-                  <div className="bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 p-0.5 sm:p-1 rounded-xl sm:rounded-2xl shadow-lg">
-                    <div className="flex bg-white dark:bg-gray-900 rounded-lg sm:rounded-xl p-1 sm:p-2 gap-1 sm:gap-2">
+                <div className="w-full p-6 pb-0">
+                  <div className="bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 p-1 rounded-2xl shadow-lg">
+                    <div className="flex bg-white dark:bg-gray-900 rounded-xl p-2 gap-2">
                       <button
                         onClick={() => setActiveTab("goals")}
-                        className={`flex items-center gap-1 sm:gap-2 px-2 sm:px-3 md:px-4 py-2 sm:py-3 rounded-md sm:rounded-lg font-medium transition-all duration-200 flex-1 justify-center min-h-[44px] text-xs sm:text-sm md:text-base ${
+                        className={`flex items-center gap-2 px-4 py-3 rounded-lg font-medium transition-all duration-200 flex-1 justify-center ${
                           activeTab === "goals"
                             ? "bg-gradient-to-r from-blue-500 to-purple-500 text-white shadow-md"
                             : "text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800"
                         }`}
                         data-testid="tab-goal-tracking"
                       >
-                        <Target className="h-3 w-3 sm:h-4 sm:w-4" />
+                        <Target className="h-4 w-4" />
                         <span className="hidden sm:inline">Goal Tracking</span>
                         <span className="sm:hidden">Goals</span>
                       </button>
                       <button
                         onClick={() => setActiveTab("meetings")}
-                        className={`flex items-center gap-1 sm:gap-2 px-2 sm:px-3 md:px-4 py-2 sm:py-3 rounded-md sm:rounded-lg font-medium transition-all duration-200 flex-1 justify-center min-h-[44px] text-xs sm:text-sm md:text-base ${
+                        className={`flex items-center gap-2 px-4 py-3 rounded-lg font-medium transition-all duration-200 flex-1 justify-center ${
                           activeTab === "meetings"
                             ? "bg-gradient-to-r from-green-500 to-teal-600 text-white shadow-md"
                             : "text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800"
                         }`}
                         data-testid="tab-meetings"
                       >
-                        <Calendar className="h-3 w-3 sm:h-4 sm:w-4" />
+                        <Calendar className="h-4 w-4" />
                         <span className="hidden sm:inline">Meetings</span>
                         <span className="sm:hidden">Meetings</span>
                       </button>
                       <button
                         onClick={() => setActiveTab("emotions")}
-                        className={`flex items-center gap-1 sm:gap-2 px-2 sm:px-3 md:px-4 py-2 sm:py-3 rounded-md sm:rounded-lg font-medium transition-all duration-200 flex-1 justify-center min-h-[44px] text-xs sm:text-sm md:text-base ${
+                        className={`flex items-center gap-2 px-4 py-3 rounded-lg font-medium transition-all duration-200 flex-1 justify-center ${
                           activeTab === "emotions"
                             ? "bg-gradient-to-r from-pink-500 to-rose-600 text-white shadow-md"
                             : "text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800"
                         }`}
                         data-testid="tab-emotions"
                       >
-                        <Smile className="h-3 w-3 sm:h-4 sm:w-4" />
+                        <Smile className="h-4 w-4" />
                         <span className="hidden sm:inline">Emotions</span>
                         <span className="sm:hidden">Emotions</span>
                       </button>
                       <button
                         onClick={() => setActiveTab("insights")}
-                        className={`flex items-center gap-1 sm:gap-2 px-2 sm:px-3 md:px-4 py-2 sm:py-3 rounded-md sm:rounded-lg font-medium transition-all duration-200 flex-1 justify-center min-h-[44px] text-xs sm:text-sm md:text-base ${
+                        className={`flex items-center gap-2 px-4 py-3 rounded-lg font-medium transition-all duration-200 flex-1 justify-center ${
                           activeTab === "insights"
                             ? "bg-gradient-to-r from-orange-500 to-red-600 text-white shadow-md"
                             : "text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800"
                         }`}
                         data-testid="tab-ai-insights"
                       >
-                        <Sparkles className="h-3 w-3 sm:h-4 sm:w-4" />
+                        <Sparkles className="h-4 w-4" />
                         <span className="hidden sm:inline">Quick Insights</span>
                         <span className="sm:hidden">Insights</span>
                       </button>
@@ -815,31 +813,34 @@ export default function ParentDashboard({ plan }: ParentDashboardProps) {
                 </div>
 
               {/* Enhanced Goals Tab */}
-              <TabsContent value="goals" className="p-3 sm:p-4 md:p-6 space-y-4 sm:space-y-6 relative" style={{ zIndex: 20 }}>
-                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4">
+              <TabsContent value="goals" className="p-6 space-y-6 relative" style={{ zIndex: 1 }}>
+                <div className="flex items-center justify-between">
                   <div>
-                    <h2 className="text-lg sm:text-xl md:text-2xl font-bold text-gray-900">IEP Goals</h2>
-                    <p className="text-sm sm:text-base text-gray-600 mt-1">Track and celebrate your child's progress</p>
+                    <h2 className="text-2xl font-bold text-gray-900">IEP Goals</h2>
+                    <p className="text-gray-600 mt-1">Track and celebrate your child's progress</p>
                   </div>
-                  <Button 
-                    className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white shadow-lg hover:shadow-xl transition-all duration-200 rounded-xl px-4 sm:px-6 py-3 min-h-[44px] text-sm sm:text-base font-medium w-full sm:w-auto"
-                    onClick={() => {
-                      setShowGoalDialog(true);
-                    }}
-                    data-testid="button-add-new-goal"
-                  >
-                    <Plus className="h-4 w-4 mr-2" />
-                    Add New Goal
-                  </Button>
                   <Dialog open={showGoalDialog} onOpenChange={setShowGoalDialog}>
-                    <DialogContent className="max-w-md border-0 shadow-2xl bg-white/95 backdrop-blur-sm max-h-[90vh] overflow-y-auto">
-                      <DialogHeader className="px-1">
-                        <DialogTitle className="text-lg sm:text-xl font-semibold text-gray-900">Create New Goal</DialogTitle>
-                        <DialogDescription className="text-sm sm:text-base text-gray-600">
+                    <DialogTrigger asChild>
+                      <Button 
+                        className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white shadow-lg hover:shadow-xl transition-all duration-200 rounded-xl px-6 py-3"
+                        onClick={() => {
+                          console.log('➕ Add New Goal clicked!');
+                          setShowGoalDialog(true);
+                        }}
+                        data-testid="button-add-new-goal"
+                      >
+                        <Plus className="h-4 w-4 mr-2" />
+                        Add New Goal
+                      </Button>
+                    </DialogTrigger>
+                    <DialogContent className="max-w-md border-0 shadow-2xl bg-white/95 backdrop-blur-sm">
+                      <DialogHeader>
+                        <DialogTitle className="text-xl font-semibold text-gray-900">Create New Goal</DialogTitle>
+                        <DialogDescription className="text-gray-600">
                           Set up a new IEP goal to track your child's progress.
                         </DialogDescription>
                       </DialogHeader>
-                      <div className="space-y-4 sm:space-y-5">
+                      <div className="space-y-4">
                         <div>
                           <Label htmlFor="goal-title" className="text-sm font-medium text-gray-700">Goal Title</Label>
                           <Input
@@ -847,7 +848,7 @@ export default function ParentDashboard({ plan }: ParentDashboardProps) {
                             value={goalForm.title}
                             onChange={(e) => setGoalForm({...goalForm, title: e.target.value})}
                             placeholder="Enter goal title"
-                            className="mt-2 border-gray-300 focus:border-blue-500 focus:ring-blue-500 rounded-lg min-h-[44px] text-base"
+                            className="mt-1 border-gray-300 focus:border-blue-500 focus:ring-blue-500 rounded-lg"
                           />
                         </div>
                         <div>
@@ -857,14 +858,13 @@ export default function ParentDashboard({ plan }: ParentDashboardProps) {
                             value={goalForm.description}
                             onChange={(e) => setGoalForm({...goalForm, description: e.target.value})}
                             placeholder="Describe the goal"
-                            className="mt-2 border-gray-300 focus:border-blue-500 focus:ring-blue-500 rounded-lg min-h-[88px] text-base resize-none"
-                            rows={3}
+                            className="mt-1 border-gray-300 focus:border-blue-500 focus:ring-blue-500 rounded-lg"
                           />
                         </div>
                         <div>
                           <Label htmlFor="goal-type" className="text-sm font-medium text-gray-700">Goal Type</Label>
                           <Select value={goalForm.goal_type} onValueChange={(value) => setGoalForm({...goalForm, goal_type: value})}>
-                            <SelectTrigger className="mt-2 border-gray-300 focus:border-blue-500 focus:ring-blue-500 rounded-lg min-h-[44px] text-base">
+                            <SelectTrigger className="mt-1 border-gray-300 focus:border-blue-500 focus:ring-blue-500 rounded-lg">
                               <SelectValue placeholder="Select goal type" />
                             </SelectTrigger>
                             <SelectContent className="bg-white border-gray-200 shadow-xl rounded-lg">
@@ -883,12 +883,12 @@ export default function ParentDashboard({ plan }: ParentDashboardProps) {
                             type="date"
                             value={goalForm.target_date}
                             onChange={(e) => setGoalForm({...goalForm, target_date: e.target.value})}
-                            className="mt-2 border-gray-300 focus:border-blue-500 focus:ring-blue-500 rounded-lg min-h-[44px] text-base"
+                            className="mt-1 border-gray-300 focus:border-blue-500 focus:ring-blue-500 rounded-lg"
                           />
                         </div>
                         <Button 
                           onClick={createGoal} 
-                          className="w-full bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white rounded-lg py-4 font-medium min-h-[48px] text-base mt-6"
+                          className="w-full bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white rounded-lg py-3 font-medium"
                         >
                           Create Goal
                         </Button>
@@ -904,22 +904,22 @@ export default function ParentDashboard({ plan }: ParentDashboardProps) {
                       <Card className="border-0 shadow-xl bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 overflow-hidden relative">
                         <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-blue-400/20 to-indigo-400/20 rounded-full blur-2xl"></div>
                         <div className="absolute bottom-0 left-0 w-24 h-24 bg-gradient-to-br from-purple-400/20 to-pink-400/20 rounded-full blur-xl"></div>
-                        <CardContent className="relative text-center py-8 sm:py-12 px-4 sm:px-8">
-                          <div className="relative mb-4 sm:mb-6">
+                        <CardContent className="relative text-center py-12 px-8">
+                          <div className="relative mb-6">
                             <div className="absolute inset-0 bg-gradient-to-r from-blue-400 to-indigo-400 rounded-full blur-xl opacity-30 animate-pulse"></div>
-                            <Target className="h-12 w-12 sm:h-16 sm:w-16 md:h-20 md:w-20 mx-auto text-blue-600 relative drop-shadow-lg" />
+                            <Target className="h-20 w-20 mx-auto text-blue-600 relative drop-shadow-lg" />
                           </div>
-                          <h3 className="text-xl sm:text-2xl md:text-3xl font-bold mb-2 sm:mb-3 text-gray-900">Let's Start Your IEP Journey!</h3>
-                          <p className="text-sm sm:text-base md:text-lg text-gray-700 mb-6 sm:mb-8 max-w-2xl mx-auto leading-relaxed">
+                          <h3 className="text-3xl font-bold mb-3 text-gray-900">Let's Start Your IEP Journey!</h3>
+                          <p className="text-lg text-gray-700 mb-8 max-w-2xl mx-auto leading-relaxed">
                             Track your child's progress, celebrate achievements, and stay organized with personalized IEP goal management designed for families like yours.
                           </p>
                           <div className="flex justify-center">
                             <Button 
                               onClick={() => setShowGoalDialog(true)}
-                              className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white shadow-lg hover:shadow-xl transition-all duration-300 rounded-xl px-6 sm:px-8 py-4 text-sm sm:text-base md:text-lg font-semibold min-h-[48px] w-full sm:w-auto"
+                              className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white shadow-lg hover:shadow-xl transition-all duration-300 rounded-xl px-8 py-4 text-lg font-semibold"
                               data-testid="button-create-first-goal"
                             >
-                              <Plus className="h-4 w-4 sm:h-5 sm:w-5 mr-2" />
+                              <Plus className="h-5 w-5 mr-2" />
                               Create Your First Goal
                             </Button>
                           </div>
@@ -927,9 +927,9 @@ export default function ParentDashboard({ plan }: ParentDashboardProps) {
                       </Card>
 
                       {/* Quick Start Guide */}
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
+                      <div className="grid md:grid-cols-2 gap-6">
                         <Card className="border-0 shadow-lg hover:shadow-xl transition-all duration-300 bg-white group">
-                          <CardContent className="p-4 sm:p-6">
+                          <CardContent className="p-6">
                             <div className="flex items-start gap-4">
                               <div className="p-3 bg-gradient-to-br from-green-100 to-emerald-100 rounded-xl group-hover:scale-110 transition-transform duration-300">
                                 <CheckCircle2 className="h-6 w-6 text-green-600" />
@@ -979,31 +979,31 @@ export default function ParentDashboard({ plan }: ParentDashboardProps) {
                             <h4 className="text-xl font-semibold text-gray-900 mb-2">Common IEP Goal Categories</h4>
                             <p className="text-gray-600">Choose the type that best matches your child's current focus areas</p>
                           </div>
-                          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3 sm:gap-4">
-                            <div className="text-center p-3 sm:p-4 bg-white rounded-xl shadow-sm hover:shadow-md transition-all duration-200 cursor-pointer group min-h-[100px] sm:min-h-[120px] flex flex-col justify-center" onClick={() => setGoalForm({...goalForm, goal_type: 'academic'})}>
-                              <div className="text-xl sm:text-2xl mb-2 group-hover:scale-110 transition-transform duration-200">📚</div>
-                              <div className="text-xs sm:text-sm font-medium text-gray-900">Academic</div>
-                              <div className="text-xs text-gray-500 mt-1 hidden sm:block">Reading, Math, Writing</div>
+                          <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
+                            <div className="text-center p-4 bg-white rounded-xl shadow-sm hover:shadow-md transition-all duration-200 cursor-pointer group" onClick={() => setGoalForm({...goalForm, goal_type: 'academic'})}>
+                              <div className="text-2xl mb-2 group-hover:scale-110 transition-transform duration-200">📚</div>
+                              <div className="text-sm font-medium text-gray-900">Academic</div>
+                              <div className="text-xs text-gray-500 mt-1">Reading, Math, Writing</div>
                             </div>
-                            <div className="text-center p-3 sm:p-4 bg-white rounded-xl shadow-sm hover:shadow-md transition-all duration-200 cursor-pointer group min-h-[100px] sm:min-h-[120px] flex flex-col justify-center" onClick={() => setGoalForm({...goalForm, goal_type: 'behavioral'})}>
-                              <div className="text-xl sm:text-2xl mb-2 group-hover:scale-110 transition-transform duration-200">🎯</div>
-                              <div className="text-xs sm:text-sm font-medium text-gray-900">Behavioral</div>
-                              <div className="text-xs text-gray-500 mt-1 hidden sm:block">Self-regulation, Focus</div>
+                            <div className="text-center p-4 bg-white rounded-xl shadow-sm hover:shadow-md transition-all duration-200 cursor-pointer group" onClick={() => setGoalForm({...goalForm, goal_type: 'behavioral'})}>
+                              <div className="text-2xl mb-2 group-hover:scale-110 transition-transform duration-200">🎯</div>
+                              <div className="text-sm font-medium text-gray-900">Behavioral</div>
+                              <div className="text-xs text-gray-500 mt-1">Self-regulation, Focus</div>
                             </div>
-                            <div className="text-center p-3 sm:p-4 bg-white rounded-xl shadow-sm hover:shadow-md transition-all duration-200 cursor-pointer group min-h-[100px] sm:min-h-[120px] flex flex-col justify-center" onClick={() => setGoalForm({...goalForm, goal_type: 'social'})}>
-                              <div className="text-xl sm:text-2xl mb-2 group-hover:scale-110 transition-transform duration-200">👥</div>
-                              <div className="text-xs sm:text-sm font-medium text-gray-900">Social</div>
-                              <div className="text-xs text-gray-500 mt-1 hidden sm:block">Peer interaction, Teamwork</div>
+                            <div className="text-center p-4 bg-white rounded-xl shadow-sm hover:shadow-md transition-all duration-200 cursor-pointer group" onClick={() => setGoalForm({...goalForm, goal_type: 'social'})}>
+                              <div className="text-2xl mb-2 group-hover:scale-110 transition-transform duration-200">👥</div>
+                              <div className="text-sm font-medium text-gray-900">Social</div>
+                              <div className="text-xs text-gray-500 mt-1">Peer interaction, Teamwork</div>
                             </div>
-                            <div className="text-center p-3 sm:p-4 bg-white rounded-xl shadow-sm hover:shadow-md transition-all duration-200 cursor-pointer group min-h-[100px] sm:min-h-[120px] flex flex-col justify-center" onClick={() => setGoalForm({...goalForm, goal_type: 'communication'})}>
-                              <div className="text-xl sm:text-2xl mb-2 group-hover:scale-110 transition-transform duration-200">💬</div>
-                              <div className="text-xs sm:text-sm font-medium text-gray-900">Communication</div>
-                              <div className="text-xs text-gray-500 mt-1 hidden sm:block">Speech, Language</div>
+                            <div className="text-center p-4 bg-white rounded-xl shadow-sm hover:shadow-md transition-all duration-200 cursor-pointer group" onClick={() => setGoalForm({...goalForm, goal_type: 'communication'})}>
+                              <div className="text-2xl mb-2 group-hover:scale-110 transition-transform duration-200">💬</div>
+                              <div className="text-sm font-medium text-gray-900">Communication</div>
+                              <div className="text-xs text-gray-500 mt-1">Speech, Language</div>
                             </div>
-                            <div className="text-center p-3 sm:p-4 bg-white rounded-xl shadow-sm hover:shadow-md transition-all duration-200 cursor-pointer group min-h-[100px] sm:min-h-[120px] flex flex-col justify-center" onClick={() => setGoalForm({...goalForm, goal_type: 'life_skills'})}>
-                              <div className="text-xl sm:text-2xl mb-2 group-hover:scale-110 transition-transform duration-200">🌟</div>
-                              <div className="text-xs sm:text-sm font-medium text-gray-900">Life Skills</div>
-                              <div className="text-xs text-gray-500 mt-1 hidden sm:block">Independence, Daily tasks</div>
+                            <div className="text-center p-4 bg-white rounded-xl shadow-sm hover:shadow-md transition-all duration-200 cursor-pointer group" onClick={() => setGoalForm({...goalForm, goal_type: 'life_skills'})}>
+                              <div className="text-2xl mb-2 group-hover:scale-110 transition-transform duration-200">🌟</div>
+                              <div className="text-sm font-medium text-gray-900">Life Skills</div>
+                              <div className="text-xs text-gray-500 mt-1">Independence, Daily tasks</div>
                             </div>
                           </div>
                         </CardContent>
@@ -1013,32 +1013,30 @@ export default function ParentDashboard({ plan }: ParentDashboardProps) {
                     goals.map((goal) => (
                       <Card key={goal.id} className="group hover:shadow-xl transition-all duration-300 border-0 shadow-lg bg-white overflow-hidden">
                         <div className="absolute inset-0 bg-gradient-to-r from-blue-500/5 via-transparent to-indigo-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-                        <CardContent className="p-3 sm:p-4 md:p-6 relative">
-                          <div className="flex flex-col lg:flex-row lg:items-start justify-between mb-4 gap-3 lg:gap-4">
+                        <CardContent className="p-6 relative">
+                          <div className="flex items-start justify-between mb-4">
                             <div className="flex-1">
                               {/* Student Name - Prominently displayed */}
                               <div className="flex items-center gap-2 mb-3">
-                                <div className="flex items-center gap-2 px-2 sm:px-3 py-1 sm:py-1.5 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-full border border-blue-200">
+                                <div className="flex items-center gap-2 px-3 py-1.5 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-full border border-blue-200">
                                   <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
-                                  <span className="text-xs sm:text-sm font-semibold text-blue-700">
+                                  <span className="text-sm font-semibold text-blue-700">
                                     {getStudentName((goal as any).student_id || '')}
                                   </span>
                                 </div>
                               </div>
                               
-                              <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-3 mb-2">
-                                <div className="flex items-center gap-2">
-                                  <div className={`w-3 h-3 sm:w-4 sm:h-4 rounded-full ${getStatusColor(goal.status)} shadow-sm`} />
-                                  <h3 className="text-base sm:text-lg font-semibold text-gray-900">{goal.title}</h3>
-                                </div>
-                                <Badge variant="outline" className="capitalize bg-gray-50 text-gray-700 border-gray-200 text-xs sm:text-sm self-start sm:self-auto">
+                              <div className="flex items-center gap-3 mb-2">
+                                <div className={`w-4 h-4 rounded-full ${getStatusColor(goal.status)} shadow-sm`} />
+                                <h3 className="text-lg font-semibold text-gray-900">{goal.title}</h3>
+                                <Badge variant="outline" className="capitalize bg-gray-50 text-gray-700 border-gray-200">
                                   {goal.goal_type?.replace('_', ' ')}
                                 </Badge>
                               </div>
-                              <p className="text-sm sm:text-base text-gray-600 mb-3 sm:mb-4">{goal.description}</p>
+                              <p className="text-gray-600 mb-4">{goal.description}</p>
                             </div>
                             <Select value={goal.status} onValueChange={(value) => updateGoalStatus(goal.id, value)}>
-                              <SelectTrigger className="w-full lg:w-36 border-gray-300 focus:border-blue-500 rounded-lg min-h-[44px] text-sm sm:text-base">
+                              <SelectTrigger className="w-36 border-gray-300 focus:border-blue-500 rounded-lg">
                                 <SelectValue />
                               </SelectTrigger>
                               <SelectContent className="bg-white border-gray-200 shadow-xl rounded-lg">
@@ -1050,28 +1048,28 @@ export default function ParentDashboard({ plan }: ParentDashboardProps) {
                             </Select>
                           </div>
                           
-                          <div className="flex flex-col lg:flex-row lg:items-center gap-4 lg:gap-6">
+                          <div className="flex items-center gap-6">
                             <div className="flex-1">
                               <div className="flex justify-between items-center mb-2">
-                                <span className="text-xs sm:text-sm font-medium text-gray-700">{getStatusLabel(goal.status)}</span>
-                                <span className="text-xs sm:text-sm font-semibold text-blue-600">{goal.current_progress || 0}%</span>
+                                <span className="text-sm font-medium text-gray-700">{getStatusLabel(goal.status)}</span>
+                                <span className="text-sm font-semibold text-blue-600">{goal.current_progress || 0}%</span>
                               </div>
                               <div className="relative mb-3">
-                                <Progress value={goal.current_progress || 0} className="h-2 sm:h-3 bg-gray-100" />
+                                <Progress value={goal.current_progress || 0} className="h-3 bg-gray-100" />
                                 <div 
                                   className="absolute inset-0 bg-gradient-to-r from-blue-500 to-indigo-500 rounded-full transition-all duration-500" 
                                   style={{width: `${goal.current_progress || 0}%`}}
                                 ></div>
                               </div>
-                              <div className="flex items-center gap-2 sm:gap-3">
-                                <span className="text-xs text-gray-500 min-w-[50px] sm:min-w-[60px]">Progress:</span>
+                              <div className="flex items-center gap-3">
+                                <span className="text-xs text-gray-500 min-w-[60px]">Progress:</span>
                                 <input
                                   type="range"
                                   min="0"
                                   max="100"
                                   value={goal.current_progress || 0}
                                   onChange={(e) => updateGoalProgress(goal.id, parseInt(e.target.value))}
-                                  className="flex-1 h-3 sm:h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer slider"
+                                  className="flex-1 h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer slider"
                                   style={{
                                     background: `linear-gradient(to right, #3b82f6 0%, #3b82f6 ${goal.current_progress || 0}%, #e5e7eb ${goal.current_progress || 0}%, #e5e7eb 100%)`
                                   }}
@@ -1082,7 +1080,7 @@ export default function ParentDashboard({ plan }: ParentDashboardProps) {
                                     size="sm"
                                     variant="outline"
                                     onClick={() => updateGoalProgress(goal.id, Math.max(0, (goal.current_progress || 0) - 10))}
-                                    className="h-8 w-8 sm:h-6 sm:w-6 p-0 text-xs min-h-[32px] sm:min-h-[24px]"
+                                    className="h-6 w-6 p-0 text-xs"
                                     data-testid={`button-decrease-progress-${goal.id}`}
                                   >
                                     -
@@ -1091,7 +1089,7 @@ export default function ParentDashboard({ plan }: ParentDashboardProps) {
                                     size="sm"
                                     variant="outline"
                                     onClick={() => updateGoalProgress(goal.id, Math.min(100, (goal.current_progress || 0) + 10))}
-                                    className="h-8 w-8 sm:h-6 sm:w-6 p-0 text-xs min-h-[32px] sm:min-h-[24px]"
+                                    className="h-6 w-6 p-0 text-xs"
                                     data-testid={`button-increase-progress-${goal.id}`}
                                   >
                                     +
@@ -1100,17 +1098,17 @@ export default function ParentDashboard({ plan }: ParentDashboardProps) {
                               </div>
                             </div>
                             {goal.target_date && (
-                              <div className="text-left lg:text-right">
-                                <div className="text-xs sm:text-sm font-medium text-gray-700">Target Date</div>
-                                <div className="text-xs sm:text-sm text-gray-500">{new Date(goal.target_date).toLocaleDateString()}</div>
+                              <div className="text-right">
+                                <div className="text-sm font-medium text-gray-700">Target Date</div>
+                                <div className="text-sm text-gray-500">{new Date(goal.target_date).toLocaleDateString()}</div>
                               </div>
                             )}
                           </div>
                           
                           {goal.status === 'completed' && (
-                            <div className="mt-3 sm:mt-4 p-3 bg-green-50 border border-green-200 rounded-lg flex items-center gap-2">
-                              <Trophy className="h-4 w-4 sm:h-5 sm:w-5 text-green-600" />
-                              <span className="text-xs sm:text-sm font-medium text-green-800">🎉 Goal completed! Great job!</span>
+                            <div className="mt-4 p-3 bg-green-50 border border-green-200 rounded-lg flex items-center gap-2">
+                              <Trophy className="h-5 w-5 text-green-600" />
+                              <span className="text-sm font-medium text-green-800">🎉 Goal completed! Great job!</span>
                             </div>
                           )}
                         </CardContent>
@@ -1121,27 +1119,27 @@ export default function ParentDashboard({ plan }: ParentDashboardProps) {
               </TabsContent>
 
               {/* Enhanced Meetings Tab */}
-              <TabsContent value="meetings" className="p-3 sm:p-4 md:p-6 space-y-4 sm:space-y-6">
-                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4">
+              <TabsContent value="meetings" className="p-6 space-y-6">
+                <div className="flex items-center justify-between">
                   <div>
-                    <h2 className="text-lg sm:text-xl md:text-2xl font-bold text-gray-900">Meeting Schedule</h2>
-                    <p className="text-sm sm:text-base text-gray-600 mt-1">Stay organized with automated reminders</p>
+                    <h2 className="text-2xl font-bold text-gray-900">Meeting Schedule</h2>
+                    <p className="text-gray-600 mt-1">Stay organized with automated reminders</p>
                   </div>
                   <Dialog open={showMeetingDialog} onOpenChange={setShowMeetingDialog}>
                     <DialogTrigger asChild>
-                      <Button className="bg-gradient-to-r from-purple-600 to-violet-600 hover:from-purple-700 hover:to-violet-700 text-white shadow-lg hover:shadow-xl transition-all duration-200 rounded-xl px-4 sm:px-6 py-3 min-h-[44px] text-sm sm:text-base font-medium w-full sm:w-auto">
+                      <Button className="bg-gradient-to-r from-purple-600 to-violet-600 hover:from-purple-700 hover:to-violet-700 text-white shadow-lg hover:shadow-xl transition-all duration-200 rounded-xl px-6 py-3">
                         <Plus className="h-4 w-4 mr-2" />
                         Schedule Meeting
                       </Button>
                     </DialogTrigger>
-                    <DialogContent className="max-w-md border-0 shadow-2xl bg-white/95 backdrop-blur-sm max-h-[90vh] overflow-y-auto">
+                    <DialogContent className="max-w-md border-0 shadow-2xl bg-white/95 backdrop-blur-sm">
                       <DialogHeader>
-                        <DialogTitle className="text-lg sm:text-xl font-semibold text-gray-900">Schedule IEP Meeting</DialogTitle>
-                        <DialogDescription className="text-sm sm:text-base text-gray-600">
+                        <DialogTitle className="text-xl font-semibold text-gray-900">Schedule IEP Meeting</DialogTitle>
+                        <DialogDescription className="text-gray-600">
                           Schedule a meeting and get automatic email reminders.
                         </DialogDescription>
                       </DialogHeader>
-                      <div className="space-y-4 sm:space-y-5">
+                      <div className="space-y-4">
                         <div>
                           <Label htmlFor="meeting-title" className="text-sm font-medium text-gray-700">Meeting Title</Label>
                           <Input
@@ -1149,7 +1147,7 @@ export default function ParentDashboard({ plan }: ParentDashboardProps) {
                             value={meetingForm.title}
                             onChange={(e) => setMeetingForm({...meetingForm, title: e.target.value})}
                             placeholder="Enter meeting title"
-                            className="mt-2 border-gray-300 focus:border-purple-500 focus:ring-purple-500 rounded-lg min-h-[44px] text-base"
+                            className="mt-1 border-gray-300 focus:border-purple-500 focus:ring-purple-500 rounded-lg"
                           />
                         </div>
                         <div>
@@ -1159,8 +1157,7 @@ export default function ParentDashboard({ plan }: ParentDashboardProps) {
                             value={meetingForm.description}
                             onChange={(e) => setMeetingForm({...meetingForm, description: e.target.value})}
                             placeholder="Meeting agenda or notes"
-                            className="mt-2 border-gray-300 focus:border-purple-500 focus:ring-purple-500 rounded-lg min-h-[88px] text-base resize-none"
-                            rows={3}
+                            className="mt-1 border-gray-300 focus:border-purple-500 focus:ring-purple-500 rounded-lg"
                           />
                         </div>
                         <div>
@@ -1170,7 +1167,7 @@ export default function ParentDashboard({ plan }: ParentDashboardProps) {
                             type="datetime-local"
                             value={meetingForm.scheduled_date}
                             onChange={(e) => setMeetingForm({...meetingForm, scheduled_date: e.target.value})}
-                            className="mt-2 border-gray-300 focus:border-purple-500 focus:ring-purple-500 rounded-lg min-h-[44px] text-base"
+                            className="mt-1 border-gray-300 focus:border-purple-500 focus:ring-purple-500 rounded-lg"
                           />
                         </div>
                         <div>
@@ -1180,7 +1177,7 @@ export default function ParentDashboard({ plan }: ParentDashboardProps) {
                             value={meetingForm.location}
                             onChange={(e) => setMeetingForm({...meetingForm, location: e.target.value})}
                             placeholder="Meeting location"
-                            className="mt-2 border-gray-300 focus:border-purple-500 focus:ring-purple-500 rounded-lg min-h-[44px] text-base"
+                            className="mt-1 border-gray-300 focus:border-purple-500 focus:ring-purple-500 rounded-lg"
                           />
                         </div>
                         <div>

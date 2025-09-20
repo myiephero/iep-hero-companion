@@ -224,14 +224,9 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
               correctDashboardPath = '/'; // Fallback for unknown roles
             }
             
-            // Redirect scenarios (EXCLUDE homepage - let users stay on /)
-            // CRITICAL FIX: Never redirect users away from the homepage
-            if (currentPath === '/' || currentPath === '/index.html') {
-              // Users on homepage can stay there - no automatic redirect
-              console.log('✅ User on homepage - skipping automatic redirect');
-              return; // CRITICAL: Return early to prevent any other redirects
-            } else if (currentPath === '/auth' || currentPath === '/onboarding') {
-              // Post-authentication/onboarding redirect (but NOT from homepage)
+            // Redirect scenarios
+            if (currentPath === '/auth' || currentPath === '/onboarding' || currentPath === '/') {
+              // Post-authentication/onboarding redirect
               window.location.href = correctDashboardPath;
             } else if (userData.role === 'parent') {
               // Handle parent dashboard redirections

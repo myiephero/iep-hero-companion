@@ -2,113 +2,6 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Critical Mobile Viewport Fixes */
-@layer base {
-  html {
-    /* Prevent horizontal scroll on mobile */
-    overflow-x: hidden;
-    /* Improve text rendering on mobile */
-    -webkit-text-size-adjust: 100%;
-    text-size-adjust: 100%;
-  }
-  
-  body {
-    /* Prevent horizontal scroll */
-    overflow-x: hidden;
-    /* Improve mobile performance */
-    -webkit-font-smoothing: antialiased;
-    -moz-osx-font-smoothing: grayscale;
-    /* Prevent pull-to-refresh on mobile */
-    overscroll-behavior-y: none;
-  }
-  
-  #root {
-    /* Ensure root container doesn't overflow */
-    overflow-x: hidden;
-    min-height: 100vh;
-    min-height: 100dvh;
-  }
-  
-  /* Safe area support for mobile devices */
-  .safe-area-inset {
-    padding-left: env(safe-area-inset-left);
-    padding-right: env(safe-area-inset-right);
-  }
-  
-  .pb-safe {
-    padding-bottom: max(0.25rem, env(safe-area-inset-bottom));
-  }
-  
-  /* Prevent mobile menu cutoff issues */
-  [data-radix-popper-content-wrapper] {
-    z-index: 9999 !important;
-    transform-style: preserve-3d;
-  }
-  
-  /* Mobile-optimized dropdown positioning */
-  @media (max-width: 768px) {
-    [data-radix-dropdown-menu-content] {
-      max-width: calc(100vw - 2rem) !important;
-      transform-origin: var(--radix-dropdown-menu-content-transform-origin);
-      animation: none !important;
-    }
-    
-    /* Prevent layout shifts on mobile */
-    [data-radix-dropdown-menu-trigger] {
-      touch-action: manipulation;
-    }
-    
-    /* Mobile sidebar improvements */
-    [data-mobile="true"] {
-      max-width: calc(100vw - 1rem) !important;
-    }
-    
-    /* Ensure minimum touch target sizes */
-    button, 
-    [role="button"],
-    a {
-      min-height: 44px;
-      min-width: 44px;
-    }
-    
-    /* Optimize mobile layouts */
-    .min-h-screen {
-      min-height: 100vh;
-      min-height: 100dvh;
-    }
-    
-    /* Improve container padding on mobile */
-    .container {
-      padding-left: 1rem;
-      padding-right: 1rem;
-    }
-  }
-  
-  /* Performance optimizations for mobile */
-  @media (max-width: 768px) {
-    * {
-      /* Improve touch performance */
-      -webkit-tap-highlight-color: transparent;
-    }
-    
-    /* Optimize animations for mobile */
-    .animate-in,
-    .animate-out {
-      animation-duration: 200ms !important;
-    }
-    
-    /* Prevent zoom on input focus */
-    input[type="text"],
-    input[type="email"],
-    input[type="password"],
-    input[type="number"],
-    textarea,
-    select {
-      font-size: 16px;
-    }
-  }
-}
-
 /* Premium Checkout Animations */
 @keyframes slideInFromRight {
   0% {
@@ -561,23 +454,6 @@
   
   .mobile-stack {
     @apply flex flex-col space-y-2 sm:flex-row sm:space-y-0 sm:space-x-2;
-  }
-  
-  /* Safe Area Utilities for iOS devices */
-  .safe-area-pb {
-    padding-bottom: env(safe-area-inset-bottom);
-  }
-  
-  .safe-area-pt {
-    padding-top: env(safe-area-inset-top);
-  }
-  
-  .safe-area-pl {
-    padding-left: env(safe-area-inset-left);
-  }
-  
-  .safe-area-pr {
-    padding-right: env(safe-area-inset-right);
   }
   
   /* Animation Classes */

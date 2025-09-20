@@ -1,4 +1,4 @@
-import React, { useState, useEffect, memo, useCallback, useMemo } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { DashboardLayout } from '@/layouts/DashboardLayout';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -14,10 +14,7 @@ import { Shield, Folder, Search, Filter, Download, Upload, Eye, Edit, Trash2, Ch
 import { format } from 'date-fns';
 import { apiRequest } from '@/lib/queryClient';
 import { useToast } from '@/hooks/use-toast';
-import { useDebounce } from '@/hooks/useDebounce';
-import { VirtualizedList } from '@/components/VirtualizedList';
-import OptimizedDocumentCard from '@/components/OptimizedDocumentCard';
-import type { Document, Student } from '@/lib/api';
+import type { Document, Student } from '@shared/schema';
 import DocumentUpload from '@/components/DocumentUpload';
 
 interface ViewDialogState {
@@ -42,9 +39,6 @@ const DocumentVault: React.FC = () => {
   const [activeSection, setActiveSection] = useState<{[key: string]: string}>({});
   const [selectedDocuments, setSelectedDocuments] = useState<Set<string>>(new Set());
   const [isSelectMode, setIsSelectMode] = useState(false);
-
-  // Debounced search for performance
-  const debouncedSearchTerm = useDebounce(searchTerm, 300);
 
   // Queries  
   const { data: documents, isLoading, refetch } = useQuery({
@@ -92,13 +86,13 @@ const DocumentVault: React.FC = () => {
     },
   });
 
-  // Optimized memoized handlers
-  const handleEditFileName = useCallback((id: string, currentTitle: string) => {
+  // Handlers
+  const handleEditFileName = (id: string, currentTitle: string) => {
     setEditingDocument({ id, title: currentTitle });
     setNewFileName(currentTitle);
-  }, []);
+  };
 
-  const handleUpdateFileName = useCallback(() => {
+  const handleUpdateFileName = () => {
     if (editingDocument && newFileName.trim()) {
       updateDocumentMutation.mutate({
         id: editingDocument.id,
@@ -107,7 +101,7 @@ const DocumentVault: React.FC = () => {
       setEditingDocument(null);
       setNewFileName('');
     }
-  }, [editingDocument, newFileName, updateDocumentMutation]);
+  };
 
   const handleCancelEdit = () => {
     setEditingDocument(null);
@@ -356,22 +350,22 @@ const DocumentVault: React.FC = () => {
         <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
             <TabsList className="grid w-full sm:w-auto grid-cols-3 sm:grid-cols-6 h-auto bg-gradient-to-r from-gray-50 to-gray-100 dark:from-gray-800 dark:to-gray-900 p-1 rounded-xl">
-              <TabsTrigger value="all" className="data-[state=active]:bg-white data-[state=active]:text-blue-600 data-[state=active]:shadow-sm text-xs sm:text-sm px-3 py-3 min-h-[44px]">
+              <TabsTrigger value="all" className="data-[state=active]:bg-white data-[state=active]:text-blue-600 data-[state=active]:shadow-sm text-xs sm:text-sm px-2 py-2">
                 All ({documentCounts.all})
               </TabsTrigger>
-              <TabsTrigger value="iep" className="data-[state=active]:bg-white data-[state=active]:text-blue-600 data-[state=active]:shadow-sm text-xs sm:text-sm px-3 py-3 min-h-[44px]">
+              <TabsTrigger value="iep" className="data-[state=active]:bg-white data-[state=active]:text-blue-600 data-[state=active]:shadow-sm text-xs sm:text-sm px-2 py-2">
                 IEPs ({documentCounts.iep})
               </TabsTrigger>
-              <TabsTrigger value="evaluations" className="data-[state=active]:bg-white data-[state=active]:text-blue-600 data-[state=active]:shadow-sm text-xs sm:text-sm px-3 py-3 min-h-[44px]">
+              <TabsTrigger value="evaluations" className="data-[state=active]:bg-white data-[state=active]:text-blue-600 data-[state=active]:shadow-sm text-xs sm:text-sm px-2 py-2">
                 Evaluations ({documentCounts.evaluations})
               </TabsTrigger>
-              <TabsTrigger value="ai-analysis" className="data-[state=active]:bg-white data-[state=active]:text-blue-600 data-[state=active]:shadow-sm text-xs sm:text-sm px-3 py-3 min-h-[44px]">
+              <TabsTrigger value="ai-analysis" className="data-[state=active]:bg-white data-[state=active]:text-blue-600 data-[state=active]:shadow-sm text-xs sm:text-sm px-2 py-2">
                 AI Analysis ({documentCounts.aiAnalysis})
               </TabsTrigger>
-              <TabsTrigger value="reports" className="data-[state=active]:bg-white data-[state=active]:text-blue-600 data-[state=active]:shadow-sm text-xs sm:text-sm px-3 py-3 min-h-[44px]">
+              <TabsTrigger value="reports" className="data-[state=active]:bg-white data-[state=active]:text-blue-600 data-[state=active]:shadow-sm text-xs sm:text-sm px-2 py-2">
                 Reports ({documentCounts.reports})
               </TabsTrigger>
-              <TabsTrigger value="meeting-notes" className="data-[state=active]:bg-white data-[state=active]:text-blue-600 data-[state=active]:shadow-sm text-xs sm:text-sm px-3 py-3 min-h-[44px]">
+              <TabsTrigger value="meeting-notes" className="data-[state=active]:bg-white data-[state=active]:text-blue-600 data-[state=active]:shadow-sm text-xs sm:text-sm px-2 py-2">
                 Meetings ({documentCounts.meetingNotes})
               </TabsTrigger>
             </TabsList>
@@ -556,7 +550,7 @@ const DocumentVault: React.FC = () => {
                     </div>
                   </div>
                 ) : (
-                  <div className={viewMode === 'grid' ? "grid gap-4 sm:gap-6 sm:grid-cols-2 xl:grid-cols-3" : "space-y-4"}>
+                  <div className={viewMode === 'grid' ? "grid gap-6 md:grid-cols-2 xl:grid-cols-3" : "space-y-4"}>
                 {filteredDocuments?.map((doc: Document) => {
                   // Special rendering for AI Analysis documents
                   if (doc.category === 'AI Analysis') {
@@ -571,7 +565,7 @@ const DocumentVault: React.FC = () => {
                       <Card key={doc.id} className="overflow-hidden transition-all duration-200 border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900">
                         <CardContent className="p-6">
                           <div className="flex items-center justify-between mb-6">
-                            <div className="flex items-center gap-2 sm:gap-4">
+                            <div className="flex items-center gap-2 md:gap-4">
                               {isSelectMode && (
                                 <button
                                   onClick={() => toggleDocumentSelection(doc.id)}
@@ -596,7 +590,7 @@ const DocumentVault: React.FC = () => {
                             </div>
                           </div>
 
-                          <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:gap-2 mb-6">
+                          <div className="flex flex-col sm:flex-row sm:items-center gap-2 mb-6">
                             <div className="flex flex-wrap items-center gap-2">
                               <Badge className="bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-100 text-xs">
                                 IEP

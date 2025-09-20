@@ -5,7 +5,6 @@ import { Input } from "@/components/ui/input";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Search, Send, Paperclip, MessageSquare, Loader2, X, Archive, ArchiveRestore, AlertTriangle, ChevronUp, MoreHorizontal } from "lucide-react";
-import { ConversationTable } from "@/components/ui/responsive-table-examples";
 import { useState, useEffect, useRef, useMemo } from "react";
 import { useConversations, useMessages, useSendMessage, useMarkAsRead } from "@/hooks/useMessaging";
 import { MessageFileUpload, type MessageFile } from "@/components/MessageFileUpload";
@@ -288,36 +287,68 @@ export default function ParentMessages() {
               </div>
             </div>
             <div className="flex-1 overflow-y-auto">
-              <ConversationTable
-                conversations={conversations}
-                loading={conversationsLoading}
-                onOpenConversation={async (conversation) => {
-                  setSelectedConversation(conversation);
-                  if (conversation.unread_count > 0) {
-                    await markMessagesRead(conversation.id);
-                    refetchConversations();
-                  }
-                }}
-                onArchive={async (conversation) => {
-                  try {
-                    await updateConversationStatus(conversation.id, { archived: !conversation.archived });
-                    refetchConversations();
-                  } catch (error) {
-                    console.error('Error archiving conversation:', error);
-                  }
-                }}
-                onMarkUrgent={async (conversation) => {
-                  try {
-                    await updateConversationStatus(conversation.id, { priority: 'urgent' });
-                    refetchConversations();
-                  } catch (error) {
-                    console.error('Error marking conversation urgent:', error);
-                  }
-                }}
-              />
-              {!conversationsLoading && conversationsError && (
+              {conversationsLoading ? (
+                <div className="flex items-center justify-center p-8">
+                  <Loader2 className="h-6 w-6 animate-spin" />
+                </div>
+              ) : conversationsError ? (
                 <div className="p-4 text-center text-red-500">
                   Error loading conversations: {conversationsError}
+                </div>
+              ) : conversations.length > 0 ? (
+                conversations.map((conversation) => {
+                  const advocateName = conversation.advocate?.name || 'Advocate';
+                  const avatar = (advocateName || 'A').split(' ').map(n => n[0]).join('');
+                  const lastMessageTime = conversation.latest_message?.created_at ? 
+                    new Date(conversation.latest_message.created_at).toLocaleDateString() : 'New';
+                    
+                  return (
+                    <div
+                      key={conversation.id}
+                      className={`p-4 border-b hover:bg-muted/50 cursor-pointer transition-colors ${
+                        selectedConversation?.id === conversation.id ? 'bg-muted/50' : ''
+                      }`}
+                      onClick={async () => {
+                        setSelectedConversation(conversation);
+                        if (conversation.unread_count > 0) {
+                          await markMessagesRead(conversation.id);
+                          refetchConversations();
+                        }
+                      }}
+                      data-testid={`conversation-${conversation.id}`}
+                    >
+                      <div className="flex items-start gap-3">
+                        <Avatar className="h-10 w-10">
+                          <AvatarImage src={`/placeholder-${conversation.id}.jpg`} />
+                          <AvatarFallback>{avatar}</AvatarFallback>
+                        </Avatar>
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center justify-between">
+                            <p className="font-medium truncate">{advocateName}</p>
+                            <span className="text-xs text-muted-foreground">{lastMessageTime}</span>
+                          </div>
+                          {conversation.latest_message?.content && (
+                            <p className="text-sm truncate">
+                              {conversation.latest_message.content}
+                            </p>
+                          )}
+                          {conversation.unread_count > 0 && (
+                            <Badge variant="default" className="mt-2 text-xs">
+                              {conversation.unread_count} new
+                            </Badge>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                  );
+                })
+              ) : (
+                <div className="flex items-center justify-center h-full p-8">
+                  <div className="text-center text-muted-foreground">
+                    <MessageSquare className="h-12 w-12 mx-auto mb-4 opacity-50" />
+                    <p className="text-lg font-medium mb-2">No Conversations Yet</p>
+                    <p className="text-sm">Messages from advocates will appear here.</p>
+                  </div>
                 </div>
               )}
             </div>

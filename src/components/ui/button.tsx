@@ -21,12 +21,12 @@ const buttonVariants = cva(
         sidebar: "justify-start bg-transparent text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground rounded-md",
       },
       size: {
-        default: "h-11 px-4 py-2",
-        sm: "h-11 rounded-md px-3 text-xs",
+        default: "h-10 px-4 py-2",
+        sm: "h-8 rounded-md px-3 text-xs",
         lg: "h-12 rounded-lg px-8 text-base",
         xl: "h-14 rounded-lg px-10 text-lg",
-        icon: "h-11 w-11",
-        "icon-sm": "h-11 w-11",
+        icon: "h-10 w-10",
+        "icon-sm": "h-8 w-8",
       },
     },
     defaultVariants: {

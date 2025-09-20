@@ -1,26 +1,9 @@
 import { QueryClient } from '@tanstack/react-query';
-import { resolveApiUrl } from './apiConfig';
-
-// Safe logging utility that respects production environment
-const isDevelopment = typeof import.meta !== 'undefined' && import.meta.env?.DEV;
-
-function debugLog(message: string, ...args: any[]) {
-  if (isDevelopment) {
-    console.log(message, ...args);
-  }
-}
-
-function debugWarn(message: string, ...args: any[]) {
-  if (isDevelopment) {
-    console.warn(message, ...args);
-  }
-}
 
 const defaultQueryFn = async ({ queryKey }: { queryKey: readonly unknown[] }) => {
   const [url] = queryKey as [string, ...any[]];
-  const resolvedUrl = resolveApiUrl(url);
   
-  const response = await fetch(resolvedUrl, {
+  const response = await fetch(url, {
     headers: {
       'Content-Type': 'application/json',
       'Authorization': `Bearer ${localStorage.getItem('authToken') || ''}`
@@ -42,53 +25,29 @@ export const queryClient = new QueryClient({
       gcTime: 10 * 60 * 1000, // 10 minutes cache
       refetchOnWindowFocus: false, // Don't refetch on window focus
       refetchOnMount: false, // Don't always refetch on mount
-      retry: (failureCount, error: any) => {
-        // Don't retry on 4xx errors except 408 (timeout)
-        if (error?.message?.includes('40') && !error?.message?.includes('408')) {
-          return false;
-        }
-        // Retry up to 2 times for network issues
-        return failureCount < 2;
-      },
-      retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 30000),
-    },
-    mutations: {
-      retry: 1,
-      retryDelay: 1000,
     },
   },
 });
 
-// Enhanced API request with request cancellation
-const requestCache = new Map<string, AbortController>();
-
-export function cancelRequest(key: string) {
-  const controller = requestCache.get(key);
-  if (controller) {
-    controller.abort();
-    requestCache.delete(key);
-  }
-}
-
-// Secure API request helper with production-safe logging and cancellation
+// BULLETPROOF API request helper with guaranteed auth headers
 export async function apiRequest(
   method: 'GET' | 'POST' | 'PUT' | 'DELETE',
   url: string,
   body?: any,
-  options?: RequestInit & { requestKey?: string }
+  options?: RequestInit
 ): Promise<Response> {
-  debugLog('API Request:', method, url);
+  // FORCE console output to always appear (using console.log for better visibility in Replit)
+  console.log('🚨 APIQUEST DEBUG - URL:', url, 'METHOD:', method);
   
-  // Get token with validation
+  // Get token with additional validation and better error handling
   const token = localStorage.getItem('authToken');
-  debugLog('Token status:', token ? 'FOUND' : 'MISSING');
+  console.log('🚨 APIQUEST TOKEN CHECK:', token ? `FOUND: ${token.substring(0,20)}...` : 'MISSING - No token in localStorage');
   
   // If no token, try to get fresh token from auth endpoint
   if (!token) {
-    debugLog('Attempting to retrieve fresh token from auth session...');
+    console.log('🚨 APIQUEST: No token found, attempting to retrieve from auth session...');
     try {
-      const authUrl = resolveApiUrl('/api/auth/me');
-      const authResponse = await fetch(authUrl, {
+      const authResponse = await fetch('/api/auth/me', {
         credentials: 'include'
       });
       
@@ -96,17 +55,17 @@ export async function apiRequest(
         const authData = await authResponse.json();
         if (authData.authToken) {
           localStorage.setItem('authToken', authData.authToken);
-          debugLog('Fresh token retrieved and stored');
+          console.log('🚨 APIQUEST: Fresh token retrieved and stored');
         }
       }
     } catch (authError) {
-      debugWarn('Failed to get fresh token:', authError.message);
+      console.log('🚨 APIQUEST: Failed to get fresh token:', authError);
     }
   }
   
   // Re-check token after potential refresh
   const finalToken = localStorage.getItem('authToken');
-  debugLog('Final token status:', finalToken ? 'AVAILABLE' : 'MISSING');
+  console.log('🚨 APIQUEST FINAL TOKEN:', finalToken ? `USING: ${finalToken.substring(0,20)}...` : 'STILL MISSING');
   
   // Build headers with guaranteed type safety
   const finalHeaders = new Headers();
@@ -127,64 +86,47 @@ export async function apiRequest(
     }
   }
   
-  // Add auth header if token exists
+  // CRITICAL: Force add auth header if token exists
   if (finalToken && finalToken.trim().length > 0) {
     const authValue = `Bearer ${finalToken}`;
     finalHeaders.set('Authorization', authValue);
-    debugLog('Authorization header set');
+    console.log('🚨 APIQUEST AUTH HEADER SET:', `Bearer ${finalToken.substring(0,20)}...`);
   } else {
-    debugWarn('No valid authentication token available');
+    console.log('🚨 APIQUEST AUTH MISSING - NO VALID TOKEN TO SEND');
   }
   
-  // Debug headers without exposing sensitive data
-  if (isDevelopment) {
-    const sanitizedHeaders: Record<string, string> = {};
-    finalHeaders.forEach((value, key) => {
-      sanitizedHeaders[key] = key === 'Authorization' ? '[REDACTED]' : value;
-    });
-    debugLog('Request headers:', sanitizedHeaders);
-  }
+  // Debug final headers (without exposing full token)
+  const headersObj: Record<string, string> = {};
+  finalHeaders.forEach((value, key) => {
+    headersObj[key] = key === 'Authorization' ? `Bearer ${value.substring(7, 27)}...` : value;
+  });
+  console.log('🚨 APIQUEST FINAL HEADERS:', JSON.stringify(headersObj));
   
   try {
-    // Handle request cancellation
-    const requestKey = options?.requestKey || `${method}-${url}`;
-    
-    // Cancel any existing request with the same key
-    cancelRequest(requestKey);
-    
-    // Create new abort controller
-    const abortController = new AbortController();
-    requestCache.set(requestKey, abortController);
-    
     const fetchOptions: RequestInit = {
       method,
       headers: finalHeaders,
       credentials: 'include',
-      signal: abortController.signal,
     };
     
     if (body && (method === 'POST' || method === 'PUT')) {
       fetchOptions.body = JSON.stringify(body);
     }
     
-    const resolvedUrl = resolveApiUrl(url);
-    debugLog('Making request to resolved URL');
-    const response = await fetch(resolvedUrl, fetchOptions);
+    console.log('🚨 APIQUEST MAKING FETCH CALL TO:', url);
+    const response = await fetch(url, fetchOptions);
     
-    // Clean up successful request
-    requestCache.delete(requestKey);
-    
-    debugLog('Response status:', response.status, 'for', url);
+    console.log('🚨 APIQUEST RESPONSE STATUS:', response.status, 'for', url);
     
     if (!response.ok) {
-      console.error('API request failed:', response.status, response.statusText, 'for', url);
+      console.log('🚨 APIQUEST FAILED - STATUS:', response.status, 'TEXT:', response.statusText);
       
       if (response.status === 401) {
-        debugLog('Authentication failed - clearing expired token');
+        console.log('🚨 APIQUEST 401 - CLEARING EXPIRED TOKEN');
         localStorage.removeItem('authToken');
         // Try to redirect to auth if this is an authentication failure
         if (typeof window !== 'undefined' && !window.location.pathname.includes('/auth')) {
-          debugLog('Redirecting to authentication page');
+          console.log('🚨 APIQUEST 401 - REDIRECTING TO AUTH');
           window.location.href = '/auth';
         }
       }
@@ -192,11 +134,11 @@ export async function apiRequest(
       throw new Error(`HTTP ${response.status}: ${response.statusText || 'Request failed'}`);
     }
     
-    debugLog('API request successful for:', url);
+    console.log('🚨 APIQUEST SUCCESS:', url);
     return response;
     
   } catch (error) {
-    console.error('API request error for', url, ':', error.message);
+    console.log('🚨 APIQUEST CATCH ERROR:', error);
     throw error;
   }
 }

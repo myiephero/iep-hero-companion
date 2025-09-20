@@ -1,14 +1,6 @@
 // Comprehensive subscription plan access control for IEP Hero platform
 export type SubscriptionPlan = 'free' | 'essential' | 'premium' | 'hero' | 'starter' | 'pro' | 'agency' | 'agency-plus';
 
-// Development-only logging utility
-const isDevelopment = typeof import.meta !== 'undefined' && import.meta.env?.DEV;
-function debugLog(message: string, ...args: any[]) {
-  if (isDevelopment) {
-    console.log(message, ...args);
-  }
-}
-
 // Define all tools and features available in the platform
 export interface PlanFeatures {
   // === PARENT DASHBOARD FEATURES ===
@@ -785,13 +777,13 @@ export function normalizeSubscriptionPlan(plan: string | null | undefined): Subs
       if (validPlans.includes(normalized as SubscriptionPlan)) {
         result = normalized as SubscriptionPlan;
       } else {
-        console.warn('Unknown plan format detected:', plan, '- defaulting to "free"');
+        console.warn('🚨 normalizeSubscriptionPlan - Unknown plan format:', plan, '-> DEFAULT-DENY to "free"');
         result = 'free';
       }
       break;
   }
   
-  debugLog('Final normalized plan result:', result);
+  console.log('🔍 normalizeSubscriptionPlan - Final result:', result);
   return result;
 }
 
@@ -818,7 +810,7 @@ export function checkToolAccess(userPlan: SubscriptionPlan, requiredTool: keyof 
   upgradeRequired?: SubscriptionPlan;
   message?: string;
 } {
-  debugLog('Checking tool access - UserPlan:', userPlan, 'RequiredTool:', requiredTool);
+  console.log('🔍 checkToolAccess - UserPlan:', userPlan, '| RequiredTool:', requiredTool);
   
   // STRICT validation - ensure plan exists
   const validPlans: SubscriptionPlan[] = ['free', 'essential', 'premium', 'hero', 'starter', 'pro', 'agency', 'agency-plus'];

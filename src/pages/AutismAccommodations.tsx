@@ -468,7 +468,7 @@ const AutismAccommodations = () => {
                 <div className="flex items-center justify-between">
                   <h3 className="text-lg font-semibold">Student Selection</h3>
                   {isAdvocate && (
-                    <Badge variant="secondary" className="px-3 py-2 min-h-[32px] flex items-center">
+                    <Badge variant="secondary" className="px-3 py-1">
                       Advocate Mode
                     </Badge>
                   )}

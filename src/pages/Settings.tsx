@@ -2,10 +2,11 @@ import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Switch } from "@/components/ui/switch";
+import { Separator } from "@/components/ui/separator";
 import { useAuth } from "@/hooks/useAuth";
 import { useState, useEffect } from "react";
 import { useToast } from "@/hooks/use-toast";
-import { NotificationSettings } from "@/components/NotificationSettings";
 
 export default function Settings() {
   const { user, refreshUser } = useAuth();
@@ -125,8 +126,34 @@ export default function Settings() {
           </div>
         </Card>
 
-        {/* Comprehensive Notification Settings */}
-        <NotificationSettings />
+        <Card className="p-6">
+          <h2 className="text-xl font-semibold mb-4">Notifications</h2>
+          <div className="space-y-4">
+            <div className="flex items-center justify-between">
+              <div>
+                <Label>Email Notifications</Label>
+                <p className="text-sm text-muted-foreground">Receive updates via email</p>
+              </div>
+              <Switch />
+            </div>
+            <Separator />
+            <div className="flex items-center justify-between">
+              <div>
+                <Label>Meeting Reminders</Label>
+                <p className="text-sm text-muted-foreground">Get reminded before IEP meetings</p>
+              </div>
+              <Switch />
+            </div>
+            <Separator />
+            <div className="flex items-center justify-between">
+              <div>
+                <Label>Task Notifications</Label>
+                <p className="text-sm text-muted-foreground">Notifications for task updates</p>
+              </div>
+              <Switch />
+            </div>
+          </div>
+        </Card>
 
         <Card className="p-6">
           <h2 className="text-xl font-semibold mb-4">Privacy & Security</h2>

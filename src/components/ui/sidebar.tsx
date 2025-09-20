@@ -87,13 +87,11 @@ const SidebarProvider = React.forwardRef<
       [setOpenProp, open]
     )
 
-    // Helper to toggle the sidebar with mobile optimization
+    // Helper to toggle the sidebar.
     const toggleSidebar = React.useCallback(() => {
-      if (isMobile) {
-        setOpenMobile((open) => !open)
-      } else {
-        setOpen((open) => !open)
-      }
+      return isMobile
+        ? setOpenMobile((open) => !open)
+        : setOpen((open) => !open)
     }, [isMobile, setOpen, setOpenMobile])
 
     // Adds a keyboard shortcut to toggle the sidebar.
@@ -198,17 +196,15 @@ const Sidebar = React.forwardRef<
           <SheetContent
             data-sidebar="sidebar"
             data-mobile="true"
-            className="w-[--sidebar-width] bg-sidebar p-0 text-sidebar-foreground [&>button]:hidden safe-area-inset"
+            className="w-[--sidebar-width] bg-sidebar p-0 text-sidebar-foreground [&>button]:hidden"
             style={
               {
                 "--sidebar-width": SIDEBAR_WIDTH_MOBILE,
-                maxWidth: "calc(100vw - 2rem)",
-                touchAction: "manipulation"
               } as React.CSSProperties
             }
             side={side}
           >
-            <div className="flex h-full w-full flex-col overflow-hidden">{children}</div>
+            <div className="flex h-full w-full flex-col">{children}</div>
           </SheetContent>
         </Sheet>
       )
@@ -273,15 +269,14 @@ const SidebarTrigger = React.forwardRef<
       data-sidebar="trigger"
       variant="ghost"
       size="icon"
-      className={cn("min-h-[44px] min-w-[44px] h-11 w-11 active:scale-95 transition-transform duration-150", className)}
+      className={cn("h-7 w-7", className)}
       onClick={(event) => {
         onClick?.(event)
         toggleSidebar()
       }}
-      aria-label="Toggle navigation sidebar"
       {...props}
     >
-      <PanelLeft className="h-5 w-5" />
+      <PanelLeft />
       <span className="sr-only">Toggle Sidebar</span>
     </Button>
   )
@@ -464,10 +459,9 @@ const SidebarGroupAction = React.forwardRef<
       data-sidebar="group-action"
       className={cn(
         "absolute right-3 top-3.5 flex aspect-square w-5 items-center justify-center rounded-md p-0 text-sidebar-foreground outline-none ring-sidebar-ring transition-transform hover:bg-sidebar-accent hover:text-sidebar-accent-foreground focus-visible:ring-2 [&>svg]:size-4 [&>svg]:shrink-0",
-        // Increases the hit area of the button on mobile for better touch targets
+        // Increases the hit area of the button on mobile.
         "after:absolute after:-inset-2 after:md:hidden",
         "group-data-[collapsible=icon]:hidden",
-        "active:bg-sidebar-accent/80 transition-colors duration-150",
         className
       )}
       {...props}
@@ -611,9 +605,8 @@ const SidebarMenuAction = React.forwardRef<
       data-sidebar="menu-action"
       className={cn(
         "absolute right-1 top-1.5 flex aspect-square w-5 items-center justify-center rounded-md p-0 text-sidebar-foreground outline-none ring-sidebar-ring transition-transform hover:bg-sidebar-accent hover:text-sidebar-accent-foreground focus-visible:ring-2 peer-hover/menu-button:text-sidebar-accent-foreground [&>svg]:size-4 [&>svg]:shrink-0",
-        // Increases the hit area of the button on mobile for better touch targets
+        // Increases the hit area of the button on mobile.
         "after:absolute after:-inset-2 after:md:hidden",
-        "active:bg-sidebar-accent/80 transition-colors duration-150",
         "peer-data-[size=sm]/menu-button:top-1",
         "peer-data-[size=default]/menu-button:top-1.5",
         "peer-data-[size=lg]/menu-button:top-2.5",

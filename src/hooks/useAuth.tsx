@@ -55,12 +55,11 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
   useEffect(() => {
     const checkAuth = async () => {
       try {
-        // Skip auth check only for pricing pages (not home page)
+        // Only skip auth for public pages
         const currentPath = window.location.pathname;
-        const publicPaths = ['/parent/pricing', '/advocate/pricing'];
+        const publicPaths = ['/', '/auth', '/pricing', '/parent/pricing', '/advocate/pricing'];
         
-        // Only skip auth for truly public pages, NOT for the home page or dashboard routes
-        if (publicPaths.some(path => currentPath.includes(path))) {
+        if (publicPaths.includes(currentPath)) {
           setUser(null);
           setProfile(null);
           setLoading(false);

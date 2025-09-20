@@ -1,37 +1,15 @@
-import { ReactElement, useEffect } from "react";
-import { useLocation, Navigate } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
-import { setRole, getRole } from "@/lib/session";
-import { Role } from "@/lib/roles";
+import { Navigate } from "react-router-dom";
 
 interface ProtectedRouteProps {
-  children: ReactElement;
-  allowedRoles: ('parent' | 'advocate')[];
-  redirectTo?: string;
-  requiredPlan?: string; // Enforce plan-specific access
-  allowedPlans?: string[]; // Alternative: allow multiple plans
+  children: React.ReactNode;
+  allowedRoles?: string[];
 }
 
-export function ProtectedRoute({ children, allowedRoles, redirectTo = "/auth", requiredPlan, allowedPlans }: ProtectedRouteProps) {
-  const { user, profile, loading } = useAuth();
-  const location = useLocation();
-  
-  // Remove debug logging to reduce noise
+export function ProtectedRoute({ children, allowedRoles }: ProtectedRouteProps) {
+  const { user, loading } = useAuth();
 
-  // Derive role consistently before any early returns
-  const sessionRole = getRole();
-  const routeRoleHint = allowedRoles.length === 1 ? allowedRoles[0] : null;
-  // CRITICAL: Use actual user role from database, NOT route hint for role detection
-  const userRole = (user?.role as 'parent' | 'advocate') || (profile?.role as 'parent' | 'advocate') || (sessionRole as 'parent' | 'advocate') || 'parent';
-
-  // Always call hooks in the same order
-  useEffect(() => {
-    if (routeRoleHint && routeRoleHint !== sessionRole) {
-      setRole(routeRoleHint as Role);
-    }
-  }, [routeRoleHint, sessionRole]);
-
-  // Loading state
+  // Show loading spinner while checking auth
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-screen">
@@ -40,74 +18,23 @@ export function ProtectedRoute({ children, allowedRoles, redirectTo = "/auth", r
     );
   }
 
-  // Auth guard - simple redirect without logging
+  // Redirect to auth if not authenticated
   if (!user) {
-    return <Navigate to={redirectTo} state={{ from: location }} replace />;
+    return <Navigate to="/auth" replace />;
   }
 
-  // Role guard
-  if (!allowedRoles.includes(userRole as 'parent' | 'advocate')) {
-    // FAIL-SAFE: Redirect to correct plan-specific dashboard
-    const userPlan = user.subscriptionPlan?.toLowerCase().replace(/\s+/g, '') || 'free';
-    const planMapping = {
-      'starter': 'starter', 'pro': 'pro', 'agency': 'agency', 'agencyplus': 'agency-plus',
-      'agency-annual': 'agency', 'pro-annual': 'pro', 'starter-annual': 'starter'
-    };
-    const normalizedPlan = planMapping[userPlan] || userPlan;
-    
-    const dashboardRoute = userRole === 'advocate' 
-      ? `/advocate/dashboard-${normalizedPlan}` 
-      : `/parent/dashboard-${normalizedPlan}`;
-    return <Navigate to={dashboardRoute} replace />;
+  // Check role permissions if specified
+  if (allowedRoles && !allowedRoles.includes(user.role || 'parent')) {
+    return <Navigate to="/dashboard" replace />;
   }
 
-  // Plan-specific access control (tier-based security)
-  if (requiredPlan || allowedPlans) {
-    const userPlan = user.subscriptionPlan?.toLowerCase().replace(/\s+/g, '') || 'free';
-    const planMapping = {
-      'starter': 'starter', 'pro': 'pro', 'agency': 'agency', 'agencyplus': 'agency-plus',
-      'agency-annual': 'agency', 'pro-annual': 'pro', 'starter-annual': 'starter'
-    };
-    const normalizedUserPlan = planMapping[userPlan] || userPlan;
-    
-    // Check if user has required plan
-    if (requiredPlan && normalizedUserPlan !== requiredPlan) {
-      // FAIL-SAFE: Redirect to correct plan dashboard
-      const correctDashboard = user.role === 'parent' 
-        ? `/parent/dashboard-${normalizedUserPlan}`
-        : `/advocate/dashboard-${normalizedUserPlan}`;
-      return <Navigate to={correctDashboard} replace />;
-    }
-    
-    // Check if user has one of allowed plans
-    if (allowedPlans && !allowedPlans.includes(normalizedUserPlan)) {
-      // FAIL-SAFE: Redirect to correct plan dashboard
-      const correctDashboard = user.role === 'parent' 
-        ? `/parent/dashboard-${normalizedUserPlan}`
-        : `/advocate/dashboard-${normalizedUserPlan}`;
-      return <Navigate to={correctDashboard} replace />;
-    }
-  }
-
-  return children;
+  // Allow access
+  return <>{children}</>;
 }
 
-interface RoleBasedRedirectProps {
-  parentRoute: string;
-  advocateRoute: string;
-}
-
-export function RoleBasedRedirect({ parentRoute, advocateRoute }: RoleBasedRedirectProps) {
-  const { user, profile, loading } = useAuth();
-
-  const userRole = (user?.role as 'parent' | 'advocate') || (profile?.role as 'parent' | 'advocate') || (getRole() as 'parent' | 'advocate') || 'parent';
-
-  // Ensure consistent hook order across renders
-  useEffect(() => {
-    if (userRole !== getRole()) {
-      setRole(userRole as Role);
-    }
-  }, [userRole]);
+// Simplified component for any remaining legacy redirects
+export function RoleBasedRedirect({ parentRoute, advocateRoute }: { parentRoute: string; advocateRoute: string }) {
+  const { user, loading } = useAuth();
 
   if (loading) {
     return (
@@ -117,6 +44,11 @@ export function RoleBasedRedirect({ parentRoute, advocateRoute }: RoleBasedRedir
     );
   }
 
-  const redirectRoute = userRole === 'advocate' ? advocateRoute : parentRoute;
-  return <Navigate to={redirectRoute} replace />;
+  if (!user) {
+    return <Navigate to="/auth" replace />;
+  }
+
+  // Simple role-based redirect to new unified routes
+  const targetRoute = user.role === 'advocate' ? advocateRoute : parentRoute;
+  return <Navigate to={targetRoute} replace />;
 }

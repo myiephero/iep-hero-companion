@@ -83,17 +83,6 @@ const Index = () => {
 
   return (
     <div className="min-h-screen">
-      {/* 🚨 BIG PINK TEST BUTTON - FOR TESTING ONLY - MOVED TO TOP */}
-      <div className="fixed top-4 right-4 z-50">
-        <Button 
-          size="lg" 
-          className="bg-pink-500 hover:bg-pink-600 text-white font-bold px-6 py-3 text-lg shadow-lg"
-          onClick={() => alert('🚨 BIG PINK TEST BUTTON ON HOME PAGE (/) - We are working on the same codebase!')}
-          data-testid="pink-test-button-home"
-        >
-          🚨 PINK TEST - HOME
-        </Button>
-      </div>
 
       {/* Hero Section */}
       <section className="relative bg-gradient-to-br from-primary/5 to-secondary/5 py-16 lg:py-24">

@@ -1,4 +1,5 @@
 import { createContext, useContext, useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 // Real User types for Replit Auth
 interface User {
@@ -49,6 +50,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
   const [profile, setProfile] = useState<any | null>(null);
+  const navigate = useNavigate();
 
   useEffect(() => {
     const checkAuth = async () => {
@@ -176,7 +178,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
               setLoading(false);
               
               // Redirect to login to force re-authentication
-              window.location.href = '/auth';
+              navigate('/auth', { replace: true });
               return;
             } else {
               console.log('✅ Token ownership validated - user ID matches');
@@ -192,7 +194,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
             // This is a new user who just authenticated but hasn't completed onboarding
             const currentPath = window.location.pathname;
             if (!currentPath.includes('/onboarding') && !currentPath.includes('/subscribe')) {
-              window.location.href = '/onboarding';
+              navigate('/onboarding', { replace: true });
             }
           } else if (userData && userData.role) {
             // User has a role - handle plan-specific routing
@@ -227,7 +229,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
             // Redirect scenarios
             if (currentPath === '/auth' || currentPath === '/onboarding' || currentPath === '/') {
               // Post-authentication/onboarding redirect
-              window.location.href = correctDashboardPath;
+              navigate(correctDashboardPath, { replace: true });
             } else if (userData.role === 'parent') {
               // Handle parent dashboard redirections
               const isOnGenericDashboard = currentPath === '/parent/dashboard';
@@ -235,7 +237,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
                                            currentPath !== correctDashboardPath;
               
               if (isOnGenericDashboard || isOnWrongPlanDashboard) {
-                window.location.href = correctDashboardPath;
+                navigate(correctDashboardPath, { replace: true });
               }
             } else if (userData.role === 'advocate') {
               // Handle advocate dashboard redirections - NO GENERIC DASHBOARDS ALLOWED
@@ -244,7 +246,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
                                            currentPath !== correctDashboardPath;
               
               if (isOnWrongRoleDashboard || isOnWrongPlanDashboard) {
-                window.location.href = correctDashboardPath;
+                navigate(correctDashboardPath, { replace: true });
               }
             }
           }
@@ -262,7 +264,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
           
           if (isProtectedRoute) {
             console.log('🔄 Redirecting to login due to expired authentication');
-            window.location.href = '/auth';
+            navigate('/auth', { replace: true });
           }
         } else {
           // Other error - clear auth state but don't redirect

@@ -1,4 +1,4 @@
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { DashboardLayout } from "@/layouts/DashboardLayout";
@@ -13,7 +13,6 @@ import { apiRequest, queryClient } from "@/lib/queryClient";
 import { FeatureGate } from "@/components/FeatureGate";
 import { LockedActionButton } from "@/components/LockedActionButton";
 import { useToolAccess } from "@/hooks/useToolAccess";
-import { useNavigate } from "react-router-dom";
 import { normalizeSubscriptionPlan } from "@/lib/planAccess";
 import { 
   Users, 
@@ -594,17 +593,6 @@ const AdvocateDashboard = ({ plan }: AdvocateDashboardProps) => {
 
   return (
     <DashboardLayout>
-      {/* 🚨 BIG PINK TEST BUTTON - FOR TESTING ONLY */}
-      <div className="p-4">
-        <Button 
-          size="lg" 
-          className="bg-pink-500 hover:bg-pink-600 text-white font-bold px-6 py-3 text-lg shadow-lg mb-4"
-          onClick={() => alert('🚨 BIG PINK TEST BUTTON ON ADVOCATE DASHBOARD (/advocate/dashboard-pro) - We are working on the same codebase!')}
-          data-testid="pink-test-button-advocate-dashboard"
-        >
-          🚨 BIG PINK TEST BUTTON - ADVOCATE DASHBOARD
-        </Button>
-      </div>
 
       <div className="space-y-8">
         {/* Hero Section */}
@@ -1136,7 +1124,7 @@ const AdvocateDashboard = ({ plan }: AdvocateDashboardProps) => {
                         key={activity.id} 
                         className="flex items-center gap-4 p-3 bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 hover:shadow-md transition-all duration-200 cursor-pointer"
                         data-testid={`activity-${activity.type}-${activity.id}`}
-                        onClick={() => activity.link && (window.location.href = activity.link)}
+                        onClick={() => activity.link && navigate(activity.link)}
                       >
                         <div className={`w-8 h-8 rounded-full flex items-center justify-center ${activity.color}`}>
                           <IconComponent className="h-4 w-4" />

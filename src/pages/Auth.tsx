@@ -41,8 +41,9 @@ const Auth = () => {
           description: "Redirecting to your dashboard...",
         });
         
-        // Redirect immediately
-        navigate('/parent/dashboard-hero', { replace: true });
+        // Use the redirectTo URL from server response (plan-specific dashboard)
+        const redirectTo = data.redirectTo || '/parent/dashboard-hero';
+        navigate(redirectTo, { replace: true });
       } else {
         const data = await response.json();
         toast({
@@ -242,17 +243,6 @@ const Auth = () => {
   // Default to signin form
   return (
     <div className="min-h-screen bg-gradient-to-br from-primary/5 via-background to-secondary/5 flex items-center justify-center p-4">
-      {/* 🚨 BIG PINK TEST BUTTON - FOR TESTING ONLY */}
-      <div className="fixed top-4 left-4 z-[9999]">
-        <Button 
-          size="lg" 
-          className="bg-pink-500 hover:bg-pink-600 text-white font-bold px-6 py-3 text-lg shadow-2xl border-4 border-pink-300"
-          onClick={() => alert('🚨 BIG PINK TEST BUTTON ON AUTH PAGE (/auth) - We are working on the same codebase!')}
-          data-testid="pink-test-button-auth"
-        >
-          🚨 PINK TEST - AUTH
-        </Button>
-      </div>
 
       <div className="w-full max-w-md space-y-6">
         <div className="text-center space-y-2">

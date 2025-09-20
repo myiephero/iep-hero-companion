@@ -439,17 +439,6 @@ export default function ParentDashboard({ plan }: ParentDashboardProps) {
 
   return (
     <DashboardLayout>
-      {/* 🚨 BIG PINK TEST BUTTON - FOR TESTING ONLY */}
-      <div className="p-4">
-        <Button 
-          size="lg" 
-          className="bg-pink-500 hover:bg-pink-600 text-white font-bold px-6 py-3 text-lg shadow-lg mb-4"
-          onClick={() => alert('🚨 BIG PINK TEST BUTTON ON PARENT DASHBOARD (/parent/dashboard-hero) - We are working on the same codebase!')}
-          data-testid="pink-test-button-parent-dashboard"
-        >
-          🚨 BIG PINK TEST BUTTON - PARENT DASHBOARD
-        </Button>
-      </div>
 
       <div className="min-h-screen">
         {/* Enhanced Hero Section with Unified Design */}

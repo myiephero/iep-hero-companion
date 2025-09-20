@@ -112,6 +112,7 @@ function App() {
           <AuthProvider>
             <BrowserRouter>
             <Routes>
+              {/* Public routes */}
               <Route path="/" element={<Index />} />
               <Route path="/pricing" element={<PricingSelection />} />
               <Route path="/auth" element={<Auth />} />
@@ -119,14 +120,49 @@ function App() {
               <Route path="/subscription-setup" element={<SubscriptionSetup />} />
               <Route path="/onboarding" element={<Onboarding />} />
               
-              {/* Parent Routes - Protected */}
-              {/* Generic dashboard redirect */}
-              <Route path="/dashboard" element={<RoleBasedRedirect parentRoute="/parent/dashboard-free" advocateRoute="/advocate/dashboard-starter" />} />
-              <Route path="/parent/dashboard-free" element={
-                <ProtectedRoute allowedRoles={['parent']} requiredPlan="free">
-                  <ParentDashboard plan="free" />
+              {/* Single Dashboard - handles all role/plan logic internally */}
+              <Route path="/dashboard" element={
+                <ProtectedRoute allowedRoles={['parent', 'advocate']}>
+                  <ParentDashboard />
                 </ProtectedRoute>
               } />
+              
+              {/* Clean Protected Routes */}
+              <Route path="/messages" element={
+                <ProtectedRoute allowedRoles={['parent', 'advocate']}>
+                  <ParentMessages />
+                </ProtectedRoute>
+              } />
+              <Route path="/schedule" element={
+                <ProtectedRoute allowedRoles={['parent', 'advocate']}>
+                  <UnifiedScheduleHub />
+                </ProtectedRoute>
+              } />
+              <Route path="/students" element={
+                <ProtectedRoute allowedRoles={['parent', 'advocate']}>
+                  <ParentStudents />
+                </ProtectedRoute>
+              } />
+              <Route path="/tools" element={
+                <ProtectedRoute allowedRoles={['parent', 'advocate']}>
+                  <ToolsHub />
+                </ProtectedRoute>
+              } />
+              
+              {/* Legacy redirects - redirect old complex URLs to simple ones */}
+              <Route path="/parent/dashboard-*" element={<Navigate to="/dashboard" replace />} />
+              <Route path="/advocate/dashboard-*" element={<Navigate to="/dashboard" replace />} />
+              <Route path="/parent/messages" element={<Navigate to="/messages" replace />} />
+              <Route path="/advocate/messages" element={<Navigate to="/messages" replace />} />
+              <Route path="/parent/students" element={<Navigate to="/students" replace />} />
+              <Route path="/advocate/students" element={<Navigate to="/students" replace />} />
+              <Route path="/parent/schedule" element={<Navigate to="/schedule" replace />} />
+              <Route path="/advocate/schedule" element={<Navigate to="/schedule" replace />} />
+              <Route path="/parent/tools" element={<Navigate to="/tools" replace />} />
+              <Route path="/advocate/tools" element={<Navigate to="/tools" replace />} />
+              
+              {/* 404 */}
+              <Route path="*" element={<NotFound />} />
               <Route path="/parent/dashboard-essential" element={
                 <ProtectedRoute allowedRoles={['parent']} requiredPlan="essential">
                   <ParentDashboard plan="essential" />

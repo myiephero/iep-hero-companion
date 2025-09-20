@@ -20,6 +20,7 @@ import { useAuth } from "@/hooks/useAuth";
 import UnifiedScheduleHub from "./pages/UnifiedScheduleHub";
 import ToolsHub from "./pages/ToolsHub";
 import AdvocateToolsHub from "./pages/AdvocateToolsHub";
+import EmergentToolsHubNew from "./pages/EmergentToolsHubNew";
 import PricingSelection from "./pages/PricingSelection";
 import SetupPassword from "./pages/SetupPassword";
 import SubscriptionSetup from "./pages/SubscriptionSetup";
@@ -89,15 +90,66 @@ function App() {
                 </ProtectedRoute>
               } />
               
-              {/* Legacy redirects - redirect old complex URLs to simple ones */}
-              <Route path="/parent/dashboard-free" element={<Navigate to="/dashboard" replace />} />
-              <Route path="/parent/dashboard-essential" element={<Navigate to="/dashboard" replace />} />
-              <Route path="/parent/dashboard-premium" element={<Navigate to="/dashboard" replace />} />
-              <Route path="/parent/dashboard-hero" element={<Navigate to="/dashboard" replace />} />
-              <Route path="/advocate/dashboard-starter" element={<Navigate to="/dashboard" replace />} />
-              <Route path="/advocate/dashboard-pro" element={<Navigate to="/dashboard" replace />} />
-              <Route path="/advocate/dashboard-agency" element={<Navigate to="/dashboard" replace />} />
-              <Route path="/advocate/dashboard-agency-plus" element={<Navigate to="/dashboard" replace />} />
+              {/* Parent Tool Routes */}
+              <Route path="/parent/tools" element={
+                <ProtectedRoute allowedRoles={['parent']}>
+                  <ToolsHub />
+                </ProtectedRoute>
+              } />
+              <Route path="/parent/tools/emergent" element={
+                <ProtectedRoute allowedRoles={['parent']}>
+                  <EmergentToolsHubNew />
+                </ProtectedRoute>
+              } />
+              
+              {/* Advocate Tool Routes */}
+              <Route path="/advocate/tools" element={
+                <ProtectedRoute allowedRoles={['advocate']}>
+                  <AdvocateToolsHub />
+                </ProtectedRoute>
+              } />
+              
+              {/* Plan-specific dashboards */}
+              <Route path="/parent/dashboard-free" element={
+                <ProtectedRoute allowedRoles={['parent']}>
+                  <ParentDashboard />
+                </ProtectedRoute>
+              } />
+              <Route path="/parent/dashboard-essential" element={
+                <ProtectedRoute allowedRoles={['parent']}>
+                  <ParentDashboard />
+                </ProtectedRoute>
+              } />
+              <Route path="/parent/dashboard-premium" element={
+                <ProtectedRoute allowedRoles={['parent']}>
+                  <ParentDashboard />
+                </ProtectedRoute>
+              } />
+              <Route path="/parent/dashboard-hero" element={
+                <ProtectedRoute allowedRoles={['parent']}>
+                  <ParentDashboard />
+                </ProtectedRoute>
+              } />
+              <Route path="/advocate/dashboard-starter" element={
+                <ProtectedRoute allowedRoles={['advocate']}>
+                  <AdvocateDashboard />
+                </ProtectedRoute>
+              } />
+              <Route path="/advocate/dashboard-pro" element={
+                <ProtectedRoute allowedRoles={['advocate']}>
+                  <AdvocateDashboard />
+                </ProtectedRoute>
+              } />
+              <Route path="/advocate/dashboard-agency" element={
+                <ProtectedRoute allowedRoles={['advocate']}>
+                  <AdvocateDashboard />
+                </ProtectedRoute>
+              } />
+              <Route path="/advocate/dashboard-agency-plus" element={
+                <ProtectedRoute allowedRoles={['advocate']}>
+                  <AdvocateDashboard />
+                </ProtectedRoute>
+              } />
               <Route path="/parent/dashboard/*" element={<Navigate to="/dashboard" replace />} />
               <Route path="/advocate/dashboard/*" element={<Navigate to="/dashboard" replace />} />
               <Route path="/parent/messages" element={<Navigate to="/messages" replace />} />

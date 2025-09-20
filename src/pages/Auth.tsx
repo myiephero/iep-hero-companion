@@ -39,8 +39,8 @@ const Auth = () => {
           description: "Redirecting to your dashboard...",
         });
         
-        // Redirect immediately
-        window.location.replace('/parent/dashboard-hero');
+        // Redirect to homepage instead of forcing dashboard
+        window.location.replace('/');
       } else {
         const data = await response.json();
         toast({

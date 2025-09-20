@@ -5661,17 +5661,18 @@ Respond with this exact JSON format:
     res.json(aasaContent);
   });
   
-  // Serve desktop static files at /m path
-  app.use('/m', express.static(desktopDist, { index: false, maxAge: '1y', etag: true }));
-  
-  // Serve mobile static files at root path
-  app.use('/', express.static(mobileDist, { index: false, maxAge: '1y', etag: true }));
+  // Static files are already mounted above - no need to duplicate
   
   // Redirect /m to /m/ for consistency
   app.get('/m', (req, res) => res.redirect(301, '/m/'));
   
-  // Desktop SPA fallback - serves desktop index.html for /m/* routes
-  app.get('/m/*', (req, res) => {
+  // Desktop SPA fallback - handle any route that starts with /m/
+  app.use('/m/', (req, res, next) => {
+    // Check if this is a static file request that should be handled by static middleware
+    if (req.path.match(/\.(js|css|png|jpg|jpeg|gif|ico|svg|woff|woff2|ttf|eot|html)$/)) {
+      return next();
+    }
+    // Serve desktop app for SPA routes
     res.sendFile(path.join(desktopDist, 'index.html'));
   });
   

@@ -4,6 +4,7 @@ import path from "path";
 import { componentTagger } from "lovable-tagger";
 
 export default defineConfig(({ mode }) => ({
+  base: '/',  // Mobile app served at root path
   server: {
     host: "0.0.0.0",
     port: 5000,
@@ -45,11 +46,10 @@ export default defineConfig(({ mode }) => ({
           // Forms and validation
           forms: ['react-hook-form', '@hookform/resolvers', 'zod'],
         },
-        // Optimize chunk sizes for mobile
-        chunkFileNames: (chunkInfo) => {
-          const facadeModuleId = chunkInfo.facadeModuleId ? chunkInfo.facadeModuleId.split('/').pop() : 'chunk';
-          return `js/${facadeModuleId}-[hash].js`;
-        },
+        // Use consistent assets/ directory for all files
+        chunkFileNames: 'assets/[name]-[hash].js',
+        entryFileNames: 'assets/[name]-[hash].js', 
+        assetFileNames: 'assets/[name]-[hash].[ext]',
       },
     },
     // Optimize for mobile networks

@@ -5463,9 +5463,10 @@ Respond with this exact JSON format:
     try {
       const files = fs.readdirSync(assetsDir);
       const matchingFile = files.find(file => {
-        // Match the base name (before the hash)
-        const baseName = requestedFile.replace('.js', '');
-        return file.startsWith(baseName) && file.endsWith('.js');
+        // Match the base name (before the hash) - case insensitive
+        const baseName = requestedFile.replace('.js', '').toLowerCase();
+        const fileName = file.toLowerCase();
+        return fileName.startsWith(baseName) && fileName.endsWith('.js');
       });
       
       if (matchingFile) {

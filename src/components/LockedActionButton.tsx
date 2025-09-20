@@ -5,9 +5,8 @@ import { Badge } from '@/components/ui/badge';
 import { Lock, Crown, Sparkles, Check, Zap, ArrowRight } from 'lucide-react';
 import { useToolAccess } from '@/hooks/useToolAccess';
 import { PlanFeatures, SubscriptionPlan } from '@/lib/planAccess';
+import { useNavigate } from 'react-router-dom';
 import { cn } from '@/lib/utils';
-import { Browser } from '@capacitor/browser';
-import { Capacitor } from '@capacitor/core';
 
 interface LockedActionButtonProps extends Omit<ButtonProps, 'onClick'> {
   requiredFeature: keyof PlanFeatures;
@@ -34,6 +33,7 @@ export function LockedActionButton({
   'data-testid': dataTestId = `locked-action-${requiredFeature}`,
   ...buttonProps
 }: LockedActionButtonProps) {
+  const navigate = useNavigate();
   const [showUpgradeDialog, setShowUpgradeDialog] = useState(false);
   const { canUse, needsUpgrade, requiredPlanFor, currentPlan, user } = useToolAccess();
 
@@ -85,22 +85,11 @@ export function LockedActionButton({
     }
   };
 
-  const handleUpgradeClick = async () => {
-    // Open external browser with pricing page for Apple compliance
-    const baseUrl = Capacitor.isNativePlatform() 
-      ? 'https://afd4ab41-fa60-4e78-9742-69bb4e3004d6-00-6i79wn87wfhu.janeway.replit.dev'
-      : window.location.origin;
-    
-    const pricingUrl = user?.role === 'advocate' 
-      ? `${baseUrl}/advocate/pricing?highlight=${minimumPlan}`
-      : `${baseUrl}/parent/pricing?highlight=${minimumPlan}`;
-    
-    if (Capacitor.isNativePlatform()) {
-      // Open in external browser on mobile (Netflix model)
-      await Browser.open({ url: pricingUrl });
+  const handleUpgradeClick = () => {
+    if (user?.role === 'advocate') {
+      navigate(`/advocate/pricing?highlight=${minimumPlan}`);
     } else {
-      // Open in new tab on web
-      window.open(pricingUrl, '_blank');
+      navigate(`/parent/pricing?highlight=${minimumPlan}`);
     }
   };
 
@@ -189,7 +178,7 @@ export function LockedActionButton({
                   className={`flex-1 bg-gradient-to-r ${getPlanColor(minimumPlan)} hover:opacity-90 text-white font-medium`}
                 >
                   <Crown className="h-4 w-4 mr-2" />
-                  {Capacitor.isNativePlatform() ? 'Visit Website to Upgrade' : `Upgrade to ${getPlanDisplayName(minimumPlan)}`}
+                  Upgrade to {getPlanDisplayName(minimumPlan)}
                 </Button>
                 <Button 
                   variant="outline" 

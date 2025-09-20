@@ -6,8 +6,7 @@ import { Badge } from '@/components/ui/badge';
 import { Lock, Crown, Sparkles, ArrowRight, Check, X, Zap } from 'lucide-react';
 import { useToolAccess } from '@/hooks/useToolAccess';
 import { PlanFeatures, SubscriptionPlan } from '@/lib/planAccess';
-import { Browser } from '@capacitor/browser';
-import { Capacitor } from '@capacitor/core';
+import { useNavigate } from 'react-router-dom';
 
 interface FeatureGateProps {
   requiredFeature: keyof PlanFeatures;
@@ -30,6 +29,7 @@ export function FeatureGate({
   className = "",
   'data-testid': dataTestId = `feature-gate-${requiredFeature}`
 }: FeatureGateProps) {
+  const navigate = useNavigate();
   const [showUpgradeDialog, setShowUpgradeDialog] = useState(false);
   const { canUse, needsUpgrade, requiredPlanFor, currentPlan, user } = useToolAccess();
 
@@ -88,22 +88,11 @@ export function FeatureGate({
     }
   };
 
-  const handleUpgradeClick = async () => {
-    // Open external browser with pricing page for Apple compliance
-    const baseUrl = Capacitor.isNativePlatform() 
-      ? 'https://afd4ab41-fa60-4e78-9742-69bb4e3004d6-00-6i79wn87wfhu.janeway.replit.dev'
-      : window.location.origin;
-    
-    const pricingUrl = user?.role === 'advocate' 
-      ? `${baseUrl}/advocate/pricing?highlight=${minimumPlan}`
-      : `${baseUrl}/parent/pricing?highlight=${minimumPlan}`;
-    
-    if (Capacitor.isNativePlatform()) {
-      // Open in external browser on mobile (Netflix model)
-      await Browser.open({ url: pricingUrl });
+  const handleUpgradeClick = () => {
+    if (user?.role === 'advocate') {
+      navigate(`/advocate/pricing?highlight=${minimumPlan}`);
     } else {
-      // Open in new tab on web
-      window.open(pricingUrl, '_blank');
+      navigate(`/parent/pricing?highlight=${minimumPlan}`);
     }
   };
 
@@ -166,7 +155,7 @@ export function FeatureGate({
                 data-testid={`${dataTestId}-upgrade-button`}
               >
                 <Crown className="h-4 w-4 mr-2" />
-                {Capacitor.isNativePlatform() ? 'Visit Website to Upgrade' : `Upgrade to ${getPlanDisplayName(minimumPlan)}`}
+                Upgrade to {getPlanDisplayName(minimumPlan)}
               </Button>
               
               <Button 
@@ -210,7 +199,7 @@ export function FeatureGate({
                 onClick={handleUpgradeClick}
                 className={`flex-1 bg-gradient-to-r ${getPlanColor(minimumPlan)} hover:opacity-90 text-white`}
               >
-                {Capacitor.isNativePlatform() ? 'Visit Website to Upgrade' : 'Upgrade Now'}
+                Upgrade Now
               </Button>
               <Button variant="outline" onClick={() => setShowUpgradeDialog(false)}>
                 Maybe Later

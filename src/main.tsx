@@ -2,10 +2,9 @@ import { createRoot } from 'react-dom/client'
 import App from './App.tsx'
 import './index.css'
 import { offlineStorage } from './lib/offlineStorage'
-import { Capacitor } from '@capacitor/core'
 
-// 🚀 NATIVE APP FIX: Only register Service Worker for web builds, NOT native apps
-if (!Capacitor.isNativePlatform() && 'serviceWorker' in navigator) {
+// Register service worker for offline support
+if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
     navigator.serviceWorker.register('/sw.js')
       .then((registration) => {
@@ -57,27 +56,6 @@ if (!Capacitor.isNativePlatform() && 'serviceWorker' in navigator) {
       });
     }
   });
-} else if (Capacitor.isNativePlatform()) {
-  // 🧹 NUCLEAR CACHE CLEAR: Unregister any existing Service Workers for native apps
-  console.log('🧹 Native app detected - clearing any existing Service Worker cache');
-  
-  if ('serviceWorker' in navigator) {
-    navigator.serviceWorker.getRegistrations().then((registrations) => {
-      registrations.forEach((registration) => {
-        console.log('🗑️ Unregistering Service Worker:', registration.scope);
-        registration.unregister();
-      });
-    });
-  }
-  
-  if ('caches' in window) {
-    caches.keys().then((cacheNames) => {
-      cacheNames.forEach((cacheName) => {
-        console.log('🗑️ Deleting cache:', cacheName);
-        caches.delete(cacheName);
-      });
-    });
-  }
 }
 
 // Initialize offline storage

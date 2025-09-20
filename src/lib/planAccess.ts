@@ -774,6 +774,7 @@ export function normalizeSubscriptionPlan(plan: string | null | undefined): Subs
       result = 'agency';
       break;
     case 'agencyplus':
+    case 'agencyplus':
     case 'agency+':
       result = 'agency-plus';
       break;

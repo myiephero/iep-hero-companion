@@ -1,0 +1,24 @@
+My IEP Hero is a comprehensive educational advocacy platform that empowers parents of children with special needs and connects them with certified advocates.
+
+Key Features:
+• AI-powered IEP document analysis and insights
+• Comprehensive document management and organization
+• Meeting preparation tools and templates
+• Specialized resources for autism and gifted learners
+• Professional advocacy tools for certified advocates
+• Secure messaging between parents and advocates
+• Progress tracking and reporting capabilities
+• 504 Plan building and management tools
+
+This beta version includes all core functionality with mobile-optimized features including camera integration for document capture, push notifications for important updates, and offline support for accessing key information without internet connectivity.
+
+What's New in This Build:
+• Native iOS app with full offline support
+• Camera integration for document capture
+• Push notifications for meeting reminders
+• Enhanced mobile user interface
+• Improved performance and stability
+
+Please test core workflows including account creation, document upload, and key feature navigation. Report any issues through TestFlight feedback or beta@myiephero.com.
+
+Privacy Note: This app processes educational documents and personal information. All data is encrypted and stored securely. Beta testing data should use anonymized or test information only.

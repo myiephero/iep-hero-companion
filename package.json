@@ -23,19 +23,10 @@
     "ios:build:testflight": "./ios/build-scripts/build-testflight.sh",
     "ios:build:dev": "npm run build && npx cap sync ios",
     "ios:build:prod": "npm run build && npx cap sync ios && npm run ios:build:testflight",
-    "ios:prepare": "npx cap sync ios && cd ios/App && pod install",
-    "android:build:aab": "./scripts/android/build-aab.sh",
-    "android:build:aab:debug": "./scripts/android/build-aab.sh --debug",
-    "android:build:apk": "./scripts/android/build-apk.sh",
-    "android:build:apk:release": "./scripts/android/build-apk.sh --release",
-    "android:keystore:generate": "./android/keystore/generate-keystore.sh",
-    "android:upload:guide": "./scripts/android/upload-to-play-console.sh",
-    "android:build:prod": "npm run build && ./scripts/android/build-aab.sh",
-    "android:build:all": "npm run android:build:apk && npm run android:build:aab"
+    "ios:prepare": "npx cap sync ios && cd ios/App && pod install"
   },
   "dependencies": {
     "@capacitor/android": "^7.4.3",
-    "@capacitor/browser": "^7.0.2",
     "@capacitor/camera": "^7.0.2",
     "@capacitor/cli": "^7.4.3",
     "@capacitor/core": "^7.4.3",
@@ -119,7 +110,6 @@
     "stripe": "^18.5.0",
     "tailwind-merge": "^2.6.0",
     "tailwindcss-animate": "^1.0.7",
-    "terser": "^5.44.0",
     "vaul": "^0.9.9",
     "ws": "^8.18.3",
     "zod": "^3.25.76"

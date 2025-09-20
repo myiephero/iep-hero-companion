@@ -99,9 +99,49 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
           }
         }
         
-        // 🔧 TOKEN-ONLY AUTH: Skip Replit Auth entirely, use only tokens
+        // If no stored token, check for Replit Auth session
         if (!token) {
-          console.log('❌ useAuth: No auth token found - user not authenticated');
+          console.log('🔍 useAuth: No stored token, checking Replit Auth session...');
+          try {
+            const authResponse = await fetch('/api/auth/me', {
+              credentials: 'include',
+              headers: {
+                // 🔒 SECURITY FIX: Add cache-busting to prevent stale responses
+                'Cache-Control': 'no-cache, no-store, must-revalidate',
+                'Pragma': 'no-cache'
+              }
+            });
+            
+            console.log('🔍 useAuth: Auth response status:', authResponse.status);
+            
+            if (authResponse.ok) {
+              const authData = await authResponse.json();
+              console.log('✅ useAuth: Replit Auth session found, response data:', authData);
+              
+              // 🔒 SECURITY FIX: Validate auth token before storing
+              if (authData.authToken && authData.user && authData.user.id) {
+                // Verify token format matches expected pattern
+                const tokenParts = authData.authToken.split('-');
+                if (tokenParts.length >= 3 && tokenParts[0] === authData.user.id.substring(0, 8)) {
+                  localStorage.setItem('authToken', authData.authToken);
+                  token = authData.authToken;
+                  console.log('✅ useAuth: Validated and stored auth token:', `${authData.authToken.substring(0,20)}...`);
+                } else {
+                  console.log('⚠️ useAuth: Token validation failed - token does not match user ID');
+                  clearContaminatedStorage();
+                }
+              } else {
+                console.log('⚠️ useAuth: No valid authToken or user data in response');
+              }
+            } else {
+              console.log('❌ useAuth: No Replit Auth session found, status:', authResponse.status);
+            }
+          } catch (error) {
+            console.log('❌ useAuth: Error checking Replit Auth session:', error);
+          }
+        }
+        
+        if (!token) {
           setUser(null);
           setProfile(null);
           setLoading(false);
@@ -111,8 +151,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
         const response = await fetch('/api/auth/user', {
           credentials: 'include',
           headers: {
-            'Authorization': `Bearer ${token}`,
-            'Content-Type': 'application/json'
+            Authorization: `Bearer ${token}`,
           }
         });
         
@@ -185,14 +224,9 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
               correctDashboardPath = '/'; // Fallback for unknown roles
             }
             
-            // Redirect scenarios (EXCLUDE homepage - let users stay on /)
-            // CRITICAL FIX: Never redirect users away from the homepage
-            if (currentPath === '/' || currentPath === '/index.html') {
-              // Users on homepage can stay there - no automatic redirect
-              console.log('✅ User on homepage - skipping automatic redirect');
-              return; // CRITICAL: Return early to prevent any other redirects
-            } else if (currentPath === '/auth' || currentPath === '/onboarding') {
-              // Post-authentication/onboarding redirect (but NOT from homepage)
+            // Redirect scenarios
+            if (currentPath === '/auth' || currentPath === '/onboarding' || currentPath === '/') {
+              // Post-authentication/onboarding redirect
               window.location.href = correctDashboardPath;
             } else if (userData.role === 'parent') {
               // Handle parent dashboard redirections

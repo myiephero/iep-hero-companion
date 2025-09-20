@@ -1,0 +1,148 @@
+{
+  "notification_channels": {
+    "iep_reminders": {
+      "id": "iep-reminders",
+      "name": "IEP Meeting Reminders",
+      "description": "Important reminders about upcoming IEP meetings and deadlines",
+      "importance": "HIGH",
+      "sound": true,
+      "vibration": true,
+      "light": true,
+      "badge": true,
+      "lockscreen_visibility": "PUBLIC",
+      "category": "REMINDER",
+      "color": "#0066CC",
+      "icon": "ic_notification_iep"
+    },
+    
+    "meeting_notifications": {
+      "id": "meeting-notifications", 
+      "name": "Meeting Notifications",
+      "description": "Notifications about IEP meetings, changes, and updates",
+      "importance": "HIGH",
+      "sound": true,
+      "vibration": true,
+      "light": true,
+      "badge": true,
+      "lockscreen_visibility": "PUBLIC",
+      "category": "EVENT",
+      "color": "#0066CC",
+      "icon": "ic_notification_meeting"
+    },
+    
+    "document_updates": {
+      "id": "document-updates",
+      "name": "Document Updates", 
+      "description": "Notifications about IEP document changes and reviews",
+      "importance": "DEFAULT",
+      "sound": false,
+      "vibration": false,
+      "light": true,
+      "badge": true,
+      "lockscreen_visibility": "PRIVATE",
+      "category": "STATUS",
+      "color": "#0066CC",
+      "icon": "ic_notification_document"
+    },
+    
+    "educational_content": {
+      "id": "educational-content",
+      "name": "Educational Content",
+      "description": "New educational resources and advocacy tips",
+      "importance": "LOW",
+      "sound": false,
+      "vibration": false,
+      "light": false,
+      "badge": true,
+      "lockscreen_visibility": "PUBLIC",
+      "category": "RECOMMENDATION",
+      "color": "#4CAF50",
+      "icon": "ic_notification_education"
+    },
+    
+    "advocacy_tools": {
+      "id": "advocacy-tools",
+      "name": "Advocacy Tool Updates",
+      "description": "Updates about new advocacy tools and features",
+      "importance": "LOW",
+      "sound": false,
+      "vibration": false,
+      "light": false,
+      "badge": true,
+      "lockscreen_visibility": "PUBLIC",
+      "category": "SERVICE",
+      "color": "#FF9800",
+      "icon": "ic_notification_tools"
+    },
+    
+    "emergency_notifications": {
+      "id": "emergency-notifications",
+      "name": "Emergency Notifications",
+      "description": "Critical alerts about IEP rights and advocacy issues",
+      "importance": "URGENT",
+      "sound": true,
+      "vibration": true,
+      "light": true,
+      "badge": true,
+      "lockscreen_visibility": "PUBLIC",
+      "category": "ALARM",
+      "color": "#F44336",
+      "icon": "ic_notification_emergency"
+    }
+  },
+  
+  "notification_topics": {
+    "all_users": {
+      "topic": "all-users",
+      "description": "General announcements for all app users"
+    },
+    "parents": {
+      "topic": "parents", 
+      "description": "Content specifically for parents"
+    },
+    "advocates": {
+      "topic": "advocates",
+      "description": "Content for educational advocates"
+    },
+    "premium_users": {
+      "topic": "premium-users",
+      "description": "Updates for premium plan subscribers"
+    },
+    "regional_updates": {
+      "topic": "regional-{state_code}",
+      "description": "State-specific educational law updates"
+    }
+  },
+  
+  "educational_compliance": {
+    "coppa_compliance": true,
+    "ferpa_compliance": true,
+    "privacy_controls": {
+      "parental_consent_required": false,
+      "opt_in_required": true,
+      "easy_unsubscribe": true,
+      "data_minimization": true
+    },
+    "content_guidelines": {
+      "no_personal_student_info": true,
+      "generic_messaging_only": true,
+      "educational_focus": true,
+      "professional_tone": true
+    }
+  },
+  
+  "testing_configuration": {
+    "development": {
+      "firebase_project": "myiephero-dev",
+      "test_tokens": "Use Firebase Console for testing"
+    },
+    "staging": {
+      "firebase_project": "myiephero-staging",
+      "test_groups": ["internal-testers", "beta-users"]
+    },
+    "production": {
+      "firebase_project": "myiephero-prod",
+      "rollout_strategy": "gradual_rollout"
+    }
+  }
+}

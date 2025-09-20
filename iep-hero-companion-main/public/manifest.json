@@ -1,0 +1,185 @@
+{
+  "name": "My IEP Hero - Educational Advocacy Platform",
+  "short_name": "IEP Hero",
+  "description": "Empowering parents with AI-powered IEP analysis, expert advocates, and comprehensive support tools for special education success.",
+  "start_url": "/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "theme_color": "#2563eb",
+  "background_color": "#ffffff",
+  "scope": "/",
+  "lang": "en-US",
+  "categories": ["education", "productivity", "utilities"],
+  "prefer_related_applications": false,
+  
+  "icons": [
+    {
+      "src": "/favicon.png",
+      "sizes": "32x32",
+      "type": "image/png"
+    },
+    {
+      "src": "/favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/superhero-icon-1757881228.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  
+  "screenshots": [
+    {
+      "src": "/superhero-icon-1757881228.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "form_factor": "wide",
+      "label": "My IEP Hero Dashboard"
+    }
+  ],
+  
+  "features": [
+    "offline-storage",
+    "background-sync",
+    "push-notifications",
+    "camera-access",
+    "file-upload"
+  ],
+  
+  "capabilities": [
+    "cross-origin-isolated"
+  ],
+  
+  "offline": {
+    "cache_strategy": "network-first",
+    "fallback_pages": ["/offline.html"],
+    "cached_resources": [
+      "/",
+      "/auth",
+      "/parent/dashboard-free",
+      "/parent/dashboard-essential", 
+      "/parent/dashboard-premium",
+      "/parent/dashboard-hero",
+      "/advocate/dashboard-starter",
+      "/advocate/dashboard-pro",
+      "/advocate/dashboard-agency",
+      "/parent/students",
+      "/advocate/students",
+      "/document-vault",
+      "/goal-generator",
+      "/parent/messages",
+      "/advocate/messages"
+    ]
+  },
+  
+  "share_target": {
+    "action": "/document-vault",
+    "method": "POST",
+    "enctype": "multipart/form-data",
+    "params": {
+      "title": "title",
+      "text": "text",
+      "url": "url",
+      "files": [
+        {
+          "name": "document",
+          "accept": [
+            "application/pdf",
+            "image/*",
+            "text/*",
+            ".doc",
+            ".docx"
+          ]
+        }
+      ]
+    }
+  },
+  
+  "protocol_handlers": [
+    {
+      "protocol": "web+iephero",
+      "url": "/?action=%s"
+    }
+  ],
+  
+  "shortcuts": [
+    {
+      "name": "View Students",
+      "short_name": "Students",
+      "description": "View and manage student profiles",
+      "url": "/parent/students",
+      "icons": [
+        {
+          "src": "/favicon.png",
+          "sizes": "32x32"
+        }
+      ]
+    },
+    {
+      "name": "Document Vault",
+      "short_name": "Documents",
+      "description": "Access your document vault",
+      "url": "/document-vault",
+      "icons": [
+        {
+          "src": "/favicon.png",
+          "sizes": "32x32"
+        }
+      ]
+    },
+    {
+      "name": "Messages",
+      "short_name": "Messages",
+      "description": "View messages and communications",
+      "url": "/parent/messages",
+      "icons": [
+        {
+          "src": "/favicon.png",
+          "sizes": "32x32"
+        }
+      ]
+    },
+    {
+      "name": "Goals",
+      "short_name": "Goals",
+      "description": "Track IEP goals and progress",
+      "url": "/goal-generator",
+      "icons": [
+        {
+          "src": "/favicon.png",
+          "sizes": "32x32"
+        }
+      ]
+    }
+  ],
+  
+  "related_applications": [
+    {
+      "platform": "play",
+      "url": "https://play.google.com/store/apps/details?id=com.myiephero.app",
+      "id": "com.myiephero.app"
+    },
+    {
+      "platform": "itunes",
+      "url": "https://apps.apple.com/app/my-iep-hero/id123456789",
+      "id": "123456789"
+    }
+  ],
+  
+  "file_handlers": [
+    {
+      "action": "/document-vault",
+      "accept": {
+        "application/pdf": [".pdf"],
+        "application/msword": [".doc"],
+        "application/vnd.openxmlformats-officedocument.wordprocessingml.document": [".docx"],
+        "text/plain": [".txt"],
+        "image/*": [".jpg", ".jpeg", ".png", ".gif", ".webp"]
+      }
+    }
+  ]
+}

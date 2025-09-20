@@ -5424,15 +5424,13 @@ Respond with this exact JSON format:
   });
 
   // Development vs Production handling for non-API routes
-  // Force production mode to serve static files instead of proxying
-  const isProduction = true; // process.env.NODE_ENV === 'production';
+  const isProduction = process.env.NODE_ENV === 'production';
   
   if (isProduction) {
-    // Production: serve static files from apps/desktop/dist/ (the actual desktop app)
-    const desktopDistPath = path.join(__dirname, '../apps/desktop/dist');
-    app.use(express.static(desktopDistPath));
+    // Production: serve static files from dist/
+    app.use(express.static(path.join(__dirname, '../dist')));
     app.get(/^(?!\/api).*/, (req, res) => {
-      res.sendFile(path.join(desktopDistPath, 'index.html'));
+      res.sendFile(path.join(__dirname, '../dist/index.html'));
     });
   } else {
     // Development: Create single proxy instance at startup to forward to Vite dev server

@@ -16,13 +16,7 @@ export function ProtectedRoute({ children, allowedRoles, redirectTo = "/auth", r
   const { user, profile, loading } = useAuth();
   const location = useLocation();
   
-  console.log('🛡️ ProtectedRoute check:', {
-    path: location.pathname,
-    loading,
-    hasUser: !!user,
-    userEmail: user?.email,
-    userRole: user?.role
-  });
+  // Remove debug logging to reduce noise
 
   // Derive role consistently before any early returns
   const sessionRole = getRole();
@@ -46,9 +40,8 @@ export function ProtectedRoute({ children, allowedRoles, redirectTo = "/auth", r
     );
   }
 
-  // Auth guard
+  // Auth guard - simple redirect without logging
   if (!user) {
-    console.log('🚨 ProtectedRoute: No user found, redirecting to:', redirectTo);
     return <Navigate to={redirectTo} state={{ from: location }} replace />;
   }
 

@@ -103,34 +103,21 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
         
         // If no stored token, check for Replit Auth session
         if (!token) {
-          console.log('🔍 useAuth: No stored token, checking Replit Auth session...');
+          // Check Replit Auth session silently
           try {
             const authResponse = await fetch('/api/auth/me', {
               credentials: 'include',
               headers: {
-                // 🔒 SECURITY FIX: Add cache-busting to prevent stale responses
                 'Cache-Control': 'no-cache, no-store, must-revalidate',
                 'Pragma': 'no-cache'
               }
             });
             
-            console.log('🔍 useAuth: Auth response status:', authResponse.status);
-            
-            // Handle 401/403 immediately - user not authenticated
+            // Handle auth failure - let ProtectedRoute handle redirects
             if (authResponse.status === 401 || authResponse.status === 403) {
-              console.log('🚫 Authentication failed - no valid session');
               setUser(null);
               setProfile(null);
               setLoading(false);
-              
-              // Redirect to auth if on protected route
-              const isProtectedRoute = !currentPath.includes('/pricing') && 
-                                     currentPath !== '/' && 
-                                     currentPath !== '/auth';
-              if (isProtectedRoute) {
-                console.log('🔄 Redirecting to login from protected route:', currentPath);
-                navigate('/auth', { replace: true });
-              }
               return;
             }
             
@@ -195,79 +182,16 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
               setProfile(null);
               setLoading(false);
               
-              // Redirect to login to force re-authentication
-              navigate('/auth', { replace: true });
+              // Let ProtectedRoute handle redirects - don't redirect from here
               return;
             } else {
               console.log('✅ Token ownership validated - user ID matches');
             }
           }
           
+          // Store user data - let ProtectedRoute handle all redirects
           setUser(userData);
           setProfile(userData);
-          
-          // Check if this is a new user without a role/subscription
-          // If so, redirect to onboarding
-          if (userData && !userData.role && !userData.subscriptionStatus && !userData.subscriptionPlan) {
-            // This is a new user who just authenticated but hasn't completed onboarding
-            const currentPath = window.location.pathname;
-            if (!currentPath.includes('/onboarding') && !currentPath.includes('/subscribe')) {
-              navigate('/onboarding', { replace: true });
-            }
-          } else if (userData && userData.role) {
-            // User has a role - handle plan-specific routing
-            const currentPath = window.location.pathname;
-            
-            // Define all supported plans
-            const supportedParentPlans = ['free', 'basic', 'plus', 'explorer', 'premium', 'hero'];
-            const supportedAdvocatePlans = ['starter', 'pro', 'agency', 'agency-plus'];
-            
-            // Generate correct dashboard path based on role and plan
-            let correctDashboardPath;
-            if (userData.role === 'parent') {
-              const planSlug = userData.subscriptionPlan?.toLowerCase().replace(/\s+/g, '') || 'free';
-              const normalizedPlan = supportedParentPlans.includes(planSlug) ? planSlug : 'free';
-              correctDashboardPath = `/parent/dashboard-${normalizedPlan}`;
-            } else if (userData.role === 'advocate') {
-              // Map advocate subscription plans to dashboard routes
-              const advocatePlanMapping = {
-                'starter': 'starter',
-                'pro': 'pro',
-                'agency': 'agency', 
-                'agency plus': 'agency-plus',
-                'agencyplus': 'agency-plus'
-              };
-              const planKey = userData.subscriptionPlan?.toLowerCase() || 'starter';
-              const planSlug = advocatePlanMapping[planKey] || 'starter';
-              correctDashboardPath = `/advocate/dashboard-${planSlug}`;
-            } else {
-              correctDashboardPath = '/'; // Fallback for unknown roles
-            }
-            
-            // Redirect scenarios
-            if (currentPath === '/auth' || currentPath === '/onboarding' || currentPath === '/') {
-              // Post-authentication/onboarding redirect
-              navigate(correctDashboardPath, { replace: true });
-            } else if (userData.role === 'parent') {
-              // Handle parent dashboard redirections
-              const isOnGenericDashboard = currentPath === '/parent/dashboard';
-              const isOnWrongPlanDashboard = currentPath.startsWith('/parent/dashboard-') && 
-                                           currentPath !== correctDashboardPath;
-              
-              if (isOnGenericDashboard || isOnWrongPlanDashboard) {
-                navigate(correctDashboardPath, { replace: true });
-              }
-            } else if (userData.role === 'advocate') {
-              // Handle advocate dashboard redirections - NO GENERIC DASHBOARDS ALLOWED
-              const isOnWrongRoleDashboard = currentPath.startsWith('/parent/dashboard');
-              const isOnWrongPlanDashboard = currentPath.startsWith('/advocate/dashboard-') && 
-                                           currentPath !== correctDashboardPath;
-              
-              if (isOnWrongRoleDashboard || isOnWrongPlanDashboard) {
-                navigate(correctDashboardPath, { replace: true });
-              }
-            }
-          }
         } else if (response.status === 401) {
           // Token is expired or invalid
           console.log('🚫 Authentication failed - clearing expired token');
@@ -275,15 +199,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
           setUser(null);
           setProfile(null);
           
-          // Only redirect to login if we're on a protected route
-          const currentPath = window.location.pathname;
-          const publicPaths = ['/parent/pricing', '/advocate/pricing', '/', '/auth', '/login'];
-          const isProtectedRoute = !publicPaths.some(path => currentPath === path || currentPath.includes(path));
-          
-          if (isProtectedRoute) {
-            console.log('🔄 Redirecting to login due to expired authentication');
-            navigate('/auth', { replace: true });
-          }
+          // Let ProtectedRoute handle redirects
         } else {
           // Other error - clear auth state but don't redirect
           setUser(null);
@@ -334,8 +250,6 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
       
       if (response.ok) {
         const userData = await response.json();
-        setUser(userData);
-        setProfile(userData);
       }
     } catch (error) {
       console.error('Failed to refresh user:', error);

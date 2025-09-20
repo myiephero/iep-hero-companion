@@ -25,13 +25,13 @@ args = "My IEP Hero Desktop"
 name = "My IEP Hero Desktop"
 author = "agent"
 
-[[workflows.workflow.tasks]]
-task = "shell.exec"
-args = "npm run dev"
-waitForPort = 5000
-
 [workflows.workflow.metadata]
 outputType = "webview"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "NODE_ENV=production npm run server"
+waitForPort = 5000
 
 [[ports]]
 localPort = 3000
@@ -46,20 +46,16 @@ localPort = 5000
 externalPort = 80
 
 [[ports]]
-localPort = 8080
-externalPort = 8099
-
-[[ports]]
-localPort = 33247
-externalPort = 6000
-
-[[ports]]
 localPort = 33393
 externalPort = 3000
 
 [[ports]]
 localPort = 33923
 externalPort = 6800
+
+[[ports]]
+localPort = 34123
+externalPort = 6000
 
 [[ports]]
 localPort = 34211

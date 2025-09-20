@@ -5572,8 +5572,7 @@ Respond with this exact JSON format:
     });
   });
 
-  app.get('/m', serveDesktopApp);
-  app.get('/m/', serveDesktopApp);
+  // Removed specific /m handlers - let SPA fallback handle all routing with visual badges
   
   
   // Service worker clearing endpoint
@@ -5664,13 +5663,17 @@ Respond with this exact JSON format:
   
   // SPA fallback middleware - handles both mobile and desktop routing
   app.use((req, res, next) => {
+    console.log(`🔍 SPA FALLBACK: Processing path: ${req.path}`);
+    
     // Skip API routes - let them be handled normally
     if (req.path.startsWith('/api')) {
+      console.log(`⚡ Skipping API route: ${req.path}`);
       return next();
     }
     
     // Skip static assets
     if (req.path.match(/\.(js|css|png|jpg|jpeg|gif|ico|svg|woff|woff2|ttf|eot|html)$/)) {
+      console.log(`📁 Skipping static asset: ${req.path}`);
       return next();
     }
     

@@ -1,0 +1,14 @@
+tree 76f69df677ebb96ff16d04d39a7e724547421a1e
+parent 6915918ca4a72a2c973b7cff9d285f73261efc3b
+parent 6ba13a13b286c452df5cfd615a610d38c16ff13d
+author myiephero <45810700-myiephero@users.noreply.replit.com> 1756696395 +0000
+committer myiephero <45810700-myiephero@users.noreply.replit.com> 1756696395 +0000
+
+Reorder integrations for the Replit environment
+
+Reorder integrations in the .replit file to optimize build or execution order.
+
+Replit-Commit-Author: Agent
+Replit-Commit-Session-Id: 5d835d75-8438-4ae9-9988-42d0f1da6917
+Replit-Commit-Checkpoint-Type: full_checkpoint
+Replit-Commit-Screenshot-Url: https://storage.googleapis.com/screenshot-production-us-central1/afd4ab41-fa60-4e78-9742-69bb4e3004d6/5d835d75-8438-4ae9-9988-42d0f1da6917/t2o1XvV

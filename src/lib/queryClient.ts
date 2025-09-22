@@ -43,24 +43,9 @@ export async function apiRequest(
   const token = localStorage.getItem('authToken');
   console.log('🚨 APIQUEST TOKEN CHECK:', token ? `FOUND: ${token.substring(0,20)}...` : 'MISSING - No token in localStorage');
   
-  // If no token, try to get fresh token from auth endpoint
+  // If no token, user needs to login (don't call problematic /api/auth/me)
   if (!token) {
-    console.log('🚨 APIQUEST: No token found, attempting to retrieve from auth session...');
-    try {
-      const authResponse = await fetch('/api/auth/me', {
-        credentials: 'include'
-      });
-      
-      if (authResponse.ok) {
-        const authData = await authResponse.json();
-        if (authData.authToken) {
-          localStorage.setItem('authToken', authData.authToken);
-          console.log('🚨 APIQUEST: Fresh token retrieved and stored');
-        }
-      }
-    } catch (authError) {
-      console.log('🚨 APIQUEST: Failed to get fresh token:', authError);
-    }
+    console.log('🚨 APIQUEST: No token found - user needs to login');
   }
   
   // Re-check token after potential refresh

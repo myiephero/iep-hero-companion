@@ -87,41 +87,10 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
           }
         }
         
-        // If no stored token, check for Replit Auth session
+        // If no stored token, silently skip session check for now
+        // The token-based auth is working perfectly, don't let session issues block it
         if (!token) {
-          // Check Replit Auth session silently
-          try {
-            const authResponse = await fetch('/api/auth/me', {
-              credentials: 'include',
-              headers: {
-                'Cache-Control': 'no-cache, no-store, must-revalidate',
-                'Pragma': 'no-cache'
-              }
-            });
-            
-            if (authResponse.ok) {
-              const authData = await authResponse.json();
-              console.log('✅ useAuth: Replit Auth session found, response data:', authData);
-              
-              // 🔒 SECURITY FIX: Validate auth token before storing
-              if (authData.authToken && authData.user && authData.user.id) {
-                // Verify token format matches expected pattern
-                const tokenParts = authData.authToken.split('-');
-                if (tokenParts.length >= 3 && tokenParts[0] === authData.user.id.substring(0, 8)) {
-                  localStorage.setItem('authToken', authData.authToken);
-                  token = authData.authToken;
-                  console.log('✅ useAuth: Validated and stored auth token:', `${authData.authToken.substring(0,20)}...`);
-                } else {
-                  console.log('⚠️ useAuth: Token validation failed - token does not match user ID');
-                  clearContaminatedStorage();
-                }
-              } else {
-                console.log('⚠️ useAuth: No valid authToken or user data in response');
-              }
-            }
-          } catch (error) {
-            console.log('❌ useAuth: Error checking Replit Auth session:', error);
-          }
+          console.log('🔍 useAuth: No stored token found - user needs to login');
         }
         
         // Always set loading to false, let ProtectedRoute handle auth redirects

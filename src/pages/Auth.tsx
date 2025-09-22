@@ -41,9 +41,8 @@ const Auth = () => {
           description: "Redirecting to your dashboard...",
         });
         
-        // Use the redirectTo URL from server response (plan-specific dashboard)
-        const redirectTo = data.redirectTo || '/parent/dashboard-hero';
-        navigate(redirectTo, { replace: true });
+        // Redirect directly to unified dashboard 
+        navigate('/dashboard', { replace: true });
       } else {
         const data = await response.json();
         toast({

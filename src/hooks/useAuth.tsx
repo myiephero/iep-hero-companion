@@ -158,6 +158,29 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     };
 
     checkAuth();
+
+    // Listen for storage events to detect when token is set/removed
+    const handleStorageChange = (e: StorageEvent) => {
+      if (e.key === 'authToken') {
+        console.log('🔄 useAuth: Auth token changed, re-checking authentication');
+        checkAuth();
+      }
+    };
+
+    window.addEventListener('storage', handleStorageChange);
+    
+    // Also listen for custom events from same-page token changes
+    const handleTokenChange = () => {
+      console.log('🔄 useAuth: Token change event detected, re-checking authentication');
+      setTimeout(checkAuth, 50); // Small delay to ensure localStorage is updated
+    };
+
+    window.addEventListener('authTokenChanged', handleTokenChange);
+
+    return () => {
+      window.removeEventListener('storage', handleStorageChange);
+      window.removeEventListener('authTokenChanged', handleTokenChange);
+    };
   }, []);
 
   const signOut = async () => {

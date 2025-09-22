@@ -63,8 +63,14 @@ const Index = () => {
         const { token, user: userData } = await response.json();
         localStorage.setItem('authToken', token);
         
-        // Redirect directly to unified dashboard 
-        navigate('/dashboard', { replace: true });
+        // Trigger auth token change event for same-page updates
+        window.dispatchEvent(new Event('authTokenChanged'));
+        
+        // Give the auth context time to update before navigating
+        // This prevents the race condition where ProtectedRoute redirects to /auth
+        setTimeout(() => {
+          navigate('/dashboard', { replace: true });
+        }, 200);
       } else {
         const errorData = await response.json();
         alert(errorData.message || 'Login failed');

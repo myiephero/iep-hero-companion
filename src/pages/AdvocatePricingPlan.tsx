@@ -180,7 +180,7 @@ const AdvocatePricingPlan = () => {
       description: 'Complete advocacy practice solution',
       toolCount: 'ALL 40+ Professional Tools + Enterprise',
       setupFee: 495,
-      annualPrice: 199, // Monthly rate when paid annually + setup fee ($2,388/year = $199/month)
+      annualPrice: 199, // Monthly rate when paid annually ($2,388/year = $199/month)
       features: [
         'Everything in Pro',
         'Priority Client Matching & Premium Leads',
@@ -203,6 +203,10 @@ const AdvocatePricingPlan = () => {
         'Custom integrations & API access (Coming Soon)',
         'Professional training hub access (Coming Soon)',
         'Crisis intervention planning tools (Coming Soon)'
+      ],
+      annualBenefits: [
+        '💰 $495 Setup Fee Waived (Annual Only)',
+        '💵 Save $600/year vs Monthly Billing'
       ],
       limitations: [],
       icon: <Crown className="h-6 w-6" />,
@@ -322,7 +326,8 @@ const AdvocatePricingPlan = () => {
               <div className="inline-flex items-center px-6 py-3 bg-muted/50 rounded-lg">
                 <Users className="h-4 w-4 mr-2 text-muted-foreground" />
                 <span className="text-sm text-muted-foreground">
-                  <strong>Agency Extra Seats:</strong> $39/month each - Flexible expansion for larger teams
+                  <strong>Agency Extra Seats:</strong> $39/month each {isAnnual ? '• ' : ''}
+                  {isAnnual && <span className="text-green-400 font-medium">$495 Setup Fee Waived on Annual Plans</span>}
                 </span>
               </div>
             </div>
@@ -381,6 +386,11 @@ const AdvocatePricingPlan = () => {
                           + ${getPriceForPlan(tier, isAnnual).setupFee} setup fee
                         </div>
                       )}
+                      {tier.id === 'agency' && isAnnual && tier.setupFee && (
+                        <div className="text-xs text-green-400 font-medium mt-1 flex items-center gap-1">
+                          ✨ $495 Setup Fee Waived
+                        </div>
+                      )}
                     </div>
                   </CardHeader>
                   
@@ -401,6 +411,23 @@ const AdvocatePricingPlan = () => {
                         </li>
                       ))}
                     </ul>
+                    
+                    {/* Show Agency Annual Benefits */}
+                    {tier.id === 'agency' && isAnnual && tier.annualBenefits && (
+                      <div className="border border-green-400/30 bg-green-500/10 rounded-lg p-3 mt-4">
+                        <p className="text-sm font-medium text-green-400 mb-2">Annual Plan Benefits:</p>
+                        <ul className="space-y-2">
+                          {tier.annualBenefits.map((benefit, index) => (
+                            <li key={index} className="flex items-start gap-2">
+                              <span className="text-green-400 mt-0.5 flex-shrink-0">✨</span>
+                              <span className="text-sm text-green-300 font-medium">
+                                {benefit}
+                              </span>
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                    )}
                     
                     {tier.limitations && tier.limitations.length > 0 && (
                       <div className="border-t border-border pt-4">

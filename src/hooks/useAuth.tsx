@@ -190,12 +190,14 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
       const response = await fetch('/api/auth/user', {
         credentials: 'include',
         headers: {
-          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`,
         },
       });
       
       if (response.ok) {
         const userData = await response.json();
+        setUser(userData);
+        setProfile(userData);
       }
     } catch (error) {
       console.error('Failed to refresh user:', error);

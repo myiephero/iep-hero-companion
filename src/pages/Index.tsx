@@ -60,11 +60,11 @@ const Index = () => {
       });
 
       if (response.ok) {
-        const { token, user: userData, redirectTo } = await response.json();
+        const { token, user: userData } = await response.json();
         localStorage.setItem('authToken', token);
         
-        // Use the redirectTo URL from server response (plan-specific dashboard)
-        navigate(redirectTo, { replace: true });
+        // Redirect directly to unified dashboard 
+        navigate('/dashboard', { replace: true });
       } else {
         const errorData = await response.json();
         alert(errorData.message || 'Login failed');

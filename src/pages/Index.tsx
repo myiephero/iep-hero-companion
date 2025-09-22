@@ -103,7 +103,7 @@ const Index = () => {
               <div className="space-y-6">
                 {user ? (
                   // User is logged in
-                  <div className="text-center">
+                  <div className="text-center space-y-4">
                     <Button 
                       variant="default"
                       size="lg"
@@ -136,6 +136,48 @@ const Index = () => {
                       Go to {user.role === 'parent' ? 'Parent' : 'Advocate'} Dashboard 
                       <ArrowRight className="ml-2 h-5 w-5" />
                     </Button>
+                    
+                    {/* Logout Button for Testing */}
+                    <div>
+                      <Button 
+                        variant="outline"
+                        size="sm"
+                        onClick={async () => {
+                          console.log('🚪 FORCING COMPLETE LOGOUT');
+                          
+                          // Clear all possible localStorage items
+                          localStorage.clear();
+                          
+                          // Clear sessionStorage  
+                          sessionStorage.clear();
+                          
+                          // Clear all cookies
+                          document.cookie.split(";").forEach((c) => {
+                            const eqPos = c.indexOf("=");
+                            const name = eqPos > -1 ? c.substr(0, eqPos) : c;
+                            document.cookie = name + "=;expires=Thu, 01 Jan 1970 00:00:00 GMT;path=/;";
+                            document.cookie = name + "=;expires=Thu, 01 Jan 1970 00:00:00 GMT;path=/;domain=" + window.location.hostname + ";";
+                            document.cookie = name + "=;expires=Thu, 01 Jan 1970 00:00:00 GMT;path=/;domain=." + window.location.hostname + ";";
+                          });
+                          
+                          // Call server logout
+                          try {
+                            await fetch('/api/logout', { 
+                              method: 'POST',
+                              credentials: 'include' 
+                            });
+                          } catch (error) {
+                            console.log('Server logout failed, but continuing...');
+                          }
+                          
+                          // Force reload to clear all state
+                          window.location.href = '/';
+                        }}
+                        data-testid="button-logout"
+                      >
+                        Start Fresh (Logout)
+                      </Button>
+                    </div>
                   </div>
                 ) : (
                   // User not logged in

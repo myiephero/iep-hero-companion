@@ -1430,6 +1430,7 @@ app.post('/api/create-checkout-session', async (req, res) => {
     const isHeroPackage = planId === 'hero';
     const isAgencyMonthly = planId === 'agency' && !priceId.includes('annual');
     
+    
     let lineItems;
     let discounts = undefined;
     

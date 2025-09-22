@@ -67,7 +67,7 @@ const PARENT_PRICING = [
     icon: <Star className="h-6 w-6" />,
     gradient: 'from-blue-500 to-indigo-600',
     popular: true,
-    priceId: 'price_essential_59_monthly'
+    priceId: 'price_1Rr3gL8iKZXV0srZmfuD32yv'
   },
   {
     id: 'premium',
@@ -96,7 +96,7 @@ const PARENT_PRICING = [
     ],
     icon: <Crown className="h-6 w-6" />,
     gradient: 'from-purple-500 to-purple-600',
-    priceId: 'price_premium_199_monthly'
+    priceId: 'price_1Rr3hR8iKZXV0srZ5lPscs0p'
   },
   {
     id: 'hero',
@@ -119,7 +119,7 @@ const PARENT_PRICING = [
     icon: <Crown className="h-6 w-6" />,
     gradient: 'from-orange-500 to-red-600',
     popular: false,
-    priceId: 'price_hero_249_monthly'
+    priceId: 'price_1S36QJ8iKZXV0srZsrhA6ess'
   },
   {
     id: 'hero-family',

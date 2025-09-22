@@ -54,8 +54,8 @@ export const ADVOCATE_STRIPE_PLANS: Record<string, StripePlanConfig> = {
     features: ['1 advocate seat', '12 tools', 'Basic CRM', 'Email support']
   },
   pro: {
-    priceId: 'price_1Rr3hR8iKZXV0srZ5lPscs0p', // PRODUCTION: Advocate Pro $99/month
-    amount: 99,
+    priceId: 'price_1SABTx8iKZXV0srZSuO53Cyd', // UPDATED: Advocate Pro $149/month
+    amount: 149,
     interval: 'month',
     description: 'AI analysis and professional planning',
     features: ['1 advocate seat', '20+ tools', 'AI analysis', 'Priority support']
@@ -78,11 +78,11 @@ export const ADVOCATE_STRIPE_PLANS: Record<string, StripePlanConfig> = {
     features: ['1 advocate seat', '12 tools', 'Basic CRM', 'Email support', 'Save $120/year']
   },
   'pro-annual': {
-    priceId: 'price_1SABAn8iKZXV0srZnqnkGO6z', // CORRECTED: Advocate Pro Annual $900/year (was charging monthly)
-    amount: 900, // $75 * 12 = $900 (save $288/year vs monthly)
+    priceId: 'price_1SABTx8iKZXV0srZpv7392ce', // UPDATED: Advocate Pro Annual $1,188/year ($99/month equivalent)
+    amount: 1188, // $99 * 12 = $1,188 (save $600/year vs $149*12=$1,788)
     interval: 'year',
     description: 'AI analysis and professional planning (Annual)',
-    features: ['1 advocate seat', '20+ tools', 'AI analysis', 'Priority support', 'Save $288/year']
+    features: ['1 advocate seat', '20+ tools', 'AI analysis', 'Priority support', 'Save $600/year']
   },
   'agency-annual': {
     priceId: 'price_1S6eXl8iKZXV0srZNPTt6cI1', // Advocate Agency Annual $2,388/year

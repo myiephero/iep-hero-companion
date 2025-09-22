@@ -1426,8 +1426,9 @@ app.post('/api/create-checkout-session', async (req, res) => {
     const protocol = currentDomain.includes('localhost') ? 'http' : 'https';
     const baseUrl = `${protocol}://${currentDomain}`;
     
-    // Check if this is Hero Family Pack (hybrid pricing)
+    // Check if this is Hero Family Pack (hybrid pricing) or Agency monthly (with setup fee)
     const isHeroPackage = planId === 'hero';
+    const isAgencyMonthly = planId === 'agency' && !priceId.includes('annual');
     
     let lineItems;
     let discounts = undefined;
@@ -1451,6 +1452,24 @@ app.post('/api/create-checkout-session', async (req, res) => {
       
       // No discounts for Hero plan - pricing is already built in
       // Setup fee charged today, subscription starts after trial period
+    } else if (isAgencyMonthly) {
+      // Agency Monthly: $495 setup fee charged immediately + $249/month subscription
+      console.log('🏢 Creating Agency Monthly session with setup fee and subscription');
+      
+      lineItems = [
+        {
+          price: 'price_1S6c6t8iKZXV0srZkbZYsGxu', // $495 one-time setup fee (charged today)
+          quantity: 1,
+        },
+        {
+          price: priceId, // $249/month recurring subscription (price_1S6c6t8iKZXV0srZDefEOrXY)
+          quantity: 1,
+        }
+      ];
+      
+      console.log('🔍 Agency Monthly lineItems created:', JSON.stringify(lineItems, null, 2));
+      
+      // No discounts for Agency monthly - setup fee charged today, subscription starts immediately
     } else {
       // Standard single price
       lineItems = [{
@@ -1475,7 +1494,8 @@ app.post('/api/create-checkout-session', async (req, res) => {
         planId,
         planName,
         role,
-        ...(isHeroPackage && { setupFee: '495', isHeroPackage: 'true', promotion: 'first_month_free' })
+        ...(isHeroPackage && { setupFee: '495', isHeroPackage: 'true', promotion: 'first_month_free' }),
+        ...(isAgencyMonthly && { setupFee: '495', isAgencyMonthly: 'true', firstPayment: '744' })
       },
       billing_address_collection: 'required'
     };
@@ -1491,15 +1511,28 @@ app.post('/api/create-checkout-session', async (req, res) => {
       };
       
       console.log('🏆 Added subscription_data with 30-day trial for Hero plan');
+    } else if (isAgencyMonthly) {
+      sessionConfig.subscription_data = {
+        metadata: {
+          agency_monthly_plan: 'true',
+          setup_fee_charged: 'true',
+          first_payment_total: '744' // $249 + $495 setup fee
+        }
+      };
+      
+      console.log('🏢 Added subscription_data metadata for Agency monthly plan');
     }
     
     // For Hero Plan, we use trial_period_days instead of discounts
+    // For Agency Monthly, we have setup fee, no promotion codes needed
     // For other plans, allow promotion codes
-    if (!isHeroPackage) {
-      console.log('🎯 Non-hero plan, setting allow_promotion_codes to true');
+    if (!isHeroPackage && !isAgencyMonthly) {
+      console.log('🎯 Standard plan, setting allow_promotion_codes to true');
       sessionConfig.allow_promotion_codes = true;
-    } else {
+    } else if (isHeroPackage) {
       console.log('🎯 Hero plan uses trial period, no promotion codes needed');
+    } else if (isAgencyMonthly) {
+      console.log('🎯 Agency monthly uses setup fee, no promotion codes needed');
     }
     
     console.log('🔍 Final sessionConfig keys:', Object.keys(sessionConfig));

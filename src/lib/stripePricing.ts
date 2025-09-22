@@ -1,4 +1,4 @@
-// Stripe pricing configuration for My IEP Hero platform
+// Stripe pricing configuration for My IEP Hero platform - Updated for testing
 // This file maps all 9 subscription plans to their Stripe price IDs and details
 
 export interface StripePlanConfig {

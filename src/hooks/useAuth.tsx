@@ -87,20 +87,17 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
           }
         }
         
-        // If no stored token, silently skip session check for now
-        // The token-based auth is working perfectly, don't let session issues block it
+        // If no stored token, silently skip session check - DON'T make API calls
+        // This prevents 401 errors that trigger unwanted redirects to /auth
         if (!token) {
-          console.log('🔍 useAuth: No stored token found - user needs to login');
-        }
-        
-        // Always set loading to false, let ProtectedRoute handle auth redirects
-        if (!token) {
+          console.log('🔍 useAuth: No stored token found - skipping auth check for public pages');
           setUser(null);
           setProfile(null);
           setLoading(false);
           return;
         }
         
+        console.log('🔍 useAuth: Token found, validating with server...');
         const response = await fetch('/api/auth/user', {
           credentials: 'include',
           headers: {

@@ -109,10 +109,15 @@ export async function apiRequest(
       if (response.status === 401) {
         console.log('🚨 APIQUEST 401 - CLEARING EXPIRED TOKEN');
         localStorage.removeItem('authToken');
-        // Try to redirect to auth if this is an authentication failure
-        if (typeof window !== 'undefined' && !window.location.pathname.includes('/auth')) {
-          console.log('🚨 APIQUEST 401 - REDIRECTING TO AUTH');
+        // Only redirect to auth from protected pages, NOT from public home page
+        const currentPath = window.location.pathname;
+        const isPublicPage = ['/', '/pricing', '/parent/pricing', '/advocate/pricing'].includes(currentPath);
+        
+        if (typeof window !== 'undefined' && !currentPath.includes('/auth') && !isPublicPage) {
+          console.log('🚨 APIQUEST 401 - REDIRECTING TO AUTH from protected page');
           window.location.href = '/auth';
+        } else if (isPublicPage) {
+          console.log('🔍 APIQUEST 401 - Staying on public page, no redirect needed');
         }
       }
       

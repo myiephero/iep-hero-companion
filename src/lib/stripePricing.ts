@@ -20,21 +20,21 @@ export const PARENT_STRIPE_PLANS: Record<string, StripePlanConfig> = {
     features: ['1 student', '5 core tools', 'Community support', 'IDEA Rights Guide']
   },
   essential: {
-    priceId: 'price_essential_59_monthly', // TODO: Create in Stripe Dashboard
+    priceId: 'price_1Rr3gL8iKZXV0srZmfuD32yv', // Using existing advocate price ID for testing
     amount: 59,
     interval: 'month',
     description: 'AI-powered analysis and comprehensive planning tools',
     features: ['1 student', '30+ tools', 'AI analysis', 'IEP Master Suite', 'Letter generator', 'Priority support']
   },
   premium: {
-    priceId: 'price_premium_199_monthly', // TODO: Create in Stripe Dashboard 
+    priceId: 'price_1Rr3hR8iKZXV0srZ5lPscs0p', // Using existing advocate price ID for testing
     amount: 199,
     interval: 'month',
     description: 'Advanced multi-child support with expert features',
     features: ['3 students', '45+ tools', 'Advanced AI', 'Expert analysis', 'Emotion tracking', 'Phone support']
   },
   hero: {
-    priceId: 'price_hero_249_monthly', // TODO: Create in Stripe Dashboard
+    priceId: 'price_1S36QJ8iKZXV0srZsrhA6ess', // Using existing advocate price ID for testing
     amount: 249,
     interval: 'month',
     description: 'Complete advocacy platform with matching',

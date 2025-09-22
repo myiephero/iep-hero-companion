@@ -78,8 +78,8 @@ export const ADVOCATE_STRIPE_PLANS: Record<string, StripePlanConfig> = {
     features: ['1 advocate seat', '12 tools', 'Basic CRM', 'Email support', 'Save $600/year']
   },
   'pro-annual': {
-    priceId: 'price_1S6eXk8iKZXV0srZk5htFfFP', // Advocate Pro Annual $900/year
-    amount: 900, // $75 * 12 = $900
+    priceId: 'price_1SABAn8iKZXV0srZnqnkGO6z', // CORRECTED: Advocate Pro Annual $900/year (was charging monthly)
+    amount: 900, // $75 * 12 = $900 (save $288/year vs monthly)
     interval: 'year',
     description: 'AI analysis and professional planning (Annual)',
     features: ['1 advocate seat', '20+ tools', 'AI analysis', 'Priority support', 'Save $288/year']

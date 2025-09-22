@@ -1,0 +1,20 @@
+id,Name,Date (UTC),Description,Url,Tax Code,plan_tier (metadata),type (metadata),delivery_time (metadata),features (metadata),category (metadata),plan (metadata),role (metadata)
+prod_T2k1Oj8QbX7ecr,Advocate Agency Plan (Annual),2025-09-12 21:30,Complete advocacy practice solution - Annual billing with savings,,,,,,,,,
+prod_T2k1rIl8TIPmKj,Advocate Pro Plan (Annual),2025-09-12 21:30,AI analysis and professional planning - Annual billing with savings,,,,,,,,,
+prod_T2k1JNPFN2RJ08,Advocate Starter Plan (Annual),2025-09-12 21:30,Essential tools for solo advocates - Annual billing with savings,,,,,,,,,
+advocate-agency-plus,My IEP Hero - Advocate Agency Plus,2025-09-12 18:54,Enterprise solution with unlimited seats and advanced features,,,agency-plus,advocate_subscription,,,,,
+advocate-agency,My IEP Hero - Advocate Agency,2025-09-12 18:54,Complete advocacy practice solution with team collaboration (3 seats),,,agency,advocate_subscription,,,,,
+advocate-pro,My IEP Hero - Advocate Pro,2025-09-12 18:54,Enhanced tools with AI analysis and client matching - Complete advocacy solution,,,pro,advocate_subscription,,,,,
+advocate-starter,My IEP Hero - Advocate Starter,2025-09-12 18:54,Essential tools for solo advocates - Basic client management and IEP tools,,,starter,advocate_subscription,,,,,
+prod_T1Zi6S4CjWZxTN,IEP Compliance Check,2025-09-09 18:47,"Legal compliance and procedural requirements review by certified special education experts. Includes IDEA compliance check, procedural safeguards review, documentation analysis, and rights protection.",,,,expert-review,12-24 hours,"IDEA compliance check,Procedural safeguards review,Documentation analysis,Rights protection",compliance,,
+prod_T1ZiPlV4NZQOEZ,IEP Focused Expert Review,2025-09-09 18:47,"Targeted review of specific areas of concern by certified special education experts. Includes analysis of specific goal areas, targeted recommendations, priority action items, and key compliance issues.",,,,expert-review,24 hours,"Specific goal areas,Targeted recommendations,Priority action items,Key compliance issues",focused,,
+prod_T1ZifwG5XURI4i,IEP Comprehensive Expert Review,2025-09-09 18:47,"Complete IEP analysis covering goals, services, accommodations, and legal compliance by certified special education experts. Includes full goal analysis, service recommendations, accommodation review, legal compliance check, progress monitoring plan, and meeting preparation guide.",,,,expert-review,24-48 hours,"Full goal analysis,Service recommendations,Accommodation review,Legal compliance check,Progress monitoring plan,Meeting preparation guide",comprehensive,,
+prod_SznZr3CnTNxF50,Hero Family Pack Premium Subscription,2025-09-05 00:57, All Premium features + advocate communication hub + unlimited storage + priority support,,,,,,,,,
+prod_Sz4ZUeM9ZT5WA3,Agency+,2025-09-03 02:27,Great for Teams + AI Credits + Training Hub + Premium Support,,,,,,,,,
+prod_SnqU8OF9PI372q,Hero Family Pack Professional Setup,2025-08-04 03:10,"Professional setup (IEP review, strategy call, advocate matching, training)",,,,,,,,,
+prod_SmcyWHzEYUieJO,Advocate Agency,2025-07-31 21:09,Advocate Agency Plan,,,,,,,,agency,advocate
+prod_SmcxRYlzNOsgmq,Advocate Pro,2025-07-31 21:07,Advocate Pro Plan,,,,,,,,pro,advocate
+prod_SmcwDAutQFffU5,Advocate Starter,2025-07-31 21:06,Advocate Starter Plan,,,,,,,,starter,advocate
+prod_SmctaBSSO9nsbc,Parent Premium,2025-07-31 21:04,Parent Premium Plan,,,,,,,,premium,parent
+prod_SmcsKIZkLr1xUs,Parent Plus,2025-07-31 21:02,Parent Plus Plan,,,,,,,,plus,parent
+prod_SmcrtMVtM3cq3t,Parent Basic,2025-07-31 21:01,Parent Basic Plan,,,,,,,,basic,parent

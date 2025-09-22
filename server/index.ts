@@ -31,6 +31,7 @@ const stripe = new Stripe(process.env.STRIPE_SECRET_KEY, {
   apiVersion: "2024-06-20" as any,
 });
 
+
 // Generate simple IDs since we don't have cuid2
 function createId(): string {
   return Date.now().toString(36) + Math.random().toString(36).substr(2);
@@ -648,6 +649,49 @@ app.get('/api/_version', (req, res) => {
     timestamp: new Date().toISOString(),
     environment: process.env.NODE_ENV || 'development'
   });
+});
+
+// Temporary admin endpoint to create correct Stripe prices
+app.post('/api/admin/create-stripe-price', async (req: any, res) => {
+  try {
+    // Authenticate user first
+    const userId = await getUserId(req);
+    if (userId === 'anonymous-user') {
+      return res.status(401).json({ error: 'Authentication required' });
+    }
+
+    console.log('🔧 Creating Stripe price for annual billing...');
+    
+    const { productName, amount, interval, nickname } = req.body;
+    
+    // Create a new price for existing product
+    const price = await stripe.prices.create({
+      unit_amount: amount * 100, // Convert to cents
+      currency: 'usd',
+      recurring: { interval },
+      product_data: {
+        name: productName,
+      },
+      nickname: nickname || `${productName} ${interval}ly`
+    });
+    
+    console.log(`✅ Created Stripe price: ${price.id} for ${productName} at $${amount}/${interval}`);
+    
+    res.json({
+      success: true,
+      priceId: price.id,
+      amount: (price.unit_amount || 0) / 100,
+      interval: price.recurring?.interval,
+      nickname: price.nickname
+    });
+    
+  } catch (error) {
+    console.error('❌ Error creating Stripe price:', error);
+    res.status(500).json({ 
+      error: 'Failed to create Stripe price',
+      message: error instanceof Error ? error.message : 'Unknown error'
+    });
+  }
 });
 
 // Update profile endpoint - SECURE VERSION

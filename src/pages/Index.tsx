@@ -61,16 +61,35 @@ const Index = () => {
 
       if (response.ok) {
         const { token, user: userData } = await response.json();
+        console.log('✅ LOGIN SUCCESS - Token received:', token?.substring(0, 20) + '...');
+        console.log('✅ LOGIN SUCCESS - User data:', userData);
+        
         localStorage.setItem('authToken', token);
         
         // Trigger auth token change event for same-page updates
         window.dispatchEvent(new Event('authTokenChanged'));
         
-        // Give the auth context time to update before navigating
-        // This prevents the race condition where ProtectedRoute redirects to /auth
-        setTimeout(() => {
-          navigate('/dashboard', { replace: true });
-        }, 200);
+        // 🛡️ BULLETPROOF LOGIN: Wait for auth to fully load before navigating
+        console.log('⏱️ LOGIN: Waiting for auth context to fully update...');
+        
+        // Poll for auth context to be ready instead of just waiting
+        let attempts = 0;
+        const maxAttempts = 20; // 2 seconds max
+        
+        const waitForAuth = () => {
+          attempts++;
+          console.log(`🔄 LOGIN: Auth check attempt ${attempts}/${maxAttempts}`);
+          
+          // Check if we're still on the home page and haven't reached max attempts
+          if (window.location.pathname === '/' && attempts < maxAttempts) {
+            setTimeout(waitForAuth, 100);
+          } else {
+            console.log('🚀 LOGIN: Navigating to dashboard after auth ready');
+            navigate('/dashboard', { replace: true });
+          }
+        };
+        
+        setTimeout(waitForAuth, 300); // Start after initial delay
       } else {
         const errorData = await response.json();
         alert(errorData.message || 'Login failed');

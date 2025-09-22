@@ -1,0 +1,27 @@
+Price ID,Product ID,Product Name,Product Statement Descriptor,Product Tax Code,Description,Created (UTC),Amount,Currency,Interval,Interval Count,Usage Type,Aggregate Usage,Billing Scheme,Trial Period Days,Tax Behavior,original_monthly_price (metadata),plan_type (metadata),annual_savings (metadata),monthly_equivalent (metadata),plan_name (metadata),billing_period (metadata),delivery_time (metadata),category (metadata),features (metadata),type (metadata)
+price_1SABAn8iKZXV0srZnqnkGO6z,prod_T6NwbLukPuHYJQ,Advocate Pro Annual Plan,,,Pro Annual - $900/year,2025-09-22 14:57,900.00,usd,year,1,licensed,,per_unit,,unspecified,99,advocate_pro_annual,288,,,,,,,
+price_1S6eXl8iKZXV0srZNPTt6cI1,prod_T2k1Oj8QbX7ecr,Advocate Agency Plan (Annual),,,,2025-09-12 21:30,2388.00,usd,year,1,licensed,,per_unit,,unspecified,,,,,,,,,,
+price_1S6eXk8iKZXV0srZk5htFfFP,prod_T2k1rIl8TIPmKj,Advocate Pro Plan (Annual),,,,2025-09-12 21:30,900.00,usd,year,1,licensed,,per_unit,,unspecified,,,,,,,,,,
+price_1S6eXk8iKZXV0srZYfDQoLE5,prod_T2k1JNPFN2RJ08,Advocate Starter Plan (Annual),,,,2025-09-12 21:30,588.00,usd,year,1,licensed,,per_unit,,unspecified,,,,,,,,,,
+price_1S6c6u8iKZXV0srZk6EnLTIw,advocate-agency-plus,My IEP Hero - Advocate Agency Plus,,,,2025-09-12 18:54,995.00,usd,,,,,per_unit,,unspecified,,,,,advocate-agency-plus,,,,,setup_fee
+price_1S6c6u8iKZXV0srZ5HLbjc2L,advocate-agency-plus,My IEP Hero - Advocate Agency Plus,,,,2025-09-12 18:54,3948.00,usd,year,1,licensed,,per_unit,,unspecified,,,,329,advocate-agency-plus,annual,,,,
+price_1S6c6u8iKZXV0srZXnPPjJp7,advocate-agency-plus,My IEP Hero - Advocate Agency Plus,,,,2025-09-12 18:54,399.00,usd,month,1,licensed,,per_unit,,unspecified,,,,,advocate-agency-plus,monthly,,,,
+price_1S6c6t8iKZXV0srZkbZYsGxu,advocate-agency,My IEP Hero - Advocate Agency,,,,2025-09-12 18:54,495.00,usd,,,,,per_unit,,unspecified,,,,,advocate-agency,,,,,setup_fee
+price_1S6c6t8iKZXV0srZBu8sZgYD,advocate-agency,My IEP Hero - Advocate Agency,,,,2025-09-12 18:54,2388.00,usd,year,1,licensed,,per_unit,,unspecified,,,,199,advocate-agency,annual,,,,
+price_1S6c6t8iKZXV0srZDefEOrXY,advocate-agency,My IEP Hero - Advocate Agency,,,,2025-09-12 18:54,249.00,usd,month,1,licensed,,per_unit,,unspecified,,,,,advocate-agency,monthly,,,,
+price_1S6c6s8iKZXV0srZ0645Yqpi,advocate-pro,My IEP Hero - Advocate Pro,,,,2025-09-12 18:54,780.00,usd,year,1,licensed,,per_unit,,unspecified,,,,65,advocate-pro,annual,,,,
+price_1S6c6s8iKZXV0srZUQl201V9,advocate-pro,My IEP Hero - Advocate Pro,,,,2025-09-12 18:54,75.00,usd,month,1,licensed,,per_unit,,unspecified,,,,,advocate-pro,monthly,,,,
+price_1S6c6r8iKZXV0srZstPTLriI,advocate-starter,My IEP Hero - Advocate Starter,,,,2025-09-12 18:54,468.00,usd,year,1,licensed,,per_unit,,unspecified,,,,39,advocate-starter,annual,,,,
+price_1S6c6r8iKZXV0srZEedxCBJ7,advocate-starter,My IEP Hero - Advocate Starter,,,,2025-09-12 18:54,49.00,usd,month,1,licensed,,per_unit,,unspecified,,,,,advocate-starter,monthly,,,,
+price_1S5WZT8iKZXV0srZGq84lghp,prod_T1Zi6S4CjWZxTN,IEP Compliance Check,,,,2025-09-09 18:47,50.00,usd,,,,,per_unit,,unspecified,,,,,,,12-24 hours,compliance,"IDEA compliance check,Procedural safeguards review,Documentation analysis,Rights protection",expert-review
+price_1S5WZS8iKZXV0srZPOr0AG5k,prod_T1ZiPlV4NZQOEZ,IEP Focused Expert Review,,,,2025-09-09 18:47,75.00,usd,,,,,per_unit,,unspecified,,,,,,,24 hours,focused,"Specific goal areas,Targeted recommendations,Priority action items,Key compliance issues",expert-review
+price_1S5WZS8iKZXV0srZZdMYHgQS,prod_T1ZifwG5XURI4i,IEP Comprehensive Expert Review,,,,2025-09-09 18:47,150.00,usd,,,,,per_unit,,unspecified,,,,,,,24-48 hours,comprehensive,"Full goal analysis,Service recommendations,Accommodation review,Legal compliance check,Progress monitoring plan,Meeting preparation guide",expert-review
+price_1S3nyI8iKZXV0srZy1awxPBd,prod_SznZr3CnTNxF50,Hero Family Pack Premium Subscription,,,,2025-09-05 00:57,199.00,usd,month,1,licensed,,per_unit,,unspecified,,,,,,,,,,
+price_1S36QJ8iKZXV0srZsrhA6ess,prod_Sz4ZUeM9ZT5WA3,Agency+,,,,2025-09-03 02:27,249.00,usd,month,1,licensed,,per_unit,,unspecified,,,,,,,,,,
+price_1RsEn58iKZXV0srZ0UH8e4tg,prod_SnqU8OF9PI372q,Hero Family Pack Professional Setup,,,Professional Setup Hero,2025-08-04 03:10,495.00,usd,,,,,per_unit,,unspecified,,,,,,,,,,
+price_1Rr3ik8iKZXV0srZPRPByMQx,prod_SmcyWHzEYUieJO,Advocate Agency,My IEP Hero Agency,,,2025-07-31 21:09,149.00,usd,month,1,licensed,,per_unit,,unspecified,,,,,,,,,,
+price_1Rr3hR8iKZXV0srZ5lPscs0p,prod_SmcxRYlzNOsgmq,Advocate Pro,My IEP Hero Pro,,,2025-07-31 21:07,75.00,usd,month,1,licensed,,per_unit,,unspecified,,,,,,,,,,
+price_1Rr3gL8iKZXV0srZmfuD32yv,prod_SmcwDAutQFffU5,Advocate Starter,My IEP Hero Starter,,,2025-07-31 21:06,49.00,usd,month,1,licensed,,per_unit,,unspecified,,,,,,,,,,
+price_1Rr3e68iKZXV0srZnPPK5J3R,prod_SmctaBSSO9nsbc,Parent Premium,My IEP Hero Premium,,,2025-07-31 21:04,49.00,usd,month,1,licensed,,per_unit,,unspecified,,,,,,,,,,
+price_1Rr3co8iKZXV0srZA1kEdBW1,prod_SmcsKIZkLr1xUs,Parent Plus,My IEP Hero Plus,,,2025-07-31 21:02,29.00,usd,month,1,licensed,,per_unit,,unspecified,,,,,,,,,,
+price_1Rr3bk8iKZXV0srZ0URHZo4O,prod_SmcrtMVtM3cq3t,Parent Basic,My IEP Hero Basic,,,2025-07-31 21:01,19.00,usd,month,1,licensed,,per_unit,,unspecified,,,,,,,,,,

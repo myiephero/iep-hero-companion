@@ -109,15 +109,21 @@ export async function apiRequest(
       if (response.status === 401) {
         console.log('🚨 APIQUEST 401 - CLEARING EXPIRED TOKEN');
         localStorage.removeItem('authToken');
-        // Only redirect to auth from protected pages, NOT from public home page
+        // 🛡️ BULLETPROOF HOME PAGE PROTECTION - NEVER redirect from home page
         const currentPath = window.location.pathname;
-        const isPublicPage = ['/', '/pricing', '/parent/pricing', '/advocate/pricing'].includes(currentPath);
+        const isHomePage = currentPath === '/';
+        const isPublicPage = ['/', '/pricing', '/parent/pricing', '/advocate/pricing', '/auth'].includes(currentPath);
+        
+        if (isHomePage) {
+          console.log('🛡️ APIQUEST 401 - BLOCKED REDIRECT FROM HOME PAGE - This is expected for unauthenticated users');
+          return; // NEVER redirect from home page
+        }
         
         if (typeof window !== 'undefined' && !currentPath.includes('/auth') && !isPublicPage) {
-          console.log('🚨 APIQUEST 401 - REDIRECTING TO AUTH from protected page');
+          console.log('🚨 APIQUEST 401 - REDIRECTING TO AUTH from protected page:', currentPath);
           window.location.href = '/auth';
         } else if (isPublicPage) {
-          console.log('🔍 APIQUEST 401 - Staying on public page, no redirect needed');
+          console.log('🔍 APIQUEST 401 - Staying on public page, no redirect needed:', currentPath);
         }
       }
       

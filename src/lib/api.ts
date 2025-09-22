@@ -175,12 +175,19 @@ class ApiClient {
           console.log('🚫 API call failed with 401 - clearing expired token');
           localStorage.removeItem('authToken');
           
-          // Only redirect if we're not already on a public page
+          // 🛡️ BULLETPROOF HOME PAGE PROTECTION - NEVER redirect from home page
           const currentPath = window.location.pathname;
-          const publicPaths = ['/parent/pricing', '/advocate/pricing', '/', '/auth', '/login'];
+          const isHomePage = currentPath === '/';
+          const publicPaths = ['/parent/pricing', '/advocate/pricing', '/', '/auth', '/login', '/pricing'];
           const isPublicPage = publicPaths.some(path => currentPath === path || currentPath.includes(path));
           
+          if (isHomePage) {
+            console.log('🛡️ API 401 - BLOCKED REDIRECT FROM HOME PAGE - This is expected for unauthenticated users');
+            return; // NEVER redirect from home page
+          }
+          
           if (!isPublicPage) {
+            console.log('🚨 API 401 - REDIRECTING TO AUTH from protected page:', currentPath);
             window.location.href = '/auth';
           }
         }

@@ -44,10 +44,11 @@ const AdvocatePricingPlan = () => {
         const annualTotal = tier.annualPrice * 12; // $199 * 12 = $2388
         const annualSavings = monthlyTotal - annualTotal; // $2988 - $2388 = $600
         return {
-          price: `$${tier.annualPrice}`,
-          period: '/month',
+          price: `$${annualTotal}`, // Show full annual amount like other plans
+          period: '/year',
           annualSavings: `Save $${annualSavings}/year`,
-          setupFee: tier.setupFee
+          setupFee: tier.setupFee,
+          monthlyEquivalent: `($${tier.annualPrice}/month equivalent)` // Add monthly equivalent like other plans
         };
       }
       return {
@@ -64,15 +65,27 @@ const AdvocatePricingPlan = () => {
       let annualSavings;
       
       if (tier.id === 'starter') {
-        annualMonthlyRate = 39; // $39/month when paid annually
+        // Show annual total for Starter plan clarity
+        const annualTotal = 468; // $39 * 12 = $468/year
         const monthlyTotal = tier.monthlyPrice * 12; // $49 * 12 = $588
-        const annualTotal = 39 * 12; // $468/year
         annualSavings = monthlyTotal - annualTotal; // $588 - $468 = $120
+        return {
+          price: `$${annualTotal}`,
+          period: '/year',
+          annualSavings: `Save $${annualSavings}/year`,
+          monthlyEquivalent: `($${Math.round(annualTotal / 12)}/month equivalent)`
+        };
       } else if (tier.id === 'pro') {
-        annualMonthlyRate = 75; // $75/month when paid annually
+        // Show annual total for Pro plan clarity
+        const annualTotal = 900; // $900/year
         const monthlyTotal = tier.monthlyPrice * 12; // $99 * 12 = $1188
-        const annualTotal = 75 * 12; // $900/year
         annualSavings = monthlyTotal - annualTotal; // $1188 - $900 = $288
+        return {
+          price: `$${annualTotal}`,
+          period: '/year',
+          annualSavings: `Save $${annualSavings}/year`,
+          monthlyEquivalent: `($${Math.round(annualTotal / 12)}/month equivalent)`
+        };
       } else {
         // Fallback to 10% discount for other plans
         const monthlyTotal = tier.monthlyPrice * 12;
@@ -82,9 +95,10 @@ const AdvocatePricingPlan = () => {
       }
       
       return {
-        price: `$${annualMonthlyRate}`,
-        period: '/month',
-        annualSavings: `Save $${annualSavings}/year`
+        price: `$${annualMonthlyRate * 12}`,
+        period: '/year',
+        annualSavings: `Save $${annualSavings}/year`,
+        monthlyEquivalent: `($${annualMonthlyRate}/month equivalent)`
       };
     }
     
@@ -352,6 +366,11 @@ const AdvocatePricingPlan = () => {
                         <span className="text-3xl font-bold">{getPriceForPlan(tier, isAnnual).price}</span>
                         <span className="text-muted-foreground text-sm">{getPriceForPlan(tier, isAnnual).period}</span>
                       </div>
+                      {getPriceForPlan(tier, isAnnual).monthlyEquivalent && (
+                        <div className="text-xs text-muted-foreground mt-1">
+                          {getPriceForPlan(tier, isAnnual).monthlyEquivalent}
+                        </div>
+                      )}
                       {getPriceForPlan(tier, isAnnual).annualSavings && (
                         <div className="inline-flex items-center justify-center px-2 py-1 bg-red-500 text-white text-xs font-semibold rounded-full mt-2">
                           {getPriceForPlan(tier, isAnnual).annualSavings}

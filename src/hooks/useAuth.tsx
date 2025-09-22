@@ -53,17 +53,6 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
   useEffect(() => {
     const checkAuth = async () => {
       try {
-        // Only skip auth for public pages
-        const currentPath = window.location.pathname;
-        const publicPaths = ['/', '/auth', '/pricing', '/parent/pricing', '/advocate/pricing'];
-        
-        if (publicPaths.includes(currentPath)) {
-          setUser(null);
-          setProfile(null);
-          setLoading(false);
-          return;
-        }
-
         // 🔒 SECURITY FIX: Clear any potentially contaminated localStorage data first
         const clearContaminatedStorage = () => {
           // Clear all auth-related localStorage items to prevent contamination
@@ -110,14 +99,6 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
               }
             });
             
-            // Handle auth failure - let ProtectedRoute handle redirects
-            if (authResponse.status === 401 || authResponse.status === 403) {
-              setUser(null);
-              setProfile(null);
-              setLoading(false);
-              return;
-            }
-            
             if (authResponse.ok) {
               const authData = await authResponse.json();
               console.log('✅ useAuth: Replit Auth session found, response data:', authData);
@@ -137,14 +118,13 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
               } else {
                 console.log('⚠️ useAuth: No valid authToken or user data in response');
               }
-            } else {
-              console.log('❌ useAuth: No Replit Auth session found, status:', authResponse.status);
             }
           } catch (error) {
             console.log('❌ useAuth: Error checking Replit Auth session:', error);
           }
         }
         
+        // Always set loading to false, let ProtectedRoute handle auth redirects
         if (!token) {
           setUser(null);
           setProfile(null);

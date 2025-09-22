@@ -40,9 +40,9 @@ const AdvocatePricingPlan = () => {
     // Handle Agency plan with setup fee (like Hero Parent plan)
     if (tier.id === 'agency') {
       if (isAnnual) {
-        const monthlyTotal = tier.monthlyPrice * 12; // $249 * 12 = $2988
-        const annualTotal = tier.annualPrice * 12; // $199 * 12 = $2388
-        const annualSavings = monthlyTotal - annualTotal; // $2988 - $2388 = $600
+        const monthlyTotal = (tier.monthlyPrice * 12) + tier.setupFee; // ($249 * 12) + $495 = $3,483
+        const annualTotal = tier.annualPrice * 12; // $199 * 12 = $2,388
+        const annualSavings = monthlyTotal - annualTotal; // $3,483 - $2,388 = $1,095
         return {
           price: `$${annualTotal}`, // Show full annual amount like other plans
           period: '/year',
@@ -206,7 +206,7 @@ const AdvocatePricingPlan = () => {
       ],
       annualBenefits: [
         '💰 $495 Setup Fee Waived (Annual Only)',
-        '💵 Save $600/year vs Monthly Billing'
+        '💵 Save $1,095/year vs Monthly Billing'
       ],
       limitations: [],
       icon: <Crown className="h-6 w-6" />,
@@ -327,7 +327,7 @@ const AdvocatePricingPlan = () => {
                 <Users className="h-4 w-4 mr-2 text-muted-foreground" />
                 <span className="text-sm text-muted-foreground">
                   <strong>Agency Extra Seats:</strong> $39/month each {isAnnual ? '• ' : ''}
-                  {isAnnual && <span className="text-green-400 font-medium">$495 Setup Fee Waived on Annual Plans</span>}
+                  {isAnnual && <span className="text-green-400 font-medium">$495 Setup Fee Waived • Save $1,095/year</span>}
                 </span>
               </div>
             </div>

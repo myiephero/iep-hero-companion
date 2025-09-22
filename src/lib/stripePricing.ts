@@ -89,8 +89,8 @@ export const ADVOCATE_STRIPE_PLANS: Record<string, StripePlanConfig> = {
     amount: 2388, // $199 * 12 = $2,388
     interval: 'year',
     description: 'Complete advocacy practice solution (Annual)',
-    features: ['3 advocate seats', 'ALL 40+ tools', 'Enterprise features', 'Unlimited AI']
-    // Note: Setup fee applies to monthly Agency plan only, not annual
+    features: ['3 advocate seats', 'ALL 40+ tools', 'Enterprise features', 'Unlimited AI', 'Save $1,095/year']
+    // Note: Setup fee waived for annual ($495 savings + $600 billing savings = $1,095 total)
   }
 };
 

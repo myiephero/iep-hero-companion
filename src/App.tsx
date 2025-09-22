@@ -22,6 +22,8 @@ import ToolsHub from "./pages/ToolsHub";
 import AdvocateToolsHub from "./pages/AdvocateToolsHub";
 import EmergentToolsHubNew from "./pages/EmergentToolsHubNew";
 import PricingSelection from "./pages/PricingSelection";
+import ParentPricingPlan from "./pages/ParentPricingPlan";
+import AdvocatePricingPlan from "./pages/AdvocatePricingPlan";
 import SetupPassword from "./pages/SetupPassword";
 import SubscriptionSetup from "./pages/SubscriptionSetup";
 import SubscriptionSuccess from "./pages/SubscriptionSuccess";
@@ -58,6 +60,8 @@ function App() {
               {/* Public routes */}
               <Route path="/" element={<Index />} />
               <Route path="/pricing" element={<PricingSelection />} />
+              <Route path="/parent/pricing" element={<ParentPricingPlan />} />
+              <Route path="/advocate/pricing" element={<AdvocatePricingPlan />} />
               <Route path="/auth" element={<Auth />} />
               <Route path="/setup-password" element={<SetupPassword />} />
               <Route path="/subscription-setup" element={<SubscriptionSetup />} />

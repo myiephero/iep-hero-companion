@@ -29,6 +29,7 @@ import SubscriptionSetup from "./pages/SubscriptionSetup";
 import SubscriptionSuccess from "./pages/SubscriptionSuccess";
 import PaymentFailure from "./pages/PaymentFailure";
 import Onboarding from "./pages/Onboarding";
+import VerifyEmail from "./pages/VerifyEmail";
 
 import { queryClient } from "./lib/queryClient";
 
@@ -68,6 +69,7 @@ function App() {
               <Route path="/subscription-success" element={<SubscriptionSuccess />} />
               <Route path="/payment-failure" element={<PaymentFailure />} />
               <Route path="/onboarding" element={<Onboarding />} />
+              <Route path="/verify-email" element={<VerifyEmail />} />
               
               {/* Single Dashboard - handles all role/plan logic internally */}
               <Route path="/dashboard" element={

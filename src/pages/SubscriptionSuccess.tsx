@@ -3,10 +3,12 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Check, Sparkles, ArrowRight, Gift, Crown, Users } from 'lucide-react';
+import { useAuth } from '@/hooks/useAuth';
 
 export default function SubscriptionSuccess() {
   const location = useLocation();
   const navigate = useNavigate();
+  const { user } = useAuth();
   const [showConfetti, setShowConfetti] = useState(true);
   const [countDown, setCountDown] = useState(10);
   const [accountCreated, setAccountCreated] = useState(false);

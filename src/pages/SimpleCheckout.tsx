@@ -38,16 +38,48 @@ function PaymentForm({ plan, role, onClose }: { plan: any; role: string; onClose
       });
 
       if (error) {
+        console.error('❌ Stripe payment error:', error);
+        
+        // Enhanced error handling for different payment failure types
+        let errorTitle = "Payment Failed";
+        let errorDescription = error.message || "Your payment could not be processed";
+        
+        if (error.code === 'card_declined') {
+          errorTitle = "Card Declined";
+          errorDescription = "Your card was declined. Please try a different card or contact your bank.";
+        } else if (error.code === 'insufficient_funds') {
+          errorTitle = "Insufficient Funds";
+          errorDescription = "Your card has insufficient funds. Please try a different card.";
+        } else if (error.code === 'expired_card') {
+          errorTitle = "Card Expired";
+          errorDescription = "Your card has expired. Please use a different card.";
+        } else if (error.code === 'incorrect_cvc') {
+          errorTitle = "Invalid Security Code";
+          errorDescription = "The security code you entered is incorrect. Please check and try again.";
+        } else if (error.code === 'processing_error') {
+          errorTitle = "Processing Error";
+          errorDescription = "We encountered an error processing your payment. Please try again.";
+        }
+
         toast({
-          title: "Payment Failed",
-          description: error.message,
+          title: errorTitle,
+          description: errorDescription,
           variant: "destructive",
+        });
+
+        // Log the specific error for debugging
+        console.log('🔍 Payment error details:', {
+          code: error.code,
+          type: error.type,
+          message: error.message,
+          decline_code: error.decline_code
         });
       }
     } catch (err) {
+      console.error('❌ Payment processing error:', err);
       toast({
-        title: "Error",
-        description: "Something went wrong",
+        title: "Payment Error",
+        description: "An unexpected error occurred. Please try again or contact support.",
         variant: "destructive",
       });
     } finally {

@@ -24,6 +24,8 @@ import EmergentToolsHubNew from "./pages/EmergentToolsHubNew";
 import PricingSelection from "./pages/PricingSelection";
 import SetupPassword from "./pages/SetupPassword";
 import SubscriptionSetup from "./pages/SubscriptionSetup";
+import SubscriptionSuccess from "./pages/SubscriptionSuccess";
+import PaymentFailure from "./pages/PaymentFailure";
 import Onboarding from "./pages/Onboarding";
 
 import { queryClient } from "./lib/queryClient";
@@ -59,6 +61,8 @@ function App() {
               <Route path="/auth" element={<Auth />} />
               <Route path="/setup-password" element={<SetupPassword />} />
               <Route path="/subscription-setup" element={<SubscriptionSetup />} />
+              <Route path="/subscription-success" element={<SubscriptionSuccess />} />
+              <Route path="/payment-failure" element={<PaymentFailure />} />
               <Route path="/onboarding" element={<Onboarding />} />
               
               {/* Single Dashboard - handles all role/plan logic internally */}

@@ -45,10 +45,10 @@ export function ProtectedRoute({ children, allowedRoles }: ProtectedRouteProps) 
         consecutiveFailures: authMonitoring.consecutiveFailures
       });
     }
-  }, [user, loading, allowedRoles, redirectAttempts, authMonitoring.consecutiveFailures]);
+  }, [user, loading, allowedRoles, redirectAttempts]); // Removed authMonitoring from deps to prevent loop
 
-  // 🛡️ ENHANCED LOADING: Extended wait for auth resolution
-  if (loading || (authMonitoring.consecutiveFailures === 0 && Date.now() - authMonitoring.lastCheck < 1000)) {
+  // 🛡️ SIMPLIFIED LOADING: Only show loading while auth is actually loading
+  if (loading) {
     return (
       <div className="flex items-center justify-center min-h-screen">
         <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>

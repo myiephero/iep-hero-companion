@@ -30,6 +30,7 @@ import SubscriptionSuccess from "./pages/SubscriptionSuccess";
 import PaymentFailure from "./pages/PaymentFailure";
 import Onboarding from "./pages/Onboarding";
 import VerifyEmail from "./pages/VerifyEmail";
+import SubscriptionManagement from "./pages/SubscriptionManagement";
 
 import { queryClient } from "./lib/queryClient";
 
@@ -70,6 +71,13 @@ function App() {
               <Route path="/payment-failure" element={<PaymentFailure />} />
               <Route path="/onboarding" element={<Onboarding />} />
               <Route path="/verify-email" element={<VerifyEmail />} />
+              
+              {/* Subscription Management */}
+              <Route path="/subscription-management" element={
+                <ProtectedRoute allowedRoles={['parent', 'advocate']}>
+                  <SubscriptionManagement />
+                </ProtectedRoute>
+              } />
               
               {/* Single Dashboard - handles all role/plan logic internally */}
               <Route path="/dashboard" element={

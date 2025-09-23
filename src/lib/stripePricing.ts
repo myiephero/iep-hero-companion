@@ -27,7 +27,7 @@ export const PARENT_STRIPE_PLANS: Record<string, StripePlanConfig> = {
     features: ['1 student', '30+ tools', 'AI analysis', 'IEP Master Suite', 'Letter generator', 'Priority support']
   },
   premium: {
-    priceId: 'price_1Rr3hR8iKZXV0srZ5lPscs0p', // Using existing advocate price ID for testing
+    priceId: 'price_1S6c6s8iKZXV0srZUQl201V9', // TEMPORARY FIX: Using active price ID for immediate testing
     amount: 199,
     interval: 'month',
     description: 'Advanced multi-child support with expert features',

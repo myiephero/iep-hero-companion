@@ -7,6 +7,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
+import { useAuth } from '@/hooks/useAuth';
 import { Loader2, Eye, EyeOff, ArrowLeft } from 'lucide-react';
 
 const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLIC_KEY);
@@ -118,6 +119,7 @@ export default function SubscriptionSetup() {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
   const { toast } = useToast();
+  const { user, isAuthenticated, isLoading: authLoading } = useAuth();
   const [clientSecret, setClientSecret] = useState<string>('');
   const [isLoading, setIsLoading] = useState(false);
   const [step, setStep] = useState<'account' | 'payment'>('account');
@@ -140,7 +142,7 @@ export default function SubscriptionSetup() {
   const planId = searchParams.get('plan'); // URL uses 'plan' not 'planId'
   const role = searchParams.get('role');
 
-  // Validate params on load - be more specific about what's missing
+  // Validate params and handle existing users
   useEffect(() => {
     console.log('🔍 Subscription Setup Validation:', {
       planName,
@@ -149,6 +151,14 @@ export default function SubscriptionSetup() {
       priceId,
       amount: searchParams.get('amount'),
       allParams: Object.fromEntries(searchParams.entries())
+    });
+    
+    console.log('🔍 AUTH VALIDATION:', {
+      timestamp: Date.now(),
+      hasToken: !!localStorage.getItem('authToken'),
+      hasUser: !!user,
+      isConsistent: isAuthenticated,
+      tokenFormat: localStorage.getItem('authToken')?.substring(0, 3) === 'mfe' || localStorage.getItem('authToken')?.substring(0, 3) === 'mf7' ? 'valid' : 'invalid'
     });
     
     if (!planId || !role) {
@@ -166,8 +176,27 @@ export default function SubscriptionSetup() {
       setTimeout(() => {
         navigate('/');
       }, 3000);
+      return;
     }
-  }, [planName, planId, role, priceId, toast, searchParams]);
+    
+    // If user is already authenticated, skip account creation and go to payment
+    if (isAuthenticated && user && !authLoading) {
+      console.log('✅ SubscriptionSetup: User already logged in, skipping account creation:', user.email);
+      
+      // Pre-populate form with existing user data
+      setAccountForm({
+        firstName: user.firstName || '',
+        lastName: user.lastName || '',
+        email: user.email || '',
+        password: '',
+        confirmPassword: ''
+      });
+      
+      // Skip account creation, go directly to checkout
+      console.log('🚀 SubscriptionSetup: Existing user upgrading, creating checkout session...');
+      createCheckoutSession();
+    }
+  }, [planName, planId, role, priceId, toast, searchParams, isAuthenticated, user, authLoading]);
 
   // Handle account creation
   const handleAccountCreation = async (e: React.FormEvent) => {
@@ -246,22 +275,34 @@ export default function SubscriptionSetup() {
     }
   };
 
-  // Create checkout session after account creation OR activate free plan
+  // Create checkout session for existing user upgrade OR activate free plan
   const createCheckoutSession = async () => {
     setIsLoading(true);
     
     try {
       // Check if this is a free plan
       if (planId === 'free' || searchParams.get('amount') === '0') {
-        // Free plan - go to confirmation page (will trigger email verification)
-        toast({
-          title: "Account Created!",
-          description: "Check your email to complete setup...",
-        });
-        
-        setTimeout(() => {
-          navigate('/subscription-success?plan=free&role=parent');
-        }, 2000);
+        // Free plan - handle differently for existing vs new users
+        if (isAuthenticated && user) {
+          toast({
+            title: "Plan Updated!",
+            description: "Your account has been updated to the free plan.",
+          });
+          
+          setTimeout(() => {
+            navigate('/parent/dashboard-free'); // Navigate to correct dashboard
+          }, 2000);
+        } else {
+          // New user - go to confirmation page
+          toast({
+            title: "Account Created!",
+            description: "Check your email to complete setup...",
+          });
+          
+          setTimeout(() => {
+            navigate('/subscription-success?plan=free&role=parent');
+          }, 2000);
+        }
         return;
       }
 
@@ -277,14 +318,19 @@ export default function SubscriptionSetup() {
         role,
         amount,
         ...(setupFee && { setupFee }),
-        mode: priceId ? 'subscription' : 'payment'
+        mode: priceId ? 'subscription' : 'payment',
+        // Include existing user info if upgrading
+        ...(isAuthenticated && user && { existingUserId: user.id })
       };
 
       console.log('🔍 CHECKOUT REQUEST BODY:', requestBody);
 
       const response = await fetch(endpoint, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 
+          'Content-Type': 'application/json',
+          ...(isAuthenticated && { 'Authorization': `Bearer ${localStorage.getItem('authToken')}` })
+        },
         body: JSON.stringify(requestBody)
       });
 
@@ -297,6 +343,14 @@ export default function SubscriptionSetup() {
       console.log('Checkout session result:', data);
       
       if (data.url) {
+        // Show upgrade message for existing users
+        if (isAuthenticated && user) {
+          toast({
+            title: "Upgrading Account!",
+            description: `Upgrading ${user.email} to ${planName} plan...`,
+          });
+        }
+        
         // Redirect to Stripe Checkout
         window.location.href = data.url;
       } else {
@@ -310,21 +364,37 @@ export default function SubscriptionSetup() {
         description: error.message,
         variant: "destructive",
       });
-      setStep('account'); // Go back to account creation
+      // Only go back to account creation for new users
+      if (!isAuthenticated) {
+        setStep('account');
+      }
     } finally {
       setIsLoading(false);
     }
   };
 
-  if (isLoading) {
+  // Show loading while auth is being checked or payment is being processed
+  if (authLoading || isLoading) {
+    const message = authLoading 
+      ? "Checking your account status..." 
+      : "Setting up your subscription...";
+    const submessage = authLoading 
+      ? "Please wait while we verify your login status." 
+      : "Please wait while we prepare your payment.";
+      
     return (
       <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-primary/5 to-accent/5">
         <Card className="w-full max-w-md">
           <CardContent className="pt-6">
             <div className="text-center">
               <Loader2 className="mx-auto h-8 w-8 animate-spin mb-4" />
-              <h3 className="font-semibold text-lg mb-2">Setting up your subscription...</h3>
-              <p className="text-muted-foreground">Please wait while we prepare your payment.</p>
+              <h3 className="font-semibold text-lg mb-2">{message}</h3>
+              <p className="text-muted-foreground">{submessage}</p>
+              {isAuthenticated && user && (
+                <p className="text-sm text-muted-foreground mt-2">
+                  Upgrading account for {user.email}
+                </p>
+              )}
             </div>
           </CardContent>
         </Card>

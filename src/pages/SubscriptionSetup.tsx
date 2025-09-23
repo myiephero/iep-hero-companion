@@ -137,10 +137,14 @@ export default function SubscriptionSetup() {
   const [accountLoading, setAccountLoading] = useState(false);
   
   // Get subscription details from URL params
-  const priceId = searchParams.get('priceId');
+  const urlPriceId = searchParams.get('priceId'); // Keep URL price as fallback
   const planName = searchParams.get('planName');
   const planId = searchParams.get('plan'); // URL uses 'plan' not 'planId'
   const role = searchParams.get('role');
+  
+  // IMPORTANT: Always use current pricing config instead of URL params to avoid stale price IDs
+  const currentPlanConfig = planId ? getStripePlanConfig(planId) : null;
+  const priceId = currentPlanConfig?.priceId || urlPriceId; // Use config price ID or fallback to URL
 
   // Validate params and handle existing users
   useEffect(() => {

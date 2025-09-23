@@ -1495,11 +1495,11 @@ app.post('/api/create-checkout-session', async (req, res) => {
       
       lineItems = [
         {
-          price: 'price_1RsEn58iKZXV0srZ0UH8e4tg', // $495 one-time setup fee (charged today)
+          price: 'price_1SAfBG5NUzvJWP8HEjbV14RH', // $495 one-time setup fee (charged today) - LIVE
           quantity: 1,
         },
         {
-          price: 'price_1S3nyI8iKZXV0srZy1awxPBd', // $199/month recurring subscription  
+          price: 'price_1SAfBG5NUzvJWP8HOW3WQrD4', // $249/month recurring subscription - LIVE  
           quantity: 1,
         }
       ];
@@ -1799,7 +1799,7 @@ app.post('/api/create-subscription', isAuthenticated, async (req: any, res) => {
     }
 
     // Check if this is Hero Family Pack (hybrid pricing: $495 setup + $199/month)
-    const isHeroPackage = planId === 'hero' || priceId === 'price_1S3nyI8iKZXV0srZy1awxPBd';
+    const isHeroPackage = planId === 'hero' || priceId === 'price_1SAfBG5NUzvJWP8HOW3WQrD4';
     
     if (isHeroPackage) {
       // For Hero Family Pack: Create setup fee payment intent + subscription

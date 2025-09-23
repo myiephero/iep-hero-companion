@@ -209,41 +209,41 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
 
     window.addEventListener('authTokenChanged', handleTokenChange);
 
-    // 🛡️ RECOVERY MECHANISM: Auto-recovery for auth failures
-    const setupRecoveryMechanism = () => {
-      let consecutiveFailures = 0;
-      const maxFailures = 3;
-      
-      const interval = setInterval(() => {
-        const token = localStorage.getItem('authToken');
-        const hasValidUser = user && user.id;
-        
-        // Check for auth failure pattern
-        if (token && !hasValidUser && !loading) {
-          consecutiveFailures++;
-          console.log(`🔄 AUTH RECOVERY: Failure ${consecutiveFailures}/${maxFailures} detected`);
-          
-          if (consecutiveFailures >= maxFailures) {
-            console.log('🔧 AUTH RECOVERY: Auto-recovering auth state...');
-            checkAuth(); // Re-run auth check
-            consecutiveFailures = 0; // Reset counter
-          }
-        } else {
-          consecutiveFailures = 0; // Reset on success
-        }
-      }, 5000); // Check every 5 seconds
-      
-      return interval;
-    };
+    // 🛡️ RECOVERY MECHANISM: Disabled to prevent infinite loops
+    // const setupRecoveryMechanism = () => {
+    //   let consecutiveFailures = 0;
+    //   const maxFailures = 3;
+    //   
+    //   const interval = setInterval(() => {
+    //     const token = localStorage.getItem('authToken');
+    //     const hasValidUser = user && user.id;
+    //     
+    //     // Check for auth failure pattern
+    //     if (token && !hasValidUser && !loading) {
+    //       consecutiveFailures++;
+    //       console.log(`🔄 AUTH RECOVERY: Failure ${consecutiveFailures}/${maxFailures} detected`);
+    //       
+    //       if (consecutiveFailures >= maxFailures) {
+    //         console.log('🔧 AUTH RECOVERY: Auto-recovering auth state...');
+    //         checkAuth(); // Re-run auth check
+    //         consecutiveFailures = 0; // Reset counter
+    //       }
+    //     } else {
+    //       consecutiveFailures = 0; // Reset on success
+    //     }
+    //   }, 5000); // Check every 5 seconds
+    //   
+    //   return interval;
+    // };
 
-    const recoveryInterval = setupRecoveryMechanism();
+    // const recoveryInterval = setupRecoveryMechanism();
 
     return () => {
       window.removeEventListener('storage', handleStorageChange);
       window.removeEventListener('authTokenChanged', handleTokenChange);
-      clearInterval(recoveryInterval);
+      // clearInterval(recoveryInterval); // Disabled recovery interval
     };
-  }, [user, loading]);
+  }, []); // Empty dependency array - only run once on mount
 
   const signOut = async () => {
     try {

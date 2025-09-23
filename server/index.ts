@@ -1579,17 +1579,9 @@ app.post('/api/create-checkout-session', async (req, res) => {
       console.log('🏢 Added subscription_data metadata for Agency monthly plan');
     }
     
-    // For Hero Plan, we use trial_period_days instead of discounts
-    // For Agency Monthly, we have setup fee, no promotion codes needed
-    // For other plans, allow promotion codes
-    if (!isHeroPackage && !isAgencyMonthly) {
-      console.log('🎯 Standard plan, setting allow_promotion_codes to true');
-      sessionConfig.allow_promotion_codes = true;
-    } else if (isHeroPackage) {
-      console.log('🎯 Hero plan uses trial period, no promotion codes needed');
-    } else if (isAgencyMonthly) {
-      console.log('🎯 Agency monthly uses setup fee, no promotion codes needed');
-    }
+    // Allow promotion codes for all plans (enables testing with discount codes)
+    console.log('🎯 Enabling promotion codes for all plans (testing mode)');
+    sessionConfig.allow_promotion_codes = true;
     
     console.log('🔍 Final sessionConfig keys:', Object.keys(sessionConfig));
     console.log('🔍 Final sessionConfig content:', JSON.stringify(sessionConfig, null, 2));

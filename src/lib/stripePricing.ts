@@ -28,7 +28,7 @@ export const PARENT_STRIPE_PLANS: Record<string, StripePlanConfig> = {
   },
   premium: {
     priceId: 'price_1S6c6s8iKZXV0srZUQl201V9', // TEMPORARY FIX: Using active price ID for immediate testing
-    amount: 199,
+    amount: 149, // CORRECTED: Premium should be $149/month, not $199
     interval: 'month',
     description: 'Advanced multi-child support with expert features',
     features: ['3 students', '45+ tools', 'Advanced AI', 'Expert analysis', 'Emotion tracking', 'Phone support']

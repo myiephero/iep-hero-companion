@@ -73,11 +73,40 @@ const Index = () => {
         // Trigger auth token change event for same-page updates
         window.dispatchEvent(new Event('authTokenChanged'));
         
-        // 🛡️ BULLETPROOF LOGIN: Navigate immediately to prevent flash
-        console.log('🚀 LOGIN: Navigating to dashboard immediately');
-        setTimeout(() => {
-          navigate('/dashboard', { replace: true });
-        }, 100); // Minimal delay to ensure token is set
+        // 🛡️ BULLETPROOF LOGIN: Wait for auth context to actually update with user data
+        console.log('⏱️ LOGIN: Waiting for auth context to load user data...');
+        
+        let attempts = 0;
+        const maxAttempts = 50; // 5 seconds max
+        
+        const waitForAuthContext = () => {
+          attempts++;
+          console.log(`🔄 LOGIN: Auth context check ${attempts}/${maxAttempts}`);
+          
+          // Check if auth context has loaded the user by making a test API call
+          fetch('/api/auth/user', {
+            headers: { Authorization: `Bearer ${token}` }
+          }).then(res => res.json()).then(user => {
+            if (user && user.id === userData.id) {
+              console.log('✅ LOGIN: Auth context ready with user data');
+              navigate('/dashboard', { replace: true });
+            } else if (attempts < maxAttempts) {
+              setTimeout(waitForAuthContext, 100);
+            } else {
+              console.log('⏰ LOGIN: Max attempts reached, navigating anyway');
+              navigate('/dashboard', { replace: true });
+            }
+          }).catch(() => {
+            if (attempts < maxAttempts) {
+              setTimeout(waitForAuthContext, 100);
+            } else {
+              navigate('/dashboard', { replace: true });
+            }
+          });
+        };
+        
+        // Start checking after a small delay
+        setTimeout(waitForAuthContext, 150);
       } else {
         const errorData = await response.json();
         alert(errorData.message || 'Login failed');

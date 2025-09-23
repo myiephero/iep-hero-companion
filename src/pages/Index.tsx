@@ -45,6 +45,30 @@ const Index = () => {
   const [isNavigating, setIsNavigating] = useState(false);
   const [loginFailures, setLoginFailures] = useState(0);
 
+  // Helper function to generate plan-specific dashboard URL
+  const getPlanSpecificDashboard = (userData: any) => {
+    if (userData?.role === 'parent') {
+      const planSlug = userData.subscriptionPlan?.toLowerCase().replace(/\s+/g, '') || 'free';
+      const supportedPlans = ['free', 'basic', 'plus', 'explorer', 'premium', 'hero', 'essential'];
+      const normalizedPlan = supportedPlans.includes(planSlug) ? planSlug : 'free';
+      return `/parent/dashboard-${normalizedPlan}`;
+    } else if (userData?.role === 'advocate') {
+      const advocatePlanMapping = {
+        'starter': 'starter',
+        'pro': 'pro',
+        'premium': 'pro', // Premium plan maps to pro dashboard
+        'agency': 'agency',
+        'agency plus': 'agency-plus',
+        'agencyplus': 'agency-plus'
+      };
+      const planKey = userData.subscriptionPlan?.toLowerCase() || 'starter';
+      const planSlug = advocatePlanMapping[planKey] || 'starter';
+      return `/advocate/dashboard-${planSlug}`;
+    } else {
+      return '/dashboard';
+    }
+  };
+
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoginLoading(true);
@@ -87,7 +111,8 @@ const Index = () => {
           // 🛡️ CIRCUIT BREAKER: Prevent infinite auth loops
           if (loginFailures > 2) {
             console.log('🚨 LOGIN: Too many failures - using fallback navigation');
-            setTimeout(() => navigate('/dashboard', { replace: true }), 500);
+            const dashboardPath = getPlanSpecificDashboard(userData);
+            setTimeout(() => navigate(dashboardPath, { replace: true }), 500);
             return;
           }
           
@@ -98,13 +123,16 @@ const Index = () => {
             if (user && user.id === userData.id) {
               console.log('✅ LOGIN: Auth context ready with user data');
               setLoginFailures(0); // Reset failures on success
-              navigate('/dashboard', { replace: true });
+              const dashboardPath = getPlanSpecificDashboard(userData);
+              console.log('🚀 Index Login: Redirecting to plan-specific dashboard:', dashboardPath, 'for user:', userData);
+              navigate(dashboardPath, { replace: true });
             } else if (attempts < maxAttempts) {
               setTimeout(waitForAuthContext, 100);
             } else {
               console.log('⏰ LOGIN: Max attempts reached, navigating anyway');
               setLoginFailures(prev => prev + 1);
-              navigate('/dashboard', { replace: true });
+              const dashboardPath = getPlanSpecificDashboard(userData);
+              navigate(dashboardPath, { replace: true });
             }
           }).catch(error => {
             console.log('🔄 LOGIN: Auth check error:', error);
@@ -112,7 +140,8 @@ const Index = () => {
               setTimeout(waitForAuthContext, 100);
             } else {
               setLoginFailures(prev => prev + 1);
-              navigate('/dashboard', { replace: true });
+              const dashboardPath = getPlanSpecificDashboard(userData);
+              navigate(dashboardPath, { replace: true });
             }
           });
         };

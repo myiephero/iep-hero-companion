@@ -42,6 +42,7 @@ const Index = () => {
     password: ''
   });
   const [loginLoading, setLoginLoading] = useState(false);
+  const [isNavigating, setIsNavigating] = useState(false);
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -64,32 +65,19 @@ const Index = () => {
         console.log('✅ LOGIN SUCCESS - Token received:', token?.substring(0, 20) + '...');
         console.log('✅ LOGIN SUCCESS - User data:', userData);
         
+        // 🚀 IMMEDIATE NAVIGATION STATE - Prevent flash of authenticated home page
+        setIsNavigating(true);
+        
         localStorage.setItem('authToken', token);
         
         // Trigger auth token change event for same-page updates
         window.dispatchEvent(new Event('authTokenChanged'));
         
-        // 🛡️ BULLETPROOF LOGIN: Wait for auth to fully load before navigating
-        console.log('⏱️ LOGIN: Waiting for auth context to fully update...');
-        
-        // Poll for auth context to be ready instead of just waiting
-        let attempts = 0;
-        const maxAttempts = 20; // 2 seconds max
-        
-        const waitForAuth = () => {
-          attempts++;
-          console.log(`🔄 LOGIN: Auth check attempt ${attempts}/${maxAttempts}`);
-          
-          // Check if we're still on the home page and haven't reached max attempts
-          if (window.location.pathname === '/' && attempts < maxAttempts) {
-            setTimeout(waitForAuth, 100);
-          } else {
-            console.log('🚀 LOGIN: Navigating to dashboard after auth ready');
-            navigate('/dashboard', { replace: true });
-          }
-        };
-        
-        setTimeout(waitForAuth, 300); // Start after initial delay
+        // 🛡️ BULLETPROOF LOGIN: Navigate immediately to prevent flash
+        console.log('🚀 LOGIN: Navigating to dashboard immediately');
+        setTimeout(() => {
+          navigate('/dashboard', { replace: true });
+        }, 100); // Minimal delay to ensure token is set
       } else {
         const errorData = await response.json();
         alert(errorData.message || 'Login failed');
@@ -98,12 +86,27 @@ const Index = () => {
       console.error('Login error:', error);
       alert('An error occurred during login. Please try again.');
     } finally {
-      setLoginLoading(false);
+      // Only reset loading if not navigating (in case of error)
+      if (!isNavigating) {
+        setLoginLoading(false);
+      }
     }
   };
 
   if (loading) {
     return <div className="min-h-screen flex items-center justify-center">Loading...</div>;
+  }
+
+  // 🚀 PREVENT FLASH: Show loading during navigation to dashboard
+  if (isNavigating) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-primary/5 to-secondary/5">
+        <div className="text-center space-y-4">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto"></div>
+          <p className="text-muted-foreground">Taking you to your dashboard...</p>
+        </div>
+      </div>
+    );
   }
 
   return (

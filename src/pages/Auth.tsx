@@ -15,8 +15,31 @@ const Auth = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const { toast } = useToast();
-  const { refreshUser } = useAuth();
+  const { refreshUser, user } = useAuth();
   const navigate = useNavigate();
+
+  // Helper function to generate plan-specific dashboard URL
+  const getPlanSpecificDashboard = (user: any) => {
+    if (user?.role === 'parent') {
+      const planSlug = user.subscriptionPlan?.toLowerCase().replace(/\s+/g, '') || 'free';
+      const supportedPlans = ['free', 'basic', 'plus', 'explorer', 'premium', 'hero', 'essential'];
+      const normalizedPlan = supportedPlans.includes(planSlug) ? planSlug : 'free';
+      return `/parent/dashboard-${normalizedPlan}`;
+    } else if (user?.role === 'advocate') {
+      const advocatePlanMapping = {
+        'starter': 'starter',
+        'pro': 'pro', 
+        'agency': 'agency',
+        'agency plus': 'agency-plus',
+        'agencyplus': 'agency-plus'
+      };
+      const planKey = user.subscriptionPlan?.toLowerCase() || 'starter';
+      const planSlug = advocatePlanMapping[planKey] || 'starter';
+      return `/advocate/dashboard-${planSlug}`;
+    } else {
+      return '/dashboard';
+    }
+  };
 
   const handleCustomLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -43,12 +66,35 @@ const Auth = () => {
           description: "Redirecting to your dashboard...",
         });
         
-        // Refresh user state immediately then navigate
+        // Refresh user state immediately to get updated user data
         await refreshUser();
         
-        // Navigate to dashboard with a small delay for UI smoothness
-        setTimeout(() => {
-          navigate('/dashboard', { replace: true });
+        // Navigate to plan-specific dashboard with a small delay for UI smoothness
+        setTimeout(async () => {
+          try {
+            // Fetch fresh user data to ensure we have the latest subscription plan info
+            const token = localStorage.getItem('authToken');
+            const response = await fetch('/api/auth/user', {
+              credentials: 'include',
+              headers: {
+                Authorization: `Bearer ${token}`,
+              }
+            });
+            
+            if (response.ok) {
+              const freshUserData = await response.json();
+              const dashboardPath = getPlanSpecificDashboard(freshUserData);
+              console.log('🚀 Auth: Redirecting to plan-specific dashboard:', dashboardPath, 'for user:', freshUserData);
+              navigate(dashboardPath, { replace: true });
+            } else {
+              // Fallback to generic dashboard if user fetch fails
+              console.log('⚠️ Auth: Failed to fetch fresh user data, using generic dashboard');
+              navigate('/dashboard', { replace: true });
+            }
+          } catch (error) {
+            console.error('❌ Auth: Error fetching user data for redirect:', error);
+            navigate('/dashboard', { replace: true });
+          }
         }, 200);
       } else {
         const data = await response.json();

@@ -31,6 +31,10 @@ import PaymentFailure from "./pages/PaymentFailure";
 import Onboarding from "./pages/Onboarding";
 import VerifyEmail from "./pages/VerifyEmail";
 import SubscriptionManagement from "./pages/SubscriptionManagement";
+import Profile from "./pages/Profile";
+import Settings from "./pages/Settings";
+import ParentSettings from "./pages/ParentSettings";
+import AdvocateSettings from "./pages/AdvocateSettings";
 
 import { queryClient } from "./lib/queryClient";
 
@@ -262,6 +266,29 @@ function App() {
                   <AdvocateDashboard />
                 </ProtectedRoute>
               } />
+              
+              {/* Profile and Settings Routes */}
+              <Route path="/parent/profile" element={
+                <ProtectedRoute allowedRoles={['parent']}>
+                  <Profile />
+                </ProtectedRoute>
+              } />
+              <Route path="/parent/settings" element={
+                <ProtectedRoute allowedRoles={['parent']}>
+                  <ParentSettings />
+                </ProtectedRoute>
+              } />
+              <Route path="/advocate/profile" element={
+                <ProtectedRoute allowedRoles={['advocate']}>
+                  <Profile />
+                </ProtectedRoute>
+              } />
+              <Route path="/advocate/settings" element={
+                <ProtectedRoute allowedRoles={['advocate']}>
+                  <AdvocateSettings />
+                </ProtectedRoute>
+              } />
+              
               <Route path="/parent/dashboard/*" element={<Navigate to="/dashboard" replace />} />
               <Route path="/advocate/dashboard/*" element={<Navigate to="/dashboard" replace />} />
               <Route path="/parent/messages" element={<Navigate to="/messages" replace />} />

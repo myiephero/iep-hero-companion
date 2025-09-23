@@ -334,23 +334,30 @@ function getSubscriptionPlan(subscription: Stripe.Subscription): string {
   if (subscription.items.data.length > 0) {
     const priceId = subscription.items.data[0].price.id;
     
-    // Map Stripe price IDs to plan names (updated with live price IDs)
+    // Map Stripe price IDs to plan names (ALL LIVE PRICE IDs)
     const priceToPlans: Record<string, string> = {
-      // Parent plans
-      'price_1Rr3gL8iKZXV0srZmfuD32yv': 'essential',
-      'price_1Rr3hR8iKZXV0srZ5lPscs0p': 'premium', 
-      'price_1S36QJ8iKZXV0srZsrhA6ess': 'hero',
-      // Advocate plans - monthly
-      'price_1S6c6r8iKZXV0srZEedxCBJ7': 'starter',
-      'price_1SAeKP8iKZXV0srZoIstW64Q': 'pro', // NEW LIVE monthly price ID
-      'price_1S6c6t8iKZXV0srZDefEOrXY': 'agency',
-      // Advocate plans - annual
-      'price_1S6c6r8iKZXV0srZstPTLriI': 'starter-annual',
-      'price_1SAeLZ8iKZXV0srZ3VtZqVpT': 'pro-annual', // NEW LIVE annual price ID
-      'price_1S6c6t8iKZXV0srZBu8sZgYD': 'agency-annual',
-      // Legacy price IDs (keep for existing subscriptions)
-      'price_1S6c6s8iKZXV0srZUQl201V9': 'pro', // Old test monthly
-      'price_1S6c6s8iKZXV0srZ0645Yqpi': 'pro-annual', // Old test annual
+      // Parent plans - ALL LIVE
+      'price_1SAfBF5NUzvJWP8HQzBOdCmq': 'essential', // Live Essential $59/month
+      'price_1SAfBG5NUzvJWP8HhxnwuSeJ': 'premium', // Live Premium $149/month
+      'price_1SAfBG5NUzvJWP8HOW3WQrD4': 'hero', // Live Hero $249/month
+      // Advocate plans - monthly (ALL LIVE)
+      'price_1SAfBH5NUzvJWP8HgO01WLxu': 'starter', // Live Starter $49/month
+      'price_1SAeKP8iKZXV0srZoIstW64Q': 'pro', // Live Pro $149/month
+      'price_1SAfBI5NUzvJWP8HktrpUMlX': 'agency', // Live Agency $249/month
+      // Advocate plans - annual (ALL LIVE)
+      'price_1SAfBH5NUzvJWP8HegYOY3As': 'starter-annual', // Live Starter Annual $468/year
+      'price_1SAeLZ8iKZXV0srZ3VtZqVpT': 'pro-annual', // Live Pro Annual $1,188/year
+      'price_1SAfBI5NUzvJWP8HHkLy0ZiT': 'agency-annual', // Live Agency Annual $2,388/year
+      // Legacy test price IDs (keep for existing subscriptions)
+      'price_1Rr3gL8iKZXV0srZmfuD32yv': 'essential', // Old test essential
+      'price_1Rr3hR8iKZXV0srZ5lPscs0p': 'premium', // Old test premium
+      'price_1S36QJ8iKZXV0srZsrhA6ess': 'hero', // Old test hero
+      'price_1S6c6r8iKZXV0srZEedxCBJ7': 'starter', // Old test starter
+      'price_1S6c6s8iKZXV0srZUQl201V9': 'pro', // Old test pro monthly
+      'price_1S6c6t8iKZXV0srZDefEOrXY': 'agency', // Old test agency
+      'price_1S6c6r8iKZXV0srZstPTLriI': 'starter-annual', // Old test starter annual
+      'price_1S6c6s8iKZXV0srZ0645Yqpi': 'pro-annual', // Old test pro annual
+      'price_1S6c6t8iKZXV0srZBu8sZgYD': 'agency-annual', // Old test agency annual
     };
     
     return priceToPlans[priceId] || 'unknown';

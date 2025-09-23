@@ -20,21 +20,21 @@ export const PARENT_STRIPE_PLANS: Record<string, StripePlanConfig> = {
     features: ['1 student', '5 core tools', 'Community support', 'IDEA Rights Guide']
   },
   essential: {
-    priceId: 'price_1Rr3gL8iKZXV0srZmfuD32yv', // Using existing advocate price ID for testing
+    priceId: 'price_1SAfBF5NUzvJWP8HQzBOdCmq', // LIVE: Essential $59/month
     amount: 59,
     interval: 'month',
     description: 'AI-powered analysis and comprehensive planning tools',
     features: ['1 student', '30+ tools', 'AI analysis', 'IEP Master Suite', 'Letter generator', 'Priority support']
   },
   premium: {
-    priceId: 'price_1S6c6s8iKZXV0srZUQl201V9', // TEMPORARY FIX: Using active price ID for immediate testing
-    amount: 149, // CORRECTED: Premium should be $149/month, not $199
+    priceId: 'price_1SAfBG5NUzvJWP8HhxnwuSeJ', // LIVE: Premium $149/month
+    amount: 149,
     interval: 'month',
     description: 'Advanced multi-child support with expert features',
     features: ['3 students', '45+ tools', 'Advanced AI', 'Expert analysis', 'Emotion tracking', 'Phone support']
   },
   hero: {
-    priceId: 'price_1S36QJ8iKZXV0srZsrhA6ess', // Using existing advocate price ID for testing
+    priceId: 'price_1SAfBG5NUzvJWP8HOW3WQrD4', // LIVE: Hero $249/month
     amount: 249,
     interval: 'month',
     description: 'Complete advocacy platform with matching',
@@ -47,8 +47,8 @@ export const PARENT_STRIPE_PLANS: Record<string, StripePlanConfig> = {
 export const ADVOCATE_STRIPE_PLANS: Record<string, StripePlanConfig> = {
   // Monthly Plans
   starter: {
-    priceId: 'price_1S6c6r8iKZXV0srZEedxCBJ7', // PRODUCTION: Advocate Starter $49/month (existing product)
-    amount: 49, // Fixed: UI shows $49, now matches config
+    priceId: 'price_1SAfBH5NUzvJWP8HgO01WLxu', // LIVE: Advocate Starter $49/month
+    amount: 49,
     interval: 'month',
     description: 'Essential tools for solo advocates',
     features: ['1 advocate seat', '12 tools', 'Basic CRM', 'Email support']
@@ -61,7 +61,7 @@ export const ADVOCATE_STRIPE_PLANS: Record<string, StripePlanConfig> = {
     features: ['1 advocate seat', '20+ tools', 'AI analysis', 'Priority support']
   },
   agency: {
-    priceId: 'price_1S6c6t8iKZXV0srZDefEOrXY', // PRODUCTION: Agency $249/month (existing product)
+    priceId: 'price_1SAfBI5NUzvJWP8HktrpUMlX', // LIVE: Agency $249/month
     amount: 249,
     interval: 'month',
     description: 'Complete advocacy practice solution',
@@ -71,8 +71,8 @@ export const ADVOCATE_STRIPE_PLANS: Record<string, StripePlanConfig> = {
 
   // Annual Plans (significant savings vs monthly)
   'starter-annual': {
-    priceId: 'price_1S6c6r8iKZXV0srZstPTLriI', // Advocate Starter Annual $468/year (existing product)
-    amount: 468, // Fixed: $39 * 12 = $468 (save $120/year vs $49*12=$588)
+    priceId: 'price_1SAfBH5NUzvJWP8HegYOY3As', // LIVE: Advocate Starter Annual $468/year
+    amount: 468, // $39 * 12 = $468 (save $120/year vs $49*12=$588)
     interval: 'year',
     description: 'Essential tools for solo advocates (Annual)',
     features: ['1 advocate seat', '12 tools', 'Basic CRM', 'Email support', 'Save $120/year']
@@ -85,7 +85,7 @@ export const ADVOCATE_STRIPE_PLANS: Record<string, StripePlanConfig> = {
     features: ['1 advocate seat', '20+ tools', 'AI analysis', 'Priority support', 'Save $600/year']
   },
   'agency-annual': {
-    priceId: 'price_1S6c6t8iKZXV0srZBu8sZgYD', // Advocate Agency Annual $2,388/year (existing product)
+    priceId: 'price_1SAfBI5NUzvJWP8HHkLy0ZiT', // LIVE: Advocate Agency Annual $2,388/year
     amount: 2388, // $199 * 12 = $2,388
     interval: 'year',
     description: 'Complete advocacy practice solution (Annual)',

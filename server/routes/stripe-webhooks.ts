@@ -34,7 +34,9 @@ router.post('/webhook', express.raw({ type: 'application/json' }), async (req: R
     // Log the event for audit purposes
     try {
       await db.insert(schema.subscription_events).values({
+        user_id: '', // Will be filled by specific handlers
         event_type: event.type,
+        stripe_event_id: event.id,
         event_data: event.data,
         processed_at: new Date(),
       });
@@ -213,13 +215,16 @@ async function handlePaymentSucceeded(event: Stripe.Event) {
   const invoice = event.data.object as Stripe.Invoice;
   console.log(`💰 Payment succeeded for invoice: ${invoice.id}`);
 
-  if (invoice.subscription as string) {
+  // Cast to handle subscription invoices
+  const subscriptionInvoice = invoice as Stripe.Invoice & { subscription?: string };
+  if (subscriptionInvoice.subscription) {
     try {
       // Find user by subscription ID
+      const subscriptionId = subscriptionInvoice.subscription as string;
       const [user] = await db
         .select()
         .from(schema.users)
-        .where(eq(schema.users.stripeSubscriptionId, invoice.subscription as string));
+        .where(eq(schema.users.stripeSubscriptionId, subscriptionId));
 
       if (user) {
         // Update subscription status to active
@@ -234,7 +239,7 @@ async function handlePaymentSucceeded(event: Stripe.Event) {
         // Log the event
         await db.insert(schema.subscription_events).values({
           user_id: user.id,
-          stripe_subscription_id: invoice.subscription as string,
+          stripe_subscription_id: subscriptionId,
           stripe_customer_id: invoice.customer as string,
           event_type: 'payment.succeeded',
           new_status: 'active',
@@ -254,13 +259,16 @@ async function handlePaymentFailed(event: Stripe.Event) {
   const invoice = event.data.object as Stripe.Invoice;
   console.log(`❌ Payment failed for invoice: ${invoice.id}`);
 
-  if (invoice.subscription as string) {
+  // Cast to handle subscription invoices
+  const subscriptionInvoice = invoice as Stripe.Invoice & { subscription?: string };
+  if (subscriptionInvoice.subscription) {
     try {
       // Find user by subscription ID
+      const subscriptionId = subscriptionInvoice.subscription as string;
       const [user] = await db
         .select()
         .from(schema.users)
-        .where(eq(schema.users.stripeSubscriptionId, invoice.subscription as string));
+        .where(eq(schema.users.stripeSubscriptionId, subscriptionId));
 
       if (user) {
         // Update subscription status to past_due
@@ -275,7 +283,7 @@ async function handlePaymentFailed(event: Stripe.Event) {
         // Log the event
         await db.insert(schema.subscription_events).values({
           user_id: user.id,
-          stripe_subscription_id: invoice.subscription as string,
+          stripe_subscription_id: subscriptionId,
           stripe_customer_id: invoice.customer as string,
           event_type: 'payment.failed',
           previous_status: user.subscriptionStatus,
@@ -326,17 +334,23 @@ function getSubscriptionPlan(subscription: Stripe.Subscription): string {
   if (subscription.items.data.length > 0) {
     const priceId = subscription.items.data[0].price.id;
     
-    // Map Stripe price IDs to plan names (based on your stripePricing.ts)
+    // Map Stripe price IDs to plan names (updated with live price IDs)
     const priceToPlans: Record<string, string> = {
+      // Parent plans
       'price_1Rr3gL8iKZXV0srZmfuD32yv': 'essential',
       'price_1Rr3hR8iKZXV0srZ5lPscs0p': 'premium', 
       'price_1S36QJ8iKZXV0srZsrhA6ess': 'hero',
+      // Advocate plans - monthly
       'price_1S6c6r8iKZXV0srZEedxCBJ7': 'starter',
-      'price_1S6c6s8iKZXV0srZUQl201V9': 'pro',
+      'price_1SAeKP8iKZXV0srZoIstW64Q': 'pro', // NEW LIVE monthly price ID
       'price_1S6c6t8iKZXV0srZDefEOrXY': 'agency',
+      // Advocate plans - annual
       'price_1S6c6r8iKZXV0srZstPTLriI': 'starter-annual',
-      'price_1S6c6s8iKZXV0srZ0645Yqpi': 'pro-annual', 
+      'price_1SAeLZ8iKZXV0srZ3VtZqVpT': 'pro-annual', // NEW LIVE annual price ID
       'price_1S6c6t8iKZXV0srZBu8sZgYD': 'agency-annual',
+      // Legacy price IDs (keep for existing subscriptions)
+      'price_1S6c6s8iKZXV0srZUQl201V9': 'pro', // Old test monthly
+      'price_1S6c6s8iKZXV0srZ0645Yqpi': 'pro-annual', // Old test annual
     };
     
     return priceToPlans[priceId] || 'unknown';

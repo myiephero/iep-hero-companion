@@ -53,6 +53,35 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
   useEffect(() => {
     const checkAuth = async () => {
       try {
+        // 🛡️ AUTH STATE VALIDATION: Check for inconsistencies
+        const validateAuthState = () => {
+          const token = localStorage.getItem('authToken');
+          const hasUser = !!user;
+          const timestamp = Date.now();
+          
+          // Store validation result for monitoring
+          const validationResult = {
+            timestamp,
+            hasToken: !!token,
+            hasUser,
+            isConsistent: (!token && !hasUser) || (token && hasUser),
+            tokenFormat: token ? (token.split('-').length >= 3 ? 'valid' : 'invalid') : 'none'
+          };
+          
+          console.log('🔍 AUTH VALIDATION:', validationResult);
+          
+          // Auto-fix inconsistent states
+          if (token && !hasUser && !loading) {
+            console.log('🔧 AUTO-FIX: Token exists but no user - will re-validate');
+          } else if (!token && hasUser) {
+            console.log('🔧 AUTO-FIX: User exists but no token - clearing user state');
+            setUser(null);
+            setProfile(null);
+          }
+          
+          return validationResult;
+        };
+
         // 🔒 SECURITY FIX: Clear any potentially contaminated localStorage data first
         const clearContaminatedStorage = () => {
           // Clear all auth-related localStorage items to prevent contamination
@@ -70,6 +99,9 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
             window.sessionStorage.clear();
           }
         };
+
+        // Run validation first
+        validateAuthState();
 
         // Get token and make authenticated request
         let token = localStorage.getItem('authToken');
@@ -177,11 +209,41 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
 
     window.addEventListener('authTokenChanged', handleTokenChange);
 
+    // 🛡️ RECOVERY MECHANISM: Auto-recovery for auth failures
+    const setupRecoveryMechanism = () => {
+      let consecutiveFailures = 0;
+      const maxFailures = 3;
+      
+      const interval = setInterval(() => {
+        const token = localStorage.getItem('authToken');
+        const hasValidUser = user && user.id;
+        
+        // Check for auth failure pattern
+        if (token && !hasValidUser && !loading) {
+          consecutiveFailures++;
+          console.log(`🔄 AUTH RECOVERY: Failure ${consecutiveFailures}/${maxFailures} detected`);
+          
+          if (consecutiveFailures >= maxFailures) {
+            console.log('🔧 AUTH RECOVERY: Auto-recovering auth state...');
+            checkAuth(); // Re-run auth check
+            consecutiveFailures = 0; // Reset counter
+          }
+        } else {
+          consecutiveFailures = 0; // Reset on success
+        }
+      }, 5000); // Check every 5 seconds
+      
+      return interval;
+    };
+
+    const recoveryInterval = setupRecoveryMechanism();
+
     return () => {
       window.removeEventListener('storage', handleStorageChange);
       window.removeEventListener('authTokenChanged', handleTokenChange);
+      clearInterval(recoveryInterval);
     };
-  }, []);
+  }, [user, loading]);
 
   const signOut = async () => {
     try {

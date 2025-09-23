@@ -43,6 +43,7 @@ const Index = () => {
   });
   const [loginLoading, setLoginLoading] = useState(false);
   const [isNavigating, setIsNavigating] = useState(false);
+  const [loginFailures, setLoginFailures] = useState(0);
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -83,23 +84,34 @@ const Index = () => {
           attempts++;
           console.log(`🔄 LOGIN: Auth context check ${attempts}/${maxAttempts}`);
           
+          // 🛡️ CIRCUIT BREAKER: Prevent infinite auth loops
+          if (loginFailures > 2) {
+            console.log('🚨 LOGIN: Too many failures - using fallback navigation');
+            setTimeout(() => navigate('/dashboard', { replace: true }), 500);
+            return;
+          }
+          
           // Check if auth context has loaded the user by making a test API call
           fetch('/api/auth/user', {
             headers: { Authorization: `Bearer ${token}` }
           }).then(res => res.json()).then(user => {
             if (user && user.id === userData.id) {
               console.log('✅ LOGIN: Auth context ready with user data');
+              setLoginFailures(0); // Reset failures on success
               navigate('/dashboard', { replace: true });
             } else if (attempts < maxAttempts) {
               setTimeout(waitForAuthContext, 100);
             } else {
               console.log('⏰ LOGIN: Max attempts reached, navigating anyway');
+              setLoginFailures(prev => prev + 1);
               navigate('/dashboard', { replace: true });
             }
-          }).catch(() => {
+          }).catch(error => {
+            console.log('🔄 LOGIN: Auth check error:', error);
             if (attempts < maxAttempts) {
               setTimeout(waitForAuthContext, 100);
             } else {
+              setLoginFailures(prev => prev + 1);
               navigate('/dashboard', { replace: true });
             }
           });

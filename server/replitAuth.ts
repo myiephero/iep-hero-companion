@@ -175,7 +175,7 @@ export async function setupAuth(app: Express) {
     console.log(`Callback request from domain: ${domain}`);
     passport.authenticate(`replitauth:${domain}`, {
       failureRedirect: "/api/login",
-    })(req, res, (err) => {
+    })(req, res, async (err) => {
       if (err) {
         return next(err);
       }
@@ -197,7 +197,47 @@ export async function setupAuth(app: Express) {
         return res.redirect(`/subscription-setup?${params.toString()}`);
       }
       
-      // Default redirect
+      // Get user data to determine plan-specific dashboard redirect
+      try {
+        const userClaims = user.claims;
+        const userId = userClaims.sub;
+        
+        // Fetch user data from database to get role and subscription plan
+        const { storage } = await import('./storage');
+        const userData = await storage.getUserById(userId);
+        
+        if (userData && userData.role && userData.subscriptionPlan) {
+          let dashboardPath;
+          
+          if (userData.role === 'parent') {
+            const planSlug = userData.subscriptionPlan.toLowerCase().replace(/\s+/g, '') || 'free';
+            const supportedPlans = ['free', 'basic', 'plus', 'explorer', 'premium', 'hero', 'essential'];
+            const normalizedPlan = supportedPlans.includes(planSlug) ? planSlug : 'free';
+            dashboardPath = `/parent/dashboard-${normalizedPlan}`;
+          } else if (userData.role === 'advocate') {
+            const advocatePlanMapping = {
+              'starter': 'starter',
+              'pro': 'pro',
+              'premium': 'pro', // Premium plan maps to pro dashboard
+              'agency': 'agency',
+              'agency plus': 'agency-plus',
+              'agencyplus': 'agency-plus'
+            };
+            const planKey = userData.subscriptionPlan.toLowerCase() || 'starter';
+            const planSlug = advocatePlanMapping[planKey] || 'starter';
+            dashboardPath = `/advocate/dashboard-${planSlug}`;
+          } else {
+            dashboardPath = '/dashboard';
+          }
+          
+          console.log(`🚀 Replit Auth: Redirecting ${userData.email} (${userData.role}, ${userData.subscriptionPlan}) to plan-specific dashboard:`, dashboardPath);
+          return res.redirect(dashboardPath);
+        }
+      } catch (error) {
+        console.error('❌ Error determining plan-specific dashboard redirect:', error);
+      }
+      
+      // Default redirect if plan-specific redirect fails
       res.redirect("/");
     });
   });

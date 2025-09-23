@@ -28,7 +28,8 @@ const Auth = () => {
     } else if (user?.role === 'advocate') {
       const advocatePlanMapping = {
         'starter': 'starter',
-        'pro': 'pro', 
+        'pro': 'pro',
+        'premium': 'pro', // Premium plan maps to pro dashboard
         'agency': 'agency',
         'agency plus': 'agency-plus',
         'agencyplus': 'agency-plus'

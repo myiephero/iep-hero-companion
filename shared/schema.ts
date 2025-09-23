@@ -512,3 +512,63 @@ export type InsertMessageAttachment = typeof message_attachments.$inferInsert;
 
 export type Student = typeof students.$inferSelect;
 export type InsertStudent = typeof students.$inferInsert;
+
+// Subscription events table - tracks all subscription lifecycle events
+export const subscription_events = pgTable("subscription_events", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  user_id: varchar("user_id").notNull().references(() => users.id, { onDelete: "cascade" }),
+  stripe_subscription_id: varchar("stripe_subscription_id"),
+  stripe_customer_id: varchar("stripe_customer_id"),
+  event_type: varchar("event_type").notNull(), // subscription.created, subscription.updated, subscription.cancelled, invoice.payment_failed, etc.
+  stripe_event_id: varchar("stripe_event_id").unique(), // Stripe's webhook event ID for idempotency
+  event_data: json("event_data"), // Store the full Stripe event data
+  previous_status: varchar("previous_status"),
+  new_status: varchar("new_status"),
+  processed_at: timestamp("processed_at").defaultNow(),
+  created_at: timestamp("created_at").defaultNow(),
+});
+
+// Refunds table - tracks refund requests and processing
+export const refunds = pgTable("refunds", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  user_id: varchar("user_id").notNull().references(() => users.id, { onDelete: "cascade" }),
+  stripe_subscription_id: varchar("stripe_subscription_id"),
+  stripe_customer_id: varchar("stripe_customer_id"),
+  stripe_refund_id: varchar("stripe_refund_id").unique(), // Stripe refund ID once processed
+  stripe_payment_intent_id: varchar("stripe_payment_intent_id"), // Original payment to refund
+  amount: integer("amount"), // Amount in cents
+  currency: varchar("currency").default('usd'),
+  reason: varchar("reason"), // duplicate, fraudulent, requested_by_customer
+  status: varchar("status").notNull().default('pending'), // pending, processing, completed, failed, cancelled
+  refund_type: varchar("refund_type").notNull(), // full, partial, automatic
+  requested_by: varchar("requested_by").notNull(), // user_id who requested the refund
+  admin_notes: text("admin_notes"), // Internal notes about the refund
+  customer_reason: text("customer_reason"), // Customer's reason for requesting refund
+  processed_at: timestamp("processed_at"),
+  created_at: timestamp("created_at").defaultNow(),
+  updated_at: timestamp("updated_at").defaultNow(),
+});
+
+// Cancellation requests table - tracks user account cancellation requests
+export const cancellation_requests = pgTable("cancellation_requests", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  user_id: varchar("user_id").notNull().references(() => users.id, { onDelete: "cascade" }),
+  cancellation_reason: varchar("cancellation_reason"), // dissatisfied, too_expensive, found_alternative, temporary, other
+  feedback: text("feedback"), // User's detailed feedback
+  requested_refund: boolean("requested_refund").default(false),
+  cancel_immediately: boolean("cancel_immediately").default(true), // Cancel now vs end of billing period
+  status: varchar("status").notNull().default('pending'), // pending, processing, completed, cancelled
+  processed_by: varchar("processed_by"), // Admin user who processed the cancellation
+  processed_at: timestamp("processed_at"),
+  created_at: timestamp("created_at").defaultNow(),
+  updated_at: timestamp("updated_at").defaultNow(),
+});
+
+export type SubscriptionEvent = typeof subscription_events.$inferSelect;
+export type InsertSubscriptionEvent = typeof subscription_events.$inferInsert;
+
+export type Refund = typeof refunds.$inferSelect;
+export type InsertRefund = typeof refunds.$inferInsert;
+
+export type CancellationRequest = typeof cancellation_requests.$inferSelect;
+export type InsertCancellationRequest = typeof cancellation_requests.$inferInsert;

@@ -269,6 +269,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
       const token = localStorage.getItem('authToken');
       if (!token) return;
       
+      console.log('🔄 Refreshing user data...');
       const response = await fetch('/api/auth/user', {
         credentials: 'include',
         headers: {
@@ -278,8 +279,17 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
       
       if (response.ok) {
         const userData = await response.json();
+        console.log('✅ User data refreshed:', userData);
+        console.log('🔍 New subscription plan:', userData.subscriptionPlan);
         setUser(userData);
         setProfile(userData);
+        
+        // Dispatch custom event to notify components of subscription update
+        if (userData.subscriptionPlan) {
+          window.dispatchEvent(new CustomEvent('subscriptionUpdated', { 
+            detail: { plan: userData.subscriptionPlan, status: userData.subscriptionStatus } 
+          }));
+        }
       }
     } catch (error) {
       console.error('Failed to refresh user:', error);

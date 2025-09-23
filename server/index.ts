@@ -654,6 +654,58 @@ app.get('/api/_version', (req, res) => {
   });
 });
 
+// Manual subscription status refresh endpoint
+app.post('/api/auth/refresh-subscription', async (req, res) => {
+  try {
+    const userId = await getUserId(req);
+    
+    if (userId === 'anonymous-user') {
+      return res.status(401).json({ error: 'Authentication required' });
+    }
+    
+    console.log(`🔄 Manual subscription refresh requested for user: ${userId}`);
+    
+    // Fetch fresh user data from database
+    const [userResult] = await db.select({
+      id: schema.users.id,
+      email: schema.users.email,
+      subscriptionPlan: schema.users.subscriptionPlan,
+      subscriptionStatus: schema.users.subscriptionStatus,
+      stripeCustomerId: schema.users.stripeCustomerId,
+      stripeSubscriptionId: schema.users.stripeSubscriptionId,
+      updatedAt: schema.users.updatedAt,
+    })
+      .from(schema.users)
+      .where(eq(schema.users.id, userId))
+      .limit(1);
+    
+    if (!userResult) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+    
+    console.log(`✅ Fresh subscription data for ${userResult.email}:`, {
+      plan: userResult.subscriptionPlan,
+      status: userResult.subscriptionStatus
+    });
+    
+    res.json({
+      success: true,
+      message: 'Subscription status refreshed',
+      subscription: {
+        plan: userResult.subscriptionPlan,
+        status: userResult.subscriptionStatus,
+        lastUpdated: userResult.updatedAt
+      }
+    });
+  } catch (error) {
+    console.error('❌ Error refreshing subscription status:', error);
+    res.status(500).json({
+      error: 'Failed to refresh subscription status',
+      message: error instanceof Error ? error.message : 'Unknown error',
+    });
+  }
+});
+
 
 // Update profile endpoint - SECURE VERSION
 app.put('/api/auth/update-profile', async (req: any, res) => {

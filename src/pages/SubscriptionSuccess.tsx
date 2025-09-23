@@ -4,14 +4,17 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Check, Sparkles, ArrowRight, Gift, Crown, Users } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
+import { useToast } from '@/hooks/use-toast';
 
 export default function SubscriptionSuccess() {
   const location = useLocation();
   const navigate = useNavigate();
-  const { user } = useAuth();
+  const { user, refreshUser } = useAuth();
+  const { toast } = useToast();
   const [showConfetti, setShowConfetti] = useState(true);
   const [countDown, setCountDown] = useState(10);
   const [accountCreated, setAccountCreated] = useState(false);
+  const [subscriptionRefreshed, setSubscriptionRefreshed] = useState(false);
 
   // Extract session info from URL params
   const urlParams = new URLSearchParams(location.search);
@@ -42,6 +45,35 @@ export default function SubscriptionSuccess() {
     
     createAccount();
   }, [sessionId, planId, role, accountCreated]);
+
+  // Refresh subscription data after successful upgrade
+  useEffect(() => {
+    const refreshSubscriptionData = async () => {
+      if (!user || subscriptionRefreshed) return;
+      
+      console.log('🔄 Subscription Success: Refreshing user session to show new plan...');
+      
+      // Wait a moment for the webhook to process
+      setTimeout(async () => {
+        try {
+          await refreshUser();
+          setSubscriptionRefreshed(true);
+          
+          toast({
+            title: "🎉 Subscription Updated!",
+            description: "Your new plan is now active. Welcome to premium features!",
+            duration: 5000,
+          });
+          
+          console.log('✅ Subscription Success: User session refreshed');
+        } catch (error) {
+          console.error('❌ Error refreshing subscription data:', error);
+        }
+      }, 2000); // 2 second delay to allow webhook processing
+    };
+    
+    refreshSubscriptionData();
+  }, [user, refreshUser, subscriptionRefreshed, toast]);
 
   // Confetti effect
   useEffect(() => {

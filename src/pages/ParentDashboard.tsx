@@ -190,6 +190,31 @@ export default function ParentDashboard({ plan }: ParentDashboardProps) {
     }
   }, [user]);
 
+  // Listen for subscription updates from successful upgrades
+  useEffect(() => {
+    const handleSubscriptionUpdate = (event: CustomEvent) => {
+      const { plan, status } = event.detail;
+      console.log('🎉 Dashboard: Received subscription update event:', { plan, status });
+      
+      toast({
+        title: "🎉 Plan Updated!",
+        description: `Your ${plan} plan is now active! Dashboard will refresh shortly.`,
+        duration: 8000,
+      });
+      
+      // Refresh the page after a delay to show new plan features
+      setTimeout(() => {
+        window.location.reload();
+      }, 3000);
+    };
+    
+    window.addEventListener('subscriptionUpdated', handleSubscriptionUpdate as EventListener);
+    
+    return () => {
+      window.removeEventListener('subscriptionUpdated', handleSubscriptionUpdate as EventListener);
+    };
+  }, [toast]);
+
   const fetchData = async () => {
     try {
       // Fetch goals using new API
@@ -587,6 +612,47 @@ export default function ParentDashboard({ plan }: ParentDashboardProps) {
                       >
                         <Crown className="h-5 w-5 mr-2" />
                         Upgrade Now
+                      </Button>
+                      <Button 
+                        onClick={async (e) => {
+                          e.preventDefault();
+                          e.stopPropagation();
+                          try {
+                            const response = await fetch('/api/auth/refresh-subscription', {
+                              method: 'POST',
+                              credentials: 'include',
+                              headers: {
+                                'Authorization': `Bearer ${localStorage.getItem('authToken')}`,
+                              },
+                            });
+                            
+                            if (response.ok) {
+                              const data = await response.json();
+                              toast({
+                                title: "Subscription Refreshed",
+                                description: `Current plan: ${data.subscription.plan || 'free'}`,
+                              });
+                              // Trigger page refresh if plan changed
+                              window.location.reload();
+                            } else {
+                              throw new Error('Failed to refresh subscription');
+                            }
+                          } catch (error) {
+                            console.error('Error refreshing subscription:', error);
+                            toast({
+                              title: "Refresh Failed",
+                              description: "Unable to refresh subscription status. Please try logging out and back in.",
+                              variant: "destructive"
+                            });
+                          }
+                        }}
+                        variant="outline"
+                        size="sm"
+                        className="bg-white/10 border-white/30 text-white hover:bg-white/20"
+                        data-testid="button-refresh-subscription"
+                      >
+                        <ArrowUpRight className="h-4 w-4 mr-2" />
+                        Refresh Plan Status
                       </Button>
                     </div>
                   </div>

@@ -9,6 +9,9 @@ import expertRoutes from './routes/expert';
 import expertReviewPaymentRoutes from './routes/expertReviewPayments';
 import feedbackRoutes from './routes/feedback';
 import messagingRoutes from './routes/messaging';
+import stripeWebhookRoutes from './routes/stripe-webhooks';
+import subscriptionManagementRoutes from './routes/subscription-management';
+import refundProcessingRoutes from './routes/refund-processing';
 // Removed non-existent main routes import
 import { createRequire } from 'module';
 const require = createRequire(import.meta.url);
@@ -3628,6 +3631,9 @@ app.use('/api/create-expert-review-payment', expertReviewPaymentRoutes);
 app.use('/api/expert-review-payment-success', expertReviewPaymentRoutes);
 app.use('/api/feedback', feedbackRoutes);
 app.use('/api/messaging', messagingRoutes);
+app.use('/api/stripe', stripeWebhookRoutes);
+app.use('/api/subscription', subscriptionManagementRoutes);
+app.use('/api/refund', refundProcessingRoutes);
 // app.use('/api', mainRoutes); // Temporarily disabled - session context issue
 
 // Serve static files from the dist directory - IMPORTANT: This must come AFTER all API routes

@@ -12,6 +12,7 @@ import messagingRoutes from './routes/messaging';
 import stripeWebhookRoutes from './routes/stripe-webhooks';
 import subscriptionManagementRoutes from './routes/subscription-management';
 import refundProcessingRoutes from './routes/refund-processing';
+import accountDeletionRoutes from './routes/account-deletion';
 // Removed non-existent main routes import
 import { createRequire } from 'module';
 const require = createRequire(import.meta.url);
@@ -3677,6 +3678,7 @@ app.use('/api/feedback', feedbackRoutes);
 app.use('/api/messaging', messagingRoutes);
 app.use('/api/stripe', stripeWebhookRoutes);
 app.use('/api/subscription', subscriptionManagementRoutes);
+app.use('/api/account', accountDeletionRoutes);
 app.use('/api/refund', refundProcessingRoutes);
 // app.use('/api', mainRoutes); // Temporarily disabled - session context issue
 

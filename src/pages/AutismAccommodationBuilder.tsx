@@ -484,9 +484,11 @@ const AutismAccommodationBuilder = () => {
                   <SelectContent>
                     <SelectItem value="general">{isAdvocate ? "General Template" : "General Accommodations"}</SelectItem>
                     {students?.map((student: any) => (
-                      <SelectItem key={student.id} value={student.id}>
-                        {student.full_name} - {student.grade_level ? `Grade ${student.grade_level}` : 'No Grade'}
-                      </SelectItem>
+                      student.id && (
+                        <SelectItem key={student.id} value={student.id}>
+                          {student.full_name} - {student.grade_level ? `Grade ${student.grade_level}` : 'No Grade'}
+                        </SelectItem>
+                      )
                     ))}
                   </SelectContent>
                 </Select>

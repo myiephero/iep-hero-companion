@@ -10,7 +10,7 @@ export interface StripePlanConfig {
   setupFee?: number; // Optional one-time setup fee
 }
 
-// Parent Plans (4 total - Streamlined Structure)
+// Parent Plans (7 total - Monthly & Annual Options)
 export const PARENT_STRIPE_PLANS: Record<string, StripePlanConfig> = {
   free: {
     priceId: '', // Free plan doesn't need Stripe
@@ -19,6 +19,7 @@ export const PARENT_STRIPE_PLANS: Record<string, StripePlanConfig> = {
     description: 'Community access with basic tools',
     features: ['1 student', '5 core tools', 'Community support', 'IDEA Rights Guide']
   },
+  // Monthly Plans
   essential: {
     priceId: 'price_1SAfBF5NUzvJWP8HQzBOdCmq', // LIVE: Essential $59/month
     amount: 59,
@@ -27,8 +28,8 @@ export const PARENT_STRIPE_PLANS: Record<string, StripePlanConfig> = {
     features: ['1 student', '30+ tools', 'AI analysis', 'IEP Master Suite', 'Letter generator', 'Priority support']
   },
   premium: {
-    priceId: 'price_1SAfBG5NUzvJWP8HhxnwuSeJ', // LIVE: Premium $149/month
-    amount: 149,
+    priceId: 'price_1SAh1k5NUzvJWP8HxzZRqVfH', // LIVE: Premium $199/month (updated pricing)
+    amount: 199,
     interval: 'month',
     description: 'Advanced multi-child support with expert features',
     features: ['3 students', '45+ tools', 'Advanced AI', 'Expert analysis', 'Emotion tracking', 'Phone support']
@@ -40,6 +41,29 @@ export const PARENT_STRIPE_PLANS: Record<string, StripePlanConfig> = {
     description: 'Complete advocacy platform with matching',
     features: ['Unlimited students', 'ALL 50+ tools', 'Advocate matching', 'White-glove setup', 'Dedicated support'],
     setupFee: 495 // One-time setup fee for Hero Family Pack (includes first month)
+  },
+  // Annual Plans
+  'essential-annual': {
+    priceId: 'price_1SAh1k5NUzvJWP8H4q7qWdap', // LIVE: Essential Annual $588/year ($49/month equivalent)
+    amount: 588,
+    interval: 'year',
+    description: 'AI-powered analysis and comprehensive planning tools (Annual)',
+    features: ['1 student', '30+ tools', 'AI analysis', 'IEP Master Suite', 'Letter generator', 'Priority support', 'Save $120/year']
+  },
+  'premium-annual': {
+    priceId: 'price_1SAh1k5NUzvJWP8HOSOkLRZP', // LIVE: Premium Annual $1,788/year ($149/month equivalent)
+    amount: 1788,
+    interval: 'year',
+    description: 'Advanced multi-child support with expert features (Annual)',
+    features: ['3 students', '45+ tools', 'Advanced AI', 'Expert analysis', 'Emotion tracking', 'Phone support', 'Save $600/year']
+  },
+  'hero-annual': {
+    priceId: 'price_1SAh1l5NUzvJWP8HcO1suNBw', // LIVE: Hero Annual $2,388/year ($199/month equivalent)
+    amount: 2388,
+    interval: 'year',
+    description: 'Complete advocacy platform with matching (Annual)',
+    features: ['Unlimited students', 'ALL 50+ tools', 'Advocate matching', 'White-glove setup', 'Dedicated support', 'Save $600/year'],
+    setupFee: 495 // One-time setup fee for Hero Family Pack
   }
 };
 
@@ -112,8 +136,12 @@ export function requiresPayment(planId: string): boolean {
 
 // Helper function to get checkout URL with plan data
 export function getCheckoutUrl(planId: string, role: 'parent' | 'advocate', isAnnual: boolean = false): string {
-  // For advocate plans, append -annual if annual billing is selected
-  const actualPlanId = role === 'advocate' && isAnnual && !planId.includes('-annual') ? `${planId}-annual` : planId;
+  // For both parent and advocate plans, append -annual if annual billing is selected
+  let actualPlanId = planId;
+  if (isAnnual && !planId.includes('-annual')) {
+    actualPlanId = `${planId}-annual`;
+  }
+  
   const config = getStripePlanConfig(actualPlanId);
   
   // Only free plan goes to dashboard
@@ -132,6 +160,9 @@ export function getCheckoutUrl(planId: string, role: 'parent' | 'advocate', isAn
     'essential': 'Essential',
     'premium': 'Premium',
     'hero': 'Hero Family Pack',
+    'essential-annual': 'Essential Annual',
+    'premium-annual': 'Premium Annual',
+    'hero-annual': 'Hero Family Pack Annual',
     'starter': 'Starter',
     'pro': 'Pro',
     'agency': 'Agency',

@@ -67,7 +67,14 @@ import { queryClient } from "./lib/queryClient";
 // Simple role-based component selector
 function RoleBasedDashboard() {
   const { user } = useAuth();
-  return user?.role === 'advocate' ? <AdvocateDashboard /> : <ParentDashboard />;
+  
+  // Redirect advocates to their plan-specific dashboard
+  if (user?.role === 'advocate') {
+    const plan = user.subscriptionPlan?.toLowerCase() || 'starter';
+    return <Navigate to={`/advocate/dashboard-${plan}`} replace />;
+  }
+  
+  return <ParentDashboard />;
 }
 
 function RoleBasedMessages() {

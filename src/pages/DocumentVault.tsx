@@ -263,7 +263,7 @@ const DocumentVault: React.FC = () => {
                          doc.file_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
                          studentName.toLowerCase().includes(searchTerm.toLowerCase()) ||
                          doc.category?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         doc.tags?.some(tag => tag.toLowerCase().includes(searchTerm.toLowerCase()));
+                         (Array.isArray(doc.tags) ? doc.tags.some((tag: string) => tag.toLowerCase().includes(searchTerm.toLowerCase())) : false);
     
     const matchesType = filterType === 'all' || 
                        doc.file_type?.includes(filterType) ||
@@ -271,11 +271,11 @@ const DocumentVault: React.FC = () => {
                        (filterType === 'ai review' && doc.category === 'AI Analysis');
     
     const matchesTab = activeTab === 'all' ||
-                      (activeTab === 'iep' && (doc.category === 'IEP' || doc.tags?.includes('IEP'))) ||
-                      (activeTab === 'evaluations' && (doc.category === 'Evaluation' || doc.tags?.includes('Evaluation'))) ||
+                      (activeTab === 'iep' && (doc.category === 'IEP' || (Array.isArray(doc.tags) && doc.tags.includes('IEP')))) ||
+                      (activeTab === 'evaluations' && (doc.category === 'Evaluation' || (Array.isArray(doc.tags) && doc.tags.includes('Evaluation')))) ||
                       (activeTab === 'ai-analysis' && doc.category === 'AI Analysis') ||
-                      (activeTab === 'reports' && (doc.category === 'Report' || doc.tags?.includes('Report'))) ||
-                      (activeTab === 'meeting-notes' && (doc.category === 'Meeting Notes' || doc.tags?.includes('Meeting')));
+                      (activeTab === 'reports' && (doc.category === 'Report' || (Array.isArray(doc.tags) && doc.tags.includes('Report')))) ||
+                      (activeTab === 'meeting-notes' && (doc.category === 'Meeting Notes' || (Array.isArray(doc.tags) && doc.tags.includes('Meeting'))));
     
     return matchesSearch && matchesType && matchesTab;
   });
@@ -286,11 +286,11 @@ const DocumentVault: React.FC = () => {
     
     return {
       all: documents.length,
-      iep: documents.filter(doc => doc.category === 'IEP' || doc.tags?.includes('IEP')).length,
-      evaluations: documents.filter(doc => doc.category === 'Evaluation' || doc.tags?.includes('Evaluation')).length,
+      iep: documents.filter(doc => doc.category === 'IEP' || (Array.isArray(doc.tags) && doc.tags.includes('IEP'))).length,
+      evaluations: documents.filter(doc => doc.category === 'Evaluation' || (Array.isArray(doc.tags) && doc.tags.includes('Evaluation'))).length,
       aiAnalysis: documents.filter(doc => doc.category === 'AI Analysis').length,
-      reports: documents.filter(doc => doc.category === 'Report' || doc.tags?.includes('Report')).length,
-      meetingNotes: documents.filter(doc => doc.category === 'Meeting Notes' || doc.tags?.includes('Meeting')).length,
+      reports: documents.filter(doc => doc.category === 'Report' || (Array.isArray(doc.tags) && doc.tags.includes('Report'))).length,
+      meetingNotes: documents.filter(doc => doc.category === 'Meeting Notes' || (Array.isArray(doc.tags) && doc.tags.includes('Meeting'))).length,
     };
   };
 

@@ -372,7 +372,12 @@ function App() {
                 </ProtectedRoute>
               } />
               
-              {/* Advocate Matching Route */}
+              {/* Matching Routes */}
+              <Route path="/parent/matching" element={
+                <ProtectedRoute allowedRoles={['parent']}>
+                  <MatchingDashboard />
+                </ProtectedRoute>
+              } />
               <Route path="/advocate/matching" element={
                 <ProtectedRoute allowedRoles={['advocate']}>
                   <MatchingDashboard />

@@ -58,10 +58,6 @@ localPort = 34777
 externalPort = 3000
 
 [[ports]]
-localPort = 36989
-externalPort = 8000
-
-[[ports]]
 localPort = 37217
 externalPort = 9000
 
@@ -92,6 +88,10 @@ externalPort = 8080
 [[ports]]
 localPort = 44963
 externalPort = 5173
+
+[[ports]]
+localPort = 45931
+externalPort = 8000
 
 [agent]
 integrations = ["javascript_log_in_with_replit==1.0.0", "javascript_database==1.0.0", "javascript_auth_all_persistance==1.0.0", "javascript_openai==1.0.0", "javascript_object_storage==1.0.0", "javascript_paypal==1.0.0", "javascript_supabase==1.0.0", "javascript_stripe==1.0.0"]

@@ -145,18 +145,6 @@ export default function SubscriptionSuccess() {
         {/* Success Details */}
         <Card className="bg-white/80 backdrop-blur-sm border-0 shadow-2xl">
           <CardContent className="p-8 space-y-6">
-            {/* Payment Confirmation */}
-            {sessionId && (
-              <div className="bg-green-50 border border-green-200 rounded-lg p-4">
-                <div className="flex items-center gap-2 mb-2">
-                  <Check className="h-5 w-5 text-green-600" />
-                  <span className="font-medium text-green-900">Payment Confirmed</span>
-                </div>
-                <p className="text-sm text-green-700">
-                  Session ID: {sessionId.slice(-12)}
-                </p>
-              </div>
-            )}
 
             {/* What's Next */}
             <div className="space-y-4">
@@ -171,8 +159,8 @@ export default function SubscriptionSuccess() {
                     <div className="flex items-start gap-3 p-3 bg-blue-50 rounded-lg">
                       <div className="w-8 h-8 bg-blue-500 text-white rounded-full flex items-center justify-center text-sm font-bold">1</div>
                       <div>
-                        <h3 className="font-medium text-blue-900">Upload Your IEP Documents</h3>
-                        <p className="text-sm text-blue-700">Get AI-powered analysis and insights within minutes</p>
+                        <h3 className="font-medium text-blue-900">Check your email to verify your account.</h3>
+                        <p className="text-sm text-blue-700">Complete email verification to activate your account</p>
                       </div>
                     </div>
                     
@@ -222,23 +210,6 @@ export default function SubscriptionSuccess() {
               </div>
             </div>
 
-            {/* Special Welcome Bonus */}
-            <div className="bg-gradient-to-r from-amber-50 to-orange-50 border border-amber-200 rounded-lg p-4">
-              <div className="flex items-center gap-2 mb-2">
-                <Gift className="h-5 w-5 text-amber-600" />
-                <span className="font-medium text-amber-900">Welcome Bonus!</span>
-              </div>
-              <p className="text-sm text-amber-800 mb-3">
-                {isParent 
-                  ? "Get your first IEP analysis free! Upload a document to see our AI in action."
-                  : "Your first month includes premium client management tools at no extra charge."
-                }
-              </p>
-              <div className="flex items-center gap-2 text-xs text-amber-700">
-                <Crown className="h-3 w-3" />
-                <span>Premium subscriber exclusive</span>
-              </div>
-            </div>
 
             {/* Action Buttons */}
             <div className="flex flex-col sm:flex-row gap-4 pt-4">

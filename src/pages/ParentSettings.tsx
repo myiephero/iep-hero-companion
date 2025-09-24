@@ -6,6 +6,7 @@ import { Switch } from "@/components/ui/switch";
 import { Separator } from "@/components/ui/separator";
 import { DashboardLayout } from "@/layouts/DashboardLayout";
 import { useTheme } from "@/contexts/ThemeContext";
+import { AccountDeletion } from "@/components/AccountDeletion";
 import { Moon, Sun, User, Bell, Shield } from "lucide-react";
 
 export default function ParentSettings() {
@@ -141,9 +142,7 @@ export default function ParentSettings() {
                 Two-Factor Authentication
               </Button>
               <Separator />
-              <Button variant="destructive" data-testid="button-delete-account">
-                Delete Account
-              </Button>
+              <AccountDeletion />
             </CardContent>
           </Card>
         </div>

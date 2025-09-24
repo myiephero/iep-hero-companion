@@ -10,6 +10,7 @@ import { Badge } from "@/components/ui/badge";
 import { DashboardLayout } from "@/layouts/DashboardLayout";
 import { useTheme } from "@/contexts/ThemeContext";
 import { useAuth } from "@/hooks/useAuth";
+import { AccountDeletion } from "@/components/AccountDeletion";
 import { useState, useEffect } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
@@ -658,9 +659,7 @@ export default function AdvocateSettings() {
                 Enable Two-Factor Authentication
               </Button>
               <Separator />
-              <Button variant="destructive" data-testid="button-delete-account">
-                Delete Account
-              </Button>
+              <AccountDeletion />
             </CardContent>
           </Card>
         </div>

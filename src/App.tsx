@@ -40,7 +40,7 @@ import AdvocateSettings from "./pages/AdvocateSettings";
 // Import missing tool components
 import SmartLetterGenerator from "./pages/SmartLetterGenerator";
 import UnifiedIEPReview from "./pages/UnifiedIEPReview";
-import IEPMasterSuite from "./pages/IEPMasterSuite";
+import ParentIEPMasterSuite from "./pages/ParentIEPMasterSuite";
 import MatchingDashboard from "./pages/MatchingDashboard";
 import DocumentVault from "./pages/DocumentVault";
 import AutismAccommodationBuilder from "./pages/AutismAccommodationBuilder";
@@ -189,7 +189,7 @@ function App() {
               } />
               <Route path="/parent/tools/iep-master-suite" element={
                 <ProtectedRoute allowedRoles={['parent']}>
-                  <IEPMasterSuite />
+                  <ParentIEPMasterSuite />
                 </ProtectedRoute>
               } />
               <Route path="/parent/tools/idea-rights-guide" element={
@@ -265,7 +265,7 @@ function App() {
               } />
               <Route path="/advocate/tools/iep-master-suite" element={
                 <ProtectedRoute allowedRoles={['advocate']}>
-                  <IEPMasterSuite />
+                  <UnifiedIEPReview />
                 </ProtectedRoute>
               } />
               <Route path="/advocate/tools/smart-letter-generator" element={
@@ -404,7 +404,7 @@ function App() {
               } />
               <Route path="/iep-master-suite" element={
                 <ProtectedRoute allowedRoles={['parent', 'advocate']}>
-                  <IEPMasterSuite />
+                  <ParentIEPMasterSuite />
                 </ProtectedRoute>
               } />
               

@@ -16,6 +16,10 @@ export default defineConfig(({ mode }) => ({
       },
     },
   },
+  define: {
+    // Override NODE_ENV for Vite if needed
+    'process.env.NODE_ENV': JSON.stringify(mode),
+  },
   plugins: [
     react(),
     mode === "development" && componentTagger(),

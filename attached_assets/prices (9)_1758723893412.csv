@@ -1,0 +1,17 @@
+Price ID,Product ID,Product Name,Product Statement Descriptor,Product Tax Code,Description,Created (UTC),Amount,Currency,Interval,Interval Count,Usage Type,Aggregate Usage,Billing Scheme,Trial Period Days,Tax Behavior,monthly_equivalent (metadata),updated_pricing (metadata),billing_type (metadata),plan_id (metadata)
+price_1SAtbg5NUzvJWP8He4bMz5EE,prod_T77rnIpcl64wHv,Advocate - Pro,,,,2025-09-24 14:23,1188.00,usd,,,,,per_unit,,unspecified,,,,
+price_1SAtbg5NUzvJWP8HE0yqWnww,prod_T77rnIpcl64wHv,Advocate - Pro,,,,2025-09-24 14:23,149.00,usd,month,1,licensed,,per_unit,,unspecified,,,,
+price_1SAh1l5NUzvJWP8HcO1suNBw,prod_T6sxxb5vcH0g36,Parent- Hero,,,,2025-09-24 00:57,2388.00,usd,year,1,licensed,,per_unit,,unspecified,199,,annual,hero-annual
+price_1SAh1k5NUzvJWP8H4q7qWdap,prod_T6sxMTfj2hreWi,Parent - Essential,,,,2025-09-24 00:57,588.00,usd,year,1,licensed,,per_unit,,unspecified,49,,annual,essential-annual
+price_1SAh1k5NUzvJWP8HOSOkLRZP,prod_T6ursff0ML5maH,Parent - Premium,,,,2025-09-24 00:57,1788.00,usd,year,1,licensed,,per_unit,,unspecified,149,,annual,premium-annual
+price_1SAh1k5NUzvJWP8HxzZRqVfH,prod_T6ursff0ML5maH,Parent - Premium,,,,2025-09-24 00:57,199.00,usd,month,1,licensed,,per_unit,,unspecified,,,monthly,premium
+price_1SAh1D5NUzvJWP8HpHYTtbuD,prod_T6uqksYcIXpigF,My IEP Hero - Premium (Updated),,,,2025-09-24 00:57,199.00,usd,month,1,licensed,,per_unit,,unspecified,,true,monthly,premium
+price_1SAfBI5NUzvJWP8HqjVCEqbS,prod_T6sxU9Oa5abDZh,Advocate - Agency,,,,2025-09-23 22:59,495.00,usd,,,,,per_unit,,unspecified,,,setup_fee,agency
+price_1SAfBI5NUzvJWP8HHkLy0ZiT,prod_T6sxU9Oa5abDZh,Advocate - Agency,,,,2025-09-23 22:59,2388.00,usd,year,1,licensed,,per_unit,,unspecified,,,annual,agency-annual
+price_1SAfBI5NUzvJWP8HktrpUMlX,prod_T6sxU9Oa5abDZh,Advocate - Agency,,,,2025-09-23 22:59,249.00,usd,month,1,licensed,,per_unit,,unspecified,,,monthly,agency
+price_1SAfBH5NUzvJWP8HegYOY3As,prod_T6sxeC7SpuexrA,Advocate - Starter,,,,2025-09-23 22:59,468.00,usd,year,1,licensed,,per_unit,,unspecified,,,annual,starter-annual
+price_1SAfBH5NUzvJWP8HgO01WLxu,prod_T6sxeC7SpuexrA,Advocate - Starter,,,,2025-09-23 22:59,49.00,usd,month,1,licensed,,per_unit,,unspecified,,,monthly,starter
+price_1SAfBG5NUzvJWP8HEjbV14RH,prod_T6sxxb5vcH0g36,Parent- Hero,,,,2025-09-23 22:59,495.00,usd,,,,,per_unit,,unspecified,,,setup_fee,hero
+price_1SAfBG5NUzvJWP8HOW3WQrD4,prod_T6sxxb5vcH0g36,Parent- Hero,,,,2025-09-23 22:59,249.00,usd,month,1,licensed,,per_unit,,unspecified,,,monthly,hero
+price_1SAfBG5NUzvJWP8HhxnwuSeJ,prod_T6sxXRmMnypcFq,Parent - Premium,,,,2025-09-23 22:59,149.00,usd,month,1,licensed,,per_unit,,unspecified,,,monthly,premium
+price_1SAfBF5NUzvJWP8HQzBOdCmq,prod_T6sxMTfj2hreWi,Parent - Essential,,,,2025-09-23 22:59,59.00,usd,month,1,licensed,,per_unit,,unspecified,,,monthly,essential

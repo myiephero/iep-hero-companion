@@ -4,6 +4,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { AuthProvider } from "@/hooks/useAuth";
+import { ThemeProvider } from "@/contexts/ThemeContext";
 import { ProtectedRoute } from "@/components/ProtectedRoute";
 
 // Pages
@@ -57,11 +58,12 @@ function RoleBasedStudents() {
 function App() {
   return (
     <QueryClientProvider client={queryClient}>
-      <TooltipProvider>
-        <Toaster />
-        <Sonner />
-          <BrowserRouter>
-        <AuthProvider>
+      <ThemeProvider>
+        <TooltipProvider>
+          <Toaster />
+          <Sonner />
+            <BrowserRouter>
+          <AuthProvider>
             <Routes>
               {/* Public routes */}
               <Route path="/" element={<Index />} />
@@ -303,10 +305,11 @@ function App() {
               {/* 404 */}
               <Route path="*" element={<NotFound />} />
             </Routes>
-        </AuthProvider>
-          </BrowserRouter>
+          </AuthProvider>
+        </BrowserRouter>
       </TooltipProvider>
-    </QueryClientProvider>
+    </ThemeProvider>
+  </QueryClientProvider>
   );
 }
 

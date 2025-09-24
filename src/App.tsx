@@ -54,6 +54,10 @@ import ProgressNotes from "./pages/ProgressNotes";
 import AskAIDocuments from "./pages/AskAIDocuments";
 import CommunicationTracker from "./pages/CommunicationTracker";
 import OTActivityRecommender from "./pages/OTActivityRecommender";
+import OTRecommender from "./pages/OTRecommender";
+import ProgressAnalyzer from "./pages/ProgressAnalyzer";
+import AdvocacyReports from "./pages/AdvocacyReports";
+import AdvocateGiftedToolsHub from "./pages/AdvocateGiftedToolsHub";
 
 import { queryClient } from "./lib/queryClient";
 
@@ -319,6 +323,46 @@ function App() {
               <Route path="/advocate/tools/ot-activities" element={
                 <ProtectedRoute allowedRoles={['advocate']}>
                   <OTActivityRecommender />
+                </ProtectedRoute>
+              } />
+              <Route path="/advocate/tools/ot-recommender" element={
+                <ProtectedRoute allowedRoles={['advocate']}>
+                  <OTRecommender />
+                </ProtectedRoute>
+              } />
+              <Route path="/advocate/tools/progress-analyzer" element={
+                <ProtectedRoute allowedRoles={['advocate']}>
+                  <ProgressAnalyzer />
+                </ProtectedRoute>
+              } />
+              <Route path="/advocate/tools/advocacy-reports" element={
+                <ProtectedRoute allowedRoles={['advocate']}>
+                  <AdvocacyReports />
+                </ProtectedRoute>
+              } />
+              <Route path="/advocate/tools/ask-ai-docs" element={
+                <ProtectedRoute allowedRoles={['advocate']}>
+                  <AskAIDocuments />
+                </ProtectedRoute>
+              } />
+              <Route path="/advocate/gifted-tools" element={
+                <ProtectedRoute allowedRoles={['advocate']}>
+                  <AdvocateGiftedToolsHub />
+                </ProtectedRoute>
+              } />
+              <Route path="/meeting-prep-wizard" element={
+                <ProtectedRoute allowedRoles={['parent', 'advocate']}>
+                  <MeetingPrepWizard />
+                </ProtectedRoute>
+              } />
+              <Route path="/autism-accommodations" element={
+                <ProtectedRoute allowedRoles={['parent', 'advocate']}>
+                  <AutismAccommodationBuilder />
+                </ProtectedRoute>
+              } />
+              <Route path="/idea-rights-guide" element={
+                <ProtectedRoute allowedRoles={['parent', 'advocate']}>
+                  <IDEARightsGuide />
                 </ProtectedRoute>
               } />
               

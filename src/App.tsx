@@ -220,6 +220,11 @@ function App() {
                   <EmergentToolsHubNew />
                 </ProtectedRoute>
               } />
+              <Route path="/parent/tools/document-vault" element={
+                <ProtectedRoute allowedRoles={['parent']}>
+                  <DocumentVault />
+                </ProtectedRoute>
+              } />
               
               {/* Universal Tool Routes */}
               <Route path="/tools/advocate-matching" element={

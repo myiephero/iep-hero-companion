@@ -290,7 +290,7 @@ const AutismAccommodationBuilder = () => {
 
       const response = await apiRequest('POST', '/api/autism_accommodations/generate-iep', {
         accommodation_ids: addedAccommodations,
-        student_id: selectedStudent || null,
+        student_id: selectedStudent === "general" ? null : selectedStudent || null,
         format: 'formal'
       });
 
@@ -333,7 +333,7 @@ const AutismAccommodationBuilder = () => {
     try {
       const response = await apiRequest('POST', '/api/autism_accommodations/preview', {
         accommodation_ids: addedAccommodations,
-        student_id: selectedStudent || null,
+        student_id: selectedStudent === "general" ? null : selectedStudent || null,
         template_type: 'iep'
       });
 
@@ -398,10 +398,10 @@ const AutismAccommodationBuilder = () => {
         } : null;
       }).filter(Boolean);
 
-      const studentName = selectedStudent && students?.find((s: any) => s.id === selectedStudent)?.full_name || "General";
+      const studentName = selectedStudent && selectedStudent !== "general" && students?.find((s: any) => s.id === selectedStudent)?.full_name || "General";
       const documentTitle = `Autism Accommodations - ${studentName}`;
       const documentContent = {
-        studentId: selectedStudent || null,
+        studentId: selectedStudent === "general" ? null : selectedStudent || null,
         studentName: studentName,
         accommodations: selectedAccommodationsList,
         createdDate: new Date().toISOString(),
@@ -422,7 +422,7 @@ const AutismAccommodationBuilder = () => {
         category: 'Accommodation Plan',
         tags: ['autism', 'accommodations', 'plan'],
         content: JSON.stringify(documentContent, null, 2),
-        student_id: selectedStudent || null
+        student_id: selectedStudent === "general" ? null : selectedStudent || null
       });
 
       toast({
@@ -482,7 +482,7 @@ const AutismAccommodationBuilder = () => {
                     <SelectValue placeholder={isAdvocate ? "Select a client's student..." : "Select a student..."} />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="">{isAdvocate ? "General Template" : "General Accommodations"}</SelectItem>
+                    <SelectItem value="general">{isAdvocate ? "General Template" : "General Accommodations"}</SelectItem>
                     {students?.map((student: any) => (
                       <SelectItem key={student.id} value={student.id}>
                         {student.full_name} - {student.grade_level ? `Grade ${student.grade_level}` : 'No Grade'}
@@ -490,7 +490,7 @@ const AutismAccommodationBuilder = () => {
                     ))}
                   </SelectContent>
                 </Select>
-                {isAdvocate && selectedStudent && (
+                {isAdvocate && selectedStudent && selectedStudent !== "general" && (
                   <div className="mt-2 p-3 bg-primary/10 rounded-lg">
                     <p className="text-xs text-primary font-medium">
                       💡 Advocate Tip: Creating accommodations for a specific client will be shared with the parent for review.

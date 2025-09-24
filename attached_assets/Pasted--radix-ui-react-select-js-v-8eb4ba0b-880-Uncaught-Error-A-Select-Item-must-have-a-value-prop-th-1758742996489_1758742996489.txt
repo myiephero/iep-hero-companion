@@ -1,0 +1,173 @@
+@radix-ui_react-select.js?v=8eb4ba0b:880 Uncaught Error: A <Select.Item /> must have a value prop that is not an empty string. This is because the Select value can be set to an empty string to clear the selection and show the placeholder.
+    at @radix-ui_react-select.js?v=8eb4ba0b:880:13
+    at renderWithHooks (chunk-T2SWDQEL.js?v=8eb4ba0b:11548:26)
+    at updateForwardRef (chunk-T2SWDQEL.js?v=8eb4ba0b:14325:28)
+    at beginWork (chunk-T2SWDQEL.js?v=8eb4ba0b:15946:22)
+    at HTMLUnknownElement.callCallback2 (chunk-T2SWDQEL.js?v=8eb4ba0b:3674:22)
+    at Object.invokeGuardedCallbackDev (chunk-T2SWDQEL.js?v=8eb4ba0b:3699:24)
+    at invokeGuardedCallback (chunk-T2SWDQEL.js?v=8eb4ba0b:3733:39)
+    at beginWork$1 (chunk-T2SWDQEL.js?v=8eb4ba0b:19765:15)
+    at performUnitOfWork (chunk-T2SWDQEL.js?v=8eb4ba0b:19198:20)
+    at workLoopSync (chunk-T2SWDQEL.js?v=8eb4ba0b:19137:13)
+(anonymous) @ @radix-ui_react-select.js?v=8eb4ba0b:880
+renderWithHooks @ chunk-T2SWDQEL.js?v=8eb4ba0b:11548
+updateForwardRef @ chunk-T2SWDQEL.js?v=8eb4ba0b:14325
+beginWork @ chunk-T2SWDQEL.js?v=8eb4ba0b:15946
+callCallback2 @ chunk-T2SWDQEL.js?v=8eb4ba0b:3674
+invokeGuardedCallbackDev @ chunk-T2SWDQEL.js?v=8eb4ba0b:3699
+invokeGuardedCallback @ chunk-T2SWDQEL.js?v=8eb4ba0b:3733
+beginWork$1 @ chunk-T2SWDQEL.js?v=8eb4ba0b:19765
+performUnitOfWork @ chunk-T2SWDQEL.js?v=8eb4ba0b:19198
+workLoopSync @ chunk-T2SWDQEL.js?v=8eb4ba0b:19137
+renderRootSync @ chunk-T2SWDQEL.js?v=8eb4ba0b:19116
+performSyncWorkOnRoot @ chunk-T2SWDQEL.js?v=8eb4ba0b:18874
+flushSyncCallbacks @ chunk-T2SWDQEL.js?v=8eb4ba0b:9119
+(anonymous) @ chunk-T2SWDQEL.js?v=8eb4ba0b:18627Understand this error
+ProtectedRoute.tsx:87 ✅ ProtectedRoute: Access granted {userRole: 'advocate', allowedRoles: Array(2)}
+@radix-ui_react-select.js?v=8eb4ba0b:880 Uncaught Error: A <Select.Item /> must have a value prop that is not an empty string. This is because the Select value can be set to an empty string to clear the selection and show the placeholder.
+    at @radix-ui_react-select.js?v=8eb4ba0b:880:13
+    at renderWithHooks (chunk-T2SWDQEL.js?v=8eb4ba0b:11548:26)
+    at updateForwardRef (chunk-T2SWDQEL.js?v=8eb4ba0b:14325:28)
+    at beginWork (chunk-T2SWDQEL.js?v=8eb4ba0b:15946:22)
+    at HTMLUnknownElement.callCallback2 (chunk-T2SWDQEL.js?v=8eb4ba0b:3674:22)
+    at Object.invokeGuardedCallbackDev (chunk-T2SWDQEL.js?v=8eb4ba0b:3699:24)
+    at invokeGuardedCallback (chunk-T2SWDQEL.js?v=8eb4ba0b:3733:39)
+    at beginWork$1 (chunk-T2SWDQEL.js?v=8eb4ba0b:19765:15)
+    at performUnitOfWork (chunk-T2SWDQEL.js?v=8eb4ba0b:19198:20)
+    at workLoopSync (chunk-T2SWDQEL.js?v=8eb4ba0b:19137:13)
+(anonymous) @ @radix-ui_react-select.js?v=8eb4ba0b:880
+renderWithHooks @ chunk-T2SWDQEL.js?v=8eb4ba0b:11548
+updateForwardRef @ chunk-T2SWDQEL.js?v=8eb4ba0b:14325
+beginWork @ chunk-T2SWDQEL.js?v=8eb4ba0b:15946
+callCallback2 @ chunk-T2SWDQEL.js?v=8eb4ba0b:3674
+invokeGuardedCallbackDev @ chunk-T2SWDQEL.js?v=8eb4ba0b:3699
+invokeGuardedCallback @ chunk-T2SWDQEL.js?v=8eb4ba0b:3733
+beginWork$1 @ chunk-T2SWDQEL.js?v=8eb4ba0b:19765
+performUnitOfWork @ chunk-T2SWDQEL.js?v=8eb4ba0b:19198
+workLoopSync @ chunk-T2SWDQEL.js?v=8eb4ba0b:19137
+renderRootSync @ chunk-T2SWDQEL.js?v=8eb4ba0b:19116
+recoverFromConcurrentError @ chunk-T2SWDQEL.js?v=8eb4ba0b:18736
+performSyncWorkOnRoot @ chunk-T2SWDQEL.js?v=8eb4ba0b:18879
+flushSyncCallbacks @ chunk-T2SWDQEL.js?v=8eb4ba0b:9119
+(anonymous) @ chunk-T2SWDQEL.js?v=8eb4ba0b:18627Understand this error
+chunk-T2SWDQEL.js?v=8eb4ba0b:14032 The above error occurred in the <SelectItem> component:
+
+    at https://afd4ab41-fa60-4e78-9742-69bb4e3004d6-00-6i79wn87wfhu.janeway.replit.dev/node_modules/.vite/deps/@radix-ui_react-select.js?v=8eb4ba0b:853:7
+    at _c8 (https://afd4ab41-fa60-4e78-9742-69bb4e3004d6-00-6i79wn87wfhu.janeway.replit.dev/src/components/ui/select.tsx:234:60)
+    at div
+    at https://afd4ab41-fa60-4e78-9742-69bb4e3004d6-00-6i79wn87wfhu.janeway.replit.dev/node_modules/.vite/deps/chunk-LKOAR5GC.js?v=8eb4ba0b:43:13
+    at https://afd4ab41-fa60-4e78-9742-69bb4e3004d6-00-6i79wn87wfhu.janeway.replit.dev/node_modules/.vite/deps/chunk-E7TSFT4J.js?v=8eb4ba0b:79:13
+    at https://afd4ab41-fa60-4e78-9742-69bb4e3004d6-00-6i79wn87wfhu.janeway.replit.dev/node_modules/.vite/deps/chunk-E7TSFT4J.js?v=8eb4ba0b:56:13
+    at https://afd4ab41-fa60-4e78-9742-69bb4e3004d6-00-6i79wn87wfhu.janeway.replit.dev/node_modules/.vite/deps/chunk-W2OT6ZD3.js?v=8eb4ba0b:41:15
+    at https://afd4ab41-fa60-4e78-9742-69bb4e3004d6-00-6i79wn87wfhu.janeway.replit.dev/node_modules/.vite/deps/@radix-ui_react-select.js?v=8eb4ba0b:764:13
+    at div
+    at https://afd4ab41-fa60-4e78-9742-69bb4e3004d6-00-6i79wn87wfhu.janeway.replit.dev/node_modules/.vite/deps/chunk-E7TSFT4J.js?v=8eb4ba0b:79:13
+    at https://afd4ab41-fa60-4e78-9742-69bb4e3004d6-00-6i79wn87wfhu.janeway.replit.dev/node_modules/.vite/deps/chunk-E7TSFT4J.js?v=8eb4ba0b:56:13
+    at https://afd4ab41-fa60-4e78-9742-69bb4e3004d6-00-6i79wn87wfhu.janeway.replit.dev/node_modules/.vite/deps/chunk-W2OT6ZD3.js?v=8eb4ba0b:41:15
+    at Provider (https://afd4ab41-fa60-4e78-9742-69bb4e3004d6-00-6i79wn87wfhu.janeway.replit.dev/node_modules/.vite/deps/chunk-OXZDJRWN.js?v=8eb4ba0b:38:15)
+    at https://afd4ab41-fa60-4e78-9742-69bb4e3004d6-00-6i79wn87wfhu.janeway.replit.dev/node_modules/.vite/deps/@radix-ui_react-select.js?v=8eb4ba0b:307:58
+    at https://afd4ab41-fa60-4e78-9742-69bb4e3004d6-00-6i79wn87wfhu.janeway.replit.dev/node_modules/.vite/deps/chunk-E7TSFT4J.js?v=8eb4ba0b:79:13
+    at https://afd4ab41-fa60-4e78-9742-69bb4e3004d6-00-6i79wn87wfhu.janeway.replit.dev/node_modules/.vite/deps/chunk-E7TSFT4J.js?v=8eb4ba0b:56:13
+    at https://afd4ab41-fa60-4e78-9742-69bb4e3004d6-00-6i79wn87wfhu.janeway.replit.dev/node_modules/.vite/deps/chunk-LKOAR5GC.js?v=8eb4ba0b:43:13
+    at https://afd4ab41-fa60-4e78-9742-69bb4e3004d6-00-6i79wn87wfhu.janeway.replit.dev/node_modules/.vite/deps/chunk-GACUGKZC.js?v=8eb4ba0b:262:22
+    at SelectPortal
+    at _c4 (https://afd4ab41-fa60-4e78-9742-69bb4e3004d6-00-6i79wn87wfhu.janeway.replit.dev/src/components/ui/select.tsx:141:63)
+    at Provider (https://afd4ab41-fa60-4e78-9742-69bb4e3004d6-00-6i79wn87wfhu.janeway.replit.dev/node_modules/.vite/deps/chunk-OXZDJRWN.js?v=8eb4ba0b:38:15)
+    at Provider (https://afd4ab41-fa60-4e78-9742-69bb4e3004d6-00-6i79wn87wfhu.janeway.replit.dev/node_modules/.vite/deps/chunk-OXZDJRWN.js?v=8eb4ba0b:38:15)
+    at CollectionProvider (https://afd4ab41-fa60-4e78-9742-69bb4e3004d6-00-6i79wn87wfhu.janeway.replit.dev/node_modules/.vite/deps/chunk-W2OT6ZD3.js?v=8eb4ba0b:31:13)
+    at Provider (https://afd4ab41-fa60-4e78-9742-69bb4e3004d6-00-6i79wn87wfhu.janeway.replit.dev/node_modules/.vite/deps/chunk-OXZDJRWN.js?v=8eb4ba0b:38:15)
+    at Provider (https://afd4ab41-fa60-4e78-9742-69bb4e3004d6-00-6i79wn87wfhu.janeway.replit.dev/node_modules/.vite/deps/chunk-OXZDJRWN.js?v=8eb4ba0b:38:15)
+    at Popper (https://afd4ab41-fa60-4e78-9742-69bb4e3004d6-00-6i79wn87wfhu.janeway.replit.dev/node_modules/.vite/deps/chunk-V5VCP7LQ.js?v=8eb4ba0b:1947:11)
+    at Select (https://afd4ab41-fa60-4e78-9742-69bb4e3004d6-00-6i79wn87wfhu.janeway.replit.dev/node_modules/.vite/deps/@radix-ui_react-select.js?v=8eb4ba0b:93:5)
+    at div
+    at div
+    at _c8 (https://afd4ab41-fa60-4e78-9742-69bb4e3004d6-00-6i79wn87wfhu.janeway.replit.dev/src/components/ui/card.tsx:95:61)
+    at div
+    at _c (https://afd4ab41-fa60-4e78-9742-69bb4e3004d6-00-6i79wn87wfhu.janeway.replit.dev/src/components/ui/card.tsx:23:53)
+    at div
+    at div
+    at div
+    at main
+    at div
+    at div
+    at div
+    at Provider (https://afd4ab41-fa60-4e78-9742-69bb4e3004d6-00-6i79wn87wfhu.janeway.replit.dev/node_modules/.vite/deps/chunk-OXZDJRWN.js?v=8eb4ba0b:38:15)
+    at TooltipProvider (https://afd4ab41-fa60-4e78-9742-69bb4e3004d6-00-6i79wn87wfhu.janeway.replit.dev/node_modules/.vite/deps/@radix-ui_react-tooltip.js?v=8eb4ba0b:63:5)
+    at https://afd4ab41-fa60-4e78-9742-69bb4e3004d6-00-6i79wn87wfhu.janeway.replit.dev/src/components/ui/sidebar.tsx:50:72
+    at DashboardLayout (https://afd4ab41-fa60-4e78-9742-69bb4e3004d6-00-6i79wn87wfhu.janeway.replit.dev/src/layouts/DashboardLayout.tsx:31:35)
+    at AutismAccommodationBuilder (https://afd4ab41-fa60-4e78-9742-69bb4e3004d6-00-6i79wn87wfhu.janeway.replit.dev/src/pages/AutismAccommodationBuilder.tsx:36:51)
+    at ProtectedRoute (https://afd4ab41-fa60-4e78-9742-69bb4e3004d6-00-6i79wn87wfhu.janeway.replit.dev/src/components/ProtectedRoute.tsx:25:34)
+    at RenderedRoute (https://afd4ab41-fa60-4e78-9742-69bb4e3004d6-00-6i79wn87wfhu.janeway.replit.dev/node_modules/.vite/deps/react-router-dom.js?v=8eb4ba0b:4088:5)
+    at Routes (https://afd4ab41-fa60-4e78-9742-69bb4e3004d6-00-6i79wn87wfhu.janeway.replit.dev/node_modules/.vite/deps/react-router-dom.js?v=8eb4ba0b:4558:5)
+    at AuthProvider (https://afd4ab41-fa60-4e78-9742-69bb4e3004d6-00-6i79wn87wfhu.janeway.replit.dev/src/hooks/useAuth.tsx:40:32)
+    at Router (https://afd4ab41-fa60-4e78-9742-69bb4e3004d6-00-6i79wn87wfhu.janeway.replit.dev/node_modules/.vite/deps/react-router-dom.js?v=8eb4ba0b:4501:15)
+    at BrowserRouter (https://afd4ab41-fa60-4e78-9742-69bb4e3004d6-00-6i79wn87wfhu.janeway.replit.dev/node_modules/.vite/deps/react-router-dom.js?v=8eb4ba0b:5247:5)
+    at Provider (https://afd4ab41-fa60-4e78-9742-69bb4e3004d6-00-6i79wn87wfhu.janeway.replit.dev/node_modules/.vite/deps/chunk-OXZDJRWN.js?v=8eb4ba0b:38:15)
+    at TooltipProvider (https://afd4ab41-fa60-4e78-9742-69bb4e3004d6-00-6i79wn87wfhu.janeway.replit.dev/node_modules/.vite/deps/@radix-ui_react-tooltip.js?v=8eb4ba0b:63:5)
+    at ThemeProvider (https://afd4ab41-fa60-4e78-9742-69bb4e3004d6-00-6i79wn87wfhu.janeway.replit.dev/src/contexts/ThemeContext.tsx:24:33)
+    at QueryClientProvider (https://afd4ab41-fa60-4e78-9742-69bb4e3004d6-00-6i79wn87wfhu.janeway.replit.dev/node_modules/.vite/deps/@tanstack_react-query.js?v=8eb4ba0b:2934:3)
+    at App
+
+Consider adding an error boundary to your tree to customize error handling behavior.
+Visit https://reactjs.org/link/error-boundaries to learn more about error boundaries.
+logCapturedError @ chunk-T2SWDQEL.js?v=8eb4ba0b:14032
+update.callback @ chunk-T2SWDQEL.js?v=8eb4ba0b:14052
+callCallback @ chunk-T2SWDQEL.js?v=8eb4ba0b:11248
+commitUpdateQueue @ chunk-T2SWDQEL.js?v=8eb4ba0b:11265
+commitLayoutEffectOnFiber @ chunk-T2SWDQEL.js?v=8eb4ba0b:17093
+commitLayoutMountEffects_complete @ chunk-T2SWDQEL.js?v=8eb4ba0b:17980
+commitLayoutEffects_begin @ chunk-T2SWDQEL.js?v=8eb4ba0b:17969
+commitLayoutEffects @ chunk-T2SWDQEL.js?v=8eb4ba0b:17920
+commitRootImpl @ chunk-T2SWDQEL.js?v=8eb4ba0b:19353
+commitRoot @ chunk-T2SWDQEL.js?v=8eb4ba0b:19277
+performSyncWorkOnRoot @ chunk-T2SWDQEL.js?v=8eb4ba0b:18895
+flushSyncCallbacks @ chunk-T2SWDQEL.js?v=8eb4ba0b:9119
+(anonymous) @ chunk-T2SWDQEL.js?v=8eb4ba0b:18627Understand this error
+chunk-T2SWDQEL.js?v=8eb4ba0b:9129 Uncaught Error: A <Select.Item /> must have a value prop that is not an empty string. This is because the Select value can be set to an empty string to clear the selection and show the placeholder.
+    at @radix-ui_react-select.js?v=8eb4ba0b:880:13
+    at renderWithHooks (chunk-T2SWDQEL.js?v=8eb4ba0b:11548:26)
+    at updateForwardRef (chunk-T2SWDQEL.js?v=8eb4ba0b:14325:28)
+    at beginWork (chunk-T2SWDQEL.js?v=8eb4ba0b:15946:22)
+    at beginWork$1 (chunk-T2SWDQEL.js?v=8eb4ba0b:19753:22)
+    at performUnitOfWork (chunk-T2SWDQEL.js?v=8eb4ba0b:19198:20)
+    at workLoopSync (chunk-T2SWDQEL.js?v=8eb4ba0b:19137:13)
+    at renderRootSync (chunk-T2SWDQEL.js?v=8eb4ba0b:19116:15)
+    at recoverFromConcurrentError (chunk-T2SWDQEL.js?v=8eb4ba0b:18736:28)
+    at performSyncWorkOnRoot (chunk-T2SWDQEL.js?v=8eb4ba0b:18879:28)
+(anonymous) @ @radix-ui_react-select.js?v=8eb4ba0b:880
+renderWithHooks @ chunk-T2SWDQEL.js?v=8eb4ba0b:11548
+updateForwardRef @ chunk-T2SWDQEL.js?v=8eb4ba0b:14325
+beginWork @ chunk-T2SWDQEL.js?v=8eb4ba0b:15946
+beginWork$1 @ chunk-T2SWDQEL.js?v=8eb4ba0b:19753
+performUnitOfWork @ chunk-T2SWDQEL.js?v=8eb4ba0b:19198
+workLoopSync @ chunk-T2SWDQEL.js?v=8eb4ba0b:19137
+renderRootSync @ chunk-T2SWDQEL.js?v=8eb4ba0b:19116
+recoverFromConcurrentError @ chunk-T2SWDQEL.js?v=8eb4ba0b:18736
+performSyncWorkOnRoot @ chunk-T2SWDQEL.js?v=8eb4ba0b:18879
+flushSyncCallbacks @ chunk-T2SWDQEL.js?v=8eb4ba0b:9119
+(anonymous) @ chunk-T2SWDQEL.js?v=8eb4ba0b:18627Understand this error
+queryClient.ts:6  GET https://afd4ab41-fa60-4e78-9742-69bb4e3004d6-00-6i79wn87wfhu.janeway.replit.dev/api/match/pending-assignments 403 (Forbidden)
+defaultQueryFn @ queryClient.ts:6
+fetchFn @ @tanstack_react-query.js?v=8eb4ba0b:881
+run @ @tanstack_react-query.js?v=8eb4ba0b:513
+start @ @tanstack_react-query.js?v=8eb4ba0b:555
+fetch @ @tanstack_react-query.js?v=8eb4ba0b:969
+executeFetch_fn @ @tanstack_react-query.js?v=8eb4ba0b:2280
+onSubscribe @ @tanstack_react-query.js?v=8eb4ba0b:1983
+subscribe @ @tanstack_react-query.js?v=8eb4ba0b:24
+(anonymous) @ @tanstack_react-query.js?v=8eb4ba0b:3147
+subscribeToStore @ chunk-T2SWDQEL.js?v=8eb4ba0b:11984
+commitHookEffectListMount @ chunk-T2SWDQEL.js?v=8eb4ba0b:16915
+commitPassiveMountOnFiber @ chunk-T2SWDQEL.js?v=8eb4ba0b:18156
+commitPassiveMountEffects_complete @ chunk-T2SWDQEL.js?v=8eb4ba0b:18129
+commitPassiveMountEffects_begin @ chunk-T2SWDQEL.js?v=8eb4ba0b:18119
+commitPassiveMountEffects @ chunk-T2SWDQEL.js?v=8eb4ba0b:18109
+flushPassiveEffectsImpl @ chunk-T2SWDQEL.js?v=8eb4ba0b:19490
+flushPassiveEffects @ chunk-T2SWDQEL.js?v=8eb4ba0b:19447
+commitRootImpl @ chunk-T2SWDQEL.js?v=8eb4ba0b:19416
+commitRoot @ chunk-T2SWDQEL.js?v=8eb4ba0b:19277
+performSyncWorkOnRoot @ chunk-T2SWDQEL.js?v=8eb4ba0b:18895
+flushSyncCallbacks @ chunk-T2SWDQEL.js?v=8eb4ba0b:9119
+(anonymous) @ chunk-T2SWDQEL.js?v=8eb4ba0b:18627Understand this error
+queryClient.ts:104 🚨 APIQUEST RESPONSE STATUS: 200 for /api/students
+queryClient.ts:133 🚨 APIQUEST SUCCESS: /api/students

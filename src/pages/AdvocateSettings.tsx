@@ -658,12 +658,9 @@ export default function AdvocateSettings() {
                 Enable Two-Factor Authentication
               </Button>
               <Separator />
-              <div className="space-y-2">
-                <Label className="text-destructive">Danger Zone</Label>
-                <Button variant="destructive" data-testid="button-delete-account">
-                  Delete Account
-                </Button>
-              </div>
+              <Button variant="destructive" data-testid="button-delete-account">
+                Delete Account
+              </Button>
             </CardContent>
           </Card>
         </div>

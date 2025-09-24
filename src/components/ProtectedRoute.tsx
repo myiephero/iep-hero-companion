@@ -9,45 +9,8 @@ interface ProtectedRouteProps {
 
 export function ProtectedRoute({ children, allowedRoles }: ProtectedRouteProps) {
   const { user, loading } = useAuth();
-  const [redirectAttempts, setRedirectAttempts] = useState(0);
-  const [authMonitoring, setAuthMonitoring] = useState({
-    lastCheck: Date.now(),
-    consecutiveFailures: 0,
-    tokenPresent: false
-  });
 
-  // 🛡️ DEFENSIVE MONITORING: Track auth state and detect issues
-  useEffect(() => {
-    const token = localStorage.getItem('authToken');
-    const isTokenPresent = !!token;
-    
-    setAuthMonitoring(prev => ({
-      lastCheck: Date.now(),
-      consecutiveFailures: !user && !loading ? prev.consecutiveFailures + 1 : 0,
-      tokenPresent: isTokenPresent
-    }));
-
-    // 🚨 ALERT: Detect potential auth issues
-    if (!loading && !user && token && authMonitoring.consecutiveFailures > 3) {
-      console.error('🚨 AUTH MONITORING: Repeated auth failures detected!');
-      console.error('🚨 Token present but user is null - potential auth system issue');
-      console.error('🚨 Consecutive failures:', authMonitoring.consecutiveFailures);
-    }
-
-    // 🔍 LOG: Track routing decisions for debugging
-    if (!loading) {
-      console.log('🔍 ProtectedRoute Decision:', {
-        hasUser: !!user,
-        hasToken: isTokenPresent,
-        userRole: user?.role,
-        allowedRoles,
-        redirectAttempts,
-        consecutiveFailures: authMonitoring.consecutiveFailures
-      });
-    }
-  }, [user, loading, allowedRoles, redirectAttempts]); // Removed authMonitoring from deps to prevent loop
-
-  // 🛡️ SIMPLIFIED LOADING: Only show loading while auth is actually loading
+  // Show loading while auth is loading
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-screen">
@@ -56,21 +19,9 @@ export function ProtectedRoute({ children, allowedRoles }: ProtectedRouteProps) 
     );
   }
 
-  // 🛡️ DEFENSIVE REDIRECT: Track redirect attempts to prevent loops
+  // Redirect to auth if no user
   if (!user) {
-    // Increment redirect attempts to prevent infinite loops
-    if (redirectAttempts < 3) {
-      setTimeout(() => setRedirectAttempts(prev => prev + 1), 100);
-      
-      // 🔍 LOG: Track why we're redirecting
-      console.log('🔄 ProtectedRoute: Redirecting to auth', {
-        reason: 'No user data',
-        hasToken: authMonitoring.tokenPresent,
-        redirectAttempt: redirectAttempts + 1,
-        consecutiveFailures: authMonitoring.consecutiveFailures
-      });
-    }
-    
+    console.log('🔄 ProtectedRoute: Redirecting to auth - no user');
     return <Navigate to="/auth" replace />;
   }
 
@@ -83,7 +34,7 @@ export function ProtectedRoute({ children, allowedRoles }: ProtectedRouteProps) 
     return <Navigate to="/dashboard" replace />;
   }
 
-  // ✅ SUCCESS: Allow access
+  // Allow access
   console.log('✅ ProtectedRoute: Access granted', {
     userRole: user.role,
     allowedRoles: allowedRoles || 'any'

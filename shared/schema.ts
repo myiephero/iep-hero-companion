@@ -513,6 +513,9 @@ export type InsertMessageAttachment = typeof message_attachments.$inferInsert;
 export type Student = typeof students.$inferSelect;
 export type InsertStudent = typeof students.$inferInsert;
 
+export type Document = typeof documents.$inferSelect;
+export type InsertDocument = typeof documents.$inferInsert;
+
 // Subscription events table - tracks all subscription lifecycle events
 export const subscription_events = pgTable("subscription_events", {
   id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),

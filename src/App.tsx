@@ -58,6 +58,7 @@ import OTRecommender from "./pages/OTRecommender";
 import ProgressAnalyzer from "./pages/ProgressAnalyzer";
 import AdvocacyReports from "./pages/AdvocacyReports";
 import AdvocateGiftedToolsHub from "./pages/AdvocateGiftedToolsHub";
+import AdvocateParents from "./pages/AdvocateParents";
 
 import { queryClient } from "./lib/queryClient";
 
@@ -233,7 +234,7 @@ function App() {
               } />
               <Route path="/tools/document-vault" element={
                 <ProtectedRoute allowedRoles={['parent', 'advocate']}>
-                  <EmergentToolsHubNew />
+                  <DocumentVault />
                 </ProtectedRoute>
               } />
               <Route path="/tools/student-profiles" element={
@@ -278,6 +279,11 @@ function App() {
               <Route path="/advocate/tools/autism-accommodation-builder" element={
                 <ProtectedRoute allowedRoles={['advocate']}>
                   <AutismAccommodationBuilder />
+                </ProtectedRoute>
+              } />
+              <Route path="/advocate/parents" element={
+                <ProtectedRoute allowedRoles={['advocate']}>
+                  <AdvocateParents />
                 </ProtectedRoute>
               } />
               <Route path="/advocate/tools/document-vault" element={

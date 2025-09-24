@@ -62,8 +62,8 @@ export const PARENT_STRIPE_PLANS: Record<string, StripePlanConfig> = {
     amount: 2388,
     interval: 'year',
     description: 'Complete advocacy platform with matching (Annual)',
-    features: ['Unlimited students', 'ALL 50+ tools', 'Advocate matching', 'White-glove setup', 'Dedicated support', 'Save $600/year'],
-    setupFee: 495 // One-time setup fee for Hero Family Pack
+    features: ['Unlimited students', 'ALL 50+ tools', 'Advocate matching', 'White-glove setup', 'Dedicated support', 'Save $600/year + $495 setup fee waived']
+    // No setupFee for annual - setup fee waived for annual billing
   }
 };
 

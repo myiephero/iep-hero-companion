@@ -1,6 +1,9 @@
 import { createContext, useContext, useEffect, useState } from "react";
+import { supabase } from "@/lib/supabase";
+import type { User as SupabaseUser } from "@supabase/supabase-js";
+import type { Tables } from "@/lib/supabase";
 
-// Real User types for Replit Auth
+// User types for Supabase Auth
 interface User {
   id: string;
   email?: string;
@@ -51,137 +54,78 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
   const [profile, setProfile] = useState<any | null>(null);
 
   useEffect(() => {
-    const checkAuth = async () => {
+    // Get initial session
+    const getSession = async () => {
       try {
-        // 🛡️ AUTH STATE VALIDATION: Check for inconsistencies
-        const validateAuthState = () => {
-          const token = localStorage.getItem('authToken');
-          const hasUser = !!user;
-          const timestamp = Date.now();
-          
-          // Store validation result for monitoring
-          const validationResult = {
-            timestamp,
-            hasToken: !!token,
-            hasUser,
-            isConsistent: (!token && !hasUser) || (token && hasUser),
-            tokenFormat: token ? (token.split('-').length >= 3 ? 'valid' : 'invalid') : 'none'
-          };
-          
-          console.log('🔍 AUTH VALIDATION:', validationResult);
-          
-          // Auto-fix inconsistent states
-          if (token && !hasUser && !loading) {
-            console.log('🔧 AUTO-FIX: Token exists but no user - will re-validate');
-          } else if (!token && hasUser) {
-            console.log('🔧 AUTO-FIX: User exists but no token - clearing user state');
-            setUser(null);
-            setProfile(null);
-          }
-          
-          return validationResult;
-        };
-
-        // 🔒 SECURITY FIX: Clear any potentially contaminated localStorage data first
-        const clearContaminatedStorage = () => {
-          // Clear all auth-related localStorage items to prevent contamination
-          const authKeys = ['authToken', 'user', 'profile', 'lastAuthCheck'];
-          authKeys.forEach(key => {
-            if (localStorage.getItem(key)) {
-              console.log(`🧹 Cleared potentially contaminated localStorage key: ${key}`);
-              localStorage.removeItem(key);
-            }
-          });
-          
-          // 🔒 ADDITIONAL SECURITY: Clear session storage as well
-          if (window.sessionStorage) {
-            console.log('🧹 Clearing sessionStorage to prevent session contamination');
-            window.sessionStorage.clear();
-          }
-        };
-
-        // Run validation first
-        validateAuthState();
-
-        // Get token and make authenticated request
-        let token = localStorage.getItem('authToken');
+        const { data: { session }, error } = await supabase.auth.getSession();
         
-        // 🔒 SECURITY FIX: Validate token format before using
-        if (token) {
-          // Check if token format is valid (should contain user ID prefix)
-          const tokenParts = token.split('-');
-          if (tokenParts.length < 3 || tokenParts[0].length < 8) {
-            console.log('⚠️ useAuth: Invalid token format detected - clearing localStorage');
-            clearContaminatedStorage();
-            token = null;
-          } else {
-            console.log('✅ useAuth: Found valid token format in localStorage:', `${token.substring(0,20)}...`);
-          }
-        }
-        
-        // If no stored token, silently skip session check - DON'T make API calls
-        // This prevents 401 errors that trigger unwanted redirects to /auth
-        if (!token) {
-          console.log('🔍 useAuth: No stored token found - skipping auth check for public pages');
+        if (error) {
+          console.error('Error getting session:', error);
           setUser(null);
           setProfile(null);
-          setLoading(false);
-          return;
-        }
-        
-        console.log('🔍 useAuth: Token found, validating with server...');
-        const response = await fetch('/api/auth/user', {
-          credentials: 'include',
-          headers: {
-            Authorization: `Bearer ${token}`,
-          }
-        });
-        
-        if (response.ok) {
-          const userData = await response.json();
-          console.log('🔍 useAuth - Received user data:', userData);
-          console.log('🔍 useAuth - subscriptionPlan from server:', userData.subscriptionPlan);
-          
-          // 🔒 CRITICAL SECURITY FIX: Validate token ownership before accepting user data
-          if (token && userData.id) {
-            const tokenUserId = token.split('-')[0];
-            const actualUserId = userData.id; // 🔒 FIXED: Use full user ID, no truncation
+        } else if (session?.user) {
+          // Get user profile from our users table
+          const { data: userProfile, error: profileError } = await supabase
+            .from('users')
+            .select('*')
+            .eq('id', session.user.id)
+            .single();
             
-            if (tokenUserId !== actualUserId) {
-              console.error('🚨 SECURITY ALERT: Token user ID mismatch!');
-              console.error(`🚨 Token belongs to: ${tokenUserId}, but received data for: ${actualUserId}`);
-              console.error('🚨 This indicates potential authentication bypass - clearing all auth data');
+          if (profileError) {
+            console.error('Error fetching user profile:', profileError);
+            // Create user profile if it doesn't exist
+            const { data: newProfile, error: insertError } = await supabase
+              .from('users')
+              .insert({
+                id: session.user.id,
+                email: session.user.email,
+                first_name: session.user.user_metadata?.first_name,
+                last_name: session.user.user_metadata?.last_name,
+                role: session.user.user_metadata?.role || 'parent'
+              })
+              .select()
+              .single();
               
-              clearContaminatedStorage();
-              setUser(null);
-              setProfile(null);
-              setLoading(false);
-              
-              // Let ProtectedRoute handle redirects - don't redirect from here
-              return;
+            if (insertError) {
+              console.error('Error creating user profile:', insertError);
             } else {
-              console.log('✅ Token ownership validated - user ID matches');
+              const formattedUser = {
+                id: newProfile.id,
+                email: newProfile.email,
+                firstName: newProfile.first_name,
+                lastName: newProfile.last_name,
+                profileImageUrl: newProfile.profile_image_url,
+                role: newProfile.role,
+                subscriptionPlan: newProfile.subscription_plan,
+                subscriptionStatus: newProfile.subscription_status,
+                createdAt: newProfile.created_at,
+                updatedAt: newProfile.updated_at
+              };
+              setUser(formattedUser);
+              setProfile(formattedUser);
             }
+          } else {
+            const formattedUser = {
+              id: userProfile.id,
+              email: userProfile.email,
+              firstName: userProfile.first_name,
+              lastName: userProfile.last_name,
+              profileImageUrl: userProfile.profile_image_url,
+              role: userProfile.role,
+              subscriptionPlan: userProfile.subscription_plan,
+              subscriptionStatus: userProfile.subscription_status,
+              createdAt: userProfile.created_at,
+              updatedAt: userProfile.updated_at
+            };
+            setUser(formattedUser);
+            setProfile(formattedUser);
           }
-          
-          // Store user data - let ProtectedRoute handle all redirects
-          setUser(userData);
-          setProfile(userData);
-        } else if (response.status === 401) {
-          // Token is expired or invalid
-          console.log('🚫 Authentication failed - clearing expired token');
-          localStorage.removeItem('authToken');
-          setUser(null);
-          setProfile(null);
-          
-          // Let ProtectedRoute handle redirects
         } else {
-          // Other error - clear auth state but don't redirect
           setUser(null);
           setProfile(null);
         }
       } catch (error) {
-        // Silently handle auth errors for public pages
+        console.error('Auth initialization error:', error);
         setUser(null);
         setProfile(null);
       } finally {
@@ -189,76 +133,89 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
       }
     };
 
-    checkAuth();
+    getSession();
 
-    // Listen for storage events to detect when token is set/removed
-    const handleStorageChange = (e: StorageEvent) => {
-      if (e.key === 'authToken') {
-        console.log('🔄 useAuth: Auth token changed, re-checking authentication');
-        checkAuth();
+    // Listen for auth changes
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(
+      async (event, session) => {
+        console.log('Auth state changed:', event, session?.user?.id);
+        
+        if (event === 'SIGNED_IN' && session?.user) {
+          // Get user profile from our users table
+          const { data: userProfile, error: profileError } = await supabase
+            .from('users')
+            .select('*')
+            .eq('id', session.user.id)
+            .single();
+            
+          if (profileError && profileError.code === 'PGRST116') {
+            // User doesn't exist in our table, create them
+            const { data: newProfile, error: insertError } = await supabase
+              .from('users')
+              .insert({
+                id: session.user.id,
+                email: session.user.email,
+                first_name: session.user.user_metadata?.first_name,
+                last_name: session.user.user_metadata?.last_name,
+                role: session.user.user_metadata?.role || 'parent'
+              })
+              .select()
+              .single();
+              
+            if (!insertError && newProfile) {
+              const formattedUser = {
+                id: newProfile.id,
+                email: newProfile.email,
+                firstName: newProfile.first_name,
+                lastName: newProfile.last_name,
+                profileImageUrl: newProfile.profile_image_url,
+                role: newProfile.role,
+                subscriptionPlan: newProfile.subscription_plan,
+                subscriptionStatus: newProfile.subscription_status,
+                createdAt: newProfile.created_at,
+                updatedAt: newProfile.updated_at
+              };
+              setUser(formattedUser);
+              setProfile(formattedUser);
+            }
+          } else if (!profileError && userProfile) {
+            const formattedUser = {
+              id: userProfile.id,
+              email: userProfile.email,
+              firstName: userProfile.first_name,
+              lastName: userProfile.last_name,
+              profileImageUrl: userProfile.profile_image_url,
+              role: userProfile.role,
+              subscriptionPlan: userProfile.subscription_plan,
+              subscriptionStatus: userProfile.subscription_status,
+              createdAt: userProfile.created_at,
+              updatedAt: userProfile.updated_at
+            };
+            setUser(formattedUser);
+            setProfile(formattedUser);
+          }
+        } else if (event === 'SIGNED_OUT') {
+          setUser(null);
+          setProfile(null);
+        }
       }
-    };
-
-    window.addEventListener('storage', handleStorageChange);
-    
-    // Also listen for custom events from same-page token changes
-    const handleTokenChange = () => {
-      console.log('🔄 useAuth: Token change event detected, re-checking authentication');
-      setTimeout(checkAuth, 50); // Small delay to ensure localStorage is updated
-    };
-
-    window.addEventListener('authTokenChanged', handleTokenChange);
-
-    // 🛡️ RECOVERY MECHANISM: Disabled to prevent infinite loops
-    // const setupRecoveryMechanism = () => {
-    //   let consecutiveFailures = 0;
-    //   const maxFailures = 3;
-    //   
-    //   const interval = setInterval(() => {
-    //     const token = localStorage.getItem('authToken');
-    //     const hasValidUser = user && user.id;
-    //     
-    //     // Check for auth failure pattern
-    //     if (token && !hasValidUser && !loading) {
-    //       consecutiveFailures++;
-    //       console.log(`🔄 AUTH RECOVERY: Failure ${consecutiveFailures}/${maxFailures} detected`);
-    //       
-    //       if (consecutiveFailures >= maxFailures) {
-    //         console.log('🔧 AUTH RECOVERY: Auto-recovering auth state...');
-    //         checkAuth(); // Re-run auth check
-    //         consecutiveFailures = 0; // Reset counter
-    //       }
-    //     } else {
-    //       consecutiveFailures = 0; // Reset on success
-    //     }
-    //   }, 5000); // Check every 5 seconds
-    //   
-    //   return interval;
-    // };
-
-    // const recoveryInterval = setupRecoveryMechanism();
+    );
 
     return () => {
-      window.removeEventListener('storage', handleStorageChange);
-      window.removeEventListener('authTokenChanged', handleTokenChange);
-      // clearInterval(recoveryInterval); // Disabled recovery interval
+      subscription?.unsubscribe();
     };
-  }, []); // Empty dependency array - only run once on mount
+  }, [])
 
   const signOut = async () => {
     try {
-      // Clear the authentication token from localStorage first
-      localStorage.removeItem('authToken');
+      const { error } = await supabase.auth.signOut();
+      if (error) {
+        console.error('Sign out error:', error);
+      }
       
-      // Clear user state immediately
+      // Clear user state
       setUser(null);
       setProfile(null);
-      
-      // Call server logout endpoint in background without redirect
-      fetch('/api/logout', { credentials: 'include' }).catch(() => {
-        // Ignore errors - we've already cleared local state
-      });
-      
     } catch (error) {
       console.error('Sign out failed:', error);
     }
@@ -266,29 +223,37 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
 
   const refreshUser = async () => {
     try {
-      const token = localStorage.getItem('authToken');
-      if (!token) return;
+      const { data: { session } } = await supabase.auth.getSession();
       
-      console.log('🔄 Refreshing user data...');
-      const response = await fetch('/api/auth/user', {
-        credentials: 'include',
-        headers: {
-          'Authorization': `Bearer ${token}`,
-        },
-      });
-      
-      if (response.ok) {
-        const userData = await response.json();
-        console.log('✅ User data refreshed:', userData);
-        console.log('🔍 New subscription plan:', userData.subscriptionPlan);
-        setUser(userData);
-        setProfile(userData);
-        
-        // Dispatch custom event to notify components of subscription update
-        if (userData.subscriptionPlan) {
-          window.dispatchEvent(new CustomEvent('subscriptionUpdated', { 
-            detail: { plan: userData.subscriptionPlan, status: userData.subscriptionStatus } 
-          }));
+      if (session?.user) {
+        const { data: userProfile, error } = await supabase
+          .from('users')
+          .select('*')
+          .eq('id', session.user.id)
+          .single();
+          
+        if (!error && userProfile) {
+          const formattedUser = {
+            id: userProfile.id,
+            email: userProfile.email,
+            firstName: userProfile.first_name,
+            lastName: userProfile.last_name,
+            profileImageUrl: userProfile.profile_image_url,
+            role: userProfile.role,
+            subscriptionPlan: userProfile.subscription_plan,
+            subscriptionStatus: userProfile.subscription_status,
+            createdAt: userProfile.created_at,
+            updatedAt: userProfile.updated_at
+          };
+          setUser(formattedUser);
+          setProfile(formattedUser);
+          
+          // Dispatch custom event to notify components of subscription update
+          if (formattedUser.subscriptionPlan) {
+            window.dispatchEvent(new CustomEvent('subscriptionUpdated', { 
+              detail: { plan: formattedUser.subscriptionPlan, status: formattedUser.subscriptionStatus } 
+            }));
+          }
         }
       }
     } catch (error) {

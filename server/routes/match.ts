@@ -143,7 +143,7 @@ router.post('/auto-match', async (req: Request, res: Response) => {
       student.disability_category,
       student.grade_level,
       ...(student.notes?.split(',') || [])
-    ].filter(Boolean).map(s => s?.toLowerCase().trim()).filter(Boolean);
+    ].filter((item): item is string => Boolean(item)).map(s => s.toLowerCase().trim()).filter(Boolean);
 
     // AI-powered matching algorithm
     const scoredMatches = advocates.map(advocate => {
@@ -603,7 +603,7 @@ router.get('/pending-assignments', async (req: Request, res: Response) => {
         id: parent?.id || '',
         name: `${parent?.firstName || ''} ${parent?.lastName || ''}`.trim() || 'Unknown Parent',
         email: parent?.email || '',
-        phone: parent?.phoneNumber || '',
+        phone: '', // TODO: Add phone from profiles table if needed
         notes: request?.message || '', // Parent's request details/notes
         subject: request?.subject || '',
         urgency_level: request?.urgency_level || 'medium',

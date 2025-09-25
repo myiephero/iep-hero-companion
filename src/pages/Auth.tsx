@@ -1,382 +1,336 @@
-import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { useToast } from '@/hooks/use-toast';
-import { useAuth } from '@/hooks/useAuth';
-import { ArrowLeft, Loader2, Eye, EyeOff } from 'lucide-react';
+import { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Label } from "@/components/ui/label";
+import { useToast } from "@/hooks/use-toast";
+import { supabase } from "@/lib/supabase";
+import { Eye, EyeOff } from "lucide-react";
 
-const Auth = () => {
-  const [loginMode, setLoginMode] = useState<'signin' | 'forgot'>('signin');
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
+export default function Auth() {
+  const [isLoading, setIsLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
-  const [loading, setLoading] = useState(false);
-  const { toast } = useToast();
-  const { refreshUser, user } = useAuth();
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [firstName, setFirstName] = useState("");
+  const [lastName, setLastName] = useState("");
+  const [role, setRole] = useState("parent");
   const navigate = useNavigate();
+  const { toast } = useToast();
 
-  // Helper function to generate plan-specific dashboard URL
-  const getPlanSpecificDashboard = (user: any) => {
-    if (user?.role === 'parent') {
-      const planSlug = user.subscriptionPlan?.toLowerCase().replace(/\s+/g, '') || 'free';
-      const supportedPlans = ['free', 'basic', 'plus', 'explorer', 'premium', 'hero', 'essential'];
-      const normalizedPlan = supportedPlans.includes(planSlug) ? planSlug : 'free';
-      return `/parent/dashboard-${normalizedPlan}`;
-    } else if (user?.role === 'advocate') {
-      const advocatePlanMapping = {
-        'starter': 'starter',
-        'pro': 'pro',
-        'premium': 'pro', // Premium plan maps to pro dashboard
-        'agency': 'agency',
-        'agency plus': 'agency-plus',
-        'agencyplus': 'agency-plus'
-      };
-      const planKey = user.subscriptionPlan?.toLowerCase() || 'starter';
-      const planSlug = advocatePlanMapping[planKey] || 'starter';
-      return `/advocate/dashboard-${planSlug}`;
-    } else {
-      return '/dashboard';
-    }
-  };
-
-  const handleCustomLogin = async (e: React.FormEvent) => {
+  const handleSignUp = async (e: React.FormEvent) => {
     e.preventDefault();
-    setLoading(true);
+    if (!email || !password || !firstName || !lastName) {
+      toast({
+        title: "Missing Information",
+        description: "Please fill in all required fields.",
+        variant: "destructive",
+      });
+      return;
+    }
 
+    setIsLoading(true);
+    
     try {
-      const response = await fetch('/api/custom-login', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        credentials: 'include',
-        body: JSON.stringify({ email, password }),
+      const { data, error } = await supabase.auth.signUp({
+        email,
+        password,
+        options: {
+          data: {
+            first_name: firstName,
+            last_name: lastName,
+            role: role,
+          },
+        },
       });
 
-      if (response.ok) {
-        const data = await response.json();
-        
-        // Store token in localStorage for immediate use
-        if (data.token) {
-          localStorage.setItem('authToken', data.token);
-        }
-        
+      if (error) {
+        console.error("Sign up error:", error);
         toast({
-          title: "Success!",
-          description: "Redirecting to your dashboard...",
-        });
-        
-        // Refresh user state immediately to get updated user data
-        await refreshUser();
-        
-        // Navigate to plan-specific dashboard with a small delay for UI smoothness
-        setTimeout(async () => {
-          try {
-            // Fetch fresh user data to ensure we have the latest subscription plan info
-            const token = localStorage.getItem('authToken');
-            const response = await fetch('/api/auth/user', {
-              credentials: 'include',
-              headers: {
-                Authorization: `Bearer ${token}`,
-              }
-            });
-            
-            if (response.ok) {
-              const freshUserData = await response.json();
-              const dashboardPath = getPlanSpecificDashboard(freshUserData);
-              console.log('🚀 Auth: Redirecting to plan-specific dashboard:', dashboardPath, 'for user:', freshUserData);
-              navigate(dashboardPath, { replace: true });
-            } else {
-              // Fallback to generic dashboard if user fetch fails
-              console.log('⚠️ Auth: Failed to fetch fresh user data, using generic dashboard');
-              navigate('/dashboard', { replace: true });
-            }
-          } catch (error) {
-            console.error('❌ Auth: Error fetching user data for redirect:', error);
-            navigate('/dashboard', { replace: true });
-          }
-        }, 200);
-      } else {
-        const data = await response.json();
-        toast({
-          title: "Login Failed",
-          description: data.message || "Invalid credentials",
+          title: "Sign Up Failed",
+          description: error.message,
           variant: "destructive",
         });
+      } else if (data.user) {
+        toast({
+          title: "Success!",
+          description: "Please check your email to verify your account.",
+        });
+        // Don't navigate yet - wait for email verification
       }
     } catch (error) {
+      console.error("Sign up error:", error);
       toast({
-        title: "Error",
-        description: "Something went wrong",
+        title: "Sign Up Failed",
+        description: "An unexpected error occurred. Please try again.",
         variant: "destructive",
       });
     } finally {
-      setLoading(false);
+      setIsLoading(false);
+    }
+  };
+
+  const handleSignIn = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!email || !password) {
+      toast({
+        title: "Missing Information",
+        description: "Please enter your email and password.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setIsLoading(true);
+    
+    try {
+      const { data, error } = await supabase.auth.signInWithPassword({
+        email,
+        password,
+      });
+
+      if (error) {
+        console.error("Sign in error:", error);
+        toast({
+          title: "Sign In Failed",
+          description: error.message,
+          variant: "destructive",
+        });
+      } else if (data.user) {
+        toast({
+          title: "Welcome back!",
+          description: "You have been signed in successfully.",
+        });
+        navigate("/dashboard");
+      }
+    } catch (error) {
+      console.error("Sign in error:", error);
+      toast({
+        title: "Sign In Failed",
+        description: "An unexpected error occurred. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsLoading(false);
     }
   };
 
 
-  const handleForgotPassword = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setLoading(true);
+  const handleResetPassword = async () => {
+    if (!email) {
+      toast({
+        title: "Email Required",
+        description: "Please enter your email address first.",
+        variant: "destructive",
+      });
+      return;
+    }
 
+    setIsLoading(true);
+    
     try {
-      const response = await fetch('/api/forgot-password', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email }),
+      const { error } = await supabase.auth.resetPasswordForEmail(email, {
+        redirectTo: `${window.location.origin}/reset-password`,
       });
 
-      if (response.ok) {
+      if (error) {
+        console.error("Reset password error:", error);
+        toast({
+          title: "Reset Failed",
+          description: error.message,
+          variant: "destructive",
+        });
+      } else {
         toast({
           title: "Reset Email Sent",
           description: "Check your email for password reset instructions.",
         });
-        setLoginMode('signin');
-      } else {
-        const data = await response.json();
-        toast({
-          title: "Error",
-          description: data.message || "Failed to send reset email",
-          variant: "destructive",
-        });
       }
     } catch (error) {
+      console.error("Reset password error:", error);
       toast({
-        title: "Error",
-        description: "Something went wrong",
+        title: "Reset Failed",
+        description: "An unexpected error occurred. Please try again.",
         variant: "destructive",
       });
     } finally {
-      setLoading(false);
+      setIsLoading(false);
     }
   };
 
 
-  if (loginMode === 'signin') {
-    return (
-      <div className="min-h-screen bg-gradient-to-br from-primary/5 via-background to-secondary/5 flex items-center justify-center p-4">
-        <div className="w-full max-w-md space-y-6">
-          <div className="text-center space-y-2">
-            <h1 className="text-3xl font-bold bg-gradient-primary bg-clip-text text-transparent">
-              My IEP Hero
-            </h1>
-            <p className="text-muted-foreground">
-              Sign in to your account
-            </p>
-          </div>
-
-          <Card>
-            <CardHeader>
-              <CardTitle>Welcome Back</CardTitle>
-              <CardDescription>Enter your credentials</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <form onSubmit={handleCustomLogin} className="space-y-4">
-                <div>
+  return (
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-gray-900 dark:to-gray-800 p-4">
+      <Card className="w-full max-w-md">
+        <CardHeader className="space-y-1">
+          <CardTitle className="text-2xl font-bold text-center">IEP Hero</CardTitle>
+          <CardDescription className="text-center">
+            Your comprehensive special education advocacy platform
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <Tabs defaultValue="signin" className="w-full">
+            <TabsList className="grid w-full grid-cols-2">
+              <TabsTrigger value="signin">Sign In</TabsTrigger>
+              <TabsTrigger value="signup">Sign Up</TabsTrigger>
+            </TabsList>
+            
+            <TabsContent value="signin" className="space-y-4">
+              <form onSubmit={handleSignIn} className="space-y-4">
+                <div className="space-y-2">
                   <Label htmlFor="email">Email</Label>
                   <Input
                     id="email"
                     type="email"
+                    placeholder="Enter your email"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     required
-                    disabled={loading}
+                    data-testid="input-email"
                   />
                 </div>
-                
-                <div>
+                <div className="space-y-2">
                   <Label htmlFor="password">Password</Label>
                   <div className="relative">
                     <Input
                       id="password"
                       type={showPassword ? "text" : "password"}
+                      placeholder="Enter your password"
                       value={password}
                       onChange={(e) => setPassword(e.target.value)}
                       required
-                      disabled={loading}
-                      className="pr-10"
+                      data-testid="input-password"
                     />
                     <Button
                       type="button"
                       variant="ghost"
                       size="sm"
-                      className="absolute right-0 top-0 h-full px-3"
+                      className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
                       onClick={() => setShowPassword(!showPassword)}
                     >
-                      {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                      {showPassword ? (
+                        <EyeOff className="h-4 w-4" />
+                      ) : (
+                        <Eye className="h-4 w-4" />
+                      )}
                     </Button>
                   </div>
                 </div>
-
-                <Button type="submit" className="w-full" disabled={loading}>
-                  {loading ? (
-                    <>
-                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                      Signing in...
-                    </>
-                  ) : (
-                    'Sign In'
-                  )}
+                <Button
+                  type="submit"
+                  className="w-full"
+                  disabled={isLoading}
+                  data-testid="button-signin"
+                >
+                  {isLoading ? "Signing in..." : "Sign In"}
                 </Button>
-                
-                <div className="text-center">
-                  <Button
-                    type="button"
-                    variant="link"
-                    className="text-sm text-muted-foreground"
-                    onClick={() => setLoginMode('forgot')}
-                  >
-                    Forgot your password?
-                  </Button>
-                </div>
-              </form>
-            </CardContent>
-          </Card>
-        </div>
-      </div>
-    );
-  }
-
-
-  if (loginMode === 'forgot') {
-    return (
-      <div className="min-h-screen bg-gradient-to-br from-primary/5 via-background to-secondary/5 flex items-center justify-center p-4">
-        <div className="w-full max-w-md space-y-6">
-          <div className="text-center space-y-2">
-            <Button
-              variant="ghost" 
-              onClick={() => setLoginMode('signin')}
-              className="text-sm text-muted-foreground hover:text-primary transition-colors"
-            >
-              <ArrowLeft className="h-4 w-4 mr-2" />
-              Back to Sign In
-            </Button>
-            <h1 className="text-3xl font-bold tracking-tight">Reset Password</h1>
-          </div>
-
-          <Card>
-            <CardHeader>
-              <CardTitle>Forgot your password?</CardTitle>
-              <CardDescription>Enter your email and we'll send you a reset link</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <form onSubmit={handleForgotPassword} className="space-y-4">
-                <div>
-                  <Label htmlFor="email">Email</Label>
-                  <Input
-                    id="email"
-                    type="email"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    required
-                    disabled={loading}
-                  />
-                </div>
-
-                <Button type="submit" className="w-full" disabled={loading}>
-                  {loading ? (
-                    <>
-                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                      Sending reset email...
-                    </>
-                  ) : (
-                    'Send Reset Email'
-                  )}
-                </Button>
-              </form>
-            </CardContent>
-          </Card>
-        </div>
-      </div>
-    );
-  }
-
-  // Default to signin form
-  return (
-    <div className="min-h-screen bg-gradient-to-br from-primary/5 via-background to-secondary/5 flex items-center justify-center p-4">
-
-      <div className="w-full max-w-md space-y-6">
-        <div className="text-center space-y-2">
-          <h1 className="text-3xl font-bold bg-gradient-primary bg-clip-text text-transparent">
-            My IEP Hero
-          </h1>
-          <p className="text-muted-foreground">
-            Sign in to your account
-          </p>
-        </div>
-
-        <Card>
-          <CardHeader>
-            <CardTitle>Welcome Back</CardTitle>
-            <CardDescription>Enter your credentials</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <form onSubmit={handleCustomLogin} className="space-y-4">
-              <div>
-                <Label htmlFor="email">Email</Label>
-                <Input
-                  id="email"
-                  type="email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  required
-                  disabled={loading}
-                />
-              </div>
-              
-              <div>
-                <Label htmlFor="password">Password</Label>
-                <div className="relative">
-                  <Input
-                    id="password"
-                    type={showPassword ? "text" : "password"}
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    required
-                    disabled={loading}
-                    className="pr-10"
-                  />
-                  <Button
-                    type="button"
-                    variant="ghost"
-                    size="sm"
-                    className="absolute right-0 top-0 h-full px-3"
-                    onClick={() => setShowPassword(!showPassword)}
-                  >
-                    {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-                  </Button>
-                </div>
-              </div>
-
-              <Button type="submit" className="w-full" disabled={loading}>
-                {loading ? (
-                  <>
-                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                    Signing in...
-                  </>
-                ) : (
-                  'Sign In'
-                )}
-              </Button>
-              
-              <div className="text-center">
                 <Button
                   type="button"
                   variant="link"
-                  className="text-sm text-muted-foreground"
-                  onClick={() => setLoginMode('forgot')}
+                  className="w-full"
+                  onClick={handleResetPassword}
+                  disabled={isLoading}
                 >
                   Forgot your password?
                 </Button>
-              </div>
-            </form>
-          </CardContent>
-        </Card>
-      </div>
+              </form>
+            </TabsContent>
+            
+            <TabsContent value="signup" className="space-y-4">
+              <form onSubmit={handleSignUp} className="space-y-4">
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="firstName">First Name</Label>
+                    <Input
+                      id="firstName"
+                      type="text"
+                      placeholder="First name"
+                      value={firstName}
+                      onChange={(e) => setFirstName(e.target.value)}
+                      required
+                      data-testid="input-firstname"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="lastName">Last Name</Label>
+                    <Input
+                      id="lastName"
+                      type="text"
+                      placeholder="Last name"
+                      value={lastName}
+                      onChange={(e) => setLastName(e.target.value)}
+                      required
+                      data-testid="input-lastname"
+                    />
+                  </div>
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="role">I am a:</Label>
+                  <select
+                    id="role"
+                    value={role}
+                    onChange={(e) => setRole(e.target.value)}
+                    className="w-full px-3 py-2 border rounded-md"
+                    data-testid="select-role"
+                  >
+                    <option value="parent">Parent</option>
+                    <option value="advocate">Advocate</option>
+                  </select>
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="signup-email">Email</Label>
+                  <Input
+                    id="signup-email"
+                    type="email"
+                    placeholder="Enter your email"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    required
+                    data-testid="input-signup-email"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="signup-password">Password</Label>
+                  <div className="relative">
+                    <Input
+                      id="signup-password"
+                      type={showPassword ? "text" : "password"}
+                      placeholder="Create a password"
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
+                      required
+                      data-testid="input-signup-password"
+                    />
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="sm"
+                      className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
+                      onClick={() => setShowPassword(!showPassword)}
+                    >
+                      {showPassword ? (
+                        <EyeOff className="h-4 w-4" />
+                      ) : (
+                        <Eye className="h-4 w-4" />
+                      )}
+                    </Button>
+                  </div>
+                </div>
+                <Button
+                  type="submit"
+                  className="w-full"
+                  disabled={isLoading}
+                  data-testid="button-signup"
+                >
+                  {isLoading ? "Creating account..." : "Create Account"}
+                </Button>
+              </form>
+            </TabsContent>
+          </Tabs>
+        </CardContent>
+      </Card>
     </div>
   );
-};
-
-export default Auth;
+}

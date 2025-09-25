@@ -124,6 +124,10 @@ export function useToolAccess() {
     isUpgrade: boolean;
   }> => {
     const planHierarchy: Record<SubscriptionPlan, number> = {
+      'free': 0,
+      'essential': 1,
+      'premium': 2,
+      'hero': 3,
       'starter': 1,
       'pro': 2, 
       'agency': 3,

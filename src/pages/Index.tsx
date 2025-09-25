@@ -1,4 +1,4 @@
-import { useState } from "react";
+import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -10,22 +10,22 @@ import heroImage from "@/assets/hero-image.jpg";
 
 const features = [
   {
-    icon: <FileText className="h-6 w-6" />,
+    icon: React.createElement(FileText, { className: "h-6 w-6" }),
     title: "AI IEP Analysis",
     description: "Upload IEPs and get instant, expert-level insights on compliance and recommendations."
   },
   {
-    icon: <Users className="h-6 w-6" />,
+    icon: React.createElement(Users, { className: "h-6 w-6" }),
     title: "Advocate Matching",
     description: "Connect with certified special education advocates in your area for personalized support."
   },
   {
-    icon: <BookOpen className="h-6 w-6" />,
+    icon: React.createElement(BookOpen, { className: "h-6 w-6" }),
     title: "Meeting Preparation",
     description: "Comprehensive tools to prepare for IEP meetings with confidence and documentation."
   },
   {
-    icon: <Heart className="h-6 w-6" />,
+    icon: React.createElement(Heart, { className: "h-6 w-6" }),
     title: "Special Needs Resources",
     description: "Specialized tools for autism, ADHD, gifted/2e, and other special education needs."
   }

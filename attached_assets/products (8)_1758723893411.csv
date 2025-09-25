@@ -1,0 +1,7 @@
+id,Name,Date (UTC),Description,Url,Tax Code,pricing_update (metadata),plan_type (metadata),plan_id (metadata)
+prod_T77rnIpcl64wHv,Advocate - Pro,2025-09-24 14:23,Adds AI analysis and professional planning,,,,,
+prod_T6ursff0ML5maH,Parent - Premium,2025-09-24 00:57,Advanced multi-child support with expert features for parents,,,,parent,premium
+prod_T6sxU9Oa5abDZh,Advocate - Agency,2025-09-23 22:59,"Complete advocacy practice solution - 3 seats, enterprise features",,,,advocate,agency
+prod_T6sxeC7SpuexrA,Advocate - Starter,2025-09-23 22:59,Essential tools for solo advocates - basic CRM and core features,,,,advocate,starter
+prod_T6sxxb5vcH0g36,Parent- Hero,2025-09-23 22:59,Complete advocacy platform with matching and white-glove setup,,,,parent,hero
+prod_T6sxMTfj2hreWi,Parent - Essential,2025-09-23 22:59,AI-powered analysis and comprehensive planning tools for parents,,,,parent,essential

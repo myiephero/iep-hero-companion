@@ -1,0 +1,124 @@
+The source list for the Content Security Policy directive 'default-src' contains an invalid source: ''unsafe-dynamic''. It will be ignored.Understand this error
+iep-hero-companion:1 The source list for the Content Security Policy directive 'default-src' contains an invalid source: ''unsafe-dynamic''. It will be ignored.Understand this error
+stripe.js:1 The source list for the Content Security Policy directive 'default-src' contains an invalid source: ''unsafe-dynamic''. It will be ignored.
+value @ stripe.js:1
+value @ stripe.js:1
+value @ stripe.js:1
+value @ stripe.js:1
+value @ stripe.js:1
+action.G_.forEach.n.<computed> @ stripe.js:1
+e @ stripe.js:1
+Fh @ stripe.js:1
+(anonymous) @ stripe.js:1
+Gh @ stripe.js:1
+value @ stripe.js:1
+e @ stripe.js:1
+Vy @ stripe.js:1
+v @ _app-610237257d1c86ed.js:1
+(anonymous) @ _app-610237257d1c86ed.js:1
+Promise.then
+_ @ _app-610237257d1c86ed.js:1
+d.retries @ _app-610237257d1c86ed.js:1
+(anonymous) @ _app-610237257d1c86ed.js:10
+i.attempt @ _app-610237257d1c86ed.js:4
+(anonymous) @ _app-610237257d1c86ed.js:10
+o @ _app-610237257d1c86ed.js:10
+(anonymous) @ _app-610237257d1c86ed.js:1
+(anonymous) @ main-d350b2717788b28c.js:1
+n @ main-d350b2717788b28c.js:1
+u @ main-d350b2717788b28c.js:1
+(anonymous) @ main-d350b2717788b28c.js:1
+(anonymous) @ main-d350b2717788b28c.js:1
+(anonymous) @ _app-610237257d1c86ed.js:1
+oO @ framework-0ca8fe4cc3312942.js:1
+uB @ framework-0ca8fe4cc3312942.js:1
+u_ @ framework-0ca8fe4cc3312942.js:1
+r6 @ framework-0ca8fe4cc3312942.js:1
+(anonymous) @ framework-0ca8fe4cc3312942.js:1
+uO @ framework-0ca8fe4cc3312942.js:1
+uS @ framework-0ca8fe4cc3312942.js:1
+C @ framework-0ca8fe4cc3312942.js:1
+z @ framework-0ca8fe4cc3312942.js:1Understand this error
+recaptcha__en.js:237 The source list for the Content Security Policy directive 'default-src' contains an invalid source: ''unsafe-dynamic''. It will be ignored.
+(anonymous) @ recaptcha__en.js:237
+zP.render @ recaptcha__en.js:1517
+(anonymous) @ recaptcha__en.js:721
+(anonymous) @ recaptcha__en.js:314
+(anonymous) @ recaptcha__en.js:122
+Ya @ recaptcha__en.js:944
+(anonymous) @ recaptcha__en.js:358
+(anonymous) @ recaptcha__en.js:440
+y0.window.<computed>.<computed>.y0.window.<computed>.<computed> @ recaptcha__en.js:192
+(anonymous) @ recaptcha__en.js:193
+(anonymous) @ recaptcha__en.js:354
+(anonymous) @ recaptcha__en.js:193
+(anonymous) @ recaptcha__en.js:1537
+(anonymous) @ recaptcha__en.js:1550Understand this error
+recaptcha__en.js:718 The source list for the Content Security Policy directive 'default-src' contains an invalid source: ''unsafe-dynamic''. It will be ignored.
+(anonymous) @ recaptcha__en.js:718
+(anonymous) @ recaptcha__en.js:684
+(anonymous) @ recaptcha__en.js:611
+(anonymous) @ recaptcha__en.js:275
+H.next @ recaptcha__en.js:745
+(anonymous) @ recaptcha__en.js:683
+(anonymous) @ recaptcha__en.js:683
+(anonymous) @ recaptcha__en.js:403
+(anonymous) @ recaptcha__en.js:611
+(anonymous) @ recaptcha__en.js:568
+(anonymous) @ recaptcha__en.js:275
+H.next @ recaptcha__en.js:745
+(anonymous) @ recaptcha__en.js:683
+(anonymous) @ recaptcha__en.js:683
+(anonymous) @ recaptcha__en.js:403
+(anonymous) @ recaptcha__en.js:568
+(anonymous) @ recaptcha__en.js:1380
+(anonymous) @ recaptcha__en.js:275
+H.next @ recaptcha__en.js:745
+(anonymous) @ recaptcha__en.js:683
+(anonymous) @ recaptcha__en.js:683
+(anonymous) @ recaptcha__en.js:403
+no.send @ recaptcha__en.js:1380
+(anonymous) @ recaptcha__en.js:1533
+Promise.then
+Z.J.then.bind.f @ recaptcha__en.js:1532
+Promise.then
+(anonymous) @ recaptcha__en.js:1532
+(anonymous) @ recaptcha__en.js:275
+H.next @ recaptcha__en.js:745
+(anonymous) @ recaptcha__en.js:683
+(anonymous) @ recaptcha__en.js:683
+(anonymous) @ recaptcha__en.js:403
+Ya.o @ recaptcha__en.js:1532
+Eo.e1 @ recaptcha__en.js:1180
+k.fj @ recaptcha__en.js:1532
+(anonymous) @ recaptcha__en.js:630
+(anonymous) @ _app-610237257d1c86ed.js:1
+Promise.then
+(anonymous) @ recaptcha__en.js:440
+y0.window.<computed>.<computed>.y0.window.<computed>.<computed> @ recaptcha__en.js:192
+(anonymous) @ recaptcha__en.js:193
+(anonymous) @ recaptcha__en.js:354
+(anonymous) @ recaptcha__en.js:193
+(anonymous) @ recaptcha__en.js:1537
+(anonymous) @ recaptcha__en.js:1550Understand this error
+recaptcha__en.js:718 The source list for the Content Security Policy directive 'default-src' contains an invalid source: ''unsafe-dynamic''. It will be ignored.
+(anonymous) @ recaptcha__en.js:718
+(anonymous) @ recaptcha__en.js:684
+(anonymous) @ recaptcha__en.js:611
+(anonymous) @ recaptcha__en.js:275
+H.next @ recaptcha__en.js:745
+(anonymous) @ recaptcha__en.js:683
+(anonymous) @ recaptcha__en.js:683
+(anonymous) @ recaptcha__en.js:403
+(anonymous) @ recaptcha__en.js:611
+(anonymous) @ recaptcha__en.js:568
+(anonymous) @ recaptcha__en.js:275
+H.next @ recaptcha__en.js:745
+(anonymous) @ recaptcha__en.js:683
+(anonymous) @ recaptcha__en.js:683
+(anonymous) @ recaptcha__en.js:403
+(anonymous) @ recaptcha__en.js:568
+(anonymous) @ recaptcha__en.js:1380
+(anonymous) @ recaptcha__en.js:275
+H.next @ recaptcha__en.js:745
+(anonymous)...

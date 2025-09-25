@@ -1,3 +1,4 @@
+import React from "react";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -37,12 +38,44 @@ import Settings from "./pages/Settings";
 import ParentSettings from "./pages/ParentSettings";
 import AdvocateSettings from "./pages/AdvocateSettings";
 
+// Import missing tool components
+import SmartLetterGenerator from "./pages/SmartLetterGenerator";
+import UnifiedIEPReview from "./pages/UnifiedIEPReview";
+import ParentIEPMasterSuite from "./pages/ParentIEPMasterSuite";
+import MatchingDashboard from "./pages/MatchingDashboard";
+import DocumentVault from "./pages/DocumentVault";
+import AutismAccommodationBuilder from "./pages/AutismAccommodationBuilder";
+import MeetingPrepWizard from "./pages/MeetingPrepWizard";
+import ExpertAnalysis from "./pages/ExpertAnalysis";
+import EmotionTracker from "./pages/EmotionTracker";
+import GoalGenerator from "./pages/GoalGenerator";
+import IDEARightsGuide from "./pages/IDEARightsGuide";
+import Plan504Guide from "./pages/Plan504Guide";
+import ProgressNotes from "./pages/ProgressNotes";
+import AskAIDocuments from "./pages/AskAIDocuments";
+import CommunicationTracker from "./pages/CommunicationTracker";
+import OTActivityRecommender from "./pages/OTActivityRecommender";
+import OTRecommender from "./pages/OTRecommender";
+import ProgressAnalyzer from "./pages/ProgressAnalyzer";
+import AdvocacyReports from "./pages/AdvocacyReports";
+import AdvocateGiftedToolsHub from "./pages/AdvocateGiftedToolsHub";
+import AdvocateParents from "./pages/AdvocateParents";
+import GiftedTwoeLearners from "./pages/GiftedTwoeLearners";
+import StudentProfiles from "./pages/StudentProfiles";
+
 import { queryClient } from "./lib/queryClient";
 
 // Simple role-based component selector
 function RoleBasedDashboard() {
   const { user } = useAuth();
-  return user?.role === 'advocate' ? <AdvocateDashboard /> : <ParentDashboard />;
+  
+  // Redirect advocates to their plan-specific dashboard
+  if (user?.role === 'advocate') {
+    const plan = user.subscriptionPlan?.toLowerCase() || 'starter';
+    return <Navigate to={`/advocate/dashboard-${plan}`} replace />;
+  }
+  
+  return <ParentDashboard />;
 }
 
 function RoleBasedMessages() {
@@ -71,6 +104,7 @@ function App() {
               <Route path="/parent/pricing" element={<ParentPricingPlan />} />
               <Route path="/advocate/pricing" element={<AdvocatePricingPlan />} />
               <Route path="/auth" element={<Auth />} />
+              <Route path="/subscribe" element={<SubscriptionSetup />} />
               <Route path="/setup-password" element={<SetupPassword />} />
               <Route path="/subscription-setup" element={<SubscriptionSetup />} />
               <Route path="/subscription-success" element={<SubscriptionSuccess />} />
@@ -126,97 +160,102 @@ function App() {
                 </ProtectedRoute>
               } />
               
-              {/* Individual Parent Tool Routes - All use EmergentToolsHubNew for now */}
+              {/* Individual Parent Tool Routes - Connected to actual working components */}
               <Route path="/parent/tools/unified-iep-review" element={
                 <ProtectedRoute allowedRoles={['parent']}>
-                  <EmergentToolsHubNew />
+                  <UnifiedIEPReview />
                 </ProtectedRoute>
               } />
               <Route path="/parent/tools/autism-accommodation-builder" element={
                 <ProtectedRoute allowedRoles={['parent']}>
-                  <EmergentToolsHubNew />
+                  <AutismAccommodationBuilder />
                 </ProtectedRoute>
               } />
               <Route path="/parent/tools/smart-letter-generator" element={
                 <ProtectedRoute allowedRoles={['parent']}>
-                  <EmergentToolsHubNew />
+                  <SmartLetterGenerator />
                 </ProtectedRoute>
               } />
               <Route path="/parent/tools/meeting-prep" element={
                 <ProtectedRoute allowedRoles={['parent']}>
-                  <EmergentToolsHubNew />
+                  <MeetingPrepWizard />
                 </ProtectedRoute>
               } />
               <Route path="/parent/tools/expert-analysis" element={
                 <ProtectedRoute allowedRoles={['parent']}>
-                  <EmergentToolsHubNew />
+                  <ExpertAnalysis />
                 </ProtectedRoute>
               } />
               <Route path="/parent/tools/emotion-tracker" element={
                 <ProtectedRoute allowedRoles={['parent']}>
-                  <EmergentToolsHubNew />
+                  <EmotionTracker />
                 </ProtectedRoute>
               } />
               <Route path="/parent/tools/goal-generator" element={
                 <ProtectedRoute allowedRoles={['parent']}>
-                  <EmergentToolsHubNew />
+                  <GoalGenerator />
                 </ProtectedRoute>
               } />
               <Route path="/parent/tools/iep-master-suite" element={
                 <ProtectedRoute allowedRoles={['parent']}>
-                  <EmergentToolsHubNew />
+                  <ParentIEPMasterSuite />
                 </ProtectedRoute>
               } />
               <Route path="/parent/tools/idea-rights-guide" element={
                 <ProtectedRoute allowedRoles={['parent']}>
-                  <EmergentToolsHubNew />
+                  <IDEARightsGuide />
                 </ProtectedRoute>
               } />
               <Route path="/parent/tools/plan-504-guide" element={
                 <ProtectedRoute allowedRoles={['parent']}>
-                  <EmergentToolsHubNew />
+                  <Plan504Guide />
                 </ProtectedRoute>
               } />
               <Route path="/parent/tools/progress-notes" element={
                 <ProtectedRoute allowedRoles={['parent']}>
-                  <EmergentToolsHubNew />
+                  <ProgressNotes />
                 </ProtectedRoute>
               } />
               <Route path="/parent/tools/ask-ai-documents" element={
                 <ProtectedRoute allowedRoles={['parent']}>
-                  <EmergentToolsHubNew />
+                  <AskAIDocuments />
                 </ProtectedRoute>
               } />
               <Route path="/parent/tools/communication-tracker" element={
                 <ProtectedRoute allowedRoles={['parent']}>
-                  <EmergentToolsHubNew />
+                  <CommunicationTracker />
                 </ProtectedRoute>
               } />
               <Route path="/parent/tools/ot-activities" element={
                 <ProtectedRoute allowedRoles={['parent']}>
-                  <EmergentToolsHubNew />
+                  <OTActivityRecommender />
+                </ProtectedRoute>
+              } />
+              <Route path="/parent/tools/document-vault" element={
+                <ProtectedRoute allowedRoles={['parent']}>
+                  <DocumentVault />
                 </ProtectedRoute>
               } />
               
               {/* Universal Tool Routes */}
               <Route path="/tools/advocate-matching" element={
                 <ProtectedRoute allowedRoles={['parent', 'advocate']}>
-                  <EmergentToolsHubNew />
+                  <MatchingDashboard />
                 </ProtectedRoute>
               } />
               <Route path="/tools/gifted-2e-learners" element={
                 <ProtectedRoute allowedRoles={['parent', 'advocate']}>
-                  <EmergentToolsHubNew />
+                  <GiftedTwoeLearners />
                 </ProtectedRoute>
               } />
               <Route path="/tools/document-vault" element={
                 <ProtectedRoute allowedRoles={['parent', 'advocate']}>
-                  <EmergentToolsHubNew />
+                  <DocumentVault />
                 </ProtectedRoute>
               } />
               <Route path="/tools/student-profiles" element={
                 <ProtectedRoute allowedRoles={['parent', 'advocate']}>
-                  <EmergentToolsHubNew />
+                  <StudentProfiles />
                 </ProtectedRoute>
               } />
               
@@ -224,6 +263,157 @@ function App() {
               <Route path="/advocate/tools" element={
                 <ProtectedRoute allowedRoles={['advocate']}>
                   <AdvocateToolsHub />
+                </ProtectedRoute>
+              } />
+              
+              {/* Individual Advocate Tool Routes */}
+              <Route path="/advocate/tools/unified-iep-review" element={
+                <ProtectedRoute allowedRoles={['advocate']}>
+                  <UnifiedIEPReview />
+                </ProtectedRoute>
+              } />
+              <Route path="/advocate/tools/iep-master-suite" element={
+                <ProtectedRoute allowedRoles={['advocate']}>
+                  <UnifiedIEPReview />
+                </ProtectedRoute>
+              } />
+              <Route path="/advocate/tools/smart-letter-generator" element={
+                <ProtectedRoute allowedRoles={['advocate']}>
+                  <SmartLetterGenerator />
+                </ProtectedRoute>
+              } />
+              <Route path="/advocate/tools/meeting-prep" element={
+                <ProtectedRoute allowedRoles={['advocate']}>
+                  <MeetingPrepWizard />
+                </ProtectedRoute>
+              } />
+              <Route path="/advocate/tools/expert-analysis" element={
+                <ProtectedRoute allowedRoles={['advocate']}>
+                  <ExpertAnalysis />
+                </ProtectedRoute>
+              } />
+              <Route path="/advocate/tools/autism-accommodation-builder" element={
+                <ProtectedRoute allowedRoles={['advocate']}>
+                  <AutismAccommodationBuilder />
+                </ProtectedRoute>
+              } />
+              <Route path="/advocate/parents" element={
+                <ProtectedRoute allowedRoles={['advocate']}>
+                  <AdvocateParents />
+                </ProtectedRoute>
+              } />
+              <Route path="/advocate/tools/document-vault" element={
+                <ProtectedRoute allowedRoles={['advocate']}>
+                  <DocumentVault />
+                </ProtectedRoute>
+              } />
+              <Route path="/advocate/tools/emotion-tracker" element={
+                <ProtectedRoute allowedRoles={['advocate']}>
+                  <EmotionTracker />
+                </ProtectedRoute>
+              } />
+              <Route path="/advocate/tools/goal-generator" element={
+                <ProtectedRoute allowedRoles={['advocate']}>
+                  <GoalGenerator />
+                </ProtectedRoute>
+              } />
+              <Route path="/advocate/tools/idea-rights-guide" element={
+                <ProtectedRoute allowedRoles={['advocate']}>
+                  <IDEARightsGuide />
+                </ProtectedRoute>
+              } />
+              <Route path="/advocate/tools/plan-504-guide" element={
+                <ProtectedRoute allowedRoles={['advocate']}>
+                  <Plan504Guide />
+                </ProtectedRoute>
+              } />
+              <Route path="/advocate/tools/progress-notes" element={
+                <ProtectedRoute allowedRoles={['advocate']}>
+                  <ProgressNotes />
+                </ProtectedRoute>
+              } />
+              <Route path="/advocate/tools/ask-ai-documents" element={
+                <ProtectedRoute allowedRoles={['advocate']}>
+                  <AskAIDocuments />
+                </ProtectedRoute>
+              } />
+              <Route path="/advocate/tools/communication-tracker" element={
+                <ProtectedRoute allowedRoles={['advocate']}>
+                  <CommunicationTracker />
+                </ProtectedRoute>
+              } />
+              <Route path="/advocate/tools/ot-activities" element={
+                <ProtectedRoute allowedRoles={['advocate']}>
+                  <OTActivityRecommender />
+                </ProtectedRoute>
+              } />
+              <Route path="/advocate/tools/ot-recommender" element={
+                <ProtectedRoute allowedRoles={['advocate']}>
+                  <OTRecommender />
+                </ProtectedRoute>
+              } />
+              <Route path="/advocate/tools/progress-analyzer" element={
+                <ProtectedRoute allowedRoles={['advocate']}>
+                  <ProgressAnalyzer />
+                </ProtectedRoute>
+              } />
+              <Route path="/advocate/tools/advocacy-reports" element={
+                <ProtectedRoute allowedRoles={['advocate']}>
+                  <AdvocacyReports />
+                </ProtectedRoute>
+              } />
+              <Route path="/advocate/tools/ask-ai-docs" element={
+                <ProtectedRoute allowedRoles={['advocate']}>
+                  <AskAIDocuments />
+                </ProtectedRoute>
+              } />
+              <Route path="/advocate/gifted-tools" element={
+                <ProtectedRoute allowedRoles={['advocate']}>
+                  <AdvocateGiftedToolsHub />
+                </ProtectedRoute>
+              } />
+              <Route path="/meeting-prep-wizard" element={
+                <ProtectedRoute allowedRoles={['parent', 'advocate']}>
+                  <MeetingPrepWizard />
+                </ProtectedRoute>
+              } />
+              <Route path="/autism-accommodations" element={
+                <ProtectedRoute allowedRoles={['parent', 'advocate']}>
+                  <AutismAccommodationBuilder />
+                </ProtectedRoute>
+              } />
+              <Route path="/idea-rights-guide" element={
+                <ProtectedRoute allowedRoles={['parent', 'advocate']}>
+                  <IDEARightsGuide />
+                </ProtectedRoute>
+              } />
+              
+              {/* Matching Routes */}
+              <Route path="/parent/matching" element={
+                <ProtectedRoute allowedRoles={['parent']}>
+                  <MatchingDashboard />
+                </ProtectedRoute>
+              } />
+              <Route path="/advocate/matching" element={
+                <ProtectedRoute allowedRoles={['advocate']}>
+                  <MatchingDashboard />
+                </ProtectedRoute>
+              } />
+              
+              {/* Root Tool Routes (accessible without role prefix) */}
+              <Route path="/smart-letter-generator" element={
+                <ProtectedRoute allowedRoles={['parent', 'advocate']}>
+                  <SmartLetterGenerator />
+                </ProtectedRoute>
+              } />
+              <Route path="/unified-iep-review" element={
+                <ProtectedRoute allowedRoles={['parent', 'advocate']}>
+                  <UnifiedIEPReview />
+                </ProtectedRoute>
+              } />
+              <Route path="/iep-master-suite" element={
+                <ProtectedRoute allowedRoles={['parent', 'advocate']}>
+                  <ParentIEPMasterSuite />
                 </ProtectedRoute>
               } />
               
@@ -300,7 +490,7 @@ function App() {
               <Route path="/parent/schedule" element={<Navigate to="/schedule" replace />} />
               <Route path="/advocate/schedule" element={<Navigate to="/schedule" replace />} />
               <Route path="/parent/tools" element={<Navigate to="/tools" replace />} />
-              <Route path="/advocate/tools" element={<Navigate to="/tools" replace />} />
+              {/* Removed conflicting /advocate/tools redirect - now handled by specific routes above */}
               
               {/* 404 */}
               <Route path="*" element={<NotFound />} />

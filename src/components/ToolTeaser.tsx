@@ -3,7 +3,8 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { UpgradeDialog } from "./UpgradePrompt";
 import { useState } from "react";
-import { SubscriptionPlan } from "@shared/schema";
+// Define subscription plan type locally
+type SubscriptionPlan = 'free' | 'basic' | 'plus' | 'premium' | 'hero';
 import { Lock, Sparkles } from "lucide-react";
 import { getPlanDisplayName } from "@/lib/planAccess";
 

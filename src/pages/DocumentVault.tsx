@@ -14,11 +14,11 @@ import { Shield, Folder, Search, Filter, Download, Upload, Eye, Edit, Trash2, Ch
 import { format } from 'date-fns';
 import { apiRequest } from '@/lib/queryClient';
 import { useToast } from '@/hooks/use-toast';
-import type { Document, Student } from '../../shared/schema';
+import type { Tables } from '@/lib/supabase';
 import DocumentUpload from '@/components/DocumentUpload';
 
 interface ViewDialogState {
-  document: Document | null;
+  document: Tables<'documents'> | null;
   isOpen: boolean;
 }
 

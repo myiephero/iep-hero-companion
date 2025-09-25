@@ -52,12 +52,32 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, Di
 import { Checkbox } from "@/components/ui/checkbox";
 import { Textarea } from "@/components/ui/textarea";
 import { Link } from "react-router-dom";
-import { 
-  CLIENT_ENGAGEMENT_STAGES, 
-  STUDENT_IEP_WORKFLOW_STAGES, 
-  type ClientEngagementStage, 
-  type StudentIEPWorkflowStage 
-} from "../../shared/schema";
+// Define workflow stages locally
+const CLIENT_ENGAGEMENT_STAGES = {
+  PROSPECT: 'prospect',
+  INTAKE: 'intake', 
+  RECORDS_REVIEW: 'records_review',
+  ASSESSMENT: 'assessment',
+  IEP_DEVELOPMENT: 'iep_development',
+  IMPLEMENTATION: 'implementation',
+  MONITORING: 'monitoring',
+  REVIEW_RENEWAL: 'review_renewal'
+} as const;
+
+const STUDENT_IEP_WORKFLOW_STAGES = {
+  REFERRAL: 'referral',
+  EVALUATION: 'evaluation', 
+  ELIGIBILITY: 'eligibility',
+  IEP_DEVELOPMENT: 'iep_development',
+  IEP_MEETING: 'iep_meeting',
+  IMPLEMENTATION: 'implementation',
+  PROGRESS_MONITORING: 'progress_monitoring',
+  ANNUAL_REVIEW: 'annual_review',
+  TRIENNIAL: 'triennial'
+} as const;
+
+type ClientEngagementStage = typeof CLIENT_ENGAGEMENT_STAGES[keyof typeof CLIENT_ENGAGEMENT_STAGES];
+type StudentIEPWorkflowStage = typeof STUDENT_IEP_WORKFLOW_STAGES[keyof typeof STUDENT_IEP_WORKFLOW_STAGES];
 import { GiftedInsightsView } from "@/components/GiftedInsightsView";
 import { StudentSelector } from "@/components/StudentSelector";
 

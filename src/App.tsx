@@ -103,6 +103,7 @@ function App() {
               <Route path="/parent/pricing" element={<ParentPricingPlan />} />
               <Route path="/advocate/pricing" element={<AdvocatePricingPlan />} />
               <Route path="/auth" element={<Auth />} />
+              <Route path="/subscribe" element={<SubscriptionSetup />} />
               <Route path="/setup-password" element={<SetupPassword />} />
               <Route path="/subscription-setup" element={<SubscriptionSetup />} />
               <Route path="/subscription-success" element={<SubscriptionSuccess />} />

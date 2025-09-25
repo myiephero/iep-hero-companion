@@ -25,6 +25,18 @@ export function ProtectedRoute({ children, allowedRoles }: ProtectedRouteProps) 
     return <Navigate to="/auth" replace />;
   }
 
+  // Check subscription status - redirect to payment if no active subscription
+  const hasActiveSubscription = user.subscriptionStatus === 'active' || 
+                                user.subscriptionStatus === 'trialing';
+  
+  if (!hasActiveSubscription) {
+    console.log('🔄 ProtectedRoute: Redirecting to subscription - no active subscription', {
+      subscriptionStatus: user.subscriptionStatus,
+      subscriptionPlan: user.subscriptionPlan
+    });
+    return <Navigate to="/subscribe" replace />;
+  }
+
   // Check role permissions if specified
   if (allowedRoles && !allowedRoles.includes(user.role || 'parent')) {
     console.log('🔄 ProtectedRoute: Role-based redirect to dashboard', {
@@ -37,7 +49,8 @@ export function ProtectedRoute({ children, allowedRoles }: ProtectedRouteProps) 
   // Allow access
   console.log('✅ ProtectedRoute: Access granted', {
     userRole: user.role,
-    allowedRoles: allowedRoles || 'any'
+    allowedRoles: allowedRoles || 'any',
+    subscriptionStatus: user.subscriptionStatus
   });
   
   return <>{children}</>;

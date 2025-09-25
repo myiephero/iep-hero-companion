@@ -64,7 +64,13 @@ app.get('/api/user/profile', (req, res) => {
 });
 
 // Catch-all handler: send back React's index.html file for SPA routing
-app.use((req, res) => {
+app.use((req, res, next) => {
+  // If it's a file request that wasn't found, let it 404
+  if (req.path.includes('.')) {
+    return res.status(404).send('File not found');
+  }
+  
+  // For all other routes (SPA routes), serve index.html
   res.sendFile(path.join(__dirname, 'dist/index.html'), (err) => {
     if (err) {
       console.error('Error serving index.html:', err);

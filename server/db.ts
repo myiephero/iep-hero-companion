@@ -5,11 +5,14 @@ import * as schema from "../shared/schema";
 
 neonConfig.webSocketConstructor = ws;
 
-if (!process.env.DATABASE_URL) {
+// Use Supabase database connection for full migration
+const dbUrl = process.env.SUPABASE_DB_URL || process.env.DATABASE_URL;
+
+if (!dbUrl) {
   throw new Error(
-    "DATABASE_URL must be set. Did you forget to provision a database?",
+    "SUPABASE_DB_URL must be set for Supabase migration. Did you forget to set the connection string?",
   );
 }
 
-export const pool = new Pool({ connectionString: process.env.DATABASE_URL });
+export const pool = new Pool({ connectionString: dbUrl });
 export const db = drizzle({ client: pool, schema });

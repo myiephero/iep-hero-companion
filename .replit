@@ -19,15 +19,31 @@ author = "agent"
 
 [[workflows.workflow.tasks]]
 task = "workflow.run"
-args = "Start application"
+args = "IEP Hero Recovery"
+
+[[workflows.workflow.tasks]]
+task = "workflow.run"
+args = "IEP Hero Fixed"
 
 [[workflows.workflow]]
-name = "Start application"
+name = "IEP Hero Recovery"
 author = "agent"
 
 [[workflows.workflow.tasks]]
 task = "shell.exec"
-args = "bun run dev"
+args = "bun simple-server.js"
+waitForPort = 5000
+
+[workflows.workflow.metadata]
+outputType = "webview"
+
+[[workflows.workflow]]
+name = "IEP Hero Fixed"
+author = "agent"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "bun simple-server.js"
 waitForPort = 5000
 
 [workflows.workflow.metadata]
@@ -44,22 +60,6 @@ externalPort = 3001
 [[ports]]
 localPort = 5000
 externalPort = 80
-
-[[ports]]
-localPort = 5001
-externalPort = 8008
-
-[[ports]]
-localPort = 34713
-externalPort = 8081
-
-[[ports]]
-localPort = 34777
-externalPort = 3000
-
-[[ports]]
-localPort = 37217
-externalPort = 9000
 
 [[ports]]
 localPort = 37297
@@ -80,10 +80,6 @@ externalPort = 5000
 [[ports]]
 localPort = 41077
 externalPort = 8099
-
-[[ports]]
-localPort = 41665
-externalPort = 8000
 
 [[ports]]
 localPort = 41755
